@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nos offres · Mon Copain Digital</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
+<style>
+  :root {
+    --bg: #FF7A00;
+    --ink: #4d2000;
+    --stroke: #7a3300;
+    --cream: #fff8ef;
+    --yellow: rgba(255, 255, 140, 0.85);
+    --brown: rgba(40, 20, 0, 0.62);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: var(--bg);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: var(--cream);
+    -webkit-font-smoothing: antialiased;
+    transition: background .7s ease;
+  }
+  /* Thème nuit (professionnels) */
+  html.pro, body.pro {
+    background: radial-gradient(125% 95% at 50% -12%, #21326a 0%, #14204a 42%, #0b1230 100%);
+    background-attachment: fixed;
+  }
+  body { overflow-x: hidden; }
+
+  /* Ciel étoilé — visible seulement en thème nuit */
+  #stars { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
+  body.pro #stars { opacity: 1; }
+  #stars .star {
+    position: absolute; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 6px rgba(255,255,255,0.9);
+    animation: starTwinkle var(--tw, 3.5s) ease-in-out infinite;
+  }
+  @keyframes starTwinkle { 0%,100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1); } }
+  #stars .star.big {
+    background: transparent; box-shadow: none; border-radius: 0;
+  }
+  #stars .star.big::before, #stars .star.big::after {
+    content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    background: #fff8e6; box-shadow: 0 0 8px rgba(255,244,210,0.95);
+  }
+  #stars .star.big::before { width: 2px; height: 100%; border-radius: 2px; }
+  #stars .star.big::after { width: 100%; height: 2px; border-radius: 2px; }
+
+  /* Décor nuages */
+  #decor { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  .cloud {
+    position: absolute; width: 90px; height: 34px;
+    background: linear-gradient(to bottom, #ffffff 0%, #fff3e0 55%, #f6d7ad 100%);
+    border-radius: 40px; opacity: 0.95;
+    box-shadow: inset 0 5px 6px rgba(255,255,255,0.95), inset 0 -8px 10px rgba(190,120,50,0.35), 0 14px 26px rgba(120,50,0,0.30);
+  }
+  .cloud::before, .cloud::after {
+    content: ""; position: absolute; border-radius: 50%;
+    background: radial-gradient(circle at 38% 30%, #ffffff 0%, #fff0da 60%, #f2cfa0 100%);
+    box-shadow: inset 0 4px 5px rgba(255,255,255,0.95), inset 0 -5px 8px rgba(190,120,50,0.32);
+  }
+  .cloud::before { width: 42px; height: 42px; top: -18px; left: 12px; }
+  .cloud::after  { width: 30px; height: 30px; top: -12px; left: 46px; }
+  @keyframes floatY  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+  @keyframes floatY2 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(12px); } }
+  @keyframes drift   { 0%,100% { transform: translateX(0); } 50% { transform: translateX(18px); } }
+  .anim-f  { animation: floatY 6s ease-in-out infinite; }
+  .anim-f2 { animation: floatY2 7.5s ease-in-out infinite; }
+  .anim-dr { animation: drift 9s ease-in-out infinite; }
+
+  /* ===== Barre haute ===== */
+  #topbar {
+    position: relative; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: clamp(14px, 2.4vw, 26px) clamp(16px, 4vw, 48px);
+  }
+  .glass-btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 1px solid rgba(255,255,255,0.55); cursor: pointer;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    white-space: nowrap; color: #fff; padding: 13px 26px; border-radius: 999px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.16) 45%, rgba(255,255,255,0.06) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.95), inset 0 -5px 12px rgba(255,150,60,0.22), 0 10px 26px rgba(120,50,0,0.30);
+    text-shadow: 0 1px 2px rgba(150,70,0,0.4);
+    transition: transform .28s cubic-bezier(.2,1,.3,1), box-shadow .28s ease, background .28s ease;
+    text-decoration: none;
+  }
+  .glass-btn:hover {
+    transform: translateY(-2px) scale(1.035);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.24) 45%, rgba(255,255,255,0.10) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 14px rgba(255,150,60,0.32), 0 14px 32px rgba(120,50,0,0.38);
+  }
+  .glass-btn:active { transform: translateY(0) scale(0.99); }
+  #topbar .social { display: flex; gap: 12px; }
+  .social-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: #fff7db; text-decoration: none;
+    border: 1px solid var(--yellow);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.12) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), inset 0 -4px 10px rgba(255,150,60,0.22), 0 8px 20px rgba(120,50,0,0.28);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition: transform .26s cubic-bezier(.2,1,.3,1), box-shadow .26s ease;
+  }
+  .social-btn:hover { transform: translateY(-2px) scale(1.08); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34); }
+  .social-btn svg { width: 21px; height: 21px; }
+  .social-btn .ln { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
+
+  /* ===== Contenu ===== */
+  #page {
+    position: relative; z-index: 10;
+    max-width: 1240px; margin: 0 auto;
+    padding: clamp(8px, 2vh, 28px) clamp(16px, 4vw, 48px) clamp(48px, 7vh, 90px);
+  }
+
+  /* En-tête */
+  #head { text-align: center; margin-bottom: clamp(22px, 3vh, 34px); }
+  #head .kicker {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: clamp(11px, 1.3vw, 14px); letter-spacing: 0.4em; text-transform: uppercase;
+    font-weight: 600; color: var(--brown); margin: 0 0 16px;
+  }
+  #head .kicker .dot { width: 9px; height: 9px; border-radius: 50%; background: #fff8ef; box-shadow: 0 0 10px rgba(255,240,200,0.9); }
+  #head h1 {
+    margin: 0;
+    font-family: 'Fredoka', 'Helvetica Neue', sans-serif;
+    font-weight: 700; font-size: clamp(46px, 6.6vw, 92px); line-height: 0.92;
+    letter-spacing: 0.005em; color: #ffffff;
+    -webkit-text-stroke: 3px var(--stroke); paint-order: stroke fill;
+    text-shadow: 0 2px 0 var(--stroke), 0 4px 0 #632900, 0 6px 0 #4d2000, 0 12px 20px rgba(70,28,0,0.5);
+  }
+  #head .lead {
+    margin: 22px auto 0; max-width: 46ch;
+    font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
+    font-size: clamp(15px, 1.5vw, 19px); line-height: 1.45; font-weight: 500; letter-spacing: -0.01em;
+    color: var(--brown);
+  }
+
+  /* ===== Onglet coulissant "liquid glass" ===== */
+  #switch-wrap { display: flex; justify-content: center; margin-bottom: clamp(18px, 2.6vh, 30px); }
+  .seg {
+    position: relative; display: inline-flex; padding: 7px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.10) 55%, rgba(255,255,255,0.05) 100%);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.7), inset 0 -6px 16px rgba(255,150,60,0.15), 0 16px 34px rgba(90,40,0,0.32);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .seg .thumb {
+    position: absolute; top: 7px; left: 7px; bottom: 7px;
+    width: calc(50% - 7px); border-radius: 999px; z-index: 1;
+    border: 1px solid rgba(255,255,255,0.6);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.30) 45%, rgba(255,180,90,0.28) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -6px 14px rgba(255,150,60,0.4), 0 10px 24px rgba(120,50,0,0.4);
+    transition: transform .48s cubic-bezier(.5,1.4,.4,1);
+  }
+  .seg.pro .thumb { transform: translateX(100%); }
+  .seg button {
+    position: relative; z-index: 2; cursor: pointer; border: none; background: none;
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    font-size: clamp(14px, 1.5vw, 17px); letter-spacing: 0.02em;
+    padding: 14px clamp(22px, 3vw, 44px); border-radius: 999px; white-space: nowrap;
+    color: #fff3df; text-shadow: 0 1px 2px rgba(150,70,0,0.4);
+    transition: color .3s ease, transform .3s ease;
+  }
+  .seg button svg { width: 19px; height: 19px; }
+  .seg button[aria-selected="true"] { color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+
+  /* ===== En-tête de rubriques (filtres) ===== */
+  .rub-bar {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+    margin-bottom: clamp(26px, 3.6vh, 44px);
+  }
+  .rub-bar.hidden { display: none; }
+  .rub {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.6);
+    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.01em;
+    color: #fff; padding: 10px 18px; border-radius: 999px; white-space: nowrap;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.20) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.85), 0 8px 18px rgba(120,50,0,0.28);
+    text-shadow: 0 1px 2px rgba(150,70,0,0.5);
+    transition: transform .22s cubic-bezier(.2,1,.3,1), color .22s ease, background .22s ease, box-shadow .22s ease;
+  }
+  .rub svg { width: 16px; height: 16px; }
+  .rub:hover { transform: translateY(-2px); background: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.28) 100%); }
+  .rub.active {
+    color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    border-color: rgba(255,255,255,0.7);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.42) 45%, rgba(255,180,90,0.34) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 12px rgba(255,150,60,0.4), 0 12px 26px rgba(120,50,0,0.4);
+  }
+
+  /* ===== Cartes d'offres ===== */
+  #plans { position: relative; }
+  .plan-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(16px, 2vw, 26px); align-items: stretch; }
+  .plan-grid.hidden { display: none; }
+  .plan-grid.enter .card { animation: cardIn .5s cubic-bezier(.2,1,.3,1) backwards; }
+  .plan-grid.enter .card:nth-child(2) { animation-delay: .06s; }
+  .plan-grid.enter .card:nth-child(3) { animation-delay: .12s; }
+  .plan-grid.enter .card:nth-child(4) { animation-delay: .18s; }
+  .plan-grid.enter .card:nth-child(5) { animation-delay: .24s; }
+  .plan-grid.enter .card:nth-child(6) { animation-delay: .30s; }
+  @keyframes cardIn { from { opacity: 0; transform: translateY(22px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+  .card {
+    position: relative; display: flex; flex-direction: column;
+    flex: 0 1 340px; max-width: 380px;
+    border-radius: 28px; padding: clamp(22px, 2.2vw, 30px);
+    border: 1px solid rgba(255,255,255,0.5);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.12) 55%, rgba(255,255,255,0.07) 100%);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.8), inset 0 -8px 20px rgba(255,150,60,0.16), 0 24px 54px rgba(90,40,0,0.36);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    transition: transform .3s cubic-bezier(.2,1,.3,1), box-shadow .3s ease;
+  }
+  .card:hover { transform: translateY(-6px); box-shadow: inset 0 2px 1px rgba(255,255,255,0.9), 0 32px 66px rgba(90,40,0,0.44); }
+  .card.featured {
+    border-color: var(--yellow);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.18) 55%, rgba(255,180,90,0.16) 100%);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.95), inset 0 -8px 22px rgba(255,150,60,0.28), 0 30px 66px rgba(90,40,0,0.46);
+  }
+
+  .cardtop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .ic-tile {
+    flex: 0 0 auto; width: 50px; height: 50px; border-radius: 15px;
+    display: flex; align-items: center; justify-content: center; color: #a54a00;
+    background: linear-gradient(to bottom, #fff8ef, #ffe6b8);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 8px 18px rgba(120,50,0,0.28);
+  }
+  .ic-tile svg { width: 25px; height: 25px; }
+  .dur {
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.04em;
+    color: #fff5e2; padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.16);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.5);
+  }
+
+  .card .pname {
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(19px, 1.9vw, 23px);
+    color: #fff; margin: 0 0 8px; text-shadow: 0 2px 3px rgba(150,70,0,0.4); line-height: 1.1;
+  }
+  .card .pdesc {
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; line-height: 1.45; font-weight: 500;
+    color: #fff2df; opacity: 0.94; margin: 0 0 18px;
+  }
+
+  .card .price { display: flex; align-items: baseline; gap: 6px; margin: 0 0 6px; }
+  .card .price .from { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #ffe9cf; }
+  .card .price .amt { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(30px, 3.2vw, 40px); color: #fff; text-shadow: 0 2px 3px rgba(150,70,0,0.4); line-height: 1; }
+  .card .price .cur { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; color: #fff; }
+  .card .price .per { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #ffe9cf; }
+  .card .credit {
+    display: inline-flex; align-items: center; gap: 6px; margin: 0 0 18px;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12.5px;
+    color: #0f6b3d; padding: 5px 11px; border-radius: 999px;
+    background: rgba(150, 230, 160, 0.42); border: 1px solid rgba(255,255,255,0.4);
+  }
+  .card .credit svg { width: 13px; height: 13px; }
+
+  .card ul { list-style: none; margin: 0 0 22px; padding: 18px 0 0; border-top: 1px solid rgba(255,255,255,0.25); display: flex; flex-direction: column; gap: 11px; flex: 1; }
+  .card ul li { display: flex; align-items: flex-start; gap: 11px; font-size: 14px; line-height: 1.35; font-weight: 500; color: #fff6e6; }
+  .card ul li .chk {
+    flex: 0 0 auto; width: 21px; height: 21px; border-radius: 50%; margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(to bottom, #fff8ef, #ffe6b8);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 10px rgba(120,50,0,0.25);
+  }
+  .card ul li .chk svg { width: 12px; height: 12px; }
+
+  .card .spacer { flex: 1; min-height: 6px; }
+
+  .card .cta {
+    display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: auto;
+    cursor: pointer; text-decoration: none;
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: #fff8ef; padding: 15px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.55);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.15) 45%, rgba(255,150,60,0.16) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.95), 0 12px 26px rgba(120,50,0,0.36);
+    text-shadow: 0 0 10px rgba(255,150,60,0.7), 0 2px 3px rgba(150,70,0,0.5);
+    transition: transform .26s cubic-bezier(.2,1,.3,1), box-shadow .26s;
+  }
+  .card .cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 16px 32px rgba(120,50,0,0.44); }
+  .card .cta:active { transform: translateY(0) scale(0.99); }
+
+  /* Carte "aide" — accent plus sombre, comme dans les références */
+  .card.help {
+    background: linear-gradient(to bottom, rgba(60,30,4,0.42) 0%, rgba(60,30,4,0.26) 100%);
+    border-color: rgba(255,255,255,0.28);
+  }
+  .card.help .ic-tile { background: linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.08)); color: #ffd9a8; box-shadow: inset 0 1px 1px rgba(255,255,255,0.4); }
+  .card.help .cta {
+    background: linear-gradient(to bottom, #fff8ef, #ffe6bb); color: #8a3c00; border-color: rgba(255,255,255,0.7);
+    text-shadow: none;
+  }
+
+  /* Bannière mission (particuliers) */
+  #mission-part {
+    display: flex; align-items: center; gap: 16px; justify-content: center;
+    max-width: 780px; margin: 0 auto clamp(22px, 3vh, 34px);
+    padding: 16px 24px; border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.42);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.09) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.65), 0 14px 30px rgba(120,50,0,0.26);
+    backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+  }
+  #mission-part.hidden { display: none; }
+  #mission-part .m-ic {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; color: #d24a2a;
+    background: linear-gradient(to bottom, #fff8ef, #ffe1cf);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 8px 18px rgba(120,50,0,0.28);
+  }
+  #mission-part .m-ic svg { width: 24px; height: 24px; }
+  #mission-part p {
+    margin: 0; text-align: left;
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; line-height: 1.42; font-weight: 500;
+    color: #fff3df; text-shadow: 0 1px 2px rgba(120,50,0,0.3);
+  }
+  #mission-part p b { color: #fff; font-weight: 700; }
+  @media (max-width: 560px) { #mission-part { flex-direction: column; text-align: center; } #mission-part p { text-align: center; } }
+
+  /* Bandeau bas */
+  #foot-note {
+    text-align: center; margin-top: clamp(30px, 4vh, 48px);
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 500; color: var(--brown);
+  }
+  #foot-note a { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+  #foot-note .star { display: block; margin-top: 8px; font-size: 12.5px; opacity: 0.85; }
+
+  /* Thème nuit : textes bruns éclaircis pour rester lisibles */
+  body.pro #head .kicker { color: rgba(210,220,255,0.78); }
+  body.pro #head .lead { color: #ccd6f5; }
+  body.pro #foot-note { color: #ccd6f5; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    body { overflow-y: auto; }
+    .card { flex: 0 1 100%; max-width: 460px; }
+  }
+  @media (max-width: 560px) {
+    #topbar { padding: 12px 14px; }
+    .glass-btn { font-size: 12px; padding: 11px 18px; letter-spacing: 0.05em; }
+    .social-btn { width: 40px; height: 40px; }
+    #head h1 { -webkit-text-stroke-width: 2.5px; }
+    .seg button { padding: 12px 20px; font-size: 14px; }
+    .seg button svg { display: none; }
+    .rub { font-size: 13px; padding: 9px 14px; }
+    .card { border-radius: 24px; padding: 22px 18px; }
+  }
+</style>
+</head>
+<body>
+  <div id="decor">
+    <div class="cloud anim-dr" style="left: 6%; top: 16%; animation-delay: -1s;"></div>
+    <div class="cloud anim-f2" style="left: 3%; top: 58%; transform: scale(0.7); animation-delay: -3s;"></div>
+    <div class="cloud anim-f" style="right: 8%; top: 14%; transform: scale(0.85); animation-delay: -2.5s;"></div>
+    <div class="cloud anim-dr" style="right: 4%; top: 66%; transform: scale(0.62); animation-delay: -4s;"></div>
+    <div class="cloud anim-f2" style="left: 44%; top: 6%; transform: scale(0.5); animation-delay: -5s;"></div>
+  </div>
+  <div id="stars"></div>
+
+  <header id="topbar">
+    <a class="glass-btn" href="index.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Accueil
+    </a>
+    <div class="social">
+      <a class="social-btn" href="https://www.instagram.com/moncopaindigital/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+      </a>
+      <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
+    </div>
+  </header>
+
+  <main id="page">
+    <section id="head">
+      <p class="kicker"><span class="dot"></span> Le numérique, enfin plus simple</p>
+      <h1>Nos offres</h1>
+      <p class="lead">Choisissez votre profil, puis la rubrique qui vous intéresse : on vous montre l'accompagnement fait pour vous.</p>
+    </section>
+
+    <!-- Onglet Particuliers / Professionnels -->
+    <div id="switch-wrap">
+      <div class="seg" id="seg" role="tablist" aria-label="Type de client">
+        <span class="thumb"></span>
+        <button id="tab-part" role="tab" aria-selected="true" onclick="switchTab('part')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Particuliers
+        </button>
+        <button id="tab-pro" role="tab" aria-selected="false" onclick="switchTab('pro')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V8l6-4 6 4v13M10 12h.01M14 12h.01M10 16h.01M14 16h.01"/></svg>
+          Professionnels
+        </button>
+      </div>
+    </div>
+
+    <!-- Bannière mission : Particuliers -->
+    <div id="mission-part">
+      <span class="m-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg></span>
+      <p><b>Notre mission :</b> réconcilier avec le numérique celles et ceux que la technologie a laissés de côté. Sans jargon, à votre rythme, et près de chez vous.</p>
+    </div>
+
+    <!-- En-tête RUBRIQUES : Particuliers -->
+    <nav class="rub-bar" id="rubriques-part" aria-label="Rubriques particuliers">
+      <button class="rub active" onclick="filterRubrique('part','all',this)">Toutes les offres</button>
+      <button class="rub" onclick="filterRubrique('part','premiers-pas',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Premiers pas</button>
+      <button class="rub" onclick="filterRubrique('part','communiquer',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12.5h5"/></svg> Communiquer</button>
+      <button class="rub" onclick="filterRubrique('part','demarches',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg> Démarches</button>
+      <button class="rub" onclick="filterRubrique('part','securite',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg> Sécurité</button>
+      <button class="rub" onclick="filterRubrique('part','ia',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg> IA</button>
+      <button class="rub" onclick="filterRubrique('part','loisirs',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg> Loisirs</button>
+    </nav>
+
+    <!-- En-tête RUBRIQUES : Professionnels -->
+    <nav class="rub-bar hidden" id="rubriques-pro" aria-label="Rubriques professionnels">
+      <button class="rub active" onclick="filterRubrique('pro','all',this)">Toutes les offres</button>
+      <button class="rub" onclick="filterRubrique('pro','infog',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Infogérance</button>
+      <button class="rub" onclick="filterRubrique('pro','cloud',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 .5-8 6 6 0 0 1 11 2 3.5 3.5 0 0 1-.5 6z"/></svg> Cloud</button>
+      <button class="rub" onclick="filterRubrique('pro','cyber',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg> Cybersécurité</button>
+      <button class="rub" onclick="filterRubrique('pro','save',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg> Sauvegarde</button>
+    </nav>
+
+    <section id="plans">
+      <!-- ===================== PARTICULIERS ===================== -->
+      <div class="plan-grid enter" id="grid-part">
+        <div class="card" data-cat="premiers-pas">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Informatique</h3>
+          <p class="pdesc">Maîtrisez vos fichiers, vos emails et naviguez sereinement sur PC ou Mac.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="premiers-pas">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Tablette</h3>
+          <p class="pdesc">Prenez en main votre iPad ou tablette Android, sans crainte de « mal faire ».</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="premiers-pas">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M8 17h8v4H8z"/><path d="M17 12.5h.01"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Imprimante & scanner</h3>
+          <p class="pdesc">Installez, imprimez et numérisez vos documents sans prise de tête.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="premiers-pas">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a10 10 0 0 1 14 0M8 15.5a6 6 0 0 1 8 0"/><circle cx="12" cy="19" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Box & Wi-Fi</h3>
+          <p class="pdesc">Comprenez votre box internet et retrouvez une bonne connexion partout chez vous.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="communiquer">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Smartphone</h3>
+          <p class="pdesc">Tirez le meilleur de votre iPhone ou Android : photos, réglages et applications utiles.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="communiquer">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Emails & messagerie</h3>
+          <p class="pdesc">Créez et gérez votre boîte mail, envoyez pièces jointes et photos en toute simplicité.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card featured" data-cat="communiquer">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Visio en famille</h3>
+          <p class="pdesc">Appelez vos enfants et petits-enfants en vidéo (WhatsApp, FaceTime) et gardez le lien.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="communiquer">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8 15.8 7.2M8.2 13.2l7.6 3.6"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Réseaux sociaux</h3>
+          <p class="pdesc">Gardez le contact : WhatsApp, Facebook et partagez vos souvenirs avec vos proches.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="demarches">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Démarches administratives</h3>
+          <p class="pdesc">Impots.gouv, Ameli, France Connect, CAF… on vous guide pas à pas, sans stress.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Être accompagné</a>
+        </div>
+        <div class="card" data-cat="demarches">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/><path d="M12 8.5v4M10 10.5h4"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Santé & Doctolib</h3>
+          <p class="pdesc">Prenez vos rendez-vous médicaux et gérez vos ordonnances en ligne, en confiance.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="demarches">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v8M9 10v8M15 10v8M19 10v8"/><path d="M3 21h18"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Banque en ligne</h3>
+          <p class="pdesc">Consultez vos comptes et réalisez vos virements en toute sécurité.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="securite">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Sécurité totale</h3>
+          <p class="pdesc">Protégez vos comptes, gérez vos mots de passe et gardez l'esprit tranquille.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Sécuriser mon accès</a>
+        </div>
+        <div class="card" data-cat="securite">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Déjouer les arnaques</h3>
+          <p class="pdesc">Reconnaissez les faux SMS, faux mails et appels frauduleux avant qu'il ne soit trop tard.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="ia">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Intelligence artificielle</h3>
+          <p class="pdesc">Boostez votre quotidien : apprenez à utiliser ChatGPT pour vos textes et vos recherches.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Découvrir l'IA</a>
+        </div>
+        <div class="card" data-cat="loisirs">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M3 17l5-4 4 3 3-2 6 5"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Photos & souvenirs</h3>
+          <p class="pdesc">Rangez, retrouvez, imprimez et partagez toutes vos photos sans en perdre une seule.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="loisirs">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11h10l1.8-8H6"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Achats en ligne</h3>
+          <p class="pdesc">Commandez en toute confiance : drive, Le Bon Coin et grandes boutiques en ligne.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="loisirs">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Voyages & itinéraires</h3>
+          <p class="pdesc">SNCF Connect, GPS, billets : préparez vos trajets et partez l'esprit léger.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card help" data-cat="aide" data-persist="1">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></span>
+          </div>
+          <h3 class="pname">Besoin d'aide ?</h3>
+          <p class="pdesc">Une question, un besoin qui ne rentre dans aucune case ? Je vous écoute et je vous accompagne, pas à pas.</p>
+          <div class="spacer"></div>
+          <a class="cta" href="contact.html">Me contacter</a>
+        </div>
+      </div>
+
+      <!-- ===================== PROFESSIONNELS ===================== -->
+      <div class="plan-grid hidden" id="grid-pro">
+        <div class="card" data-cat="infog">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+            <span class="dur">Sur devis</span>
+          </div>
+          <h3 class="pname">Audit & Infogérance</h3>
+          <p class="pdesc">On pilote votre parc informatique pour que tout tourne — sans que vous ayez à y penser.</p>
+          <ul>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Analyse de votre parc matériel</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Check-up sécurité & réseaux</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Optimisation des flux de travail</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Maintenance & assistance prioritaire</li>
+          </ul>
+          <a class="cta" href="rendez-vous.html">Demander un devis</a>
+        </div>
+
+        <div class="card featured" data-cat="cloud">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 .5-8 6 6 0 0 1 11 2 3.5 3.5 0 0 1-.5 6z"/></svg></span>
+            <span class="dur">Sur devis</span>
+          </div>
+          <h3 class="pname">Cloud & Collaboration</h3>
+          <p class="pdesc">Vos équipes connectées et vos données accessibles partout, en toute sécurité.</p>
+          <ul>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Déploiement solutions Cloud / SaaS</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Formation de vos collaborateurs</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Messagerie & outils partagés</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Sécurisation des données (RGPD)</li>
+          </ul>
+          <a class="cta" href="rendez-vous.html">Demander un devis</a>
+        </div>
+
+        <div class="card" data-cat="cyber">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <span class="dur">Sur devis</span>
+          </div>
+          <h3 class="pname">Cybersécurité</h3>
+          <p class="pdesc">On protège votre entreprise contre les menaces et on forme vos équipes aux bons réflexes.</p>
+          <ul>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Audit cybersécurité avancé</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Protection anti-ransomware</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Sécurisation des accès & mots de passe</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Sensibilisation des collaborateurs</li>
+          </ul>
+          <a class="cta" href="rendez-vous.html">Demander un devis</a>
+        </div>
+
+        <div class="card" data-cat="save">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg></span>
+            <span class="dur">Sur devis</span>
+          </div>
+          <h3 class="pname">Serveurs & Sauvegarde</h3>
+          <p class="pdesc">Une infrastructure fiable et des sauvegardes qui vous protègent contre les imprévus.</p>
+          <ul>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Installation serveurs & NAS</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Solutions de sauvegarde hybride</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Support technique dédié 24/7</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Plan de reprise d'activité</li>
+          </ul>
+          <a class="cta" href="rendez-vous.html">Demander un devis</a>
+        </div>
+      </div>
+    </section>
+
+    <p id="foot-note">Un doute sur la formule ? <a href="rendez-vous.html">Réservez un audit gratuit</a> et on trouve ensemble.
+      <span class="star">* Services à la personne éligibles au crédit d'impôt de 50 % (sous conditions).</span>
+    </p>
+  </main>
+
+<script>
+  function switchTab(which) {
+    const isPro = which === 'pro';
+    document.getElementById('seg').classList.toggle('pro', isPro);
+    document.getElementById('tab-part').setAttribute('aria-selected', String(!isPro));
+    document.getElementById('tab-pro').setAttribute('aria-selected', String(isPro));
+
+    // bascule des barres de rubriques
+    document.getElementById('mission-part').classList.toggle('hidden', isPro);
+    document.getElementById('rubriques-part').classList.toggle('hidden', isPro);
+    document.getElementById('rubriques-pro').classList.toggle('hidden', !isPro);
+
+    // bascule des grilles
+    document.getElementById('grid-part').classList.toggle('hidden', isPro);
+    document.getElementById('grid-pro').classList.toggle('hidden', !isPro);
+
+    // réinitialise le filtre de l'audience active sur "Toutes"
+    const aud = isPro ? 'pro' : 'part';
+    const firstRub = document.querySelector('#rubriques-' + aud + ' .rub');
+    filterRubrique(aud, 'all', firstRub);
+
+    // thème nuit étoilé pour les professionnels
+    document.documentElement.classList.toggle('pro', isPro);
+    document.body.classList.toggle('pro', isPro);
+  }
+
+  function filterRubrique(aud, cat, btn) {
+    const bar = document.getElementById('rubriques-' + aud);
+    bar.querySelectorAll('.rub').forEach(b => b.classList.toggle('active', b === btn));
+
+    const grid = document.getElementById('grid-' + aud);
+    grid.querySelectorAll('.card').forEach(c => {
+      const show = cat === 'all' || c.dataset.cat === cat || c.hasAttribute('data-persist');
+      c.style.display = show ? 'flex' : 'none';
+    });
+
+    // relance l'animation d'entrée des cartes visibles
+    grid.classList.remove('enter'); void grid.offsetWidth; grid.classList.add('enter');
+  }
+  // génère le ciel étoilé (une seule fois)
+  (function buildStars(){
+    const box = document.getElementById('stars');
+    if (!box) return;
+    const N = 70;
+    let h = '';
+    for (let i = 0; i < N; i++) {
+      const x = (Math.random() * 100).toFixed(2);
+      const y = (Math.random() * 100).toFixed(2);
+      const big = Math.random() < 0.12;
+      const s = big ? (7 + Math.random() * 6) : (1.4 + Math.random() * 2.4);
+      const tw = (2.4 + Math.random() * 3.6).toFixed(2);
+      const dl = (-Math.random() * 4).toFixed(2);
+      h += '<span class="star' + (big ? ' big' : '') + '" style="left:' + x + '%;top:' + y + '%;width:' + s.toFixed(1) + 'px;height:' + s.toFixed(1) + 'px;--tw:' + tw + 's;animation-delay:' + dl + 's"></span>';
+    }
+    box.innerHTML = h;
+  })();
+</script>
+</body>
+</html>
