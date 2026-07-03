@@ -3,1377 +3,775 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Petite Planète — Paris 3D</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+<title>Nos offres · Mon Copain Digital</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #FF7A00; overflow: hidden; }
-  #wrap { position: absolute; inset: 0; background: #FF7A00; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-  #scene { display: block; width: 100%; height: 100%; touch-action: none; position: relative; z-index: 2; }
-
-  /* ===== Titre animé au-dessus de la planète ===== */
-  #title {
-    position: absolute;
-    top: clamp(8px, 1.6vh, 22px);
-    left: 0;
-    right: 0;
-    text-align: center;
-    pointer-events: none;
-    z-index: 1;
+  :root {
+    --bg: #FF7A00;
+    --ink: #4d2000;
+    --stroke: #7a3300;
+    --cream: #fff8ef;
+    --yellow: rgba(255, 255, 140, 0.85);
+    --brown: rgba(40, 20, 0, 0.62);
   }
-  #title .kicker {
-    font-size: clamp(11px, 1.4vw, 16px);
-    letter-spacing: 0.55em;
-    text-transform: uppercase;
-    color: rgba(40, 20, 0, 0.62);
-    font-weight: 600;
-    margin: 0 0 0.55em 0.55em;
-    opacity: 0;
-    transform: translateY(8px);
-    animation: kickerIn 0.9s cubic-bezier(.22,1,.36,1) 0.2s forwards;
-  }
-  #title h1 {
-    margin: 0;
-    display: inline-block;
-    font-family: 'Fredoka', 'Baloo 2', 'Helvetica Neue', sans-serif;
-    font-weight: 700;
-    font-size: clamp(30px, 5.4vw, 78px);
-    line-height: 0.95;
-    letter-spacing: 0.005em;
-    color: #ffffff;
-    -webkit-text-stroke: 3.5px #7a3300;
-    paint-order: stroke fill;
-    text-shadow:
-      0 2px 0 #7a3300,
-      0 4px 0 #632900,
-      0 6px 0 #4d2000,
-      0 12px 20px rgba(70, 28, 0, 0.5);
-  }
-  #title h1 .ltr {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(0.5em) rotate(6deg);
-    animation: letterIn 0.7s cubic-bezier(.2,1.2,.3,1) forwards;
-  }
-  #title h1 .ltr.space { width: 0.55em; }
-  #title .underline {
-    height: 4px;
-    width: 0;
-    background: #fff8ef;
-    border-radius: 4px;
-    margin: 0.5em auto 0;
-    box-shadow: 0 3px 12px rgba(120, 50, 0, 0.3);
-    animation: lineGrow 0.8s cubic-bezier(.65,0,.35,1) 1.1s forwards;
-  }
-  @keyframes kickerIn {
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes letterIn {
-    to { opacity: 1; transform: translateY(0) rotate(0); }
-  }
-  @keyframes lineGrow {
-    to { width: clamp(80px, 16vw, 240px); }
-  }
-
-  /* ===== Boutons CTA — "liquid glass" Apple ===== */
-  #cta-left, #cta-right {
-    position: absolute;
-    top: clamp(20px, 3.5vh, 40px);
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 16px;
-    z-index: 20;
-  }
-  #cta-left { left: clamp(20px, 4vw, 64px); }
-  #cta-right { right: clamp(20px, 4vw, 64px); }
-
-  /* ===== Bouton ENTRER — relief + contour orange néon ===== */
-  #enter-wrap {
-    position: absolute;
-    left: 50%;
-    bottom: clamp(28px, 6vh, 56px);
-    transform: translateX(-50%);
-    z-index: 20;
-  }
-  .enter-btn {
-    position: relative;
-    cursor: pointer;
-    font-family: 'Fredoka', 'Helvetica Neue', sans-serif;
-    font-weight: 700;
-    font-size: clamp(20px, 2.2vw, 30px);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: #fff8ef;
-    padding: 16px 60px;
-    border-radius: 999px;
-    border: 2.5px solid transparent;
-    background: transparent;
-    box-shadow: none;
-    text-shadow:
-      0 0 8px rgba(255, 160, 70, 0.95),
-      0 0 18px rgba(255, 130, 30, 0.8),
-      0 2px 3px rgba(150, 70, 0, 0.55);
-    transition: transform .28s cubic-bezier(.2, 1, .3, 1), text-shadow .28s ease;
-    animation: neonPulse 2.4s ease-in-out infinite;
-  }
-  .enter-btn:hover {
-    transform: translateY(-2px) scale(1.05);
-    text-shadow:
-      0 0 12px rgba(255, 180, 90, 1),
-      0 0 28px rgba(255, 140, 40, 0.95),
-      0 2px 3px rgba(150, 70, 0, 0.6);
-  }
-  .enter-btn:active { transform: translateX(0) scale(0.99); }
-  @keyframes neonPulse {
-    0%, 100% {
-      text-shadow:
-        0 0 8px rgba(255, 160, 70, 0.95),
-        0 0 18px rgba(255, 130, 30, 0.8),
-        0 2px 3px rgba(150, 70, 0, 0.55);
-    }
-    50% {
-      text-shadow:
-        0 0 12px rgba(255, 180, 90, 1),
-        0 0 30px rgba(255, 140, 40, 0.95),
-        0 2px 3px rgba(150, 70, 0, 0.55);
-    }
-  }
-  .glass-btn {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    cursor: pointer;
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: var(--bg);
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: #fff;
-    padding: 15px 30px;
-    border-radius: 999px;
-    background:
-      linear-gradient(to bottom,
-        rgba(255, 255, 255, 0.55) 0%,
-        rgba(255, 255, 255, 0.16) 45%,
-        rgba(255, 255, 255, 0.06) 100%);
-    box-shadow:
-      inset 0 1.5px 1px rgba(255, 255, 255, 0.95),
-      inset 0 -5px 12px rgba(255, 150, 60, 0.22),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.10),
-      0 10px 26px rgba(120, 50, 0, 0.30);
-    text-shadow: 0 1px 2px rgba(150, 70, 0, 0.4);
-    transition: transform .28s cubic-bezier(.2, 1, .3, 1), box-shadow .28s ease, background .28s ease;
+    color: var(--cream);
+    -webkit-font-smoothing: antialiased;
+    transition: background .7s ease;
   }
-  .glass-btn:hover {
-    transform: translateY(-2px) scale(1.035);
-    background:
-      linear-gradient(to bottom,
-        rgba(255, 255, 255, 0.70) 0%,
-        rgba(255, 255, 255, 0.24) 45%,
-        rgba(255, 255, 255, 0.10) 100%);
-    box-shadow:
-      inset 0 1.5px 1px rgba(255, 255, 255, 1),
-      inset 0 -5px 14px rgba(255, 150, 60, 0.32),
-      0 14px 32px rgba(120, 50, 0, 0.38);
+  /* Thème nuit (professionnels) */
+  html.pro, body.pro {
+    background: radial-gradient(125% 95% at 50% -12%, #21326a 0%, #14204a 42%, #0b1230 100%);
+    background-attachment: fixed;
   }
-  .glass-btn:active { transform: translateY(0) scale(0.99); }
+  body { overflow-x: hidden; }
 
-  /* ===== Éléments latéraux : décor flottant, réseaux, étiquettes ===== */
-  #side-decor {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    pointer-events: none;
-    overflow: hidden;
+  /* Ciel étoilé — visible seulement en thème nuit */
+  #stars { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
+  body.pro #stars { opacity: 1; }
+  #stars .star {
+    position: absolute; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 6px rgba(255,255,255,0.9);
+    animation: starTwinkle var(--tw, 3.5s) ease-in-out infinite;
   }
-  /* Nuages 3D en relief */
+  @keyframes starTwinkle { 0%,100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1); } }
+  #stars .star.big {
+    background: transparent; box-shadow: none; border-radius: 0;
+  }
+  #stars .star.big::before, #stars .star.big::after {
+    content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+    background: #fff8e6; box-shadow: 0 0 8px rgba(255,244,210,0.95);
+  }
+  #stars .star.big::before { width: 2px; height: 100%; border-radius: 2px; }
+  #stars .star.big::after { width: 100%; height: 2px; border-radius: 2px; }
+
+  /* Décor nuages */
+  #decor { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
   .cloud {
-    position: absolute;
-    width: 90px; height: 34px;
+    position: absolute; width: 90px; height: 34px;
     background: linear-gradient(to bottom, #ffffff 0%, #fff3e0 55%, #f6d7ad 100%);
-    border-radius: 40px;
-    opacity: 0.96;
-    box-shadow:
-      inset 0 5px 6px rgba(255, 255, 255, 0.95),
-      inset 0 -8px 10px rgba(190, 120, 50, 0.35),
-      0 14px 26px rgba(120, 50, 0, 0.30);
+    border-radius: 40px; opacity: 0.95;
+    box-shadow: inset 0 5px 6px rgba(255,255,255,0.95), inset 0 -8px 10px rgba(190,120,50,0.35), 0 14px 26px rgba(120,50,0,0.30);
   }
   .cloud::before, .cloud::after {
     content: ""; position: absolute; border-radius: 50%;
     background: radial-gradient(circle at 38% 30%, #ffffff 0%, #fff0da 60%, #f2cfa0 100%);
-    box-shadow:
-      inset 0 4px 5px rgba(255, 255, 255, 0.95),
-      inset 0 -5px 8px rgba(190, 120, 50, 0.32);
+    box-shadow: inset 0 4px 5px rgba(255,255,255,0.95), inset 0 -5px 8px rgba(190,120,50,0.32);
   }
   .cloud::before { width: 42px; height: 42px; top: -18px; left: 12px; }
   .cloud::after  { width: 30px; height: 30px; top: -12px; left: 46px; }
-  /* Étincelles (sparkles) 4 branches */
-  .spark {
-    position: absolute; width: 18px; height: 18px;
+  @keyframes floatY  { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+  @keyframes floatY2 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(12px); } }
+  @keyframes drift   { 0%,100% { transform: translateX(0); } 50% { transform: translateX(18px); } }
+  .anim-f  { animation: floatY 6s ease-in-out infinite; }
+  .anim-f2 { animation: floatY2 7.5s ease-in-out infinite; }
+  .anim-dr { animation: drift 9s ease-in-out infinite; }
+
+  /* ===== Barre haute ===== */
+  #topbar {
+    position: relative; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: clamp(14px, 2.4vw, 26px) clamp(16px, 4vw, 48px);
   }
-  .spark::before, .spark::after {
-    content: ""; position: absolute; top: 50%; left: 50%;
-    background: #fff8ef; border-radius: 2px;
-    box-shadow: 0 0 8px rgba(255, 240, 200, 0.9);
-    transform: translate(-50%, -50%);
-  }
-  .spark::before { width: 3px; height: 100%; }
-  .spark::after  { width: 100%; height: 3px; }
-  /* Mini-planètes */
-  .mini-planet {
-    position: absolute; width: 46px; height: 46px; border-radius: 50%;
-    background: radial-gradient(circle at 32% 28%, #fff2d6, #ffb347 55%, #d9741a 100%);
-    box-shadow: inset -6px -6px 10px rgba(120,50,0,0.35), 0 10px 22px rgba(120,50,0,0.25);
-  }
-  .mini-planet::after {
-    content: ""; position: absolute; left: 50%; top: 50%;
-    width: 76px; height: 22px; border-radius: 50%;
-    border: 4px solid rgba(255, 248, 239, 0.75);
-    transform: translate(-50%, -50%) rotate(-24deg);
-  }
-  /* Étiquettes flottantes reliées à la planète */
-  .side-badge {
-    position: absolute; display: flex; align-items: center; gap: 0;
-    z-index: 4; pointer-events: none;
-  }
-  .side-badge .pill {
-    font-family: 'Fredoka', 'Helvetica Neue', sans-serif;
-    font-weight: 600; font-size: 13px; white-space: nowrap;
-    color: #fff7db; padding: 8px 16px; border-radius: 999px;
-    border: 1px solid rgba(255, 255, 140, 0.85);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.12) 100%);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 8px 20px rgba(120,50,0,0.28);
+  .glass-btn {
+    position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: 1px solid rgba(255,255,255,0.55); cursor: pointer;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 14px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+    white-space: nowrap; color: #fff; padding: 13px 26px; border-radius: 999px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.16) 45%, rgba(255,255,255,0.06) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.95), inset 0 -5px 12px rgba(255,150,60,0.22), 0 10px 26px rgba(120,50,0,0.30);
     text-shadow: 0 1px 2px rgba(150,70,0,0.4);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition: transform .28s cubic-bezier(.2,1,.3,1), box-shadow .28s ease, background .28s ease;
+    text-decoration: none;
   }
-  .side-badge .conn {
-    width: 46px; height: 0; border-top: 2px dashed rgba(255, 248, 239, 0.7);
+  .glass-btn:hover {
+    transform: translateY(-2px) scale(1.035);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.70) 0%, rgba(255,255,255,0.24) 45%, rgba(255,255,255,0.10) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 14px rgba(255,150,60,0.32), 0 14px 32px rgba(120,50,0,0.38);
   }
-  .side-badge .node {
-    width: 10px; height: 10px; border-radius: 50%;
-    background: #fff8ef; box-shadow: 0 0 10px rgba(255, 240, 200, 0.9);
-    flex: 0 0 auto;
-  }
-  /* Colonne réseaux sociaux */
-  #social-rail {
-    position: absolute; right: clamp(18px, 3.4vw, 46px); top: 50%;
-    transform: translateY(-50%);
-    display: flex; flex-direction: column; gap: 14px; z-index: 20;
-  }
+  .glass-btn:active { transform: translateY(0) scale(0.99); }
+  #topbar .social { display: flex; gap: 12px; }
   .social-btn {
-    width: 46px; height: 46px; border-radius: 50%;
+    width: 44px; height: 44px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; color: #fff7db; text-decoration: none;
-    border: 1px solid rgba(255, 255, 140, 0.85);
+    border: 1px solid var(--yellow);
     background: linear-gradient(to bottom, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.12) 100%);
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), inset 0 -4px 10px rgba(255,150,60,0.22), 0 8px 20px rgba(120,50,0,0.28);
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     transition: transform .26s cubic-bezier(.2,1,.3,1), box-shadow .26s ease;
   }
-  .social-btn:hover {
-    transform: translateY(-2px) scale(1.08);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34);
-  }
-  .social-btn svg { width: 22px; height: 22px; }
-  .social-btn .ln {
-    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 19px;
-    line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4);
-  }
-  /* Animations douces */
-  @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
-  @keyframes floatY2 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(12px); } }
-  @keyframes twinkle { 0%,100% { opacity: 0.35; transform: scale(0.8) rotate(0deg); } 50% { opacity: 1; transform: scale(1.15) rotate(90deg); } }
-  @keyframes drift { 0%,100% { transform: translateX(0); } 50% { transform: translateX(18px); } }
-  .anim-f  { animation: floatY 6s ease-in-out infinite; }
-  .anim-f2 { animation: floatY2 7.5s ease-in-out infinite; }
-  .anim-tw { animation: twinkle 3.4s ease-in-out infinite; }
-  .anim-dr { animation: drift 9s ease-in-out infinite; }
-  @media (max-width: 720px) {
-    .side-badge, #side-decor { display: none; }
+  .social-btn:hover { transform: translateY(-2px) scale(1.08); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34); }
+  .social-btn svg { width: 21px; height: 21px; }
+  .social-btn .ln { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
+
+  /* ===== Contenu ===== */
+  #page {
+    position: relative; z-index: 10;
+    max-width: 1240px; margin: 0 auto;
+    padding: clamp(8px, 2vh, 28px) clamp(16px, 4vw, 48px) clamp(48px, 7vh, 90px);
   }
 
-  /* ===== Adaptation MOBILE des boutons uniquement ===== */
-  @media (max-width: 640px) {
-    /* Groupes de CTA collés aux coins, compacts */
-    #cta-left, #cta-right {
-      top: 10px !important;
-      gap: 8px !important;
-      max-width: 44vw;
-    }
-    #cta-left  { left: 8px !important; }
-    #cta-right { right: 8px !important; }
-
-    /* Boutons verre : largeur auto, texte plus petit, remplissage réduit */
-    .glass-btn {
-      width: auto !important;
-      height: auto !important;
-      min-height: 0 !important;
-      font-size: 11px !important;
-      letter-spacing: 0.03em !important;
-      padding: 8px 12px !important;
-      white-space: normal !important;
-      line-height: 1.05 !important;
-      text-align: center;
-    }
-
-    /* Bouton ENTRER / Explorer plus compact */
-    .enter-btn {
-      font-size: 18px !important;
-      padding: 12px 40px !important;
-      letter-spacing: 0.12em !important;
-    }
-    #enter-wrap { bottom: clamp(18px, 4vh, 32px) !important; }
-
-    /* Réseaux sociaux : pastilles plus petites, collées au bord */
-    #social-rail { right: 6px !important; gap: 10px !important; }
-    .social-btn { width: 38px !important; height: 38px !important; }
-    .social-btn svg { width: 18px; height: 18px; }
-    .social-btn .ln { font-size: 15px; }
+  /* En-tête */
+  #head { text-align: center; margin-bottom: clamp(22px, 3vh, 34px); }
+  #head .kicker {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: clamp(11px, 1.3vw, 14px); letter-spacing: 0.4em; text-transform: uppercase;
+    font-weight: 600; color: var(--brown); margin: 0 0 16px;
   }
-
-  @media (max-width: 380px) {
-    .glass-btn { font-size: 10px !important; padding: 7px 9px !important; }
-    #cta-left, #cta-right { gap: 6px !important; }
-  }
-
-  /* ===== Écran de chargement plein écran (masque tout) ===== */
-  #char-loader {
-    position: fixed; inset: 0;
-    background: #FF7A00;
-    z-index: 9999; pointer-events: all;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 20px;
-    transition: opacity 0.6s ease;
-  }
-  #char-loader.hidden { opacity: 0; }
-  .cl-spinner {
-    width: 54px; height: 54px; border-radius: 50%;
-    border: 5px solid rgba(255, 248, 239, 0.32);
-    border-top-color: #fff8ef;
-    box-shadow: 0 8px 22px rgba(120, 50, 0, 0.3);
-    animation: clSpin 0.9s linear infinite;
-  }
-  @keyframes clSpin { to { transform: rotate(360deg); } }
-  .cl-text {
+  #head .kicker .dot { width: 9px; height: 9px; border-radius: 50%; background: #fff8ef; box-shadow: 0 0 10px rgba(255,240,200,0.9); }
+  #head h1 {
+    margin: 0;
     font-family: 'Fredoka', 'Helvetica Neue', sans-serif;
-    font-weight: 600; font-size: 15px; letter-spacing: 0.02em;
-    color: #fff7db; text-shadow: 0 1px 2px rgba(150, 70, 0, 0.4);
+    font-weight: 700; font-size: clamp(46px, 6.6vw, 92px); line-height: 0.92;
+    letter-spacing: 0.005em; color: #ffffff;
+    -webkit-text-stroke: 3px var(--stroke); paint-order: stroke fill;
+    text-shadow: 0 2px 0 var(--stroke), 0 4px 0 #632900, 0 6px 0 #4d2000, 0 12px 20px rgba(70,28,0,0.5);
   }
-  .cl-bar {
-    width: 190px; height: 9px; border-radius: 999px;
-    background: rgba(255, 248, 239, 0.28);
-    box-shadow: inset 0 1px 2px rgba(120, 50, 0, 0.32);
-    overflow: hidden;
+  #head .lead {
+    margin: 22px auto 0; max-width: 46ch;
+    font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
+    font-size: clamp(15px, 1.5vw, 19px); line-height: 1.45; font-weight: 500; letter-spacing: -0.01em;
+    color: var(--brown);
   }
-  .cl-fill {
-    height: 100%; width: 0%; border-radius: 999px;
-    background: linear-gradient(to right, #fff2d6, #ffb347);
-    box-shadow: 0 0 8px rgba(255, 200, 120, 0.6);
-    transition: width 0.25s ease;
+
+  /* ===== Onglet coulissant "liquid glass" ===== */
+  #switch-wrap { display: flex; justify-content: center; margin-bottom: clamp(18px, 2.6vh, 30px); }
+  .seg {
+    position: relative; display: inline-flex; padding: 7px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.10) 55%, rgba(255,255,255,0.05) 100%);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.7), inset 0 -6px 16px rgba(255,150,60,0.15), 0 16px 34px rgba(90,40,0,0.32);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .seg .thumb {
+    position: absolute; top: 7px; left: 7px; bottom: 7px;
+    width: calc(50% - 7px); border-radius: 999px; z-index: 1;
+    border: 1px solid rgba(255,255,255,0.6);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.30) 45%, rgba(255,180,90,0.28) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -6px 14px rgba(255,150,60,0.4), 0 10px 24px rgba(120,50,0,0.4);
+    transition: transform .48s cubic-bezier(.5,1.4,.4,1);
+  }
+  .seg.pro .thumb { transform: translateX(100%); }
+  .seg button {
+    position: relative; z-index: 2; cursor: pointer; border: none; background: none;
+    display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    font-size: clamp(14px, 1.5vw, 17px); letter-spacing: 0.02em;
+    padding: 14px clamp(22px, 3vw, 44px); border-radius: 999px; white-space: nowrap;
+    color: #fff3df; text-shadow: 0 1px 2px rgba(150,70,0,0.4);
+    transition: color .3s ease, transform .3s ease;
+  }
+  .seg button svg { width: 19px; height: 19px; }
+  .seg button[aria-selected="true"] { color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+
+  /* ===== En-tête de rubriques (filtres) ===== */
+  .rub-bar {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+    margin-bottom: clamp(26px, 3.6vh, 44px);
+  }
+  .rub-bar.hidden { display: none; }
+  .rub {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.6);
+    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.01em;
+    color: #fff; padding: 10px 18px; border-radius: 999px; white-space: nowrap;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.20) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.85), 0 8px 18px rgba(120,50,0,0.28);
+    text-shadow: 0 1px 2px rgba(150,70,0,0.5);
+    transition: transform .22s cubic-bezier(.2,1,.3,1), color .22s ease, background .22s ease, box-shadow .22s ease;
+  }
+  .rub svg { width: 16px; height: 16px; }
+  .rub:hover { transform: translateY(-2px); background: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.28) 100%); }
+  .rub.active {
+    color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+    border-color: rgba(255,255,255,0.7);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.42) 45%, rgba(255,180,90,0.34) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 12px rgba(255,150,60,0.4), 0 12px 26px rgba(120,50,0,0.4);
+  }
+
+  /* ===== Cartes d'offres ===== */
+  #plans { position: relative; }
+  .plan-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(16px, 2vw, 26px); align-items: stretch; }
+  .plan-grid.hidden { display: none; }
+  .plan-grid.enter .card { animation: cardIn .5s cubic-bezier(.2,1,.3,1) backwards; }
+  .plan-grid.enter .card:nth-child(2) { animation-delay: .06s; }
+  .plan-grid.enter .card:nth-child(3) { animation-delay: .12s; }
+  .plan-grid.enter .card:nth-child(4) { animation-delay: .18s; }
+  .plan-grid.enter .card:nth-child(5) { animation-delay: .24s; }
+  .plan-grid.enter .card:nth-child(6) { animation-delay: .30s; }
+  @keyframes cardIn { from { opacity: 0; transform: translateY(22px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+  .card {
+    position: relative; display: flex; flex-direction: column;
+    flex: 0 1 340px; max-width: 380px;
+    border-radius: 28px; padding: clamp(22px, 2.2vw, 30px);
+    border: 1px solid rgba(255,255,255,0.5);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.12) 55%, rgba(255,255,255,0.07) 100%);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.8), inset 0 -8px 20px rgba(255,150,60,0.16), 0 24px 54px rgba(90,40,0,0.36);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    transition: transform .3s cubic-bezier(.2,1,.3,1), box-shadow .3s ease;
+  }
+  .card:hover { transform: translateY(-6px); box-shadow: inset 0 2px 1px rgba(255,255,255,0.9), 0 32px 66px rgba(90,40,0,0.44); }
+  .card.featured {
+    border-color: var(--yellow);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.18) 55%, rgba(255,180,90,0.16) 100%);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.95), inset 0 -8px 22px rgba(255,150,60,0.28), 0 30px 66px rgba(90,40,0,0.46);
+  }
+
+  .cardtop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .ic-tile {
+    flex: 0 0 auto; width: 50px; height: 50px; border-radius: 15px;
+    display: flex; align-items: center; justify-content: center; color: #a54a00;
+    background: linear-gradient(to bottom, #fff8ef, #ffe6b8);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 8px 18px rgba(120,50,0,0.28);
+  }
+  .ic-tile svg { width: 25px; height: 25px; }
+  .dur {
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.04em;
+    color: #fff5e2; padding: 6px 12px; border-radius: 999px; white-space: nowrap;
+    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.16);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.5);
+  }
+
+  .card .pname {
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(19px, 1.9vw, 23px);
+    color: #fff; margin: 0 0 8px; text-shadow: 0 2px 3px rgba(150,70,0,0.4); line-height: 1.1;
+  }
+  .card .pdesc {
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; line-height: 1.45; font-weight: 500;
+    color: #fff2df; opacity: 0.94; margin: 0 0 18px;
+  }
+
+  .card .price { display: flex; align-items: baseline; gap: 6px; margin: 0 0 6px; }
+  .card .price .from { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #ffe9cf; }
+  .card .price .amt { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(30px, 3.2vw, 40px); color: #fff; text-shadow: 0 2px 3px rgba(150,70,0,0.4); line-height: 1; }
+  .card .price .cur { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; color: #fff; }
+  .card .price .per { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #ffe9cf; }
+  .card .credit {
+    display: inline-flex; align-items: center; gap: 6px; margin: 0 0 18px;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12.5px;
+    color: #0f6b3d; padding: 5px 11px; border-radius: 999px;
+    background: rgba(150, 230, 160, 0.42); border: 1px solid rgba(255,255,255,0.4);
+  }
+  .card .credit svg { width: 13px; height: 13px; }
+
+  .card ul { list-style: none; margin: 0 0 22px; padding: 18px 0 0; border-top: 1px solid rgba(255,255,255,0.25); display: flex; flex-direction: column; gap: 11px; flex: 1; }
+  .card ul li { display: flex; align-items: flex-start; gap: 11px; font-size: 14px; line-height: 1.35; font-weight: 500; color: #fff6e6; }
+  .card ul li .chk {
+    flex: 0 0 auto; width: 21px; height: 21px; border-radius: 50%; margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(to bottom, #fff8ef, #ffe6b8);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 10px rgba(120,50,0,0.25);
+  }
+  .card ul li .chk svg { width: 12px; height: 12px; }
+
+  .card .spacer { flex: 1; min-height: 6px; }
+
+  .card .cta {
+    display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: auto;
+    cursor: pointer; text-decoration: none;
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: #fff8ef; padding: 15px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.55);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.15) 45%, rgba(255,150,60,0.16) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.95), 0 12px 26px rgba(120,50,0,0.36);
+    text-shadow: 0 0 10px rgba(255,150,60,0.7), 0 2px 3px rgba(150,70,0,0.5);
+    transition: transform .26s cubic-bezier(.2,1,.3,1), box-shadow .26s;
+  }
+  .card .cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 16px 32px rgba(120,50,0,0.44); }
+  .card .cta:active { transform: translateY(0) scale(0.99); }
+
+  /* Carte "aide" — accent plus sombre, comme dans les références */
+  .card.help {
+    background: linear-gradient(to bottom, rgba(60,30,4,0.42) 0%, rgba(60,30,4,0.26) 100%);
+    border-color: rgba(255,255,255,0.28);
+  }
+  .card.help .ic-tile { background: linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.08)); color: #ffd9a8; box-shadow: inset 0 1px 1px rgba(255,255,255,0.4); }
+  .card.help .cta {
+    background: linear-gradient(to bottom, #fff8ef, #ffe6bb); color: #8a3c00; border-color: rgba(255,255,255,0.7);
+    text-shadow: none;
+  }
+
+  /* Bannière mission (particuliers) */
+  #mission-part {
+    display: flex; align-items: center; gap: 16px; justify-content: center;
+    max-width: 780px; margin: 0 auto clamp(22px, 3vh, 34px);
+    padding: 16px 24px; border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.42);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.09) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.65), 0 14px 30px rgba(120,50,0,0.26);
+    backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+  }
+  #mission-part.hidden { display: none; }
+  #mission-part .m-ic {
+    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; color: #d24a2a;
+    background: linear-gradient(to bottom, #fff8ef, #ffe1cf);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 8px 18px rgba(120,50,0,0.28);
+  }
+  #mission-part .m-ic svg { width: 24px; height: 24px; }
+  #mission-part p {
+    margin: 0; text-align: left;
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; line-height: 1.42; font-weight: 500;
+    color: #fff3df; text-shadow: 0 1px 2px rgba(120,50,0,0.3);
+  }
+  #mission-part p b { color: #fff; font-weight: 700; }
+  @media (max-width: 560px) { #mission-part { flex-direction: column; text-align: center; } #mission-part p { text-align: center; } }
+
+  /* Bandeau bas */
+  #foot-note {
+    text-align: center; margin-top: clamp(30px, 4vh, 48px);
+    font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 500; color: var(--brown);
+  }
+  #foot-note a { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+  #foot-note .star { display: block; margin-top: 8px; font-size: 12.5px; opacity: 0.85; }
+
+  /* Thème nuit : textes bruns éclaircis pour rester lisibles */
+  body.pro #head .kicker { color: rgba(210,220,255,0.78); }
+  body.pro #head .lead { color: #ccd6f5; }
+  body.pro #foot-note { color: #ccd6f5; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 900px) {
+    body { overflow-y: auto; }
+    .card { flex: 0 1 100%; max-width: 460px; }
+  }
+  @media (max-width: 560px) {
+    #topbar { padding: 12px 14px; }
+    .glass-btn { font-size: 12px; padding: 11px 18px; letter-spacing: 0.05em; }
+    .social-btn { width: 40px; height: 40px; }
+    #head h1 { -webkit-text-stroke-width: 2.5px; }
+    .seg button { padding: 12px 20px; font-size: 14px; }
+    .seg button svg { display: none; }
+    .rub { font-size: 13px; padding: 9px 14px; }
+    .card { border-radius: 24px; padding: 22px 18px; }
   }
 </style>
-<link id="gfont-Permanent-Marker" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker:wght@300;400;500;600;700&amp;display=swap">
-<link id="gfont-Caveat" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@300;400;500;600;700&amp;display=swap">
-<link id="gfont-Fredoka" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;display=swap">
 </head>
-<body style="font-family: &quot;Permanent Marker&quot;">
-<div id="wrap">
-  <canvas id="scene"></canvas>
-  <div id="title"><h1 style="width: 528px; height: 42px">Mon Copain Digital</h1></div>
-  <nav id="cta-left">
-    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 121px; height: 43px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px" onclick="location.href='https://moncopaindigital.fr/'">Qui suis-je ?</button>
-    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 130px; height: 44px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px; white-space: normal; line-height: 1.05" onclick="location.href='rendez-vous.html'">rendez-vous</button>
-  </nav>
-  <nav id="cta-right">
-    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 123px; height: 44px" onclick="location.href='contact.html'">Contact</button>
-    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 123px; height: 44px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px; white-space: normal; line-height: 1.05" onclick="location.href='https://moncopaindigital.fr/'">nos offres</button>
-  </nav>
-  <div id="enter-wrap">
-    <button class="enter-btn" onclick="location.href='https://moncopaindigital.fr/'">Explorer</button>
+<body>
+  <div id="decor">
+    <div class="cloud anim-dr" style="left: 6%; top: 16%; animation-delay: -1s;"></div>
+    <div class="cloud anim-f2" style="left: 3%; top: 58%; transform: scale(0.7); animation-delay: -3s;"></div>
+    <div class="cloud anim-f" style="right: 8%; top: 14%; transform: scale(0.85); animation-delay: -2.5s;"></div>
+    <div class="cloud anim-dr" style="right: 4%; top: 66%; transform: scale(0.62); animation-delay: -4s;"></div>
+    <div class="cloud anim-f2" style="left: 44%; top: 6%; transform: scale(0.5); animation-delay: -5s;"></div>
   </div>
+  <div id="stars"></div>
 
-  <!-- Indicateur de chargement du personnage 3D -->
-  <div id="char-loader">
-    <div class="cl-spinner"></div>
-    <div class="cl-text" id="cl-txt">Mon Copain Digital…</div>
-    <div class="cl-bar"><div class="cl-fill" id="cl-fill"></div></div>
-  </div>
-
-  <!-- Décor flottant (gauche + droite) -->
-  <div id="side-decor">
-    <!-- Gauche -->
-    <div class="cloud anim-dr" style="left: 202px; top: 614px; animation-delay: -1s; position: absolute"></div>
-    <div class="cloud anim-f2" style="left: 84px; top: 319px; transform: scale(0.75); animation-delay: -3s; position: absolute"></div>
-    <!-- Droite -->
-    <div class="cloud anim-dr" style="right: 6%; top: 22%; animation-delay: -4s"></div>
-    <div class="cloud anim-f" style="right: 11%; top: 68%; transform: scale(0.7); animation-delay: -2.5s"></div>
-    <div class="cloud anim-f2" style="left: 364px; top: 194px; transform: scale(0.85); animation-delay: -5s; position: absolute"></div>
-  </div>
-
-  <!-- Étiquette flottante reliée à la planète -->
-  <div class="side-badge anim-f" style="left: clamp(20px, 5vw, 90px); top: 42%; animation-delay: -0.5s"></div>
-
-  <!-- Réseaux sociaux -->
-  <div id="social-rail">
-    <a class="social-btn" href="https://www.instagram.com/moncopaindigital/" target="_blank" rel="noopener" aria-label="Instagram">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-        <circle cx="12" cy="12" r="4"></circle>
-        <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
-      </svg>
+  <header id="topbar">
+    <a class="glass-btn" href="../index.html">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Accueil
     </a>
-    <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-      <span class="ln">in</span>
-    </a>
-  </div>
-</div>
+    <div class="social">
+      <a class="social-btn" href="https://www.instagram.com/moncopaindigital/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+      </a>
+      <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
+    </div>
+  </header>
+
+  <main id="page">
+    <section id="head">
+      <p class="kicker"><span class="dot"></span> Le numérique, enfin plus simple</p>
+      <h1>Nos offres</h1>
+      <p class="lead">Choisissez votre profil, puis la rubrique qui vous intéresse : on vous montre l'accompagnement fait pour vous.</p>
+    </section>
+
+    <!-- Onglet Particuliers / Professionnels -->
+    <div id="switch-wrap">
+      <div class="seg" id="seg" role="tablist" aria-label="Type de client">
+        <span class="thumb"></span>
+        <button id="tab-part" role="tab" aria-selected="true" onclick="switchTab('part')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Particuliers
+        </button>
+        <button id="tab-pro" role="tab" aria-selected="false" onclick="switchTab('pro')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V8l6-4 6 4v13M10 12h.01M14 12h.01M10 16h.01M14 16h.01"/></svg>
+          Professionnels
+        </button>
+      </div>
+    </div>
+
+    <!-- Bannière mission : Particuliers -->
+    <div id="mission-part">
+      <span class="m-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg></span>
+      <p><b>Notre mission :</b> réconcilier avec le numérique celles et ceux que la technologie a laissés de côté. Sans jargon, à votre rythme, et près de chez vous.</p>
+    </div>
+
+    <!-- En-tête RUBRIQUES : Particuliers -->
+    <nav class="rub-bar" id="rubriques-part" aria-label="Rubriques particuliers">
+      <button class="rub active" onclick="filterRubrique('part','all',this)">Toutes les offres</button>
+      <button class="rub" onclick="filterRubrique('part','premiers-pas',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Premiers pas</button>
+      <button class="rub" onclick="filterRubrique('part','communiquer',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12.5h5"/></svg> Communiquer</button>
+      <button class="rub" onclick="filterRubrique('part','demarches',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg> Démarches</button>
+      <button class="rub" onclick="filterRubrique('part','securite',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg> Sécurité</button>
+      <button class="rub" onclick="filterRubrique('part','ia',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg> IA</button>
+      <button class="rub" onclick="filterRubrique('part','loisirs',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg> Loisirs</button>
+    </nav>
+
+    <!-- En-tête RUBRIQUES : Professionnels -->
+    <nav class="rub-bar hidden" id="rubriques-pro" aria-label="Rubriques professionnels">
+      <button class="rub active" onclick="filterRubrique('pro','all',this)">Toutes les offres</button>
+      <button class="rub" onclick="filterRubrique('pro','infog',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Infogérance</button>
+      <button class="rub" onclick="filterRubrique('pro','cloud',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 .5-8 6 6 0 0 1 11 2 3.5 3.5 0 0 1-.5 6z"/></svg> Cloud</button>
+      <button class="rub" onclick="filterRubrique('pro','cyber',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg> Cybersécurité</button>
+      <button class="rub" onclick="filterRubrique('pro','save',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg> Sauvegarde</button>
+    </nav>
+
+    <section id="plans">
+      <!-- ===================== PARTICULIERS ===================== -->
+      <div class="plan-grid enter" id="grid-part">
+        <div class="card" data-cat="premiers-pas">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Informatique</h3>
+          <p class="pdesc">Maîtrisez vos fichiers, vos emails et naviguez sereinement sur PC ou Mac.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="premiers-pas">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2.5"/><path d="M11 18h2"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Tablette</h3>
+          <p class="pdesc">Prenez en main votre iPad ou tablette Android, sans crainte de « mal faire ».</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="premiers-pas">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M8 17h8v4H8z"/><path d="M17 12.5h.01"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Imprimante & scanner</h3>
+          <p class="pdesc">Installez, imprimez et numérisez vos documents sans prise de tête.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="premiers-pas">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a10 10 0 0 1 14 0M8 15.5a6 6 0 0 1 8 0"/><circle cx="12" cy="19" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Box & Wi-Fi</h3>
+          <p class="pdesc">Comprenez votre box internet et retrouvez une bonne connexion partout chez vous.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="communiquer">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Smartphone</h3>
+          <p class="pdesc">Tirez le meilleur de votre iPhone ou Android : photos, réglages et applications utiles.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="communiquer">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Emails & messagerie</h3>
+          <p class="pdesc">Créez et gérez votre boîte mail, envoyez pièces jointes et photos en toute simplicité.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card featured" data-cat="communiquer">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3z"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Visio en famille</h3>
+          <p class="pdesc">Appelez vos enfants et petits-enfants en vidéo (WhatsApp, FaceTime) et gardez le lien.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="communiquer">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8 15.8 7.2M8.2 13.2l7.6 3.6"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Réseaux sociaux</h3>
+          <p class="pdesc">Gardez le contact : WhatsApp, Facebook et partagez vos souvenirs avec vos proches.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="demarches">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Démarches administratives</h3>
+          <p class="pdesc">Impots.gouv, Ameli, France Connect, CAF… on vous guide pas à pas, sans stress.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Être accompagné</a>
+        </div>
+        <div class="card" data-cat="demarches">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/><path d="M12 8.5v4M10 10.5h4"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Santé & Doctolib</h3>
+          <p class="pdesc">Prenez vos rendez-vous médicaux et gérez vos ordonnances en ligne, en confiance.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="demarches">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v8M9 10v8M15 10v8M19 10v8"/><path d="M3 21h18"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Banque en ligne</h3>
+          <p class="pdesc">Consultez vos comptes et réalisez vos virements en toute sécurité.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="securite">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Sécurité totale</h3>
+          <p class="pdesc">Protégez vos comptes, gérez vos mots de passe et gardez l'esprit tranquille.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Sécuriser mon accès</a>
+        </div>
+        <div class="card" data-cat="securite">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Déjouer les arnaques</h3>
+          <p class="pdesc">Reconnaissez les faux SMS, faux mails et appels frauduleux avant qu'il ne soit trop tard.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="ia">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.2 5.8L20 10l-5.8 2.2L12 18l-2.2-5.8L4 10l5.8-2.2z"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Intelligence artificielle</h3>
+          <p class="pdesc">Boostez votre quotidien : apprenez à utiliser ChatGPT pour vos textes et vos recherches.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Découvrir l'IA</a>
+        </div>
+        <div class="card" data-cat="loisirs">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M3 17l5-4 4 3 3-2 6 5"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Photos & souvenirs</h3>
+          <p class="pdesc">Rangez, retrouvez, imprimez et partagez toutes vos photos sans en perdre une seule.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="loisirs">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2l2.2 11h10l1.8-8H6"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Achats en ligne</h3>
+          <p class="pdesc">Commandez en toute confiance : drive, Le Bon Coin et grandes boutiques en ligne.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card" data-cat="loisirs">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></span>
+            <span class="dur">1 h</span>
+          </div>
+          <h3 class="pname">Voyages & itinéraires</h3>
+          <p class="pdesc">SNCF Connect, GPS, billets : préparez vos trajets et partez l'esprit léger.</p>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
+          <div class="spacer"></div>
+          <a class="cta" href="../rendez-vous.html">Réserver la séance</a>
+        </div>
+        <div class="card help" data-cat="aide" data-persist="1">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg></span>
+          </div>
+          <h3 class="pname">Besoin d'aide ?</h3>
+          <p class="pdesc">Une question, un besoin qui ne rentre dans aucune case ? Je vous écoute et je vous accompagne, pas à pas.</p>
+          <div class="spacer"></div>
+          <a class="cta" href="../contact.html">Me contacter</a>
+        </div>
+      </div>
+
+      <!-- ===================== PROFESSIONNELS ===================== -->
+      <div class="plan-grid hidden" id="grid-pro">
+        <div class="card" data-cat="infog">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+            <span class="dur">Sur devis</span>
+          </div>
+          <h3 class="pname">Audit & Infogérance</h3>
+          <p class="pdesc">On pilote votre parc informatique pour que tout tourne — sans que vous ayez à y penser.</p>
+          <ul>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Analyse de votre parc matériel</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Check-up sécurité & réseaux</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Optimisation des flux de travail</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Maintenance & assistance prioritaire</li>
+          </ul>
+          <a class="cta" href="../rendez-vous.html">Demander un devis</a>
+        </div>
+
+        <div class="card featured" data-cat="cloud">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1 .5-8 6 6 0 0 1 11 2 3.5 3.5 0 0 1-.5 6z"/></svg></span>
+            <span class="dur">Sur devis</span>
+          </div>
+          <h3 class="pname">Cloud & Collaboration</h3>
+          <p class="pdesc">Vos équipes connectées et vos données accessibles partout, en toute sécurité.</p>
+          <ul>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Déploiement solutions Cloud / SaaS</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Formation de vos collaborateurs</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Messagerie & outils partagés</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Sécurisation des données (RGPD)</li>
+          </ul>
+          <a class="cta" href="../rendez-vous.html">Demander un devis</a>
+        </div>
+
+        <div class="card" data-cat="cyber">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></span>
+            <span class="dur">Sur devis</span>
+          </div>
+          <h3 class="pname">Cybersécurité</h3>
+          <p class="pdesc">On protège votre entreprise contre les menaces et on forme vos équipes aux bons réflexes.</p>
+          <ul>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Audit cybersécurité avancé</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Protection anti-ransomware</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Sécurisation des accès & mots de passe</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Sensibilisation des collaborateurs</li>
+          </ul>
+          <a class="cta" href="../rendez-vous.html">Demander un devis</a>
+        </div>
+
+        <div class="card" data-cat="save">
+          <div class="cardtop">
+            <span class="ic-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg></span>
+            <span class="dur">Sur devis</span>
+          </div>
+          <h3 class="pname">Serveurs & Sauvegarde</h3>
+          <p class="pdesc">Une infrastructure fiable et des sauvegardes qui vous protègent contre les imprévus.</p>
+          <ul>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Installation serveurs & NAS</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Solutions de sauvegarde hybride</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Support technique dédié 24/7</li>
+            <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> Plan de reprise d'activité</li>
+          </ul>
+          <a class="cta" href="../rendez-vous.html">Demander un devis</a>
+        </div>
+      </div>
+    </section>
+
+    <p id="foot-note">Un doute sur la formule ? <a href="../rendez-vous.html">Réservez un audit gratuit</a> et on trouve ensemble.
+      <span class="star">* Services à la personne éligibles au crédit d'impôt de 50 % (sous conditions).</span>
+    </p>
+  </main>
+
 <script>
-function start() {
-  if (!window.THREE) { setTimeout(start, 30); return; }
+  function switchTab(which) {
+    const isPro = which === 'pro';
+    document.getElementById('seg').classList.toggle('pro', isPro);
+    document.getElementById('tab-part').setAttribute('aria-selected', String(!isPro));
+    document.getElementById('tab-pro').setAttribute('aria-selected', String(isPro));
 
-    const THREE = window.THREE;
-    const canvas = document.getElementById("scene");
-    const R = 10;
+    // bascule des barres de rubriques
+    document.getElementById('mission-part').classList.toggle('hidden', isPro);
+    document.getElementById('rubriques-part').classList.toggle('hidden', isPro);
+    document.getElementById('rubriques-pro').classList.toggle('hidden', !isPro);
 
-    let s = 1337;
-    const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
-    const range = (a, b) => a + (b - a) * rnd();
+    // bascule des grilles
+    document.getElementById('grid-part').classList.toggle('hidden', isPro);
+    document.getElementById('grid-pro').classList.toggle('hidden', !isPro);
 
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // réinitialise le filtre de l'audience active sur "Toutes"
+    const aud = isPro ? 'pro' : 'part';
+    const firstRub = document.querySelector('#rubriques-' + aud + ' .rub');
+    filterRubrique(aud, 'all', firstRub);
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 200);
-    let camDist = 44;
+    // thème nuit étoilé pour les professionnels
+    document.documentElement.classList.toggle('pro', isPro);
+    document.body.classList.toggle('pro', isPro);
+  }
 
-    scene.add(new THREE.AmbientLight(0xfff2e0, 0.85));
-    const sun = new THREE.DirectionalLight(0xffe6c2, 1.25);
-    sun.position.set(14, 22, 12);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
-    sun.shadow.camera.near = 1; sun.shadow.camera.far = 80;
-    sun.shadow.camera.left = -22; sun.shadow.camera.right = 22;
-    sun.shadow.camera.top = 22; sun.shadow.camera.bottom = -22;
-    sun.shadow.bias = -0.0004;
-    scene.add(sun);
-    const fill = new THREE.DirectionalLight(0xbcd0ff, 0.35);
-    fill.position.set(-12, -6, -10);
-    scene.add(fill);
+  function filterRubrique(aud, cat, btn) {
+    const bar = document.getElementById('rubriques-' + aud);
+    bar.querySelectorAll('.rub').forEach(b => b.classList.toggle('active', b === btn));
 
-    // Layer dédié à la chaise + au personnage (éclairés par charKey/charFill/charAmb)
-    const CHAIR_LAYER = 1;
+    const grid = document.getElementById('grid-' + aud);
+    grid.querySelectorAll('.card').forEach(c => {
+      const show = cat === 'all' || c.dataset.cat === cat || c.hasAttribute('data-persist');
+      c.style.display = show ? 'flex' : 'none';
+    });
 
-    const world = new THREE.Group();
-    scene.add(world);
-    world.scale.setScalar(0.92);   // réduit légèrement la planète + le personnage (ensemble, il reste assis)
-
-    const UP = new THREE.Vector3(0, 1, 0);
-    const tmpQ = new THREE.Quaternion();
-    const posOnSphere = (lat, lon, r) => {
-      const phi = (90 - lat) * Math.PI / 180;
-      const th = lon * Math.PI / 180;
-      return new THREE.Vector3(
-        r * Math.sin(phi) * Math.cos(th),
-        r * Math.cos(phi),
-        r * Math.sin(phi) * Math.sin(th)
-      );
-    };
-    const orient = (obj, normal, spin) => {
-      obj.quaternion.setFromUnitVectors(UP, normal.clone().normalize());
-      if (spin) { tmpQ.setFromAxisAngle(normal.clone().normalize(), spin); obj.quaternion.premultiply(tmpQ); }
-    };
-
-    const land = new THREE.Mesh(
-      new THREE.SphereGeometry(R, 96, 48, 0, Math.PI * 2, 0, Math.PI / 2),
-      new THREE.MeshStandardMaterial({ color: 0x5f8f3e, roughness: 0.95, metalness: 0 })
-    );
-    land.receiveShadow = true;
-    world.add(land);
-    const cut = new THREE.Mesh(
-      new THREE.CircleGeometry(R, 96),
-      new THREE.MeshStandardMaterial({ color: 0x6b5333, roughness: 1, side: THREE.DoubleSide })
-    );
-    cut.rotation.x = Math.PI / 2;
-    cut.position.y = 0;
-    world.add(cut);
-
-    const stoneCols = [0xd8ccb4, 0xcdbfa6, 0xc7bda9, 0xbcae93, 0xd2c7b0, 0xc2b69c];
-    const roofCol = 0x6f7682;
-    const stoneMats = stoneCols.map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.9 }));
-    const roofMat = new THREE.MeshStandardMaterial({ color: roofCol, roughness: 0.8 });
-    const slateMat = new THREE.MeshStandardMaterial({ color: 0x4d535d, roughness: 0.7 });
-    const creamMat = new THREE.MeshStandardMaterial({ color: 0xeae3d2, roughness: 0.85 });
-    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xb6ad9a, roughness: 0.75 });
-    const ironMat = new THREE.MeshStandardMaterial({ color: 0x6b5a44, roughness: 0.6, metalness: 0.3 });
-    const treeMat = new THREE.MeshStandardMaterial({ color: 0x3c7a2e, roughness: 1 });
-    const treeMat2 = new THREE.MeshStandardMaterial({ color: 0x4f9438, roughness: 1 });
-    const waterMat = new THREE.MeshStandardMaterial({ color: 0x5b93ab, roughness: 0.22, metalness: 0.4, side: THREE.DoubleSide });
-    const roadMat = new THREE.MeshStandardMaterial({ color: 0x8c8779, roughness: 1 });
-    const glassMat = new THREE.MeshStandardMaterial({ color: 0xbfd6e0, roughness: 0.15, metalness: 0.4, transparent: true, opacity: 0.75 });
-
-    const makeFacade = (baseHex) => {
-      const cw = 96, ch = 168;
-      const c = document.createElement('canvas'); c.width = cw; c.height = ch;
-      const x = c.getContext('2d');
-      x.fillStyle = '#' + baseHex.toString(16).padStart(6, '0'); x.fillRect(0, 0, cw, ch);
-      const e = document.createElement('canvas'); e.width = cw; e.height = ch;
-      const ex = e.getContext('2d'); ex.fillStyle = '#000'; ex.fillRect(0, 0, cw, ch);
-      const cols = 4, rows = 7, mx = 12, my = 14;
-      const gw = (cw - mx * 2) / cols, gh = (ch - my * 2) / rows;
-      const winW = gw * 0.6, winH = gh * 0.62;
-      for (let r = 0; r < rows; r++) {
-        for (let col = 0; col < cols; col++) {
-          const px = mx + col * gw + (gw - winW) / 2;
-          const py = my + r * gh + (gh - winH) / 2;
-          const lit = rnd() < 0.2;
-          x.fillStyle = lit ? '#ffe4ab' : (rnd() < 0.5 ? '#586271' : '#69727e');
-          x.fillRect(px, py, winW, winH);
-          x.strokeStyle = 'rgba(40,34,26,0.22)'; x.lineWidth = 2; x.strokeRect(px, py, winW, winH);
-          if (lit) { ex.fillStyle = '#ffcf8c'; ex.fillRect(px, py, winW, winH); }
-        }
-      }
-      return new THREE.MeshStandardMaterial({
-        map: new THREE.CanvasTexture(c),
-        emissive: 0xffce8a, emissiveMap: new THREE.CanvasTexture(e), emissiveIntensity: 0.85,
-        roughness: 0.85
-      });
-    };
-    const facadeMats = [];
-    for (let i = 0; i < 8; i++) facadeMats.push(makeFacade(stoneCols[i % stoneCols.length]));
-
-    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
-    const coneGeo = new THREE.ConeGeometry(0.5, 1, 4);
-    const treeGeo = new THREE.IcosahedronGeometry(0.5, 0);
-
-    const placeBox = (parent, lat, lon, w, h, d, mat, spin) => {
-      const m = new THREE.Mesh(boxGeo, mat);
-      m.scale.set(w, h, d);
-      const p = posOnSphere(lat, lon, R);
-      const n = p.clone().normalize();
-      m.position.copy(p).addScaledVector(n, h / 2);
-      orient(m, n, spin);
-      m.castShadow = true; m.receiveShadow = true;
-      parent.add(m);
-      return m;
-    };
-
-    const buildPath = (waypoints, width, mat, lift) => {
-      const pts = waypoints.map(w => posOnSphere(w[0], w[1], R + (lift || 0.02)));
-      const curve = new THREE.CatmullRomCurve3(pts);
-      const N = Math.max(24, waypoints.length * 14);
-      const sampled = curve.getPoints(N);
-      const g = new THREE.Group();
-      for (let i = 0; i < sampled.length - 1; i++) {
-        const a = sampled[i], b = sampled[i + 1];
-        const mid = a.clone().add(b).multiplyScalar(0.5);
-        const len = a.distanceTo(b) * 2.3;
-        const seg = new THREE.Mesh(boxGeo, mat);
-        seg.scale.set(width, 0.06, len);
-        const n = mid.clone().normalize();
-        mid.copy(n).multiplyScalar(R + (lift || 0.02));
-        seg.position.copy(mid);
-        const fwd = b.clone().sub(a).normalize();
-        const right = new THREE.Vector3().crossVectors(fwd, n).normalize();
-        const f2 = new THREE.Vector3().crossVectors(n, right).normalize();
-        const mtx = new THREE.Matrix4().makeBasis(right, n, f2);
-        seg.quaternion.setFromRotationMatrix(mtx);
-        seg.receiveShadow = true;
-        g.add(seg);
-      }
-      world.add(g);
-      return g;
-    };
-
-    const buildRiver = (waypoints, width, mat, lift, closed) => {
-      const pts = waypoints.map(w => posOnSphere(w[0], w[1], R));
-      const curve = new THREE.CatmullRomCurve3(pts, !!closed, 'catmullrom', 0.5);
-      const samples = curve.getPoints(440);
-      if (closed) samples.pop();
-      const n = samples.length;
-      const Rr = R + (lift || 0.04);
-      const verts = [], idx = [];
-      for (let i = 0; i < n; i++) {
-        const p = samples[i];
-        const prev = samples[(i - 1 + n) % n];
-        const nxt = samples[(i + 1) % n];
-        const normal = p.clone().normalize();
-        const tan = nxt.clone().sub(prev).normalize();
-        const side = new THREE.Vector3().crossVectors(tan, normal).normalize();
-        const L = p.clone().addScaledVector(side, width / 2).normalize().multiplyScalar(Rr);
-        const Rt = p.clone().addScaledVector(side, -width / 2).normalize().multiplyScalar(Rr);
-        verts.push(L.x, L.y, L.z, Rt.x, Rt.y, Rt.z);
-      }
-      const segs = closed ? n : n - 1;
-      for (let i = 0; i < segs; i++) {
-        const a = (i % n) * 2, b = (i % n) * 2 + 1, c = ((i + 1) % n) * 2, d = ((i + 1) % n) * 2 + 1;
-        idx.push(a, b, c, b, d, c);
-      }
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-      geo.setIndex(idx);
-      geo.computeVertexNormals();
-      const m = new THREE.Mesh(geo, mat);
-      m.receiveShadow = true;
-      world.add(m);
-      return m;
-    };
-
-    buildRiver([
-      [12, -180], [15, -150], [12, -122], [16, -96], [23, -70], [31, -44],
-      [34, -18], [28, 2], [33, 24], [25, 48], [17, 72], [13, 96], [15, 124], [11, 152]
-    ], 1.05, waterMat, 0.06, true);
-
-    const roads = [
-      [[60, -40], [45, -25], [30, -15], [18, -5], [8, 8], [5, 18]],
-      [[55, 30], [42, 18], [30, 5], [22, -10], [16, -28], [12, -48]],
-      [[40, -60], [42, -30], [44, 0], [42, 30], [38, 60]],
-      [[70, 0], [50, 5], [30, 8], [12, 10], [5, 12]],
-      [[25, -80], [28, -50], [30, -20], [33, 10], [35, 40], [34, 70]],
-      [[18, -30], [12, -5], [10, 25], [14, 45]]
-    ];
-    roads.forEach(r => buildPath(r, 0.42, roadMat, 0.03));
-
-    buildPath([[44, 152], [36, 150.5], [27, 149], [17, 148]], 0.9, roadMat, 0.045);
-    buildPath([[44, 152], [52, 150], [61, 149]], 0.46, roadMat, 0.04);
-    buildPath([[44, 152], [47, 161], [50, 170]], 0.46, roadMat, 0.04);
-    buildPath([[44, 152], [41, 143], [39, 134]], 0.46, roadMat, 0.04);
-
-    const cityCenter = { lat: 50, lon: 5 };
-    const angDist = (lat, lon) => {
-      const a = posOnSphere(lat, lon, 1), b = posOnSphere(cityCenter.lat, cityCenter.lon, 1);
-      return a.angleTo(b);
-    };
-    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.2], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17]];
-    const inMonument = (la, lo) => {
-      const a = posOnSphere(la, lo, 1);
-      return clearZones.some(z => a.angleTo(posOnSphere(z[0], z[1], 1)) < z[2]);
-    };
-    let placed = 0, attempts = 0;
-    while (placed < 230 && attempts < 6000) {
-      attempts++;
-      const lat = range(3, 88);
-      const lon = range(-180, 180);
-      if (inMonument(lat, lon)) continue;
-      const d = angDist(lat, lon);
-      const prob = Math.max(0, 1 - d / 2.3);
-      if (rnd() > prob * prob) continue;
-      const big = rnd();
-      const h = range(0.35, 0.7) + (big > 0.92 ? range(0.5, 1.2) : 0);
-      const w = range(0.42, 0.85), dp = range(0.42, 0.85);
-      const mat = facadeMats[(rnd() * facadeMats.length) | 0];
-      const spin = range(0, Math.PI * 2);
-      placeBox(world, lat, lon, w, h, dp, mat, spin);
-      const roof = new THREE.Mesh(coneGeo, rnd() > 0.5 ? slateMat : roofMat);
-      const p = posOnSphere(lat, lon, R);
-      const n = p.clone().normalize();
-      const rh = Math.max(w, dp) * range(0.4, 0.7);
-      roof.scale.set(w * 1.02, rh, dp * 1.02);
-      roof.position.copy(p).addScaledVector(n, h + rh / 2);
-      orient(roof, n, spin + Math.PI / 4);
-      roof.castShadow = true;
-      world.add(roof);
-      placed++;
+    // relance l'animation d'entrée des cartes visibles
+    grid.classList.remove('enter'); void grid.offsetWidth; grid.classList.add('enter');
+  }
+  // génère le ciel étoilé (une seule fois)
+  (function buildStars(){
+    const box = document.getElementById('stars');
+    if (!box) return;
+    const N = 70;
+    let h = '';
+    for (let i = 0; i < N; i++) {
+      const x = (Math.random() * 100).toFixed(2);
+      const y = (Math.random() * 100).toFixed(2);
+      const big = Math.random() < 0.12;
+      const s = big ? (7 + Math.random() * 6) : (1.4 + Math.random() * 2.4);
+      const tw = (2.4 + Math.random() * 3.6).toFixed(2);
+      const dl = (-Math.random() * 4).toFixed(2);
+      h += '<span class="star' + (big ? ' big' : '') + '" style="left:' + x + '%;top:' + y + '%;width:' + s.toFixed(1) + 'px;height:' + s.toFixed(1) + 'px;--tw:' + tw + 's;animation-delay:' + dl + 's"></span>';
     }
-
-    let tplaced = 0, ta = 0;
-    while (tplaced < 320 && ta < 7000) {
-      ta++;
-      const lat = range(3, 88);
-      const lon = range(-180, 180);
-      if (inMonument(lat, lon)) continue;
-      const d = angDist(lat, lon);
-      const prob = Math.min(1, 0.25 + d / 2.6);
-      if (rnd() > prob * 0.8) continue;
-      const p = posOnSphere(lat, lon, R);
-      const n = p.clone().normalize();
-      const sc = range(0.35, 0.7);
-      const tr = new THREE.Mesh(treeGeo, rnd() > 0.5 ? treeMat : treeMat2);
-      tr.scale.setScalar(sc);
-      tr.position.copy(p).addScaledVector(n, sc * 0.55);
-      orient(tr, n, range(0, 6));
-      tr.castShadow = true; tr.receiveShadow = true;
-      world.add(tr);
-      tplaced++;
-    }
-
-    const dropGroup = (g, lat, lon, spin) => {
-      const p = posOnSphere(lat, lon, R);
-      const n = p.clone().normalize();
-      g.position.copy(p);
-      orient(g, n, spin || 0);
-      g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-      world.add(g);
-    };
-    const placeFacing = (g, lat, lon, az) => {
-      const p = posOnSphere(lat, lon, R);
-      const up = p.clone().normalize();
-      let north = new THREE.Vector3(0, 1, 0).addScaledVector(up, -up.y).normalize();
-      if (!isFinite(north.x) || north.lengthSq() < 1e-6) north.set(0, 0, 1);
-      const east = new THREE.Vector3().crossVectors(up, north).normalize();
-      const face = north.clone().multiplyScalar(Math.cos(az)).addScaledVector(east, Math.sin(az)).normalize();
-      const right = new THREE.Vector3().crossVectors(up, face).normalize();
-      g.position.copy(p);
-      g.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, face));
-      g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-      world.add(g);
-    };
-    const mkBox = (w, h, d, y, mat) => {
-      const m = new THREE.Mesh(boxGeo, mat); m.scale.set(w, h, d); m.position.y = y; return m;
-    };
-
-    // --- Eiffel Tower (treillis détaillé, 3 étages) ---
-    (() => {
-      const g = new THREE.Group();
-      const ironLite = new THREE.MeshStandardMaterial({ color: 0x7c6a50, roughness: 0.6, metalness: 0.3 });
-      const C = [[1, 1], [1, -1], [-1, -1], [-1, 1]];
-      const lerp = (a, b, f) => a + (b - a) * f;
-      const cpos = (i, half, y) => new THREE.Vector3(C[i][0] * half, y, C[i][1] * half);
-      const beam = (a, b, t, mat) => {
-        const m = new THREE.Mesh(boxGeo, mat || ironMat);
-        m.scale.set(t, a.distanceTo(b), t);
-        m.position.copy(a).add(b).multiplyScalar(0.5);
-        m.quaternion.setFromUnitVectors(UP, b.clone().sub(a).normalize());
-        g.add(m);
-      };
-      const lattice = (yb, hb, yt, ht, bays, t) => {
-        for (let i = 0; i < 4; i++) beam(cpos(i, hb, yb), cpos(i, ht, yt), t);
-        for (let k = 0; k <= bays; k++) {
-          const f = k / bays, y = lerp(yb, yt, f), half = lerp(hb, ht, f);
-          for (let i = 0; i < 4; i++) beam(cpos(i, half, y), cpos((i + 1) % 4, half, y), t * 0.7);
-        }
-        for (let k = 0; k < bays; k++) {
-          const f0 = k / bays, f1 = (k + 1) / bays;
-          const y0 = lerp(yb, yt, f0), h0 = lerp(hb, ht, f0);
-          const y1 = lerp(yb, yt, f1), h1 = lerp(hb, ht, f1);
-          for (let i = 0; i < 4; i++) {
-            const A = cpos(i, h0, y0), B = cpos((i + 1) % 4, h0, y0);
-            const Cc = cpos(i, h1, y1), D = cpos((i + 1) % 4, h1, y1);
-            beam(A, D, t * 0.55); beam(B, Cc, t * 0.55);
-          }
-        }
-      };
-      const plat = (y, half, th) => {
-        const m = new THREE.Mesh(boxGeo, ironLite);
-        m.scale.set(half * 2 + 0.26, th, half * 2 + 0.26); m.position.y = y; g.add(m);
-        const rail = new THREE.Mesh(boxGeo, ironMat);
-        rail.scale.set(half * 2 + 0.30, 0.05, half * 2 + 0.30); rail.position.y = y + th * 0.5 + 0.05; g.add(rail);
-      };
-
-      const yA = 0, hA = 1.25;
-      const y1 = 1.7, h1 = 0.6;
-      const y2 = 3.4, h2 = 0.32;
-      const y3 = 4.7, h3 = 0.16;
-      const yTop = 5.3;
-
-      for (let i = 0; i < 4; i++) {
-        beam(cpos(i, hA, yA), cpos(i, 0.9, 0.85), 0.07);
-        beam(cpos(i, 0.9, 0.85), cpos(i, h1, y1), 0.06);
-      }
-      [-1, 1].forEach(sz => {
-        const arc = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.05, 6, 20, Math.PI), ironMat);
-        arc.position.set(0, 0.78, sz * 0.98); g.add(arc);
-      });
-      [-1, 1].forEach(sx => {
-        const arc = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.05, 6, 20, Math.PI), ironMat);
-        arc.rotation.y = Math.PI / 2; arc.position.set(sx * 0.98, 0.78, 0); g.add(arc);
-      });
-      plat(y1, h1, 0.16);
-
-      lattice(y1, h1, y2, h2, 4, 0.05);
-      plat(y2, h2, 0.12);
-
-      lattice(y2, h2, y3, h3, 4, 0.038);
-      plat(y3, h3, 0.09);
-
-      const camp = new THREE.Mesh(new THREE.CylinderGeometry(0.1, h3 * 0.95, yTop - y3, 4), ironLite);
-      camp.position.y = (y3 + yTop) / 2; camp.rotation.y = Math.PI / 4; g.add(camp);
-      const cupola = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), ironLite);
-      cupola.position.y = yTop; g.add(cupola);
-      const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.04, 1.0, 8), ironMat);
-      ant.position.y = yTop + 0.5; g.add(ant);
-      const tip = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), ironMat);
-      tip.position.y = yTop + 1.0; g.add(tip);
-
-      g.scale.setScalar(1.0);
-      dropGroup(g, 44, -28, 0.4);
-    })();
-
-    // --- Basketball court ---
-    (() => {
-      const g = new THREE.Group();
-      const cw = 520, ch = 300, m = 18;
-      const c = document.createElement('canvas'); c.width = cw; c.height = ch;
-      const x = c.getContext('2d');
-      x.fillStyle = '#141414'; x.fillRect(0, 0, cw, ch);
-      x.strokeStyle = '#f2f0ea'; x.lineWidth = 4;
-      x.strokeRect(m, m, cw - 2 * m, ch - 2 * m);
-      x.beginPath(); x.moveTo(cw / 2, m); x.lineTo(cw / 2, ch - m); x.stroke();
-      x.beginPath(); x.arc(cw / 2, ch / 2, 42, 0, Math.PI * 2); x.stroke();
-      const keyW = 96, keyH = 96;
-      x.strokeRect(m, ch / 2 - keyH / 2, keyW, keyH);
-      x.beginPath(); x.arc(m + keyW, ch / 2, 36, 0, Math.PI * 2); x.stroke();
-      x.beginPath(); x.arc(m, ch / 2, 120, -Math.PI / 2, Math.PI / 2); x.stroke();
-      x.strokeRect(cw - m - keyW, ch / 2 - keyH / 2, keyW, keyH);
-      x.beginPath(); x.arc(cw - m - keyW, ch / 2, 36, 0, Math.PI * 2); x.stroke();
-      x.beginPath(); x.arc(cw - m, ch / 2, 120, Math.PI / 2, Math.PI * 1.5); x.stroke();
-      x.fillStyle = 'rgba(245,243,236,0.95)';
-      x.font = 'bold 118px Helvetica, Arial, sans-serif';
-      x.textAlign = 'center'; x.textBaseline = 'middle';
-      x.fillText('CDM', cw / 2, ch / 2 + 4);
-      const tex = new THREE.CanvasTexture(c);
-      const blackMat = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.8 });
-      g.add(mkBox(2.7, 0.08, 1.56, 0.04, blackMat));
-      const top = new THREE.Mesh(new THREE.PlaneGeometry(2.62, 1.5), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.65 }));
-      top.rotation.x = -Math.PI / 2; top.position.y = 0.085; g.add(top);
-      const postMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.6 });
-      const boardMat = new THREE.MeshStandardMaterial({ color: 0xf2f0ea, roughness: 0.6 });
-      const rimMat = new THREE.MeshStandardMaterial({ color: 0xe07b2a, roughness: 0.5, metalness: 0.3 });
-      [-1, 1].forEach(sd => {
-        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.55, 8), postMat);
-        post.position.set(sd * 1.32, 0.28, 0); g.add(post);
-        const board = new THREE.Mesh(boxGeo, boardMat);
-        board.scale.set(0.05, 0.3, 0.42); board.position.set(sd * 1.28, 0.56, 0); g.add(board);
-        const rim = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.018, 8, 16), rimMat);
-        rim.rotation.x = Math.PI / 2; rim.position.set(sd * 1.2, 0.46, 0); g.add(rim);
-      });
-      g.scale.setScalar(0.62);
-      placeFacing(g, 41, -41, Math.PI);
-      g.position.addScaledVector(g.position.clone().normalize(), 0.12);
-    })();
-
-    // --- Sacré-Cœur ---
-    (() => {
-      const g = new THREE.Group();
-      const stepMat = new THREE.MeshStandardMaterial({ color: 0xe7e1d4, roughness: 0.9 });
-      const bodyH = 1.0, W = 3.2, D = 2.4;
-      const sacreDome = new THREE.MeshStandardMaterial({ color: 0xa39a86, roughness: 0.72 });
-      const sacreGold = new THREE.MeshStandardMaterial({ color: 0xc7a44e, roughness: 0.4, metalness: 0.5 });
-      const sacreDoor = new THREE.MeshStandardMaterial({ color: 0x5e5b54, roughness: 0.85 });
-      const sacreRose = new THREE.MeshStandardMaterial({ color: 0x9fb6c9, roughness: 0.45, metalness: 0.2 });
-      g.add(mkBox(W + 0.6, 0.32, D + 0.6, 0.16, stepMat));
-      g.add(mkBox(W, bodyH, D, 0.32 + bodyH / 2, whiteMat));
-      const baseTop = 0.32 + bodyH;
-      const dome = (x, z, r, drumH, sy, cross) => {
-        const drum = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.06, drumH, 18), whiteMat);
-        drum.position.set(x, baseTop + drumH / 2, z); g.add(drum);
-        const d = new THREE.Mesh(new THREE.SphereGeometry(r, 22, 16, 0, Math.PI * 2, 0, Math.PI * 0.6), sacreDome);
-        d.scale.set(1, sy, 1); d.position.set(x, baseTop + drumH, z); g.add(d);
-        const lant = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.24, r * 0.3, r * 0.5, 12), whiteMat);
-        lant.position.set(x, baseTop + drumH + r * sy * 0.78, z); g.add(lant);
-        const tip = new THREE.Mesh(new THREE.ConeGeometry(r * 0.22, r * 0.55, 12), sacreGold);
-        const tipY = baseTop + drumH + r * sy * 0.78 + r * 0.42;
-        tip.position.set(x, tipY, z); g.add(tip);
-        if (cross) {
-          const cy = tipY + r * 0.45;
-          const vb = mkBox(0.045, 0.36, 0.045, cy, sacreGold); vb.position.set(x, cy, z); g.add(vb);
-          const hb = mkBox(0.2, 0.045, 0.045, cy + 0.07, sacreGold); hb.position.set(x, cy + 0.07, z); g.add(hb);
-        }
-      };
-      dome(0, -0.1, 0.72, 0.95, 1.4, true);
-      dome(-1.1, 0.7, 0.34, 0.55, 1.35);
-      dome(1.1, 0.7, 0.34, 0.55, 1.35);
-      dome(-1.1, -0.7, 0.34, 0.55, 1.35);
-      dome(1.1, -0.7, 0.34, 0.55, 1.35);
-      const camp = mkBox(0.55, 1.9, 0.55, baseTop + 0.95, whiteMat); camp.position.z = -D / 2 - 0.15; g.add(camp);
-      const campCap = mkBox(0.66, 0.22, 0.66, baseTop + 1.9, whiteMat); campCap.position.z = -D / 2 - 0.15; g.add(campCap);
-      const campRoof = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.6), sacreDome);
-      campRoof.scale.set(1, 1.35, 1); campRoof.position.set(0, baseTop + 2.0, -D / 2 - 0.15); g.add(campRoof);
-      for (let i = -1; i <= 1; i++) {
-        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.75, 12), whiteMat);
-        col.position.set(i * 0.85, 0.32 + 0.375, D / 2 + 0.08); g.add(col);
-      }
-      const lint = mkBox(W * 0.78, 0.2, 0.32, 0.32 + 0.85, whiteMat); lint.position.z = D / 2 + 0.05; g.add(lint);
-      for (let i = -1; i <= 1; i++) {
-        const door = mkBox(0.4, 0.6, 0.14, 0.62, sacreDoor);
-        door.position.set(i * 0.85, 0.62, D / 2 + 0.01); g.add(door);
-      }
-      const roseY = 0.32 + bodyH * 0.72, roseZ = D / 2 + 0.02;
-      const roseOuter = new THREE.Mesh(new THREE.CircleGeometry(0.32, 24), sacreGold);
-      roseOuter.position.set(0, roseY, roseZ - 0.01); g.add(roseOuter);
-      const roseGlass = new THREE.Mesh(new THREE.CircleGeometry(0.26, 24), sacreRose);
-      roseGlass.position.set(0, roseY, roseZ); g.add(roseGlass);
-      const rosePetals = [0xc8102e, 0x2e6db5, 0xe8c24a, 0x3f9b54];
-      for (let i = 0; i < 8; i++) {
-        const a = i / 8 * Math.PI * 2;
-        const petal = new THREE.Mesh(new THREE.CircleGeometry(0.06, 12),
-          new THREE.MeshStandardMaterial({ color: rosePetals[i % 4], roughness: 0.4, metalness: 0.1 }));
-        petal.position.set(Math.cos(a) * 0.15, roseY + Math.sin(a) * 0.15, roseZ + 0.006); g.add(petal);
-      }
-      const bronze = new THREE.MeshStandardMaterial({ color: 0x5f9e86, roughness: 0.5, metalness: 0.35 });
-      [-1.35, 1.35].forEach(sx => {
-        const ped = mkBox(0.34, 0.55, 0.34, 0, stepMat); ped.position.set(sx, 0.32 + 0.27, D / 2 + 0.18); g.add(ped);
-        const fig = mkBox(0.18, 0.42, 0.27, 0, bronze); fig.position.set(sx, 0.32 + 0.55 + 0.21, D / 2 + 0.18); g.add(fig);
-      });
-      g.scale.setScalar(0.83);
-      placeFacing(g, 46, -118, Math.PI);
-    })();
-
-    // --- Arc de Triomphe ---
-    (() => {
-      const g = new THREE.Group();
-      const W = 3.0, H = 3.4, D = 1.8;
-      const pierW = 0.8, open = W - 2 * pierW;
-      const archR = open / 2;
-      const spring = 1.8;
-      const atticMat = new THREE.MeshStandardMaterial({ color: 0xd8c9a8, roughness: 0.85 });
-      const arcStone = new THREE.MeshStandardMaterial({ color: 0xe3d2ad, roughness: 0.85 });
-      const reliefMat = new THREE.MeshStandardMaterial({ color: 0xbfa982, roughness: 0.9 });
-      const shape = new THREE.Shape();
-      shape.moveTo(-W / 2, 0); shape.lineTo(W / 2, 0);
-      shape.lineTo(W / 2, H); shape.lineTo(-W / 2, H); shape.lineTo(-W / 2, 0);
-      const hole = new THREE.Path();
-      hole.moveTo(-open / 2, 0);
-      hole.lineTo(-open / 2, spring);
-      hole.absarc(0, spring, archR, Math.PI, 0, true);
-      hole.lineTo(open / 2, 0);
-      hole.lineTo(-open / 2, 0);
-      shape.holes.push(hole);
-      const geo = new THREE.ExtrudeGeometry(shape, { depth: D, bevelEnabled: false, curveSegments: 20 });
-      geo.translate(0, 0, -D / 2);
-      g.add(new THREE.Mesh(geo, arcStone));
-      const pierX = open / 2 + pierW / 2;
-      [[pierX, D / 2 + 0.01], [-pierX, D / 2 + 0.01], [pierX, -D / 2 - 0.01], [-pierX, -D / 2 - 0.01]].forEach(([px, pz]) => {
-        const panel = mkBox(0.52, 1.3, 0.06, 1.05, reliefMat);
-        panel.position.set(px, 1.05, pz); g.add(panel);
-      });
-      [D / 2 - 0.05, -D / 2 + 0.05].forEach(z => {
-        const vault = new THREE.Mesh(new THREE.TorusGeometry(archR, 0.14, 8, 24, Math.PI), reliefMat);
-        vault.position.set(0, spring, z); g.add(vault);
-      });
-      [0x1b3a8c, 0xf4f4f4, 0xc8102e].forEach((c, i) => {
-        const strip = new THREE.Mesh(boxGeo, new THREE.MeshStandardMaterial({ color: c, roughness: 0.7, side: THREE.DoubleSide }));
-        strip.scale.set(open * 0.3, spring * 1.05, 0.04);
-        strip.position.set((i - 1) * open * 0.31, spring * 0.62, 0); g.add(strip);
-      });
-      const goldMat2 = new THREE.MeshStandardMaterial({ color: 0xc7a44e, roughness: 0.4, metalness: 0.55 });
-      g.add(mkBox(W + 0.28, 0.07, D + 0.24, H - 0.38, goldMat2));
-      for (let i = -1; i <= 1; i++) {
-        const wreath = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.04, 8, 16), goldMat2);
-        wreath.position.set(i * 0.9, H - 0.02, D / 2 + 0.01); g.add(wreath);
-        const wreathB = wreath.clone(); wreathB.position.z = -D / 2 - 0.01; g.add(wreathB);
-      }
-      [-1, 1].forEach(sx => {
-        const rec = new THREE.Mesh(boxGeo, atticMat);
-        rec.scale.set(0.12, 1.1, 0.55);
-        rec.position.set(sx * (W / 2 - 0.4), spring - 0.3, 0);
-        g.add(rec);
-      });
-      g.add(mkBox(W + 0.24, 0.24, D + 0.2, H - 0.5, atticMat));
-      g.add(mkBox(W - 0.25, 0.34, D - 0.2, H + 0.17, creamMat));
-      g.add(mkBox(W + 0.38, 0.26, D + 0.34, 0.13, stoneMats[3]));
-      g.scale.setScalar(0.9);
-      dropGroup(g, 44, 152, 0.6);
-    })();
-
-    // --- Notre-Dame ---
-    (() => {
-      const g = new THREE.Group();
-      g.add(mkBox(3.0, 0.85, 1.1, 0.42, stoneMats[2]));
-      const t1 = mkBox(0.6, 1.5, 0.7, 0.75, stoneMats[1]); t1.position.x = -1.0; g.add(t1);
-      const t2 = mkBox(0.6, 1.5, 0.7, 0.75, stoneMats[1]); t2.position.x = -0.2; g.add(t2);
-      const spire = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.1, 6), slateMat);
-      spire.position.set(0.9, 1.1, 0); g.add(spire);
-      g.position.x = 0.4;
-      g.scale.setScalar(0.85);
-      dropGroup(g, 50, 38, 0.6);
-    })();
-
-    // --- Louvre pyramid ---
-    (() => {
-      const g = new THREE.Group();
-      g.add(mkBox(2.2, 0.18, 2.2, 0.09, stoneMats[0]));
-      const pyr = new THREE.Mesh(new THREE.ConeGeometry(0.85, 1.0, 4), glassMat);
-      pyr.position.y = 0.6; pyr.rotation.y = Math.PI / 4; g.add(pyr);
-      g.scale.setScalar(0.9);
-      dropGroup(g, 30, 30, 0.2);
-    })();
-
-    // --- Panthéon ---
-    (() => {
-      const g = new THREE.Group();
-      g.add(mkBox(2.0, 0.7, 1.5, 0.35, creamMat));
-      for (let i = 0; i < 5; i++) {
-        const c = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.72, 8), creamMat);
-        c.position.set(-0.8 + i * 0.4, 0.36, 0.82); g.add(c);
-      }
-      g.add(mkBox(2.0, 0.16, 0.28, 0.78, creamMat));
-      const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.5, 18), creamMat);
-      drum.position.set(0.05, 0.95, -0.15); g.add(drum);
-      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.52, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2), creamMat);
-      dome.position.set(0.05, 1.18, -0.15); g.add(dome);
-      const lant = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.3, 8), creamMat);
-      lant.position.set(0.05, 1.82, -0.15); g.add(lant);
-      g.scale.setScalar(0.78);
-      dropGroup(g, 28, -8, 0.3);
-    })();
-
-    // --- Obélisque ---
-    (() => {
-      const g = new THREE.Group();
-      const sand = new THREE.MeshStandardMaterial({ color: 0xc2a878, roughness: 0.7 });
-      const gold = new THREE.MeshStandardMaterial({ color: 0xd9b95e, roughness: 0.3, metalness: 0.6 });
-      g.add(mkBox(0.55, 0.25, 0.55, 0.12, stoneMats[3]));
-      const ob = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.19, 2.5, 4), sand);
-      ob.position.y = 1.45; ob.rotation.y = Math.PI / 4; g.add(ob);
-      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.38, 4), gold);
-      tip.position.y = 2.85; tip.rotation.y = Math.PI / 4; g.add(tip);
-      g.scale.setScalar(0.82);
-      dropGroup(g, 24, -46, 0.2);
-    })();
-
-    // --- Grande Roue ---
-    (() => {
-      const g = new THREE.Group();
-      const wm = new THREE.MeshStandardMaterial({ color: 0xece4d4, roughness: 0.5, metalness: 0.25 });
-      const cabCols = [0xd35e5e, 0x5e8fd3, 0xd3b85e, 0x6fb86f];
-      const cy = 1.55, rad = 1.05;
-      const ring1 = new THREE.Mesh(new THREE.TorusGeometry(rad, 0.04, 8, 36), wm); ring1.position.y = cy; g.add(ring1);
-      const ring2 = new THREE.Mesh(new THREE.TorusGeometry(rad * 0.62, 0.03, 8, 28), wm); ring2.position.y = cy; g.add(ring2);
-      for (let i = 0; i < 14; i++) {
-        const a = i / 14 * Math.PI * 2;
-        const sp = new THREE.Mesh(boxGeo, wm); sp.scale.set(0.025, rad, 0.025);
-        sp.position.set(Math.cos(a) * rad / 2, cy + Math.sin(a) * rad / 2, 0);
-        sp.rotation.z = -a + Math.PI / 2; g.add(sp);
-        const cab = new THREE.Mesh(boxGeo, new THREE.MeshStandardMaterial({ color: cabCols[i % 4], roughness: 0.6 }));
-        cab.scale.set(0.14, 0.14, 0.14);
-        cab.position.set(Math.cos(a) * rad, cy + Math.sin(a) * rad, 0); g.add(cab);
-      }
-      [-1, 1].forEach(side => {
-        [-1, 1].forEach(zz => {
-          const st = new THREE.Mesh(boxGeo, wm); st.scale.set(0.05, 1.95, 0.05);
-          st.position.set(side * 0.55, cy * 0.55, zz * 0.45);
-          st.quaternion.setFromUnitVectors(UP, new THREE.Vector3(-side * 0.55, cy, -zz * 0.45).normalize());
-          g.add(st);
-        });
-      });
-      g.scale.setScalar(0.78);
-      dropGroup(g, 16, 14, 0.45);
-    })();
-
-    // --- Parc des Princes ---
-    (() => {
-      const g = new THREE.Group();
-      const concrete = new THREE.MeshStandardMaterial({ color: 0xd7d3ca, roughness: 0.8, side: THREE.DoubleSide });
-      const roofMatS = new THREE.MeshStandardMaterial({ color: 0xe6e3db, roughness: 0.6, metalness: 0.15, side: THREE.DoubleSide });
-      const seatMat = new THREE.MeshStandardMaterial({ color: 0x1f2d6b, roughness: 0.9, side: THREE.DoubleSide });
-      const pitchMat = new THREE.MeshStandardMaterial({ color: 0x3aa03a, roughness: 1 });
-      const whiteLine = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
-      const ex = 1.3;
-      const pitch = new THREE.Mesh(new THREE.CircleGeometry(1.0, 44), pitchMat);
-      pitch.rotation.x = -Math.PI / 2; pitch.scale.set(ex, 1, 1); pitch.position.y = 0.06; g.add(pitch);
-      const inner = new THREE.Mesh(new THREE.CylinderGeometry(1.35, 1.85, 0.95, 56, 1, true), seatMat);
-      inner.scale.set(ex, 1, 1); inner.position.y = 0.5; g.add(inner);
-      const redBand = new THREE.Mesh(new THREE.CylinderGeometry(1.46, 1.58, 0.26, 56, 1, true),
-        new THREE.MeshStandardMaterial({ color: 0xc8102e, roughness: 0.9, side: THREE.DoubleSide }));
-      redBand.scale.set(ex, 1, 1); redBand.position.y = 0.6; g.add(redBand);
-      const circle = new THREE.Mesh(new THREE.RingGeometry(0.26, 0.31, 28), whiteLine);
-      circle.rotation.x = -Math.PI / 2; circle.scale.set(ex, 1, 1); circle.position.y = 0.07; g.add(circle);
-      const halfway = mkBox(0.05, 0.012, 2.0, 0.07, whiteLine); g.add(halfway);
-      const wall = new THREE.Mesh(new THREE.CylinderGeometry(2.0, 1.95, 1.1, 56, 1, true), concrete);
-      wall.scale.set(ex, 1, 1); wall.position.y = 0.55; g.add(wall);
-      const roof = new THREE.Mesh(new THREE.RingGeometry(1.2, 2.15, 64), roofMatS);
-      roof.rotation.x = -Math.PI / 2; roof.scale.set(ex, 1, 1); roof.position.y = 1.18; g.add(roof);
-      const ribN = 26;
-      for (let i = 0; i < ribN; i++) {
-        const a = i / ribN * Math.PI * 2;
-        const cx = Math.cos(a), cz = Math.sin(a);
-        const rib = new THREE.Mesh(boxGeo, concrete);
-        rib.scale.set(0.07, 1.5, 0.16);
-        rib.position.set(cx * 2.02 * ex, 0.7, cz * 2.02);
-        const lean = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(-cz, 0, cx * ex).normalize(), 0.18);
-        rib.quaternion.copy(lean);
-        g.add(rib);
-      }
-      g.scale.setScalar(0.7);
-      dropGroup(g, 46, 62, 0.2);
-    })();
-
-    // ===== CHAISE SCANDINAVE EN BOIS — en grand, plein centre de la planète =====
-    (() => {
-      const V = (x, y, z) => new THREE.Vector3(x, y, z);
-      const g = new THREE.Group();
-      const oak = new THREE.MeshStandardMaterial({ color: 0xb2762f, roughness: 0.5, metalness: 0 });
-      const oakDark = new THREE.MeshStandardMaterial({ color: 0x97631f, roughness: 0.53, metalness: 0 });
-      const bar = (p1, p2, rP1, rP2, mat) => {
-        const dir = new THREE.Vector3().subVectors(p2, p1);
-        const m = new THREE.Mesh(new THREE.CylinderGeometry(rP2, rP1, dir.length(), 24), mat);
-        m.position.copy(p1).add(p2).multiplyScalar(0.5);
-        m.quaternion.setFromUnitVectors(UP, dir.clone().normalize());
-        g.add(m);
-      };
-      const roundedRect = (w, h, r) => {
-        const sh = new THREE.Shape(); const x = -w / 2, y = -h / 2;
-        sh.moveTo(x + r, y); sh.lineTo(x + w - r, y); sh.absarc(x + w - r, y + r, r, -Math.PI / 2, 0);
-        sh.lineTo(x + w, y + h - r); sh.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2);
-        sh.lineTo(x + r, y + h); sh.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI);
-        sh.lineTo(x, y + r); sh.absarc(x + r, y + r, r, Math.PI, Math.PI * 1.5); return sh;
-      };
-      const seatW = 0.44, seatD = 0.42, seatT = 0.035, seatTop = 0.45;
-      const seatGeo = new THREE.ExtrudeGeometry(roundedRect(seatW, seatD, 0.06),
-        { depth: seatT, bevelEnabled: true, bevelThickness: 0.01, bevelSize: 0.01, bevelSegments: 3, steps: 1 });
-      seatGeo.rotateX(-Math.PI / 2); seatGeo.translate(0, seatTop - seatT, 0);
-      g.add(new THREE.Mesh(seatGeo, oak));
-      const under = seatTop - seatT - 0.005;
-      const legTops = [V(-0.17, under, 0.16), V(0.17, under, 0.16), V(-0.17, under, -0.16), V(0.17, under, -0.16)];
-      const legFeet = [V(-0.215, 0, 0.215), V(0.215, 0, 0.215), V(-0.215, 0, -0.215), V(0.215, 0, -0.215)];
-      for (let i = 0; i < 4; i++) bar(legTops[i], legFeet[i], 0.021, 0.012, oak);
-      bar(V(-0.155, 0.42, -0.165), V(-0.16, 0.845, -0.235), 0.02, 0.015, oak);
-      bar(V(0.155, 0.42, -0.165), V(0.16, 0.845, -0.235), 0.02, 0.015, oak);
-      const crestPts = [V(-0.185, 0.838, -0.238), V(-0.16, 0.845, -0.235), V(0, 0.86, -0.205), V(0.16, 0.845, -0.235), V(0.185, 0.838, -0.238)];
-      const crestCurve = new THREE.CatmullRomCurve3(crestPts, false, 'catmullrom', 0.4);
-      g.add(new THREE.Mesh(new THREE.TubeGeometry(crestCurve, 60, 0.017, 18, false), oak));
-      const sb = V(0, 0.452, -0.165), st = V(0, 0.83, -0.232);
-      const sdir = new THREE.Vector3().subVectors(st, sb);
-      const splatGeo = new THREE.ExtrudeGeometry(roundedRect(0.115, sdir.length(), 0.045),
-        { depth: 0.013, bevelEnabled: true, bevelThickness: 0.004, bevelSize: 0.004, bevelSegments: 2, steps: 1 });
-      splatGeo.translate(0, 0, -0.0065);
-      const splat = new THREE.Mesh(splatGeo, oakDark);
-      splat.position.copy(sb).add(st).multiplyScalar(0.5);
-      splat.quaternion.setFromUnitVectors(UP, sdir.clone().normalize());
-      g.add(splat);
-      bar(V(-0.205, 0.18, 0.205), V(-0.205, 0.18, -0.205), 0.011, 0.011, oak);
-      bar(V(0.205, 0.18, 0.205), V(0.205, 0.18, -0.205), 0.011, 0.011, oak);
-
-      const CHAIR_SCALE = 7.5;
-      g.scale.setScalar(CHAIR_SCALE);
-      dropGroup(g, 90, 0, 0);
-      g.position.z -= 1.0;   // recule un peu la chaise pour dégager le dossier derrière le personnage
-      // La chaise partage le layer du projecteur pour en recevoir la lumière
-      g.traverse(o => { if (o.isMesh) o.layers.enable(CHAIR_LAYER); });
-      window.__chair = g;
-    })();
-
-    // ===== Personnage (modèle GLB) assis sur la chaise =====
-    (() => {
-      const FLOOR_Y = 10;                         // surface de la planète au pôle
-      const charGroup = new THREE.Group();
-      world.add(charGroup);
-
-      // Modèle DÉJÀ assis : on ancre les pieds au sol et on agrandit
-      // jusqu'à ce que le bassin repose sur l'assise.
-      const T = window.__charT = { scale: 11.6, y: 1.0, x: 0, z: 0, rotY: 0 };
-      const apply = () => {
-        charGroup.scale.setScalar(T.scale);
-        charGroup.position.set(T.x, FLOOR_Y + T.y, T.z);   // pieds (origine du modèle) au sol
-        charGroup.rotation.y = T.rotY;
-      };
-      window.__charTune = (o) => { Object.assign(T, o); apply(); };
-
-      // Lumière dédiée au personnage + chaise (layer 1), pour bien l'éclairer
-      const charKey = new THREE.DirectionalLight(0xfff3e2, 2.2);
-      charKey.position.set(10, 30, 20);
-      charKey.layers.set(1);
-      scene.add(charKey);
-      const charFill = new THREE.DirectionalLight(0xdfe8ff, 1.0);
-      charFill.position.set(-14, 16, -10);
-      charFill.layers.set(1);
-      scene.add(charFill);
-      const charAmb = new THREE.AmbientLight(0xfff2e0, 0.9);
-      charAmb.layers.set(1);
-      scene.add(charAmb);
-
-      const loader = new THREE.GLTFLoader();
-      const dracoLoader = new THREE.DRACOLoader();
-      dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
-      loader.setDRACOLoader(dracoLoader);
-      loader.load('char_seated-v1.glb', (gltf) => {
-        const model = gltf.scene;
-        // normalise la hauteur à 1
-        let box = new THREE.Box3().setFromObject(model);
-        model.scale.setScalar(1 / (box.max.y - box.min.y));
-        model.updateMatrixWorld(true);
-        // recentre en X/Z, pose les pieds (min.y) à l'origine du groupe
-        box = new THREE.Box3().setFromObject(model);
-        const c = new THREE.Vector3(); box.getCenter(c);
-        model.position.x -= c.x;
-        model.position.z -= c.z;
-        model.position.y -= box.min.y;
-        model.traverse(o => {
-          if (o.isMesh) {
-            o.castShadow = true; o.receiveShadow = true; o.layers.enable(1);
-            // les textures GLB sont en sRGB : on les aligne sur le pipeline linéaire
-            // de la scène pour qu'elles ne sortent pas trop sombres
-            const mats = Array.isArray(o.material) ? o.material : [o.material];
-            mats.forEach(m => {
-              if (!m) return;
-              if (m.map) { m.map.encoding = THREE.LinearEncoding; }
-              m.emissive = new THREE.Color(0xffffff);
-              m.emissiveMap = m.map || null;
-              m.emissiveIntensity = 0.28;
-              m.needsUpdate = true;
-            });
-          }
-        });
-        charGroup.add(model);
-        apply();
-        const cl = document.getElementById('char-loader');
-        if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }
-      }, (xhr) => {
-        if (xhr && xhr.total) {
-          const pct = Math.round((xhr.loaded / xhr.total) * 100);
-          const fill = document.getElementById('cl-fill');
-          const txt = document.getElementById('cl-txt');
-          if (fill) fill.style.width = pct + '%';
-          if (txt) txt.textContent = 'Chargement du personnage… ' + pct + '%';
-        }
-      }, (err) => {
-        console.error('GLB load error', err);
-        const txt = document.getElementById('cl-txt');
-        if (txt) txt.textContent = 'Impossible de charger le personnage';
-      });
-
-      // Lueur bleutée de l'écran de l'ordinateur, qui se reflète sur le visage/buste
-      // (enfant du charGroup -> suit le personnage)
-      const screen = new THREE.PointLight(0x3d7bff, 13, 5.4, 1.0);
-      screen.position.set(0, 0.46, 0.3);   // ~ écran, sur les genoux, devant le torse
-      charGroup.add(screen);
-      window.__screen = screen;
-      window.__screenTune = (o) => {
-        if (o.x != null) screen.position.x = o.x;
-        if (o.y != null) screen.position.y = o.y;
-        if (o.z != null) screen.position.z = o.z;
-        if (o.i != null) screen._base = o.i;
-        if (o.d != null) screen.distance = o.d;
-      };
-      screen._base = 13;
-      (function flicker() {
-        requestAnimationFrame(flicker);
-        const t = performance.now() / 1000;
-        // scintillement subtil, comme une vidéo qui défile
-        screen.intensity = screen._base * (1 + 0.12 * Math.sin(t * 6.7) + 0.07 * Math.sin(t * 15.3));
-      })();
-    })();
-
-    // ===== Titre 3D en relief — nom de l'agence, flottant au-dessus de la planète =====
-    (() => {
-      return; // Titre 3D désactivé — remplacé par un titre HTML plus lisible
-      // Construit une géométrie de texte 3D en relief depuis une vraie police TTF
-      const buildTextGeo = (otFont, text, size) => {
-        // traitement glyphe par glyphe : winding fiable, chaque lettre + ses contre-formes
-        const paths = otFont.getPaths(text, 0, 0, size);
-        const shapes = [];
-        paths.forEach(p => {
-          const sp = new THREE.ShapePath();
-          p.commands.forEach(c => {
-            if (c.type === 'M') sp.moveTo(c.x, -c.y);
-            else if (c.type === 'L') sp.lineTo(c.x, -c.y);
-            else if (c.type === 'C') sp.bezierCurveTo(c.x1, -c.y1, c.x2, -c.y2, c.x, -c.y);
-            else if (c.type === 'Q') sp.quadraticCurveTo(c.x1, -c.y1, c.x, -c.y);
-            else if (c.type === 'Z' && sp.currentPath) sp.currentPath.autoClose = true;
-          });
-          sp.toShapes(true).forEach(s => shapes.push(s));
-        });
-        const geo = new THREE.ExtrudeGeometry(shapes, {
-          depth: size * 0.55,        // bien gonflé
-          curveSegments: 8,
-          bevelEnabled: true,
-          bevelThickness: size * 0.09,
-          bevelSize: size * 0.07,
-          bevelSegments: 5
-        });
-        geo.computeBoundingBox();
-        let bb = geo.boundingBox;
-        geo.translate(-(bb.max.x + bb.min.x) / 2, -(bb.max.y + bb.min.y) / 2, -bb.max.z / 2);
-        geo.computeBoundingBox();
-        return geo;
-      };
-
-      // Lilita One : police display ronde et grasse, look "enseigne de marque"
-      opentype.load('https://cdn.jsdelivr.net/gh/google/fonts@main/ofl/lilitaone/LilitaOne-Regular.ttf', (err, font) => {
-        if (err) { console.error('Police impossible à charger', err); return; }
-        const geo = buildTextGeo(font, 'Mon Copain Digital', 2.2);
-        const bb = geo.boundingBox;
-
-        // ===== Lettres BALLON blanches (brillantes, gonflées) =====
-        const balloonMat = new THREE.MeshPhysicalMaterial({
-          color: 0xffffff,
-          roughness: 0.26,
-          metalness: 0,
-          clearcoat: 1.0,            // vernis brillant -> reflet de ballon
-          clearcoatRoughness: 0.12,
-          reflectivity: 0.6,
-          emissive: 0xfff4ea,
-          emissiveIntensity: 0.08,
-          side: THREE.DoubleSide
-        });
-        const title = new THREE.Group();
-        const balloon = new THREE.Mesh(geo, balloonMat);
-        balloon.castShadow = true;
-        balloon.layers.enable(CHAIR_LAYER);
-        title.add(balloon);
-        title.layers.enable(CHAIR_LAYER);
-
-        // Gréement suspendu : le point d'ancrage (origine du rig) est en haut,
-        // le titre pend dessous, relié par deux fils.
-        const rig = new THREE.Group();
-        rig.position.set(0, 33, -12);     // point d'attache, hors champ vers le haut
-        rig.layers.enable(CHAIR_LAYER);
-        scene.add(rig);
-
-        const dropY = -12;                // le titre descend sous l'ancrage
-        title.position.set(0, dropY, 0);
-        rig.add(title);
-
-        // Deux ficelles de ballon accrochées au sommet des lettres hautes (« M » et « l »)
-        const titleTopY = dropY + bb.max.y;
-        const wireMat = new THREE.MeshStandardMaterial({ color: 0xf2ece0, roughness: 0.8, metalness: 0 });
-        [bb.min.x * 0.92, bb.max.x * 0.95].forEach((wx) => {
-          const len = -titleTopY;        // de y=0 (ancrage) jusqu'au sommet des lettres
-          const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, len, 6), wireMat);
-          wire.position.set(wx, titleTopY / 2, 0.55);   // un peu en avant, devant la face des lettres
-          rig.add(wire);
-          // petit nœud du ballon là où la ficelle rejoint la lettre
-          const knot = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), wireMat);
-          knot.position.set(wx, titleTopY, 0.55);
-          rig.add(knot);
-        });
-
-        (function sway() {
-          requestAnimationFrame(sway);
-          const t = performance.now() / 1000;
-          // balancement de pendule autour du point d'ancrage + léger bob vertical
-          rig.rotation.z = Math.sin(t * 0.7) * 0.035;
-          rig.rotation.x = Math.sin(t * 0.5) * 0.02;
-          rig.position.y = 33 + Math.sin(t * 0.9) * 0.3;
-        })();
-      });
-    })();
-
-    let rotY = 0.0, rotX = 0.0, tRotY = 0.0, tRotX = 0.0;
-    const autoSpin = true;
-
-    const resize = () => {
-      const w = canvas.clientWidth, h = canvas.clientHeight;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h; camera.updateProjectionMatrix();
-    };
-    resize();
-    window.addEventListener('resize', resize);
-
-    const animate = () => {
-      requestAnimationFrame(animate);
-      if (autoSpin) tRotY += 0.0016;
-      rotY += (tRotY - rotY) * 0.08;
-      rotX += (tRotX - rotX) * 0.08;
-      world.rotation.y = rotY;
-      world.rotation.x = rotX;
-      const VY = 10;
-      camera.position.set(0, camDist * 0.42 + VY, camDist * 0.9);
-      camera.lookAt(0, R * 0.32 + VY, 0);
-      renderer.render(scene, camera);
-    };
-    animate();
-}
-start();
+    box.innerHTML = h;
+  })();
 </script>
 </body>
 </html>
