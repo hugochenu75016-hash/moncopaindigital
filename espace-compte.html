@@ -922,6 +922,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Mon profil
       </a>
+      <a class="nav-item" data-aview="parametres">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Paramètres
+      </a>
 
       <div class="spacer"></div>
       <a class="side-logout" id="adm-logout">
@@ -1096,6 +1100,25 @@
             <div class="field"><label for="adm-p-pass2">Confirmer</label><input id="adm-p-pass2" type="password" placeholder="Répétez le mot de passe"></div>
           </div>
           <button class="primary-btn" data-act="chg-pass" style="width:auto;padding:14px 34px;">Changer le mot de passe</button>
+        </div>
+      </section>
+
+      <!-- ===== Paramètres (admin/commercial) ===== -->
+      <section class="aview" id="aview-parametres">
+        <div class="card">
+          <div class="card-title-row"><div><h2>Apparence</h2><p class="sub" style="margin:2px 0 0;">Choisissez l'ambiance de votre espace.</p></div></div>
+          <div class="theme-picker">
+            <button type="button" class="theme-opt" data-theme="orange">
+              <span class="theme-swatch swatch-orange"></span>
+              <span class="theme-lbl">Orange<small>Lumineux</small></span>
+              <span class="theme-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+            </button>
+            <button type="button" class="theme-opt" data-theme="night">
+              <span class="theme-swatch swatch-night"></span>
+              <span class="theme-lbl">Nuit<small>Sombre</small></span>
+              <span class="theme-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+            </button>
+          </div>
         </div>
       </section>
     </main>
@@ -1652,8 +1675,9 @@
         try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
         applyTheme(t);
         if(current){ current.theme=t; }
-        /* Enregistrement pour ce compte (Supabase) */
-        if(current && current.id){ try{ sb.from('profiles').update({ theme:t }).eq('id',current.id).then(function(r){ if(r&&r.error) console.warn('Thème non enregistré en base (colonne theme ?):', r.error.message); }); }catch(e){} }
+        if(typeof admin==='object' && admin && admin.me){ admin.me.theme=t; }
+        /* Enregistrement pour ce compte (Supabase) — client, admin ou commercial */
+        if(typeof authUser!=='undefined' && authUser && authUser.id){ try{ sb.from('profiles').update({ theme:t }).eq('id',authUser.id).then(function(r){ if(r&&r.error) console.warn('Thème non enregistré en base (colonne theme ?):', r.error.message); }); }catch(e){} }
       });
     });
 
@@ -1804,7 +1828,7 @@
     cmsgsAll.forEach(function(m){ var k=admin.coachById[m.coach_id]; if(k) k.cmsgs.push(m); });
     if(admin.role==='coach'){ admin.clients = admin.clients.filter(function(c){ return c.coach_id===admin.myCoachId; }); var nb={}; admin.clients.forEach(function(c){ nb[c.id]=c; }); admin.byId=nb; }
     var mine = map[authUser.id];
-    admin.me = { nom:(mine&&mine.nom)||(authUser.user_metadata&&authUser.user_metadata.nom)||authUser.email.split('@')[0], tel:(mine&&mine.tel)||(authUser.user_metadata&&authUser.user_metadata.tel)||'', entreprise:(mine&&mine.entreprise)||'', avatar:(mine&&mine.avatar)||'' };
+    admin.me = { nom:(mine&&mine.nom)||(authUser.user_metadata&&authUser.user_metadata.nom)||authUser.email.split('@')[0], tel:(mine&&mine.tel)||(authUser.user_metadata&&authUser.user_metadata.tel)||'', entreprise:(mine&&mine.entreprise)||'', avatar:(mine&&mine.avatar)||'', theme:(mine&&mine.theme)||null };
   }
 
   function admUnread(c){ var last=+localStorage.getItem('mcd_admin_read_'+c.id)||0; return c.messages.filter(function(m){ return m.sender==='me' && new Date(m.created_at).getTime()>last; }).length; }
@@ -2155,7 +2179,7 @@
 
   function flashToast(msg){ var t=$('#adm-toast'); if(!t){ t=document.createElement('div'); t.id='adm-toast'; t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;background:#fff8ef;color:#a54a00;font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:14px;padding:12px 22px;border-radius:999px;box-shadow:0 12px 30px rgba(120,50,0,0.4);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;'; document.body.appendChild(t); } t.textContent=msg; requestAnimationFrame(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(-4px)'; }); clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%)'; }, 1900); }
 
-  var ADM_TITLES = { overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'] };
+  var ADM_TITLES = { overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'], parametres:['Compte','Paramètres'] };
   function closeAdmSide(){ var s=$('#adm-side'); if(s) s.classList.remove('open'); var sc=$('#adm-scrim'); if(sc) sc.classList.remove('show'); }
   function switchAdminView(name){
     admin.view=name;
@@ -2307,6 +2331,7 @@
     authSection.style.display='none';
     appSection.classList.remove('show');
     $('#admin').classList.add('show');
+    try{ var _t=(admin.me && admin.me.theme)||'orange'; localStorage.setItem('mcd-theme',_t); document.body.classList.toggle('theme-night', _t==='night'); $all('.theme-opt').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme')===_t); }); }catch(e){}
     var isCoach = admin.role==='coach';
     var cn=$('#adm-side .nav-item[data-aview="coach"]'); if(cn) cn.style.display=isCoach?'none':'';
     var dn=$('#adm-side .nav-item[data-aview="direction"]'); if(dn) dn.style.display=isCoach?'':'none';
