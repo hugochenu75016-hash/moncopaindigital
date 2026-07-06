@@ -1110,6 +1110,7 @@
   tabSignup.addEventListener('click', function(){ switchTab('signup'); });
   $('#go-signup').addEventListener('click', function(e){ e.preventDefault(); switchTab('signup'); });
   $('#go-login').addEventListener('click', function(e){ e.preventDefault(); switchTab('login'); });
+  try{ if(new URLSearchParams(location.search).get('signup')==='1'){ switchTab('signup'); } }catch(e){}
 
   formSignup.addEventListener('submit', async function(e){
     e.preventDefault(); clearErr();
@@ -1686,14 +1687,52 @@
     admin.showClientForm=false; flashToast('Client créé'); updateAdminBadges();
     switchAdminView('client'); renderAdminClientDetail(c.id);
   }
+  /* ===== Confirmation par mot de passe admin ===== */
+  function askAdminPassword(title, message){
+    return new Promise(function(resolve){
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(60,25,0,0.45);backdrop-filter:blur(3px);padding:20px;';
+      ov.innerHTML='<div style="width:100%;max-width:420px;background:#fff8ef;border-radius:20px;box-shadow:0 24px 60px rgba(120,50,0,0.4);padding:26px 26px 22px;font-family:\'Nunito\',sans-serif;">'
+        +'<h3 style="margin:0 0 6px;font-family:\'Fredoka\',sans-serif;font-weight:600;color:#3a2410;font-size:20px;">'+esc(title||'Confirmation requise')+'</h3>'
+        +'<p style="margin:0 0 16px;color:#7a5c3e;font-size:14px;line-height:1.5;">'+esc(message||'Entrez votre mot de passe pour confirmer cette action.')+'</p>'
+        +'<input type="password" data-apw autocomplete="current-password" placeholder="Votre mot de passe admin" style="width:100%;box-sizing:border-box;padding:13px 15px;border:1px solid rgba(120,50,0,0.2);border-radius:12px;background:#fff;font-size:15px;font-family:inherit;outline:none;">'
+        +'<div data-apw-err style="color:#d63b1f;font-size:13px;min-height:18px;margin:7px 2px 0;"></div>'
+        +'<div style="display:flex;gap:10px;margin-top:14px;">'
+          +'<button data-apw-cancel style="flex:1;padding:13px;border:1px solid rgba(120,50,0,0.2);border-radius:12px;background:#fff;color:#6b4b2c;font-family:\'Fredoka\',sans-serif;font-weight:500;font-size:15px;cursor:pointer;">Annuler</button>'
+          +'<button data-apw-ok style="flex:1;padding:13px;border:none;border-radius:12px;background:#ff5a2a;color:#fff;font-family:\'Fredoka\',sans-serif;font-weight:600;font-size:15px;cursor:pointer;">Confirmer</button>'
+        +'</div></div>';
+      document.body.appendChild(ov);
+      var inp=ov.querySelector('[data-apw]'); var errEl=ov.querySelector('[data-apw-err]');
+      var okBtn=ov.querySelector('[data-apw-ok]'); var cancelBtn=ov.querySelector('[data-apw-cancel]');
+      setTimeout(function(){ inp.focus(); }, 40);
+      function close(val){ try{ document.body.removeChild(ov); }catch(e){} resolve(val); }
+      async function submit(){
+        var pw=inp.value; if(!pw){ errEl.textContent='Entrez votre mot de passe.'; return; }
+        okBtn.disabled=true; okBtn.textContent='Vérification…'; errEl.textContent='';
+        var ok=false;
+        try{
+          var tmp=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, { auth:{ storageKey:'sb-verify-tmp', persistSession:false, autoRefreshToken:false } });
+          var r=await tmp.auth.signInWithPassword({ email:authUser.email, password:pw });
+          ok = !(r && r.error);
+          try{ await tmp.auth.signOut(); }catch(e){}
+        }catch(e){ ok=false; }
+        if(ok){ close(true); }
+        else { okBtn.disabled=false; okBtn.textContent='Confirmer'; errEl.textContent='Mot de passe incorrect.'; inp.select(); }
+      }
+      okBtn.addEventListener('click', submit);
+      cancelBtn.addEventListener('click', function(){ close(false); });
+      ov.addEventListener('click', function(e){ if(e.target===ov) close(false); });
+      inp.addEventListener('keydown', function(e){ if(e.key==='Enter') submit(); if(e.key==='Escape') close(false); });
+    });
+  }
   async function delClient(id){
     var c=admin.byId[id]; if(!c) return;
     if(admin.role==='coach'){ flashToast('Action réservée à l’administrateur'); return; }
     if(c.manual){
-      if(!confirm('Supprimer définitivement ce client ?')) return;
+      if(!(await askAdminPassword('Supprimer ce client', 'Confirmez la suppression définitive de « '+(c.nom||'ce client')+' » avec votre mot de passe.'))) return;
       try{ await sb.from('clients_manuels').delete().eq('id',id); }catch(e){}
     } else {
-      if(!confirm('Supprimer DÉFINITIVEMENT « '+c.nom+' » et tout son espace client (rendez-vous, projet, factures, messages, avis) ?\n\nCette action est irréversible.')) return;
+      if(!(await askAdminPassword('Suppression définitive', 'Confirmez avec votre mot de passe la suppression de « '+(c.nom||'ce client')+' » et de tout son espace (rendez-vous, projet, factures, messages, avis). Action irréversible.'))) return;
       try{ await sb.from('rendez_vous').delete().eq('user_id',id); }catch(e){}
       try{ await sb.from('factures').delete().eq('user_id',id); }catch(e){}
       try{ await sb.from('projets').delete().eq('user_id',id); }catch(e){}
@@ -2029,7 +2068,7 @@
     var cls=coachClients(id);
     var clientsHtml = cls.length ? cls.map(function(c){ return '<div class=\"list-item\">'+avSpan('li-ic', c.avatar, initials(c.nom))+'<div class=\"li-main\"><div class=\"t1\">'+esc(c.nom)+'</div><div class=\"t2\">'+esc(c.tel||c.email||'\u2014')+'</div></div><div class=\"li-end\" style=\"display:flex;gap:8px;align-items:center;\"><button class=\"link-btn\" data-act=\"open-client\" data-id=\"'+c.id+'\">Fiche</button><button class=\"adm-iconbtn\" data-act=\"unassign-client\" data-id=\"'+c.id+'\" title=\"Retirer de ce commercial\">'+XICON+'</button></div></div>'; }).join('') : '<div class=\"empty\">Aucun client assign\u00e9.</div>';
     var CAM='<span style=\"position:absolute;right:-2px;bottom:-2px;width:26px;height:26px;border-radius:50%;background:#ff5a2a;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid #fff8ef;box-shadow:0 4px 10px rgba(120,50,0,0.35);\"><svg viewBox=\"0 0 24 24\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/></svg></span>';
-    var accCard = '<div class="card col-12"><div class="card-title-row"><h2>Acc\u00e8s au panneau commercial</h2></div>' + (k.user_id ? ('<p class="sub" style="margin:0;">Compte actif : <strong>'+esc(k.email||'')+'</strong> \u2014 ce commercial se connecte avec cet email et ne voit que ses clients.</p>') : ('<p class="sub" style="margin:0 0 12px;">Cr\u00e9ez un identifiant pour que ce commercial acc\u00e8de \u00e0 son espace.</p><div class="adm-add-row" data-coach-acc-box style="grid-template-columns:1.4fr 1.2fr auto;margin-top:0;"><input data-af="email" type="email" placeholder="Email de connexion" value="'+esc(k.email||'')+'"><input data-af="pass" type="password" placeholder="Mot de passe (6+)"><button class="link-btn" data-act="create-coach-acc" data-id="'+k.id+'">Cr\u00e9er le compte</button></div>')) + '</div>';
+    var accCard = '<div class="card col-12"><div class="card-title-row"><h2>Acc\u00e8s au panneau commercial</h2></div>' + (k.user_id ? ('<p class="sub" style="margin:0 0 12px;">Compte actif : <strong>'+esc(k.email||'')+'</strong> \u2014 ce commercial se connecte avec cet email et ne voit que ses clients.</p><div class="adm-add-row" data-coach-pass-box style="grid-template-columns:1.4fr auto;margin-top:0;"><input data-pf="pass" type="password" placeholder="Nouveau mot de passe (6+)" autocomplete="new-password"><button class="link-btn" data-act="set-coach-pass" data-id="'+k.id+'">Modifier le mot de passe</button></div>') : ('<p class="sub" style="margin:0 0 12px;">Cr\u00e9ez un identifiant pour que ce commercial acc\u00e8de \u00e0 son espace.</p><div class="adm-add-row" data-coach-acc-box style="grid-template-columns:1.4fr 1.2fr auto;margin-top:0;"><input data-af="email" type="email" placeholder="Email de connexion" value="'+esc(k.email||'')+'"><input data-af="pass" type="password" placeholder="Mot de passe (6+)"><button class="link-btn" data-act="create-coach-acc" data-id="'+k.id+'">Cr\u00e9er le compte</button></div>')) + '</div>';
     var cmsgs=k.cmsgs||[];
     var cmHtml=cmsgs.length?cmsgs.map(function(m){var mineA=m.sender==='admin';return '<div class="msg '+(mineA?'me':'them')+'"><span class="mav">'+(mineA?ICON_HUGO:ICON_USER)+'</span><div class="bubble">'+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>';}).join(''):'<div class="empty">Aucun message pour le moment.</div>';
     var chatCard='<div class="card col-12"><div class="card-title-row"><h2>Discussion avec ce commercial</h2></div><div class="chat-body" style="max-height:300px;">'+cmHtml+'</div><div class="chat-compose"><textarea data-coach-reply="'+k.id+'" rows="1" placeholder="Message \u00e0 '+esc(k.nom.split(' ')[0])+'\u2026"></textarea><button class="send-btn" data-act="coach-send" data-id="'+k.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg></button></div></div>';
@@ -2052,7 +2091,7 @@
   }
   async function saveCoach(id, patch){ var k=admin.coachById[id]; if(!k) return; if(patch.nom!==undefined) k.nom=patch.nom||k.nom; if(patch.role!==undefined) k.role=patch.role; if(patch.email!==undefined) k.email=patch.email; if(patch.tel!==undefined) k.tel=patch.tel; try{ await sb.from('coachs').update({nom:k.nom, role:k.role, email:k.email, tel:k.tel}).eq('id',id); }catch(e){} flashToast('Enregistr\u00e9'); renderCoachDetail(id); }
   async function saveCoachAvatar(id, url){ var k=admin.coachById[id]; if(k) k.avatar=url; try{ await sb.from('coachs').update({avatar:url||null}).eq('id',id); }catch(e){} }
-  async function delCoach(id){ if(!confirm('Supprimer ce commercial ?')) return; try{ await sb.from('coachs').delete().eq('id',id); }catch(e){} admin.coachs=admin.coachs.filter(function(x){return x.id!==id;}); delete admin.coachById[id]; admin.clients.forEach(function(c){ if(c.coach_id===id) c.coach_id=null; }); admin.openCoachId=null; switchAdminView('coach'); renderAdminCoachs(); }
+  async function delCoach(id){ var kc=admin.coachById[id]; if(!(await askAdminPassword('Supprimer ce commercial', 'Confirmez avec votre mot de passe la suppression de '+((kc&&kc.nom)||'ce commercial')+'.'))) return; try{ await sb.from('coachs').delete().eq('id',id); }catch(e){} admin.coachs=admin.coachs.filter(function(x){return x.id!==id;}); delete admin.coachById[id]; admin.clients.forEach(function(c){ if(c.coach_id===id) c.coach_id=null; }); admin.openCoachId=null; switchAdminView('coach'); renderAdminCoachs(); }
   async function createCoachAccount(coachId, email, pass){
     if(!email || !pass){ flashToast('Email et mot de passe requis'); return; }
     if(pass.length<6){ flashToast('Mot de passe : 6 caract\u00e8res min.'); return; }
@@ -2063,6 +2102,19 @@
     var k=admin.coachById[coachId]; if(k){ k.user_id=uid||k.user_id; k.email=email; }
     try{ await sb.from('coachs').update({ user_id:uid, email:email }).eq('id',coachId); }catch(e){}
     flashToast('Compte commercial cr\u00e9\u00e9'); renderCoachDetail(coachId);
+  }
+  async function setCoachPassword(coachId, pass){
+    var k=admin.coachById[coachId]; if(!k){ return; }
+    if(!k.user_id){ flashToast('Aucun compte pour ce commercial'); return; }
+    if(!pass || pass.length<6){ flashToast('Mot de passe : 6 caract\u00e8res min.'); return; }
+    if(!(await askAdminPassword('Modifier le mot de passe', 'Confirmez avec VOTRE mot de passe admin pour changer celui de '+(k.nom||'ce commercial')+'.'))) return;
+    try{
+      var r=await sb.functions.invoke('admin-set-password', { body:{ user_id:k.user_id, password:pass } });
+      if(r && r.error){ flashToast('Erreur : fonction admin-set-password indisponible'); return; }
+      if(r && r.data && r.data.error){ flashToast('Erreur : '+r.data.error); return; }
+      flashToast('Mot de passe modifi\u00e9');
+      renderCoachDetail(coachId);
+    }catch(e){ flashToast('Fonction admin-set-password non d\u00e9ploy\u00e9e'); }
   }
   async function assignCoach(clientId, coachId){ var c=admin.byId[clientId]; if(!c) return; c.coach_id=coachId||null; var tbl=c.manual?'clients_manuels':'profiles'; try{ await sb.from(tbl).update({coach_id:coachId||null}).eq('id',clientId); }catch(e){} flashToast(coachId?'Client assign\u00e9':'Assignation retir\u00e9e'); if(admin.view==='coach-detail' && admin.openCoachId) renderCoachDetail(admin.openCoachId); if(admin.view==='client' && admin.openClientId) renderAdminClientDetail(admin.openClientId); }
 
@@ -2095,6 +2147,8 @@
     var myCoach = await safeSelect(sb.from('coachs').select('id').eq('user_id', authUser.id).maybeSingle());
     if(myCoach && myCoach.id){ admin.role='coach'; admin.myCoachId=myCoach.id; await loadAdminData(); enterAdmin(); return; }
     admin.role='admin';
+    var _next=null; try{ _next=new URLSearchParams(location.search).get('next'); }catch(e){}
+    if(_next && /^[a-zA-Z0-9._\-]+\.html$/.test(_next)){ window.location.href=_next; return; }
     await loadData(); enterApp();
   }
 
@@ -2141,6 +2195,7 @@
       else if(act==='save-coach'){ var kc=el.closest('.card'); saveCoach(id, { nom:kc.querySelector('[data-kf="nom"]').value.trim(), role:kc.querySelector('[data-kf="role"]').value.trim(), email:kc.querySelector('[data-kf="email"]').value.trim(), tel:kc.querySelector('[data-kf="tel"]').value.trim() }); }
       else if(act==='del-coach'){ delCoach(id); }
       else if(act==='create-coach-acc'){ var ab=el.closest('[data-coach-acc-box]'); if(!ab) return; createCoachAccount(id, ab.querySelector('[data-af="email"]').value.trim().toLowerCase(), ab.querySelector('[data-af="pass"]').value); }
+      else if(act==='set-coach-pass'){ var pb=el.closest('[data-coach-pass-box]'); if(!pb) return; setCoachPassword(id, pb.querySelector('[data-pf="pass"]').value); }
       else if(act==='unassign-client'){ assignCoach(id, null); }
       else if(act==='save-profil'){ saveAdminProfil(); }
       else if(act==='chg-pass'){ changeAdminPassword(); }
