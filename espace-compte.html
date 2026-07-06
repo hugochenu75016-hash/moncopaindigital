@@ -111,6 +111,8 @@
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 6px 14px rgba(120,50,0,0.28);
   }
   .brand .logo svg { width: 26px; height: 26px; }
+  .brand .logo.mascotte { background: none; box-shadow: 0 6px 14px rgba(120,50,0,0.28); overflow: hidden; border-radius: 50%; }
+  .brand .logo.mascotte img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .brand .nm { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; color: #fff; text-shadow: 0 1px 2px rgba(150,70,0,0.4); line-height: 1.1; }
   .brand .nm small { display: block; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 12px; color: #ffe9cf; text-transform: none; letter-spacing: 0; }
 
@@ -121,6 +123,14 @@
     transition: background .2s, color .2s;
   }
   .auth-tabs button.active { background: #fff8ef; color: #a54a00; box-shadow: 0 6px 16px rgba(120,50,0,0.3); }
+  .auth-tabs button { position: relative; overflow: visible; }
+  .tab-badge {
+    position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+    background: #ff5a2a; color: #fff8ef;
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 10px; letter-spacing: 0.02em;
+    padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(120,50,0,0.4); border: 1.5px solid #fff8ef; pointer-events: none;
+  }
 
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #fff2df; margin-bottom: 6px; }
@@ -482,13 +492,13 @@
 
       <div class="auth-card">
         <div class="brand">
-          <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span>
+          <span class="logo mascotte"><img src="/favicons/logo-mascotte.png" alt="Mon Copain Digital"></span>
           <span class="nm">Mon Copain Digital<small>Votre espace personnel</small></span>
         </div>
 
         <div class="auth-tabs">
           <button id="tab-login" class="active" type="button">Connexion</button>
-          <button id="tab-signup" type="button">Créer un compte</button>
+          <button id="tab-signup" type="button"><span class="tab-badge">1ʳᵉ connexion</span>Créer un compte</button>
         </div>
 
         <div class="auth-err" id="auth-err"></div>
@@ -551,7 +561,7 @@
     <!-- Sidebar -->
     <aside id="side">
       <div class="brand">
-        <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span>
+        <span class="logo mascotte"><img src="/favicons/logo-mascotte.png" alt="Mon Copain Digital"></span>
         <span class="nm">Mon Copain Digital<small>Espace client</small></span>
       </div>
 
@@ -777,7 +787,7 @@
   <div id="admin">
     <aside id="adm-side">
       <div class="brand">
-        <span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span>
+        <span class="logo mascotte"><img src="/favicons/logo-mascotte.png" alt="Mon Copain Digital"></span>
         <span class="nm">Mon Copain Digital<small>Espace admin</small></span>
       </div>
       <a class="nav-item active" data-aview="overview">
@@ -1162,6 +1172,112 @@
     switchView('dash');
     subscribeClientRealtime();
     window.scrollTo(0,0);
+    maybeShowTour();
+  }
+
+  /* ---------- Animation d'accueil (1re visite) ---------- */
+  var TOUR_STEPS = [
+    { media: 'avatar', title: 'Bienvenue&nbsp;!', text: 'Ravi de t\u2019accueillir dans ton espace personnel <b>Mon Copain Digital</b>. Laisse-moi te faire visiter en 20&nbsp;secondes&nbsp;\uD83D\uDC4B' },
+    { icon: '\uD83D\uDCCA', title: 'Ton tableau de bord', text: 'D\u2019un coup d\u2019\u0153il&nbsp;: l\u2019avancement de ton projet, tes rendez-vous \u00e0 venir et tes messages non lus.' },
+    { icon: '\uD83D\uDCC5', title: 'Tes rendez-vous', text: 'Retrouve et suis tous tes rendez-vous, r\u00e9unis au m\u00eame endroit.' },
+    { icon: '\uD83D\uDCAC', title: 'La messagerie', text: 'Une question&nbsp;? \u00c9cris-moi directement ici, je te r\u00e9ponds au plus vite.' },
+    { icon: '\uD83D\uDCC4', title: 'Factures &amp; profil', text: 'Tes documents, factures et infos perso, accessibles quand tu veux.' },
+    { icon: '\uD83D\uDE80', title: 'C\u2019est parti&nbsp;!', text: 'Tu es pr\u00eat. Explore ton espace \u00e0 ton rythme \u2014 je suis l\u00e0 d\u00e8s que tu as besoin.' }
+  ];
+  var tourIdx = 0, tourEl = null;
+
+  function injectTourCss(){
+    if(document.getElementById('tour-css')) return;
+    var s = document.createElement('style'); s.id='tour-css';
+    s.textContent = ''+
+    '.tour-ov{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px;'+
+      'background:radial-gradient(120% 120% at 50% 0%,rgba(255,150,60,.5),rgba(120,50,0,.62));backdrop-filter:blur(6px);'+
+      'opacity:0;transition:opacity .4s ease;}'+
+    '.tour-ov.show{opacity:1;}'+
+    '.tour-card{position:relative;width:100%;max-width:430px;text-align:center;color:#fff;'+
+      'font-family:\'Fredoka\',sans-serif;border-radius:30px;padding:42px 30px 30px;'+
+      'background:linear-gradient(to bottom,rgba(255,168,74,.96),rgba(240,116,30,.98));'+
+      'border:1.5px solid rgba(255,255,255,.4);box-shadow:0 30px 70px rgba(90,35,0,.5),inset 0 1px 2px rgba(255,255,255,.5);'+
+      'transform:translateY(24px) scale(.94);opacity:0;transition:transform .5s cubic-bezier(.2,1,.3,1),opacity .5s;}'+
+    '.tour-ov.show .tour-card{transform:none;opacity:1;}'+
+    '.tour-skip{position:absolute;top:14px;right:16px;background:rgba(255,255,255,.18);border:none;color:#fff;'+
+      'font-family:inherit;font-weight:600;font-size:13px;padding:6px 13px;border-radius:999px;cursor:pointer;transition:background .2s;}'+
+    '.tour-skip:hover{background:rgba(255,255,255,.32);}'+
+    '.tour-media{width:118px;height:118px;margin:4px auto 20px;border-radius:50%;display:flex;align-items:center;justify-content:center;'+
+      'font-size:56px;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.55);'+
+      'box-shadow:0 12px 26px rgba(120,50,0,.35),inset 0 2px 3px rgba(255,255,255,.5);overflow:hidden;}'+
+    '.tour-media img{width:100%;height:100%;object-fit:cover;}'+
+    '.tour-media.pop{animation:tourPop .55s cubic-bezier(.2,1.4,.4,1);}'+
+    '@keyframes tourPop{0%{transform:scale(.5) rotate(-8deg);opacity:0;}60%{transform:scale(1.08) rotate(3deg);}100%{transform:none;opacity:1;}}'+
+    '.tour-title{margin:0 0 10px;font-weight:700;font-size:26px;text-shadow:0 2px 4px rgba(140,60,0,.45);}'+
+    '.tour-text{margin:0 auto 22px;max-width:340px;font-family:\'Space Grotesk\',sans-serif;font-weight:400;'+
+      'font-size:15px;line-height:1.55;color:#fff3e6;}'+
+    '.tour-fade{animation:tourFade .4s ease;}'+
+    '@keyframes tourFade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}'+
+    '.tour-dots{display:flex;gap:8px;justify-content:center;margin-bottom:22px;}'+
+    '.tour-dots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);transition:all .25s;}'+
+    '.tour-dots i.on{background:#fff;width:22px;border-radius:999px;}'+
+    '.tour-next{cursor:pointer;font-family:inherit;font-weight:700;font-size:16px;letter-spacing:.04em;color:#a54a00;'+
+      'background:#fff8ef;border:none;padding:14px 32px;border-radius:999px;box-shadow:0 10px 24px rgba(120,50,0,.4);transition:transform .2s,box-shadow .2s;}'+
+    '.tour-next:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(120,50,0,.5);}'+
+    '.tour-next:active{transform:translateY(0);}';
+    document.head.appendChild(s);
+  }
+
+  function renderTourStep(){
+    var st = TOUR_STEPS[tourIdx];
+    var media = tourEl.querySelector('.tour-media');
+    media.classList.remove('pop'); void media.offsetWidth; media.classList.add('pop');
+    if(st.media==='avatar'){ media.innerHTML = '<img src="/favicons/logo-mascotte.png" alt="Mon Copain Digital">'; }
+    else { media.innerHTML = st.icon; }
+    var ttl = tourEl.querySelector('.tour-title'), txt = tourEl.querySelector('.tour-text');
+    ttl.innerHTML = st.title; txt.innerHTML = st.text;
+    ttl.classList.remove('tour-fade'); txt.classList.remove('tour-fade');
+    void ttl.offsetWidth; ttl.classList.add('tour-fade'); txt.classList.add('tour-fade');
+    var dots = tourEl.querySelectorAll('.tour-dots i');
+    dots.forEach(function(d,i){ d.classList.toggle('on', i===tourIdx); });
+    var last = tourIdx === TOUR_STEPS.length - 1;
+    tourEl.querySelector('.tour-next').textContent = last ? 'C\u2019est parti\u00a0!' : 'Suivant';
+    tourEl.querySelector('.tour-skip').style.visibility = last ? 'hidden' : 'visible';
+  }
+
+  function closeTour(){
+    if(!tourEl) return;
+    tourEl.classList.remove('show');
+    setTimeout(function(){ if(tourEl){ tourEl.remove(); tourEl=null; } }, 420);
+  }
+
+  function showTour(){
+    injectTourCss();
+    tourIdx = 0;
+    tourEl = document.createElement('div');
+    tourEl.className = 'tour-ov';
+    tourEl.innerHTML =
+      '<div class="tour-card">'+
+        '<button class="tour-skip" type="button">Passer</button>'+
+        '<div class="tour-media"></div>'+
+        '<h2 class="tour-title"></h2>'+
+        '<p class="tour-text"></p>'+
+        '<div class="tour-dots">'+ TOUR_STEPS.map(function(){return '<i></i>';}).join('') +'</div>'+
+        '<button class="tour-next" type="button">Suivant</button>'+
+      '</div>';
+    document.body.appendChild(tourEl);
+    renderTourStep();
+    requestAnimationFrame(function(){ tourEl.classList.add('show'); });
+    tourEl.querySelector('.tour-next').addEventListener('click', function(){
+      if(tourIdx < TOUR_STEPS.length - 1){ tourIdx++; renderTourStep(); }
+      else { closeTour(); }
+    });
+    tourEl.querySelector('.tour-skip').addEventListener('click', closeTour);
+  }
+
+  function maybeShowTour(){
+    try{
+      var key = 'mcd_tour_' + (authUser && authUser.id ? authUser.id : 'anon');
+      if(localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+      setTimeout(showTour, 550);
+    }catch(e){ /* localStorage indispo : on ne bloque pas */ }
   }
 
   /* ---------- Navigation ---------- */
