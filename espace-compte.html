@@ -3,6 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon Mon Copain Digital -->
+<link rel="icon" href="/favicons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+<link rel="manifest" href="/favicons/site.webmanifest">
+<meta name="theme-color" content="#F3852B">
 <title>Espace compte · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1050,7 +1058,7 @@
       rdv: (rdv||[]).map(function(r){ return { date:r.date, heure:r.heure, titre:r.titre, type:r.type, status:r.status }; }),
       project: proj ? { name:proj.name, status:proj.status, steps:(proj.steps||[]) } : null,
       invoices: (fac||[]).map(function(f){ return { ref:f.ref, label:f.label, date:f.date, amount:f.amount, status:f.status }; }),
-      messages: (msgs||[]).map(function(m){ return { from:m.sender, text:m.text, time:fmtTime(m.created_at), _ts:new Date(m.created_at).getTime(), author:m.author_name, authorAvatar:m.author_avatar }; })
+      messages: (msgs||[]).filter(function(m){ return m.sender!=='admin_note'; }).map(function(m){ return { from:m.sender, text:m.text, time:fmtTime(m.created_at), _ts:new Date(m.created_at).getTime(), author:m.author_name, authorAvatar:m.author_avatar }; })
     };
     /* Fusion avec l'historique local : on ne perd jamais une discussion, même hors-ligne. */
     var _local = loadLocalMsgs(uid);
@@ -1356,6 +1364,7 @@
   /* ---------- Temps réel (client) ---------- */
   function onClientMsg(row){
     if(!current || !row) return;
+    if(row.sender==='admin_note') return;
     var msgs = current.messages;
     if(row.id){ for(var i=0;i<msgs.length;i++){ if(msgs[i]._id===row.id) return; } }
     for(var j=0;j<msgs.length;j++){ if(!msgs[j]._id && msgs[j].from===row.sender && msgs[j].text===row.text){ msgs[j]._id=row.id; return; } }
@@ -1602,7 +1611,7 @@
       '<div style="display:flex;gap:10px;align-items:center;"><input data-p="status" value="'+esc(p.status||'')+'" placeholder="Statut (ex: En cours)" style="flex:1;font-family:inherit;font-size:14px;color:#fff;padding:11px 13px;border-radius:10px;border:1px solid rgba(255,255,255,0.4);background:rgba(255,255,255,0.12);outline:none;"><button class="link-btn" data-act="save-proj" data-id="'+p.id+'">Enregistrer</button></div>'+
       '</div>';
     }
-    var msgsHtml = c.messages.map(function(m){ if(m.sender==='system'){ return '<div class="sys-note">'+esc(m.text)+'</div>'; } var mine=m.sender==='them'; var av=mine?avMav(m.author_avatar||(admin.me&&admin.me.avatar), ICON_HUGO):avMav(c.avatar, ICON_USER); var lbl=(mine&&m.author_name)?'<span style="display:block;font-size:11px;font-weight:700;color:#ffd8b0;margin-bottom:3px;">'+esc(m.author_name)+'</span>':''; return '<div class="msg '+(mine?'me':'them')+'">'+av+'<div class="bubble">'+lbl+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>'; }).join('');
+    var msgsHtml = c.messages.map(function(m){ if(m.sender==='system'||m.sender==='admin_note'){ return '<div class="sys-note">'+esc(m.text)+'</div>'; } var mine=m.sender==='them'; var av=mine?avMav(m.author_avatar||(admin.me&&admin.me.avatar), ICON_HUGO):avMav(c.avatar, ICON_USER); var lbl=(mine&&m.author_name)?'<span style="display:block;font-size:11px;font-weight:700;color:#ffd8b0;margin-bottom:3px;">'+esc(m.author_name)+'</span>':''; return '<div class="msg '+(mine?'me':'them')+'">'+av+'<div class="bubble">'+lbl+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>'; }).join('');
     $('#aview-client').innerHTML =
       '<a class="adm-back" data-act="back-clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour aux clients</a>'+
       '<div class="card" style="margin-bottom:20px;"><div class="profile-head" style="margin-bottom:0;justify-content:space-between;"><div style="display:flex;align-items:center;gap:18px;min-width:0;">'+avSpan('big-av', c.avatar, initials(c.nom))+'<div><div class="pn">'+esc(c.nom)+(c.manual?' <span class="pill gray" style="font-size:11px;">Sans compte</span>':'')+'</div><div class="pe">'+esc([c.tel,c.email,c.entreprise,c.adresse].filter(Boolean).join(' · ')||'Aucune coordonnée renseignée')+'</div></div></div>'+(c.manual?'<button class="adm-iconbtn" data-act="del-client" data-id="'+c.id+'" title="Supprimer le client">'+TRASH+'</button>':'')+'</div></div>'+
@@ -1697,7 +1706,7 @@
     list.innerHTML = convs.map(function(c){ var last=c.messages[c.messages.length-1]; var u=admUnread(c); var st=convStatus(c.id); var chip=st==='paused'?'<span style="font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:10px;padding:2px 8px;border-radius:999px;margin-left:6px;background:rgba(255,210,120,0.32);color:#fff6df;">En pause</span>':(st==='closed'?'<span style="font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:10px;padding:2px 8px;border-radius:999px;margin-left:6px;background:rgba(255,255,255,0.2);color:#ffe9cf;">Terminée</span>':''); return '<div class="adm-conv'+(c.id===admin.activeConv?' active':'')+'" style="'+(st!=='active'?'opacity:.72;':'')+'" data-act="open-conv" data-id="'+c.id+'"><span class="adm-ini">'+initials(c.nom)+'</span><div class="adm-conv-main"><div class="adm-conv-nm">'+esc(c.nom)+chip+'</div><div class="adm-conv-lm">'+(last.sender==='them'?'Vous : ':'')+esc(last.text).slice(0,42)+'</div></div>'+(u?'<span class="badge">'+u+'</span>':'')+'</div>'; }).join('');
     if(!hasActive){ $('#adm-chat-pane').innerHTML=PH; return; }
     var c=admin.byId[admin.activeConv];
-    var msgsHtml = c.messages.map(function(m){ if(m.sender==='system'){ return '<div class="sys-note">'+esc(m.text)+'</div>'; } var mine=m.sender==='them'; var av=mine?avMav(m.author_avatar||(admin.me&&admin.me.avatar), ICON_HUGO):avMav(c.avatar, ICON_USER); var lbl=(mine&&m.author_name)?'<span style="display:block;font-size:11px;font-weight:700;color:#ffd8b0;margin-bottom:3px;">'+esc(m.author_name)+'</span>':''; return '<div class="msg '+(mine?'me':'them')+'">'+av+'<div class="bubble">'+lbl+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>'; }).join('');
+    var msgsHtml = c.messages.map(function(m){ if(m.sender==='system'||m.sender==='admin_note'){ return '<div class="sys-note">'+esc(m.text)+'</div>'; } var mine=m.sender==='them'; var av=mine?avMav(m.author_avatar||(admin.me&&admin.me.avatar), ICON_HUGO):avMav(c.avatar, ICON_USER); var lbl=(mine&&m.author_name)?'<span style="display:block;font-size:11px;font-weight:700;color:#ffd8b0;margin-bottom:3px;">'+esc(m.author_name)+'</span>':''; return '<div class="msg '+(mine?'me':'them')+'">'+av+'<div class="bubble">'+lbl+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>'; }).join('');
     var st=convStatus(c.id);
     var stPill = st==='paused'?'<span class="pill amber">En pause</span>':(st==='closed'?'<span class="pill gray">Terminée</span>':'<span class="pill green">Active</span>');
     var ctrls='';
@@ -1748,10 +1757,11 @@
 
   function convStatus(id){ try{ return localStorage.getItem('mcd_conv_status_'+id) || 'active'; }catch(e){ return 'active'; } }
   function stRank(s){ return s==='paused'?1:(s==='closed'?2:0); }
-  function pushSysMsg(userId, text){
+  function pushSysMsg(userId, text, sender){
     var c=admin.byId[userId]; if(!c) return;
+    sender = sender || 'system';
     var aName=(admin.role==='coach')?((admin.coachById[admin.myCoachId]||{}).nom||'Commercial'):((admin.me&&admin.me.nom)||'Hugo');
-    var payload={user_id:userId, sender:'system', text:text, author_name:aName, author_avatar:null};
+    var payload={user_id:userId, sender:sender, text:text, author_name:aName, author_avatar:null};
     var tmp=Object.assign({id:'tmp_'+Date.now(), created_at:new Date().toISOString()}, payload);
     c.messages.push(tmp);
     try{ sb.from('messages').insert(payload).select().single().then(function(r){ if(r&&r.data){ tmp.id=r.data.id; tmp.created_at=r.data.created_at; } }).catch(function(){}); }catch(e){}
@@ -1765,7 +1775,7 @@
     var aName=isCoach?((mk&&mk.nom)||'Commercial'):((admin.me&&admin.me.nom)||'Hugo');
     var aRole=isCoach?((mk&&mk.role)||'Commercial'):'Admin';
     var verb = status==='paused' ? 'a mis la discussion en pause' : status==='closed' ? 'a terminé la discussion' : 'a repris la discussion';
-    pushSysMsg(userId, aName+' ('+aRole+') '+verb);
+    pushSysMsg(userId, aName+' ('+aRole+') '+verb, 'admin_note');
     if(status==='active'){ admin.activeConv=userId; } else if(admin.activeConv===userId){ admin.activeConv=null; }
     flashToast(status==='paused'?'Discussion mise en pause':status==='closed'?'Discussion terminée':'Discussion reprise');
     renderAdminMsg();
