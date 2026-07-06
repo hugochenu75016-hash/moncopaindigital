@@ -3,6 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon Mon Copain Digital -->
+<link rel="icon" href="/favicons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+<link rel="manifest" href="/favicons/site.webmanifest">
+<meta name="theme-color" content="#F3852B">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <title>Rendez-vous — Audit gratuit · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
 <style>
@@ -296,6 +305,25 @@
   #confirm h3 { margin: 0 0 8px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px; color: #fff; text-shadow: 0 2px 3px rgba(150,70,0,0.4); }
   #confirm p { margin: 0 0 24px; font-size: 15px; line-height: 1.5; color: #fff3df; }
   #confirm p b { font-family: 'Fredoka', sans-serif; text-transform: capitalize; color: #fff; }
+  .acct-box { margin: 4px 0 18px; padding: 18px 16px; border-radius: 18px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.3); }
+  .acct-q { margin: 0 0 14px !important; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 16px !important; color: #fff !important; }
+  .acct-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .acct-btns .glass-btn { margin: 0; }
+  .acct-primary { background: #fff8ef !important; color: #a54a00 !important; border-color: #fff8ef !important; }
+  .acct-sub { margin: 14px 0 0 !important; font-size: 12.5px !important; color: #ffe4cf !important; }
+  .acct-skip { display: inline-block; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; color: #fff2df; text-decoration: underline; opacity: 0.85; }
+  .acct-skip:hover { opacity: 1; }
+  /* Barrière compte requis (modale au clic sur Confirmer) */
+  #rdv-gate { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(150,66,0,0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  #rdv-gate.show { display: flex; animation: fadein .3s ease; }
+  #rdv-gate .gate-inner { max-width: 420px; width: 100%; text-align: center; border-radius: 28px; padding: 38px 32px; border: 1px solid rgba(255,255,255,0.5); background: linear-gradient(160deg, rgba(255,186,128,0.94), rgba(240,116,30,0.94)); box-shadow: inset 0 2px 1px rgba(255,255,255,0.8), 0 30px 70px rgba(90,40,0,0.5); }
+  #rdv-gate .gate-lock { width: 72px; height: 72px; margin: 0 auto 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 34px; background: rgba(255,255,255,0.18); border: 2px solid rgba(255,255,255,0.55); box-shadow: inset 0 2px 3px rgba(255,255,255,0.5); }
+  #rdv-gate h3 { margin: 0 0 10px; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 23px; color: #fff; text-shadow: 0 2px 3px rgba(150,70,0,0.4); }
+  #rdv-gate p { margin: 0 0 22px; font-size: 14.5px; line-height: 1.55; color: #fff3df; }
+  #rdv-gate .gate-btns { display: flex; flex-direction: column; gap: 12px; }
+  #rdv-gate .gate-primary { background: #fff8ef !important; color: #a54a00 !important; border-color: #fff8ef !important; }
+  #rdv-gate .gate-skip { display: inline-block; margin-top: 16px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 13.5px; color: #fff2df; text-decoration: underline; opacity: 0.85; cursor: pointer; }
+  #rdv-gate .gate-skip:hover { opacity: 1; }
 
   /* Chargement supprimé */
 
@@ -311,6 +339,10 @@
     #hero .lead { margin-left: auto; margin-right: auto; }
     #hero .perks { align-items: center; }
     #hero .perks li { justify-content: flex-start; width: max-content; max-width: 100%; }
+  }
+  /* Masquer le personnage uniquement sur mobile */
+  @media (max-width: 768px) {
+    #hanging-guy { display: none !important; }
   }
   @media (max-width: 560px) {
     #topbar { padding: 12px 14px; }
@@ -423,11 +455,32 @@
       <div class="badge"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
       <h3>C'est noté&nbsp;!</h3>
       <p>Votre audit gratuit est réservé pour le <b id="confirm-when"></b>.<br>On vous envoie un email de confirmation avec le lien de visio.</p>
-      <a class="glass-btn" href="index.html" style="margin: 0 auto;">Retour à l'accueil</a>
+      <div class="acct-box">
+        <p class="acct-q">Vous avez déjà un compte&nbsp;?</p>
+        <div class="acct-btns">
+          <a class="glass-btn" href="espace-compte.html">Se connecter</a>
+          <a class="glass-btn acct-primary" href="espace-compte.html?signup=1">Créer un compte</a>
+        </div>
+        <p class="acct-sub">Suivez l'avancement de votre projet et vos rendez-vous dans votre espace.</p>
+      </div>
+      <a class="acct-skip" href="index.html">Retour à l'accueil</a>
     </div>
   </div>
 
   <div id="char-loader-removed" style="display:none"></div>
+
+  <div id="rdv-gate">
+    <div class="gate-inner">
+      <div class="gate-lock">🔒</div>
+      <h3>Un compte est requis</h3>
+      <p>Créez votre compte gratuit pour valider votre audit — vous le retrouverez ensuite dans votre espace client.</p>
+      <div class="gate-btns">
+        <a class="glass-btn gate-primary" href="espace-compte.html?signup=1&next=rendez-vous.html">Créer un compte</a>
+        <a class="glass-btn" href="espace-compte.html?next=rendez-vous.html">J'ai déjà un compte</a>
+      </div>
+      <a class="gate-skip" data-gate-close>Plus tard</a>
+    </div>
+  </div>
 
 <script>
 /* ============================ CALENDRIER + FORMULAIRE ============================ */
@@ -589,9 +642,114 @@
   form.querySelectorAll('input,select,textarea').forEach(el => {
     el.addEventListener('input', () => el.closest('.field') && el.closest('.field').classList.remove('invalid'));
   });
+
+  // Brouillon : sauvegarde/restauration autour de la création de compte
+  function rdvSetV(id,v){ var e=document.getElementById(id); if(e!=null && v!=null && v!=='') e.value=v; }
+  window.__rdvSaveDraft = function(){
+    try{
+      localStorage.setItem('mcd_rdv_draft', JSON.stringify({
+        nom: (document.getElementById('f-nom')||{}).value || '',
+        email: (document.getElementById('f-email')||{}).value || '',
+        tel: (document.getElementById('f-tel')||{}).value || '',
+        type: (document.getElementById('f-type')||{}).value || '',
+        msg: (document.getElementById('f-msg')||{}).value || '',
+        date: selectedDate ? selectedDate.toISOString() : null,
+        slot: selectedSlot || null
+      }));
+    }catch(e){}
+  };
+  (function restoreRdvDraft(){
+    try{
+      var raw = localStorage.getItem('mcd_rdv_draft'); if(!raw) return;
+      localStorage.removeItem('mcd_rdv_draft');
+      var d = JSON.parse(raw);
+      rdvSetV('f-nom', d.nom); rdvSetV('f-email', d.email); rdvSetV('f-tel', d.tel);
+      rdvSetV('f-type', d.type); rdvSetV('f-msg', d.msg);
+      if(d.date){ var dt=new Date(d.date); if(!isNaN(dt.getTime())){ selectedDate=dt; view=new Date(dt.getFullYear(), dt.getMonth(), 1); } }
+      if(d.slot){ selectedSlot=d.slot; }
+      renderCal(); renderSlots(); updateSummary();
+    }catch(e){}
+  })();
 })();
 
 /* (scène 3D retirée) */
+</script>
+<!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
+<style id="acct-widget-css">
+  .acct-sq{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:1px solid rgba(255,255,255,0.6);background:linear-gradient(to bottom,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.14) 100%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9),inset 0 -4px 10px rgba(255,150,60,0.22),0 8px 20px rgba(120,50,0,0.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .26s cubic-bezier(.2,1,.3,1),box-shadow .26s ease;padding:0;}
+  .acct-sq:hover{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1.5px 1px rgba(255,255,255,1),0 12px 26px rgba(120,50,0,0.34);}
+  .acct-sq svg{width:23px;height:23px;}
+  .acct-sq.fixed{position:fixed;top:clamp(14px,2.4vw,26px);right:clamp(16px,4vw,48px);z-index:9999;}
+  #acct-pop{position:fixed;top:calc(clamp(14px,2.4vw,26px) + 58px);right:clamp(16px,4vw,48px);z-index:10000;width:264px;border-radius:22px;padding:20px 20px 18px;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+  #acct-pop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+  #acct-pop .ap-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  #acct-pop .ap-ic{width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#d24a2a;background:linear-gradient(to bottom,#fff8ef,#ffe1cf);box-shadow:0 5px 12px rgba(120,50,0,0.25);}
+  #acct-pop .ap-ic svg{width:19px;height:19px;}
+  #acct-pop .ap-title{font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:16px;color:#fff;text-shadow:0 1px 2px rgba(150,70,0,0.4);}
+  #acct-pop .ap-txt{margin:0 0 16px;font-size:13.5px;line-height:1.45;color:#fff3df;}
+  #acct-pop .ap-actions{display:flex;flex-direction:column;gap:9px;}
+  #acct-pop .ap-btn{cursor:pointer;text-decoration:none;text-align:center;font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:14px;padding:12px;border-radius:999px;transition:transform .2s,box-shadow .2s,background .2s;border:1.5px solid rgba(255,255,255,0.55);}
+  #acct-pop .ap-btn.open{color:#8a3c00;background:linear-gradient(to bottom,#fff8ef,#ffe6bb);box-shadow:0 8px 18px rgba(120,50,0,0.3);}
+  #acct-pop .ap-btn.open:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(120,50,0,0.38);}
+  #acct-pop .ap-btn.close{color:#fff;background:rgba(255,255,255,0.12);}
+  #acct-pop .ap-btn.close:hover{background:rgba(255,255,255,0.22);}
+</style>
+<div id="acct-pop" role="dialog" aria-label="Espace compte">
+  <div class="ap-head">
+    <span class="ap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+    <span class="ap-title">Espace compte</span>
+  </div>
+  <p class="ap-txt">Voulez-vous ouvrir votre espace personnel&nbsp;?</p>
+  <div class="ap-actions">
+    <a class="ap-btn open" href="espace-compte.html">Ouvrir l'espace compte</a>
+    <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
+  </div>
+</div>
+<script>
+(function(){
+  if(window.__acctWidget) return; window.__acctWidget=true;
+  var btn=document.createElement('button');
+  btn.type='button'; btn.className='acct-sq'; btn.setAttribute('aria-label','Espace compte'); btn.title='Espace compte';
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  var social=document.querySelector('#topbar .social');
+  if(social){ social.appendChild(btn); }
+  else { btn.classList.add('fixed'); document.body.appendChild(btn); }
+  var pop=document.getElementById('acct-pop'); var open=false;
+  function set(v){ open=v; pop.classList.toggle('show',open); }
+  btn.addEventListener('click',function(e){ e.stopPropagation(); set(!open); });
+  document.getElementById('acct-close').addEventListener('click',function(e){ e.stopPropagation(); set(false); });
+  document.addEventListener('click',function(e){ if(open && !pop.contains(e.target) && !btn.contains(e.target)){ set(false); } });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
+})();
+</script>
+<!-- ===== Fin widget Espace compte ===== -->
+<script>
+(function(){
+  if(!window.supabase) return;
+  var SUPABASE_URL='https://nlesboqlnnpnmwlpvhif.supabase.co';
+  var SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXNib3Fsbm5wbm13bHB2aGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTE3NzEsImV4cCI6MjA5ODY4Nzc3MX0.vwu9FGgl4cXZ8KExSeL3IrgWjxIbhvDYKeSWP9sb7X8';
+  var sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);
+  var gate=document.getElementById('rdv-gate');
+  var form=document.getElementById('rdvForm');
+  var authed=false;
+  function setv(id,val){ var el=document.getElementById(id); if(el&&val){ el.value=val; } }
+  function applyAuth(session){
+    authed=!!session;
+    if(!session) return;
+    var u=session.user, m=u.user_metadata||{};
+    setv('f-nom', m.nom||'');
+    var em=document.getElementById('f-email'); if(em){ em.value=u.email||''; em.readOnly=true; em.style.opacity='0.85'; em.style.cursor='not-allowed'; }
+    setv('f-tel', m.tel||'');
+    sb.from('profiles').select('nom,tel').eq('id',u.id).maybeSingle().then(function(r){
+      if(r&&r.data){ if(r.data.nom) setv('f-nom',r.data.nom); if(r.data.tel) setv('f-tel',r.data.tel); }
+    }).catch(function(){});
+  }
+  sb.auth.getSession().then(function(res){ applyAuth(res&&res.data&&res.data.session); }).catch(function(){});
+  try{ sb.auth.onAuthStateChange(function(_e,s){ applyAuth(s); }); }catch(e){}
+  if(form){ form.addEventListener('submit', function(e){ if(!authed){ e.preventDefault(); e.stopImmediatePropagation(); if(gate) gate.classList.add('show'); } }, true); }
+  if(gate){ gate.addEventListener('click', function(e){ if(e.target===gate || (e.target.hasAttribute && e.target.hasAttribute('data-gate-close'))){ gate.classList.remove('show'); } }); }
+  if(gate){ gate.querySelectorAll('a[href]').forEach(function(a){ a.addEventListener('click', function(){ if(window.__rdvSaveDraft) window.__rdvSaveDraft(); }); }); }
+})();
 </script>
 </body>
 </html>
