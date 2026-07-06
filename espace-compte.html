@@ -1661,7 +1661,10 @@
       $all('.theme-opt').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme')===t); });
     }
     window.applyAccountTheme = function(){
-      var t = (current && current.theme) || 'orange';
+      var uid = (current && current.id) || (typeof authUser!=='undefined' && authUser && authUser.id) || null;
+      var t = (current && current.theme) || null;
+      if(!t && uid){ try{ t=localStorage.getItem(THEME_KEY+'-'+uid); }catch(e){} }
+      t = t || 'orange';
       try{ localStorage.setItem(THEME_KEY, t); }catch(e){}
       applyTheme(t);
     };
@@ -1676,8 +1679,11 @@
         applyTheme(t);
         if(current){ current.theme=t; }
         if(typeof admin==='object' && admin && admin.me){ admin.me.theme=t; }
+        var uid = (current && current.id) || (typeof authUser!=='undefined' && authUser && authUser.id) || null;
+        /* Cache par compte sur cet appareil (fonctionne même sans la colonne SQL) */
+        if(uid){ try{ localStorage.setItem(THEME_KEY+'-'+uid, t); }catch(e){} }
         /* Enregistrement pour ce compte (Supabase) — client, admin ou commercial */
-        if(typeof authUser!=='undefined' && authUser && authUser.id){ try{ sb.from('profiles').update({ theme:t }).eq('id',authUser.id).then(function(r){ if(r&&r.error) console.warn('Thème non enregistré en base (colonne theme ?):', r.error.message); }); }catch(e){} }
+        if(uid){ try{ sb.from('profiles').update({ theme:t }).eq('id',uid).then(function(r){ if(r&&r.error) console.warn('Thème non enregistré en base (colonne theme ?):', r.error.message); }); }catch(e){} }
       });
     });
 
@@ -2331,7 +2337,7 @@
     authSection.style.display='none';
     appSection.classList.remove('show');
     $('#admin').classList.add('show');
-    try{ var _t=(admin.me && admin.me.theme)||'orange'; localStorage.setItem('mcd-theme',_t); document.body.classList.toggle('theme-night', _t==='night'); $all('.theme-opt').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme')===_t); }); }catch(e){}
+    try{ var _t=(admin.me && admin.me.theme)||null; if(!_t){ try{ _t=localStorage.getItem('mcd-theme-'+authUser.id); }catch(e){} } _t=_t||'orange'; localStorage.setItem('mcd-theme',_t); document.body.classList.toggle('theme-night', _t==='night'); $all('.theme-opt').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-theme')===_t); }); }catch(e){}
     var isCoach = admin.role==='coach';
     var cn=$('#adm-side .nav-item[data-aview="coach"]'); if(cn) cn.style.display=isCoach?'none':'';
     var dn=$('#adm-side .nav-item[data-aview="direction"]'); if(dn) dn.style.display=isCoach?'':'none';
