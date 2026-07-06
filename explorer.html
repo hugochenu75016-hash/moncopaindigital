@@ -3,14 +3,6 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Favicon Mon Copain Digital -->
-<link rel="icon" href="/favicons/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
-<link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
-<link rel="manifest" href="/favicons/site.webmanifest">
-<meta name="theme-color" content="#F3852B">
 <title>Explorer votre besoin · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
 <style>
@@ -29,7 +21,7 @@
     color: var(--cream);
     -webkit-font-smoothing: antialiased;
   }
-  body { overflow-x: hidden; }
+  html, body { overflow-x: hidden; max-width: 100%; }
 
   /* Décor nuages */
   #decor { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
@@ -153,12 +145,13 @@
     background: rgba(255,255,255,0.10);
   }
   .chat-head .av {
-    width: 44px; height: 44px; border-radius: 50%; flex: 0 0 auto;
+    width: 44px; height: 44px; border-radius: 50%; flex: 0 0 auto; overflow: hidden;
     display: flex; align-items: center; justify-content: center; color: #d24a2a;
     background: linear-gradient(to bottom, #fff8ef, #ffe1cf);
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 6px 14px rgba(120,50,0,0.28);
   }
   .chat-head .av svg { width: 24px; height: 24px; }
+  .chat-head .av img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
   .chat-head .who { display: flex; flex-direction: column; gap: 2px; }
   .chat-head .who .n { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 16px; color: #fff; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
   .chat-head .who .s { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #ffe9cf; font-weight: 500; }
@@ -171,16 +164,19 @@
   .msg { display: flex; gap: 10px; max-width: 88%; animation: bubbleIn .35s cubic-bezier(.2,1,.3,1); }
   @keyframes bubbleIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .msg .av-sm {
-    width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto;
+    width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto; overflow: hidden;
     display: flex; align-items: center; justify-content: center; color: #d24a2a;
     background: linear-gradient(to bottom, #fff8ef, #ffe1cf);
     box-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 10px rgba(120,50,0,0.25);
   }
   .msg .av-sm svg { width: 17px; height: 17px; }
+  .msg .av-sm img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
   .bubble {
     font-family: 'Space Grotesk', sans-serif; font-size: 15px; line-height: 1.45; font-weight: 500;
     padding: 13px 16px; border-radius: 18px;
+    min-width: 0; overflow-wrap: anywhere; word-break: break-word;
   }
+  .msg { min-width: 0; }
   .msg.bot { align-self: flex-start; }
   .msg.bot .bubble {
     color: #fff6e6; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.28);
@@ -216,6 +212,17 @@
   .chip.solid { background: linear-gradient(to bottom, #fff8ef, #ffe6bb); color: #8a3c00; text-shadow: none; }
   .chip:hover { transform: translateY(-2px); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 24px rgba(120,50,0,0.36); }
   .chip svg { width: 15px; height: 15px; }
+
+  /* Avis d'arrivée dans la discussion */
+  .join {
+    align-self: center; display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em;
+    color: #ffe9cf; padding: 7px 15px; border-radius: 999px;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22);
+    animation: bubbleIn .4s cubic-bezier(.2,1,.3,1);
+  }
+  .join .jd { width: 8px; height: 8px; border-radius: 50%; background: #7be38f; box-shadow: 0 0 8px #7be38f; animation: joinPulse 1.6s ease-in-out infinite; }
+  @keyframes joinPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.7); opacity: 0.55; } }
 
   /* Indicateur de saisie */
   .typing { display: flex; gap: 5px; padding: 15px 16px; }
@@ -261,18 +268,31 @@
   .sug:hover { transform: translateY(-2px); background: rgba(255,255,255,0.26); }
 
   @media (max-width: 900px) {
-    .explore-row { grid-template-columns: 1fr; gap: 8px; }
-    .char-col { order: -1; }
-    .char-col img { width: auto; height: 300px; }
+    .explore-row { grid-template-columns: 1fr; gap: 4px; }
+    .char-col { display: none; }
+    /* Image en paysage (1449×736) → dimensionner par la LARGEUR, jamais par la hauteur,
+       sinon elle déborde de l'écran et pousse la conversation hors du cadre. */
+    .char-col img { height: auto; width: min(78vw, 380px); max-width: 100%; }
     .char-col .say { display: none; }
+    #head { margin-bottom: clamp(14px, 2.4vh, 24px); }
   }
   @media (max-width: 560px) {
-    #topbar { padding: 12px 14px; }
-    .glass-btn { font-size: 12px; padding: 11px 18px; letter-spacing: 0.05em; }
+    #topbar { padding: 12px 14px; gap: 8px; }
+    .glass-btn { font-size: 12px; padding: 11px 16px; letter-spacing: 0.04em; }
     .social-btn { width: 40px; height: 40px; }
+    #topbar .social { gap: 8px; }
     #head h1 { -webkit-text-stroke-width: 2.5px; }
-    #chat { border-radius: 24px; }
-    .msg { max-width: 95%; }
+    #head .lead { font-size: 15px; }
+    #chat { border-radius: 22px; }
+    .chat-head { padding: 13px 16px; }
+    #log { padding: 18px 15px; min-height: 200px; max-height: 52vh; }
+    .msg { max-width: 96%; }
+    .bubble { font-size: 14.5px; padding: 12px 14px; }
+    #composer { padding: 12px 13px; gap: 8px; }
+    #composer textarea { font-size: 15px; padding: 11px 14px; }
+    .char-col img { width: min(72vw, 320px); }
+    #suggests { gap: 7px; }
+    .sug { font-size: 12.5px; padding: 7px 12px; }
   }
 </style>
 </head>
@@ -312,19 +332,14 @@
       <div class="chat-col">
         <section id="chat">
       <div class="chat-head">
-        <span class="av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span>
+        <span class="av"><img src="avatar-mcd.png" alt="Mon Copain Digital"></span>
         <div class="who">
-          <span class="n">Mon Copain Digital</span>
+          <span class="n">Hugo</span>
           <span class="s">Répond en direct</span>
         </div>
       </div>
 
-      <div id="log">
-        <div class="msg bot">
-          <span class="av-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg></span>
-          <div class="bubble">Bonjour&nbsp;! 👋 Décrivez-moi votre besoin numérique — un site, un souci d'ordinateur ou de téléphone, une démarche en ligne, une question… et je vous dis si c'est faisable.</div>
-        </div>
-      </div>
+      <div id="log"></div>
 
       <div id="composer">
         <textarea id="input" rows="1" placeholder="Ex : je n'arrive pas à envoyer mes photos par mail…" aria-label="Votre besoin"></textarea>
@@ -371,11 +386,41 @@
     setPose(answered ? 'attend' : 'bonjour');
   }
 
-  var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg>';
+  var ICON = '<img src="avatar-mcd.png" alt="">';
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
 
   function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function scroll(){ log.scrollTop = log.scrollHeight; }
+
+  // ===== Son de notification (généré, pas de fichier) =====
+  var actx = null;
+  function unlockAudio(){
+    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return; } }
+    if (actx.state === 'suspended') actx.resume();
+  }
+  ['pointerdown','keydown','touchstart'].forEach(function(ev){
+    document.addEventListener(ev, unlockAudio, { once: false, passive: true });
+  });
+  function playPing(){
+    try {
+      if (!actx) { actx = new (window.AudioContext || window.webkitAudioContext)(); }
+      if (actx.state === 'suspended') actx.resume();
+      var now = actx.currentTime;
+      var gain = actx.createGain();
+      gain.connect(actx.destination);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.16, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+      [ [880, 0], [1174.7, 0.09] ].forEach(function(p){
+        var o = actx.createOscillator();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(p[0], now + p[1]);
+        o.connect(gain);
+        o.start(now + p[1]);
+        o.stop(now + 0.5);
+      });
+    } catch(e){}
+  }
 
   function addUser(text){
     var m = document.createElement('div');
@@ -419,8 +464,9 @@
   function addBot(html){
     var m = document.createElement('div');
     m.className = 'msg bot';
-    m.innerHTML = '<span class="av-sm">' + ICON + '</span><div class="bubble">' + html + '</div>';
+    m.innerHTML = '<span class="av-sm"><img src="avatar-mcd.png" alt=""></span><div class="bubble">' + html + '</div>';
     log.appendChild(m); scroll();
+    playPing();
   }
 
   function respond(text){
@@ -458,6 +504,30 @@
   document.querySelectorAll('.sug').forEach(function(b){
     b.addEventListener('click', function(){ input.value = b.textContent; submit(); });
   });
+
+  // ===== Animation d'arrivée : Hugo entre, écrit (points en vague) puis le texte =====
+  var WELCOME = 'Bonjour&nbsp;! 👋 Décrivez-moi votre besoin numérique — un site, un souci d\'ordinateur ou de téléphone, une démarche en ligne, une question… et je vous dis si c\'est faisable.';
+  function addJoin(){
+    var j = document.createElement('div');
+    j.className = 'join';
+    j.innerHTML = '<span class="jd"></span> Hugo est entré dans la discussion';
+    log.appendChild(j); scroll();
+  }
+  function intro(){
+    setTimeout(function(){
+      addJoin();
+      setTimeout(function(){
+        pending = true; refreshPose();
+        var typing = addTyping();
+        setTimeout(function(){
+          if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
+          addBot(WELCOME);
+          pending = false; refreshPose();
+        }, 3700);
+      }, 750);
+    }, 500);
+  }
+  intro();
 })();
 </script>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
