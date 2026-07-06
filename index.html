@@ -1532,5 +1532,50 @@ start();
 })();
 </script>
 <!-- ===== Fin widget Espace compte ===== -->
+<!-- ===== Bandeau cookies ===== -->
+<style>
+  #cookie-bar{position:fixed;left:clamp(16px,4vw,32px);bottom:clamp(16px,4vw,32px);z-index:10001;width:min(360px,calc(100vw - 32px));border-radius:22px;padding:20px 22px 18px;opacity:0;transform:translateY(18px) scale(.97);pointer-events:none;transition:opacity .35s ease,transform .35s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:visible;}
+  #cookie-bar.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+  #cookie-bar .ck-perso{position:absolute;top:-64px;left:14px;width:120px;height:120px;object-fit:contain;filter:drop-shadow(0 10px 16px rgba(90,40,0,0.35));pointer-events:none;transform-origin:bottom center;animation:ckBob 3.4s ease-in-out infinite;}
+  @keyframes ckBob{0%,100%{transform:translateY(0) rotate(-2deg);}50%{transform:translateY(-6px) rotate(2deg);}}
+  #cookie-bar .ck-head{display:flex;align-items:center;gap:11px;margin-bottom:11px;padding-left:118px;min-height:34px;}
+  #cookie-bar .ck-title{font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:22px;color:#fff;text-shadow:0 1px 2px rgba(150,70,0,0.4);}
+  #cookie-bar .ck-txt{margin:0 0 16px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13.5px;line-height:1.5;color:#fff3df;}
+  #cookie-bar .ck-actions{display:flex;gap:10px;}
+  #cookie-bar .ck-btn{flex:1;cursor:pointer;text-align:center;font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:14px;padding:12px;border-radius:999px;transition:transform .2s,box-shadow .2s,background .2s;border:1.5px solid rgba(255,255,255,0.55);}
+  #cookie-bar .ck-btn.accept{color:#8a3c00;background:linear-gradient(to bottom,#fff8ef,#ffe6bb);box-shadow:0 8px 18px rgba(120,50,0,0.3);}
+  #cookie-bar .ck-btn.accept:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(120,50,0,0.38);}
+  #cookie-bar .ck-btn.refuse{color:#fff;background:rgba(255,255,255,0.12);}
+  #cookie-bar .ck-btn.refuse:hover{background:rgba(255,255,255,0.22);}
+</style>
+<div id="cookie-bar" role="dialog" aria-label="Consentement cookies">
+  <img class="ck-perso" src="/favicons/e7e048d3-9cf8-43ec-a389-64be3783cc63.png" alt="Mon Copain Digital croque un cookie">
+  <div class="ck-head">
+    <span class="ck-title">Un petit cookie&nbsp;?</span>
+  </div>
+  <p class="ck-txt">On utilise des cookies pour améliorer ta visite et mesurer l'audience. Tu peux accepter ou refuser, comme tu préfères.</p>
+  <div class="ck-actions">
+    <button class="ck-btn refuse" onclick="setCookieChoice('refused')">Refuser</button>
+    <button class="ck-btn accept" onclick="setCookieChoice('accepted')">Accepter</button>
+  </div>
+</div>
+<script>
+  (function(){
+    var KEY='mcd-cookie-consent';
+    var bar=document.getElementById('cookie-bar');
+    window.setCookieChoice=function(v){
+      try{ localStorage.setItem(KEY,v); }catch(e){}
+      bar.classList.remove('show');
+    };
+    try{
+      if(!localStorage.getItem(KEY)){
+        setTimeout(function(){ bar.classList.add('show'); }, 1200);
+      }
+    }catch(e){
+      setTimeout(function(){ bar.classList.add('show'); }, 1200);
+    }
+  })();
+</script>
+<!-- ===== Fin bandeau cookies ===== -->
 </body>
 </html>
