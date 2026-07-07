@@ -1343,59 +1343,13 @@ function start() {
       const dracoLoader = new THREE.DRACOLoader();
       dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
       loader.setDRACOLoader(dracoLoader);
-      loader.load('char_seated-v1.glb', (gltf) => {
-        // Personnage retiré : on masque juste l'écran de chargement.
+      // Personnage retiré : on masque l'écran de chargement tout de suite,
+      // sans attendre le moindre fichier (sinon l'écran reste bloqué).
+      (() => {
         const cl = document.getElementById('char-loader');
         if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }
-        return;
-        const model = gltf.scene;
-        // normalise la hauteur à 1
-        let box = new THREE.Box3().setFromObject(model);
-        model.scale.setScalar(1 / (box.max.y - box.min.y));
-        model.updateMatrixWorld(true);
-        // recentre en X/Z, pose les pieds (min.y) à l'origine du groupe
-        box = new THREE.Box3().setFromObject(model);
-        const c = new THREE.Vector3(); box.getCenter(c);
-        model.position.x -= c.x;
-        model.position.z -= c.z;
-        model.position.y -= box.min.y;
-        model.traverse(o => {
-          if (o.isMesh) {
-            o.castShadow = true; o.receiveShadow = true; o.layers.enable(1);
-            // les textures GLB sont en sRGB : on les aligne sur le pipeline linéaire
-            // de la scène pour qu'elles ne sortent pas trop sombres
-            const mats = Array.isArray(o.material) ? o.material : [o.material];
-            mats.forEach(m => {
-              if (!m) return;
-              if (m.map) { m.map.encoding = THREE.LinearEncoding; }
-              m.emissive = new THREE.Color(0xffffff);
-              m.emissiveMap = m.map || null;
-              m.emissiveIntensity = 0.28;
-              m.needsUpdate = true;
-            });
-          }
-        });
-        charGroup.add(model);
-        apply();
-        const cl = document.getElementById('char-loader');
-        if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }
-      }, (xhr) => {
-        if (xhr && xhr.total) {
-          const pct = Math.round((xhr.loaded / xhr.total) * 100);
-          const fill = document.getElementById('cl-fill');
-          const txt = document.getElementById('cl-txt');
-          if (fill) fill.style.width = pct + '%';
-          if (txt) txt.textContent = 'Chargement du personnage… ' + pct + '%';
-        }
-      }, (err) => {
-        console.error('GLB load error', err);
-        const txt = document.getElementById('cl-txt');
-        if (txt) txt.textContent = 'Impossible de charger le personnage';
-        // Personnage indisponible (ex. aperçu sans le .glb) : on retire quand même
-        // l'écran de chargement pour laisser voir l'accueil.
-        const cl = document.getElementById('char-loader');
-        if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }
-      });
+      })();
+      // Personnage retiré : plus aucun chargement de char_seated-v1.glb.
 
       // Lueur bleutée de l'écran de l'ordinateur, qui se reflète sur le visage/buste
       // (enfant du charGroup -> suit le personnage)
