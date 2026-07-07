@@ -1211,6 +1211,52 @@ function start() {
 
     // ===== CHAISE SCANDINAVE EN BOIS — en grand, plein centre de la planète =====
     (() => {
+      // Chaise procédurale retirée : on charge le GLB fourni à la place.
+      const cLoader = new THREE.GLTFLoader();
+      const cDraco = new THREE.DRACOLoader();
+      cDraco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
+      cLoader.setDRACOLoader(cDraco);
+      cLoader.load('textured_mesh (2).glb', (gltf) => {
+        const grp = new THREE.Group();
+        const model = gltf.scene;
+        // normalise la hauteur à 1
+        let box = new THREE.Box3().setFromObject(model);
+        model.scale.setScalar(1 / (box.max.y - box.min.y));
+        model.updateMatrixWorld(true);
+        // recentre X/Z, pose la base à l'origine
+        box = new THREE.Box3().setFromObject(model);
+        const c = new THREE.Vector3(); box.getCenter(c);
+        model.position.x -= c.x;
+        model.position.z -= c.z;
+        model.position.y -= box.min.y;
+        model.traverse(o => {
+          if (o.isMesh) {
+            o.castShadow = true; o.receiveShadow = true; o.layers.enable(CHAIR_LAYER);
+            const mats = Array.isArray(o.material) ? o.material : [o.material];
+            mats.forEach(m => {
+              if (!m) return;
+              if (m.map) { m.map.encoding = THREE.LinearEncoding; }
+              m.emissive = new THREE.Color(0xffffff);
+              m.emissiveMap = m.map || null;
+              m.emissiveIntensity = 0.22;
+              m.needsUpdate = true;
+            });
+          }
+        });
+        grp.add(model);
+        // réglages : hauteur ~ celle de l'ancienne chaise. Ajustables via window.__chairTune(...)
+        const CT = window.__chairT = { scale: 13.5, z: -1.0, y: 0, rotY: 0 };
+        const apply = () => {
+          grp.scale.setScalar(CT.scale);
+          dropGroup(grp, 90, 0, CT.rotY);
+          grp.position.z += CT.z;
+          grp.position.y += CT.y;
+        };
+        apply();
+        window.__chairTune = (o) => { Object.assign(CT, o); apply(); };
+        window.__chair = grp;
+      }, undefined, (err) => console.error('chair GLB load error', err));
+      return;
       const V = (x, y, z) => new THREE.Vector3(x, y, z);
       const g = new THREE.Group();
       const oak = new THREE.MeshStandardMaterial({ color: 0xb2762f, roughness: 0.5, metalness: 0 });
@@ -1341,6 +1387,10 @@ function start() {
         console.error('GLB load error', err);
         const txt = document.getElementById('cl-txt');
         if (txt) txt.textContent = 'Impossible de charger le personnage';
+        // Personnage indisponible (ex. aperçu sans le .glb) : on retire quand même
+        // l'écran de chargement pour laisser voir l'accueil.
+        const cl = document.getElementById('char-loader');
+        if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }
       });
 
       // Lueur bleutée de l'écran de l'ordinateur, qui se reflète sur le visage/buste
