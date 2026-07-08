@@ -331,10 +331,10 @@
   .social-btn svg { width: 22px; height: 22px; }
   .social-btn.ig { background: none; border: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
   .social-btn.ig:hover { box-shadow: none; }
-  .social-btn.ig svg { width: 40px; height: 40px; filter: drop-shadow(0 6px 14px rgba(120,50,0,0.32)); }
+  .social-btn.ig svg { width: 54px; height: 54px; filter: drop-shadow(0 6px 14px rgba(120,50,0,0.32)); }
   .social-btn.li { background: none; border: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
   .social-btn.li:hover { box-shadow: none; }
-  .social-btn.li svg { width: 40px; height: 40px; filter: drop-shadow(0 6px 14px rgba(120,50,0,0.32)); }
+  .social-btn.li svg { width: 54px; height: 54px; filter: drop-shadow(0 6px 14px rgba(120,50,0,0.32)); }
   .social-btn .ln {
     font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 19px;
     line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4);
@@ -399,6 +399,10 @@
     .social-btn { width: 38px !important; height: 38px !important; }
     .social-btn svg { width: 18px; height: 18px; }
     .social-btn .ln { font-size: 15px; }
+    /* Boutons bulle / Instagram / LinkedIn : même taille sur mobile */
+    .acct-sq { width: 44px !important; height: 44px !important; }
+    .social-btn.ig, .social-btn.li { width: 44px !important; height: 44px !important; }
+    .social-btn.ig svg, .social-btn.li svg { width: 48px !important; height: 48px !important; }
   }
 
   @media (max-width: 380px) {
@@ -1519,6 +1523,75 @@ function start() {
         // scintillement subtil, comme une vidéo qui défile
         screen.intensity = screen._base * (1 + 0.12 * Math.sin(t * 6.7) + 0.07 * Math.sin(t * 15.3));
       })();
+    })();
+
+    // ===== Drapeau blanc « Soutiens l'équipe de France » planté près du personnage =====
+    (() => {
+      const outer = new THREE.Group();   // pour le placement au sol
+      const flag = new THREE.Group();    // contenu (mât + toile)
+      outer.add(flag);
+
+      // --- Mât ---
+      const poleH = 6.2, poleR = 0.07;
+      const poleMat = new THREE.MeshStandardMaterial({ color: 0xd7dbe0, roughness: 0.35, metalness: 0.65 });
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(poleR, poleR, poleH, 18), poleMat);
+      pole.position.y = poleH / 2;
+      flag.add(pole);
+      const knob = new THREE.Mesh(new THREE.SphereGeometry(poleR * 2.4, 18, 14),
+        new THREE.MeshStandardMaterial({ color: 0xffd24a, roughness: 0.28, metalness: 0.75 }));
+      knob.position.y = poleH + poleR;
+      flag.add(knob);
+
+      // --- Toile blanche avec texte ---
+      const cvW = 640, cvH = 400;
+      const cv = document.createElement('canvas'); cv.width = cvW; cv.height = cvH;
+      const cx = cv.getContext('2d');
+      // fond blanc légèrement crème
+      const bg = cx.createLinearGradient(0, 0, 0, cvH);
+      bg.addColorStop(0, '#ffffff'); bg.addColorStop(1, '#f3f5f8');
+      cx.fillStyle = bg; cx.fillRect(0, 0, cvW, cvH);
+      // liseré tricolore à gauche (côté mât)
+      cx.fillStyle = '#0055A4'; cx.fillRect(0, 0, 22, cvH);
+      cx.fillStyle = '#ffffff'; cx.fillRect(22, 0, 22, cvH);
+      cx.fillStyle = '#EF4135'; cx.fillRect(44, 0, 22, cvH);
+      // texte
+      cx.textAlign = 'center'; cx.textBaseline = 'middle';
+      const centerX = (cvW + 66) / 2;
+      cx.fillStyle = '#123B7A';
+      cx.font = "700 62px 'Fredoka', 'Helvetica Neue', sans-serif";
+      cx.fillText('SOUTIENS', centerX, 96);
+      cx.font = "700 50px 'Fredoka', 'Helvetica Neue', sans-serif";
+      cx.fillText("L'ÉQUIPE DE", centerX, 190);
+      cx.fillStyle = '#EF4135';
+      cx.font = "700 86px 'Fredoka', 'Helvetica Neue', sans-serif";
+      cx.fillText('FRANCE', centerX, 296);
+
+      const tex = new THREE.CanvasTexture(cv);
+      tex.anisotropy = 8;
+      const clothW = 3.0, clothH = clothW * cvH / cvW;
+      const cloth = new THREE.Mesh(new THREE.PlaneGeometry(clothW, clothH, 1, 1),
+        new THREE.MeshStandardMaterial({ map: tex, side: THREE.DoubleSide, roughness: 0.9, metalness: 0 }));
+      cloth.position.set(clothW / 2 + poleR, poleH - clothH / 2 - 0.25, 0);
+      flag.add(cloth);
+      // redessine le texte quand la police Fredoka est prête
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { tex.needsUpdate = true; });
+        try { document.fonts.load("700 62px 'Fredoka'").then(() => { tex.needsUpdate = true; }); } catch (e) {}
+      }
+
+      flag.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.layers.enable(CHAIR_LAYER); } });
+
+      // réglages (ajustables via window.__flagTune)
+      const FT = window.__flagT = { lat: 85.5, lon: 20, scale: 1.0, rotY: -0.5, z: 0, y: 0 };
+      const apply = () => {
+        outer.scale.setScalar(FT.scale);
+        dropGroup(outer, FT.lat, FT.lon, 0);
+        flag.rotation.y = FT.rotY;
+        flag.position.set(0, FT.y, FT.z);
+      };
+      apply();
+      window.__flagTune = (o) => { Object.assign(FT, o); apply(); };
+      window.__flag = outer;
     })();
 
     // ===== Titre 3D en relief — nom de l'agence, flottant au-dessus de la planète =====
