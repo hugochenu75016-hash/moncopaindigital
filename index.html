@@ -490,12 +490,172 @@
 <link id="gfont-Permanent-Marker" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker:wght@300;400;500;600;700&amp;display=swap">
 <link id="gfont-Caveat" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@300;400;500;600;700&amp;display=swap">
 <link id="gfont-Fredoka" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;display=swap">
+<link id="gfont-Lilita" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&amp;display=swap">
 </head>
 <body style="font-family: &quot;Permanent Marker&quot;">
+<style id="banderole-style">
+  /* ===== Banderole suspendue (soutien équipe de France) ===== */
+  #banderole { position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
+    z-index: 0; pointer-events: none; transform-origin: 50% 0;
+    animation: banSway 7s ease-in-out infinite; }
+  #banderole svg { display: block; width: 100vw; height: auto; overflow: visible; }
+  #banderole .ban-cloth-g { animation: clothWave 5.2s ease-in-out infinite;
+    transform-box: fill-box; transform-origin: 50% 15%; }
+  @keyframes banSway { 0%, 100% { transform: translateX(-50%) rotate(-0.5deg); }
+    50% { transform: translateX(-50%) rotate(0.5deg); } }
+  @keyframes clothWave { 0%, 100% { transform: skewX(-0.7deg) scaleY(1); }
+    50% { transform: skewX(0.7deg) scaleY(1.012); } }
+  @media (max-width: 640px) {
+    #banderole { top: 128px; animation: none; }
+    #banderole svg { width: 100vw; }
+    #banderole .ban-ropes { display: none; }
+  }
+
+  /* ===== Panneaux suspendus : compte à rebours + offre ===== */
+  .hang-tag { position: absolute; top: calc(30px + 14.5vw); z-index: 6;
+    font-family: 'Lilita One', 'Fredoka', sans-serif; text-align: center;
+    background: linear-gradient(#FFFDF4, #F6EACB);
+    border: 3px solid #123B7A; border-radius: 12px;
+    padding: 10px 18px 12px;
+    box-shadow: 0 10px 20px rgba(60,25,0,.3);
+    text-decoration: none; }
+  .hang-tag::before, .hang-tag::after { content: ""; position: absolute; top: -26px;
+    width: 3px; height: 28px; background: linear-gradient(#c19053, #8a5a26); border-radius: 2px; }
+  .hang-tag::before { left: 22%; transform: rotate(8deg); }
+  .hang-tag::after { right: 22%; transform: rotate(-8deg); }
+  .hang-tag .tag-kicker { display: block; font-size: 12px; letter-spacing: .18em; color: #EF4135; }
+  .hang-tag .tag-main { display: block; font-size: 21px; color: #123B7A; line-height: 1.1; margin-top: 2px; }
+  .hang-tag .tag-sub { display: block; font-size: 12.5px; color: #6b6152; font-family: Fredoka, sans-serif; font-weight: 600; margin-top: 3px; }
+  #match-tag { left: clamp(12px, 13vw, 240px); transform: rotate(-2.5deg);
+    animation: tagSway1 5.8s ease-in-out infinite; pointer-events: none; }
+  #match-tag .tag-count { display: block; font-size: 24px; color: #EF4135; letter-spacing: .06em; margin-top: 2px;
+    font-variant-numeric: tabular-nums; }
+  #offer-tag { right: clamp(12px, 13vw, 240px); transform: rotate(2deg);
+    animation: tagSway2 6.6s ease-in-out infinite; pointer-events: auto; cursor: pointer;
+    transition: scale .25s cubic-bezier(.2,1.4,.4,1); }
+  #offer-tag:hover { scale: 1.06; }
+  #offer-tag .tag-main { color: #EF4135; font-size: 26px; }
+  #offer-tag .tag-cta { display: inline-block; margin-top: 6px; font-size: 13px; color: #FFF7DB;
+    background: #123B7A; border-radius: 999px; padding: 4px 14px; letter-spacing: .05em; }
+  @keyframes tagSway1 { 0%,100% { transform: rotate(-3.2deg); } 50% { transform: rotate(-1.4deg); } }
+  @keyframes tagSway2 { 0%,100% { transform: rotate(2.6deg); } 50% { transform: rotate(0.9deg); } }
+  @media (max-width: 900px) {
+    .hang-tag { top: auto; }
+    #match-tag { top: calc(30px + 18vw); left: 8px; }
+    #offer-tag { top: calc(30px + 18vw); right: 8px; }
+  }
+
+  /* ===== Confettis tricolores ===== */
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 4; overflow: hidden; }
+  #confetti span { position: absolute; top: -4vh; width: 9px; height: 15px; border-radius: 2px;
+    opacity: .85; animation-name: confFall; animation-timing-function: linear; animation-iteration-count: infinite; }
+  @keyframes confFall {
+    0%   { transform: translateY(-4vh) rotate(0deg) translateX(0); }
+    25%  { transform: translateY(24vh) rotate(200deg) translateX(2.2vw); }
+    50%  { transform: translateY(52vh) rotate(380deg) translateX(-1.6vw); }
+    75%  { transform: translateY(80vh) rotate(560deg) translateX(1.8vw); }
+    100% { transform: translateY(110vh) rotate(740deg) translateX(0); }
+  }
+</style>
 <div id="wrap">
   <canvas id="scene"></canvas>
   <div id="stars"></div>
   <div id="title"><h1 style="width: 528px; height: 42px">Mon Copain Digital</h1></div>
+
+  <!-- Banderole suspendue -->
+  <div id="banderole">
+    <svg viewBox="0 0 1440 230" aria-label="Mon Copain Digital soutient l'équipe de France">
+      <defs>
+        <linearGradient id="banClothGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#FFFDF4"></stop>
+          <stop offset="0.75" stop-color="#FBF0D6"></stop>
+          <stop offset="1" stop-color="#F2E2BE"></stop>
+        </linearGradient>
+        <filter id="banShadow" x="-20%" y="-20%" width="140%" height="160%">
+          <feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#5a2600" flood-opacity="0.32"></feDropShadow>
+        </filter>
+        <filter id="banFabric" x="-5%" y="-25%" width="110%" height="150%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.008 0.018" numOctaves="2" seed="7" result="n"></feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+        </filter>
+        <linearGradient id="banFolds" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0.00" stop-color="#4a3000" stop-opacity="0"></stop>
+          <stop offset="0.06" stop-color="#4a3000" stop-opacity="0.10"></stop>
+          <stop offset="0.12" stop-color="#ffffff" stop-opacity="0.14"></stop>
+          <stop offset="0.20" stop-color="#4a3000" stop-opacity="0"></stop>
+          <stop offset="0.28" stop-color="#4a3000" stop-opacity="0.09"></stop>
+          <stop offset="0.36" stop-color="#ffffff" stop-opacity="0.12"></stop>
+          <stop offset="0.45" stop-color="#4a3000" stop-opacity="0"></stop>
+          <stop offset="0.53" stop-color="#4a3000" stop-opacity="0.10"></stop>
+          <stop offset="0.61" stop-color="#ffffff" stop-opacity="0.13"></stop>
+          <stop offset="0.70" stop-color="#4a3000" stop-opacity="0"></stop>
+          <stop offset="0.78" stop-color="#4a3000" stop-opacity="0.09"></stop>
+          <stop offset="0.86" stop-color="#ffffff" stop-opacity="0.12"></stop>
+          <stop offset="0.94" stop-color="#4a3000" stop-opacity="0.05"></stop>
+          <stop offset="1.00" stop-color="#4a3000" stop-opacity="0"></stop>
+        </linearGradient>
+        <radialGradient id="banEyelet" cx="0.35" cy="0.3" r="1">
+          <stop offset="0" stop-color="#f2f5f8"></stop>
+          <stop offset="0.55" stop-color="#b9c0c8"></stop>
+          <stop offset="1" stop-color="#7d858e"></stop>
+        </radialGradient>
+        <path id="banLine1" d="M320,116 Q720,158 1120,116" fill="none"></path>
+        <path id="banLine2" d="M300,157 Q720,199 1140,157" fill="none"></path>
+      </defs>
+
+      <!-- Cordes torsadées -->
+      <g class="ban-ropes" fill="none" stroke-linecap="round">
+        <path d="M20,-64 C36,-12 50,52 66,86" stroke="#C8955C" stroke-width="5"></path>
+        <path d="M20,-64 C36,-12 50,52 66,86" stroke="#96652E" stroke-width="5" stroke-dasharray="4 7" opacity="0.6"></path>
+        <path d="M1420,-64 C1404,-12 1390,52 1374,86" stroke="#C8955C" stroke-width="5"></path>
+        <path d="M1420,-64 C1404,-12 1390,52 1374,86" stroke="#96652E" stroke-width="5" stroke-dasharray="4 7" opacity="0.6"></path>
+      </g>
+
+      <!-- Toile -->
+      <g filter="url(#banShadow)">
+      <g class="ban-cloth-g" filter="url(#banFabric)">
+        <path d="M60,84 Q720,132 1380,84 L1392,168 Q720,222 48,168 Z"
+              fill="url(#banClothGrad)" stroke="#123B7A" stroke-width="5" stroke-linejoin="round"></path>
+        <!-- plis du tissu (ombres et lumières verticales) -->
+        <path d="M60,84 Q720,132 1380,84 L1392,168 Q720,222 48,168 Z" fill="url(#banFolds)"></path>
+        <!-- reflet haut -->
+        <path d="M74,93 Q720,140 1366,93" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.55"></path>
+        <!-- ombre interne le long de l'ourlet -->
+        <path d="M58,158 Q720,208 1382,158" fill="none" stroke="#123B7A" stroke-width="16" opacity="0.07"></path>
+        <!-- coutures -->
+        <path d="M80,100 Q720,147 1360,100" fill="none" stroke="#123B7A" stroke-width="2"
+              stroke-dasharray="7 6" opacity="0.35"></path>
+        <path d="M64,160 Q720,212 1376,160" fill="none" stroke="#123B7A" stroke-width="2"
+              stroke-dasharray="7 6" opacity="0.35"></path>
+        <!-- ourlet tricolore le long du bas -->
+        <g stroke-width="8" fill="none">
+          <path d="M54,166 Q720,219 1386,166" pathLength="3" stroke="#0055A4" stroke-dasharray="1 2" stroke-dashoffset="0"></path>
+          <path d="M54,166 Q720,219 1386,166" pathLength="3" stroke="#FFFFFF" stroke-dasharray="1 2" stroke-dashoffset="-1"></path>
+          <path d="M54,166 Q720,219 1386,166" pathLength="3" stroke="#EF4135" stroke-dasharray="1 2" stroke-dashoffset="-2"></path>
+        </g>
+        <!-- texte -->
+        <text font-family="'Lilita One', 'Fredoka', sans-serif" font-size="27" fill="#123B7A" letter-spacing="3" text-anchor="middle">
+          <textPath href="#banLine1" startOffset="50%">MON COPAIN DIGITAL SOUTIENT</textPath>
+        </text>
+        <text font-family="'Lilita One', 'Fredoka', sans-serif" font-size="52" letter-spacing="1.5" text-anchor="middle">
+          <textPath href="#banLine2" startOffset="50%"><tspan fill="#123B7A">L'ÉQUIPE DE </tspan><tspan fill="#EF4135">FRANCE</tspan></textPath>
+        </text>
+      </g>
+      </g>
+      <!-- œillets métalliques -->
+      <g>
+        <circle cx="66" cy="87" r="11" fill="url(#banEyelet)" stroke="#6c737b" stroke-width="2"></circle>
+        <circle cx="66" cy="87" r="4.5" fill="#c2410c"></circle>
+        <circle cx="1374" cy="87" r="11" fill="url(#banEyelet)" stroke="#6c737b" stroke-width="2"></circle>
+        <circle cx="1374" cy="87" r="4.5" fill="#c2410c"></circle>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Offre Coupe du Monde -->
+
+  <!-- Confettis tricolores -->
+  <div id="confetti"></div>
   <nav id="cta-left">
     <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 121px; height: 43px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px" onclick="location.href='qui-suis-je.html'">Qui suis-je ?</button>
     <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 130px; height: 44px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px; white-space: normal; line-height: 1.05" onclick="location.href='rendez-vous.html'">rendez-vous</button>
@@ -508,10 +668,10 @@
     <button class="enter-btn" onclick="location.href='explorer.html'">Explorer</button>
   </div>
 
-  <!-- Indicateur de chargement du personnage 3D -->
+  <!-- Écran de chargement du personnage 3D -->
   <div id="char-loader">
     <div class="cl-spinner"></div>
-    <div class="cl-text" id="cl-txt">Chargement du personnage…</div>
+    <div class="cl-text">MON COPAIN DIGITAL…</div>
     <div class="cl-bar"><div class="cl-fill" id="cl-fill"></div></div>
   </div>
 
@@ -1209,6 +1369,59 @@ function start() {
       dropGroup(g, 46, 62, 0.2);
     })();
 
+    // --- Décor Coupe du Monde : drapeaux tricolores + ballon géant ---
+    (() => {
+      const flagFR = () => {
+        const fg = new THREE.Group();
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.065, 2.5, 10),
+          new THREE.MeshStandardMaterial({ color: 0x9a6a33, roughness: 0.7 }));
+        pole.position.y = 1.25; fg.add(pole);
+        [0x0055A4, 0xffffff, 0xEF4135].forEach((c, i) => {
+          const p = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.62, 0.05),
+            new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, emissive: c, emissiveIntensity: 0.22 }));
+          p.position.set(0.19 + i * 0.34, 2.08, 0); fg.add(p);
+        });
+        return fg;
+      };
+      [[52, 18, 0.4], [46, -38, 1.3], [58, 84, 2.1], [44, 152, 0.8], [54, -112, 1.7], [49, -68, 2.6]]
+        .forEach(([la, lo, sp]) => dropGroup(flagFR(), la, lo, sp));
+
+      // Ballon de foot posé sur la planète
+      // Ballon de foot posé sur la planète (vraie répartition : 12 pentagones
+      // noirs aux 12 sommets d'un icosaèdre sur une sphère blanche)
+      const R = 1.05;
+      const bg = new THREE.Group();
+      const core = new THREE.Group();          // porte le ballon + pentagones (rotation + offset)
+      bg.add(core);
+
+      const ballMat = new THREE.MeshStandardMaterial({ color: 0xf4f4ef, roughness: 0.5, metalness: 0.02 });
+      const ball = new THREE.Mesh(new THREE.SphereGeometry(R, 48, 36), ballMat);
+      ball.castShadow = true; ball.receiveShadow = true;
+      core.add(ball);
+
+      // 12 sommets d'un icosaèdre (permutations de (0, ±1, ±φ))
+      const phi = (1 + Math.sqrt(5)) / 2;
+      const icoV = [];
+      [[0, 1, phi], [0, -1, phi], [0, 1, -phi], [0, -1, -phi]].forEach(v => {
+        for (let s = 0; s < 3; s++) icoV.push([v[(0 + s) % 3], v[(1 + s) % 3], v[(2 + s) % 3]]);
+      });
+      const pentMat = new THREE.MeshStandardMaterial({ color: 0x181a1e, roughness: 0.55, metalness: 0.02 });
+      const pentGeo = new THREE.CircleGeometry(0.33, 5);   // pentagone plat, normale +Z
+      const Zaxis = new THREE.Vector3(0, 0, 1);
+      icoV.forEach(([x, y, z]) => {
+        const dir = new THREE.Vector3(x, y, z).normalize();
+        const p = new THREE.Mesh(pentGeo, pentMat);
+        p.position.copy(dir).multiplyScalar(R * 1.001);
+        p.quaternion.setFromUnitVectors(Zaxis, dir);
+        p.castShadow = true;
+        core.add(p);
+      });
+
+      core.position.y = R;                 // pose le ballon sur la surface
+      core.rotation.set(0.4, 0.6, 0.2);    // légère inclinaison pour montrer le motif
+      dropGroup(bg, 62, -20, 0);
+    })();
+
     // ===== CHAISE SCANDINAVE EN BOIS — en grand, plein centre de la planète =====
     (() => {
       // Chaise procédurale retirée : on charge le GLB fourni à la place.
@@ -1216,7 +1429,7 @@ function start() {
       const cDraco = new THREE.DRACOLoader();
       cDraco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
       cLoader.setDRACOLoader(cDraco);
-      cLoader.load('textured_mesh (2).glb', (gltf) => {
+      cLoader.load('maincaracterfootfr.glb', (gltf) => {
         const grp = new THREE.Group();
         const model = gltf.scene;
         // normalise la hauteur à 1
@@ -1255,7 +1468,17 @@ function start() {
         apply();
         window.__chairTune = (o) => { Object.assign(CT, o); apply(); };
         window.__chair = grp;
-      }, undefined, (err) => console.error('chair GLB load error', err));
+        // modèle prêt : on masque l'écran de chargement orange
+        const cl = document.getElementById('char-loader');
+        if (cl) { const f = document.getElementById('cl-fill'); if (f) f.style.width = '100%'; setTimeout(() => { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }, 250); }
+      }, (ev) => {
+        const f = document.getElementById('cl-fill');
+        if (f && ev && ev.lengthComputable) f.style.width = Math.round((ev.loaded / ev.total) * 100) + '%';
+      }, (err) => {
+        console.error('chair GLB load error', err);
+        const cl = document.getElementById('char-loader');
+        if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }
+      });
       return;
       const V = (x, y, z) => new THREE.Vector3(x, y, z);
       const g = new THREE.Group();
@@ -1343,13 +1566,9 @@ function start() {
       const dracoLoader = new THREE.DRACOLoader();
       dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
       loader.setDRACOLoader(dracoLoader);
-      // Personnage retiré : on masque l'écran de chargement tout de suite,
-      // sans attendre le moindre fichier (sinon l'écran reste bloqué).
-      (() => {
-        const cl = document.getElementById('char-loader');
-        if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }
-      })();
-      // Personnage retiré : plus aucun chargement de char_seated-v1.glb.
+      // L'écran de chargement est masqué par le chargeur du modèle ci-dessus.
+      // Sécurité : si rien ne se charge en 15s, on le retire quand même.
+      setTimeout(() => { const cl = document.getElementById('char-loader'); if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); } }, 15000);
 
       // Lueur bleutée de l'écran de l'ordinateur, qui se reflète sur le visage/buste
       // (enfant du charGroup -> suit le personnage)
@@ -1626,5 +1845,40 @@ start();
   })();
 </script>
 <!-- ===== Fin bandeau cookies ===== -->
+<script>
+(() => {
+  // Compte à rebours France–Maroc (quart de finale, 9 juillet 2026, 22h heure française)
+  const target = new Date('2026-07-09T22:00:00+02:00').getTime();
+  const el = document.getElementById('match-count');
+  const pad = (n) => String(n).padStart(2, '0');
+  const tick = () => {
+    if (!el) return;
+    const d = target - Date.now();
+    if (d <= 0) { el.textContent = 'Allez les Bleus !'; return; }
+    const days = Math.floor(d / 864e5);
+    const h = Math.floor(d % 864e5 / 36e5);
+    const m = Math.floor(d % 36e5 / 6e4);
+    const s = Math.floor(d % 6e4 / 1e3);
+    el.textContent = (days > 0 ? 'J-' + days + ' · ' : '') + pad(h) + ':' + pad(m) + ':' + pad(s);
+  };
+  tick(); setInterval(tick, 1000);
+
+  // Confettis tricolores
+  const box = document.getElementById('confetti');
+  if (box) {
+    const cols = ['#0055A4', '#FFFFFF', '#EF4135'];
+    for (let i = 0; i < 26; i++) {
+      const sp = document.createElement('span');
+      sp.style.left = (Math.random() * 100) + 'vw';
+      sp.style.background = cols[i % 3];
+      sp.style.animationDuration = (8 + Math.random() * 7) + 's';
+      sp.style.animationDelay = (-Math.random() * 15) + 's';
+      sp.style.transform = 'scale(' + (0.7 + Math.random() * 0.7) + ')';
+      if (i % 3 === 1) sp.style.boxShadow = '0 0 0 1px rgba(18,59,122,.18)'; // liseré sur le blanc
+      box.appendChild(sp);
+    }
+  }
+})();
+</script>
 </body>
 </html>
