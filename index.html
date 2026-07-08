@@ -329,6 +329,12 @@
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34);
   }
   .social-btn svg { width: 22px; height: 22px; }
+  .social-btn.ig { background: none; border: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .social-btn.ig:hover { box-shadow: none; }
+  .social-btn.ig svg { width: 40px; height: 40px; filter: drop-shadow(0 6px 14px rgba(120,50,0,0.32)); }
+  .social-btn.li { background: none; border: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .social-btn.li:hover { box-shadow: none; }
+  .social-btn.li svg { width: 40px; height: 40px; filter: drop-shadow(0 6px 14px rgba(120,50,0,0.32)); }
   .social-btn .ln {
     font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 19px;
     line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4);
@@ -601,15 +607,28 @@
 
   <!-- Réseaux sociaux -->
   <div id="social-rail">
-    <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="3" width="18" height="18" rx="5"></rect>
-        <circle cx="12" cy="12" r="4"></circle>
-        <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle>
+    <a class="social-btn ig" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" style="width:40px;height:40px">
+        <defs>
+          <radialGradient id="igGrad" cx="30%" cy="107%" r="150%">
+            <stop offset="0%" stop-color="#fdf497"></stop>
+            <stop offset="5%" stop-color="#fdf497"></stop>
+            <stop offset="45%" stop-color="#fd5949"></stop>
+            <stop offset="60%" stop-color="#d6249f"></stop>
+            <stop offset="90%" stop-color="#285AEB"></stop>
+          </radialGradient>
+        </defs>
+        <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igGrad)"></rect>
+        <rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"></rect>
+        <circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"></circle>
+        <circle cx="16.5" cy="7.5" r="1.15" fill="#fff"></circle>
       </svg>
     </a>
-    <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-      <span class="ln">in</span>
+    <a class="social-btn li" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24" style="width:40px;height:40px">
+        <rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"></rect>
+        <path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"></path>
+      </svg>
     </a>
   </div>
 
@@ -1663,18 +1682,18 @@ start();
 </script>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
 <style id="acct-widget-css">
-  .acct-sq{position:relative;width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:1px solid rgba(255,255,255,0.6);background:linear-gradient(to bottom,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.14) 100%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9),inset 0 -4px 10px rgba(255,150,60,0.22),0 8px 20px rgba(120,50,0,0.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .26s cubic-bezier(.2,1,.3,1),box-shadow .26s ease;padding:0;}
+  .acct-sq{position:relative;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:none;background:transparent;box-shadow:none;transition:transform .26s cubic-bezier(.2,1,.3,1);padding:0;filter:drop-shadow(0 8px 16px rgba(120,50,0,0.28));}
   .acct-badge{position:absolute;bottom:calc(100% + 8px);right:0;white-space:nowrap;font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:11px;letter-spacing:.01em;color:#fff;background:linear-gradient(to bottom,#ff5140,#e11d10);padding:5px 10px;border-radius:999px;box-shadow:0 6px 16px rgba(190,20,10,0.42),inset 0 1px 1px rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.35);pointer-events:none;animation:acctBadgePulse 1.8s ease-in-out infinite;}
   .acct-badge::after{content:'';position:absolute;top:100%;right:16px;border:5px solid transparent;border-top-color:#e11d10;}
   @keyframes acctBadgePulse{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
-  .acct-sq:hover{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1.5px 1px rgba(255,255,255,1),0 12px 26px rgba(120,50,0,0.34);}
-  .acct-sq svg{width:23px;height:23px;}
+  .acct-sq:hover{transform:translateY(-2px) scale(1.06);}
+  .acct-sq img{width:100%;height:100%;object-fit:contain;display:block;}
   .acct-sq.fixed{position:fixed;top:clamp(14px,2.4vw,26px);right:clamp(16px,4vw,48px);z-index:9999;}
   #acct-pop{position:fixed;top:calc(clamp(14px,2.4vw,26px) + 58px);right:clamp(16px,4vw,48px);z-index:10000;width:264px;border-radius:22px;padding:20px 20px 18px;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
   #acct-pop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
   #acct-pop .ap-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-  #acct-pop .ap-ic{width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#d24a2a;background:linear-gradient(to bottom,#fff8ef,#ffe1cf);box-shadow:0 5px 12px rgba(120,50,0,0.25);}
-  #acct-pop .ap-ic svg{width:19px;height:19px;}
+  #acct-pop .ap-ic{width:38px;height:38px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+  #acct-pop .ap-ic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(120,50,0,0.25));}
   #acct-pop .ap-title{font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:16px;color:#fff;text-shadow:0 1px 2px rgba(150,70,0,0.4);}
   #acct-pop .ap-txt{margin:0 0 16px;font-size:13.5px;line-height:1.45;color:#fff3df;}
   #acct-pop .ap-actions{display:flex;flex-direction:column;gap:9px;}
@@ -1684,14 +1703,14 @@ start();
   #acct-pop .ap-btn.close{color:#fff;background:rgba(255,255,255,0.12);}
   #acct-pop .ap-btn.close:hover{background:rgba(255,255,255,0.22);}
 </style>
-<div id="acct-pop" role="dialog" aria-label="Espace compte">
+<div id="acct-pop" role="dialog" aria-label="Votre Bulle">
   <div class="ap-head">
-    <span class="ap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-    <span class="ap-title">Espace compte</span>
+    <span class="ap-ic"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
+    <span class="ap-title">Votre Bulle</span>
   </div>
   <p class="ap-txt">Voulez-vous ouvrir votre espace personnel&nbsp;?</p>
   <div class="ap-actions">
-    <a class="ap-btn open" href="espace-compte.html">Ouvrir l'espace compte</a>
+    <a class="ap-btn open" href="espace-compte.html">Ouvrir votre Bulle</a>
     <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
   </div>
 </div>
@@ -1700,7 +1719,7 @@ start();
   if(window.__acctWidget) return; window.__acctWidget=true;
   var btn=document.createElement('button');
   btn.type='button'; btn.className='acct-sq'; btn.setAttribute('aria-label','Espace compte'); btn.title='Espace compte';
-  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="acct-badge">Votre BULLE maintenant disponible !</span>';
+  btn.innerHTML='<img src="boutonespacelog-trim.png" alt="Espace compte"><span class="acct-badge">Votre BULLE maintenant disponible !</span>';
   var rail=document.querySelector('#social-rail');
   var social=document.querySelector('#topbar .social');
   if(rail){ rail.insertBefore(btn, rail.firstChild); }
