@@ -1784,7 +1784,7 @@ start();
   if(window.__acctWidget) return; window.__acctWidget=true;
   var btn=document.createElement('button');
   btn.type='button'; btn.className='acct-sq'; btn.setAttribute('aria-label','Espace compte'); btn.title='Espace compte';
-  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="acct-badge">Votre BULLE maintenant disponible</span>';
+  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="acct-badge">Votre BULLE maintenant disponible !</span>';
   var rail=document.querySelector('#social-rail');
   var social=document.querySelector('#topbar .social');
   if(rail){ rail.insertBefore(btn, rail.firstChild); }
@@ -1806,38 +1806,9 @@ start();
 })();
 </script>
 <!-- ===== Fin widget Espace compte ===== -->
-<!-- ===== Horloge liquide (haut gauche, sous la banderole) ===== -->
-<style id="clock-widget-css">
-  #liquid-clock{position:fixed;left:clamp(16px,4vw,48px);top:clamp(150px,20vw,280px);z-index:9998;width:96px;height:96px;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#fff7db;border:1px solid rgba(255,255,255,0.6);background:linear-gradient(to bottom,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.14) 100%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9),inset 0 -4px 10px rgba(255,150,60,0.22),0 8px 20px rgba(120,50,0,0.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .26s cubic-bezier(.2,1,.3,1),box-shadow .26s ease;user-select:none;}
-  #liquid-clock:hover{transform:translateY(-2px) scale(1.04);box-shadow:inset 0 1.5px 1px rgba(255,255,255,1),0 12px 26px rgba(120,50,0,0.34);}
-  #liquid-clock .lc-time{font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:26px;line-height:1;letter-spacing:.01em;text-shadow:0 1px 2px rgba(150,70,0,0.4);}
-  #liquid-clock .lc-time .lc-sec{font-size:14px;opacity:.85;margin-left:1px;}
-  #liquid-clock .lc-date{font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:600;font-size:10.5px;letter-spacing:.02em;text-transform:capitalize;color:#fff3df;text-shadow:0 1px 2px rgba(150,70,0,0.35);}
-  html.night #liquid-clock,body.night #liquid-clock{color:#eaf0ff;}
-  @media (max-width:640px){#liquid-clock{width:78px;height:78px;top:170px;}#liquid-clock .lc-time{font-size:21px;}}
-</style>
-<div id="liquid-clock" role="img" aria-label="Heure actuelle">
-  <div class="lc-time" id="lc-time">--:--</div>
-  <div class="lc-date" id="lc-date"></div>
-</div>
-<script>
-(function(){
-  if(window.__liquidClock) return; window.__liquidClock=true;
-  var t=document.getElementById('lc-time'), d=document.getElementById('lc-date');
-  function pad(n){return n<10?'0'+n:''+n;}
-  function tick(){
-    var now=new Date();
-    t.innerHTML=pad(now.getHours())+':'+pad(now.getMinutes())+'<span class="lc-sec">'+pad(now.getSeconds())+'</span>';
-    try{ d.textContent=now.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}); }
-    catch(e){ d.textContent=pad(now.getDate())+'/'+pad(now.getMonth()+1); }
-  }
-  tick(); setInterval(tick,1000);
-})();
-</script>
-<!-- ===== Fin horloge liquide ===== -->
 <!-- ===== Soleil décoratif (à côté de l'horloge) ===== -->
 <style id="sun-widget-css">
-  #liquid-sun{position:fixed;left:calc(clamp(16px,4vw,48px) + 96px + 16px);top:clamp(150px,20vw,280px);z-index:9998;width:110px;height:110px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+  #liquid-sun{position:fixed;left:clamp(16px,4vw,48px);top:clamp(150px,20vw,280px);z-index:9998;width:110px;height:110px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
   #liquid-sun svg{width:100%;height:100%;overflow:visible;position:absolute;inset:0;transition:transform .9s cubic-bezier(.22,.9,.28,1),opacity .7s ease;will-change:transform,opacity;}
   #liquid-sun .sun-face{filter:drop-shadow(0 8px 20px rgba(255,150,40,0.5));opacity:1;transform:translateY(0) scale(1);}
   #liquid-sun .moon-face{filter:drop-shadow(0 6px 18px rgba(150,175,255,0.5));opacity:0;transform:translateY(90vh) scale(.6);}
@@ -1869,7 +1840,7 @@ start();
     0%{transform:translateY(0) scale(1);opacity:1;}
     100%{transform:translateY(90vh) scale(.6);opacity:0;}
   }
-  @media (max-width:640px){#liquid-sun{left:calc(clamp(16px,4vw,48px) + 78px + 12px);width:90px;height:90px;top:170px;}}
+  @media (max-width:640px){#liquid-sun{left:clamp(16px,4vw,48px);width:90px;height:90px;top:170px;}}
 </style>
 <div id="liquid-sun" role="img" aria-label="Soleil">
   <svg class="sun-face" viewBox="0 0 140 140">
