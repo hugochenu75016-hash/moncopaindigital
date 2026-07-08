@@ -63,7 +63,7 @@
   /* ===== Titre animé au-dessus de la planète ===== */
   #title {
     position: absolute;
-    top: clamp(8px, 1.6vh, 22px);
+    top: clamp(-24px, -1vh, 0px);
     left: 0;
     right: 0;
     text-align: center;
@@ -560,7 +560,7 @@
 <div id="wrap">
   <canvas id="scene"></canvas>
   <div id="stars"></div>
-  <div id="title"><img src="logodesignworld.png" alt="Mon Copain Digital" style="display:block;margin:0 auto;width:clamp(260px,42vw,540px);height:auto;filter:drop-shadow(0 10px 22px rgba(70,28,0,0.35));"></div>
+  <div id="title"><img src="logocoupeworld-1ed1467a.png" alt="Mon Copain Digital" style="display:block;margin:0 auto;width:clamp(300px,48vw,620px);height:auto;filter:drop-shadow(0 10px 22px rgba(70,28,0,0.35));"></div>
 
   <!-- Offre Coupe du Monde -->
 
@@ -1650,9 +1650,15 @@ start();
     try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
   };
   window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
-  // au lancement : mode selon l'horaire (nuit entre 20h et 7h)
-  var hr = new Date().getHours();
-  applyNight(hr >= 20 || hr < 7);
+  // au lancement : nuit entre 23h et 7h
+  function isNightHour(){ var h = new Date().getHours(); return h >= 23 || h < 7; }
+  var lastAuto = isNightHour();
+  applyNight(lastAuto);
+  // bascule automatique en direct au passage de l'heure (23h -> lune, 7h -> soleil)
+  setInterval(function(){
+    var want = isNightHour();
+    if (want !== lastAuto) { lastAuto = want; applyNight(want); }
+  }, 20000);
 })();
 </script>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
