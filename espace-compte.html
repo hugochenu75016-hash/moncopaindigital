@@ -84,10 +84,10 @@
     padding: clamp(20px, 5vh, 60px) clamp(16px, 4vw, 48px);
   }
   .auth-wrap {
-    display: grid; grid-template-columns: 1fr auto; align-items: center;
+    display: grid; grid-template-columns: 1fr; justify-items: center; align-items: center;
     gap: clamp(20px, 5vw, 70px); max-width: 1280px; width: 100%;
   }
-  .auth-wrap .auth-card { justify-self: end; width: min(92vw, 430px); }
+  .auth-wrap .auth-card { justify-self: center; width: min(92vw, 430px); }
   .auth-hello { position: relative; text-align: center; }
   .auth-hello video { position: relative; z-index: 1; }
   .auth-hello img { width: min(56vw, 562px); height: auto; filter: drop-shadow(0 20px 26px rgba(90,40,0,0.34)); animation: floatY 7s ease-in-out infinite; }
@@ -491,11 +491,6 @@
   <!-- ============================ ÉCRAN CONNEXION ============================ -->
   <section id="auth">
     <div class="auth-wrap">
-      <div class="auth-hello">
-        <span class="say" id="hello-say">Content de vous revoir&nbsp;!</span>
-        <video src="maintravail.mp4" autoplay loop muted playsinline aria-label="Le personnage Mon Copain Digital"></video>
-      </div>
-
       <div class="auth-card">
         <div class="brand">
           <span class="logo mascotte"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
@@ -1108,7 +1103,7 @@
     tabSignup.classList.toggle('active', !login);
     formLogin.style.display = login ? '' : 'none';
     formSignup.style.display = login ? 'none' : '';
-    $('#hello-say').innerHTML = login ? 'Content de vous revoir&nbsp;!' : 'Ravi de vous rencontrer&nbsp;!';
+    var _hs = $('#hello-say'); if (_hs) _hs.innerHTML = login ? 'Content de vous revoir&nbsp;!' : 'Ravi de vous rencontrer&nbsp;!';
   }
   tabLogin.addEventListener('click', function(){ switchTab('login'); });
   tabSignup.addEventListener('click', function(){ switchTab('signup'); });
