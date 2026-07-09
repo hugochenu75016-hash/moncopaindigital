@@ -241,11 +241,65 @@
     color: #ffe9cf; min-height: 20px;
   }
 
-  /* Retour haut / footer léger */
-  #legal-line {
-    position: relative; z-index: 10; text-align: center;
-    padding: 0 24px clamp(40px, 6vh, 80px);
+  /* Retour haut / footer */
+  #site-footer {
+    position: relative; z-index: 10; margin-top: clamp(20px, 4vh, 48px);
+    padding: clamp(40px, 5vw, 68px) clamp(16px, 4vw, 48px) clamp(24px, 3vw, 34px);
+    background: linear-gradient(to bottom, #e8690d 0%, #cf560b 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
+    overflow: hidden;
+  }
+  body.night #site-footer { background: linear-gradient(to bottom, #1a2550 0%, #0d1638 100%); }
+  #site-footer .sf-inner {
+    max-width: 1160px; margin: 0 auto;
+    display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: clamp(20px, 3.4vw, 54px);
+    align-items: start;
+  }
+  #site-footer .sf-brand { align-self: center; }
+  #site-footer .sf-brand span {
+    display: inline-block; line-height: 0.98; letter-spacing: -0.01em;
+    font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
+    font-size: clamp(36px, 4.6vw, 74px);
+    background: linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,214,158,0.72) 45%, rgba(150,60,0,0.55) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 24px rgba(120,50,0,0.14);
+  }
+  body.night #site-footer .sf-brand span {
+    background: linear-gradient(170deg, rgba(255,255,255,0.92) 0%, rgba(180,196,255,0.7) 45%, rgba(60,80,170,0.55) 100%);
+    -webkit-background-clip: text; background-clip: text;
+  }
+  #site-footer .sf-col h3 {
+    margin: 2px 0 14px; font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
+    font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #ffd9a8;
+  }
+  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+  #site-footer .sf-col a {
+    color: #fff; text-decoration: none; font-size: 15px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px; transition: color .2s, transform .2s;
+  }
+  #site-footer .sf-col a:hover { color: #fff3df; transform: translateX(3px); }
+  #site-footer .sf-col a .dot { width: 6px; height: 6px; border-radius: 50%; background: #ffd9a8; flex: 0 0 auto; }
+  #site-footer .sf-contact { display: flex; flex-direction: column; gap: 12px; }
+  #site-footer .sf-socials { display: flex; gap: 12px; margin-top: 2px; }
+  #site-footer .sf-socials a {
+    width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,0.4); transition: transform .2s, background .2s;
+  }
+  #site-footer .sf-socials a:hover { transform: translateY(-3px); background: rgba(255,255,255,0.24); }
+  #site-footer .sf-socials svg { width: 26px; height: 26px; }
+  #site-footer .sf-legal {
+    max-width: 1160px; margin: clamp(20px, 3vh, 34px) auto 0;
+    padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.28);
     font-size: 13px; color: #ffe4c4;
+  }
+  @media (max-width: 860px) {
+    #site-footer .sf-inner { grid-template-columns: 1fr 1fr; gap: 26px 30px; }
+    #site-footer .sf-brand { grid-column: 1 / -1; align-self: start; }
+  }
+  @media (max-width: 520px) {
+    #site-footer .sf-inner { grid-template-columns: 1fr; gap: 22px; }
   }
 
   /* ===== Mode nuit (fond) + interrupteur jour/nuit ===== */
@@ -382,7 +436,7 @@
             <dt>Statut</dt><dd>EI — Entreprise Individuelle</dd>
             <dt>SIRET</dt><dd>104 391 602 00018</dd>
             <dt>Adresse</dt><dd>49 avenue Paul Doumer, 75016 Paris, France</dd>
-            <dt>Email</dt><dd><a href="/cdn-cgi/l/email-protection#ec84998b838f84898299ac8183828f839c8d858288858b85988d80c28a9e"><span class="__cf_email__" data-cfemail="eb839e8c8488838e859eab86848588849b8a82858f828c829f8a87c58d99">[email&#160;protected]</span></a></dd>
+            <dt>Email</dt><dd><a href="/cdn-cgi/l/email-protection#5b332e3c3438333e352e1b36343538342b3a32353f323c322f3a37753d29"><span class="__cf_email__" data-cfemail="0c64796b636f646962794c6163626f637c6d656268656b65786d60226a7e">[email&#160;protected]</span></a></dd>
             <dt>Téléphone</dt><dd><a href="tel:+33753670195">+33 7 53 67 01 95</a></dd>
           </dl>
           <h3>Directeur de la publication</h3>
@@ -419,7 +473,7 @@
           <h3>Combien de temps on les garde</h3>
           <p>Vos données sont conservées le temps nécessaire au traitement de votre demande, puis <strong>1 an</strong> à des fins de suivi commercial, sauf demande de suppression de votre part.</p>
           <h3>Vos droits</h3>
-          <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression, d'opposition et de portabilité de vos données. Pour l'exercer, écrivez-nous à <a href="/cdn-cgi/l/email-protection#09617c6e666a616c677c496466676a66796860676d606e607d6865276f7b"><span class="__cf_email__" data-cfemail="fd95889a929e95989388bd9092939e928d9c949399949a94899c91d39b8f">[email&#160;protected]</span></a>. Vous pouvez également saisir la <a href="https://www.cnil.fr" target="_blank" rel="noopener">CNIL</a> en cas de litige.</p>
+          <p>Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, de suppression, d'opposition et de portabilité de vos données. Pour l'exercer, écrivez-nous à <a href="/cdn-cgi/l/email-protection#553d20323a363d303b2015383a3b363a25343c3b313c323c2134397b3327"><span class="__cf_email__" data-cfemail="ddb5a8bab2beb5b8b3a89db0b2b3beb2adbcb4b3b9b4bab4a9bcb1f3bbaf">[email&#160;protected]</span></a>. Vous pouvez également saisir la <a href="https://www.cnil.fr" target="_blank" rel="noopener">CNIL</a> en cas de litige.</p>
         </div>
       </article>
 
@@ -512,7 +566,7 @@
             <li>Des textes alternatifs sur les images porteuses de sens.</li>
           </ul>
           <h3>Un souci rencontré&nbsp;?</h3>
-          <p>Si une page vous pose problème, dites-le-nous à <a href="/cdn-cgi/l/email-protection#d3bba6b4bcb0bbb6bda693bebcbdb0bca3b2babdb7bab4baa7b2bffdb5a1"><span class="__cf_email__" data-cfemail="a8c0ddcfc7cbc0cdc6dde8c5c7c6cbc7d8c9c1c6ccc1cfc1dcc9c486ceda">[email&#160;protected]</span></a>&nbsp;: on corrige au plus vite et on vous propose une alternative en attendant.</p>
+          <p>Si une page vous pose problème, dites-le-nous à <a href="/cdn-cgi/l/email-protection#d4bca1b3bbb7bcb1baa194b9bbbab7bba4b5bdbab0bdb3bda0b5b8fab2a6"><span class="__cf_email__" data-cfemail="68001d0f070b000d061d280507060b07180901060c010f011c0904460e1a">[email&#160;protected]</span></a>&nbsp;: on corrige au plus vite et on vous propose une alternative en attendant.</p>
         </div>
       </article>
 
@@ -539,9 +593,55 @@
     </div>
   </div>
 
-  <div id="legal-line">
-    © 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.
-  </div>
+  <!-- ===== Pied de page ===== -->
+  <footer id="site-footer" aria-label="Pied de page Mon Copain Digital">
+    <div class="sf-inner">
+      <div class="sf-brand"><span>Mon Copain<br>Digital</span></div>
+
+      <div class="sf-col">
+        <h3>Le site</h3>
+        <ul>
+          <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
+          <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
+          <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
+          <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
+        </ul>
+      </div>
+
+      <div class="sf-col sf-contact">
+        <h3>Rester en lien</h3>
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
+          <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
+          <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
+        </ul>
+        <div class="sf-socials">
+          <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="sf-col">
+        <h3>Loi applicable</h3>
+        <ul>
+          <li><a href="#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
+          <li><a href="#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
+          <li><a href="#cookies"><span class="dot"></span>Politique de cookies</a></li>
+          <li><a href="#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
+          <li><a href="#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+          <li><a href="#accessibilite"><span class="dot"></span>Accessibilité</a></li>
+          <li><a href="#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sf-legal">
+      <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
+    </div>
+  </footer>
 
   <!-- Interrupteur Jour / Nuit (reprend l'état choisi sur la page précédente) -->
   <button class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb"></span></button>
