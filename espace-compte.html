@@ -84,11 +84,14 @@
     padding: clamp(20px, 5vh, 60px) clamp(16px, 4vw, 48px);
   }
   .auth-wrap {
-    display: grid; grid-template-columns: 0.9fr 1.1fr; align-items: center;
-    gap: clamp(20px, 5vw, 70px); max-width: 1040px; width: 100%;
+    display: grid; grid-template-columns: 1fr auto; align-items: center;
+    gap: clamp(20px, 5vw, 70px); max-width: 1280px; width: 100%;
   }
+  .auth-wrap .auth-card { justify-self: end; width: min(92vw, 430px); }
   .auth-hello { position: relative; text-align: center; }
+  .auth-hello video { position: relative; z-index: 1; }
   .auth-hello img { width: min(56vw, 562px); height: auto; filter: drop-shadow(0 20px 26px rgba(90,40,0,0.34)); animation: floatY 7s ease-in-out infinite; }
+  .auth-hello video { width: min(42vw, 410px); height: auto; display: block; margin: 0 4% 0 auto; -webkit-mask-image: radial-gradient(120% 120% at 50% 48%, #000 82%, transparent 97%); mask-image: radial-gradient(120% 120% at 50% 48%, #000 82%, transparent 97%); animation: floatY 7s ease-in-out infinite; }
   .auth-hello .say {
     position: absolute; top: 13px; left: 364px; z-index: 5;
     font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 15px; color: #8a3c00;
@@ -457,6 +460,7 @@
   @media (max-width: 900px) {
     .auth-wrap { grid-template-columns: 1fr; }
     .auth-hello { display: none; }
+    .auth-hello video { display: none; }
     #app.show, #admin.show { grid-template-columns: 1fr; }
     #side, #adm-side {
       position: fixed; z-index: 60; left: 0; top: 0; width: 262px; height: 100vh;
@@ -489,12 +493,12 @@
     <div class="auth-wrap">
       <div class="auth-hello">
         <span class="say" id="hello-say">Content de vous revoir&nbsp;!</span>
-        <img src="Gemini_Generated_Image_noe0sonoe0sonoe0%20-%20Modifié.png" alt="Le personnage Mon Copain Digital">
+        <video src="maintravail.mp4" autoplay loop muted playsinline aria-label="Le personnage Mon Copain Digital"></video>
       </div>
 
       <div class="auth-card">
         <div class="brand">
-          <span class="logo mascotte"><img src="bulle.png" alt="Votre Bulle"></span>
+          <span class="logo mascotte"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
           <span class="nm">VOTRE BULLE<small>Votre espace personnel</small></span>
         </div>
 
@@ -563,7 +567,7 @@
     <!-- Sidebar -->
     <aside id="side">
       <div class="brand">
-        <span class="logo mascotte"><img src="bulle.png" alt="Votre Bulle"></span>
+        <span class="logo mascotte"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
         <span class="nm">VOTRE BULLE<small>Espace client</small></span>
       </div>
 
@@ -789,7 +793,7 @@
   <div id="admin">
     <aside id="adm-side">
       <div class="brand">
-        <span class="logo mascotte"><img src="bulle.png" alt="Votre Bulle"></span>
+        <span class="logo mascotte"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
         <span class="nm">VOTRE BULLE<small>Espace admin</small></span>
       </div>
       <a class="nav-item active" data-aview="overview">
@@ -2219,5 +2223,54 @@
   });
 })();
 </script>
+<!-- ===== Interrupteur Jour / Nuit (change le fond) ===== -->
+<style>
+  html, body { transition: background .7s ease; }
+  body.night { --bg: radial-gradient(125% 95% at 50% -12%, #21326a 0%, #14204a 42%, #0b1230 100%); }
+  html.night { background: #0b1230; }
+  .dn-toggle {
+    position: fixed; left: clamp(12px, 3vw, 28px); bottom: clamp(16px, 4vh, 30px); z-index: 9999;
+    width: 74px; height: 40px; border-radius: 999px; cursor: pointer; padding: 0; border: 1px solid rgba(255,255,255,0.5);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, rgba(255,180,80,0.18) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), inset 0 -4px 10px rgba(255,150,60,0.25), 0 10px 24px rgba(120,50,0,0.35);
+    transition: background .5s ease, box-shadow .3s ease, transform .2s ease;
+  }
+  .dn-toggle:hover { transform: translateY(-2px) scale(1.04); }
+  body.night .dn-toggle {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(120,140,220,0.14) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.6), inset 0 -4px 10px rgba(60,90,200,0.3), 0 10px 24px rgba(10,16,48,0.5);
+  }
+  .dn-thumb {
+    position: absolute; top: 4px; left: 4px; width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: #d98a2b;
+    background: linear-gradient(to bottom, #fff8ef, #ffe1b8);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.95), 0 6px 14px rgba(120,50,0,0.4);
+    transition: transform .45s cubic-bezier(.5,1.4,.4,1), background .45s ease, color .45s ease;
+  }
+  body.night .dn-thumb {
+    transform: translateX(34px);
+    background: linear-gradient(to bottom, #eaf0ff, #b9c6ef); color: #37407e;
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 6px 14px rgba(10,16,48,0.6);
+  }
+  .dn-thumb svg { width: 19px; height: 19px; }
+</style>
+<button class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb"></span></button>
+<script>
+(function(){
+  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M19.4 4.6l-1.8 1.8M6.4 17.6l-1.8 1.8"/></svg>';
+  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>';
+  var thumb = document.getElementById('dn-thumb');
+  function applyNight(on){
+    document.body.classList.toggle('night', on);
+    document.documentElement.classList.toggle('night', on);
+    if (thumb) thumb.innerHTML = on ? MOON : SUN;
+    try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
+  }
+  window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
+  var saved; try { saved = localStorage.getItem('mcd-theme'); } catch(e){}
+  applyNight(saved === 'night');
+})();
+</script>
+<!-- ===== Fin interrupteur Jour / Nuit ===== -->
 </body>
 </html>
