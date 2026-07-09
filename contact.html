@@ -12,6 +12,8 @@
 <link rel="manifest" href="/favicons/site.webmanifest">
 <meta name="theme-color" content="#F3852B">
 <title>Contact · Mon Copain Digital</title>
+<meta name="description" content="Une question, une idée, un projet de site ? Écrivez-nous ou appelez Mon Copain Digital. Réponse sous 24 h en semaine. Appel gratuit : +33 7 53 67 01 95.">
+<link rel="canonical" href="https://moncopaindigital.fr/contact.html">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
 <style>
   :root {
@@ -209,9 +211,117 @@
     #card { border-radius: 24px; padding: 20px 16px; }
     .info-row .txt .v { font-size: 15.5px; }
   }
+
+  /* ===== Pied de page (partagé avec la page Loi applicable) ===== */
+  #site-footer {
+    position: relative; z-index: 10; margin-top: clamp(20px, 4vh, 48px);
+    padding: clamp(40px, 5vw, 68px) clamp(16px, 4vw, 48px) clamp(24px, 3vw, 34px);
+    background: linear-gradient(to bottom, #e8690d 0%, #cf560b 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
+    overflow: hidden;
+  }
+  #site-footer .sf-inner {
+    max-width: 1160px; margin: 0 auto;
+    display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: clamp(20px, 3.4vw, 54px);
+    align-items: start;
+  }
+  #site-footer .sf-brand { align-self: center; }
+  #site-footer .sf-brand span {
+    display: inline-block; line-height: 0.98; letter-spacing: -0.01em;
+    font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
+    font-size: clamp(36px, 4.6vw, 74px);
+    background: linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,214,158,0.72) 45%, rgba(150,60,0,0.55) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 24px rgba(120,50,0,0.14);
+  }
+  #site-footer .sf-col h3 {
+    margin: 2px 0 14px; font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
+    font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #ffd9a8;
+  }
+  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+  #site-footer .sf-col a {
+    color: #fff; text-decoration: none; font-size: 15px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px; transition: color .2s, transform .2s;
+  }
+  #site-footer .sf-col a:hover { color: #fff3df; transform: translateX(3px); }
+  #site-footer .sf-col a .dot { width: 6px; height: 6px; border-radius: 50%; background: #ffd9a8; flex: 0 0 auto; }
+  #site-footer .sf-contact { display: flex; flex-direction: column; gap: 12px; }
+  #site-footer .sf-socials { display: flex; gap: 12px; margin-top: 2px; }
+  #site-footer .sf-socials a {
+    width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,0.4); transition: transform .2s, background .2s;
+  }
+  #site-footer .sf-socials a:hover { transform: translateY(-3px); background: rgba(255,255,255,0.24); }
+  #site-footer .sf-socials svg { width: 26px; height: 26px; }
+  #site-footer .sf-legal {
+    max-width: 1160px; margin: clamp(20px, 3vh, 34px) auto 0;
+    padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.28);
+    font-size: 13px; color: #ffe4c4;
+  }
+  @media (max-width: 860px) {
+    #site-footer .sf-inner { grid-template-columns: 1fr 1fr; gap: 26px 30px; }
+    #site-footer .sf-brand { grid-column: 1 / -1; align-self: start; }
+  }
+  @media (max-width: 520px) {
+    #site-footer .sf-inner { grid-template-columns: 1fr; gap: 22px; }
+  }
+
+  /* ===== Mode nuit + interrupteur jour/nuit ===== */
+  html, body { transition: background .7s ease; }
+  body.night { background: radial-gradient(125% 95% at 50% -12%, #21326a 0%, #14204a 42%, #0b1230 100%) !important; }
+  body.night #hero .kicker,
+  body.night #hero .lead,
+  body.night #hero .accent,
+  body.night #hero .social-row .lbl { color: rgba(220,228,255,0.82) !important; }
+  body.night .cloud { opacity: 0.32; filter: saturate(0.55) brightness(0.85); }
+  body.night #site-footer { background: linear-gradient(to bottom, #1a2550 0%, #0d1638 100%); }
+  body.night #site-footer .sf-brand span {
+    background: linear-gradient(170deg, rgba(255,255,255,0.92) 0%, rgba(180,196,255,0.7) 45%, rgba(60,80,170,0.55) 100%);
+    -webkit-background-clip: text; background-clip: text;
+  }
+
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
+  body.night #stars { opacity: 1; }
+  #stars .star { position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,0.9); animation: starTwinkle var(--tw, 3.5s) ease-in-out infinite; }
+  @keyframes starTwinkle { 0%,100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1); } }
+  #stars .star.big { background: transparent; box-shadow: none; border-radius: 0; }
+  #stars .star.big::before, #stars .star.big::after { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #fff8e6; box-shadow: 0 0 8px rgba(255,244,210,0.95); }
+  #stars .star.big::before { width: 2px; height: 100%; border-radius: 2px; }
+  #stars .star.big::after { width: 100%; height: 2px; border-radius: 2px; }
+
+  #site-footer .sf-legal { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .dn-toggle {
+    position: relative; flex: 0 0 auto; width: 74px; height: 40px; border-radius: 999px; cursor: pointer; padding: 0;
+    border: 1px solid rgba(255,255,255,0.55);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.16) 45%, rgba(255,255,255,0.06) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), inset 0 -4px 10px rgba(255,150,60,0.2), 0 10px 24px rgba(120,50,0,0.3);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition: background .5s ease, box-shadow .3s ease, transform .2s ease;
+  }
+  .dn-toggle:hover { transform: translateY(-2px) scale(1.04); }
+  body.night .dn-toggle {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(120,140,220,0.14) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.6), inset 0 -4px 10px rgba(60,90,200,0.3), 0 10px 24px rgba(10,16,48,0.5);
+  }
+  .dn-thumb {
+    position: absolute; top: 4px; left: 4px; width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(to bottom, #fff8ef, #ffe6b8); color: #e0851a;
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.95), 0 6px 14px rgba(120,50,0,0.4);
+    transition: transform .45s cubic-bezier(.5,1.4,.4,1), background .45s ease, color .45s ease;
+  }
+  body.night .dn-thumb {
+    transform: translateX(34px);
+    background: linear-gradient(to bottom, #eaf0ff, #b9c6ef); color: #37407e;
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 6px 14px rgba(10,16,48,0.6);
+  }
+  .dn-thumb svg { width: 19px; height: 19px; }
 </style>
 </head>
 <body>
+  <div id="stars"></div>
   <div id="decor">
     <div class="cloud anim-dr" style="left: 6%; top: 18%; animation-delay: -1s;"></div>
     <div class="cloud anim-f2" style="left: 3%; top: 58%; transform: scale(0.7); animation-delay: -3s;"></div>
@@ -225,7 +335,7 @@
       Accueil
     </a>
     <div class="social">
-      <a class="social-btn" href="https://www.instagram.com/moncopaindigital/" target="_blank" rel="noopener" aria-label="Instagram">
+      <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
       </a>
       <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
@@ -240,7 +350,7 @@
       <p class="accent">Réponse sous 24&nbsp;h, en semaine.</p>
       <div class="social-row">
         <span class="lbl">Suivez-nous</span>
-        <a class="social-btn" href="https://www.instagram.com/moncopaindigital/" target="_blank" rel="noopener" aria-label="Instagram">
+        <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
         </a>
         <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
@@ -250,9 +360,9 @@
     <section id="card">
       <h2>Nous joindre</h2>
 
-      <a class="info-row" href="mailto:hugo.chenu@moncopaindigital.fr">
+      <a class="info-row" href="/cdn-cgi/l/email-protection#1e766b7971307d767b706b5e7371707d716e7f77707a7779776a7f7230786c">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
-        <span class="txt"><span class="k">Email</span><span class="v">hugo.chenu@moncopaindigital.fr</span></span>
+        <span class="txt"><span class="k">Email</span><span class="v"><span class="__cf_email__" data-cfemail="137b66747c3d707b767d66537e7c7d707c63727a7d777a747a67727f3d7561">[email&#160;protected]</span></span></span>
       </a>
 
       <a class="info-row" href="tel:+33753670195">
@@ -278,6 +388,57 @@
   </main>
 
   <img id="phone-guy" src="perso-telephone.png" alt="Personnage au téléphone">
+
+  <!-- ===== Pied de page ===== -->
+  <footer id="site-footer" aria-label="Pied de page Mon Copain Digital">
+    <div class="sf-inner">
+      <div class="sf-brand"><span>Mon Copain<br>Digital</span></div>
+
+      <div class="sf-col">
+        <h3>Le site</h3>
+        <ul>
+          <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
+          <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
+          <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
+          <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
+        </ul>
+      </div>
+
+      <div class="sf-col sf-contact">
+        <h3>Rester en lien</h3>
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
+          <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
+          <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
+        </ul>
+        <div class="sf-socials">
+          <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="sf-col">
+        <h3>Loi applicable</h3>
+        <ul>
+          <li><a href="loiapplicablemcp.html#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
+          <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
+          <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
+          <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
+          <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+          <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
+          <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sf-legal">
+      <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
+      <button class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb"></span></button>
+    </div>
+  </footer>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
 <style id="acct-widget-css">
   .acct-sq{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:1px solid rgba(255,255,255,0.6);background:linear-gradient(to bottom,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.14) 100%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9),inset 0 -4px 10px rgba(255,150,60,0.22),0 8px 20px rgba(120,50,0,0.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .26s cubic-bezier(.2,1,.3,1),box-shadow .26s ease;padding:0;}
@@ -309,7 +470,7 @@
     <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
   </div>
 </div>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (function(){
   if(window.__acctWidget) return; window.__acctWidget=true;
   var btn=document.createElement('button');
@@ -327,5 +488,39 @@
 })();
 </script>
 <!-- ===== Fin widget Espace compte ===== -->
+<!-- ===== Interrupteur Jour / Nuit (reprend l'état choisi sur les autres pages) ===== -->
+<script>
+(function(){
+  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.5 4.5l1.8 1.8M17.7 17.7l1.8 1.8M2 12h2.5M19.5 12H22M4.5 19.5l1.8-1.8M17.7 6.3l1.8-1.8"/></svg>';
+  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>';
+  var thumb = document.getElementById('dn-thumb');
+  var box = document.getElementById('stars');
+  if (box) {
+    var h = '';
+    for (var i = 0; i < 64; i++) {
+      var x = (Math.random()*100).toFixed(2), y = (Math.random()*100).toFixed(2);
+      var big = Math.random() < 0.12;
+      var s = big ? (7 + Math.random()*6) : (1.4 + Math.random()*2.2);
+      var tw = (2.4 + Math.random()*3.6).toFixed(2), dl = (-Math.random()*4).toFixed(2);
+      h += '<span class="star' + (big ? ' big' : '') + '" style="left:' + x + '%;top:' + y + '%;width:' + s.toFixed(1) + 'px;height:' + s.toFixed(1) + 'px;--tw:' + tw + 's;animation-delay:' + dl + 's"></span>';
+    }
+    box.innerHTML = h;
+  }
+  window.applyNight = function(on){
+    document.documentElement.classList.toggle('night', on);
+    document.body.classList.toggle('night', on);
+    if (thumb) thumb.innerHTML = on ? MOON : SUN;
+    try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
+  };
+  window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
+  var saved = null;
+  try { saved = localStorage.getItem('mcd-theme'); } catch(e){}
+  var night;
+  if (saved === 'night') night = true;
+  else if (saved === 'day') night = false;
+  else { var hr = new Date().getHours(); night = (hr >= 23 || hr < 7); }
+  applyNight(night);
+})();
+</script>
 </body>
 </html>
