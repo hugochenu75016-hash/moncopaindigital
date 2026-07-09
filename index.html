@@ -57,8 +57,9 @@
 <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 <style>
   html, body { margin: 0; padding: 0; height: 100%; background: #FF7A00; overflow: hidden; }
-  #wrap { position: absolute; inset: 0; background: #FF7A00; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-  #scene { display: block; width: 100%; height: 100%; touch-action: none; position: relative; z-index: 2; }
+  body { overflow-x: hidden; }
+  #wrap { position: fixed; inset: 0; overflow: hidden; background: #FF7A00; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  #scene { display: block; width: 100%; height: 100%; touch-action: pan-y; position: relative; z-index: 2; }
 
   /* ===== Titre animé au-dessus de la planète ===== */
   #title {
@@ -1914,6 +1915,224 @@ start();
   </svg>
 </div>
 <!-- ===== Fin soleil décoratif ===== -->
+<!-- ===== Indice de défilement (hero, bas droite) ===== -->
+<style>
+  #scroll-hint{
+    position:fixed; right:clamp(18px,4vw,42px); bottom:clamp(16px,3.4vh,34px); z-index:30;
+    display:flex; align-items:center; gap:10px; pointer-events:none;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:600;
+    font-size:13px; letter-spacing:.22em; text-transform:uppercase;
+    color:rgba(255,255,255,0.55); text-shadow:0 1px 3px rgba(120,50,0,0.25);
+    opacity:0; animation:scHintIn 1s ease 1.4s forwards;
+  }
+  #scroll-hint .sc-chev{
+    display:inline-block; font-size:15px; line-height:1; color:rgba(255,255,255,0.55);
+    animation:scBounce 1.8s ease-in-out infinite;
+  }
+  @keyframes scHintIn{ to{ opacity:1; } }
+  @keyframes scBounce{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
+</style>
+<div id="scroll-hint" aria-hidden="true">scroll for more <span class="sc-chev">▼</span></div>
+<!-- ===== Fin indice de défilement ===== -->
+<!-- ===== Section pied de page (glisse depuis le bas) ===== -->
+<style>
+  #footer-sheet{
+    position:fixed; inset:0; z-index:9000;
+    display:flex; flex-direction:column;
+    padding:clamp(18px,3.2vh,40px) clamp(18px,5vw,72px) clamp(14px,2.4vh,26px);
+    box-sizing:border-box;
+    color:#fff;
+    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+    background:transparent;
+    pointer-events:none;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  #footer-sheet.show{ pointer-events:auto; }
+
+  /* Grand mot en fond, rempli en dégradé */
+  #footer-sheet .fs-bgword{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.96);
+    z-index:0; pointer-events:none; user-select:none;
+    text-align:center; line-height:1.02; letter-spacing:-.01em; padding-bottom:.14em;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
+    font-size:clamp(58px,17vw,240px); white-space:nowrap;
+    background:linear-gradient(170deg, rgba(255,255,255,0.55) 0%, rgba(255,214,158,0.42) 40%, rgba(210,92,4,0.5) 100%);
+    -webkit-background-clip:text; background-clip:text;
+    color:transparent; -webkit-text-fill-color:transparent;
+    text-shadow:0 2px 30px rgba(120,50,0,0.12);
+    opacity:0; transition:opacity 1.1s ease .1s, transform 1.1s cubic-bezier(.19,1,.22,1) .1s;
+  }
+  #footer-sheet.show .fs-bgword{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+  /* poignée + retour */
+  #footer-sheet .fs-handle{
+    flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:6px;
+    margin:0 auto clamp(10px,2vh,22px); cursor:pointer;
+    background:none; border:none; color:#fff; opacity:0; pointer-events:none;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:600; font-size:12px;
+    letter-spacing:.18em; text-transform:uppercase;
+    transition:opacity .2s, transform .2s;
+  }
+  #footer-sheet.show .fs-handle{ opacity:.9; pointer-events:auto; }
+  #footer-sheet .fs-handle:hover{ opacity:1; transform:translateY(-2px); }
+  #footer-sheet .fs-handle .bar{ width:56px; height:5px; border-radius:5px; background:rgba(255,255,255,0.6); }
+  #footer-sheet .fs-handle .chev{ font-size:16px; line-height:1; }
+
+  /* corps : mascotte + colonnes */
+  #footer-sheet .fs-body{
+    flex:1 1 auto; width:100%; max-width:1160px; margin:0 auto;
+    display:grid; grid-template-columns:auto 1fr 1fr 1fr; gap:clamp(20px,3.4vw,54px);
+    align-items:start; align-content:center;
+  }
+  #footer-sheet .fs-mascot{ align-self:end; }
+  #footer-sheet .fs-mascot img{
+    display:block; width:clamp(120px,13vw,190px); height:auto;
+    filter:drop-shadow(0 16px 26px rgba(90,40,0,0.4));
+    animation:fsWave 4s ease-in-out infinite; transform-origin:bottom center;
+  }
+  @keyframes fsWave{0%,100%{transform:translateY(0) rotate(-1.5deg);}50%{transform:translateY(-8px) rotate(1.5deg);}}
+
+  #footer-sheet .fs-brand h2{
+    margin:0 0 10px; font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
+    font-size:clamp(24px,2.6vw,34px); line-height:1; color:#fff;
+    -webkit-text-stroke:2px #7a3300; paint-order:stroke fill;
+    text-shadow:0 2px 0 #7a3300, 0 5px 12px rgba(70,28,0,0.4);
+  }
+  #footer-sheet .fs-brand p{
+    margin:0 0 20px; font-size:15px; line-height:1.55; color:#fff3df; max-width:34ch;
+  }
+  #footer-sheet .fs-cta{
+    display:inline-flex; align-items:center; gap:9px; cursor:pointer; text-decoration:none;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:15px;
+    letter-spacing:.02em; color:#e96b05; padding:13px 24px; border-radius:999px;
+    background:linear-gradient(to bottom,#ffffff,#ffe8c9);
+    box-shadow:0 12px 24px rgba(120,50,0,0.32), inset 0 2px 3px rgba(255,255,255,0.9);
+    transition:transform .25s cubic-bezier(.2,1,.3,1), box-shadow .25s;
+  }
+  #footer-sheet .fs-cta:hover{ transform:translateY(-3px) scale(1.03); box-shadow:0 18px 30px rgba(120,50,0,0.4), inset 0 2px 3px rgba(255,255,255,1); }
+
+  #footer-sheet .fs-col h3{
+    margin:2px 0 14px; font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
+    font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#ffd9a8;
+  }
+  #footer-sheet .fs-col ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
+  #footer-sheet .fs-col a{
+    color:#fff; text-decoration:none; font-size:15px; font-weight:600;
+    display:inline-flex; align-items:center; gap:8px; transition:color .2s, transform .2s;
+  }
+  #footer-sheet .fs-col a:hover{ color:#fff3df; transform:translateX(3px); }
+  #footer-sheet .fs-col a .dot{ width:6px; height:6px; border-radius:50%; background:#ffd9a8; flex:0 0 auto; }
+
+  #footer-sheet .fs-contact{ display:flex; flex-direction:column; gap:12px; }
+  #footer-sheet .fs-phone{
+    display:inline-flex; align-items:center; gap:10px; text-decoration:none;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:19px; color:#fff;
+  }
+  #footer-sheet .fs-phone .ph-ic{
+    width:38px; height:38px; border-radius:12px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(to bottom,rgba(255,255,255,0.28),rgba(255,255,255,0.12));
+    border:1px solid rgba(255,255,255,0.5); box-shadow:inset 0 2px 2px rgba(255,255,255,0.6);
+  }
+  #footer-sheet .fs-phone .ph-ic svg{ width:19px; height:19px; }
+  #footer-sheet .fs-socials{ display:flex; gap:12px; margin-top:2px; }
+  #footer-sheet .fs-socials a{
+    width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.4);
+    box-shadow:inset 0 2px 2px rgba(255,255,255,0.4); transition:transform .2s, background .2s;
+  }
+  #footer-sheet .fs-socials a:hover{ transform:translateY(-3px); background:rgba(255,255,255,0.24); }
+  #footer-sheet .fs-socials svg{ width:26px; height:26px; }
+
+  /* pied légal */
+  #footer-sheet .fs-legal{
+    flex:0 0 auto; width:100%; max-width:1160px; margin:clamp(14px,2.4vh,30px) auto 0;
+    padding-top:16px; border-top:1px solid rgba(255,255,255,0.28);
+    display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px 18px;
+    font-size:13px; color:#ffe4c4;
+  }
+  #footer-sheet .fs-legal nav{ display:flex; flex-wrap:wrap; gap:10px 18px; }
+  #footer-sheet .fs-legal a{ color:#ffe4c4; text-decoration:none; transition:color .2s; }
+  #footer-sheet .fs-legal a:hover{ color:#fff; text-decoration:underline; }
+
+  /* apparition en cascade des blocs quand la feuille monte */
+  #footer-sheet .fs-body > *, #footer-sheet .fs-legal{
+    opacity:0; transform:translateY(26px);
+    transition:opacity .6s ease, transform .7s cubic-bezier(.19,1,.22,1);
+  }
+  #footer-sheet.show .fs-body > *, #footer-sheet.show .fs-legal{ opacity:1; transform:translateY(0); }
+  #footer-sheet.show .fs-body > *:nth-child(1){ transition-delay:.16s; }
+  #footer-sheet.show .fs-body > *:nth-child(2){ transition-delay:.24s; }
+  #footer-sheet.show .fs-body > *:nth-child(3){ transition-delay:.32s; }
+  #footer-sheet.show .fs-body > *:nth-child(4){ transition-delay:.40s; }
+  #footer-sheet.show .fs-body > *:nth-child(5){ transition-delay:.48s; }
+  #footer-sheet.show .fs-legal{ transition-delay:.56s; }
+
+  @media (max-width:860px){
+    #footer-sheet .fs-body{ grid-template-columns:1fr 1fr; gap:22px 30px; }
+    #footer-sheet .fs-mascot{ display:none; }
+    #footer-sheet .fs-brand{ grid-column:1 / -1; }
+  }
+  @media (max-width:520px){
+    #footer-sheet .fs-body{ grid-template-columns:1fr; gap:20px; }
+    #footer-sheet .fs-legal{ flex-direction:column; align-items:flex-start; }
+  }
+</style>
+<footer id="footer-sheet" aria-label="Pied de page Mon Copain Digital" style="position:absolute;left:-12px;top:12px">
+  <div class="fs-bgword" aria-hidden="true">Mon Copain<br>Digital</div>
+  <button class="fs-handle" type="button" onclick="if(window.mcdToHero)window.mcdToHero()" aria-label="Revenir en haut">
+    <span class="bar"></span>
+    <span class="chev">▲</span>
+    <span>Revenir en haut</span>
+  </button>
+
+  <div class="fs-body">
+    <div class="fs-mascot"></div>
+
+    <div class="fs-col">
+      <h3>Le site</h3>
+      <ul>
+        <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
+        <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
+        <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
+        <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
+      </ul>
+    </div>
+
+    <div class="fs-col fs-contact">
+      <h3>Rester en lien</h3>
+      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
+        <li><a href="contact.html" style="color:#fff;text-decoration:none;font-size:15px;font-weight:600;">Contact</a></li>
+        <li><a href="espace-compte.html" style="color:#fff;text-decoration:none;font-size:15px;font-weight:600;">Votre Bulle · Espace client</a></li>
+      </ul>
+      <div class="fs-socials">
+        <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><defs><radialGradient id="fsIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#fsIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="fs-col">
+      <h3>Loi applicable</h3>
+      <ul>
+        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Mentions légales</a></li>
+        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Politique de confidentialité</a></li>
+        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Politique de cookies</a></li>
+        <li><a href="loiapplicablemcp.html"><span class="dot"></span>CGV — Conditions de vente</a></li>
+        <li><a href="loiapplicablemcp.html"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Accessibilité</a></li>
+        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Gérer les cookies</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="fs-legal">
+    <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
+  </div>
+</footer>
+<!-- ===== Fin pied de page ===== -->
 <!-- ===== Bandeau cookies ===== -->
 <style>
   #cookie-bar{position:fixed;left:clamp(16px,4vw,32px);bottom:clamp(16px,4vw,32px);z-index:10001;width:min(360px,calc(100vw - 32px));border-radius:22px;padding:20px 22px 18px;opacity:0;transform:translateY(18px) scale(.97);pointer-events:none;transition:opacity .35s ease,transform .35s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);overflow:visible;}
@@ -1992,6 +2211,79 @@ start();
       box.appendChild(sp);
     }
   }
+})();
+</script>
+<!-- ===== Chute des éléments au scroll (gravité coupée) ===== -->
+<script>
+(function(){
+  if (window.__fallScroll) return; window.__fallScroll = true;
+  // éléments qui tombent dans le vide (tout SAUF les boutons fixes : rail insta/linkedin/bulle + jour-nuit)
+  var specs = [
+    { sel: '#confetti',  rot: 0,   dx: 0   },
+    { sel: '#side-decor',rot: 0,   dx: 0   },
+    { sel: '#title',     rot: -12, dx: -30 },
+    { sel: '#liquid-sun',rot: 24,  dx: -40 },
+    { sel: '#cta-left',  rot: 16,  dx: -70 },
+    { sel: '#cta-right', rot: -16, dx: 70  },
+    { sel: '#enter-wrap',rot: 8,   dx: 0   },
+    { sel: '#social-rail',rot: 12, dx: 46  },
+    { sel: '#scroll-hint',rot: 6,  dx: 30  },
+    { sel: '.dn-toggle', rot: -12, dx: -46 },
+    { sel: '#scene',     rot: 5,   dx: 0   }
+  ];
+  var items = specs.map(function(s){
+    var el = document.querySelector(s.sel);
+    if (el) {
+      el.style.willChange = 'transform, opacity';
+      el.style.transition = 'transform 1.15s cubic-bezier(.55,0,.9,.45), opacity .9s ease-in';
+    }
+    return { el: el, rot: s.rot, dx: s.dx };
+  }).filter(function(o){ return o.el; });
+
+  var state = 'hero';   // 'hero' | 'section2'
+  var locked = false;
+  var footer = document.getElementById('footer-sheet');
+
+  function fall(){
+    var vh = window.innerHeight;
+    items.forEach(function(it, i){
+      it.el.style.transitionDelay = (i * 0.06) + 's';
+      it.el.style.transform = 'translate3d(' + it.dx + 'px,' + (vh * 1.7) + 'px,0) rotate(' + it.rot + 'deg)';
+      it.el.style.opacity = 0;
+      it.el.style.pointerEvents = 'none';
+    });
+  }
+  function rise(){
+    items.forEach(function(it, i){
+      it.el.style.transitionDelay = ((items.length - 1 - i) * 0.04) + 's';
+      it.el.style.transform = '';
+      it.el.style.opacity = '';
+      it.el.style.pointerEvents = '';
+    });
+  }
+  function toSection2(){ if (state !== 'hero' || locked) return; locked = true; state = 'section2'; fall(); if (footer) footer.classList.add('show'); setTimeout(function(){ locked = false; }, 1500); }
+  function toHero(){ if (state !== 'section2' || locked) return; locked = true; state = 'hero'; rise(); if (footer) footer.classList.remove('show'); setTimeout(function(){ locked = false; }, 1500); }
+  window.mcdToHero = toHero;
+
+  window.addEventListener('wheel', function(e){
+    if (Math.abs(e.deltaY) < 8) return;
+    if (e.deltaY > 0) toSection2(); else toHero();
+  }, { passive: true });
+
+  var ty0 = null;
+  window.addEventListener('touchstart', function(e){ ty0 = e.touches[0].clientY; }, { passive: true });
+  window.addEventListener('touchmove', function(e){
+    if (ty0 == null) return;
+    var dy = ty0 - e.touches[0].clientY;
+    if (dy > 34) { toSection2(); ty0 = null; }
+    else if (dy < -34) { toHero(); ty0 = null; }
+  }, { passive: true });
+  window.addEventListener('touchend', function(){ ty0 = null; }, { passive: true });
+
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') toSection2();
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') toHero();
+  });
 })();
 </script>
 </body>
