@@ -1008,6 +1008,13 @@
             <div class="field"><label for="adm-p-tel">Téléphone</label><input id="adm-p-tel" type="tel" placeholder="06 12 34 56 78"></div>
           </div>
           <div class="field"><label for="adm-p-entreprise">Entreprise</label><input id="adm-p-entreprise" type="text" placeholder="Mon Copain Digital"></div>
+          <div class="field">
+            <label>Apparence</label>
+            <div style="display:flex;align-items:center;gap:14px;">
+              <button type="button" class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb-adm"></span></button>
+              <span id="theme-label-adm" style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;color:#5a3410;">Mode jour</span>
+            </div>
+          </div>
           <button class="primary-btn" data-act="save-profil" style="width:auto;padding:14px 34px;">Enregistrer</button>
         </div>
         <div class="card" style="margin-top:20px;">
@@ -1072,6 +1079,8 @@
     var proj = await safeSelect(sb.from('projets').select('*').eq('user_id',uid).order('updated_at',{ascending:false}).limit(1).maybeSingle());
     var fac  = await safeSelect(sb.from('factures').select('*').eq('user_id',uid)) || [];
     var msgs = await safeSelect(sb.from('messages').select('*').eq('user_id',uid).order('created_at',{ascending:true})) || [];
+    var payreqs = await safeSelect(sb.from('payment_requests').select('*').eq('client_id',uid).order('created_at',{ascending:false})) || [];
+    var payInvoices = (payreqs||[]).map(function(pr){ return { ref:null, label:(pr.reason||'Demande de paiement'), date:(pr.created_at?String(pr.created_at).slice(0,10):''), amount:(pr.amount_cents/100), status:(pr.status==='paid'?'paid':'due'), payToken:(pr.status==='paid'?null:pr.token) }; });
     var meta = authUser.user_metadata || {};
     current = {
       id: uid, email: authUser.email,
@@ -1082,7 +1091,7 @@
       avatar: (prof && prof.avatar) || '',
       rdv: (rdv||[]).map(function(r){ return { date:r.date, heure:r.heure, titre:r.titre, type:r.type, status:r.status }; }),
       project: proj ? { name:proj.name, status:proj.status, steps:(proj.steps||[]) } : null,
-      invoices: (fac||[]).map(function(f){ return { ref:f.ref, label:f.label, date:f.date, amount:f.amount, status:f.status }; }),
+      invoices: payInvoices.concat((fac||[]).map(function(f){ return { ref:f.ref, label:f.label, date:f.date, amount:f.amount, status:f.status }; })),
       messages: (msgs||[]).filter(function(m){ return m.sender!=='admin_note'; }).map(function(m){ return { from:m.sender, text:m.text, time:fmtTime(m.created_at), _ts:new Date(m.created_at).getTime(), author:m.author_name, authorAvatar:m.author_avatar }; })
     };
     /* Fusion avec l'historique local : on ne perd jamais une discussion, même hors-ligne. */
@@ -1437,7 +1446,7 @@
       return '<div class="list-item">'+
         '<span class="li-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>'+
         '<div class="li-main"><div class="t1">'+esc(f.label)+'</div><div class="t2">'+[f.ref?('Réf. '+esc(f.ref)):'', f.date?esc(f.date):''].filter(Boolean).join(' · ')+'</div></div>'+
-        '<div class="li-end" style="display:flex;align-items:center;gap:12px;"><span style="font-family:\'Fredoka\',sans-serif;font-weight:700;color:#fff;">'+esc(fmtAmount(f.amount))+'</span><span class="pill '+m[0]+'">'+m[1]+'</span></div></div>';
+        '<div class="li-end" style="display:flex;align-items:center;gap:12px;"><span style="font-family:\'Fredoka\',sans-serif;font-weight:700;color:#fff;">'+esc(fmtAmount(f.amount))+'</span>'+(f.payToken?('<a href="../paiement.html?req='+encodeURIComponent(f.payToken)+'" class="pill amber" style="text-decoration:none;cursor:pointer;">Payer</a>'):('<span class="pill '+m[0]+'">'+m[1]+'</span>'))+'</div></div>';
     }).join('');
   }
 
@@ -2335,8 +2344,8 @@
   function applyNight(on){
     document.body.classList.toggle('night', on);
     document.documentElement.classList.toggle('night', on);
-    if (thumb) thumb.innerHTML = on ? MOON : SUN;
-    var lbl = document.getElementById('theme-label-txt'); if (lbl) lbl.textContent = on ? 'Mode nuit' : 'Mode jour';
+    [document.getElementById('dn-thumb'), document.getElementById('dn-thumb-adm')].forEach(function(t){ if(t) t.innerHTML = on ? MOON : SUN; });
+    [document.getElementById('theme-label-txt'), document.getElementById('theme-label-adm')].forEach(function(l){ if(l) l.textContent = on ? 'Mode nuit' : 'Mode jour'; });
     try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
   }
   window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
