@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rendez-vous — Audit gratuit · Mon Copain Digital</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Poppins:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
 <style>
   :root {
     --bg: #FF7A00;
@@ -96,6 +96,28 @@
   }
   .social-btn:hover { transform: translateY(-2px) scale(1.08); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34); }
   .social-btn svg { width: 21px; height: 21px; }
+  .social-btn.brand { padding: 0; overflow: hidden; background: none; border: none; box-shadow: none; }
+  .social-btn.brand:hover { box-shadow: none; }
+  .social-btn.brand svg { width: 100%; height: 100%; }
+  .acct-sq{position:relative;width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:none;background:transparent;box-shadow:none;transition:transform .26s cubic-bezier(.2,1,.3,1);padding:0;filter:drop-shadow(0 8px 16px rgba(120,50,0,0.28));}
+  .acct-badge{position:absolute;bottom:calc(100% + 8px);right:0;white-space:nowrap;font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:11px;letter-spacing:.01em;color:#fff;background:linear-gradient(to bottom,#ff5140,#e11d10);padding:5px 10px;border-radius:999px;box-shadow:0 6px 16px rgba(190,20,10,0.42),inset 0 1px 1px rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.35);pointer-events:none;animation:acctBadgePulse 1.8s ease-in-out infinite;}
+  .acct-badge::after{content:'';position:absolute;top:100%;right:16px;border:5px solid transparent;border-top-color:#e11d10;}
+  @keyframes acctBadgePulse{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
+  .acct-sq:hover{transform:translateY(-2px) scale(1.06);}
+  .acct-sq img{width:100%;height:100%;object-fit:contain;display:block;}
+  #acct-pop{position:fixed;top:calc(clamp(14px,2.4vw,26px) + 58px);right:clamp(16px,4vw,48px);z-index:10000;width:264px;border-radius:22px;padding:20px 20px 18px;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+  #acct-pop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+  #acct-pop .ap-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  #acct-pop .ap-ic{width:38px;height:38px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+  #acct-pop .ap-ic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(120,50,0,0.25));}
+  #acct-pop .ap-title{font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:16px;color:#fff;text-shadow:0 1px 2px rgba(150,70,0,0.4);}
+  #acct-pop .ap-txt{margin:0 0 16px;font-size:13.5px;line-height:1.45;color:#fff3df;}
+  #acct-pop .ap-actions{display:flex;flex-direction:column;gap:9px;}
+  #acct-pop .ap-btn{cursor:pointer;text-decoration:none;text-align:center;font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:14px;padding:12px;border-radius:999px;transition:transform .2s,box-shadow .2s,background .2s;border:1.5px solid rgba(255,255,255,0.55);}
+  #acct-pop .ap-btn.open{color:#8a3c00;background:linear-gradient(to bottom,#fff8ef,#ffe6bb);box-shadow:0 8px 18px rgba(120,50,0,0.3);}
+  #acct-pop .ap-btn.open:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(120,50,0,0.38);}
+  #acct-pop .ap-btn.close{color:#fff;background:rgba(255,255,255,0.12);}
+  #acct-pop .ap-btn.close:hover{background:rgba(255,255,255,0.22);}
   .social-btn .ln { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
 
   /* ===== Grille principale ===== */
@@ -129,9 +151,9 @@
   #hero h1 em { font-style: normal; display: block; color: #fff2c8; }
   #hero .lead {
     margin: 40px 0 0; max-width: 32ch;
-    font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
-    font-size: clamp(16px, 1.5vw, 20px); line-height: 1.4; font-weight: 500;
-    letter-spacing: -0.01em;
+    font-family: 'Poppins', 'Helvetica Neue', sans-serif;
+    font-size: clamp(17px, 1.55vw, 21px); line-height: 1.5; font-weight: 500;
+    letter-spacing: 0;
     color: #fff3df; text-shadow: 0 1px 2px rgba(120,50,0,0.35);
   }
   #hero .lead strong { font-weight: 700; color: rgba(40, 20, 0, 0.62); text-shadow: none; }
@@ -312,11 +334,16 @@
     #hero .perks { align-items: center; }
     #hero .perks li { justify-content: flex-start; width: max-content; max-width: 100%; }
   }
+  /* Masquer le personnage uniquement sur mobile */
+  @media (max-width: 768px) {
+    #hanging-guy { display: none !important; }
+  }
   @media (max-width: 560px) {
     #topbar { padding: 12px 14px; }
     #hanging-guy { height: 30vh; right: -8%; opacity: 0.9; }
     .glass-btn { font-size: 12px; padding: 11px 18px; letter-spacing: 0.05em; }
     .social-btn { width: 40px; height: 40px; }
+    .acct-sq { width: 40px; height: 40px; }
     #hero h1 { -webkit-text-stroke-width: 2.5px; }
     #booking { border-radius: 24px; padding: 20px 16px; }
     .field.row { grid-template-columns: 1fr; }
@@ -413,15 +440,19 @@
   </div>
 
   <header id="topbar">
-    <a class="glass-btn" href="index.html">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      Accueil
+    <a class="glass-btn" href="index.html" aria-label="Accueil">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V9.5"/></svg>
     </a>
     <div class="social">
-      <a class="social-btn" href="https://www.instagram.com/moncopaindigital/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+      <a class="social-btn brand" href="https://www.instagram.com/moncopaindigital/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><defs><radialGradient id="hdrIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#hdrIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
       </a>
-      <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
+      <a class="social-btn brand" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+      </a>
+      <button type="button" class="acct-sq" id="acct-btn" aria-label="Votre Bulle" title="Votre Bulle">
+        <img src="boutonespacelog-trim.png" alt="Espace compte">
+      </button>
     </div>
   </header>
 
@@ -589,6 +620,8 @@
   const form = document.getElementById('rdvForm');
   const submitBtn = form.querySelector('.submit-btn');
   const WEB3FORMS_KEY = 'a295b6e0-6693-4c68-bfcb-9656cd12d059';
+  // ↓ Collez ici l'URL de votre Cloudflare Worker après déploiement
+  const WORKER_URL = 'https://rendezvous.hugochenu75016.workers.dev';
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -642,6 +675,14 @@
     .then(r => r.json())
     .then(data => {
       if (data && data.success) {
+        // Envoi du mail de confirmation personnalisé au client (via Resend / Worker)
+        if (WORKER_URL && !WORKER_URL.includes('VOTRE-WORKER')) {
+          fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nom, email, tel, type, when: whenStr, msg })
+          }).catch(() => {});
+        }
         document.getElementById('confirm-when').textContent = whenStr;
         document.getElementById('confirm').classList.add('show');
         form.reset();
@@ -776,5 +817,30 @@
   </div>
 </footer>
 <!-- ===== Fin pied de page ===== -->
+<!-- ===== Popup Votre Bulle ===== -->
+<div id="acct-pop" role="dialog" aria-label="Votre Bulle">
+  <div class="ap-head">
+    <span class="ap-ic"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
+    <span class="ap-title">Votre Bulle</span>
+  </div>
+  <p class="ap-txt">Voulez-vous ouvrir votre espace personnel&nbsp;?</p>
+  <div class="ap-actions">
+    <a class="ap-btn open" href="espace-compte.html">Ouvrir votre Bulle</a>
+    <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
+  </div>
+</div>
+<script>
+(function(){
+  var btn=document.getElementById('acct-btn');
+  var pop=document.getElementById('acct-pop');
+  if(!btn||!pop) return;
+  var open=false;
+  function set(v){ open=v; pop.classList.toggle('show',open); }
+  btn.addEventListener('click',function(e){ e.stopPropagation(); set(!open); });
+  document.getElementById('acct-close').addEventListener('click',function(e){ e.stopPropagation(); set(false); });
+  document.addEventListener('click',function(e){ if(open && !pop.contains(e.target) && !btn.contains(e.target)){ set(false); } });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
+})();
+</script>
 </body>
 </html>
