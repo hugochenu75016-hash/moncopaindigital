@@ -571,12 +571,17 @@
     var a=e.target.closest ? e.target.closest('a[href]') : null;
     if(!isInternal(a)) return;
     e.preventDefault();
-    var dest=a.href;
+    go(a.href);
+  }, true);
+  // Fermeture des portes puis redirection (pour les boutons onclick + les liens)
+  function go(dest){
+    if(ov.classList.contains('closing')) return;
     try{ sessionStorage.setItem('mcd-door-nav','1'); }catch(err){}
     void ov.offsetWidth;
     ov.classList.add('closing');
     setTimeout(function(){ window.location.href=dest; }, DUR);
-  }, true);
+  }
+  window.mcdGo=go;
   // Ouverture des portes UNIQUEMENT si on arrive via une navigation interne (clic).
   // Arrivée directe sur l'index (URL tapée, lien externe) : aucune porte.
   try{
@@ -668,15 +673,15 @@
   <!-- Confettis tricolores -->
   <div id="confetti"></div>
   <nav id="cta-left">
-    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 121px; height: 43px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px" onclick="location.href='qui-suis-je.html'">Qui suis-je ?</button>
-    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 130px; height: 44px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px; white-space: normal; line-height: 1.05" onclick="location.href='rendez-vous.html'">rendez-vous</button>
+    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 121px; height: 43px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px" onclick="mcdGo('qui-suis-je.html')">Qui suis-je ?</button>
+    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 130px; height: 44px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px; white-space: normal; line-height: 1.05" onclick="mcdGo('rendez-vous.html')">rendez-vous</button>
   </nav>
   <nav id="cta-right">
-    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 123px; height: 44px" onclick="location.href='contact.html'">Contact</button>
-    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 123px; height: 44px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px; white-space: normal; line-height: 1.05" onclick="location.href='Nosoffres.html'">nos offres</button>
+    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 123px; height: 44px" onclick="mcdGo('contact.html')">Contact</button>
+    <button class="glass-btn" style="font-family: Fredoka, sans-serif; color: rgb(255, 247, 219); font-weight: 900; border-color: rgb(255, 255, 140); width: 123px; height: 44px; font-size: 14px; letter-spacing: 0.04em; padding-left: 8px; padding-right: 8px; white-space: normal; line-height: 1.05" onclick="mcdGo('Nosoffres.html')">nos offres</button>
   </nav>
   <div id="enter-wrap">
-    <button class="enter-btn" onclick="location.href='explorer.html'">Explorer</button>
+    <button class="enter-btn" onclick="mcdGo('explorer.html')">Explorer</button>
   </div>
 
   <!-- Écran de chargement du personnage 3D -->
