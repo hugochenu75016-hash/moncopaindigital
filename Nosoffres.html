@@ -180,6 +180,43 @@
   .seg button svg { width: 19px; height: 19px; }
   .seg button[aria-selected="true"] { color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
 
+  /* ===== Slider durée de séance ===== */
+  #dur-switch { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 0 0 clamp(22px, 3vh, 34px); }
+  #dur-switch.hidden { display: none; }
+  #dur-switch .ds-label {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.01em;
+    color: #fff3df; text-shadow: 0 1px 2px rgba(150,70,0,0.35);
+  }
+  #dur-switch .ds-label svg { width: 18px; height: 18px; }
+  body.pro #dur-switch .ds-label { color: #ccd6f5; }
+  .dseg {
+    position: relative; display: inline-flex; padding: 6px; border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.10) 55%, rgba(255,255,255,0.05) 100%);
+    box-shadow: inset 0 2px 1px rgba(255,255,255,0.7), inset 0 -6px 16px rgba(255,150,60,0.15), 0 14px 30px rgba(90,40,0,0.3);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .dseg .ds-thumb {
+    position: absolute; top: 6px; left: 6px; bottom: 6px;
+    width: calc((100% - 12px) / 3); border-radius: 999px; z-index: 1;
+    border: 1px solid rgba(255,255,255,0.6);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.30) 45%, rgba(255,180,90,0.28) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -6px 14px rgba(255,150,60,0.4), 0 8px 20px rgba(120,50,0,0.4);
+    transition: transform .45s cubic-bezier(.5,1.4,.4,1);
+  }
+  .dseg[data-h="3"] .ds-thumb { transform: translateX(100%); }
+  .dseg[data-h="5"] .ds-thumb { transform: translateX(200%); }
+  .dseg .ds-opt {
+    position: relative; z-index: 2; cursor: pointer; border: none; background: none;
+    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.02em;
+    padding: 11px clamp(20px, 2.4vw, 34px); border-radius: 999px; white-space: nowrap;
+    color: #fff3df; text-shadow: 0 1px 2px rgba(150,70,0,0.4);
+    transition: color .3s ease;
+  }
+  .dseg .ds-opt.active { color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
+  @media (max-width: 560px) { #dur-switch { justify-content: center; } }
+
   /* ===== En-tête de rubriques (filtres) ===== */
   .rub-bar {
     display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
@@ -513,6 +550,16 @@
       <button class="rub" onclick="filterRubrique('pro','save',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg> Sauvegarde</button>
     </nav>
 
+    <!-- Slider durée de séance (particuliers) -->
+    <div id="dur-switch" aria-label="Durée de la séance">
+      <div class="dseg" id="dseg" data-h="1" role="tablist" aria-label="Choisir la durée">
+        <span class="ds-thumb"></span>
+        <button class="ds-opt active" role="tab" aria-selected="true" onclick="setDur(1)">1 h</button>
+        <button class="ds-opt" role="tab" aria-selected="false" onclick="setDur(3)">3 h</button>
+        <button class="ds-opt" role="tab" aria-selected="false" onclick="setDur(5)">5 h</button>
+      </div>
+    </div>
+
     <section id="plans">
       <!-- ===================== PARTICULIERS ===================== -->
       <div class="plan-grid enter" id="grid-part">
@@ -523,7 +570,7 @@
           </div>
           <h3 class="pname">Informatique</h3>
           <p class="pdesc">Maîtrisez vos fichiers, vos emails et naviguez sereinement sur PC ou Mac.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -535,7 +582,7 @@
           </div>
           <h3 class="pname">Tablette</h3>
           <p class="pdesc">Prenez en main votre iPad ou tablette Android, sans crainte de « mal faire ».</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -547,7 +594,7 @@
           </div>
           <h3 class="pname">Imprimante & scanner</h3>
           <p class="pdesc">Installez, imprimez et numérisez vos documents sans prise de tête.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -559,7 +606,7 @@
           </div>
           <h3 class="pname">Box & Wi-Fi</h3>
           <p class="pdesc">Comprenez votre box internet et retrouvez une bonne connexion partout chez vous.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -571,7 +618,7 @@
           </div>
           <h3 class="pname">Smartphone</h3>
           <p class="pdesc">Tirez le meilleur de votre iPhone ou Android : photos, réglages et applications utiles.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -583,7 +630,7 @@
           </div>
           <h3 class="pname">Emails & messagerie</h3>
           <p class="pdesc">Créez et gérez votre boîte mail, envoyez pièces jointes et photos en toute simplicité.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -595,7 +642,7 @@
           </div>
           <h3 class="pname">Visio en famille</h3>
           <p class="pdesc">Appelez vos enfants et petits-enfants en vidéo (WhatsApp, FaceTime) et gardez le lien.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -607,7 +654,7 @@
           </div>
           <h3 class="pname">Réseaux sociaux</h3>
           <p class="pdesc">Gardez le contact : WhatsApp, Facebook et partagez vos souvenirs avec vos proches.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -619,7 +666,7 @@
           </div>
           <h3 class="pname">Démarches administratives</h3>
           <p class="pdesc">Impots.gouv, Ameli, France Connect, CAF… on vous guide pas à pas, sans stress.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Être accompagné</a>
@@ -631,7 +678,7 @@
           </div>
           <h3 class="pname">Santé & Doctolib</h3>
           <p class="pdesc">Prenez vos rendez-vous médicaux et gérez vos ordonnances en ligne, en confiance.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -643,7 +690,7 @@
           </div>
           <h3 class="pname">Banque en ligne</h3>
           <p class="pdesc">Consultez vos comptes et réalisez vos virements en toute sécurité.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -655,7 +702,7 @@
           </div>
           <h3 class="pname">Sécurité totale</h3>
           <p class="pdesc">Protégez vos comptes, gérez vos mots de passe et gardez l'esprit tranquille.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Sécuriser mon accès</a>
@@ -667,7 +714,7 @@
           </div>
           <h3 class="pname">Déjouer les arnaques</h3>
           <p class="pdesc">Reconnaissez les faux SMS, faux mails et appels frauduleux avant qu'il ne soit trop tard.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -679,7 +726,7 @@
           </div>
           <h3 class="pname">Intelligence artificielle</h3>
           <p class="pdesc">Boostez votre quotidien : apprenez à utiliser ChatGPT pour vos textes et vos recherches.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Découvrir l'IA</a>
@@ -691,7 +738,7 @@
           </div>
           <h3 class="pname">Photos & souvenirs</h3>
           <p class="pdesc">Rangez, retrouvez, imprimez et partagez toutes vos photos sans en perdre une seule.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -703,7 +750,7 @@
           </div>
           <h3 class="pname">Achats en ligne</h3>
           <p class="pdesc">Commandez en toute confiance : drive, Le Bon Coin et grandes boutiques en ligne.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -715,7 +762,7 @@
           </div>
           <h3 class="pname">Voyages & itinéraires</h3>
           <p class="pdesc">SNCF Connect, GPS, billets : préparez vos trajets et partez l'esprit léger.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
           <a class="cta" href="rendez-vous.html">Réserver la séance</a>
@@ -828,7 +875,41 @@
     // thème nuit étoilé pour les professionnels
     document.documentElement.classList.toggle('pro', isPro);
     document.body.classList.toggle('pro', isPro);
+
+    // le slider de durée ne concerne que les particuliers
+    const ds = document.getElementById('dur-switch');
+    if (ds) ds.classList.toggle('hidden', isPro);
   }
+
+  // ===== Slider durée de séance =====
+  const DUR_PRICES = { 1: { amt: '49', credit: '24,50' }, 3: { amt: '129', credit: '64,50' }, 5: { amt: '199', credit: '99,50' } };
+  function setDur(h) {
+    const info = DUR_PRICES[h];
+    if (!info) return;
+    const seg = document.getElementById('dseg');
+    if (seg) {
+      seg.setAttribute('data-h', String(h));
+      seg.querySelectorAll('.ds-opt').forEach(function (b) {
+        const on = b.textContent.trim() === (h + ' h');
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', String(on));
+      });
+    }
+    document.querySelectorAll('#grid-part .card').forEach(function (card) {
+      const dur = card.querySelector('.dur');
+      const amt = card.querySelector('.price .amt');
+      const credit = card.querySelector('.credit');
+      if (dur) dur.textContent = h + ' h';
+      if (amt) amt.textContent = info.amt;
+      if (credit && credit.lastChild) credit.lastChild.textContent = 'Soit ' + info.credit + ' € après crédit d\'impôt*';
+    });
+    try { localStorage.setItem('mcd-dur', String(h)); } catch (e) {}
+  }
+  (function () {
+    let saved = null;
+    try { saved = localStorage.getItem('mcd-dur'); } catch (e) {}
+    if (saved && DUR_PRICES[saved]) setDur(parseInt(saved, 10));
+  })();
 
   function filterRubrique(aud, cat, btn) {
     const bar = document.getElementById('rubriques-' + aud);
@@ -910,5 +991,117 @@
 })();
 </script>
 <!-- ===== Fin widget Espace compte ===== -->
+<!-- ===== Pied de page (repris de la page Contact) ===== -->
+<style id="site-footer-css">
+  #site-footer {
+    position: relative; z-index: 10; margin-top: clamp(20px, 4vh, 48px);
+    padding: clamp(40px, 5vw, 68px) clamp(16px, 4vw, 48px) clamp(24px, 3vw, 34px);
+    background: linear-gradient(to bottom, #e8690d 0%, #cf560b 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
+    overflow: hidden;
+  }
+  #site-footer .sf-inner {
+    max-width: 1160px; margin: 0 auto;
+    display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: clamp(20px, 3.4vw, 54px);
+    align-items: start;
+  }
+  #site-footer .sf-brand { align-self: center; }
+  #site-footer .sf-brand span {
+    display: inline-block; line-height: 0.98; letter-spacing: -0.01em;
+    font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
+    font-size: clamp(36px, 4.6vw, 74px);
+    background: linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,214,158,0.72) 45%, rgba(150,60,0,0.55) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 24px rgba(120,50,0,0.14);
+  }
+  #site-footer .sf-col h3 {
+    margin: 2px 0 14px; font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
+    font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #ffd9a8;
+  }
+  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+  #site-footer .sf-col a {
+    color: #fff; text-decoration: none; font-size: 15px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px; transition: color .2s, transform .2s;
+  }
+  #site-footer .sf-col a:hover { color: #fff3df; transform: translateX(3px); }
+  #site-footer .sf-col a .dot { width: 6px; height: 6px; border-radius: 50%; background: #ffd9a8; flex: 0 0 auto; }
+  #site-footer .sf-contact { display: flex; flex-direction: column; gap: 12px; }
+  #site-footer .sf-socials { display: flex; gap: 12px; margin-top: 2px; }
+  #site-footer .sf-socials a {
+    width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,0.4); transition: transform .2s, background .2s;
+  }
+  #site-footer .sf-socials a:hover { transform: translateY(-3px); background: rgba(255,255,255,0.24); }
+  #site-footer .sf-socials svg { width: 26px; height: 26px; }
+  #site-footer .sf-legal {
+    max-width: 1160px; margin: clamp(20px, 3vh, 34px) auto 0;
+    padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.28);
+    font-size: 13px; color: #ffe4c4; text-align: center;
+  }
+  /* Thème nuit de la page (onglet Professionnels) */
+  body.pro #site-footer { background: linear-gradient(to bottom, #1a2550 0%, #0d1638 100%); }
+  body.pro #site-footer .sf-brand span {
+    background: linear-gradient(170deg, rgba(255,255,255,0.92) 0%, rgba(180,196,255,0.7) 45%, rgba(60,80,170,0.55) 100%);
+    -webkit-background-clip: text; background-clip: text;
+  }
+  @media (max-width: 860px) {
+    #site-footer .sf-inner { grid-template-columns: 1fr 1fr; gap: 26px 30px; }
+    #site-footer .sf-brand { grid-column: 1 / -1; align-self: start; }
+  }
+  @media (max-width: 520px) {
+    #site-footer .sf-inner { grid-template-columns: 1fr; gap: 22px; }
+  }
+</style>
+<footer id="site-footer" aria-label="Pied de page Mon Copain Digital">
+  <div class="sf-inner">
+    <div class="sf-brand"><span>Mon Copain<br>Digital</span></div>
+
+    <div class="sf-col">
+      <h3>Le site</h3>
+      <ul>
+        <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
+        <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
+        <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
+        <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
+      </ul>
+    </div>
+
+    <div class="sf-col sf-contact">
+      <h3>Rester en lien</h3>
+      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
+        <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
+        <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
+      </ul>
+      <div class="sf-socials">
+        <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="sf-col">
+      <h3>Loi applicable</h3>
+      <ul>
+        <li><a href="loiapplicablemcp.html#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
+        <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
+        <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
+        <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
+        <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+        <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
+        <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sf-legal">
+    <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
+  </div>
+</footer>
+<!-- ===== Fin pied de page ===== -->
 </body>
 </html>
