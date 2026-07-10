@@ -82,7 +82,7 @@
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 14px rgba(255,150,60,0.32), 0 14px 32px rgba(120,50,0,0.38);
   }
   .glass-btn:active { transform: translateY(0) scale(0.99); }
-  #topbar .social { display: flex; gap: 12px; }
+  #topbar .social { display: flex; align-items: center; gap: 12px; }
   .social-btn {
     width: 44px; height: 44px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -96,6 +96,9 @@
   .social-btn:hover { transform: translateY(-2px) scale(1.08); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34); }
   .social-btn svg { width: 21px; height: 21px; }
   .social-btn .ln { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
+  .social-btn.logo-btn { width: 38px; height: 38px; border-radius: 0; border: none; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .social-btn.logo-btn:hover { transform: translateY(-2px); box-shadow: none; }
+  .social-btn.logo-btn svg { width: 38px; height: 38px; }
 
   /* ===== Trame de page ===== */
   #page {
@@ -327,7 +330,43 @@
   #site-footer {
     position: relative; z-index: 10; margin-top: clamp(20px, 4vh, 48px);
     padding: clamp(40px, 5vw, 68px) clamp(16px, 4vw, 48px) clamp(24px, 3vw, 34px);
-    background: linear-gradient(to bottom, #e8690d 0%, #cf560b 100%);
+    opacity: 0; transform: translateY(48px);
+    transition: opacity .8s cubic-bezier(.2,.8,.25,1), transform .8s cubic-bezier(.2,.8,.25,1);
+  }
+  #site-footer.revealed { opacity: 1; transform: none; }
+  #site-footer .sf-inner > *, #site-footer .sf-legal {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity .7s cubic-bezier(.2,.8,.25,1), transform .7s cubic-bezier(.2,.8,.25,1);
+  }
+  #site-footer.revealed .sf-inner > *, #site-footer.revealed .sf-legal {
+    opacity: 1; transform: none;
+  }
+  #site-footer.revealed .sf-inner > *:nth-child(1) { transition-delay: .08s; }
+  #site-footer.revealed .sf-inner > *:nth-child(2) { transition-delay: .16s; }
+  #site-footer.revealed .sf-inner > *:nth-child(3) { transition-delay: .24s; }
+  #site-footer.revealed .sf-inner > *:nth-child(4) { transition-delay: .32s; }
+  #site-footer.revealed .sf-legal { transition-delay: .4s; }
+  @media (prefers-reduced-motion: reduce) {
+    #site-footer, #site-footer .sf-inner > *, #site-footer .sf-legal {
+      opacity: 1; transform: none; transition: none;
+    }
+  }
+  /* Révélation des sections au défilement (cascade des éléments) */
+  #page > section:not(#hero) > * {
+    opacity: 0; transform: translateY(42px);
+    transition: opacity .65s cubic-bezier(.2,.8,.25,1), transform .65s cubic-bezier(.2,.8,.25,1);
+  }
+  #page > section:not(#hero).in-view > * { opacity: 1; transform: none; }
+  #page > section:not(#hero).in-view > *:nth-child(1) { transition-delay: .05s; }
+  #page > section:not(#hero).in-view > *:nth-child(2) { transition-delay: .17s; }
+  #page > section:not(#hero).in-view > *:nth-child(3) { transition-delay: .29s; }
+  #page > section:not(#hero).in-view > *:nth-child(4) { transition-delay: .41s; }
+  #page > section:not(#hero).in-view > *:nth-child(5) { transition-delay: .53s; }
+  @media (prefers-reduced-motion: reduce) {
+    #page > section:not(#hero) > * { opacity: 1; transform: none; transition: none; }
+  }
+  #site-footer {
+    background: var(--bg);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
     overflow: hidden;
   }
@@ -350,22 +389,51 @@
     margin: 2px 0 14px; font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
     font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #ffd9a8;
   }
-  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 15px; }
   #site-footer .sf-col a {
-    color: #fff; text-decoration: none; font-size: 15px; font-weight: 600;
-    display: inline-flex; align-items: center; gap: 8px; transition: color .2s, transform .2s;
+    --c: #ffffff;
+    position: relative; width: fit-content; max-width: 100%;
+    color: #8a3c00; text-decoration: none; font-family: 'Fredoka','Helvetica Neue',sans-serif;
+    font-size: 14.5px; font-weight: 600; line-height: 1.1;
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 9px 17px; border-radius: 999px;
+    border: 3px solid rgba(255,255,255,0.95);
+    text-shadow: 0 1px 1px rgba(255,255,255,0.7);
+    background:
+      radial-gradient(130% 95% at 50% -18%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.55) 24%, rgba(255,255,255,0.1) 50%),
+      linear-gradient(to bottom, #ffffff 0%, #fbf4ea 52%, #efe0cf 100%);
+    box-shadow:
+      0 6px 0 rgba(255,255,255,0.5),
+      0 11px 18px rgba(60,30,0,0.34),
+      inset 0 2px 3px rgba(255,255,255,0.9),
+      inset 0 -6px 10px rgba(120,70,20,0.14);
+    transition: transform .13s cubic-bezier(.2,.8,.25,1), box-shadow .13s ease;
   }
-  #site-footer .sf-col a:hover { color: #fff3df; transform: translateX(3px); }
-  #site-footer .sf-col a .dot { width: 6px; height: 6px; border-radius: 50%; background: #ffd9a8; flex: 0 0 auto; }
+  #site-footer .sf-col a:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 0 rgba(255,255,255,0.55),
+      0 15px 24px rgba(60,30,0,0.4),
+      inset 0 2px 3px rgba(255,255,255,0.85),
+      inset 0 -6px 10px rgba(0,0,0,0.22);
+  }
+  #site-footer .sf-col a:active {
+    transform: translateY(4px);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.5),
+      0 3px 7px rgba(60,30,0,0.34),
+      inset 0 2px 3px rgba(255,255,255,0.6),
+      inset 0 -4px 9px rgba(0,0,0,0.3);
+  }
+  #site-footer .sf-col a .dot { display: none; }
   #site-footer .sf-contact { display: flex; flex-direction: column; gap: 12px; }
   #site-footer .sf-socials { display: flex; gap: 12px; margin-top: 2px; }
   #site-footer .sf-socials a {
-    width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.4);
-    box-shadow: inset 0 2px 2px rgba(255,255,255,0.4); transition: transform .2s, background .2s;
+    width: 38px; height: 38px; flex: 0 0 auto; display: block;
+    background: none; border: none; box-shadow: none; transition: transform .2s;
   }
-  #site-footer .sf-socials a:hover { transform: translateY(-3px); background: rgba(255,255,255,0.24); }
-  #site-footer .sf-socials svg { width: 26px; height: 26px; }
+  #site-footer .sf-socials a:hover { transform: translateY(-3px); }
+  #site-footer .sf-socials svg { width: 38px !important; height: 38px !important; display: block; }
   #site-footer .sf-legal {
     max-width: 1160px; margin: clamp(20px, 3vh, 34px) auto 0;
     padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.28);
@@ -431,6 +499,19 @@
 </style>
 </head>
 <body>
+<script>
+  /* Applique le thème choisi sur la page précédente dès l'ouverture du body (évite le flash) */
+  (function(){
+    try {
+      var saved = localStorage.getItem('mcd-theme');
+      var night;
+      if (saved === 'night') night = true;
+      else if (saved === 'day') night = false;
+      else { var hr = new Date().getHours(); night = (hr >= 23 || hr < 7); }
+      if (night) { document.documentElement.classList.add('night'); document.body.classList.add('night'); }
+    } catch(e){}
+  })();
+</script>
   <div id="stars"></div>
   <div id="decor">
     <div class="cloud anim-dr" style="left: 6%; top: 15%; animation-delay: -1s;"></div>
@@ -440,15 +521,14 @@
   </div>
 
   <header id="topbar">
-    <a class="glass-btn" href="index.html">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      Accueil
+    <a class="glass-btn" href="index.html" aria-label="Accueil" style="width:48px;height:48px;padding:0;border-radius:50%;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.75 19.5v-5.5h4.5v5.5"/></svg>
     </a>
     <div class="social">
-      <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+      <a class="social-btn logo-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><defs><radialGradient id="tbIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#tbIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
       </a>
-      <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
+      <a class="social-btn logo-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg></a>
     </div>
   </header>
 
@@ -576,16 +656,16 @@
 
       <div class="sf-col sf-contact">
         <h3>Rester en lien</h3>
-        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:15px;">
           <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
           <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
         </ul>
         <div class="sf-socials">
           <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+            <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
           </a>
           <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
           </a>
         </div>
       </div>
@@ -597,7 +677,7 @@
           <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
           <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
           <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
-          <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+          <li><a href="loiapplicablemcp.html#cgu" style="white-space:nowrap;"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
           <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
           <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
         </ul>
@@ -605,7 +685,7 @@
     </div>
 
     <div class="sf-legal">
-      <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
+      <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier la vie numérique.</span>
       <button class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb"></span></button>
     </div>
   </footer>
@@ -629,15 +709,18 @@
 </script>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
 <style id="acct-widget-css">
-  .acct-sq{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:1px solid rgba(255,255,255,0.6);background:linear-gradient(to bottom,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.14) 100%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9),inset 0 -4px 10px rgba(255,150,60,0.22),0 8px 20px rgba(120,50,0,0.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .26s cubic-bezier(.2,1,.3,1),box-shadow .26s ease;padding:0;}
-  .acct-sq:hover{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1.5px 1px rgba(255,255,255,1),0 12px 26px rgba(120,50,0,0.34);}
-  .acct-sq svg{width:23px;height:23px;}
+  .acct-sq{position:relative;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:none;background:transparent;box-shadow:none;transition:transform .26s cubic-bezier(.2,1,.3,1);padding:0;filter:drop-shadow(0 8px 16px rgba(120,50,0,0.28));}
+  .acct-badge{position:absolute;bottom:calc(100% + 8px);right:0;white-space:nowrap;font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:11px;letter-spacing:.01em;color:#fff;background:linear-gradient(to bottom,#ff5140,#e11d10);padding:5px 10px;border-radius:999px;box-shadow:0 6px 16px rgba(190,20,10,0.42),inset 0 1px 1px rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.35);pointer-events:none;animation:acctBadgePulse 1.8s ease-in-out infinite;}
+  .acct-badge::after{content:'';position:absolute;top:100%;right:16px;border:5px solid transparent;border-top-color:#e11d10;}
+  @keyframes acctBadgePulse{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
+  .acct-sq:hover{transform:translateY(-2px) scale(1.06);}
+  .acct-sq img{width:100%;height:100%;object-fit:contain;display:block;}
   .acct-sq.fixed{position:fixed;top:clamp(14px,2.4vw,26px);right:clamp(16px,4vw,48px);z-index:9999;}
   #acct-pop{position:fixed;top:calc(clamp(14px,2.4vw,26px) + 58px);right:clamp(16px,4vw,48px);z-index:10000;width:264px;border-radius:22px;padding:20px 20px 18px;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
   #acct-pop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
   #acct-pop .ap-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-  #acct-pop .ap-ic{width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#d24a2a;background:linear-gradient(to bottom,#fff8ef,#ffe1cf);box-shadow:0 5px 12px rgba(120,50,0,0.25);}
-  #acct-pop .ap-ic svg{width:19px;height:19px;}
+  #acct-pop .ap-ic{width:38px;height:38px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+  #acct-pop .ap-ic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(120,50,0,0.25));}
   #acct-pop .ap-title{font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:16px;color:#fff;text-shadow:0 1px 2px rgba(150,70,0,0.4);}
   #acct-pop .ap-txt{margin:0 0 16px;font-size:13.5px;line-height:1.45;color:#fff3df;}
   #acct-pop .ap-actions{display:flex;flex-direction:column;gap:9px;}
@@ -647,14 +730,14 @@
   #acct-pop .ap-btn.close{color:#fff;background:rgba(255,255,255,0.12);}
   #acct-pop .ap-btn.close:hover{background:rgba(255,255,255,0.22);}
 </style>
-<div id="acct-pop" role="dialog" aria-label="Espace compte">
+<div id="acct-pop" role="dialog" aria-label="Votre Bulle">
   <div class="ap-head">
-    <span class="ap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-    <span class="ap-title">Espace compte</span>
+    <span class="ap-ic"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
+    <span class="ap-title">Votre Bulle</span>
   </div>
   <p class="ap-txt">Voulez-vous ouvrir votre espace personnel&nbsp;?</p>
   <div class="ap-actions">
-    <a class="ap-btn open" href="espace-compte.html">Ouvrir l'espace compte</a>
+    <a class="ap-btn open" href="espace-compte.html">Ouvrir votre Bulle</a>
     <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
   </div>
 </div>
@@ -663,12 +746,21 @@
   if(window.__acctWidget) return; window.__acctWidget=true;
   var btn=document.createElement('button');
   btn.type='button'; btn.className='acct-sq'; btn.setAttribute('aria-label','Espace compte'); btn.title='Espace compte';
-  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  btn.innerHTML='<img src="boutonespacelog-trim.png" alt="Espace compte">';
+  var rail=document.querySelector('#social-rail');
   var social=document.querySelector('#topbar .social');
-  if(social){ social.appendChild(btn); }
+  if(rail){ rail.insertBefore(btn, rail.firstChild); }
+  else if(social){ social.appendChild(btn); }
   else { btn.classList.add('fixed'); document.body.appendChild(btn); }
   var pop=document.getElementById('acct-pop'); var open=false;
-  function set(v){ open=v; pop.classList.toggle('show',open); }
+  function place(){
+    if(!btn.classList.contains('fixed') && rail){
+      var r=btn.getBoundingClientRect();
+      pop.style.top=Math.max(12, r.top)+'px';
+      pop.style.right=(window.innerWidth - r.left + 12)+'px';
+    }
+  }
+  function set(v){ open=v; if(open) place(); pop.classList.toggle('show',open); }
   btn.addEventListener('click',function(e){ e.stopPropagation(); set(!open); });
   document.getElementById('acct-close').addEventListener('click',function(e){ e.stopPropagation(); set(false); });
   document.addEventListener('click',function(e){ if(open && !pop.contains(e.target) && !btn.contains(e.target)){ set(false); } });
@@ -676,7 +768,6 @@
 })();
 </script>
 <!-- ===== Fin widget Espace compte ===== -->
-<!-- ===== Interrupteur Jour / Nuit (reprend l'état choisi sur les autres pages) ===== -->
 <script>
 (function(){
   var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.5 4.5l1.8 1.8M17.7 17.7l1.8 1.8M2 12h2.5M19.5 12H22M4.5 19.5l1.8-1.8M17.7 6.3l1.8-1.8"/></svg>';
@@ -708,6 +799,48 @@
   else if (saved === 'day') night = false;
   else { var hr = new Date().getHours(); night = (hr >= 23 || hr < 7); }
   applyNight(night);
+})();
+</script>
+<!-- ===== Révélation animée du pied de page au scroll ===== -->
+<script>
+(function(){
+  var footer = document.getElementById('site-footer');
+  if (!footer) return;
+  if (!('IntersectionObserver' in window) ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    footer.classList.add('revealed');
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        footer.classList.add('revealed');
+        io.disconnect();
+      }
+    });
+  }, { threshold: 0.15 });
+  io.observe(footer);
+})();
+</script>
+<!-- ===== Révélation animée des sections au scroll ===== -->
+<script>
+(function(){
+  var secs = document.querySelectorAll('#page > section:not(#hero)');
+  if (!secs.length) return;
+  if (!('IntersectionObserver' in window) ||
+      matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    secs.forEach(function(s){ s.classList.add('in-view'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        e.target.classList.add('in-view');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0, rootMargin: '0px 0px -20% 0px' });
+  secs.forEach(function(s){ io.observe(s); });
 })();
 </script>
 </body>
