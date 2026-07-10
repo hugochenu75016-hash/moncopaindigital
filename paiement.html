@@ -546,7 +546,7 @@
 
   /* ---------- Paiement Stripe ---------- */
   var stripe = (window.Stripe && /^pk_(test|live)_/.test(String(STRIPE_PK)) && String(STRIPE_PK).indexOf('REMPLACER')===-1) ? Stripe(STRIPE_PK) : null;
-  var elements = null, currentOrder = null;
+  var elements = null, currentOrder = null, reqMode = false;
   function showNotice(id, html){ var n=$(id); if(!n) return; n.innerHTML=html; n.classList.add('show'); }
   function clearNotice(id){ var n=$(id); if(n){ n.classList.remove('show'); n.innerHTML=''; } }
   function buildOrder(){
@@ -603,25 +603,63 @@
 
   /* ---------- Payer ---------- */
   $('#pay-btn').addEventListener('click', async function(){
-    if(!stripe || !elements || !currentOrder) return;
+    if(!stripe || !elements) return;
     clearNotice('#pay-notice');
-    var btn=$('#pay-btn'); btn.setAttribute('disabled','disabled'); $('#pay-btn-label').textContent='Paiement…';
+    var btn=$('#pay-btn'); btn.setAttribute('disabled','disabled'); var lbl=$('#pay-btn-label'); var prev=lbl.textContent; lbl.textContent='Paiement…';
+    var ret = location.origin + location.pathname + '?status=success';
     try{
-      var sub = await elements.submit();
-      if(sub.error){ throw new Error(sub.error.message); }
-      var res = await fetch(FN_URL, { method:'POST',
-        headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+SUPABASE_ANON },
-        body: JSON.stringify({ offerId:currentOrder.offerId, qty:currentOrder.qty, name:currentOrder.name, email:currentOrder.email, tel:currentOrder.tel, address:currentOrder.address }) });
-      var data = await res.json();
-      if(!res.ok || !data.clientSecret){ throw new Error((data && data.error) || 'Erreur du serveur de paiement.'); }
-      var ret = location.origin + location.pathname + '?status=success';
-      var conf = await stripe.confirmPayment({ elements: elements, clientSecret: data.clientSecret, confirmParams:{ return_url: ret } });
-      if(conf.error){ throw new Error(conf.error.message); }
+      if(reqMode){
+        // Montant déjà fixé par la demande : le PaymentIntent est créé, clientSecret dans elements
+        var confR = await stripe.confirmPayment({ elements: elements, confirmParams:{ return_url: ret } });
+        if(confR.error){ throw new Error(confR.error.message); }
+      } else {
+        if(!currentOrder) return;
+        var sub = await elements.submit();
+        if(sub.error){ throw new Error(sub.error.message); }
+        var res = await fetch(FN_URL, { method:'POST',
+          headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+SUPABASE_ANON },
+          body: JSON.stringify({ offerId:currentOrder.offerId, qty:currentOrder.qty, name:currentOrder.name, email:currentOrder.email, tel:currentOrder.tel, address:currentOrder.address }) });
+        var data = await res.json();
+        if(!res.ok || !data.clientSecret){ throw new Error((data && data.error) || 'Erreur du serveur de paiement.'); }
+        var conf = await stripe.confirmPayment({ elements: elements, clientSecret: data.clientSecret, confirmParams:{ return_url: ret } });
+        if(conf.error){ throw new Error(conf.error.message); }
+      }
     }catch(err){
       showNotice('#pay-notice', (err && err.message) ? err.message : 'Le paiement n\u2019a pas pu aboutir. Réessayez.');
-      var b=$('#pay-btn'); b.removeAttribute('disabled'); $('#pay-btn-label').textContent='Payer '+euro(currentOrder.total);
+      btn.removeAttribute('disabled'); lbl.textContent=prev;
     }
   });
+
+  /* ---------- Mode "demande de paiement" (?req=JETON envoyé par un commercial) ---------- */
+  async function initReqFlow(token){
+    $('#step-info').style.display='none';
+    $('#step-forfait').style.display='none';
+    var step=$('#step-pay'); step.classList.remove('step-hidden'); step.setAttribute('aria-hidden','false');
+    var h2=document.querySelector('#step-pay h2'); if(h2) h2.innerHTML = '<span class="step-n">✓</span> Paiement demandé';
+    var hint=document.querySelector('#step-pay .hint');
+    if(!stripe){ if(hint) hint.textContent=''; showNotice('#pay-notice','Configuration de paiement incomplète (clé Stripe).'); return; }
+    try{
+      var res = await fetch(FN_URL, { method:'POST',
+        headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+SUPABASE_ANON },
+        body: JSON.stringify({ reqToken: token }) });
+      var data = await res.json();
+      if(!res.ok || !data.clientSecret){ throw new Error((data && data.error) || 'Demande de paiement introuvable ou expirée.'); }
+      reqMode = true;
+      var total = data.amount/100;
+      currentOrder = { offerId:'req', offerName: data.offerName||'Paiement', unit: total, qty:1, total: total, name:'' };
+      try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
+      $('#pay-btn-label').textContent = 'Payer '+euro(total);
+      if(hint) hint.innerHTML = 'Paiement demandé par Mon Copain Digital'+(data.reason? ' — <strong>'+data.reason+'</strong>':'')+'.<br>Montant : <strong>'+euro(total)+'</strong>';
+      elements = stripe.elements({ clientSecret: data.clientSecret,
+        appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
+      var pe = elements.create('payment', { layout:'tabs' });
+      $('#payment-element').innerHTML=''; pe.mount('#payment-element');
+      pe.on('ready', function(){ $('#pay-btn').removeAttribute('disabled'); });
+    }catch(err){
+      if(hint) hint.textContent='';
+      showNotice('#pay-notice', (err && err.message) ? err.message : 'Lien de paiement invalide ou expiré.');
+    }
+  }
 
   /* ---------- Vue confirmation (retour depuis Stripe : ?status=success&redirect_status=succeeded) ---------- */
   function showConfirm(){
@@ -642,12 +680,15 @@
   }
 
   /* ---------- Init ---------- */
+  var reqToken = params.get('req');
   var redirect = params.get('redirect_status');
   if(params.get('status')==='success' && (!redirect || redirect==='succeeded')){
     showConfirm();
   } else if(redirect && redirect!=='succeeded'){
-    renderOffers(); renderSummary(); prefillClient();
-    showNotice('#forfait-notice', 'Le paiement n\u2019a pas abouti ('+redirect+'). Vous pouvez réessayer.');
+    if(reqToken){ initReqFlow(reqToken); } else { renderOffers(); renderSummary(); prefillClient(); }
+    showNotice('#pay-notice', 'Le paiement n\u2019a pas abouti ('+redirect+'). Vous pouvez réessayer.');
+  } else if(reqToken){
+    initReqFlow(reqToken);
   } else {
     renderOffers(); renderSummary(); prefillClient();
     if(window.__preselect){ var f=OFFERS.filter(function(o){return o.id===window.__preselect;})[0]; if(f){ state.offer=f; renderOffers(); renderSummary(); } }
