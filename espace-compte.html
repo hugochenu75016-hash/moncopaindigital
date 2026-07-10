@@ -803,6 +803,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         Rendez-vous
       </a>
+      <a class="nav-item" data-aview="regler">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
+        Faire régler
+      </a>
       <a class="nav-item" data-aview="projets">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         Projets
@@ -935,6 +939,9 @@
           <div class="list" id="adm-proj-rows"></div>
         </div>
       </section>
+
+      <!-- ===== Faire régler ===== -->
+      <section class="aview" id="aview-regler"></section>
 
       <!-- ===== Factures ===== -->
       <section class="aview" id="aview-factures">
@@ -1786,6 +1793,7 @@
       (admin.role==='coach'?'':'<div class="card" style="margin-bottom:20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;"><span style="font-family:\'Fredoka\',sans-serif;font-weight:600;color:#fff;">Commercial référent :</span><select class="adm-select" data-assign-coach="'+c.id+'"><option value="">— Aucun —</option>'+admin.coachs.map(function(k){return '<option value="'+k.id+'"'+(c.coach_id===k.id?' selected':'')+'>'+esc(k.nom)+'</option>';}).join('')+'</select></div>')+
       '<div class="grid-dash">'+
         '<div class="card col-6"><div class="card-title-row"><h2>Rendez-vous</h2><button class="adm-iconbtn" data-act="toggle-cli-rdv" data-id="'+c.id+'" title="Ajouter un rendez-vous">'+PLUS+'</button></div>'+cliRdvForm+'<div class="list">'+rdvHtml+'</div></div>'+
+        '<div class="card col-6"><div class="card-title-row"><h2>Faire régler</h2></div><p class="sub" style="margin:0 0 14px;">Envoyer au client une demande de paiement par email (montant, motif, pack).</p><button class="primary-btn" data-act="faire-regler" data-id="'+c.id+'" style="width:auto;padding:13px 26px;display:inline-flex;align-items:center;gap:9px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg> Faire régler</button></div>'+
         '<div class="card col-6"><div class="card-title-row"><h2>Factures &amp; documents</h2></div><div class="list">'+facHtml+'</div>'+
           '<div class="adm-add-row"><input data-f="ref" placeholder="Réf."><input data-f="label" placeholder="Libellé"><input data-f="date" placeholder="Date"><input data-f="amount" placeholder="Montant">'+facSel()+'<button class="adm-iconbtn" data-act="add-fac" data-id="'+c.id+'" title="Ajouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div>'+
         '</div>'+
@@ -1793,6 +1801,54 @@
         '<div class="card col-6"><div class="card-title-row"><h2>Messagerie</h2></div><div class="chat-body" style="max-height:320px;">'+msgsHtml+'</div><div class="chat-compose"><textarea data-reply-for="'+c.id+'" rows="1" placeholder="Répondre à '+esc(c.nom.split(' ')[0])+'…"></textarea><button class="send-btn" data-act="reply" data-id="'+c.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg></button></div></div>'+
       '</div>';
     var cb=$('#aview-client .chat-body'); if(cb) cb.scrollTop=cb.scrollHeight;
+  }
+
+  /* ===== Faire régler : demande de paiement envoyée par email ===== */
+  /* ===== Faire régler : demande de paiement envoyée par email ===== */
+  function renderRegler(){
+    var el=$('#aview-regler'); if(!el) return;
+    var opts = admin.clients.map(function(c){ return '<option value="'+c.id+'">'+esc(c.nom)+(c.email?(' — '+esc(c.email)):' (sans email)')+'</option>'; }).join('');
+    el.innerHTML = '<div class="card"><div class="card-title-row"><div><h2>Faire régler</h2><p class="sub" style="margin:2px 0 0;">Envoyez une demande de paiement par email à un client.</p></div></div>'+
+      '<div class="field" style="margin-top:8px;"><label>Client</label><select class="adm-select" id="rg-client" style="width:100%;"><option value="">— Choisir un client —</option>'+opts+'</select></div>'+
+      '<button class="primary-btn" id="rg-open" style="width:auto;padding:13px 26px;margin-top:16px;display:inline-flex;align-items:center;gap:9px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg> Continuer</button></div>';
+    var ob=el.querySelector('#rg-open'); ob.addEventListener('click', function(){ var id=el.querySelector('#rg-client').value; if(!id){ flashToast('Choisissez un client'); return; } openFaireRegler(id); });
+  }
+
+  var PAY_OFFERS=[{id:'seance',n:"Séance à l'unité",c:4900},{id:'pack3',n:'Pack 3 séances',c:14100},{id:'pack5',n:'Pack 5 séances',c:22500},{id:'test',n:'Pack test',c:50},{id:'',n:'Montant libre',c:0}];
+  function openFaireRegler(id){
+    var c=admin.byId[id]; if(!c) return;
+    if(!c.email){ flashToast("Ce client n'a pas d'email — ajoutez-en un dans sa fiche."); return; }
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(30,12,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;';
+    ov.innerHTML='<div class="card" style="width:min(94vw,440px);">'+
+      '<div class="card-title-row"><h2>Faire régler</h2></div>'+
+      '<p class="sub" style="margin:0 0 16px;">Client : <strong>'+esc(c.nom)+'</strong><br>'+esc(c.email)+'</p>'+
+      '<div class="field"><label>Pack / produit</label><select class="adm-select" id="fr-pack" style="width:100%;">'+PAY_OFFERS.map(function(o){return '<option value="'+o.id+'" data-c="'+o.c+'">'+o.n+(o.c?(' — '+(o.c/100).toFixed(2).replace('.',',')+' €'):'')+'</option>';}).join('')+'</select></div>'+
+      '<div class="field" style="margin-top:12px;"><label>Montant (€)</label><input id="fr-amount" type="number" min="0.5" step="0.01" placeholder="49.00"></div>'+
+      '<div class="field" style="margin-top:12px;"><label>Raison / description</label><input id="fr-reason" type="text" placeholder="Ex : Séance informatique du 12/07"></div>'+
+      '<div id="fr-note" class="auth-err" style="margin-top:12px;"></div>'+
+      '<div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;align-items:center;"><button class="link-btn" id="fr-cancel">Annuler</button><button class="primary-btn" id="fr-send" style="width:auto;padding:13px 26px;">Envoyer par email</button></div>'+
+    '</div>';
+    document.body.appendChild(ov);
+    var packSel=ov.querySelector('#fr-pack'), amt=ov.querySelector('#fr-amount');
+    packSel.addEventListener('change', function(){ var cc=+packSel.selectedOptions[0].getAttribute('data-c'); if(cc>0) amt.value=(cc/100).toFixed(2); });
+    ov.querySelector('#fr-cancel').addEventListener('click', function(){ ov.remove(); });
+    ov.addEventListener('click', function(e){ if(e.target===ov) ov.remove(); });
+    ov.querySelector('#fr-send').addEventListener('click', async function(){
+      var note=ov.querySelector('#fr-note');
+      var cents=Math.round(parseFloat(amt.value)*100);
+      if(!cents || cents<50){ note.textContent='Montant minimum 0,50 €.'; note.classList.add('show'); return; }
+      var offerId=packSel.value||null;
+      var reason=ov.querySelector('#fr-reason').value.trim();
+      var btn=this; btn.disabled=true; btn.textContent='Envoi…';
+      try{
+        var ses=await sb.auth.getSession(); var tok=ses&&ses.data&&ses.data.session&&ses.data.session.access_token;
+        var res=await fetch(SUPABASE_URL+'/functions/v1/send-payment-request', { method:'POST', headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+(tok||SUPABASE_ANON)}, body:JSON.stringify({ amount_cents:cents, reason:reason, offer_id:offerId, client_id:(c.manual?null:c.id), client_email:c.email, client_name:c.nom }) });
+        var data=await res.json();
+        if(!res.ok || !data.ok){ throw new Error((data&&data.error)||'Envoi impossible'); }
+        ov.remove(); flashToast('Lien de paiement envoyé à '+c.email);
+      }catch(err){ note.textContent=(err&&err.message)||'Erreur'; note.classList.add('show'); btn.disabled=false; btn.textContent='Envoyer par email'; }
+    });
   }
 
   function renderAdminRdv(){
@@ -1973,7 +2029,7 @@
 
   function flashToast(msg){ var t=$('#adm-toast'); if(!t){ t=document.createElement('div'); t.id='adm-toast'; t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;background:#fff8ef;color:#a54a00;font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:14px;padding:12px 22px;border-radius:999px;box-shadow:0 12px 30px rgba(120,50,0,0.4);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;'; document.body.appendChild(t); } t.textContent=msg; requestAnimationFrame(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(-4px)'; }); clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%)'; }, 1900); }
 
-  var ADM_TITLES = { overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'] };
+  var ADM_TITLES = { overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], regler:['Encaissement','Faire régler'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'] };
   function closeAdmSide(){ var s=$('#adm-side'); if(s) s.classList.remove('open'); var sc=$('#adm-scrim'); if(sc) sc.classList.remove('show'); }
   function switchAdminView(name){
     admin.view=name;
@@ -1987,6 +2043,7 @@
     else if(name==='rdv') renderAdminRdv();
     else if(name==='projets') renderAdminProjets();
     else if(name==='factures') renderAdminFactures();
+    else if(name==='regler') renderRegler();
     else if(name==='msg') renderAdminMsg();
     else if(name==='coach') renderAdminCoachs();
     else if(name==='direction') renderDirection();
@@ -2173,6 +2230,7 @@
       var av=e.target.closest('[data-aview]'); if(av && main.contains(av)){ var vv=av.getAttribute('data-aview'); if(vv==='msg') admin.activeConv=null; switchAdminView(vv); return; }
       var el=e.target.closest('[data-act]'); if(!el) return; var act=el.getAttribute('data-act'); var id=el.getAttribute('data-id');
       if(act==='open-client'){ admin.showCliRdvForm=false; switchAdminView('client'); renderAdminClientDetail(id); markAdminRead(id); }
+      else if(act==='faire-regler'){ openFaireRegler(id); }
       else if(act==='back-clients'){ switchAdminView('clients'); }
       else if(act==='open-conv'){ admin.activeConv=id; switchAdminView('msg'); markAdminRead(id); if(convStatus(id)==='active') announceJoin(id); renderAdminMsg(); }
       else if(act==='conv-pause'){ setConvStatus(id,'paused'); }
