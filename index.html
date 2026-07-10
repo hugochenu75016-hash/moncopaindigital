@@ -523,6 +523,11 @@
   /* État par défaut : portes ouvertes (hors écran), aucune animation à l'arrivée directe */
   #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
   #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
+  /* État chargement : portes fermées, maintenues jusqu'à ce que le personnage soit prêt */
+  #door-tx.loading{pointer-events:auto;}
+  #door-tx.loading .door.l,#door-tx.loading .door.r{transform:translateX(0)!important;animation:none!important;}
+  #door-tx.loading .dt-logo{opacity:1!important;animation:dtLogoPulse 1.6s ease-in-out infinite!important;}
+  @keyframes dtLogoPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
   #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
   #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
   #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
@@ -542,7 +547,7 @@
     #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
   }
 </style>
-<div id="door-tx" aria-hidden="true">
+<div id="door-tx" class="loading" aria-hidden="true">
   <div class="door l"></div>
   <div class="door r"></div>
   <img class="dt-logo" src="logocoupeworld.png" alt="">
@@ -582,14 +587,18 @@
     setTimeout(function(){ window.location.href=dest; }, DUR);
   }
   window.mcdGo=go;
-  // Ouverture des portes UNIQUEMENT si on arrive via une navigation interne (clic).
-  // Arrivée directe sur l'index (URL tapée, lien externe) : aucune porte.
-  try{
-    if(sessionStorage.getItem('mcd-door-nav')==='1'){
-      sessionStorage.removeItem('mcd-door-nav');
-      ov.classList.add('opening');
-    }
-  }catch(err){}
+  try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
+  // Les portes servent d'écran de chargement : elles restent fermées jusqu'à ce que
+  // le personnage 3D soit prêt, puis window.mcdDoorsOpen() les ouvre.
+  var opened=false;
+  window.mcdDoorsOpen=function(){
+    if(opened) return; opened=true;
+    ov.classList.remove('loading');
+    void ov.offsetWidth;
+    ov.classList.add('opening');
+  };
+  // Sécurité : ouverture forcée après 15s même si le modèle ne charge pas.
+  setTimeout(window.mcdDoorsOpen, 15000);
   window.addEventListener('pageshow', function(ev){
     if(ev.persisted){
       ov.classList.remove('closing');
@@ -684,13 +693,7 @@
     <button class="enter-btn" onclick="mcdGo('explorer.html')">Explorer</button>
   </div>
 
-  <!-- Écran de chargement du personnage 3D -->
-  <div id="char-loader">
-    <img class="cl-logo" src="logocoupeworld.png" alt="Mon Copain Digital">
-    <div class="cl-spinner"></div>
-    <div class="cl-text">Chargement…</div>
-    <div class="cl-bar"><div class="cl-fill" id="cl-fill"></div></div>
-  </div>
+  <!-- Écran de chargement retiré : ce sont les portes qui font le chargement -->
 
   <!-- Décor flottant (gauche + droite) -->
   <div id="side-decor">
@@ -1498,16 +1501,14 @@ function start() {
         apply();
         window.__chairTune = (o) => { Object.assign(CT, o); apply(); };
         window.__chair = grp;
-        // modèle prêt : on masque l'écran de chargement orange
-        const cl = document.getElementById('char-loader');
-        if (cl) { const f = document.getElementById('cl-fill'); if (f) f.style.width = '100%'; setTimeout(() => { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }, 250); }
+        // modèle prêt : on ouvre les portes
+        if (window.mcdDoorsOpen) setTimeout(window.mcdDoorsOpen, 200);
       }, (ev) => {
         const f = document.getElementById('cl-fill');
         if (f && ev && ev.lengthComputable) f.style.width = Math.round((ev.loaded / ev.total) * 100) + '%';
       }, (err) => {
         console.error('chair GLB load error', err);
-        const cl = document.getElementById('char-loader');
-        if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); }
+        if (window.mcdDoorsOpen) window.mcdDoorsOpen();
       });
       return;
       const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -1596,9 +1597,8 @@ function start() {
       const dracoLoader = new THREE.DRACOLoader();
       dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
       loader.setDRACOLoader(dracoLoader);
-      // L'écran de chargement est masqué par le chargeur du modèle ci-dessus.
-      // Sécurité : si rien ne se charge en 15s, on le retire quand même.
-      setTimeout(() => { const cl = document.getElementById('char-loader'); if (cl) { cl.classList.add('hidden'); setTimeout(() => cl.remove(), 700); } }, 15000);
+      // L'ouverture des portes est déclenchée par le chargeur du modèle ci-dessus.
+      // Sécurité : si rien ne se charge en 15s, le script des portes les ouvre quand même.
 
       // Lueur bleutée de l'écran de l'ordinateur, qui se reflète sur le visage/buste
       // (enfant du charGroup -> suit le personnage)
