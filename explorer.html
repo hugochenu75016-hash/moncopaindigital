@@ -3,7 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Favicon Mon Copain Digital -->
+<link rel="icon" href="/favicons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+<link rel="manifest" href="/favicons/site.webmanifest">
+<meta name="theme-color" content="#F3852B">
 <title>Explorer votre besoin · Mon Copain Digital</title>
+<meta name="description" content="Dites-nous en quelques mots ce dont vous avez besoin côté numérique. On regarde ensemble et on vous dit tout de suite si on peut s'en occuper. Sans engagement.">
+<link rel="canonical" href="https://moncopaindigital.fr/explorer.html">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
 <style>
   :root {
@@ -21,7 +31,7 @@
     color: var(--cream);
     -webkit-font-smoothing: antialiased;
   }
-  html, body { overflow-x: hidden; max-width: 100%; }
+  body { overflow-x: hidden; }
 
   /* Décor nuages */
   #decor { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
@@ -145,13 +155,12 @@
     background: rgba(255,255,255,0.10);
   }
   .chat-head .av {
-    width: 44px; height: 44px; border-radius: 50%; flex: 0 0 auto; overflow: hidden;
+    width: 44px; height: 44px; border-radius: 50%; flex: 0 0 auto;
     display: flex; align-items: center; justify-content: center; color: #d24a2a;
     background: linear-gradient(to bottom, #fff8ef, #ffe1cf);
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 6px 14px rgba(120,50,0,0.28);
   }
   .chat-head .av svg { width: 24px; height: 24px; }
-  .chat-head .av img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
   .chat-head .who { display: flex; flex-direction: column; gap: 2px; }
   .chat-head .who .n { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 16px; color: #fff; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
   .chat-head .who .s { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #ffe9cf; font-weight: 500; }
@@ -164,19 +173,16 @@
   .msg { display: flex; gap: 10px; max-width: 88%; animation: bubbleIn .35s cubic-bezier(.2,1,.3,1); }
   @keyframes bubbleIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .msg .av-sm {
-    width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto; overflow: hidden;
+    width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto;
     display: flex; align-items: center; justify-content: center; color: #d24a2a;
     background: linear-gradient(to bottom, #fff8ef, #ffe1cf);
     box-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 10px rgba(120,50,0,0.25);
   }
   .msg .av-sm svg { width: 17px; height: 17px; }
-  .msg .av-sm img { width: 100%; height: 100%; object-fit: cover; object-position: center 22%; display: block; }
   .bubble {
     font-family: 'Space Grotesk', sans-serif; font-size: 15px; line-height: 1.45; font-weight: 500;
     padding: 13px 16px; border-radius: 18px;
-    min-width: 0; overflow-wrap: anywhere; word-break: break-word;
   }
-  .msg { min-width: 0; }
   .msg.bot { align-self: flex-start; }
   .msg.bot .bubble {
     color: #fff6e6; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.28);
@@ -212,17 +218,6 @@
   .chip.solid { background: linear-gradient(to bottom, #fff8ef, #ffe6bb); color: #8a3c00; text-shadow: none; }
   .chip:hover { transform: translateY(-2px); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 24px rgba(120,50,0,0.36); }
   .chip svg { width: 15px; height: 15px; }
-
-  /* Avis d'arrivée dans la discussion */
-  .join {
-    align-self: center; display: inline-flex; align-items: center; gap: 8px;
-    font-family: 'Space Grotesk', sans-serif; font-size: 12.5px; font-weight: 600; letter-spacing: 0.01em;
-    color: #ffe9cf; padding: 7px 15px; border-radius: 999px;
-    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22);
-    animation: bubbleIn .4s cubic-bezier(.2,1,.3,1);
-  }
-  .join .jd { width: 8px; height: 8px; border-radius: 50%; background: #7be38f; box-shadow: 0 0 8px #7be38f; animation: joinPulse 1.6s ease-in-out infinite; }
-  @keyframes joinPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(0.7); opacity: 0.55; } }
 
   /* Indicateur de saisie */
   .typing { display: flex; gap: 5px; padding: 15px 16px; }
@@ -268,35 +263,100 @@
   .sug:hover { transform: translateY(-2px); background: rgba(255,255,255,0.26); }
 
   @media (max-width: 900px) {
-    .explore-row { grid-template-columns: 1fr; gap: 4px; }
-    .char-col { display: none; }
-    /* Image en paysage (1449×736) → dimensionner par la LARGEUR, jamais par la hauteur,
-       sinon elle déborde de l'écran et pousse la conversation hors du cadre. */
-    .char-col img { height: auto; width: min(78vw, 380px); max-width: 100%; }
+    .explore-row { grid-template-columns: 1fr; gap: 8px; }
+    .char-col { order: -1; }
+    .char-col img { width: auto; height: 300px; }
     .char-col .say { display: none; }
-    #head { margin-bottom: clamp(14px, 2.4vh, 24px); }
   }
   @media (max-width: 560px) {
-    #topbar { padding: 12px 14px; gap: 8px; }
-    .glass-btn { font-size: 12px; padding: 11px 16px; letter-spacing: 0.04em; }
+    #topbar { padding: 12px 14px; }
+    .glass-btn { font-size: 12px; padding: 11px 18px; letter-spacing: 0.05em; }
     .social-btn { width: 40px; height: 40px; }
-    #topbar .social { gap: 8px; }
     #head h1 { -webkit-text-stroke-width: 2.5px; }
-    #head .lead { font-size: 15px; }
-    #chat { border-radius: 22px; }
-    .chat-head { padding: 13px 16px; }
-    #log { padding: 18px 15px; min-height: 200px; max-height: 52vh; }
-    .msg { max-width: 96%; }
-    .bubble { font-size: 14.5px; padding: 12px 14px; }
-    #composer { padding: 12px 13px; gap: 8px; }
-    #composer textarea { font-size: 15px; padding: 11px 14px; }
-    .char-col img { width: min(72vw, 320px); }
-    #suggests { gap: 7px; }
-    .sug { font-size: 12.5px; padding: 7px 12px; }
+    #chat { border-radius: 24px; }
+    .msg { max-width: 95%; }
   }
 </style>
 </head>
 <body>
+<!-- ===== Transition portes entre pages ===== -->
+<style id="door-tx-style">
+  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
+  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
+    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
+    box-shadow:0 0 70px rgba(90,40,0,0.45);}
+  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
+  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
+  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
+    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
+  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
+  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
+  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
+  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
+  #door-tx.closing{pointer-events:auto;}
+  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
+  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
+  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
+  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  @media (prefers-reduced-motion:reduce){
+    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
+  }
+</style>
+<div id="door-tx" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="logocoupeworld.png" alt="">
+</div>
+<script>
+(function(){
+  if(window.__doorTx) return; window.__doorTx=true;
+  var ov=document.getElementById('door-tx');
+  if(!ov) return;
+  var DUR=1000;
+  function isInternal(a){
+    if(!a) return false;
+    if(a.target && a.target!=='_self') return false;
+    if(a.hasAttribute('download')) return false;
+    var href=a.getAttribute('href')||'';
+    if(!href || href.charAt(0)==='#') return false;
+    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
+    if(url.origin!==location.origin) return false;
+    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented) return;
+    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target.closest ? e.target.closest('a[href]') : null;
+    if(!isInternal(a)) return;
+    e.preventDefault();
+    go(a.href);
+  }, true);
+  function go(dest){
+    if(ov.classList.contains('closing')) return;
+    try{ sessionStorage.setItem('mcd-door-nav','1'); }catch(err){}
+    void ov.offsetWidth;
+    ov.classList.add('closing');
+    setTimeout(function(){ window.location.href=dest; }, DUR);
+  }
+  window.mcdGo=go;
+  try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
+  ov.classList.add('opening');
+  window.addEventListener('pageshow', function(ev){
+    if(ev.persisted){
+      ov.classList.remove('closing');
+      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
+    }
+  });
+})();
+</script>
+<!-- ===== Fin transition portes ===== -->
+
   <div id="decor">
     <div class="cloud anim-dr" style="left: 6%; top: 16%; animation-delay: -1s;"></div>
     <div class="cloud anim-f2" style="left: 3%; top: 58%; transform: scale(0.7); animation-delay: -3s;"></div>
@@ -310,7 +370,7 @@
       Accueil
     </a>
     <div class="social">
-      <a class="social-btn" href="https://www.instagram.com/moncopaindigital/" target="_blank" rel="noopener" aria-label="Instagram">
+      <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
       </a>
       <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
@@ -332,14 +392,19 @@
       <div class="chat-col">
         <section id="chat">
       <div class="chat-head">
-        <span class="av"><img src="avatar-mcd.png" alt="Mon Copain Digital"></span>
+        <span class="av"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span>
         <div class="who">
-          <span class="n">Hugo</span>
+          <span class="n">Mon Copain Digital</span>
           <span class="s">Répond en direct</span>
         </div>
       </div>
 
-      <div id="log"></div>
+      <div id="log">
+        <div class="msg bot">
+          <span class="av-sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg></span>
+          <div class="bubble">Bonjour&nbsp;! 👋 Décrivez-moi votre besoin numérique — un site, un souci d'ordinateur ou de téléphone, une démarche en ligne, une question… et je vous dis si c'est faisable.</div>
+        </div>
+      </div>
 
       <div id="composer">
         <textarea id="input" rows="1" placeholder="Ex : je n'arrive pas à envoyer mes photos par mail…" aria-label="Votre besoin"></textarea>
@@ -386,41 +451,11 @@
     setPose(answered ? 'attend' : 'bonjour');
   }
 
-  var ICON = '<img src="avatar-mcd.png" alt="">';
+  var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg>';
   var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
 
   function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function scroll(){ log.scrollTop = log.scrollHeight; }
-
-  // ===== Son de notification (généré, pas de fichier) =====
-  var actx = null;
-  function unlockAudio(){
-    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){ return; } }
-    if (actx.state === 'suspended') actx.resume();
-  }
-  ['pointerdown','keydown','touchstart'].forEach(function(ev){
-    document.addEventListener(ev, unlockAudio, { once: false, passive: true });
-  });
-  function playPing(){
-    try {
-      if (!actx) { actx = new (window.AudioContext || window.webkitAudioContext)(); }
-      if (actx.state === 'suspended') actx.resume();
-      var now = actx.currentTime;
-      var gain = actx.createGain();
-      gain.connect(actx.destination);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.16, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
-      [ [880, 0], [1174.7, 0.09] ].forEach(function(p){
-        var o = actx.createOscillator();
-        o.type = 'sine';
-        o.frequency.setValueAtTime(p[0], now + p[1]);
-        o.connect(gain);
-        o.start(now + p[1]);
-        o.stop(now + 0.5);
-      });
-    } catch(e){}
-  }
 
   function addUser(text){
     var m = document.createElement('div');
@@ -464,9 +499,8 @@
   function addBot(html){
     var m = document.createElement('div');
     m.className = 'msg bot';
-    m.innerHTML = '<span class="av-sm"><img src="avatar-mcd.png" alt=""></span><div class="bubble">' + html + '</div>';
+    m.innerHTML = '<span class="av-sm">' + ICON + '</span><div class="bubble">' + html + '</div>';
     log.appendChild(m); scroll();
-    playPing();
   }
 
   function respond(text){
@@ -504,30 +538,6 @@
   document.querySelectorAll('.sug').forEach(function(b){
     b.addEventListener('click', function(){ input.value = b.textContent; submit(); });
   });
-
-  // ===== Animation d'arrivée : Hugo entre, écrit (points en vague) puis le texte =====
-  var WELCOME = 'Bonjour&nbsp;! 👋 Décrivez-moi votre besoin numérique — un site, un souci d\'ordinateur ou de téléphone, une démarche en ligne, une question… et je vous dis si c\'est faisable.';
-  function addJoin(){
-    var j = document.createElement('div');
-    j.className = 'join';
-    j.innerHTML = '<span class="jd"></span> Hugo est entré dans la discussion';
-    log.appendChild(j); scroll();
-  }
-  function intro(){
-    setTimeout(function(){
-      addJoin();
-      setTimeout(function(){
-        pending = true; refreshPose();
-        var typing = addTyping();
-        setTimeout(function(){
-          if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
-          addBot(WELCOME);
-          pending = false; refreshPose();
-        }, 3700);
-      }, 750);
-    }, 500);
-  }
-  intro();
 })();
 </script>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
