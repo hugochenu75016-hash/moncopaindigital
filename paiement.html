@@ -23,6 +23,7 @@
 <meta name="description" content="Réglez votre accompagnement Mon Copain Digital en toute sécurité. Paiement par carte, Apple Pay et Google Pay.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.stripe.com/v3/"></script>
 <style>
   :root{
     --bg:#FF7A00; --ink:#4d2000; --stroke:#7a3300; --cream:#fff8ef;
@@ -209,6 +210,8 @@
   .notice{ display:none; margin-top:14px; padding:12px 15px; border-radius:13px; font-size:13.5px; line-height:1.45; font-weight:600;
     background:rgba(255,120,60,0.25); border:1px solid rgba(255,180,140,0.6); color:#fff; }
   .notice.show{ display:block; }
+  #payment-element{ margin:6px 0 4px; min-height:44px; }
+  #payment-element .pe-loading{ padding:16px; text-align:center; font-size:14px; color:#ffe9cf; }
   .notice code{ font-family:'Space Grotesk',monospace; background:rgba(0,0,0,0.18); padding:1px 6px; border-radius:6px; }
 
   /* ===== Vue confirmation ===== */
@@ -370,14 +373,34 @@
         </span>
       </div>
 
-      <button class="pay-btn" type="button" id="pay-btn">
+      <button class="pay-btn" type="button" id="goto-pay">
+        <span id="goto-pay-label">Procéder au paiement</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+      </button>
+
+      <div class="secure">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Paiement chiffré et traité en sécurité par Stripe.
+      </div>
+
+      <div class="notice" id="forfait-notice"></div>
+    </div>
+
+    <!-- Étape 3 : Paiement (Stripe Payment Element) -->
+    <div class="panel step-hidden" id="step-pay" aria-hidden="true">
+      <h2><span class="step-n">3</span> Paiement</h2>
+      <p class="hint">Réglez <strong id="pay-amount">—</strong> par carte, Apple&nbsp;Pay ou Google&nbsp;Pay. <a href="#" id="pay-back">Modifier ma commande</a></p>
+
+      <div id="payment-element"><div class="pe-loading">Chargement du paiement sécurisé…</div></div>
+
+      <button class="pay-btn" type="button" id="pay-btn" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
         <span id="pay-btn-label">Payer</span>
       </button>
 
       <div class="secure">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-        Paiement sécurisé — vous êtes redirigé vers la page bancaire Qonto.
+        Vos données bancaires sont chiffrées et ne transitent jamais par notre site.
       </div>
 
       <div class="notice" id="pay-notice"></div>
@@ -408,17 +431,22 @@
   /* ============================================================
      CONFIGURATION — À PERSONNALISER
      ------------------------------------------------------------
-     Pour chaque forfait, collez votre LIEN DE PAIEMENT QONTO dans "lien".
-     (Qonto → Encaissements / Liens de paiement → créez un lien par montant,
-      puis collez son URL ci-dessous.)
-     Réglez l'URL de redirection de succès du lien Qonto sur :
-        .../paiement.html?status=success
+     1) STRIPE_PK : votre clé PUBLIABLE Stripe (pk_live_... ou pk_test_...).
+     2) La clé SECRÈTE (sk_...) NE VA PAS ICI : déposez-la côté serveur avec
+          supabase secrets set STRIPE_SECRET_KEY=sk_live_xxx
+        puis déployez la fonction :
+          supabase functions deploy create-payment-intent --no-verify-jwt
+     3) Les montants officiels sont dans la fonction (edge-functions/
+        create-payment-intent) : gardez-les identiques aux prix ci-dessous.
      ============================================================ */
+  var STRIPE_PK = 'pk_live_51KviRCHuQEeEwwniSlC11bnLbttvp9HNyJaETbjNEfIjFX4Kl2Da0GidTLSTbq1vAVhycmP6JoTeR4WoC0w1W0s9000TKpQw4Q';
+  var FN_URL = 'https://nlesboqlnnpnmwlpvhif.supabase.co/functions/v1/create-payment-intent';
+
   var CREDIT_IMPOT = 0.5; // 50 % crédit d'impôt (indicatif)
   var OFFERS = [
-    { id:'seance',  nom:'Séance à l\u2019unité',  desc:'1h d\u2019accompagnement, à domicile ou en visio.', prix:49,  lien:'' },
-    { id:'pack3',   nom:'Pack 3 séances',        desc:'3 séances à utiliser quand vous voulez. Soit 47&nbsp;€/séance.', prix:141, lien:'' },
-    { id:'pack5',   nom:'Pack 5 séances',        desc:'5 séances, la formule la plus avantageuse. Soit 45&nbsp;€/séance.', prix:225, lien:'' }
+    { id:'seance',  nom:'Séance à l\u2019unité',  desc:'1h d\u2019accompagnement, à domicile ou en visio.', prix:49 },
+    { id:'pack3',   nom:'Pack 3 séances',        desc:'3 séances à utiliser quand vous voulez. Soit 47&nbsp;€/séance.', prix:141 },
+    { id:'pack5',   nom:'Pack 5 séances',        desc:'5 séances, la formule la plus avantageuse. Soit 45&nbsp;€/séance.', prix:225 }
   ];
 
   var SUPABASE_URL = 'https://nlesboqlnnpnmwlpvhif.supabase.co';
@@ -430,10 +458,9 @@
 
   /* ---------- Offre depuis l'URL (ex: depuis Nos offres) ---------- */
   var params = new URLSearchParams(location.search);
-  var urlTitre = params.get('titre'); var urlPrix = parseFloat(params.get('prix'));
-  if(urlTitre && urlPrix>0){
-    OFFERS.unshift({ id:'custom', nom:urlTitre, desc:'Prestation sélectionnée depuis nos offres.', prix:urlPrix, lien:params.get('lien')||'' });
-  }
+  /* ---------- Offre pré-sélectionnée depuis l'URL (?offre=pack3) ---------- */
+  var urlOffre = params.get('offre');
+  if(urlOffre){ var found=OFFERS.filter(function(o){return o.id===urlOffre;})[0]; if(found){ /* sélection appliquée plus bas */ window.__preselect = urlOffre; } }
 
   /* ---------- État ---------- */
   var state = { offer: OFFERS[0], qty: 1 };
@@ -516,8 +543,17 @@
     try{ sb.auth.onAuthStateChange(function(_evt, session){ if(session && session.user){ fillFromUser(sb, session.user); } }); }catch(e){}
   }
 
-  /* ---------- Paiement : redirection vers le lien Qonto ---------- */
-  function showNotice(html){ var n=$('#pay-notice'); n.innerHTML=html; n.classList.add('show'); }
+  /* ---------- Paiement Stripe ---------- */
+  var stripe = (window.Stripe && /^pk_(test|live)_/.test(String(STRIPE_PK)) && String(STRIPE_PK).indexOf('REMPLACER')===-1) ? Stripe(STRIPE_PK) : null;
+  var elements = null, currentOrder = null;
+  function showNotice(id, html){ var n=$(id); if(!n) return; n.innerHTML=html; n.classList.add('show'); }
+  function clearNotice(id){ var n=$(id); if(n){ n.classList.remove('show'); n.innerHTML=''; } }
+  function buildOrder(){
+    var o=state.offer, q=state.qty, total=o.prix*q;
+    return { offerId:o.id, offerName:o.nom.replace(/&nbsp;/g,' '), unit:o.prix, qty:q, total:total,
+      name:$('#f-nom').value.trim(), email:$('#f-email').value.trim(),
+      tel:$('#f-tel').value.trim(), address:$('#f-adresse').value.trim(), date:new Date().toISOString() };
+  }
 
   /* ---------- Étape 1 → 2 : valider les infos puis afficher le forfait ---------- */
   function validInfos(){
@@ -536,27 +572,57 @@
     setTimeout(function(){ window.scrollTo({ top: step.getBoundingClientRect().top + window.pageYOffset - 20, behavior:'smooth' }); }, 60);
   });
 
-  /* ---------- Paiement : redirection vers le lien Qonto ---------- */
-  $('#pay-btn').addEventListener('click', function(){
-    if(!validInfos()) return;
-    var o=state.offer, q=state.qty, total=o.prix*q;
-    var order = {
-      offerId:o.id, offerName:o.nom.replace(/&nbsp;/g,' '), unit:o.prix, qty:q, total:total,
-      name:$('#f-nom').value.trim(), email:$('#f-email').value.trim(),
-      tel:$('#f-tel').value.trim(), address:$('#f-adresse').value.trim(),
-      date:new Date().toISOString()
-    };
-    try{ localStorage.setItem('mcd_pending_order', JSON.stringify(order)); }catch(e){}
+  /* ---------- Étape 2 → 3 : préparer le paiement (Stripe Payment Element) ---------- */
+  $('#goto-pay').addEventListener('click', function(){
+    clearNotice('#forfait-notice');
+    if(!validInfos()){ showNotice('#forfait-notice','Veuillez compléter vos informations de facturation ci-dessus.'); return; }
+    if(!stripe){ showNotice('#forfait-notice','Configuration de paiement incomplète : renseignez votre clé publiable Stripe (STRIPE_PK) dans le fichier.'); return; }
+    currentOrder = buildOrder();
+    try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
+    var step=$('#step-pay');
+    step.classList.remove('step-hidden'); step.classList.add('step-in'); step.setAttribute('aria-hidden','false');
+    $('#pay-amount').textContent = euro(currentOrder.total);
+    $('#pay-btn-label').textContent = 'Payer '+euro(currentOrder.total);
+    elements = stripe.elements({ mode:'payment', amount: Math.round(currentOrder.total*100), currency:'eur',
+      appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
+    var pe = elements.create('payment', { layout:'tabs' });
+    $('#payment-element').innerHTML='';
+    pe.mount('#payment-element');
+    pe.on('ready', function(){ $('#pay-btn').removeAttribute('disabled'); });
+    setTimeout(function(){ window.scrollTo({ top: step.getBoundingClientRect().top + window.pageYOffset - 20, behavior:'smooth' }); }, 60);
+  });
 
-    if(o.lien && /^https?:\/\//i.test(o.lien)){
-      var btn=$('#pay-btn'); btn.setAttribute('disabled','disabled'); $('#pay-btn-label').textContent='Redirection…';
-      window.location.href = o.lien;
-    } else {
-      showNotice('Ce forfait n\u2019a pas encore de lien de paiement Qonto configuré. Ouvrez <code>paiement.html</code>, section CONFIGURATION, et collez le lien du forfait « '+order.offerName+' » dans le champ <code>lien</code>. Réglez l\u2019URL de succès du lien Qonto sur <code>paiement.html?status=success</code>.');
+  /* ---------- Retour à la commande ---------- */
+  $('#pay-back').addEventListener('click', function(e){
+    e.preventDefault();
+    var step=$('#step-pay'); step.classList.add('step-hidden'); step.classList.remove('step-in'); step.setAttribute('aria-hidden','true');
+    elements=null; $('#payment-element').innerHTML=''; $('#pay-btn').setAttribute('disabled','disabled');
+    window.scrollTo({ top: $('#step-forfait').getBoundingClientRect().top + window.pageYOffset - 20, behavior:'smooth' });
+  });
+
+  /* ---------- Payer ---------- */
+  $('#pay-btn').addEventListener('click', async function(){
+    if(!stripe || !elements || !currentOrder) return;
+    clearNotice('#pay-notice');
+    var btn=$('#pay-btn'); btn.setAttribute('disabled','disabled'); $('#pay-btn-label').textContent='Paiement…';
+    try{
+      var sub = await elements.submit();
+      if(sub.error){ throw new Error(sub.error.message); }
+      var res = await fetch(FN_URL, { method:'POST',
+        headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+SUPABASE_ANON },
+        body: JSON.stringify({ offerId:currentOrder.offerId, qty:currentOrder.qty, name:currentOrder.name, email:currentOrder.email, tel:currentOrder.tel, address:currentOrder.address }) });
+      var data = await res.json();
+      if(!res.ok || !data.clientSecret){ throw new Error((data && data.error) || 'Erreur du serveur de paiement.'); }
+      var ret = location.origin + location.pathname + '?status=success';
+      var conf = await stripe.confirmPayment({ elements: elements, clientSecret: data.clientSecret, confirmParams:{ return_url: ret } });
+      if(conf.error){ throw new Error(conf.error.message); }
+    }catch(err){
+      showNotice('#pay-notice', (err && err.message) ? err.message : 'Le paiement n\u2019a pas pu aboutir. Réessayez.');
+      var b=$('#pay-btn'); b.removeAttribute('disabled'); $('#pay-btn-label').textContent='Payer '+euro(currentOrder.total);
     }
   });
 
-  /* ---------- Vue confirmation (retour depuis Qonto : ?status=success) ---------- */
+  /* ---------- Vue confirmation (retour depuis Stripe : ?status=success&redirect_status=succeeded) ---------- */
   function showConfirm(){
     var order=null; try{ order=JSON.parse(localStorage.getItem('mcd_pending_order')||'null'); }catch(e){}
     $('#pay-view').style.display='none';
@@ -575,10 +641,15 @@
   }
 
   /* ---------- Init ---------- */
-  if(params.get('status')==='success'){
+  var redirect = params.get('redirect_status');
+  if(params.get('status')==='success' && (!redirect || redirect==='succeeded')){
     showConfirm();
+  } else if(redirect && redirect!=='succeeded'){
+    renderOffers(); renderSummary(); prefillClient();
+    showNotice('#forfait-notice', 'Le paiement n\u2019a pas abouti ('+redirect+'). Vous pouvez réessayer.');
   } else {
     renderOffers(); renderSummary(); prefillClient();
+    if(window.__preselect){ var f=OFFERS.filter(function(o){return o.id===window.__preselect;})[0]; if(f){ state.offer=f; renderOffers(); renderSummary(); } }
   }
 
   /* ---------- Transition portes ---------- */
