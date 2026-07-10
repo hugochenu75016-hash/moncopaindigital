@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  /* Thème choisi sur la page précédente, dès l'ouverture (évite le flash) */
+  (function(){
+    try{
+      var s=localStorage.getItem('mcd-theme'); var n;
+      if(s==='night') n=true; else if(s==='day') n=false;
+      else { var h=new Date().getHours(); n=(h>=23||h<7); }
+      if(n) document.documentElement.classList.add('night');
+    }catch(e){}
+  })();
+</script>
+<link rel="icon" href="/favicons/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+<link rel="manifest" href="/favicons/site.webmanifest">
+<meta name="theme-color" content="#F3852B">
+<title>Paiement · Mon Copain Digital</title>
+<meta name="description" content="Réglez votre accompagnement Mon Copain Digital en toute sécurité. Paiement par carte, Apple Pay et Google Pay.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#FF7A00; --ink:#4d2000; --stroke:#7a3300; --cream:#fff8ef;
+    --yellow:rgba(255,255,140,0.85); --brown:rgba(40,20,0,0.62);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; min-height:100%; background:var(--bg);
+    font-family:'Space Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif; color:var(--cream);
+    -webkit-font-smoothing:antialiased; }
+  html,body{ transition:background .7s ease; }
+  a{ color:#fff; }
+  a:hover{ color:#fff3df; }
+
+  /* ===== Barre du haut ===== */
+  #topbar{
+    position:relative; z-index:20; display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:clamp(14px,2.4vw,26px) clamp(16px,4vw,48px);
+  }
+  .glass-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;
+    width:48px; height:48px; border-radius:50%; color:#fff; text-decoration:none;
+    border:1px solid rgba(255,255,255,0.55);
+    background:linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.16) 45%, rgba(255,255,255,0.06) 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.95), inset 0 -5px 12px rgba(255,150,60,0.22), 0 10px 26px rgba(120,50,0,0.30);
+    transition:transform .28s cubic-bezier(.2,1,.3,1), box-shadow .28s ease;
+  }
+  .glass-btn:hover{ transform:translateY(-2px) scale(1.04); }
+  .tb-bulle{ width:52px; height:52px; display:block; filter:drop-shadow(0 8px 16px rgba(120,50,0,0.28)); transition:transform .26s cubic-bezier(.2,1,.3,1); }
+  .tb-bulle:hover{ transform:translateY(-2px) scale(1.06); }
+  .tb-bulle img{ width:100%; height:100%; object-fit:contain; display:block; }
+
+  /* ===== Titre ===== */
+  #head{ text-align:center; padding:clamp(8px,2vw,20px) clamp(16px,4vw,48px) 0; }
+  .kicker{
+    display:inline-flex; align-items:center; gap:9px; font-family:'Space Grotesk',sans-serif;
+    font-size:13px; letter-spacing:.14em; text-transform:uppercase; font-weight:600; color:var(--cream); margin:0;
+  }
+  #topbar .kicker{ margin:0; }
+  .kicker .dot{ width:9px; height:9px; border-radius:50%; background:#fff8ef; box-shadow:0 0 10px rgba(255,240,200,0.9); }
+  #head h1{
+    margin:0; font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
+    font-size:clamp(34px,5vw,60px); line-height:.95; color:#fff;
+    -webkit-text-stroke:2.5px var(--stroke); paint-order:stroke fill;
+    text-shadow:0 2px 0 var(--stroke), 0 4px 0 #632900, 0 8px 16px rgba(70,28,0,0.45);
+  }
+  #head p.lead{ margin:14px auto 0; max-width:44ch; font-size:clamp(15px,1.6vw,18px); line-height:1.55; font-weight:500; color:#fff4e6; }
+
+  /* ===== Grille checkout ===== */
+  #checkout{
+    max-width:600px; margin:clamp(22px,4vh,44px) auto 0; padding:0 clamp(16px,4vw,48px) clamp(40px,6vh,80px);
+    display:flex; flex-direction:column; gap:clamp(16px,2vw,22px);
+  }
+  #pay-view{ position:relative; }
+  #perso{
+    position:absolute; z-index:6; pointer-events:none; height:auto;
+    left:clamp(-6px, 2vw, 60px); top:clamp(96px, 12vh, 150px);
+    width:clamp(170px, 20vw, 300px);
+    filter:drop-shadow(0 18px 26px rgba(90,40,0,0.34));
+  }
+  @media (max-width:760px){ #perso{ display:none; } }
+  .step-hidden{ display:none; }
+  #step-forfait.step-in{ display:block; animation:stepReveal .55s cubic-bezier(.2,.8,.25,1) both; }
+  @keyframes stepReveal{ from{ opacity:0; transform:translateY(28px); } to{ opacity:1; transform:none; } }
+  .panel{
+    position:relative; border-radius:28px; padding:clamp(22px,2.6vw,34px);
+    border:1px solid rgba(255,255,255,0.5);
+    background:linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.11) 55%, rgba(255,255,255,0.07) 100%);
+    box-shadow:inset 0 2px 1px rgba(255,255,255,0.8), inset 0 -8px 20px rgba(255,150,60,0.14), 0 24px 54px rgba(90,40,0,0.34);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  }
+  .panel h2{
+    margin:0 0 4px; font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
+    font-size:clamp(20px,2.2vw,26px); color:#fff; text-shadow:0 2px 3px rgba(150,70,0,0.4);
+    display:flex; align-items:center; gap:10px;
+  }
+  .panel .step-n{
+    width:28px; height:28px; flex:0 0 auto; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px; color:#a54a00;
+    background:linear-gradient(to bottom,#fff8ef,#ffe6b8); box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9), 0 6px 14px rgba(120,50,0,0.28);
+  }
+  .panel .hint{ margin:0 0 18px; font-size:13.5px; color:#ffe9cf; }
+
+  /* ===== Offres ===== */
+  .offers{ display:flex; flex-direction:column; gap:12px; }
+  .offer{
+    position:relative; display:flex; align-items:center; gap:14px; cursor:pointer;
+    padding:16px 18px; border-radius:18px; border:1.5px solid rgba(255,255,255,0.45);
+    background:linear-gradient(to bottom, rgba(255,255,255,0.20), rgba(255,255,255,0.08));
+    transition:border-color .2s, background .2s, transform .15s, box-shadow .2s;
+  }
+  .offer:hover{ transform:translateY(-1px); border-color:rgba(255,255,255,0.75); }
+  .offer.sel{
+    border-color:#fff; background:linear-gradient(to bottom, rgba(255,255,255,0.42), rgba(255,255,255,0.18));
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9), 0 12px 26px rgba(90,40,0,0.32);
+  }
+  .offer .radio{
+    width:22px; height:22px; flex:0 0 auto; border-radius:50%; border:2px solid rgba(255,255,255,0.85);
+    display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.12);
+  }
+  .offer.sel .radio{ background:#fff8ef; border-color:#fff8ef; }
+  .offer.sel .radio::after{ content:""; width:10px; height:10px; border-radius:50%; background:#e0662a; }
+  .offer .o-body{ flex:1 1 auto; min-width:0; }
+  .offer .o-name{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:16.5px; color:#fff; }
+  .offer .o-desc{ font-size:13px; color:#fff2df; margin-top:2px; line-height:1.35; }
+  .offer .o-price{ text-align:right; flex:0 0 auto; width:104px; }
+  .offer .o-amt{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:22px; color:#fff; line-height:1; }
+  .offer .o-after{ font-size:11.5px; color:#ffe08a; margin-top:3px; line-height:1.3; }
+
+  .qty-row{ display:flex; align-items:center; justify-content:space-between; margin-top:18px; padding:14px 18px; border-radius:16px;
+    background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.3); }
+  .qty-row .lbl{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:14.5px; color:#fff; }
+  .qty{ display:flex; align-items:center; gap:14px; }
+  .qty button{
+    width:34px; height:34px; border-radius:12px; cursor:pointer; border:1px solid rgba(255,255,255,0.55);
+    background:linear-gradient(to bottom,#fff8ef,#ffe6b8); color:#a54a00; font-size:20px; font-weight:700; line-height:1;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 6px 14px rgba(120,50,0,0.25);
+  }
+  .qty button:active{ transform:translateY(1px); }
+  .qty .val{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:18px; color:#fff; min-width:20px; text-align:center; }
+
+  .summary{ margin-top:20px; padding-top:16px; border-top:1px dashed rgba(255,255,255,0.4); display:flex; flex-direction:column; gap:8px; }
+  .summary .line{ display:flex; justify-content:space-between; font-size:14.5px; color:#fff4e6; }
+  .summary .total{ display:flex; justify-content:space-between; align-items:baseline; margin-top:6px; }
+  .summary .total .t-lbl{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#fff; }
+  .summary .total .t-amt{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:30px; color:#fff; text-shadow:0 2px 3px rgba(150,70,0,0.4); }
+  .summary .credit-note{ margin-top:4px; font-size:12.5px; color:#ffe08a; }
+
+  /* ===== Formulaire client ===== */
+  .client-badge{
+    display:flex; align-items:center; gap:12px; margin-bottom:18px; padding:12px 14px; border-radius:16px;
+    background:linear-gradient(to bottom, rgba(150,230,160,0.22), rgba(150,230,160,0.10));
+    border:1px solid rgba(180,240,190,0.5);
+  }
+  .client-badge.anon{ background:linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.08)); border-color:rgba(255,255,255,0.4); }
+  .client-badge .cb-av{
+    width:42px; height:42px; flex:0 0 auto; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:16px; color:#a54a00;
+    background:linear-gradient(to bottom,#fff8ef,#ffe1cf); box-shadow:0 6px 14px rgba(120,50,0,0.28); overflow:hidden;
+  }
+  .client-badge .cb-av img{ width:100%; height:100%; object-fit:cover; }
+  .client-badge .cb-txt{ min-width:0; }
+  .client-badge .cb-l1{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:14.5px; color:#fff; display:flex; align-items:center; gap:7px; }
+  .client-badge .cb-l2{ font-size:12.5px; color:#ffe9cf; }
+  .client-badge .cb-l2 a{ color:#fff; font-weight:600; }
+  .chk{ width:16px; height:16px; }
+
+  .field{ margin-bottom:14px; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field label{ display:block; font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:600; letter-spacing:.02em; text-transform:uppercase; color:#ffe9cf; margin-bottom:6px; }
+  .field input{
+    width:100%; padding:12px 14px; border-radius:13px; border:1px solid rgba(255,255,255,0.45);
+    background:rgba(255,255,255,0.14); color:#fff; font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:500;
+    transition:border-color .2s, background .2s, box-shadow .2s;
+  }
+  .field input::placeholder{ color:rgba(255,240,220,0.55); }
+  .field input:focus{ outline:none; border-color:#fff; background:rgba(255,255,255,0.22); box-shadow:0 0 0 3px rgba(255,255,255,0.18); }
+  .field input:disabled{ opacity:.7; cursor:not-allowed; }
+
+  .methods{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:18px 0 6px; }
+  .methods .m{
+    display:inline-flex; align-items:center; gap:6px; padding:7px 11px; border-radius:10px; font-size:12px; font-weight:700;
+    font-family:'Space Grotesk',sans-serif; color:#5a3410; background:linear-gradient(to bottom,#fff8ef,#ffe9d2);
+    border:1px solid rgba(255,255,255,0.7); box-shadow:0 5px 12px rgba(120,50,0,0.2);
+  }
+  .methods .m svg{ width:16px; height:16px; display:block; }
+
+  .pay-btn{
+    width:100%; margin-top:12px; cursor:pointer; border:2px solid rgba(255,255,255,0.55);
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:17px; letter-spacing:.02em;
+    color:#8a3c00; padding:17px 24px; border-radius:16px;
+    background:linear-gradient(to bottom,#fff8ef,#ffe1a6);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.95), 0 14px 30px rgba(120,50,0,0.4);
+    transition:transform .2s cubic-bezier(.2,1,.3,1), box-shadow .2s;
+  }
+  .pay-btn:hover{ transform:translateY(-2px); box-shadow:inset 0 1.5px 1px rgba(255,255,255,1), 0 18px 38px rgba(120,50,0,0.48); }
+  .pay-btn:active{ transform:translateY(1px); }
+  .pay-btn[disabled]{ opacity:.6; cursor:not-allowed; transform:none; }
+  .pay-btn svg{ width:20px; height:20px; }
+
+  .secure{ display:flex; align-items:center; justify-content:center; gap:8px; margin-top:14px; font-size:12.5px; color:#ffe9cf; }
+  .secure svg{ width:15px; height:15px; }
+
+  .notice{ display:none; margin-top:14px; padding:12px 15px; border-radius:13px; font-size:13.5px; line-height:1.45; font-weight:600;
+    background:rgba(255,120,60,0.25); border:1px solid rgba(255,180,140,0.6); color:#fff; }
+  .notice.show{ display:block; }
+  .notice code{ font-family:'Space Grotesk',monospace; background:rgba(0,0,0,0.18); padding:1px 6px; border-radius:6px; }
+
+  /* ===== Vue confirmation ===== */
+  #confirm{ display:none; max-width:640px; margin:clamp(24px,5vh,60px) auto; padding:0 clamp(16px,4vw,48px) clamp(60px,8vh,110px); }
+  #confirm.show{ display:block; }
+  #confirm .conf-card{ text-align:center; }
+  #confirm .conf-ic{
+    width:88px; height:88px; margin:0 auto 22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(to bottom,#fff8ef,#ffe1cf); color:#2ba85a; box-shadow:inset 0 2px 2px rgba(255,255,255,0.9), 0 16px 34px rgba(120,50,0,0.34);
+    animation:pop .5s cubic-bezier(.2,1.4,.4,1) both;
+  }
+  @keyframes pop{ 0%{ transform:scale(.4); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
+  #confirm .conf-ic svg{ width:46px; height:46px; }
+  #confirm h1{ margin:0 0 8px; font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(28px,4vw,44px); color:#fff;
+    -webkit-text-stroke:2px var(--stroke); paint-order:stroke fill; text-shadow:0 2px 0 var(--stroke), 0 6px 14px rgba(70,28,0,0.4); }
+  #confirm p{ margin:0 auto 8px; max-width:42ch; font-size:16px; line-height:1.55; color:#fff4e6; }
+  #confirm .recap{ margin:24px 0; padding:18px 20px; border-radius:18px; text-align:left;
+    background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.35); }
+  #confirm .recap .r-line{ display:flex; justify-content:space-between; font-size:14.5px; color:#fff4e6; padding:5px 0; }
+  #confirm .recap .r-line.tot{ border-top:1px dashed rgba(255,255,255,0.4); margin-top:6px; padding-top:12px; font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#fff; }
+  #confirm .conf-actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  #confirm .cta{
+    display:inline-flex; align-items:center; gap:9px; cursor:pointer; text-decoration:none;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px; color:#8a3c00; padding:14px 26px; border-radius:999px;
+    background:linear-gradient(to bottom,#fff8ef,#ffe1a6); box-shadow:0 12px 28px rgba(120,50,0,0.38);
+    transition:transform .2s, box-shadow .2s;
+  }
+  #confirm .cta.ghost{ background:rgba(255,255,255,0.14); color:#fff; border:1.5px solid rgba(255,255,255,0.5); box-shadow:none; }
+  #confirm .cta:hover{ transform:translateY(-2px); }
+
+  /* ===== Mode nuit ===== */
+  body.night{ background:radial-gradient(125% 95% at 50% -12%, #21326a 0%, #14204a 42%, #0b1230 100%) !important; }
+  body.night #head .kicker{ color:rgba(220,228,255,0.7); }
+  body.night #head p.lead, body.night .offer .o-desc, body.night .summary .line{ color:rgba(224,232,255,0.85); }
+
+  @media (max-width:820px){
+    #checkout{ max-width:600px; }
+  }
+
+  /* ===== Transition portes ===== */
+  #door-tx{ position:fixed; inset:0; z-index:100000; pointer-events:none; overflow:hidden; }
+  #door-tx .door{ position:absolute; top:0; height:100%; width:calc(50% + 1px);
+    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%); box-shadow:0 0 70px rgba(90,40,0,0.45); }
+  #door-tx .door.l{ left:0; border-right:1px solid rgba(120,50,0,0.35); animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both; }
+  #door-tx .door.r{ right:0; border-left:1px solid rgba(255,205,150,0.4); animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both; }
+  #door-tx .dt-logo{ position:absolute; top:50%; left:50%; width:min(66vw,360px); height:auto; transform:translate(-50%,-50%);
+    filter:drop-shadow(0 10px 22px rgba(90,40,0,0.4)); animation:dtLogoOut .5s ease both; }
+  @keyframes dtOpenL{ from{ transform:translateX(0);} to{ transform:translateX(-101%);} }
+  @keyframes dtOpenR{ from{ transform:translateX(0);} to{ transform:translateX(101%);} }
+  @keyframes dtLogoOut{ 0%{opacity:1;transform:translate(-50%,-50%) scale(1);} 55%{opacity:1;} 100%{opacity:0;transform:translate(-50%,-50%) scale(.72);} }
+  #door-tx.closing{ pointer-events:auto; }
+  #door-tx.closing .door.l{ animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both; }
+  #door-tx.closing .door.r{ animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both; }
+  #door-tx.closing .dt-logo{ animation:dtLogoIn .58s cubic-bezier(.2,1,.3,1) both; }
+  @keyframes dtCloseL{ from{ transform:translateX(-101%);} to{ transform:translateX(0);} }
+  @keyframes dtCloseR{ from{ transform:translateX(101%);} to{ transform:translateX(0);} }
+  @keyframes dtLogoIn{ 0%{opacity:0;transform:translate(-50%,-50%) scale(.6);} 45%{opacity:1;} 100%{opacity:1;transform:translate(-50%,-50%) scale(1);} }
+  @media (prefers-reduced-motion:reduce){ #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{ animation-duration:.01s !important; } }
+</style>
+</head>
+<body>
+<!-- ===== Transition portes ===== -->
+<div id="door-tx" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="./logocoupeworld-mreyg9i3.png" alt="">
+</div>
+
+<header id="topbar">
+  <a class="glass-btn" href="index.html" aria-label="Accueil">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.75 19.5v-5.5h4.5v5.5"/></svg>
+  </a>
+  <p class="kicker"><span class="dot"></span> Paiement sécurisé</p>
+  <a class="tb-bulle" href="espace-compte.html" aria-label="Votre Bulle · Espace client" title="Votre Bulle">
+    <img src="boutonespacelog-trim.png" alt="Votre Bulle">
+  </a>
+</header>
+
+<!-- ===== Checkout ===== -->
+<div id="pay-view">
+  <section id="head">
+  </section>
+
+  <div id="checkout">
+    <!-- Étape 1 : Vos informations -->
+    <div class="panel" id="step-info">
+      <h2><span class="step-n">1</span> Vos informations de facturation</h2>
+      <p class="hint">Ces informations sont utilisées uniquement pour établir votre reçu et assurer le suivi de votre commande.</p>
+
+      <div class="client-badge anon" id="client-badge">
+        <div class="cb-av" id="cb-av">?</div>
+        <div class="cb-txt">
+          <div class="cb-l1" id="cb-l1">Vous n'êtes pas connecté</div>
+          <div class="cb-l2" id="cb-l2"><a href="espace-compte.html">Connectez-vous à Votre Bulle</a> pour tout pré-remplir.</div>
+        </div>
+      </div>
+
+      <form id="info-form" autocomplete="on" novalidate>
+        <div class="field">
+          <label for="f-nom">Nom complet</label>
+          <input id="f-nom" name="name" type="text" autocomplete="name" placeholder="Marie Dupont" required>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" placeholder="vous@exemple.fr" required>
+          </div>
+          <div class="field">
+            <label for="f-tel">Téléphone</label>
+            <input id="f-tel" name="tel" type="tel" autocomplete="tel" placeholder="06 12 34 56 78" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-adresse">Adresse de facturation</label>
+          <input id="f-adresse" name="address" type="text" autocomplete="street-address" placeholder="12 rue de la Paix, 75002 Paris" required>
+        </div>
+
+        <button class="pay-btn" type="submit" id="continue-btn">
+          <span>Continuer</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+        </button>
+        <div class="notice" id="info-notice"></div>
+      </form>
+    </div>
+
+    <!-- Étape 2 : Votre forfait + paiement (apparaît après validation) -->
+    <div class="panel step-hidden" id="step-forfait" aria-hidden="true">
+      <h2><span class="step-n">2</span> Votre forfait</h2>
+      <p class="hint">Séances d'accompagnement à domicile ou en visio. Éligibles au crédit d'impôt de 50&nbsp;%.</p>
+      <div class="offers" id="offers"></div>
+
+      <div class="qty-row">
+        <span class="lbl">Quantité</span>
+        <div class="qty">
+          <button type="button" id="q-minus" aria-label="Diminuer">−</button>
+          <span class="val" id="q-val">1</span>
+          <button type="button" id="q-plus" aria-label="Augmenter">+</button>
+        </div>
+      </div>
+
+      <div class="summary">
+        <div class="line"><span id="sum-name">—</span><span id="sum-unit">—</span></div>
+        <div class="line"><span>Quantité</span><span id="sum-qty">×1</span></div>
+        <div class="total"><span class="t-lbl">Total à payer</span><span class="t-amt" id="sum-total">—</span></div>
+        <div class="credit-note" id="sum-credit"></div>
+      </div>
+
+      <div class="methods" aria-label="Moyens de paiement acceptés">
+        <span class="m">CB</span>
+        <span class="m">VISA</span>
+        <span class="m">Mastercard</span>
+        <span class="m">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 2c.1 1.2-.4 2.4-1.1 3.2-.8.9-2 1.5-3.1 1.4-.1-1.2.4-2.3 1.1-3.1C13.7 2.6 15 2 16 2zm3.4 15.5c-.5 1.2-.8 1.7-1.5 2.8-1 1.5-2.3 3.4-4 3.4-1.5 0-1.9-1-3.9-1s-2.5 1-3.9 1c-1.7 0-3-1.7-3.9-3.2C-.7 17.6-.9 12 1.4 9.1 2.5 7.6 4.2 6.7 6 6.7c1.7 0 2.8 1 4.2 1 1.4 0 2.2-1 4.2-1 1.5 0 3.1.8 4.2 2.2-3.7 2-3.1 7.3.6 8.6z"/></svg>
+          Pay
+        </span>
+        <span class="m">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4c-.2 1.2-.9 2.3-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z" fill="#4285F4"/><path d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.7-5.6-4.1H3.1v2.6C4.8 19.9 8.1 22 12 22z" fill="#34A853"/><path d="M6.4 13.9c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9V7.5H3.1C2.4 8.9 2 10.4 2 12s.4 3.1 1.1 4.5l3.3-2.6z" fill="#FBBC05"/><path d="M12 6c1.5 0 2.8.5 3.8 1.5l2.8-2.8C16.9 3.1 14.7 2 12 2 8.1 2 4.8 4.1 3.1 7.5l3.3 2.6C7.2 7.7 9.4 6 12 6z" fill="#EA4335"/></svg>
+          Pay
+        </span>
+      </div>
+
+      <button class="pay-btn" type="button" id="pay-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
+        <span id="pay-btn-label">Payer</span>
+      </button>
+
+      <div class="secure">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Paiement sécurisé — vous êtes redirigé vers la page bancaire Qonto.
+      </div>
+
+      <div class="notice" id="pay-notice"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Confirmation ===== -->
+<div id="confirm">
+  <div class="panel conf-card">
+    <div class="conf-ic">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </div>
+    <h1>Paiement confirmé&nbsp;!</h1>
+    <p id="conf-sub">Merci, votre paiement a bien été pris en compte. Un reçu vous est envoyé par email.</p>
+    <div class="recap" id="conf-recap"></div>
+    <div class="conf-actions">
+      <a class="cta" href="espace-compte.html">Aller dans Votre Bulle</a>
+      <a class="cta ghost" href="index.html">Retour à l'accueil</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============================================================
+     CONFIGURATION — À PERSONNALISER
+     ------------------------------------------------------------
+     Pour chaque forfait, collez votre LIEN DE PAIEMENT QONTO dans "lien".
+     (Qonto → Encaissements / Liens de paiement → créez un lien par montant,
+      puis collez son URL ci-dessous.)
+     Réglez l'URL de redirection de succès du lien Qonto sur :
+        .../paiement.html?status=success
+     ============================================================ */
+  var CREDIT_IMPOT = 0.5; // 50 % crédit d'impôt (indicatif)
+  var OFFERS = [
+    { id:'seance',  nom:'Séance à l\u2019unité',  desc:'1h d\u2019accompagnement, à domicile ou en visio.', prix:49,  lien:'' },
+    { id:'pack3',   nom:'Pack 3 séances',        desc:'3 séances à utiliser quand vous voulez. Soit 47&nbsp;€/séance.', prix:141, lien:'' },
+    { id:'pack5',   nom:'Pack 5 séances',        desc:'5 séances, la formule la plus avantageuse. Soit 45&nbsp;€/séance.', prix:225, lien:'' }
+  ];
+
+  var SUPABASE_URL = 'https://nlesboqlnnpnmwlpvhif.supabase.co';
+  var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXNib3Fsbm5wbm13bHB2aGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTE3NzEsImV4cCI6MjA5ODY4Nzc3MX0.vwu9FGgl4cXZ8KExSeL3IrgWjxIbhvDYKeSWP9sb7X8';
+  /* Clé anon publique (identique à Votre Bulle) — sert uniquement à lire la fiche du client connecté. */
+
+  var $ = function(s){ return document.querySelector(s); };
+  var euro = function(n){ return (Math.round(n*100)/100).toLocaleString('fr-FR',{minimumFractionDigits: n%1?2:0, maximumFractionDigits:2}) + ' €'; };
+
+  /* ---------- Offre depuis l'URL (ex: depuis Nos offres) ---------- */
+  var params = new URLSearchParams(location.search);
+  var urlTitre = params.get('titre'); var urlPrix = parseFloat(params.get('prix'));
+  if(urlTitre && urlPrix>0){
+    OFFERS.unshift({ id:'custom', nom:urlTitre, desc:'Prestation sélectionnée depuis nos offres.', prix:urlPrix, lien:params.get('lien')||'' });
+  }
+
+  /* ---------- État ---------- */
+  var state = { offer: OFFERS[0], qty: 1 };
+
+  /* ---------- Rendu des offres ---------- */
+  function renderOffers(){
+    var box = $('#offers'); box.innerHTML='';
+    OFFERS.forEach(function(o){
+      var el = document.createElement('div');
+      el.className = 'offer' + (o.id===state.offer.id ? ' sel' : '');
+      var after = euro(o.prix * (1-CREDIT_IMPOT));
+      el.innerHTML =
+        '<span class="radio"></span>' +
+        '<div class="o-body"><div class="o-name">'+o.nom+'</div><div class="o-desc">'+o.desc+'</div></div>' +
+        '<div class="o-price"><div class="o-amt">'+euro(o.prix)+'</div><div class="o-after">soit '+after+' après crédit d\u2019impôt</div></div>';
+      el.addEventListener('click', function(){ state.offer=o; if(o.id==='seance'||o.id==='custom'){} renderOffers(); renderSummary(); });
+      box.appendChild(el);
+    });
+  }
+
+  function renderSummary(){
+    var o=state.offer, q=state.qty, total=o.prix*q;
+    $('#sum-name').textContent = o.nom.replace(/&nbsp;/g,' ');
+    $('#sum-unit').textContent = euro(o.prix);
+    $('#sum-qty').textContent = '×'+q;
+    $('#sum-total').textContent = euro(total);
+    $('#sum-credit').innerHTML = 'Soit environ <strong>'+euro(total*(1-CREDIT_IMPOT))+'</strong> après crédit d\u2019impôt de 50&nbsp;%.';
+    var lbl=$('#pay-btn-label'); if(lbl) lbl.textContent = 'Payer '+euro(total);
+  }
+
+  /* ---------- Quantité ---------- */
+  $('#q-minus').addEventListener('click', function(){ state.qty=Math.max(1,state.qty-1); $('#q-val').textContent=state.qty; renderSummary(); });
+  $('#q-plus').addEventListener('click', function(){ state.qty=Math.min(20,state.qty+1); $('#q-val').textContent=state.qty; renderSummary(); });
+
+  /* ---------- Pré-remplissage via Supabase (Votre Bulle) ---------- */
+  function initials(name){ return (name||'').trim().split(/\s+/).map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase() || '?'; }
+
+  var _sb = null;
+  function getSB(){
+    if(_sb) return _sb;
+    if(!window.supabase) return null;
+    try{
+      _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+        auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+      });
+    }catch(e){ _sb=null; }
+    return _sb;
+  }
+
+  var _filled = false;
+  async function fillFromUser(sb, user){
+    if(!user || _filled) return; _filled = true;
+    var prof=null;
+    try{ var p=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle(); prof=p&&p.data; }catch(e){}
+    var meta = user.user_metadata || {};
+    var nom = (prof&&prof.nom) || meta.nom || '';
+    var tel = (prof&&prof.tel) || meta.tel || '';
+    var adr = (prof&&prof.adresse) || '';
+    var avatar = (prof&&prof.avatar) || '';
+    if(nom && !$('#f-nom').value) $('#f-nom').value = nom;
+    $('#f-email').value = user.email || '';
+    $('#f-email').setAttribute('readonly','readonly');
+    if(tel && !$('#f-tel').value) $('#f-tel').value = tel;
+    if(adr && !$('#f-adresse').value) $('#f-adresse').value = adr;
+    var badge=$('#client-badge'); badge.classList.remove('anon');
+    var av=$('#cb-av');
+    if(avatar){ av.innerHTML = '<img src="'+avatar+'" alt="">'; } else { av.textContent = initials(nom || user.email); }
+    $('#cb-l1').innerHTML = 'Connecté à Votre Bulle <svg class="chk" viewBox="0 0 24 24" fill="none" stroke="#bfffce" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+    $('#cb-l2').textContent = (nom || user.email) + ' — fiche client pré-remplie.';
+  }
+
+  async function prefillClient(){
+    var sb = getSB();
+    if(!sb) return;
+    // 1) session déjà stockée (rapide, sans réseau)
+    try{ var s=await sb.auth.getSession(); if(s && s.data && s.data.session && s.data.session.user){ await fillFromUser(sb, s.data.session.user); } }catch(e){}
+    // 2) confirmation / rafraîchissement via getUser
+    try{ var r=await sb.auth.getUser(); if(r && r.data && r.data.user){ await fillFromUser(sb, r.data.user); } }catch(e){}
+    // 3) si la session arrive un peu après (refresh token), on écoute
+    try{ sb.auth.onAuthStateChange(function(_evt, session){ if(session && session.user){ fillFromUser(sb, session.user); } }); }catch(e){}
+  }
+
+  /* ---------- Paiement : redirection vers le lien Qonto ---------- */
+  function showNotice(html){ var n=$('#pay-notice'); n.innerHTML=html; n.classList.add('show'); }
+
+  /* ---------- Étape 1 → 2 : valider les infos puis afficher le forfait ---------- */
+  function validInfos(){
+    var reqs=['#f-nom','#f-email','#f-tel','#f-adresse'];
+    for(var i=0;i<reqs.length;i++){ var el=$(reqs[i]); if(!el.value.trim()){ el.focus(); el.style.borderColor='#ffd0b0'; return false; } el.style.borderColor=''; }
+    if(!/^\S+@\S+\.\S+$/.test($('#f-email').value)){ $('#f-email').focus(); $('#f-email').style.borderColor='#ffd0b0'; return false; }
+    return true;
+  }
+
+  $('#info-form').addEventListener('submit', function(e){
+    e.preventDefault();
+    if(!validInfos()) return;
+    var step=$('#step-forfait');
+    step.classList.remove('step-hidden'); step.classList.add('step-in'); step.setAttribute('aria-hidden','false');
+    renderOffers(); renderSummary();
+    setTimeout(function(){ window.scrollTo({ top: step.getBoundingClientRect().top + window.pageYOffset - 20, behavior:'smooth' }); }, 60);
+  });
+
+  /* ---------- Paiement : redirection vers le lien Qonto ---------- */
+  $('#pay-btn').addEventListener('click', function(){
+    if(!validInfos()) return;
+    var o=state.offer, q=state.qty, total=o.prix*q;
+    var order = {
+      offerId:o.id, offerName:o.nom.replace(/&nbsp;/g,' '), unit:o.prix, qty:q, total:total,
+      name:$('#f-nom').value.trim(), email:$('#f-email').value.trim(),
+      tel:$('#f-tel').value.trim(), address:$('#f-adresse').value.trim(),
+      date:new Date().toISOString()
+    };
+    try{ localStorage.setItem('mcd_pending_order', JSON.stringify(order)); }catch(e){}
+
+    if(o.lien && /^https?:\/\//i.test(o.lien)){
+      var btn=$('#pay-btn'); btn.setAttribute('disabled','disabled'); $('#pay-btn-label').textContent='Redirection…';
+      window.location.href = o.lien;
+    } else {
+      showNotice('Ce forfait n\u2019a pas encore de lien de paiement Qonto configuré. Ouvrez <code>paiement.html</code>, section CONFIGURATION, et collez le lien du forfait « '+order.offerName+' » dans le champ <code>lien</code>. Réglez l\u2019URL de succès du lien Qonto sur <code>paiement.html?status=success</code>.');
+    }
+  });
+
+  /* ---------- Vue confirmation (retour depuis Qonto : ?status=success) ---------- */
+  function showConfirm(){
+    var order=null; try{ order=JSON.parse(localStorage.getItem('mcd_pending_order')||'null'); }catch(e){}
+    $('#pay-view').style.display='none';
+    var c=$('#confirm'); c.classList.add('show');
+    if(order){
+      $('#conf-recap').innerHTML =
+        '<div class="r-line"><span>'+order.offerName+'</span><span>'+euro(order.unit)+'</span></div>' +
+        '<div class="r-line"><span>Quantité</span><span>×'+order.qty+'</span></div>' +
+        '<div class="r-line"><span>Client</span><span>'+ (order.name||'—') +'</span></div>' +
+        '<div class="r-line tot"><span>Payé</span><span>'+euro(order.total)+'</span></div>';
+      $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre paiement de '+euro(order.total)+' a bien été pris en compte. Un reçu vous est envoyé par email.';
+      try{ localStorage.removeItem('mcd_pending_order'); }catch(e){}
+    } else {
+      $('#conf-recap').style.display='none';
+    }
+  }
+
+  /* ---------- Init ---------- */
+  if(params.get('status')==='success'){
+    showConfirm();
+  } else {
+    renderOffers(); renderSummary(); prefillClient();
+  }
+
+  /* ---------- Transition portes ---------- */
+  (function(){
+    if(window.__doorTx) return; window.__doorTx=true;
+    var ov=document.getElementById('door-tx'); if(!ov) return; var DUR=600;
+    function isInternal(a){
+      if(!a) return false;
+      if(a.target && a.target!=='_self') return false;
+      if(a.hasAttribute('download')) return false;
+      var href=a.getAttribute('href')||'';
+      if(!href || href.charAt(0)==='#') return false;
+      if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+      var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
+      if(url.origin!==location.origin) return false;
+      if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+      return true;
+    }
+    document.addEventListener('click', function(e){
+      if(e.defaultPrevented) return;
+      if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a=e.target.closest ? e.target.closest('a[href]') : null;
+      if(!isInternal(a)) return;
+      e.preventDefault(); var dest=a.href; void ov.offsetWidth; ov.classList.add('closing');
+      setTimeout(function(){ window.location.href=dest; }, DUR);
+    }, true);
+    window.addEventListener('pageshow', function(ev){
+      if(ev.persisted){ ov.classList.remove('closing');
+        ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; }); }
+    });
+  })();
+
+  /* ---------- Thème (interrupteur non affiché ici, on hérite du choix) ---------- */
+  try{
+    var s=localStorage.getItem('mcd-theme');
+    if(s==='night') document.body.classList.add('night');
+    else if(s!=='day'){ var h=new Date().getHours(); if(h>=23||h<7) document.body.classList.add('night'); }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
