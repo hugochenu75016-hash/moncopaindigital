@@ -1651,7 +1651,7 @@
     var cmsgsAll = await safeSelect(sb.from('coach_messages').select('*').order('created_at',{ascending:true})) || [];
     admin.coachs.forEach(function(k){ k.cmsgs=[]; });
     cmsgsAll.forEach(function(m){ var k=admin.coachById[m.coach_id]; if(k) k.cmsgs.push(m); });
-    if(admin.role==='coach'){ admin.clients = admin.clients.filter(function(c){ return c.coach_id===admin.myCoachId; }); var nb={}; admin.clients.forEach(function(c){ nb[c.id]=c; }); admin.byId=nb; }
+    if(admin.role==='coach'){ admin.clients = admin.clients.filter(function(c){ return c.coach_id===admin.myCoachId; }); var nb={}; admin.clients.forEach(function(c){ nb[c.id]=c; }); admin.byId=nb; admin.clients.forEach(function(c){ c.payreqs=(c.payreqs||[]).filter(function(pr){ return pr.created_by===authUser.id; }); }); }
     var mine = map[authUser.id];
     admin.me = { nom:(mine&&mine.nom)||(authUser.user_metadata&&authUser.user_metadata.nom)||authUser.email.split('@')[0], tel:(mine&&mine.tel)||(authUser.user_metadata&&authUser.user_metadata.tel)||'', entreprise:(mine&&mine.entreprise)||'', avatar:(mine&&mine.avatar)||'' };
   }
@@ -1940,9 +1940,20 @@
 
   function renderAdminFactures(){
     var rows=[]; admin.clients.forEach(function(c){ c.invoices.forEach(function(f){ rows.push({c:c,f:f}); }); });
+    var payRows=[]; admin.clients.forEach(function(c){ (c.payreqs||[]).forEach(function(pr){ payRows.push({c:c,pr:pr}); }); });
+    payRows.sort(function(a,b){ return String(b.pr.created_at||'').localeCompare(String(a.pr.created_at||'')); });
     var tb=$('#adm-fac-rows');
-    if(!rows.length){ tb.innerHTML='<tr><td colspan="7"><div class="empty">Aucun document.</div></td></tr>'; return; }
-    tb.innerHTML = rows.map(function(o){ var f=o.f; return '<tr>'+
+    if(!rows.length && !payRows.length){ tb.innerHTML='<tr><td colspan="7"><div class="empty">Aucun document.</div></td></tr>'; return; }
+    var payHtml = payRows.map(function(o){ var pr=o.pr; var paid=pr.status==='paid'; return '<tr>'+
+      '<td><div class="adm-cli"><span class="adm-ini">'+initials(o.c.nom)+'</span><span style="font-family:\'Fredoka\',sans-serif;font-weight:600;">'+esc(o.c.nom)+'</span></div></td>'+
+      '<td>'+esc(pr.reason||'Demande de paiement')+'</td>'+
+      '<td>—</td>'+
+      '<td>'+esc(pr.created_at?String(pr.created_at).slice(0,10):'—')+'</td>'+
+      '<td>'+esc(fmtAmount(pr.amount_cents/100))+'</td>'+
+      '<td><span class="pill '+(paid?'green':'amber')+'">'+(paid?'✓ Payée':'⏳ En attente')+'</span></td>'+
+      '<td></td>'+
+    '</tr>'; }).join('');
+    tb.innerHTML = payHtml + rows.map(function(o){ var f=o.f; return '<tr>'+
       '<td><div class="adm-cli"><span class="adm-ini">'+initials(o.c.nom)+'</span><span style="font-family:\'Fredoka\',sans-serif;font-weight:600;">'+esc(o.c.nom)+'</span></div></td>'+
       '<td>'+esc(f.label||'Document')+'</td>'+
       '<td>'+esc(f.ref||'—')+'</td>'+
