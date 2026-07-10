@@ -956,7 +956,7 @@
           <div class="card-title-row"><div><h2>Factures &amp; documents</h2><p class="sub" style="margin:2px 0 0;">Tous clients confondus.</p></div></div>
           <div style="overflow-x:auto;">
             <table class="adm-table">
-              <thead><tr><th>Client</th><th>Document</th><th>Réf.</th><th>Date</th><th>Montant</th><th>Statut</th><th></th></tr></thead>
+              <thead><tr><th>Client</th><th>Commercial</th><th>Document</th><th>Réf.</th><th>Date</th><th>Montant</th><th>Statut</th><th></th></tr></thead>
               <tbody id="adm-fac-rows"></tbody>
             </table>
           </div>
@@ -1943,9 +1943,11 @@
     var payRows=[]; admin.clients.forEach(function(c){ (c.payreqs||[]).forEach(function(pr){ payRows.push({c:c,pr:pr}); }); });
     payRows.sort(function(a,b){ return String(b.pr.created_at||'').localeCompare(String(a.pr.created_at||'')); });
     var tb=$('#adm-fac-rows');
-    if(!rows.length && !payRows.length){ tb.innerHTML='<tr><td colspan="7"><div class="empty">Aucun document.</div></td></tr>'; return; }
+    if(!rows.length && !payRows.length){ tb.innerHTML='<tr><td colspan="8"><div class="empty">Aucun document.</div></td></tr>'; return; }
+    function reqSender(pr){ if(!pr||!pr.created_by) return '—'; var k=admin.coachs.filter(function(x){ return x.user_id===pr.created_by; })[0]; if(k) return k.nom||'Commercial'; return (admin.me&&admin.me.nom)||'Admin'; }
     var payHtml = payRows.map(function(o){ var pr=o.pr; var paid=pr.status==='paid'; return '<tr>'+
       '<td><div class="adm-cli"><span class="adm-ini">'+initials(o.c.nom)+'</span><span style="font-family:\'Fredoka\',sans-serif;font-weight:600;">'+esc(o.c.nom)+'</span></div></td>'+
+      '<td>'+esc(reqSender(pr))+'</td>'+
       '<td>'+esc(pr.reason||'Demande de paiement')+'</td>'+
       '<td>—</td>'+
       '<td>'+esc(pr.created_at?String(pr.created_at).slice(0,10):'—')+'</td>'+
@@ -1955,6 +1957,7 @@
     '</tr>'; }).join('');
     tb.innerHTML = payHtml + rows.map(function(o){ var f=o.f; return '<tr>'+
       '<td><div class="adm-cli"><span class="adm-ini">'+initials(o.c.nom)+'</span><span style="font-family:\'Fredoka\',sans-serif;font-weight:600;">'+esc(o.c.nom)+'</span></div></td>'+
+      '<td>—</td>'+
       '<td>'+esc(f.label||'Document')+'</td>'+
       '<td>'+esc(f.ref||'—')+'</td>'+
       '<td>'+esc(f.date||'—')+'</td>'+
