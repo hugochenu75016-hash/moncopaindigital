@@ -506,6 +506,76 @@
 <link id="gfont-Lilita" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&amp;display=swap">
 </head>
 <body style="font-family: &quot;Permanent Marker&quot;">
+<!-- ===== Transition portes entre pages ===== -->
+<style id="door-tx-style">
+  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
+  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
+    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
+    box-shadow:0 0 70px rgba(90,40,0,0.45);}
+  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);
+    animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);
+    animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:96px;height:auto;
+    transform:translate(-50%,-50%);filter:drop-shadow(0 10px 22px rgba(90,40,0,0.4));
+    animation:dtLogoOut .5s ease both;}
+  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
+  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
+  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
+  #door-tx.closing{pointer-events:auto;}
+  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .dt-logo{animation:dtLogoIn .58s cubic-bezier(.2,1,.3,1) both;}
+  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
+  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
+  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}45%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  @media (prefers-reduced-motion:reduce){
+    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
+  }
+</style>
+<div id="door-tx" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="boutonespacelog-trim.png" alt="">
+</div>
+<script>
+(function(){
+  if(window.__doorTx) return; window.__doorTx=true;
+  var ov=document.getElementById('door-tx');
+  if(!ov) return;
+  var DUR=600;
+  function isInternal(a){
+    if(!a) return false;
+    if(a.target && a.target!=='_self') return false;
+    if(a.hasAttribute('download')) return false;
+    var href=a.getAttribute('href')||'';
+    if(!href || href.charAt(0)==='#') return false;
+    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
+    if(url.origin!==location.origin) return false;
+    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented) return;
+    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target.closest ? e.target.closest('a[href]') : null;
+    if(!isInternal(a)) return;
+    e.preventDefault();
+    var dest=a.href;
+    void ov.offsetWidth;
+    ov.classList.add('closing');
+    setTimeout(function(){ window.location.href=dest; }, DUR);
+  }, true);
+  window.addEventListener('pageshow', function(ev){
+    if(ev.persisted){
+      ov.classList.remove('closing');
+      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
+    }
+  });
+})();
+</script>
+<!-- ===== Fin transition portes ===== -->
 <style id="banderole-style">
   /* ===== Banderole suspendue (soutien équipe de France) ===== */
   #banderole { position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
@@ -2015,13 +2085,28 @@ start();
     margin:2px 0 14px; font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
     font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#ffd9a8;
   }
-  #footer-sheet .fs-col ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
+  #footer-sheet .fs-col ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; align-items:flex-start; gap:15px; }
   #footer-sheet .fs-col a{
-    color:#fff; text-decoration:none; font-size:15px; font-weight:600;
-    display:inline-flex; align-items:center; gap:8px; transition:color .2s, transform .2s;
+    position:relative; width:fit-content; max-width:100%;
+    color:#8a3c00; text-decoration:none; font-family:'Fredoka','Helvetica Neue',sans-serif;
+    font-size:14.5px; font-weight:600; line-height:1.1;
+    display:inline-flex; align-items:center; gap:9px;
+    padding:9px 17px; border-radius:999px;
+    border:3px solid rgba(255,255,255,0.95);
+    text-shadow:0 1px 1px rgba(255,255,255,0.7);
+    background:
+      radial-gradient(130% 95% at 50% -18%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.55) 24%, rgba(255,255,255,0.1) 50%),
+      linear-gradient(to bottom, #ffffff 0%, #fbf4ea 52%, #efe0cf 100%);
+    box-shadow:
+      0 6px 0 rgba(255,255,255,0.5),
+      0 11px 18px rgba(60,30,0,0.34),
+      inset 0 2px 3px rgba(255,255,255,0.9),
+      inset 0 -6px 10px rgba(120,70,20,0.14);
+    transition:transform .13s cubic-bezier(.2,.8,.25,1), box-shadow .13s ease;
   }
-  #footer-sheet .fs-col a:hover{ color:#fff3df; transform:translateX(3px); }
-  #footer-sheet .fs-col a .dot{ width:6px; height:6px; border-radius:50%; background:#ffd9a8; flex:0 0 auto; }
+  #footer-sheet .fs-col a:hover{ transform:translateY(-2px); box-shadow:0 8px 0 rgba(255,255,255,0.55), 0 15px 24px rgba(60,30,0,0.4), inset 0 2px 3px rgba(255,255,255,1), inset 0 -6px 10px rgba(120,70,20,0.14); }
+  #footer-sheet .fs-col a:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(255,255,255,0.5), 0 3px 7px rgba(60,30,0,0.34), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -4px 9px rgba(120,70,20,0.2); }
+  #footer-sheet .fs-col a .dot{ display:none; }
 
   #footer-sheet .fs-contact{ display:flex; flex-direction:column; gap:12px; }
   #footer-sheet .fs-phone{
@@ -2036,12 +2121,11 @@ start();
   #footer-sheet .fs-phone .ph-ic svg{ width:19px; height:19px; }
   #footer-sheet .fs-socials{ display:flex; gap:12px; margin-top:2px; }
   #footer-sheet .fs-socials a{
-    width:44px; height:44px; border-radius:14px; display:flex; align-items:center; justify-content:center;
-    background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.4);
-    box-shadow:inset 0 2px 2px rgba(255,255,255,0.4); transition:transform .2s, background .2s;
+    width:38px; height:38px; flex:0 0 auto; display:block;
+    background:none; border:none; box-shadow:none; transition:transform .2s;
   }
-  #footer-sheet .fs-socials a:hover{ transform:translateY(-3px); background:rgba(255,255,255,0.24); }
-  #footer-sheet .fs-socials svg{ width:26px; height:26px; }
+  #footer-sheet .fs-socials a:hover{ transform:translateY(-3px); }
+  #footer-sheet .fs-socials svg{ width:38px !important; height:38px !important; display:block; }
 
   /* pied légal */
   #footer-sheet .fs-legal{
@@ -2100,16 +2184,16 @@ start();
 
     <div class="fs-col fs-contact">
       <h3>Rester en lien</h3>
-      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
-        <li><a href="contact.html" style="color:#fff;text-decoration:none;font-size:15px;font-weight:600;">Contact</a></li>
-        <li><a href="espace-compte.html" style="color:#fff;text-decoration:none;font-size:15px;font-weight:600;">Votre Bulle · Espace client</a></li>
+      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:15px;">
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="espace-compte.html">Votre Bulle · Espace client</a></li>
       </ul>
       <div class="fs-socials">
         <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg viewBox="0 0 24 24"><defs><radialGradient id="fsIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#fsIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+          <svg viewBox="0 0 24 24"><defs><radialGradient id="fsIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#fsIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
         </a>
         <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+          <svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
         </a>
       </div>
     </div>
@@ -2121,7 +2205,7 @@ start();
         <li><a href="loiapplicablemcp.html"><span class="dot"></span>Politique de confidentialité</a></li>
         <li><a href="loiapplicablemcp.html"><span class="dot"></span>Politique de cookies</a></li>
         <li><a href="loiapplicablemcp.html"><span class="dot"></span>CGV — Conditions de vente</a></li>
-        <li><a href="loiapplicablemcp.html"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+        <li><a href="loiapplicablemcp.html" style="white-space:nowrap;"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
         <li><a href="loiapplicablemcp.html"><span class="dot"></span>Accessibilité</a></li>
         <li><a href="loiapplicablemcp.html"><span class="dot"></span>Gérer les cookies</a></li>
       </ul>
@@ -2129,7 +2213,7 @@ start();
   </div>
 
   <div class="fs-legal">
-    <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
+    <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier la vie numérique.</span>
   </div>
 </footer>
 <!-- ===== Fin pied de page ===== -->
