@@ -1712,7 +1712,11 @@
   async function addClient(obj){
     var adr = [obj.adresse, [obj.cp, obj.ville].filter(Boolean).join(' ')].filter(Boolean).join(', ');
     var row=null;
-    try{ var r=await sb.from('clients_manuels').insert({nom:obj.nom, tel:obj.tel||null, email:obj.email||null, entreprise:obj.entreprise||null, adresse:adr||null}).select().single(); if(r&&r.data) row=r.data; }catch(e){}
+    try{
+      var r=await sb.from('clients_manuels').insert({nom:obj.nom, tel:obj.tel||null, email:obj.email||null, entreprise:obj.entreprise||null, adresse:adr||null}).select().single();
+      if(r&&r.error){ flashToast('Enregistrement base : '+r.error.message); }
+      if(r&&r.data) row=r.data;
+    }catch(e){ flashToast('Erreur base : '+((e&&e.message)||e)); }
     if(!row) row={id:'tmp_'+Date.now(), nom:obj.nom, tel:obj.tel, email:obj.email, entreprise:obj.entreprise, adresse:adr};
     var c={ id:row.id, nom:row.nom||obj.nom, tel:row.tel||'', adresse:row.adresse||adr||'', entreprise:row.entreprise||'', email:row.email||'', rdv:[], project:null, invoices:[], messages:[], manual:true };
     admin.byId[c.id]=c; admin.clients.push(c);
