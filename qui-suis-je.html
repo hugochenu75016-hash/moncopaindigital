@@ -499,6 +499,86 @@
 </style>
 </head>
 <body>
+<!-- ===== Transition portes entre pages ===== -->
+<style id="door-tx-style">
+  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
+  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
+    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
+    box-shadow:0 0 70px rgba(90,40,0,0.45);}
+  /* État par défaut : portes ouvertes (hors écran), aucune animation à l'arrivée directe */
+  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
+  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
+  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
+    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
+  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
+  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
+  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
+  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
+  #door-tx.closing{pointer-events:auto;}
+  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
+  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
+  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
+  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  @media (prefers-reduced-motion:reduce){
+    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
+  }
+</style>
+<div id="door-tx" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="logocoupeworld.png" alt="">
+</div>
+<script>
+(function(){
+  if(window.__doorTx) return; window.__doorTx=true;
+  var ov=document.getElementById('door-tx');
+  if(!ov) return;
+  var DUR=1000;
+  function isInternal(a){
+    if(!a) return false;
+    if(a.target && a.target!=='_self') return false;
+    if(a.hasAttribute('download')) return false;
+    var href=a.getAttribute('href')||'';
+    if(!href || href.charAt(0)==='#') return false;
+    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
+    if(url.origin!==location.origin) return false;
+    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented) return;
+    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target.closest ? e.target.closest('a[href]') : null;
+    if(!isInternal(a)) return;
+    e.preventDefault();
+    go(a.href);
+  }, true);
+  // Fermeture des portes puis redirection (pour les boutons onclick + les liens)
+  function go(dest){
+    if(ov.classList.contains('closing')) return;
+    try{ sessionStorage.setItem('mcd-door-nav','1'); }catch(err){}
+    void ov.offsetWidth;
+    ov.classList.add('closing');
+    setTimeout(function(){ window.location.href=dest; }, DUR);
+  }
+  window.mcdGo=go;
+  // Les portes s'ouvrent à CHAQUE arrivée sur la page.
+  try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
+  ov.classList.add('opening');
+  window.addEventListener('pageshow', function(ev){
+    if(ev.persisted){
+      ov.classList.remove('closing');
+      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
+    }
+  });
+})();
+</script>
+<!-- ===== Fin transition portes ===== -->
 <script>
   /* Applique le thème choisi sur la page précédente dès l'ouverture du body (évite le flash) */
   (function(){
@@ -822,6 +902,7 @@
   io.observe(footer);
 })();
 </script>
+<!-- ===== Révélation animée des sections au scroll ===== -->
 <!-- ===== Révélation animée des sections au scroll ===== -->
 <script>
 (function(){
