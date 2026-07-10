@@ -1075,6 +1075,8 @@
   async function loadData(){
     var uid = authUser.id;
     var prof = await safeSelect(sb.from('profiles').select('*').eq('id',uid).maybeSingle());
+    // Backfill : enregistre l'email du compte dans profiles pour que l'admin puisse le voir
+    if(authUser.email && (!prof || prof.email !== authUser.email)){ try{ await sb.from('profiles').upsert({ id:uid, email:authUser.email, updated_at:new Date().toISOString() }); }catch(e){} }
     var rdv  = await safeSelect(sb.from('rendez_vous').select('*').eq('user_id',uid)) || [];
     var proj = await safeSelect(sb.from('projets').select('*').eq('user_id',uid).order('updated_at',{ascending:false}).limit(1).maybeSingle());
     var fac  = await safeSelect(sb.from('factures').select('*').eq('user_id',uid)) || [];
@@ -1106,7 +1108,7 @@
   }
 
   async function saveProfile(){
-    try{ await sb.from('profiles').upsert({ id:current.id, nom:current.nom, tel:current.tel, adresse:current.adresse, entreprise:current.entreprise, updated_at:new Date().toISOString() }); }catch(e){}
+    try{ await sb.from('profiles').upsert({ id:current.id, nom:current.nom, tel:current.tel, adresse:current.adresse, entreprise:current.entreprise, email:(authUser&&authUser.email)||current.email||null, updated_at:new Date().toISOString() }); }catch(e){}
   }
 
   /* ---------- Auth UI ---------- */
@@ -1152,7 +1154,7 @@
       if(res.error){ showErr(/already|exist/i.test(res.error.message) ? 'Un compte existe déjà avec cet email. Connectez-vous.' : ('Erreur : ' + res.error.message)); return; }
       if(res.data.session){
         authUser = res.data.user;
-        try{ await sb.from('profiles').upsert({ id: authUser.id, nom: nom, tel: tel, adresse: adresseFull || null }); }catch(e){}
+        try{ await sb.from('profiles').upsert({ id: authUser.id, nom: nom, tel: tel, adresse: adresseFull || null, email: authUser.email || null }); }catch(e){}
         await routeAfterAuth();
       } else {
         switchTab('login');
@@ -1629,7 +1631,7 @@
     var coachs  = await safeSelect(sb.from('coachs').select('*')) || [];
     var map = {};
     function ensure(id){ if(!id) return null; if(!map[id]) map[id]={ id:id, nom:'', tel:'', adresse:'', entreprise:'', email:'', avatar:'', coach_id:null, rdv:[], project:null, invoices:[], payreqs:[], messages:[] }; return map[id]; }
-    profs.forEach(function(p){ var c=ensure(p.id); if(!c)return; c.nom=p.nom||''; c.tel=p.tel||''; c.adresse=p.adresse||''; c.entreprise=p.entreprise||''; c.avatar=p.avatar||''; c.coach_id=p.coach_id||null; });
+    profs.forEach(function(p){ var c=ensure(p.id); if(!c)return; c.nom=p.nom||''; c.tel=p.tel||''; c.adresse=p.adresse||''; c.entreprise=p.entreprise||''; c.email=p.email||c.email||''; c.avatar=p.avatar||''; c.coach_id=p.coach_id||null; });
     manuels.forEach(function(p){ var c=ensure(p.id); if(!c)return; c.nom=p.nom||c.nom; c.tel=p.tel||c.tel; c.adresse=p.adresse||c.adresse; c.entreprise=p.entreprise||c.entreprise; c.email=p.email||''; c.coach_id=p.coach_id||null; c.manual=true; });
     rdvs.forEach(function(r){ var c=ensure(r.user_id); if(c) c.rdv.push(r); });
     facs.forEach(function(f){ var c=ensure(f.user_id); if(c) c.invoices.push(f); });
