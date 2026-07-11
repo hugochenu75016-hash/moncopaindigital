@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rendez-vous — Audit gratuit · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Poppins:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg: #FF7A00;
@@ -621,6 +622,27 @@
   const submitBtn = form.querySelector('.submit-btn');
   const WORKER_URL = 'https://rendezvous.hugochenu75016.workers.dev';
 
+  // Supabase — enregistrement de la réservation (pour l'agenda admin)
+  const SB_URL = 'https://nlesboqlnnpnmwlpvhif.supabase.co';
+  const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXNib3Fsbm5wbm13bHB2aGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTE3NzEsImV4cCI6MjA5ODY4Nzc3MX0.vwu9FGgl4cXZ8KExSeL3IrgWjxIbhvDYKeSWP9sb7X8';
+  let sbClient = null;
+  try { sbClient = window.supabase.createClient(SB_URL, SB_ANON); } catch(e) {}
+  function pad2(n){ return ('0'+n).slice(-2); }
+  function isoDate(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+  async function saveBooking(o){
+    if(!sbClient) return;
+    let uid = null;
+    try { const s = await sbClient.auth.getSession(); uid = s && s.data && s.data.session && s.data.session.user ? s.data.session.user.id : null; } catch(e){}
+    try {
+      await sbClient.from('rendez_vous').insert({
+        user_id: uid,
+        titre: 'Audit gratuit',
+        date: o.date, heure: o.heure, type: o.type || 'Audit gratuit',
+        status: 'confirmé', nom: o.nom, email: o.email, tel: o.tel, notes: o.msg || null
+      });
+    } catch(e){}
+  }
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     let ok = true;
@@ -651,6 +673,9 @@
     submitBtn.style.opacity = '0.7';
     submitBtn.style.cursor = 'wait';
     submitBtn.textContent = 'Envoi…';
+
+    // Enregistre la réservation dans l'agenda (Supabase)
+    saveBooking({ date: isoDate(selectedDate), heure: selectedSlot, type, nom, email, tel, msg });
 
     fetch(WORKER_URL, {
       method: 'POST',
