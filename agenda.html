@@ -217,7 +217,7 @@
 
   var MONTHS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   var events=[];            // toutes les lignes rendez_vous
-  var view=new Date(2026,0,1); // mois affiché — démarre janvier 2026
+  var view=new Date(); view=new Date(view.getFullYear(), view.getMonth(), 1); // mois courant
   var editingId=null;
 
   function $(s){return document.querySelector(s);}
@@ -257,6 +257,7 @@
     $('#app').classList.add('show');
     await loadEvents();
     render();
+    openDay(isoDate(new Date())); // ouvre automatiquement aujourd'hui
   }
 
   /* ---------- Données ---------- */
