@@ -244,6 +244,8 @@
   }
   .slot:hover { background: rgba(255,255,255,0.32); transform: translateY(-1px); }
   .slot.selected { background: #fff8ef; color: #a54a00; box-shadow: 0 8px 18px rgba(120,50,0,0.4); }
+  .slot.taken { background: rgba(255,255,255,0.05); color: rgba(255,246,230,0.4); border-color: rgba(255,255,255,0.12); cursor: not-allowed; text-decoration: line-through; }
+  .slot.taken:hover { background: rgba(255,255,255,0.05); transform: none; }
   .muted-hint { font-size: 12.5px; color: #ffe9cf; opacity: 0.85; padding: 4px 0; }
 
   /* Formulaire */
@@ -595,11 +597,17 @@
   function renderSlots() {
     if (!selectedDate) { slotsBody.innerHTML = '<p class="muted-hint">Choisissez d\'abord un jour ci-dessus.</p>'; return; }
     const wrap = document.createElement('div'); wrap.className='slots';
+    const dayKey = isoDate(selectedDate);
+    const taken = takenSlots[dayKey];
     SLOTS.forEach(t => {
       const b = document.createElement('button');
       b.type='button'; b.className='slot'; b.textContent=t;
-      if (t===selectedSlot) b.classList.add('selected');
-      b.addEventListener('click', () => { selectedSlot=t; renderSlots(); updateSummary(); });
+      if (taken && taken.has(t)) {
+        b.classList.add('taken'); b.disabled = true; b.title = 'Créneau déjà réservé';
+      } else {
+        if (t===selectedSlot) b.classList.add('selected');
+        b.addEventListener('click', () => { selectedSlot=t; renderSlots(); updateSummary(); });
+      }
       wrap.appendChild(b);
     });
     slotsBody.innerHTML=''; slotsBody.appendChild(wrap);
@@ -629,6 +637,24 @@
   try { sbClient = window.supabase.createClient(SB_URL, SB_ANON); } catch(e) {}
   function pad2(n){ return ('0'+n).slice(-2); }
   function isoDate(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+
+  // Créneaux déjà pris (date -> Set d'heures), lus sans exposer les données client
+  let takenSlots = {};
+  async function loadTakenSlots(){
+    if(!sbClient) return;
+    try {
+      const r = await sbClient.rpc('busy_slots');
+      const rows = (r && r.data) ? r.data : [];
+      takenSlots = {};
+      rows.forEach(function(x){
+        const d = String(x.d||'').slice(0,10), h = String(x.h||'').slice(0,5);
+        if(!d || !h) return;
+        (takenSlots[d] = takenSlots[d] || new Set()).add(h);
+      });
+      if(selectedDate) renderSlots();
+    } catch(e){}
+  }
+  loadTakenSlots();
   async function saveBooking(o){
     if(!sbClient) return;
     let uid = null, created = false;
@@ -702,6 +728,7 @@
         form.reset();
         selectedDate = null; selectedSlot = null;
         renderCal(); renderSlots(); updateSummary();
+        loadTakenSlots();
       } else {
         alert("Oups, l'envoi a échoué. Réessayez ou contactez-nous directement.");
       }
