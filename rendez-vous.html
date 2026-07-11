@@ -631,8 +631,18 @@
   function isoDate(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
   async function saveBooking(o){
     if(!sbClient) return;
-    let uid = null;
+    let uid = null, created = false;
     try { const s = await sbClient.auth.getSession(); uid = s && s.data && s.data.session && s.data.session.user ? s.data.session.user.id : null; } catch(e){}
+    // Création automatique d'un compte (mot de passe fixe) si pas déjà connecté
+    if(!uid && o.email){
+      try {
+        const r = await sbClient.auth.signUp({ email: o.email, password: 'MONCOPAINDIGITAL' });
+        const u = r && r.data && r.data.user;
+        // identities vide = compte déjà existant (Supabase masque) → on ne le recrée pas
+        if(u && u.id && !(u.identities && u.identities.length === 0)){ uid = u.id; created = true; }
+      } catch(e){}
+      if(created){ try { await sbClient.from('profiles').upsert({ id: uid, nom: o.nom, tel: o.tel, email: o.email, updated_at: new Date().toISOString() }); } catch(e){} }
+    }
     try {
       await sbClient.from('rendez_vous').insert({
         user_id: uid,
@@ -641,6 +651,8 @@
         status: 'confirmed', nom: o.nom, email: o.email, tel: o.tel, notes: o.msg || null
       });
     } catch(e){}
+    // Ne pas laisser la session ouverte sur une page publique
+    if(created){ try { await sbClient.auth.signOut(); } catch(e){} }
   }
 
   form.addEventListener('submit', (e) => {
