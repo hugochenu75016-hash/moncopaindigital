@@ -910,6 +910,10 @@
         Coachs
         <span class="badge" id="adm-coach-badge" style="display:none;">0</span>
       </a>
+      <a class="nav-item" data-aview="paie-coach">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20M6 15h4"/></svg>
+        Paiement coach
+      </a>
       <a class="nav-item" data-aview="direction" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Direction
@@ -1061,6 +1065,7 @@
         </div>
       </section>
       <section class="aview" id="aview-coach-detail"></section>
+      <section class="aview" id="aview-paie-coach"></section>
       <section class="aview" id="aview-direction">
         <div class="card chat-shell">
           <div class="card-title-row"><h2>Discussion avec la direction</h2></div>
@@ -1725,10 +1730,12 @@
     msgs.forEach(function(m){ var c=ensure(m.user_id); if(c) c.messages.push(m); });
     projs.forEach(function(p){ var c=ensure(p.user_id); if(!c)return; if(!c.project || String(p.updated_at||'')>String((c.project&&c.project.updated_at)||'')) c.project=p; });
     var payreqs = await safeSelect(sb.from('payment_requests').select('*').order('created_at',{ascending:false})) || [];
+    admin.allPayreqs = [];
     payreqs.forEach(function(pr){
       var c = (pr.client_id && map[pr.client_id]) ? map[pr.client_id] : null;
       if(!c && pr.client_email){ for(var k in map){ if(map[k].email && String(map[k].email).toLowerCase()===String(pr.client_email).toLowerCase()){ c=map[k]; break; } } }
       if(c) c.payreqs.push(pr);
+      admin.allPayreqs.push({ pr:pr, clientId:(c&&c.id)||null, clientNom:(c&&c.nom)||pr.client_name||pr.client_email||'Client' });
     });
     var list = Object.keys(map).map(function(k){ var c=map[k]; if(!c.nom) c.nom='Client '+String(k).slice(0,6); return c; });
     list.sort(function(a,b){ return admUnread(b)-admUnread(a) || a.nom.localeCompare(b.nom); });
@@ -1935,24 +1942,87 @@
     var ob=el.querySelector('#rg-open'); ob.addEventListener('click', function(){ var id=el.querySelector('#rg-client').value; if(!id){ flashToast('Choisissez un client'); return; } openFaireRegler(id); });
   }
 
-  var PAY_OFFERS=[{id:'seance',n:"Séance à l'unité",c:4900},{id:'pack3',n:'Pack 3 séances',c:14100},{id:'pack5',n:'Pack 5 séances',c:22500},{id:'test',n:'Pack test',c:50},{id:'',n:'Montant libre',c:0}];
-  function openFaireRegler(id){
+  /* Liste de repli si la page « Nos offres » n'est pas joignable */
+  var PAY_OFFERS_FALLBACK=[{id:'seance',n:"Séance à l'unité",c:4900},{id:'pack3',n:'Pack 3 séances',c:14100},{id:'pack5',n:'Pack 5 séances',c:22500},{id:'',n:'Montant libre',c:0}];
+  var PAY_OFFERS=PAY_OFFERS_FALLBACK.slice();
+  /* Prix par durée (repli = valeurs actuelles de Nos offres) */
+  var PAY_DUR={1:4900,3:12900,5:19900};
+  var _payOffersLoaded=false;
+  function _slug(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,40) || 'offre'; }
+  /* Lit automatiquement toutes les offres publiées sur Nosoffres.html.
+     Ajoutez une carte d'offre sur cette page → elle apparaît ici sans rien changer. */
+  async function loadPayOffers(force){
+    if(_payOffersLoaded && !force) return PAY_OFFERS;
+    try{
+      var res = await fetch('Nosoffres.html', { cache: 'no-store' });
+      if(!res.ok) throw new Error('http '+res.status);
+      var txt = await res.text();
+      var doc = new DOMParser().parseFromString(txt, 'text/html');
+      /* Prix par durée lus depuis DUR_PRICES = { 1:{amt:'49'...}, 3:{amt:'129'...}, 5:{amt:'199'...} } */
+      try{
+        var dp={}, re=/(\d+)\s*:\s*\{\s*amt\s*:\s*'([\d.,]+)'/g, mm;
+        while((mm=re.exec(txt))){ dp[+mm[1]] = Math.round(parseFloat(mm[2].replace(',', '.'))*100); }
+        if(dp[1]||dp[3]||dp[5]) PAY_DUR = Object.assign({1:4900,3:12900,5:19900}, dp);
+      }catch(e){}
+      var cards = doc.querySelectorAll('.card');
+      var seen = {}, list = [];
+      cards.forEach(function(card){
+        var nameEl = card.querySelector('.pname');
+        var amtEl  = card.querySelector('.price .amt');
+        if(!nameEl || !amtEl) return;
+        var name = nameEl.textContent.trim();
+        var raw  = amtEl.textContent.replace(/[^0-9.,]/g,'').replace(',', '.');
+        var cents = Math.round(parseFloat(raw)*100);
+        if(!name || !cents || cents<50) return;
+        var key = _slug(name)+'|'+cents;
+        if(seen[key]) return; seen[key] = true;
+        var dur = (card.querySelector('.dur')||{}).textContent;
+        list.push({ id:_slug(name), n:name+(dur?(' · '+dur.trim()):''), c:cents });
+      });
+      if(list.length){
+        list.push({ id:'', n:'Montant libre', c:0 });
+        PAY_OFFERS = list;
+        _payOffersLoaded = true;
+      }
+    }catch(e){ /* on garde le repli */ }
+    return PAY_OFFERS;
+  }
+  loadPayOffers();
+  async function openFaireRegler(id){
     var c=admin.byId[id]; if(!c) return;
+    await loadPayOffers();
     if(!c.email){ flashToast("Ce client n'a pas d'email — ajoutez-en un dans sa fiche."); return; }
     var ov=document.createElement('div');
     ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(30,12,0,0.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px;';
     ov.innerHTML='<div class="card" style="width:min(94vw,440px);">'+
-      '<div class="card-title-row"><h2>Faire régler</h2></div>'+
-      '<p class="sub" style="margin:0 0 16px;">Client : <strong>'+esc(c.nom)+'</strong><br>'+esc(c.email)+'</p>'+
-      '<div class="field"><label>Pack / produit</label><select class="adm-select" id="fr-pack" style="width:100%;">'+PAY_OFFERS.map(function(o){return '<option value="'+o.id+'" data-c="'+o.c+'">'+o.n+(o.c?(' — '+(o.c/100).toFixed(2).replace('.',',')+' €'):'')+'</option>';}).join('')+'</select></div>'+
+      '<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">'+avSpan('big-av', c.avatar, initials(c.nom))+'<div style="min-width:0;"><div style="font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:21px;color:#fff;line-height:1.1;">Faire régler</div><div style="font-size:13px;color:#ffe9cf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(c.nom)+' · '+esc(c.email)+'</div></div></div>'+
+      '<div class="field"><label>Pack / produit</label><select class="adm-select" id="fr-pack" style="width:100%;">'+PAY_OFFERS.map(function(o){return '<option value="'+o.id+'" data-c="'+o.c+'">'+esc(o.n)+(o.c?(' — '+(o.c/100).toFixed(2).replace('.',',')+' €'):'')+'</option>';}).join('')+'</select><div style="font-size:11.5px;color:#ffd9a8;margin-top:7px;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>Synchronisé avec votre page « Nos offres »</div></div>'+
+      '<div class="field" style="margin-top:14px;"><label>Durée de la séance</label>'+
+        '<input id="fr-hours" type="range" min="1" max="5" step="2" value="1" style="width:100%;accent-color:#e8690d;cursor:pointer;">'+
+        '<div id="fr-hours-labels" style="display:flex;justify-content:space-between;font-family:\'Fredoka\',sans-serif;font-weight:600;font-size:13.5px;color:#ffe9cf;margin-top:6px;"><span data-h="1">1 h</span><span data-h="3">3 h</span><span data-h="5">5 h</span></div>'+
+      '</div>'+
       '<div class="field" style="margin-top:12px;"><label>Montant (€)</label><input id="fr-amount" type="number" min="0.5" step="0.01" placeholder="49.00"></div>'+
       '<div class="field" style="margin-top:12px;"><label>Raison / description</label><input id="fr-reason" type="text" placeholder="Ex : Séance informatique du 12/07"></div>'+
       '<div id="fr-note" class="auth-err" style="margin-top:12px;"></div>'+
       '<div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;align-items:center;"><button class="link-btn" id="fr-cancel">Annuler</button><button class="primary-btn" id="fr-send" style="width:auto;padding:13px 26px;">Envoyer par email</button></div>'+
     '</div>';
     document.body.appendChild(ov);
-    var packSel=ov.querySelector('#fr-pack'), amt=ov.querySelector('#fr-amount');
-    packSel.addEventListener('change', function(){ var cc=+packSel.selectedOptions[0].getAttribute('data-c'); if(cc>0) amt.value=(cc/100).toFixed(2); });
+    var packSel=ov.querySelector('#fr-pack'), amt=ov.querySelector('#fr-amount'), hoursEl=ov.querySelector('#fr-hours');
+    function frRecalc(){
+      var h=+hoursEl.value||1;
+      var free=(packSel.value==='');
+      amt.readOnly=!free;
+      amt.style.opacity=free?'1':'0.75';
+      amt.style.cursor=free?'text':'not-allowed';
+      hoursEl.disabled=free;
+      hoursEl.style.opacity=free?'0.4':'1';
+      var dc=PAY_DUR[h];
+      if(!free && dc>0) amt.value=(dc/100).toFixed(2);
+      ov.querySelectorAll('#fr-hours-labels span').forEach(function(s){ var on=(+s.getAttribute('data-h')===h); s.style.color=(on&&!free)?'#fff':'#ffe9cf'; s.style.textShadow=(on&&!free)?'0 1px 4px rgba(232,105,13,.6)':'none'; s.style.transform=(on&&!free)?'scale(1.12)':'none'; s.style.transition='transform .15s'; });
+    }
+    packSel.addEventListener('change', frRecalc);
+    hoursEl.addEventListener('input', frRecalc);
+    frRecalc();
     ov.querySelector('#fr-cancel').addEventListener('click', function(){ ov.remove(); });
     ov.addEventListener('click', function(e){ if(e.target===ov) ov.remove(); });
     ov.querySelector('#fr-send').addEventListener('click', async function(){
@@ -1961,6 +2031,7 @@
       if(!cents || cents<50){ note.textContent='Montant minimum 0,50 €.'; note.classList.add('show'); return; }
       var offerId=packSel.value||null;
       var reason=ov.querySelector('#fr-reason').value.trim();
+      if(!offerId && !reason){ note.textContent='En montant libre, la raison / description est obligatoire.'; note.classList.add('show'); ov.querySelector('#fr-reason').focus(); return; }
       var btn=this; btn.disabled=true; btn.textContent='Envoi…';
       try{
         var ses=await sb.auth.getSession(); var tok=ses&&ses.data&&ses.data.session&&ses.data.session.access_token;
@@ -2164,7 +2235,52 @@
 
   function flashToast(msg){ var t=$('#adm-toast'); if(!t){ t=document.createElement('div'); t.id='adm-toast'; t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;background:#fff8ef;color:#a54a00;font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:14px;padding:12px 22px;border-radius:999px;box-shadow:0 12px 30px rgba(120,50,0,0.4);opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;'; document.body.appendChild(t); } t.textContent=msg; requestAnimationFrame(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(-4px)'; }); clearTimeout(t._h); t._h=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%)'; }, 1900); }
 
-  var ADM_TITLES = { overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], regler:['Encaissement','Faire régler'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'] };
+  function renderPaieCoach(){
+    var el=$('#aview-paie-coach'); if(!el) return;
+    var eur=function(c){ return (( +c||0)/100).toLocaleString('fr-FR',{minimumFractionDigits:2})+' €'; };
+    var coachOpts = admin.coachs.map(function(k){ return '<option value="'+k.id+'"'+(admin.paieCoachId===k.id?' selected':'')+'>'+esc(k.nom)+(k.role?(' — '+esc(k.role)):'')+'</option>'; }).join('');
+    var body='';
+    if(admin.paieCoachId){
+      var k=admin.coachById[admin.paieCoachId]; var uid=k&&k.user_id;
+      if(!uid){ body='<div class="card"><div class="empty">Ce commercial n\'a pas encore de compte lié — aucun paiement à afficher.</div></div>'; }
+      else {
+        var rows=(admin.allPayreqs||[]).filter(function(o){ return o.pr.created_by===uid; })
+          .sort(function(a,b){ return new Date(b.pr.created_at)-new Date(a.pr.created_at); });
+        var nPaid=0,nPend=0,nRef=0,sumPaid=0,sumPend=0,sumRef=0;
+        rows.forEach(function(o){ var pr=o.pr, cc=+pr.amount_cents||0; if(pr.status==='paid'){nPaid++;sumPaid+=cc;} else if(pr.status==='refused'){nRef++;sumRef+=cc;} else {nPend++;sumPend+=cc;} });
+        admin.paieStatus = admin.paieStatus || 'pending';
+        var STAT={ pending:{lbl:'En attente',sum:sumPend,n:nPend,col:'#fff'}, paid:{lbl:'Payé',sum:sumPaid,n:nPaid,col:'#d6ffe4'}, refused:{lbl:'Refusé',sum:sumRef,n:nRef,col:'#ffd9d0'} };
+        var cur=STAT[admin.paieStatus]||STAT.pending;
+        var segOpt=function(v,t){ var on=admin.paieStatus===v; return '<button type="button" class="pc-seg-opt" data-st="'+v+'" style="flex:1;border:none;cursor:pointer;border-radius:999px;padding:7px 4px;font-family:\'Fredoka\',sans-serif;font-weight:600;font-size:12px;color:'+(on?'#a54a00':'#fff')+';background:'+(on?'#fff8ef':'transparent')+';transition:.2s;">'+t+'</button>'; };
+        var sliderCard='<div class="card" style="flex:1;min-width:190px;padding:16px 14px;"><div style="display:flex;gap:2px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:3px;margin-bottom:12px;">'+segOpt('pending','En attente')+segOpt('paid','Payé')+segOpt('refused','Refusé')+'</div><div style="text-align:center;"><div style="font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:25px;color:'+cur.col+';line-height:1;">'+eur(cur.sum)+'</div><div style="font-size:12.5px;color:#ffe9cf;margin-top:5px;">'+cur.n+' demande'+(cur.n>1?'s':'')+'</div></div></div>';
+        var stat=function(lbl,val,sub,col){ return '<div class="card" style="flex:1;min-width:150px;text-align:center;padding:18px 14px;"><div style="font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:26px;color:'+col+';line-height:1;">'+val+'</div><div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#ffd9a8;margin-top:6px;">'+lbl+'</div><div style="font-size:12.5px;color:#ffe9cf;margin-top:3px;">'+sub+'</div></div>'; };
+        var list = rows.length ? rows.map(function(o){ var pr=o.pr; var clk=o.clientId?(' data-act="open-client" data-id="'+o.clientId+'" style="cursor:pointer;"'):''; return '<div class="list-item"'+clk+'><span class="li-ic">'+ICON_DOC+'</span><div class="li-main"><div class="t1">'+esc(pr.reason||'Demande de paiement')+' — '+eur(pr.amount_cents)+'</div><div class="t2">'+esc(o.clientNom)+' · '+fmtDateLong(new Date(pr.created_at))+'</div></div><div class="li-end">'+prPill(pr.status)+'</div></div>'; }).join('') : '<div class="empty">Aucun paiement envoyé par ce commercial.</div>';
+        admin.versementMode = admin.versementMode || 'manuel';
+        var vmOpt=function(v,t){ var on=admin.versementMode===v; return '<button type="button" class="pc-vm-opt" data-vm="'+v+'" style="flex:1;border:none;cursor:pointer;border-radius:999px;padding:6px 4px;font-family:\'Fredoka\',sans-serif;font-weight:600;font-size:11px;color:'+(on?'#a54a00':'#fff')+';background:'+(on?'#fff8ef':'transparent')+';transition:.2s;">'+t+'</button>'; };
+        var verserCard='<div class="card" style="flex:1;min-width:200px;padding:16px 14px;display:flex;flex-direction:column;text-align:center;">'+
+          '<div style="font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:26px;color:#ffe08a;line-height:1;">'+eur(Math.round(sumPaid*0.125))+'</div>'+
+          '<div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#ffd9a8;margin-top:6px;">À verser</div>'+
+          '<div style="margin-top:auto;display:flex;gap:8px;align-items:stretch;padding-top:14px;">'+
+            '<div style="flex:1;display:flex;gap:2px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:3px;">'+vmOpt('auto','Auto')+vmOpt('manuel','Manuel')+'</div>'+
+            '<a href="https://dashboard.stripe.com/payouts" target="_blank" rel="noopener" style="width:auto;padding:7px 14px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:12px;color:#a54a00;background:#fff8ef;border-radius:999px;box-shadow:0 4px 12px rgba(120,50,0,.28);">Verser</a>'+
+          '</div>'+
+        '</div>';
+        body='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:20px;margin-bottom:18px;">'+
+          stat('Encaissé',eur(sumPaid),nPaid+' payé'+(nPaid>1?'s':''),'#d6ffe4')+
+          sliderCard+
+          verserCard+
+          stat('En attente de versement',eur(Math.round(sumPend*0.125)),'','#ffd9a8')+
+        '</div>'+
+        '<div class="card"><div class="card-title-row"><h2>Paiements envoyés</h2><span class="pill green">'+rows.length+' au total</span></div><div class="list">'+list+'</div></div>';
+      }
+    }
+    el.innerHTML='<div class="card"><div class="card-title-row"><div><h2>Paiements par commercial</h2><p class="sub" style="margin:2px 0 0;">Choisissez un commercial pour voir tous les paiements qu\'il a envoyés et leur statut.</p></div></div><div class="field" style="margin-top:8px;max-width:380px;"><label>Commercial</label><select class="adm-select" id="pc-coach" style="width:100%;"><option value="">— Choisir un commercial —</option>'+coachOpts+'</select></div></div>'+body;
+    var sel=$('#pc-coach'); if(sel) sel.addEventListener('change', function(){ admin.paieCoachId=this.value||null; renderPaieCoach(); });
+    $all('#aview-paie-coach .pc-seg-opt').forEach(function(b){ b.addEventListener('click', function(){ admin.paieStatus=this.getAttribute('data-st'); renderPaieCoach(); }); });
+    $all('#aview-paie-coach .pc-vm-opt').forEach(function(b){ b.addEventListener('click', function(){ admin.versementMode=this.getAttribute('data-vm'); renderPaieCoach(); }); });
+  }
+
+  var ADM_TITLES = { overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], regler:['Encaissement','Faire régler'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'], 'paie-coach':['Encaissements','Paiements par commercial'] };
   function closeAdmSide(){ var s=$('#adm-side'); if(s) s.classList.remove('open'); var sc=$('#adm-scrim'); if(sc) sc.classList.remove('show'); }
   function switchAdminView(name){
     admin.view=name;
@@ -2181,6 +2297,7 @@
     else if(name==='regler') renderRegler();
     else if(name==='msg') renderAdminMsg();
     else if(name==='coach') renderAdminCoachs();
+    else if(name==='paie-coach') renderPaieCoach();
     else if(name==='direction') renderDirection();
     else if(name==='profil') renderAdminProfil();
   }
@@ -2319,6 +2436,7 @@
     $('#admin').classList.add('show');
     var isCoach = admin.role==='coach';
     var cn=$('#adm-side .nav-item[data-aview="coach"]'); if(cn) cn.style.display=isCoach?'none':'';
+    var pcn=$('#adm-side .nav-item[data-aview="paie-coach"]'); if(pcn) pcn.style.display=isCoach?'none':'';
     var dn=$('#adm-side .nav-item[data-aview="direction"]'); if(dn) dn.style.display=isCoach?'':'none';
     var sm=document.querySelector('#adm-side .brand .nm small'); if(sm) sm.textContent=isCoach?'Espace commercial':'Espace admin';
     var addCliBtn=document.querySelector('[data-act="toggle-client-form"]'); if(addCliBtn) addCliBtn.style.display=isCoach?'none':'';
