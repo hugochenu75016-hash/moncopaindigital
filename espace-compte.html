@@ -1711,7 +1711,16 @@
     function ensure(id){ if(!id) return null; if(!map[id]) map[id]={ id:id, nom:'', tel:'', adresse:'', entreprise:'', email:'', avatar:'', coach_id:null, rdv:[], project:null, invoices:[], payreqs:[], messages:[] }; return map[id]; }
     profs.forEach(function(p){ var c=ensure(p.id); if(!c)return; c.nom=p.nom||''; c.tel=p.tel||''; c.adresse=p.adresse||''; c.entreprise=p.entreprise||''; c.email=p.email||c.email||''; c.avatar=p.avatar||''; c.coach_id=p.coach_id||null; });
     manuels.forEach(function(p){ var c=ensure(p.id); if(!c)return; c.nom=p.nom||c.nom; c.tel=p.tel||c.tel; c.adresse=p.adresse||c.adresse; c.entreprise=p.entreprise||c.entreprise; c.email=p.email||''; c.coach_id=p.coach_id||null; c.manual=true; });
-    rdvs.forEach(function(r){ var c=ensure(r.user_id); if(c) c.rdv.push(r); });
+    rdvs.forEach(function(r){
+      var c = ensure(r.user_id);
+      if(!c && r.email){ for(var k in map){ if(map[k].email && String(map[k].email).toLowerCase()===String(r.email).toLowerCase()){ c=map[k]; break; } } }
+      if(!c){
+        var pk = 'prospect_'+String(r.email||r.id).toLowerCase();
+        if(!map[pk]) map[pk]={ id:pk, nom:(r.nom||'Prospect'), tel:(r.tel||''), adresse:'', entreprise:'', email:(r.email||''), avatar:'', coach_id:null, rdv:[], project:null, invoices:[], payreqs:[], messages:[], prospect:true };
+        c=map[pk];
+      }
+      c.rdv.push(r);
+    });
     facs.forEach(function(f){ var c=ensure(f.user_id); if(c) c.invoices.push(f); });
     msgs.forEach(function(m){ var c=ensure(m.user_id); if(c) c.messages.push(m); });
     projs.forEach(function(p){ var c=ensure(p.user_id); if(!c)return; if(!c.project || String(p.updated_at||'')>String((c.project&&c.project.updated_at)||'')) c.project=p; });
