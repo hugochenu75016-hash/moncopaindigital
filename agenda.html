@@ -61,8 +61,8 @@
   .cell.today .dn{background:var(--accent);color:#fff;}
   .ev{font-size:12px;line-height:1.25;padding:3px 6px;border-radius:6px;background:var(--accent-soft);color:#8a3d02;border-left:3px solid var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500;}
   .ev .h{font-weight:700;}
-  .ev.st-annulé{background:var(--red-soft);color:var(--red);border-left-color:var(--red);text-decoration:line-through;opacity:.75;}
-  .ev.st-en-attente{background:var(--amber-soft);color:var(--amber);border-left-color:var(--amber);}
+  .ev.st-cancelled{background:var(--red-soft);color:var(--red);border-left-color:var(--red);text-decoration:line-through;opacity:.75;}
+  .ev.st-pending{background:var(--amber-soft);color:var(--amber);border-left-color:var(--amber);}
   .more{font-size:11px;color:var(--muted);font-weight:600;padding-left:6px;}
   .empty-hint{padding:60px 20px;text-align:center;color:var(--muted);}
 
@@ -79,9 +79,9 @@
   .rdv .r-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
   .rdv .r-time{font-weight:700;font-size:15px;}
   .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;text-transform:uppercase;letter-spacing:.03em;}
-  .b-confirmé{background:var(--green-soft);color:var(--green);}
-  .b-en-attente{background:var(--amber-soft);color:var(--amber);}
-  .b-annulé{background:var(--red-soft);color:var(--red);}
+  .b-confirmed{background:var(--green-soft);color:var(--green);}
+  .b-pending{background:var(--amber-soft);color:var(--amber);}
+  .b-cancelled{background:var(--red-soft);color:var(--red);}
   .rdv .r-title{font-weight:600;font-size:15px;margin-bottom:6px;}
   .rdv .r-row{font-size:13px;color:var(--muted);margin:3px 0;display:flex;gap:7px;}
   .rdv .r-row b{color:var(--ink);font-weight:600;}
@@ -194,7 +194,7 @@
         <option>Suivi projet</option><option>Autre</option>
       </select></div>
       <div class="fld"><label>Statut</label><select id="m-status">
-        <option value="confirmé">Confirmé</option><option value="en-attente">En attente</option><option value="annulé">Annulé</option>
+        <option value="confirmed">Confirmé</option><option value="pending">En attente</option><option value="cancelled">Annulé</option>
       </select></div>
     </div>
     <div class="fld"><label>Notes</label><textarea id="m-notes" placeholder="Notes internes…"></textarea></div>
@@ -225,6 +225,8 @@
   function isoDate(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
   function norm(s){return String(s||'').toLowerCase().replace(/\s+/g,'-');}
+  var STATUS_LABEL={confirmed:'Confirmé',pending:'En attente',cancelled:'Annulé'};
+  function statusKey(s){s=String(s||'').toLowerCase();if(s.indexOf('annul')!==-1||s.indexOf('cancel')!==-1)return 'cancelled';if(s.indexOf('attente')!==-1||s.indexOf('pend')!==-1)return 'pending';return 'confirmed';}
   function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
 
   // Heures 08:00 -> 19:00 (par 30 min)
@@ -289,7 +291,7 @@
       var evs=eventsOn(iso);
       var html='<div class="dn">'+d.getDate()+'</div>';
       evs.slice(0,3).forEach(function(e){
-        html+='<div class="ev st-'+norm(e.status)+'"><span class="h">'+esc(e.heure||'')+'</span> '+esc(e.titre||e.type||'RDV')+'</div>';
+        html+='<div class="ev st-'+statusKey(e.status)+'"><span class="h">'+esc(e.heure||'')+'</span> '+esc(e.titre||e.type||'RDV')+'</div>';
       });
       if(evs.length>3) html+='<div class="more">+'+(evs.length-3)+' autre'+(evs.length-3>1?'s':'')+'</div>';
       cell.innerHTML=html;
@@ -315,8 +317,8 @@
     if(!evs.length){ body.innerHTML='<div class="day-empty">Aucun rendez-vous ce jour.</div>'; }
     else{
       body.innerHTML=evs.map(function(e){
-        var st=norm(e.status||'confirmé');
-        var stLabel=(e.status||'confirmé');
+        var st=statusKey(e.status);
+        var stLabel=STATUS_LABEL[st];
         var rows='';
         if(e.nom) rows+='<div class="r-row"><span>👤</span><b>'+esc(e.nom)+'</b></div>';
         if(e.email) rows+='<div class="r-row"><span>✉️</span><a href="mailto:'+esc(e.email)+'">'+esc(e.email)+'</a></div>';
@@ -328,9 +330,9 @@
           '<div class="r-title">'+esc(e.titre||e.type||'Rendez-vous')+'</div>'+
           rows+notes+
           '<div class="r-actions">'+
-            (st!=='confirmé'?'<button class="mini ok" data-act="status" data-id="'+e.id+'" data-v="confirmé">✓ Confirmer</button>':'')+
-            (st!=='en-attente'?'<button class="mini" data-act="status" data-id="'+e.id+'" data-v="en-attente">En attente</button>':'')+
-            (st!=='annulé'?'<button class="mini" data-act="status" data-id="'+e.id+'" data-v="annulé">Annuler</button>':'')+
+            (st!=='confirmed'?'<button class="mini ok" data-act="status" data-id="'+e.id+'" data-v="confirmed">✓ Confirmer</button>':'')+
+            (st!=='pending'?'<button class="mini" data-act="status" data-id="'+e.id+'" data-v="pending">En attente</button>':'')+
+            (st!=='cancelled'?'<button class="mini" data-act="status" data-id="'+e.id+'" data-v="cancelled">Annuler</button>':'')+
             '<button class="mini" data-act="edit" data-id="'+e.id+'">Modifier</button>'+
             '<button class="mini danger" data-act="del" data-id="'+e.id+'">Supprimer</button>'+
           '</div>'+
@@ -375,7 +377,7 @@
     $('#m-email').value=ev?(ev.email||''):'';
     $('#m-tel').value=ev?(ev.tel||''):'';
     $('#m-type').value=ev?(ev.type||'Audit gratuit'):'Audit gratuit';
-    $('#m-status').value=ev?(norm(ev.status)||'confirmé'):'confirmé';
+    $('#m-status').value=ev?statusKey(ev.status):'confirmed';
     $('#m-notes').value=ev?(ev.notes||''):'';
     $('#modal-scrim').classList.add('show');
   }
