@@ -93,7 +93,7 @@
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 14px rgba(255,150,60,0.32), 0 14px 32px rgba(120,50,0,0.38);
   }
   .glass-btn:active { transform: translateY(0) scale(0.99); }
-  #topbar .social { display: flex; gap: 12px; }
+  #topbar .social { display: flex; align-items: center; gap: 12px; }
   .social-btn {
     width: 44px; height: 44px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -107,6 +107,9 @@
   .social-btn:hover { transform: translateY(-2px) scale(1.08); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34); }
   .social-btn svg { width: 21px; height: 21px; }
   .social-btn .ln { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
+  .social-btn.logo-btn { width: 38px; height: 38px; border-radius: 0; border: none; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .social-btn.logo-btn:hover { transform: translateY(-2px); box-shadow: none; }
+  .social-btn.logo-btn svg { width: 38px; height: 38px; }
 
   /* ===== Grille ===== */
   #page {
@@ -321,84 +324,6 @@
 </style>
 </head>
 <body>
-<!-- ===== Transition portes entre pages ===== -->
-<style id="door-tx-style">
-  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
-  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
-    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
-    box-shadow:0 0 70px rgba(90,40,0,0.45);}
-  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
-  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
-  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
-  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
-  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
-    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
-  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
-  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
-  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
-  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
-  #door-tx.closing{pointer-events:auto;}
-  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
-  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
-  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
-  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
-  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
-  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-  @media (prefers-reduced-motion:reduce){
-    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
-  }
-</style>
-<div id="door-tx" aria-hidden="true">
-  <div class="door l"></div>
-  <div class="door r"></div>
-  <img class="dt-logo" src="logocoupeworld.png" alt="">
-</div>
-<script>
-(function(){
-  if(window.__doorTx) return; window.__doorTx=true;
-  var ov=document.getElementById('door-tx');
-  if(!ov) return;
-  var DUR=1000;
-  function isInternal(a){
-    if(!a) return false;
-    if(a.target && a.target!=='_self') return false;
-    if(a.hasAttribute('download')) return false;
-    var href=a.getAttribute('href')||'';
-    if(!href || href.charAt(0)==='#') return false;
-    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
-    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
-    if(url.origin!==location.origin) return false;
-    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
-    return true;
-  }
-  document.addEventListener('click', function(e){
-    if(e.defaultPrevented) return;
-    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    var a=e.target.closest ? e.target.closest('a[href]') : null;
-    if(!isInternal(a)) return;
-    e.preventDefault();
-    go(a.href);
-  }, true);
-  function go(dest){
-    if(ov.classList.contains('closing')) return;
-    try{ sessionStorage.setItem('mcd-door-nav','1'); }catch(err){}
-    void ov.offsetWidth;
-    ov.classList.add('closing');
-    setTimeout(function(){ window.location.href=dest; }, DUR);
-  }
-  window.mcdGo=go;
-  // Les portes s'ouvrent à CHAQUE arrivée sur la page.
-  try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
-  ov.classList.add('opening');
-  window.addEventListener('pageshow', function(ev){
-    if(ev.persisted){
-      ov.classList.remove('closing');
-      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
-    }
-  });
-})();
-</script>
-<!-- ===== Fin transition portes ===== -->
   <div id="stars"></div>
   <div id="decor">
     <div class="cloud anim-dr" style="left: 6%; top: 18%; animation-delay: -1s;"></div>
@@ -408,15 +333,14 @@
   </div>
 
   <header id="topbar">
-    <a class="glass-btn" href="index.html">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      Accueil
+    <a class="glass-btn" href="index.html" aria-label="Accueil" style="width:48px;height:48px;padding:0;border-radius:50%;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.75 19.5v-5.5h4.5v5.5"/></svg>
     </a>
     <div class="social">
-      <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+      <a class="social-btn logo-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><defs><radialGradient id="tbIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#tbIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
       </a>
-      <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
+      <a class="social-btn logo-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg></a>
     </div>
   </header>
 
@@ -428,19 +352,19 @@
       <p class="accent">Réponse sous 24&nbsp;h, en semaine.</p>
       <div class="social-row">
         <span class="lbl">Suivez-nous</span>
-        <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+        <a class="social-btn logo-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24"><defs><radialGradient id="hgIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#hgIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
         </a>
-        <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
+        <a class="social-btn logo-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg></a>
       </div>
     </section>
 
     <section id="card">
       <h2>Nous joindre</h2>
 
-      <a class="info-row" href="/cdn-cgi/l/email-protection#1e766b7971307d767b706b5e7371707d716e7f77707a7779776a7f7230786c">
+<a class="info-row" href="mailto:hugo.chenu@moncopaindigital.fr">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
-        <span class="txt"><span class="k">Email</span><span class="v"><span class="__cf_email__" data-cfemail="137b66747c3d707b767d66537e7c7d707c63727a7d777a747a67727f3d7561">[email&#160;protected]</span></span></span>
+        <span class="txt"><span class="k">Email</span><span class="v">hugo.chenu@moncopaindigital.fr</span></span>
       </a>
 
       <a class="info-row" href="tel:+33753670195">
@@ -519,9 +443,11 @@
   </footer>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
 <style id="acct-widget-css">
-  .acct-sq{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:1px solid rgba(255,255,255,0.6);background:linear-gradient(to bottom,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.14) 100%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9),inset 0 -4px 10px rgba(255,150,60,0.22),0 8px 20px rgba(120,50,0,0.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .26s cubic-bezier(.2,1,.3,1),box-shadow .26s ease;padding:0;}
-  .acct-sq:hover{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1.5px 1px rgba(255,255,255,1),0 12px 26px rgba(120,50,0,0.34);}
+  .acct-sq{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:none;background:transparent;box-shadow:none;transition:transform .26s cubic-bezier(.2,1,.3,1);padding:0;}
+  .acct-sq:hover{transform:translateY(-2px) scale(1.06);}
   .acct-sq svg{width:23px;height:23px;}
+  .acct-sq img{width:100%;height:100%;object-fit:contain;display:block;}
+  #acct-pop .ap-ic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(120,50,0,0.25));}
   .acct-sq.fixed{position:fixed;top:clamp(14px,2.4vw,26px);right:clamp(16px,4vw,48px);z-index:9999;}
   #acct-pop{position:fixed;top:calc(clamp(14px,2.4vw,26px) + 58px);right:clamp(16px,4vw,48px);z-index:10000;width:264px;border-radius:22px;padding:20px 20px 18px;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
   #acct-pop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
@@ -537,23 +463,23 @@
   #acct-pop .ap-btn.close{color:#fff;background:rgba(255,255,255,0.12);}
   #acct-pop .ap-btn.close:hover{background:rgba(255,255,255,0.22);}
 </style>
-<div id="acct-pop" role="dialog" aria-label="Espace compte">
+<div id="acct-pop" role="dialog" aria-label="Votre Bulle">
   <div class="ap-head">
-    <span class="ap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-    <span class="ap-title">Espace compte</span>
+    <span class="ap-ic"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
+    <span class="ap-title">Votre Bulle</span>
   </div>
   <p class="ap-txt">Voulez-vous ouvrir votre espace personnel&nbsp;?</p>
   <div class="ap-actions">
-    <a class="ap-btn open" href="espace-compte.html">Ouvrir l'espace compte</a>
+    <a class="ap-btn open" href="espace-compte.html">Ouvrir votre Bulle</a>
     <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
   </div>
 </div>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 (function(){
   if(window.__acctWidget) return; window.__acctWidget=true;
   var btn=document.createElement('button');
   btn.type='button'; btn.className='acct-sq'; btn.setAttribute('aria-label','Espace compte'); btn.title='Espace compte';
-  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  btn.innerHTML='<img src="boutonespacelog-trim.png" alt="Espace compte">';
   var social=document.querySelector('#topbar .social');
   if(social){ social.appendChild(btn); }
   else { btn.classList.add('fixed'); document.body.appendChild(btn); }
