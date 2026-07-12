@@ -141,7 +141,7 @@
   #head h1 {
     margin: 0;
     font-family: 'Fredoka', 'Helvetica Neue', sans-serif;
-    font-weight: 700; font-size: clamp(46px, 6.6vw, 92px); line-height: 0.92;
+    font-weight: 700; font-size: clamp(58px, 8.4vw, 116px); line-height: 0.92;
     letter-spacing: 0.005em; color: #ffffff;
     -webkit-text-stroke: 3px var(--stroke); paint-order: stroke fill;
     text-shadow: 0 2px 0 var(--stroke), 0 4px 0 #632900, 0 6px 0 #4d2000, 0 12px 20px rgba(70,28,0,0.5);
@@ -229,6 +229,23 @@
     border: 2px solid #fff;
     background: linear-gradient(to bottom, #ff9a3d, #f5761b);
     box-shadow: 0 12px 26px rgba(180,80,10,0.4);
+  }
+
+  /* ===== Sélecteur de durée (1h / 3h / 5h) ===== */
+  #dur-switch { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; margin: 14px auto clamp(10px, 1.6vh, 20px); }
+  #dur-switch.hidden { display: none; }
+  #dur-switch .dur-label { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.02em; color: rgba(40,20,0,0.62); }
+  #dur-switch .dur-seg { display: inline-flex; padding: 4px; border-radius: 999px; background: #fff; border: 1px solid rgba(255,255,255,0.8); box-shadow: 0 8px 18px rgba(90,40,0,0.24); }
+  #dur-switch .durb {
+    cursor: pointer; border: 2px solid transparent; background: none;
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12px; color: #c98a4a;
+    padding: 6px 15px; border-radius: 999px; transition: color .2s, background .2s, box-shadow .2s;
+  }
+  #dur-switch .durb:hover { color: #a54a00; }
+  #dur-switch .durb.active {
+    color: #fff; border: 2px solid #fff;
+    background: linear-gradient(to bottom, #ff9a3d, #f5761b);
+    box-shadow: 0 8px 18px rgba(180,80,10,0.4);
   }
 
   /* ===== Cartes d'offres ===== */
@@ -470,6 +487,76 @@
 </style>
 </head>
 <body>
+<!-- ===== Transition portes (rideaux) entre pages ===== -->
+<style id="door-tx-style">
+  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
+  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
+    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
+    box-shadow:0 0 70px rgba(90,40,0,0.45);}
+  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);
+    animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);
+    animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(200px,34vw,400px);height:auto;
+    transform:translate(-50%,-50%);filter:drop-shadow(0 10px 22px rgba(90,40,0,0.4));
+    animation:dtLogoOut .5s ease both;}
+  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
+  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
+  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
+  #door-tx.closing{pointer-events:auto;}
+  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .dt-logo{animation:dtLogoIn .58s cubic-bezier(.2,1,.3,1) both;}
+  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
+  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
+  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}45%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  @media (prefers-reduced-motion:reduce){
+    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
+  }
+</style>
+<div id="door-tx" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="logocoupeworld-mreyg9i3.png" alt="">
+</div>
+<script>
+(function(){
+  if(window.__doorTx) return; window.__doorTx=true;
+  var ov=document.getElementById('door-tx');
+  if(!ov) return;
+  var DUR=600;
+  function isInternal(a){
+    if(!a) return false;
+    if(a.target && a.target!=='_self') return false;
+    if(a.hasAttribute('download')) return false;
+    var href=a.getAttribute('href')||'';
+    if(!href || href.charAt(0)==='#') return false;
+    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
+    if(url.origin!==location.origin) return false;
+    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented) return;
+    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target.closest ? e.target.closest('a[href]') : null;
+    if(!isInternal(a)) return;
+    e.preventDefault();
+    var dest=a.href;
+    void ov.offsetWidth;
+    ov.classList.add('closing');
+    setTimeout(function(){ window.location.href=dest; }, DUR);
+  }, true);
+  window.addEventListener('pageshow', function(ev){
+    if(ev.persisted){
+      ov.classList.remove('closing');
+      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
+    }
+  });
+})();
+</script>
+<!-- ===== Fin transition portes ===== -->
   <div id="decor">
     <div class="cloud anim-dr" style="left: 6%; top: 16%; animation-delay: -1s;"></div>
     <div class="cloud anim-f2" style="left: 3%; top: 58%; transform: scale(0.7); animation-delay: -3s;"></div>
@@ -542,6 +629,15 @@
       <button class="rub" onclick="filterRubrique('pro','cyber',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg> Cybersécurité</button>
       <button class="rub" onclick="filterRubrique('pro','save',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg> Sauvegarde</button>
     </nav>
+
+    <!-- Sélecteur de durée (particuliers) -->
+    <div id="dur-switch">
+      <div class="dur-seg">
+        <button type="button" class="durb active" onclick="setDuration(1,this)">1 h</button>
+        <button type="button" class="durb" onclick="setDuration(3,this)">3 h</button>
+        <button type="button" class="durb" onclick="setDuration(5,this)">5 h</button>
+      </div>
+    </div>
 
     <section id="plans">
       <!-- ===================== PARTICULIERS ===================== -->
@@ -895,6 +991,7 @@
     document.getElementById('mission-part').classList.toggle('hidden', isPro);
     document.getElementById('rubriques-part').classList.toggle('hidden', isPro);
     document.getElementById('rubriques-pro').classList.toggle('hidden', !isPro);
+    document.getElementById('dur-switch').classList.toggle('hidden', isPro);
 
     // bascule des grilles
     document.getElementById('grid-part').classList.toggle('hidden', isPro);
@@ -908,6 +1005,19 @@
     // thème nuit étoilé pour les professionnels
     document.documentElement.classList.toggle('pro', isPro);
     document.body.classList.toggle('pro', isPro);
+  }
+
+  function setDuration(h, btn) {
+    document.querySelectorAll('#dur-switch .durb').forEach(b => b.classList.toggle('active', b === btn));
+    const prices = { 1: 49, 3: 129, 5: 199 };
+    const price = prices[h] || (49 * h);
+    const half = (price / 2).toFixed(2).replace('.', ',');
+    document.querySelectorAll('#grid-part .card:not(.help)').forEach(function(c){
+      const dur = c.querySelector('.dur'); if (dur) dur.textContent = h + ' h';
+      const amt = c.querySelector('.amt'); if (amt) amt.textContent = price;
+      const credit = c.querySelector('.credit');
+      if (credit) credit.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit ' + half + ' € après crédit d\'impôt*';
+    });
   }
 
   function filterRubrique(aud, cat, btn) {
