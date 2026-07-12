@@ -105,7 +105,7 @@
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 14px rgba(255,150,60,0.32), 0 14px 32px rgba(120,50,0,0.38);
   }
   .glass-btn:active { transform: translateY(0) scale(0.99); }
-  #topbar .social { display: flex; gap: 12px; }
+  #topbar .social { display: flex; align-items: center; gap: 12px; }
   .social-btn {
     width: 44px; height: 44px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -119,6 +119,9 @@
   .social-btn:hover { transform: translateY(-2px) scale(1.08); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34); }
   .social-btn svg { width: 21px; height: 21px; }
   .social-btn .ln { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; line-height: 1; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
+  .social-btn.logo-btn { width: 38px; height: 38px; border-radius: 0; border: none; background: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .social-btn.logo-btn:hover { transform: translateY(-2px); box-shadow: none; }
+  .social-btn.logo-btn svg { width: 38px; height: 38px; }
 
   /* ===== Contenu ===== */
   #page {
@@ -128,7 +131,7 @@
   }
 
   /* En-tête */
-  #head { text-align: center; margin-bottom: clamp(22px, 3vh, 34px); }
+  #head { text-align: center; margin-top: -48px; margin-bottom: clamp(70px, 7vh, 90px); }
   #head .kicker {
     display: inline-flex; align-items: center; gap: 10px;
     font-size: clamp(11px, 1.3vw, 14px); letter-spacing: 0.4em; text-transform: uppercase;
@@ -143,6 +146,18 @@
     -webkit-text-stroke: 3px var(--stroke); paint-order: stroke fill;
     text-shadow: 0 2px 0 var(--stroke), 0 4px 0 #632900, 0 6px 0 #4d2000, 0 12px 20px rgba(70,28,0,0.5);
   }
+  #head h1 span { display: inline-block; transform-origin: top center; animation: titlePend 2.4s ease-in-out infinite; }
+  #head h1 span:nth-child(1) { animation-delay: 0s; }
+  #head h1 span:nth-child(2) { animation-delay: .12s; }
+  #head h1 span:nth-child(3) { animation-delay: .24s; }
+  #head h1 span:nth-child(4) { animation-delay: .36s; }
+  #head h1 span:nth-child(5) { animation-delay: .48s; }
+  #head h1 span:nth-child(6) { animation-delay: .60s; }
+  #head h1 span:nth-child(7) { animation-delay: .72s; }
+  #head h1 span:nth-child(8) { animation-delay: .84s; }
+  #head h1 span:nth-child(9) { animation-delay: .96s; }
+  #head h1 span:nth-child(10) { animation-delay: 1.08s; }
+  @keyframes titlePend { 0%,100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
   #head .lead {
     margin: 22px auto 0; max-width: 46ch;
     font-family: 'Space Grotesk', 'Helvetica Neue', sans-serif;
@@ -152,19 +167,30 @@
 
   /* ===== Onglet coulissant "liquid glass" ===== */
   #switch-wrap { display: flex; justify-content: center; margin-bottom: clamp(18px, 2.6vh, 30px); }
+  #ask-bubble {
+    position: absolute; right: -120px; bottom: calc(100% + 80px); z-index: 6; max-width: 195px; text-align: center;
+    font-family: 'Baloo 2', 'Fredoka', sans-serif; font-weight: 800; font-size: clamp(10px, 0.95vw, 12px); line-height: 1.15;
+    color: #111; background: #fff; padding: 8px 13px; border: 3px solid #111; border-radius: 6px;
+    box-shadow: 4px 4px 0 #ff5d73, 4px 4px 0 3px #111;
+    transform: rotate(24deg); animation: askShake 2.6s ease-in-out infinite;
+  }
+  #ask-bubble .hl { color: #e8690d; }
+  #ask-bubble::after { content: ""; position: absolute; left: 50%; bottom: -22px; transform: translateX(-50%) rotate(3deg); border: 12px solid transparent; border-top-color: #111; }
+  #ask-bubble::before { content: ""; position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%) rotate(3deg); border: 8px solid transparent; border-top-color: #fff; z-index: 2; }
+  @keyframes askShake { 0%,100%{ transform: rotate(24deg); } 25%{ transform: rotate(22deg) translateY(-3px); } 50%{ transform: rotate(25deg); } 75%{ transform: rotate(23deg) translateY(-2px); } }
+  @media (max-width: 700px) { #ask-bubble { display: none; } }
   .seg {
     position: relative; display: inline-flex; padding: 7px; border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.5);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.10) 55%, rgba(255,255,255,0.05) 100%);
-    box-shadow: inset 0 2px 1px rgba(255,255,255,0.7), inset 0 -6px 16px rgba(255,150,60,0.15), 0 16px 34px rgba(90,40,0,0.32);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.8);
+    background: #ffffff;
+    box-shadow: 0 16px 34px rgba(90,40,0,0.32);
   }
   .seg .thumb {
     position: absolute; top: 7px; left: 7px; bottom: 7px;
     width: calc(50% - 7px); border-radius: 999px; z-index: 1;
-    border: 1px solid rgba(255,255,255,0.6);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.30) 45%, rgba(255,180,90,0.28) 100%);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -6px 14px rgba(255,150,60,0.4), 0 10px 24px rgba(120,50,0,0.4);
+    border: 2px solid #fff;
+    background: linear-gradient(to bottom, #ff9a3d, #f5761b);
+    box-shadow: 0 10px 24px rgba(180,80,10,0.4);
     transition: transform .48s cubic-bezier(.5,1.4,.4,1);
   }
   .seg.pro .thumb { transform: translateX(100%); }
@@ -174,48 +200,11 @@
     font-family: 'Fredoka', sans-serif; font-weight: 600;
     font-size: clamp(14px, 1.5vw, 17px); letter-spacing: 0.02em;
     padding: 14px clamp(22px, 3vw, 44px); border-radius: 999px; white-space: nowrap;
-    color: #fff3df; text-shadow: 0 1px 2px rgba(150,70,0,0.4);
+    color: #c98a4a; text-shadow: none;
     transition: color .3s ease, transform .3s ease;
   }
   .seg button svg { width: 19px; height: 19px; }
-  .seg button[aria-selected="true"] { color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-
-  /* ===== Slider durée de séance ===== */
-  #dur-switch { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 0 0 clamp(22px, 3vh, 34px); }
-  #dur-switch.hidden { display: none; }
-  #dur-switch .ds-label {
-    display: inline-flex; align-items: center; gap: 9px;
-    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.01em;
-    color: #fff3df; text-shadow: 0 1px 2px rgba(150,70,0,0.35);
-  }
-  #dur-switch .ds-label svg { width: 18px; height: 18px; }
-  body.pro #dur-switch .ds-label { color: #ccd6f5; }
-  .dseg {
-    position: relative; display: inline-flex; padding: 6px; border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.5);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.10) 55%, rgba(255,255,255,0.05) 100%);
-    box-shadow: inset 0 2px 1px rgba(255,255,255,0.7), inset 0 -6px 16px rgba(255,150,60,0.15), 0 14px 30px rgba(90,40,0,0.3);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  }
-  .dseg .ds-thumb {
-    position: absolute; top: 6px; left: 6px; bottom: 6px;
-    width: calc((100% - 12px) / 3); border-radius: 999px; z-index: 1;
-    border: 1px solid rgba(255,255,255,0.6);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.30) 45%, rgba(255,180,90,0.28) 100%);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -6px 14px rgba(255,150,60,0.4), 0 8px 20px rgba(120,50,0,0.4);
-    transition: transform .45s cubic-bezier(.5,1.4,.4,1);
-  }
-  .dseg[data-h="3"] .ds-thumb { transform: translateX(100%); }
-  .dseg[data-h="5"] .ds-thumb { transform: translateX(200%); }
-  .dseg .ds-opt {
-    position: relative; z-index: 2; cursor: pointer; border: none; background: none;
-    font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.02em;
-    padding: 11px clamp(20px, 2.4vw, 34px); border-radius: 999px; white-space: nowrap;
-    color: #fff3df; text-shadow: 0 1px 2px rgba(150,70,0,0.4);
-    transition: color .3s ease;
-  }
-  .dseg .ds-opt.active { color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5); }
-  @media (max-width: 560px) { #dur-switch { justify-content: center; } }
+  .seg button[aria-selected="true"] { color: #fff; text-shadow: 0 1px 2px rgba(150,70,0,0.4); }
 
   /* ===== En-tête de rubriques (filtres) ===== */
   .rub-bar {
@@ -225,21 +214,21 @@
   .rub-bar.hidden { display: none; }
   .rub {
     display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
-    border: 1px solid rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.8);
     font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.01em;
-    color: #fff; padding: 10px 18px; border-radius: 999px; white-space: nowrap;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.20) 100%);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.85), 0 8px 18px rgba(120,50,0,0.28);
-    text-shadow: 0 1px 2px rgba(150,70,0,0.5);
+    color: #c98a4a; padding: 10px 18px; border-radius: 999px; white-space: nowrap;
+    background: #ffffff;
+    box-shadow: 0 8px 18px rgba(120,50,0,0.22);
+    text-shadow: none;
     transition: transform .22s cubic-bezier(.2,1,.3,1), color .22s ease, background .22s ease, box-shadow .22s ease;
   }
   .rub svg { width: 16px; height: 16px; }
-  .rub:hover { transform: translateY(-2px); background: linear-gradient(to bottom, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.28) 100%); }
+  .rub:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(120,50,0,0.30); }
   .rub.active {
-    color: #8a3c00; text-shadow: 0 1px 0 rgba(255,255,255,0.5);
-    border-color: rgba(255,255,255,0.7);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.42) 45%, rgba(255,180,90,0.34) 100%);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 12px rgba(255,150,60,0.4), 0 12px 26px rgba(120,50,0,0.4);
+    color: #fff; text-shadow: none;
+    border: 2px solid #fff;
+    background: linear-gradient(to bottom, #ff9a3d, #f5761b);
+    box-shadow: 0 12px 26px rgba(180,80,10,0.4);
   }
 
   /* ===== Cartes d'offres ===== */
@@ -257,119 +246,136 @@
   .card {
     position: relative; display: flex; flex-direction: column;
     flex: 0 1 340px; max-width: 380px;
-    border-radius: 28px; padding: clamp(22px, 2.2vw, 30px);
-    border: 1px solid rgba(255,255,255,0.5);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.12) 55%, rgba(255,255,255,0.07) 100%);
-    box-shadow: inset 0 2px 1px rgba(255,255,255,0.8), inset 0 -8px 20px rgba(255,150,60,0.16), 0 24px 54px rgba(90,40,0,0.36);
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    margin-top: 34px;
+    border-radius: 30px; padding: 30px clamp(22px, 2.2vw, 28px) clamp(22px, 2.2vw, 28px);
+    border: 1px solid rgba(255,255,255,0.8);
+    background: #fffaf3;
+    box-shadow: 0 22px 48px rgba(70,28,0,0.30);
     transition: transform .3s cubic-bezier(.2,1,.3,1), box-shadow .3s ease;
   }
-  .card:hover { transform: translateY(-6px); box-shadow: inset 0 2px 1px rgba(255,255,255,0.9), 0 32px 66px rgba(90,40,0,0.44); }
+  .card:hover { transform: translateY(-6px); box-shadow: 0 32px 66px rgba(70,28,0,0.40); }
   .card.featured {
-    border-color: var(--yellow);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0.18) 55%, rgba(255,180,90,0.16) 100%);
-    box-shadow: inset 0 2px 1px rgba(255,255,255,0.95), inset 0 -8px 22px rgba(255,150,60,0.28), 0 30px 66px rgba(90,40,0,0.46);
+    border: 2px solid #ffb347;
+    box-shadow: 0 26px 60px rgba(70,28,0,0.40), 0 0 0 4px rgba(255,179,71,0.28);
   }
 
-  .cardtop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .cardtop { display: flex; align-items: center; justify-content: flex-end; gap: 12px; min-height: 30px; margin-bottom: 12px; }
   .ic-tile {
-    flex: 0 0 auto; width: 50px; height: 50px; border-radius: 15px;
-    display: flex; align-items: center; justify-content: center; color: #a54a00;
-    background: linear-gradient(to bottom, #fff8ef, #ffe6b8);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 8px 18px rgba(120,50,0,0.28);
+    position: absolute; top: -30px; left: 26px;
+    width: 64px; height: 64px; border-radius: 22px;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    background: linear-gradient(150deg, #f5a623, #ec7a1c);
+    box-shadow: 0 12px 24px rgba(70,28,0,0.28), inset 0 1.5px 1px rgba(255,255,255,0.4);
   }
-  .ic-tile svg { width: 25px; height: 25px; }
+  .ic-tile svg { width: 30px; height: 30px; }
+  /* Couleur de la pastille par position (rotation 6 teintes -> 3 couleurs distinctes par ligne) */
+  .card:nth-child(6n+1) .ic-tile { background: linear-gradient(150deg, #ff5d73, #e23f6d); }
+  .card:nth-child(6n+2) .ic-tile { background: linear-gradient(150deg, #22b0a6, #0e8f9a); }
+  .card:nth-child(6n+3) .ic-tile { background: linear-gradient(150deg, #7a6cf0, #5b4fd6); }
+  .card:nth-child(6n+4) .ic-tile { background: linear-gradient(150deg, #f5a623, #ec7a1c); }
+  .card:nth-child(6n+5) .ic-tile { background: linear-gradient(150deg, #3aa0f0, #2b6fd6); }
+  .card:nth-child(6n)   .ic-tile { background: linear-gradient(150deg, #38b76b, #1f9450); }
   .dur {
     font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.04em;
-    color: #fff5e2; padding: 6px 12px; border-radius: 999px; white-space: nowrap;
-    border: 1px solid rgba(255,255,255,0.4);
-    background: rgba(255,255,255,0.16);
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.5);
+    color: #a54a00; padding: 6px 13px; border-radius: 999px; white-space: nowrap;
+    background: #ffe8c9;
   }
 
   .card .pname {
     font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(19px, 1.9vw, 23px);
-    color: #fff; margin: 0 0 8px; text-shadow: 0 2px 3px rgba(150,70,0,0.4); line-height: 1.1;
+    color: #3a1c00; margin: 0 0 8px; line-height: 1.1;
   }
   .card .pdesc {
     font-family: 'Space Grotesk', sans-serif; font-size: 14px; line-height: 1.45; font-weight: 500;
-    color: #fff2df; opacity: 0.94; margin: 0 0 18px;
+    color: #6b4a2a; margin: 0 0 18px;
   }
 
   .card .price { display: flex; align-items: baseline; gap: 6px; margin: 0 0 6px; }
-  .card .price .from { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #ffe9cf; }
-  .card .price .amt { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(30px, 3.2vw, 40px); color: #fff; text-shadow: 0 2px 3px rgba(150,70,0,0.4); line-height: 1; }
-  .card .price .cur { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; color: #fff; }
-  .card .price .per { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #ffe9cf; }
+  .card .price .from { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #b06a30; }
+  .card .price .amt { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(30px, 3.2vw, 40px); color: #3a1c00; line-height: 1; }
+  .card .price .cur { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; color: #3a1c00; }
+  .card .price .per { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; color: #b06a30; }
   .card .credit {
     display: inline-flex; align-items: center; gap: 6px; margin: 0 0 18px;
     font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12.5px;
-    color: #0f6b3d; padding: 5px 11px; border-radius: 999px;
-    background: rgba(150, 230, 160, 0.42); border: 1px solid rgba(255,255,255,0.4);
+    color: #14532d; padding: 5px 11px; border-radius: 999px;
+    background: #cdf6d6;
   }
   .card .credit svg { width: 13px; height: 13px; }
 
-  .card ul { list-style: none; margin: 0 0 22px; padding: 18px 0 0; border-top: 1px solid rgba(255,255,255,0.25); display: flex; flex-direction: column; gap: 11px; flex: 1; }
-  .card ul li { display: flex; align-items: flex-start; gap: 11px; font-size: 14px; line-height: 1.35; font-weight: 500; color: #fff6e6; }
+  .card ul { list-style: none; margin: 0 0 22px; padding: 18px 0 0; border-top: 1px solid rgba(120,60,0,0.14); display: flex; flex-direction: column; gap: 11px; flex: 1; }
+  .card ul li { display: flex; align-items: flex-start; gap: 11px; font-size: 14px; line-height: 1.35; font-weight: 500; color: #5a3a1c; }
   .card ul li .chk {
     flex: 0 0 auto; width: 21px; height: 21px; border-radius: 50%; margin-top: 1px;
     display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(to bottom, #fff8ef, #ffe6b8);
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 10px rgba(120,50,0,0.25);
+    background: linear-gradient(to bottom, #ff9a3d, #f5761b);
+    box-shadow: 0 4px 10px rgba(180,80,10,0.35);
   }
   .card ul li .chk svg { width: 12px; height: 12px; }
+  .card ul li .chk svg path { stroke: #fff; }
 
   .card .spacer { flex: 1; min-height: 6px; }
 
   .card .cta {
     display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: auto;
     cursor: pointer; text-decoration: none;
-    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase;
-    color: #fff8ef; padding: 15px; border-radius: 999px; border: 2px solid rgba(255,255,255,0.55);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.40) 0%, rgba(255,255,255,0.15) 45%, rgba(255,150,60,0.16) 100%);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.95), 0 12px 26px rgba(120,50,0,0.36);
-    text-shadow: 0 0 10px rgba(255,150,60,0.7), 0 2px 3px rgba(150,70,0,0.5);
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.03em;
+    color: #fff; padding: 15px; border-radius: 999px; border: none;
+    background: linear-gradient(to bottom, #ff9a3d, #f5761b);
+    box-shadow: 0 12px 26px rgba(180,80,10,0.40);
     transition: transform .26s cubic-bezier(.2,1,.3,1), box-shadow .26s;
   }
-  .card .cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), 0 16px 32px rgba(120,50,0,0.44); }
+  .card .cta:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 16px 32px rgba(180,80,10,0.50); }
   .card .cta:active { transform: translateY(0) scale(0.99); }
 
   /* Carte "aide" — accent plus sombre, comme dans les références */
   .card.help {
-    background: linear-gradient(to bottom, rgba(60,30,4,0.42) 0%, rgba(60,30,4,0.26) 100%);
-    border-color: rgba(255,255,255,0.28);
+    background: linear-gradient(155deg, #ffe9b0, #ffd27a);
+    border: 1px solid rgba(255,255,255,0.8);
   }
-  .card.help .ic-tile { background: linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0.08)); color: #ffd9a8; box-shadow: inset 0 1px 1px rgba(255,255,255,0.4); }
-  .card.help .cta {
-    background: linear-gradient(to bottom, #fff8ef, #ffe6bb); color: #8a3c00; border-color: rgba(255,255,255,0.7);
-    text-shadow: none;
-  }
+  .card.help .ic-tile { background: linear-gradient(150deg, #ffb347, #f5761b); color: #fff; }
+  .card.help .pname { color: #3a1c00; }
+  .card.help .pdesc { color: #6b4a2a; }
+  .card.help .cta { background: linear-gradient(to bottom, #ff9a3d, #f5761b); color: #fff; }
 
   /* Bannière mission (particuliers) */
   #mission-part {
-    display: flex; align-items: center; gap: 16px; justify-content: center;
-    max-width: 780px; margin: 0 auto clamp(22px, 3vh, 34px);
-    padding: 16px 24px; border-radius: 24px;
-    border: 1px solid rgba(255,255,255,0.42);
-    background: linear-gradient(to bottom, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.09) 100%);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.65), 0 14px 30px rgba(120,50,0,0.26);
-    backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+    position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+    max-width: 760px; margin: 34px auto clamp(30px, 4vh, 46px);
+    padding: 18px 46px 20px; border-radius: 26px; color: #fff;
+    background: linear-gradient(135deg, #ff5d73 0%, #e2417f 55%, #b23bb0 100%);
+    box-shadow: 0 24px 52px rgba(120,20,60,0.42);
   }
   #mission-part.hidden { display: none; }
   #mission-part .m-ic {
-    flex: 0 0 auto; width: 46px; height: 46px; border-radius: 14px;
-    display: flex; align-items: center; justify-content: center; color: #d24a2a;
-    background: linear-gradient(to bottom, #fff8ef, #ffe1cf);
-    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 8px 18px rgba(120,50,0,0.28);
+    flex: 0 0 auto; width: 66px; height: 66px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; color: #fff;
+    background: rgba(255,255,255,0.22);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.5);
   }
-  #mission-part .m-ic svg { width: 24px; height: 24px; }
+  #mission-part .m-ic svg { width: 34px; height: 34px; }
+  #mission-part .m-body { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  #mission-part .m-label {
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #fff; opacity: 0.9;
+  }
+  #mission-part .m-title {
+    margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: clamp(22px, 2.6vw, 28px); color: #fff; line-height: 1.1;
+    text-shadow: 0 2px 4px rgba(120,20,60,0.35);
+  }
   #mission-part p {
-    margin: 0; text-align: left;
-    font-family: 'Space Grotesk', sans-serif; font-size: 15px; line-height: 1.42; font-weight: 500;
-    color: #fff3df; text-shadow: 0 1px 2px rgba(120,50,0,0.3);
+    margin: 0; max-width: none; white-space: nowrap;
+    font-family: 'Space Grotesk', sans-serif; font-size: 16px; line-height: 1.55; font-weight: 500;
+    color: rgba(255,255,255,0.94);
   }
   #mission-part p b { color: #fff; font-weight: 700; }
-  @media (max-width: 560px) { #mission-part { flex-direction: column; text-align: center; } #mission-part p { text-align: center; } }
+  #mission-part #mission-char {
+    position: absolute; right: -20px; bottom: calc(100% - 30px);
+    width: clamp(150px, 17vw, 220px); height: auto; z-index: 4;
+    pointer-events: none;
+    filter: drop-shadow(0 12px 18px rgba(70,28,0,0.32));
+  }
+  @media (max-width: 700px) { #mission-part #mission-char { width: 130px; right: 8px; } }
 
   /* Bandeau bas */
   #foot-note {
@@ -399,87 +405,71 @@
     .rub { font-size: 13px; padding: 9px 14px; }
     .card { border-radius: 24px; padding: 22px 18px; }
   }
+
+  /* ===== Pied de page (repris de la page Contact) ===== */
+  #site-footer {
+    position: relative; z-index: 10; margin-top: clamp(20px, 4vh, 48px);
+    padding: clamp(40px, 5vw, 68px) clamp(16px, 4vw, 48px) clamp(24px, 3vw, 34px);
+    background: linear-gradient(to bottom, #e8690d 0%, #cf560b 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
+    overflow: hidden;
+  }
+  #site-footer .sf-inner {
+    max-width: 1160px; margin: 0 auto;
+    display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: clamp(20px, 3.4vw, 54px);
+    align-items: start;
+  }
+  #site-footer .sf-brand { align-self: center; }
+  #site-footer .sf-brand span {
+    display: inline-block; line-height: 0.98; letter-spacing: -0.01em;
+    font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
+    font-size: clamp(36px, 4.6vw, 74px);
+    background: linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,214,158,0.72) 45%, rgba(150,60,0,0.55) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 24px rgba(120,50,0,0.14);
+  }
+  #site-footer .sf-col h3 {
+    margin: 2px 0 14px; font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
+    font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #ffd9a8;
+  }
+  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+  #site-footer .sf-col a {
+    color: #fff; text-decoration: none; font-size: 15px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px; transition: color .2s, transform .2s;
+  }
+  #site-footer .sf-col a:hover { color: #fff3df; transform: translateX(3px); }
+  #site-footer .sf-col a .dot { width: 6px; height: 6px; border-radius: 50%; background: #ffd9a8; flex: 0 0 auto; }
+  #site-footer .sf-contact { display: flex; flex-direction: column; gap: 12px; }
+  #site-footer .sf-socials { display: flex; gap: 12px; margin-top: 2px; }
+  #site-footer .sf-socials a {
+    width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,0.4); transition: transform .2s, background .2s;
+  }
+  #site-footer .sf-socials a:hover { transform: translateY(-3px); background: rgba(255,255,255,0.24); }
+  #site-footer .sf-socials svg { width: 26px; height: 26px; }
+  #site-footer .sf-legal {
+    max-width: 1160px; margin: clamp(20px, 3vh, 34px) auto 0;
+    padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.28);
+    font-size: 13px; color: #ffe4c4;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  body.pro #site-footer { background: linear-gradient(to bottom, #1a2550 0%, #0d1638 100%); }
+  body.pro #site-footer .sf-brand span {
+    background: linear-gradient(170deg, rgba(255,255,255,0.92) 0%, rgba(180,196,255,0.7) 45%, rgba(60,80,170,0.55) 100%);
+    -webkit-background-clip: text; background-clip: text;
+  }
+  @media (max-width: 860px) {
+    #site-footer .sf-inner { grid-template-columns: 1fr 1fr; gap: 26px 30px; }
+    #site-footer .sf-brand { grid-column: 1 / -1; align-self: start; }
+  }
+  @media (max-width: 520px) {
+    #site-footer .sf-inner { grid-template-columns: 1fr; gap: 22px; }
+  }
 </style>
 </head>
 <body>
-<!-- ===== Transition portes entre pages ===== -->
-<style id="door-tx-style">
-  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
-  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
-    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
-    box-shadow:0 0 70px rgba(90,40,0,0.45);}
-  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
-  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
-  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
-  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
-  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
-    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
-  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
-  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
-  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
-  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
-  #door-tx.closing{pointer-events:auto;}
-  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
-  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
-  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
-  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
-  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
-  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-  @media (prefers-reduced-motion:reduce){
-    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
-  }
-</style>
-<div id="door-tx" aria-hidden="true">
-  <div class="door l"></div>
-  <div class="door r"></div>
-  <img class="dt-logo" src="logocoupeworld.png" alt="">
-</div>
-<script>
-(function(){
-  if(window.__doorTx) return; window.__doorTx=true;
-  var ov=document.getElementById('door-tx');
-  if(!ov) return;
-  var DUR=1000;
-  function isInternal(a){
-    if(!a) return false;
-    if(a.target && a.target!=='_self') return false;
-    if(a.hasAttribute('download')) return false;
-    var href=a.getAttribute('href')||'';
-    if(!href || href.charAt(0)==='#') return false;
-    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
-    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
-    if(url.origin!==location.origin) return false;
-    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
-    return true;
-  }
-  document.addEventListener('click', function(e){
-    if(e.defaultPrevented) return;
-    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    var a=e.target.closest ? e.target.closest('a[href]') : null;
-    if(!isInternal(a)) return;
-    e.preventDefault();
-    go(a.href);
-  }, true);
-  function go(dest){
-    if(ov.classList.contains('closing')) return;
-    try{ sessionStorage.setItem('mcd-door-nav','1'); }catch(err){}
-    void ov.offsetWidth;
-    ov.classList.add('closing');
-    setTimeout(function(){ window.location.href=dest; }, DUR);
-  }
-  window.mcdGo=go;
-  try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
-  ov.classList.add('opening');
-  window.addEventListener('pageshow', function(ev){
-    if(ev.persisted){
-      ov.classList.remove('closing');
-      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
-    }
-  });
-})();
-</script>
-<!-- ===== Fin transition portes ===== -->
-
   <div id="decor">
     <div class="cloud anim-dr" style="left: 6%; top: 16%; animation-delay: -1s;"></div>
     <div class="cloud anim-f2" style="left: 3%; top: 58%; transform: scale(0.7); animation-delay: -3s;"></div>
@@ -490,23 +480,20 @@
   <div id="stars"></div>
 
   <header id="topbar">
-    <a class="glass-btn" href="index.html">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      Accueil
+    <a class="glass-btn" href="index.html" aria-label="Accueil" style="width:48px;height:48px;padding:0;border-radius:50%;background:#fff;border-color:rgba(255,255,255,0.9);color:#e8690d;box-shadow:0 10px 24px rgba(120,50,0,0.30);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.75 19.5v-5.5h4.5v5.5"/></svg>
     </a>
     <div class="social">
-      <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"></circle></svg>
+      <a class="social-btn logo-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><defs><radialGradient id="tbIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#tbIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
       </a>
-      <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="ln">in</span></a>
+      <a class="social-btn logo-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg></a>
     </div>
   </header>
 
   <main id="page">
     <section id="head">
-      <p class="kicker"><span class="dot"></span> Le numérique, enfin plus simple</p>
-      <h1>Nos offres</h1>
-      <p class="lead">Choisissez votre profil, puis la rubrique qui vous intéresse : on vous montre l'accompagnement fait pour vous.</p>
+      <h1><span>N</span><span>o</span><span>s</span><span>&nbsp;</span><span>o</span><span>f</span><span>f</span><span>r</span><span>e</span><span>s</span></h1>
     </section>
 
     <!-- Onglet Particuliers / Professionnels -->
@@ -526,8 +513,14 @@
 
     <!-- Bannière mission : Particuliers -->
     <div id="mission-part">
+      <img id="mission-char" src="caracterallonge.png" alt="Personnage allongé Mon Copain Digital">
+      <div id="ask-bubble">Vous êtes un <span class="hl">particulier</span> ou un <span class="hl">professionnel</span> ?</div>
       <span class="m-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg></span>
-      <p><b>Notre mission :</b> réconcilier avec le numérique celles et ceux que la technologie a laissés de côté. Sans jargon, à votre rythme, et près de chez vous.</p>
+      <div class="m-body">
+        <span class="m-label">Notre mission</span>
+        <h3 class="m-title">Le numérique, pour tout le monde</h3>
+        <p>Réconcilier avec le numérique celles et ceux que la technologie a laissés de côté.</p>
+      </div>
     </div>
 
     <!-- En-tête RUBRIQUES : Particuliers -->
@@ -550,16 +543,6 @@
       <button class="rub" onclick="filterRubrique('pro','save',this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="1.5"/><rect x="4" y="14" width="16" height="6" rx="1.5"/><path d="M8 7h.01M8 17h.01"/></svg> Sauvegarde</button>
     </nav>
 
-    <!-- Slider durée de séance (particuliers) -->
-    <div id="dur-switch" aria-label="Durée de la séance">
-      <div class="dseg" id="dseg" data-h="1" role="tablist" aria-label="Choisir la durée">
-        <span class="ds-thumb"></span>
-        <button class="ds-opt active" role="tab" aria-selected="true" onclick="setDur(1)">1 h</button>
-        <button class="ds-opt" role="tab" aria-selected="false" onclick="setDur(3)">3 h</button>
-        <button class="ds-opt" role="tab" aria-selected="false" onclick="setDur(5)">5 h</button>
-      </div>
-    </div>
-
     <section id="plans">
       <!-- ===================== PARTICULIERS ===================== -->
       <div class="plan-grid enter" id="grid-part">
@@ -570,10 +553,10 @@
           </div>
           <h3 class="pname">Informatique</h3>
           <p class="pdesc">Maîtrisez vos fichiers, vos emails et naviguez sereinement sur PC ou Mac.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="premiers-pas">
           <div class="cardtop">
@@ -582,10 +565,10 @@
           </div>
           <h3 class="pname">Tablette</h3>
           <p class="pdesc">Prenez en main votre iPad ou tablette Android, sans crainte de « mal faire ».</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="premiers-pas">
           <div class="cardtop">
@@ -594,10 +577,10 @@
           </div>
           <h3 class="pname">Imprimante & scanner</h3>
           <p class="pdesc">Installez, imprimez et numérisez vos documents sans prise de tête.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="premiers-pas">
           <div class="cardtop">
@@ -606,10 +589,10 @@
           </div>
           <h3 class="pname">Box & Wi-Fi</h3>
           <p class="pdesc">Comprenez votre box internet et retrouvez une bonne connexion partout chez vous.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="communiquer">
           <div class="cardtop">
@@ -618,10 +601,10 @@
           </div>
           <h3 class="pname">Smartphone</h3>
           <p class="pdesc">Tirez le meilleur de votre iPhone ou Android : photos, réglages et applications utiles.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="communiquer">
           <div class="cardtop">
@@ -630,10 +613,10 @@
           </div>
           <h3 class="pname">Emails & messagerie</h3>
           <p class="pdesc">Créez et gérez votre boîte mail, envoyez pièces jointes et photos en toute simplicité.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card featured" data-cat="communiquer">
           <div class="cardtop">
@@ -642,10 +625,10 @@
           </div>
           <h3 class="pname">Visio en famille</h3>
           <p class="pdesc">Appelez vos enfants et petits-enfants en vidéo (WhatsApp, FaceTime) et gardez le lien.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="communiquer">
           <div class="cardtop">
@@ -654,10 +637,10 @@
           </div>
           <h3 class="pname">Réseaux sociaux</h3>
           <p class="pdesc">Gardez le contact : WhatsApp, Facebook et partagez vos souvenirs avec vos proches.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="demarches">
           <div class="cardtop">
@@ -666,10 +649,10 @@
           </div>
           <h3 class="pname">Démarches administratives</h3>
           <p class="pdesc">Impots.gouv, Ameli, France Connect, CAF… on vous guide pas à pas, sans stress.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Être accompagné</a>
+          <a class="cta" href="paiement.html?offre=seance">Être accompagné</a>
         </div>
         <div class="card" data-cat="demarches">
           <div class="cardtop">
@@ -678,10 +661,10 @@
           </div>
           <h3 class="pname">Santé & Doctolib</h3>
           <p class="pdesc">Prenez vos rendez-vous médicaux et gérez vos ordonnances en ligne, en confiance.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="demarches">
           <div class="cardtop">
@@ -690,10 +673,10 @@
           </div>
           <h3 class="pname">Banque en ligne</h3>
           <p class="pdesc">Consultez vos comptes et réalisez vos virements en toute sécurité.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="securite">
           <div class="cardtop">
@@ -702,10 +685,10 @@
           </div>
           <h3 class="pname">Sécurité totale</h3>
           <p class="pdesc">Protégez vos comptes, gérez vos mots de passe et gardez l'esprit tranquille.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Sécuriser mon accès</a>
+          <a class="cta" href="paiement.html?offre=seance">Sécuriser mon accès</a>
         </div>
         <div class="card" data-cat="securite">
           <div class="cardtop">
@@ -714,10 +697,10 @@
           </div>
           <h3 class="pname">Déjouer les arnaques</h3>
           <p class="pdesc">Reconnaissez les faux SMS, faux mails et appels frauduleux avant qu'il ne soit trop tard.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="ia">
           <div class="cardtop">
@@ -726,10 +709,10 @@
           </div>
           <h3 class="pname">Intelligence artificielle</h3>
           <p class="pdesc">Boostez votre quotidien : apprenez à utiliser ChatGPT pour vos textes et vos recherches.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Découvrir l'IA</a>
+          <a class="cta" href="paiement.html?offre=seance">Découvrir l'IA</a>
         </div>
         <div class="card" data-cat="loisirs">
           <div class="cardtop">
@@ -738,10 +721,10 @@
           </div>
           <h3 class="pname">Photos & souvenirs</h3>
           <p class="pdesc">Rangez, retrouvez, imprimez et partagez toutes vos photos sans en perdre une seule.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="loisirs">
           <div class="cardtop">
@@ -750,10 +733,10 @@
           </div>
           <h3 class="pname">Achats en ligne</h3>
           <p class="pdesc">Commandez en toute confiance : drive, Le Bon Coin et grandes boutiques en ligne.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card" data-cat="loisirs">
           <div class="cardtop">
@@ -762,10 +745,10 @@
           </div>
           <h3 class="pname">Voyages & itinéraires</h3>
           <p class="pdesc">SNCF Connect, GPS, billets : préparez vos trajets et partez l'esprit léger.</p>
-          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span></div>
+          <div class="price"><span class="from">dès</span><span class="amt">49</span><span class="cur">€</span><span class="per">/ séance</span></div>
           <span class="credit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>Soit 24,50 € après crédit d'impôt*</span>
           <div class="spacer"></div>
-          <a class="cta" href="rendez-vous.html">Réserver la séance</a>
+          <a class="cta" href="paiement.html?offre=seance">Réserver la séance</a>
         </div>
         <div class="card help" data-cat="aide" data-persist="1">
           <div class="cardtop">
@@ -851,6 +834,56 @@
     </p>
   </main>
 
+  <!-- ===== Pied de page (repris de la page Contact) ===== -->
+  <footer id="site-footer" aria-label="Pied de page Mon Copain Digital">
+    <div class="sf-inner">
+      <div class="sf-brand"><span>Mon Copain<br>Digital</span></div>
+
+      <div class="sf-col">
+        <h3>Le site</h3>
+        <ul>
+          <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
+          <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
+          <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
+          <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
+        </ul>
+      </div>
+
+      <div class="sf-col sf-contact">
+        <h3>Rester en lien</h3>
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
+          <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
+          <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
+        </ul>
+        <div class="sf-socials">
+          <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="sf-col">
+        <h3>Loi applicable</h3>
+        <ul>
+          <li><a href="loiapplicablemcp.html#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
+          <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
+          <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
+          <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
+          <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+          <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
+          <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sf-legal">
+      <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
+    </div>
+  </footer>
+
 <script>
   function switchTab(which) {
     const isPro = which === 'pro';
@@ -875,41 +908,7 @@
     // thème nuit étoilé pour les professionnels
     document.documentElement.classList.toggle('pro', isPro);
     document.body.classList.toggle('pro', isPro);
-
-    // le slider de durée ne concerne que les particuliers
-    const ds = document.getElementById('dur-switch');
-    if (ds) ds.classList.toggle('hidden', isPro);
   }
-
-  // ===== Slider durée de séance =====
-  const DUR_PRICES = { 1: { amt: '49', credit: '24,50' }, 3: { amt: '129', credit: '64,50' }, 5: { amt: '199', credit: '99,50' } };
-  function setDur(h) {
-    const info = DUR_PRICES[h];
-    if (!info) return;
-    const seg = document.getElementById('dseg');
-    if (seg) {
-      seg.setAttribute('data-h', String(h));
-      seg.querySelectorAll('.ds-opt').forEach(function (b) {
-        const on = b.textContent.trim() === (h + ' h');
-        b.classList.toggle('active', on);
-        b.setAttribute('aria-selected', String(on));
-      });
-    }
-    document.querySelectorAll('#grid-part .card').forEach(function (card) {
-      const dur = card.querySelector('.dur');
-      const amt = card.querySelector('.price .amt');
-      const credit = card.querySelector('.credit');
-      if (dur) dur.textContent = h + ' h';
-      if (amt) amt.textContent = info.amt;
-      if (credit && credit.lastChild) credit.lastChild.textContent = 'Soit ' + info.credit + ' € après crédit d\'impôt*';
-    });
-    try { localStorage.setItem('mcd-dur', String(h)); } catch (e) {}
-  }
-  (function () {
-    let saved = null;
-    try { saved = localStorage.getItem('mcd-dur'); } catch (e) {}
-    if (saved && DUR_PRICES[saved]) setDur(parseInt(saved, 10));
-  })();
 
   function filterRubrique(aud, cat, btn) {
     const bar = document.getElementById('rubriques-' + aud);
@@ -944,9 +943,11 @@
 </script>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
 <style id="acct-widget-css">
-  .acct-sq{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:1px solid rgba(255,255,255,0.6);background:linear-gradient(to bottom,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.14) 100%);box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9),inset 0 -4px 10px rgba(255,150,60,0.22),0 8px 20px rgba(120,50,0,0.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:transform .26s cubic-bezier(.2,1,.3,1),box-shadow .26s ease;padding:0;}
-  .acct-sq:hover{transform:translateY(-2px) scale(1.06);box-shadow:inset 0 1.5px 1px rgba(255,255,255,1),0 12px 26px rgba(120,50,0,0.34);}
+  .acct-sq{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:none;background:transparent;box-shadow:none;transition:transform .26s cubic-bezier(.2,1,.3,1);padding:0;}
+  .acct-sq:hover{transform:translateY(-2px) scale(1.06);}
   .acct-sq svg{width:23px;height:23px;}
+  .acct-sq img{width:100%;height:100%;object-fit:contain;display:block;}
+  #acct-pop .ap-ic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(120,50,0,0.25));}
   .acct-sq.fixed{position:fixed;top:clamp(14px,2.4vw,26px);right:clamp(16px,4vw,48px);z-index:9999;}
   #acct-pop{position:fixed;top:calc(clamp(14px,2.4vw,26px) + 58px);right:clamp(16px,4vw,48px);z-index:10000;width:264px;border-radius:22px;padding:20px 20px 18px;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
   #acct-pop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
@@ -962,14 +963,14 @@
   #acct-pop .ap-btn.close{color:#fff;background:rgba(255,255,255,0.12);}
   #acct-pop .ap-btn.close:hover{background:rgba(255,255,255,0.22);}
 </style>
-<div id="acct-pop" role="dialog" aria-label="Espace compte">
+<div id="acct-pop" role="dialog" aria-label="Votre Bulle">
   <div class="ap-head">
-    <span class="ap-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
-    <span class="ap-title">Espace compte</span>
+    <span class="ap-ic"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
+    <span class="ap-title">Votre Bulle</span>
   </div>
   <p class="ap-txt">Voulez-vous ouvrir votre espace personnel&nbsp;?</p>
   <div class="ap-actions">
-    <a class="ap-btn open" href="espace-compte.html">Ouvrir l'espace compte</a>
+    <a class="ap-btn open" href="espace-compte.html">Ouvrir votre Bulle</a>
     <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
   </div>
 </div>
@@ -978,7 +979,7 @@
   if(window.__acctWidget) return; window.__acctWidget=true;
   var btn=document.createElement('button');
   btn.type='button'; btn.className='acct-sq'; btn.setAttribute('aria-label','Espace compte'); btn.title='Espace compte';
-  btn.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  btn.innerHTML='<img src="boutonespacelog-trim.png" alt="Espace compte">';
   var social=document.querySelector('#topbar .social');
   if(social){ social.appendChild(btn); }
   else { btn.classList.add('fixed'); document.body.appendChild(btn); }
@@ -991,117 +992,5 @@
 })();
 </script>
 <!-- ===== Fin widget Espace compte ===== -->
-<!-- ===== Pied de page (repris de la page Contact) ===== -->
-<style id="site-footer-css">
-  #site-footer {
-    position: relative; z-index: 10; margin-top: clamp(20px, 4vh, 48px);
-    padding: clamp(40px, 5vw, 68px) clamp(16px, 4vw, 48px) clamp(24px, 3vw, 34px);
-    background: linear-gradient(to bottom, #e8690d 0%, #cf560b 100%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
-    overflow: hidden;
-  }
-  #site-footer .sf-inner {
-    max-width: 1160px; margin: 0 auto;
-    display: grid; grid-template-columns: auto 1fr 1fr 1fr; gap: clamp(20px, 3.4vw, 54px);
-    align-items: start;
-  }
-  #site-footer .sf-brand { align-self: center; }
-  #site-footer .sf-brand span {
-    display: inline-block; line-height: 0.98; letter-spacing: -0.01em;
-    font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
-    font-size: clamp(36px, 4.6vw, 74px);
-    background: linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,214,158,0.72) 45%, rgba(150,60,0,0.55) 100%);
-    -webkit-background-clip: text; background-clip: text;
-    color: transparent; -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 24px rgba(120,50,0,0.14);
-  }
-  #site-footer .sf-col h3 {
-    margin: 2px 0 14px; font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
-    font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #ffd9a8;
-  }
-  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
-  #site-footer .sf-col a {
-    color: #fff; text-decoration: none; font-size: 15px; font-weight: 600;
-    display: inline-flex; align-items: center; gap: 8px; transition: color .2s, transform .2s;
-  }
-  #site-footer .sf-col a:hover { color: #fff3df; transform: translateX(3px); }
-  #site-footer .sf-col a .dot { width: 6px; height: 6px; border-radius: 50%; background: #ffd9a8; flex: 0 0 auto; }
-  #site-footer .sf-contact { display: flex; flex-direction: column; gap: 12px; }
-  #site-footer .sf-socials { display: flex; gap: 12px; margin-top: 2px; }
-  #site-footer .sf-socials a {
-    width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.4);
-    box-shadow: inset 0 2px 2px rgba(255,255,255,0.4); transition: transform .2s, background .2s;
-  }
-  #site-footer .sf-socials a:hover { transform: translateY(-3px); background: rgba(255,255,255,0.24); }
-  #site-footer .sf-socials svg { width: 26px; height: 26px; }
-  #site-footer .sf-legal {
-    max-width: 1160px; margin: clamp(20px, 3vh, 34px) auto 0;
-    padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.28);
-    font-size: 13px; color: #ffe4c4; text-align: center;
-  }
-  /* Thème nuit de la page (onglet Professionnels) */
-  body.pro #site-footer { background: linear-gradient(to bottom, #1a2550 0%, #0d1638 100%); }
-  body.pro #site-footer .sf-brand span {
-    background: linear-gradient(170deg, rgba(255,255,255,0.92) 0%, rgba(180,196,255,0.7) 45%, rgba(60,80,170,0.55) 100%);
-    -webkit-background-clip: text; background-clip: text;
-  }
-  @media (max-width: 860px) {
-    #site-footer .sf-inner { grid-template-columns: 1fr 1fr; gap: 26px 30px; }
-    #site-footer .sf-brand { grid-column: 1 / -1; align-self: start; }
-  }
-  @media (max-width: 520px) {
-    #site-footer .sf-inner { grid-template-columns: 1fr; gap: 22px; }
-  }
-</style>
-<footer id="site-footer" aria-label="Pied de page Mon Copain Digital">
-  <div class="sf-inner">
-    <div class="sf-brand"><span>Mon Copain<br>Digital</span></div>
-
-    <div class="sf-col">
-      <h3>Le site</h3>
-      <ul>
-        <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
-        <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
-        <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
-        <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
-      </ul>
-    </div>
-
-    <div class="sf-col sf-contact">
-      <h3>Rester en lien</h3>
-      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
-        <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
-        <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
-      </ul>
-      <div class="sf-socials">
-        <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
-        </a>
-        <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
-        </a>
-      </div>
-    </div>
-
-    <div class="sf-col">
-      <h3>Loi applicable</h3>
-      <ul>
-        <li><a href="loiapplicablemcp.html#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
-        <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
-        <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
-        <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
-        <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
-        <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
-        <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="sf-legal">
-    <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
-  </div>
-</footer>
-<!-- ===== Fin pied de page ===== -->
 </body>
 </html>
