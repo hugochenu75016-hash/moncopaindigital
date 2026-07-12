@@ -10,7 +10,8 @@
 <link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 <link rel="manifest" href="/favicons/site.webmanifest">
-<meta name="theme-color" content="#F3852B">
+<meta name="theme-color" content="#6EC1F0">
+<link rel="preload" as="image" href="boutonespacelog-trim.png">
 <title>Mon Copain Digital</title>
 <meta name="description" content="Votre coach personnel pour apprivoiser le numérique en douceur. Sans jargon, sans stress, à votre rythme. Audit gratuit et accompagnement humain. Appel gratuit : +33 7 53 67 01 95.">
 <link rel="canonical" href="https://moncopaindigital.fr/">
@@ -56,9 +57,9 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #FF7A00; overflow: hidden; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #6EC1F0; overflow: hidden; }
   body { overflow-x: hidden; }
-  #wrap { position: fixed; inset: 0; overflow: hidden; background: #FF7A00; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  #wrap { position: fixed; inset: 0; overflow: hidden; background: #6EC1F0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
   #scene { display: block; width: 100%; height: 100%; touch-action: pan-y; position: relative; z-index: 2; }
 
   /* ===== Titre animé au-dessus de la planète ===== */
@@ -416,7 +417,7 @@
   /* ===== Écran de chargement plein écran (masque tout) ===== */
   #char-loader {
     position: fixed; inset: 0;
-    background: #FF7A00;
+    background: #6EC1F0;
     z-index: 9999; pointer-events: all;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 20px;
@@ -590,15 +591,19 @@
   try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
   // Les portes servent d'écran de chargement : elles restent fermées jusqu'à ce que
   // le personnage 3D soit prêt, puis window.mcdDoorsOpen() les ouvre.
-  var opened=false;
-  window.mcdDoorsOpen=function(){
+  var opened=false, modelReady=false, pageLoaded=(document.readyState==='complete');
+  function doOpen(){
     if(opened) return; opened=true;
     ov.classList.remove('loading');
     void ov.offsetWidth;
     ov.classList.add('opening');
-  };
-  // Sécurité : ouverture forcée après 15s même si le modèle ne charge pas.
-  setTimeout(window.mcdDoorsOpen, 15000);
+  }
+  function tryOpen(){ if(modelReady && pageLoaded) doOpen(); }
+  // Appelé quand le personnage 3D est prêt : n'ouvre que si toute la page est aussi chargée.
+  window.mcdDoorsOpen=function(){ modelReady=true; tryOpen(); };
+  window.addEventListener('load', function(){ pageLoaded=true; tryOpen(); });
+  // Filet de sécurité : ouverture forcée après 20s si un chargement échoue.
+  setTimeout(doOpen, 20000);
   window.addEventListener('pageshow', function(ev){
     if(ev.persisted){
       ov.classList.remove('closing');
@@ -1830,19 +1835,31 @@ start();
     }
     box.innerHTML = h;
   }
-  window.applyNight = function(on){
+  window.applyNight = function(on, skipAnim){
     document.documentElement.classList.toggle('night', on);
     document.body.classList.toggle('night', on);
     if (thumb) thumb.innerHTML = on ? MOON : SUN;
     var sky = document.getElementById('liquid-sun');
-    if (sky) { sky.classList.remove('to-day','to-night'); void sky.offsetWidth; sky.classList.add(on ? 'to-night' : 'to-day'); }
+    if (sky) {
+      if (!skipAnim) { sky.classList.remove('to-day','to-night'); void sky.offsetWidth; sky.classList.add(on ? 'to-night' : 'to-day'); }
+      // La couronne de flammes n'apparaît que lorsque le soleil est fixe.
+      if (on) { sky.classList.remove('flames-on'); }
+      else if (skipAnim) { sky.classList.add('flames-on'); }
+      else { setTimeout(function(){ if (!document.body.classList.contains('night')) sky.classList.add('flames-on'); }, 1500); }
+    }
     try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
   };
   window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
   // au lancement : nuit entre 23h et 7h
   function isNightHour(){ var h = new Date().getHours(); return h >= 23 || h < 7; }
   var lastAuto = isNightHour();
-  applyNight(lastAuto);
+  applyNight(lastAuto, true);
+  // Le #liquid-sun est ins\u00e9r\u00e9 plus bas dans le DOM : on attend qu'il existe pour poser la couronne.
+  (function ensureFlames(){
+    var s = document.getElementById('liquid-sun');
+    if (!s) { return void requestAnimationFrame(ensureFlames); }
+    if (!document.body.classList.contains('night')) s.classList.add('flames-on');
+  })();
   // bascule automatique en direct au passage de l'heure (23h -> lune, 7h -> soleil)
   setInterval(function(){
     var want = isNightHour();
@@ -1915,7 +1932,7 @@ start();
 <style id="sun-widget-css">
   #liquid-sun{position:fixed;left:clamp(16px,4vw,48px);top:clamp(150px,20vw,280px);z-index:9998;width:110px;height:110px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
   #liquid-sun svg{width:100%;height:100%;overflow:visible;position:absolute;inset:0;transition:transform .9s cubic-bezier(.22,.9,.28,1),opacity .7s ease;will-change:transform,opacity;}
-  #liquid-sun .sun-face{filter:drop-shadow(0 8px 20px rgba(255,150,40,0.5));opacity:1;transform:translateY(0) scale(1);}
+  #liquid-sun .sun-face{opacity:1;transform:translateY(0) scale(1);}
   #liquid-sun .moon-face{filter:drop-shadow(0 6px 18px rgba(150,175,255,0.5));opacity:0;transform:translateY(90vh) scale(.6);}
   html.night #liquid-sun .sun-face,body.night #liquid-sun .sun-face{opacity:0;transform:translate(70vw,74vh) scale(.45);}
   html.night #liquid-sun .moon-face,body.night #liquid-sun .moon-face{opacity:1;transform:translateY(0) scale(1);}
@@ -1946,6 +1963,14 @@ start();
     100%{transform:translateY(90vh) scale(.6);opacity:0;}
   }
   @media (max-width:640px){#liquid-sun{left:clamp(16px,4vw,48px);width:90px;height:90px;top:170px;}}
+  /* --- mini-flammes autour du soleil --- */
+  #liquid-sun .sun-flames{transform-box:fill-box;transform-origin:center;animation:sunFlamesSpin 26s linear infinite;opacity:0;transition:opacity .6s ease;}
+  #liquid-sun.flames-on .sun-flames{opacity:1;}
+  #liquid-sun.to-day .sun-flames,#liquid-sun.to-night .sun-flames{opacity:0 !important;}
+  #liquid-sun .sf{transform-box:fill-box;transform-origin:50% 100%;fill:url(#flameGrad);will-change:transform,opacity;animation:flmeFlick 1.4s ease-in-out infinite;}
+  @keyframes flmeFlick{0%,100%{transform:scaleY(.85) scaleX(1.02);opacity:.7;}45%{transform:scaleY(1.42) scaleX(.8);opacity:1;}72%{transform:scaleY(1.08) scaleX(.94);opacity:.9;}}
+  @keyframes sunFlamesSpin{to{transform:rotate(360deg);}}
+  html.night #liquid-sun .sun-flames,body.night #liquid-sun .sun-flames{opacity:0;}
 </style>
 <div id="liquid-sun" role="img" aria-label="Soleil">
   <svg class="sun-face" viewBox="0 0 140 140">
@@ -1969,8 +1994,27 @@ start();
         <stop offset="96%" stop-color="#ffe9a0" stop-opacity="0.55"/>
         <stop offset="100%" stop-color="#ff9c22" stop-opacity="0.9"/>
       </radialGradient>
+      <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#ff7a1a"/>
+        <stop offset="55%" stop-color="#ffb23c"/>
+        <stop offset="100%" stop-color="#fff1a8"/>
+      </linearGradient>
     </defs>
     <circle cx="70" cy="70" r="70" fill="url(#sunGlow)"/>
+    <g class="sun-flames">
+      <g transform="rotate(0,70,70)"><path class="sf" style="animation-delay:-.1s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(30,70,70)"><path class="sf" style="animation-delay:-.7s;animation-duration:1.7s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(60,70,70)"><path class="sf" style="animation-delay:-1.2s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(90,70,70)"><path class="sf" style="animation-delay:-.4s;animation-duration:1.6s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(120,70,70)"><path class="sf" style="animation-delay:-.9s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(150,70,70)"><path class="sf" style="animation-delay:-.25s;animation-duration:1.8s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(180,70,70)"><path class="sf" style="animation-delay:-1.1s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(210,70,70)"><path class="sf" style="animation-delay:-.5s;animation-duration:1.5s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(240,70,70)"><path class="sf" style="animation-delay:-.85s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(270,70,70)"><path class="sf" style="animation-delay:-.3s;animation-duration:1.7s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(300,70,70)"><path class="sf" style="animation-delay:-1.0s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(330,70,70)"><path class="sf" style="animation-delay:-.6s;animation-duration:1.6s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+    </g>
     <circle cx="70" cy="70" r="40" fill="url(#sunDisc)"/>
     <circle cx="70" cy="70" r="40" fill="url(#sunLimb)"/>
     <ellipse cx="57" cy="55" rx="15" ry="10" fill="#fffef7" opacity="0.5"/>
