@@ -10,6 +10,10 @@
 <link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 <link rel="manifest" href="/favicons/site.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Votre Bulle">
 <meta name="theme-color" content="#6EC1F0">
 <title>Espace compte · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
@@ -88,6 +92,38 @@
     gap: clamp(20px, 5vw, 70px); max-width: 1280px; width: 100%;
   }
   .auth-wrap .auth-card { justify-self: center; width: min(92vw, 430px); }
+  .auth-card-shell { position: relative; justify-self: center; width: min(92vw, 430px); }
+  .auth-card-shell .auth-card { width: 100%; position: relative; z-index: 2; }
+  .auth-mascot-wrap {
+    position: absolute; z-index: 3; right: -110px; bottom: -130px;
+    width: clamp(170px, 54%, 250px); pointer-events: none;
+    animation: floatY 6s ease-in-out infinite;
+  }
+  .auth-mascot-wrap .auth-mascot {
+    display: block; width: 100%; height: auto;
+    filter: drop-shadow(0 16px 26px rgba(90,40,0,0.30));
+  }
+  .auth-bubble {
+    position: absolute; left: 46%; bottom: 86%; z-index: 4;
+    background: #fff8ef; color: #F3852B; text-align: center;
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 14px; line-height: 1.25;
+    padding: 22px 24px; border-radius: 50% / 46%; width: max-content; max-width: 150px;
+    box-shadow: 0 12px 26px rgba(120,50,0,0.28); border: 1.5px solid rgba(255,255,255,0.9);
+  }
+  .auth-bubble::before {
+    content: ''; position: absolute; left: 30px; bottom: -12px; z-index: -1;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: #fff8ef; border: 1.5px solid rgba(255,255,255,0.9);
+  }
+  .auth-bubble::after {
+    content: ''; position: absolute; left: 20px; bottom: -26px; z-index: -1;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: #fff8ef; border: 1.5px solid rgba(255,255,255,0.9);
+  }
+  @media (max-width: 560px) {
+    .auth-mascot-wrap { right: -30px; bottom: -24px; width: 150px; }
+    .auth-bubble { font-size: 12.5px; max-width: 150px; padding: 10px 13px; }
+  }
   .auth-hello { position: relative; text-align: center; }
   .auth-hello video { position: relative; z-index: 1; }
   .auth-hello img { width: min(56vw, 562px); height: auto; filter: drop-shadow(0 20px 26px rgba(90,40,0,0.34)); animation: floatY 7s ease-in-out infinite; }
@@ -213,7 +249,7 @@
   .nav-item svg { width: 20px; height: 20px; flex: 0 0 auto; }
   .nav-item:hover { background: rgba(255,255,255,0.16); transform: translateX(2px); }
   .nav-item.active {
-    color: #8a6a0c; background: #fff8ef; border-color: rgba(255,255,255,0.7);
+    color: #fff3df; background: rgba(255,255,255,0.24); border-color: rgba(255,255,255,0.7);
     box-shadow: 0 8px 20px rgba(120,50,0,0.28);
   }
   .nav-item .badge {
@@ -561,8 +597,8 @@
   .col-3 { grid-column: span 3; }
   .adm-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
   .adm-search { flex: 1; min-width: 200px; }
-  .adm-search input { width: 100%; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 14.5px; color: #fff; padding: 12px 14px 12px 42px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffe0c6' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4-4'/%3E%3C/svg%3E") no-repeat 14px center; outline: none; }
-  .adm-search input::placeholder { color: rgba(255,240,220,0.6); }
+  .adm-search input { width: 100%; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 14.5px; color: #6b3410; padding: 12px 14px 12px 42px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffe0c6' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4-4'/%3E%3C/svg%3E") no-repeat 14px center; outline: none; }
+  .adm-search input::placeholder { color: rgba(107,52,16,0.55); }
   .adm-table { width: 100%; border-collapse: separate; border-spacing: 0 9px; }
   .adm-table th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b3410; font-weight: 700; padding: 0 14px 2px; white-space: nowrap; }
   .adm-table td { background: rgba(255,255,255,0.1); padding: 12px 14px; color: #6b3410; font-size: 14px; vertical-align: middle; border-top: 1px solid rgba(255,255,255,0.16); border-bottom: 1px solid rgba(255,255,255,0.16); }
@@ -622,6 +658,29 @@
     .row2 { grid-template-columns: 1fr; }
     #main { padding: 18px 16px 50px; }
     #topbar-app h1 { -webkit-text-stroke-width: 1.5px; }
+  }
+  /* ===== Adaptation mobile complète ===== */
+  @media (max-width: 680px) {
+    #main, #adm-main { padding: 16px 14px 64px; }
+    #topbar-app { flex-wrap: wrap; margin-bottom: 20px; gap: 12px; }
+    #topbar-app .hi h1 { font-size: clamp(22px, 7vw, 32px); -webkit-text-stroke-width: 1.5px; }
+    .avatar { width: 44px; height: 44px; font-size: 17px; }
+    .grid-dash { grid-template-columns: 1fr; }
+    .col-3, .col-4, .col-6, .col-8, .col-12 { grid-column: 1 / -1; }
+    .card { padding: 18px 16px; border-radius: 20px; }
+    .card-title-row { flex-wrap: wrap; row-gap: 10px; }
+    .adm-toolbar { flex-direction: column; align-items: stretch; }
+    .adm-search { min-width: 0; width: 100%; }
+    .adm-add-row { grid-template-columns: 1fr 1fr !important; row-gap: 10px; }
+    .adm-add-row [data-client-picker] { grid-column: 1 / -1; }
+    .adm-add-row .adm-iconbtn, .adm-add-row button[data-act] { grid-column: 1 / -1; width: 100%; }
+    .adm-table { font-size: 13px; }
+    .adm-table th, .adm-table td { padding-left: 10px; padding-right: 10px; }
+    .profile-head { flex-wrap: wrap; row-gap: 12px; }
+  }
+  @media (max-width: 430px) {
+    .adm-add-row { grid-template-columns: 1fr !important; }
+    #topbar-app .hi .k { letter-spacing: 0.16em; }
   }
 </style>
 </head>
@@ -715,6 +774,11 @@
   <!-- ============================ ÉCRAN CONNEXION ============================ -->
   <section id="auth">
     <div class="auth-wrap">
+      <div class="auth-card-shell">
+      <div class="auth-mascot-wrap" aria-hidden="true">
+        <div class="auth-bubble">Tout ça doit rester secret&nbsp;!</div>
+        <img class="auth-mascot" src="mascotte-cadenas.png" alt="">
+      </div>
       <div class="auth-card">
         <div class="brand">
           <span class="logo mascotte"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
@@ -777,6 +841,7 @@
         </form>
 
         <p class="auth-foot" style="margin-top:20px;"><a href="index.html" style="border:none;opacity:.85;">← Retour au site</a></p>
+      </div>
       </div>
     </div>
 
@@ -1189,7 +1254,7 @@
       <!-- ===== Clients ===== -->
       <section class="aview" id="aview-clients">
         <div class="card">
-          <div class="card-title-row"><div><h2>Tous les clients</h2><p class="sub" style="margin:2px 0 0;">Comptes enregistrés dans votre espace.</p></div><button class="glass-btn" data-act="toggle-client-form" style="padding:11px 20px;">+ Ajouter</button></div>
+          <div class="card-title-row"><div><h2>Tous les clients</h2><p class="sub" style="margin:2px 0 0;">Comptes enregistrés dans votre espace.</p></div><button class="glass-btn" data-act="toggle-client-form" style="padding:11px 20px;color:#6b3410;">+ Ajouter</button></div>
           <div class="adm-toolbar"><div class="adm-search"><input id="adm-cli-search" placeholder="Rechercher un client…"></div></div>
           <div id="adm-client-form"></div>
           <div style="overflow-x:auto;">
@@ -1207,7 +1272,7 @@
       <!-- ===== Rendez-vous ===== -->
       <section class="aview" id="aview-rdv">
         <div class="card">
-          <div class="card-title-row"><div><h2>Tous les rendez-vous</h2><p class="sub" style="margin:2px 0 0;">Tous clients confondus.</p></div><button class="glass-btn" data-act="toggle-rdv-form" style="padding:11px 20px;">+ Ajouter</button></div>
+          <div class="card-title-row"><div><h2>Tous les rendez-vous</h2><p class="sub" style="margin:2px 0 0;">Tous clients confondus.</p></div><button class="glass-btn" data-act="toggle-rdv-form" style="padding:11px 20px;color:#6b3410;">+ Ajouter</button></div>
           <div id="adm-rdv-form"></div>
           <div style="overflow-x:auto;">
             <table class="adm-table">
@@ -1256,7 +1321,7 @@
       <!-- ===== Coachs / commerciaux ===== -->
       <section class="aview" id="aview-coach">
         <div class="card">
-          <div class="card-title-row"><div><h2>Mes commerciaux</h2><p class="sub" style="margin:2px 0 0;">Votre équipe et leurs clients.</p></div><button class="glass-btn" data-act="toggle-coach-form" style="padding:11px 20px;">+ Ajouter</button></div>
+          <div class="card-title-row"><div><h2>Mes commerciaux</h2><p class="sub" style="margin:2px 0 0;">Votre équipe et leurs clients.</p></div><button class="glass-btn" data-act="toggle-coach-form" style="padding:11px 20px;color:#6b3410;">+ Ajouter</button></div>
           <div id="adm-coach-form"></div>
           <div class="grid-dash" id="adm-coach-rows"></div>
         </div>
@@ -2082,7 +2147,7 @@
     tb.innerHTML = rows.map(function(c){
       var u=admUnread(c);
       return '<tr>'+
-        '<td><div class="adm-cli">'+avSpan('adm-ini', c.avatar, initials(c.nom))+'<div><div style="font-family:\'Fredoka\',sans-serif;font-weight:600;">'+esc(c.nom)+(c.manual?' <span class="pill gray" style="padding:2px 8px;font-size:10px;">Sans compte</span>':'')+'</div><div style="font-size:12.5px;color:#ffe9cf;">'+esc(c.tel||'Téléphone non renseigné')+'</div></div></div></td>'+
+        '<td><div class="adm-cli">'+avSpan('adm-ini', c.avatar, initials(c.nom))+'<div><div style="font-family:\'Fredoka\',sans-serif;font-weight:600;">'+esc(c.nom)+(c.manual?' <span class="pill gray" style="padding:2px 8px;font-size:10px;">Sans compte</span>':'')+'</div><div style="font-size:12.5px;color:#8a5a0c;">'+esc(c.tel||'Téléphone non renseigné')+'</div></div></div></td>'+
         '<td>'+c.rdv.length+'</td>'+
         '<td>'+(c.project?projProg(c.project)+'%':'—')+'</td>'+
         '<td>'+c.invoices.length+'</td>'+
@@ -2566,7 +2631,7 @@
     renderCoachForm();
     var el=$('#adm-coach-rows'); if(!el) return;
     if(!admin.coachs.length){ el.innerHTML='<div class=\"empty\" style=\"grid-column:1/-1;\">Aucun commercial. Cliquez sur \u00ab + Ajouter \u00bb pour cr\u00e9er votre \u00e9quipe.</div>'; return; }
-    el.innerHTML = admin.coachs.map(function(k){ var n=coachClients(k.id).length; var u=coachUnread(k); return '<div class=\"card col-4\"><div style=\"display:flex;align-items:center;gap:14px;\">'+avSpan('big-av', k.avatar, initials(k.nom))+'<div style=\"min-width:0;\"><div style=\"font-family:\'Fredoka\',sans-serif;font-weight:700;color:#fff;font-size:17px;\">'+esc(k.nom)+'</div><div style=\"font-size:13px;color:#ffe9cf;\">'+esc(k.role||'Commercial')+'</div></div></div><div style=\"margin:14px 0;font-size:13.5px;color:#ffe9cf;display:flex;flex-direction:column;gap:4px;min-height:20px;\">'+(k.tel?'<span>'+esc(k.tel)+'</span>':'')+(k.email?'<span>'+esc(k.email)+'</span>':'')+'</div><div style=\"display:flex;align-items:center;justify-content:space-between;\"><span class=\"pill blue\">'+n+' client'+(n>1?'s':'')+'</span>'+(u?redBadgeHtml(u,'margin-left:8px;'):'')+'<button class=\"link-btn\" data-act=\"open-coach\" data-id=\"'+k.id+'\">Ouvrir</button></div></div>'; }).join('');
+    el.innerHTML = admin.coachs.map(function(k){ var n=coachClients(k.id).length; var u=coachUnread(k); return '<div class=\"card col-4\"><div style=\"display:flex;align-items:center;gap:14px;\">'+avSpan('big-av', k.avatar, initials(k.nom))+'<div style=\"min-width:0;\"><div style=\"font-family:\'Fredoka\',sans-serif;font-weight:700;color:#6b3410;font-size:17px;\">'+esc(k.nom)+'</div><div style=\"font-size:13px;color:#8a5a0c;\">'+esc(k.role||'Commercial')+'</div></div></div><div style=\"margin:14px 0;font-size:13.5px;color:#ffe9cf;display:flex;flex-direction:column;gap:4px;min-height:20px;color:#8a5a0c;\">'+(k.tel?'<span>'+esc(k.tel)+'</span>':'')+(k.email?'<span>'+esc(k.email)+'</span>':'')+'</div><div style=\"display:flex;align-items:center;justify-content:space-between;\"><span class=\"pill blue\">'+n+' client'+(n>1?'s':'')+'</span>'+(u?redBadgeHtml(u,'margin-left:8px;'):'')+'<button class=\"link-btn\" data-act=\"open-coach\" data-id=\"'+k.id+'\">Ouvrir</button></div></div>'; }).join('');
   }
   function renderCoachDetail(id){
     var k=admin.coachById[id]; if(!k) return; admin.openCoachId=id;
