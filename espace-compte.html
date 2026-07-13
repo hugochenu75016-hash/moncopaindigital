@@ -150,8 +150,13 @@
   .brand .logo svg { width: 26px; height: 26px; }
   .brand .logo.mascotte { background: none; box-shadow: 0 6px 14px rgba(120,50,0,0.28); overflow: hidden; border-radius: 50%; }
   .brand .logo.mascotte img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .brand .logo.home-btn { background: #fff; color: #8a6a0c; border: 1px solid rgba(255,255,255,0.9); border-radius: 50%; text-decoration: none; box-shadow: 0 8px 18px rgba(120,50,0,0.30); transition: transform .28s cubic-bezier(.2,1,.3,1), box-shadow .28s ease; }
+  .brand .logo.home-btn:hover { transform: translateY(-2px) scale(1.06); box-shadow: 0 12px 26px rgba(120,50,0,0.4); }
+  .brand .logo.home-btn svg { width: 24px; height: 24px; }
   .brand .nm { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; color: #fff; text-shadow: 0 1px 2px rgba(150,70,0,0.4); line-height: 1.1; }
   .brand .nm small { display: block; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 12px; color: #ffe9cf; text-transform: none; letter-spacing: 0; }
+  .brand .brand-back { display: inline-block; margin-top: 3px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 11.5px; color: #1a1205; text-decoration: none; opacity: 0.85; }
+  .brand .brand-back:hover { opacity: 1; text-decoration: underline; }
 
   .auth-tabs { display: flex; gap: 6px; padding: 5px; border-radius: 999px; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.24); margin-bottom: 22px; }
   .auth-tabs button {
@@ -645,8 +650,11 @@
     #side, #adm-side {
       position: fixed; z-index: 60; left: 0; top: 0; width: 262px; height: 100vh;
       transform: translateX(-105%); transition: transform .3s cubic-bezier(.2,1,.3,1);
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
     }
     #side.open, #adm-side.open { transform: translateX(0); box-shadow: 0 0 60px rgba(60,20,0,0.5); }
+    #side .spacer, #adm-side .spacer { display: none; }
+    #side .side-logout, #adm-side .side-logout { margin-top: 16px; }
     .mobile-menu { display: inline-flex; }
     #side-scrim, #adm-scrim { position: fixed; inset: 0; z-index: 55; background: rgba(120,50,0,0.45); backdrop-filter: blur(3px); display: none; }
     #side-scrim.show, #adm-scrim.show { display: block; }
@@ -900,8 +908,7 @@
     <!-- Sidebar -->
     <aside id="side">
       <div class="brand">
-        <span class="logo mascotte"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
-        <span class="nm">VOTRE BULLE<small>Espace client</small></span>
+        <span class="nm">VOTRE BULLE<small>Espace client</small><a class="brand-back" href="index.html">← Retour accueil</a></span>
       </div>
 
       <a class="nav-item active" data-view="dash">
@@ -1133,8 +1140,7 @@
   <div id="admin">
     <aside id="adm-side">
       <div class="brand">
-        <span class="logo mascotte"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
-        <span class="nm">VOTRE BULLE<small>Espace admin</small></span>
+        <span class="nm">VOTRE BULLE<small>Espace admin</small><a class="brand-back" href="index.html">← Retour accueil</a></span>
       </div>
       <a class="nav-item active" data-aview="overview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
@@ -1373,11 +1379,7 @@
     </main>
   </div>
 
-  <!-- Bouton maison flottant -->
-  <a id="home-fab" href="index.html" title="Retour à l'accueil" aria-label="Retour à l'accueil">
-    <span class="home-tip">Accueil</span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>
-  </a>
+  <!-- Bouton maison flottant (retiré : déplacé dans le menu) -->
 
 <script>
 (function () {
