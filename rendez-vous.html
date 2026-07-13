@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rendez-vous — Audit gratuit · Mon Copain Digital</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Poppins:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Poppins:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Patrick+Hand&amp;family=Baloo+2:wght@400;500;600;700&amp;display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
-    --bg: #FF7A00;
+    --bg: #6EC1F0;
     --ink: #4d2000;
     --stroke: #7a3300;
     --cream: #fff8ef;
@@ -84,6 +84,19 @@
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 14px rgba(255,150,60,0.32), 0 14px 32px rgba(120,50,0,0.38);
   }
   .glass-btn:active { transform: translateY(0) scale(0.99); }
+  /* Bouton maison blanc (retour accueil) */
+  .home-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px; border-radius: 50%; flex: 0 0 auto;
+    color: #8a6a0c; text-decoration: none; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.9); background: #fff;
+    box-shadow: 0 10px 24px rgba(120,50,0,0.30);
+    transition: transform .28s cubic-bezier(.2,1,.3,1), box-shadow .28s ease;
+  }
+  .home-btn svg { width: 22px; height: 22px; }
+  .home-btn:hover { transform: translateY(-3px) scale(1.06); box-shadow: 0 14px 32px rgba(120,50,0,0.4); }
+  .home-btn:active { transform: translateY(0) scale(0.98); }
+  body.night .home-btn { color: #37407e; }
   #topbar .social { display: flex; gap: 12px; }
   .social-btn {
     width: 44px; height: 44px; border-radius: 50%;
@@ -166,7 +179,7 @@
     color: rgba(40, 20, 0, 0.62);
   }
   #hero .perks { list-style: none; margin: 26px 0 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-  #hero .perks li { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: #fff6e6; text-shadow: 0 1px 2px rgba(120,50,0,0.3); }
+  #hero .perks li { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; color: #1a1205; text-shadow: none; }
   #hero .perks .chk {
     flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
@@ -437,13 +450,12 @@
   <div id="decor">
     <img id="hanging-guy" src="perso-agrippe.png" alt="Personnage suspendu">
     <div class="cloud anim-dr" style="left: 6%; top: 16%; animation-delay: -1s;"></div>
-    <div class="cloud anim-f2" style="left: 3%; top: 54%; transform: scale(0.7); animation-delay: -3s;"></div>
     <div class="cloud anim-f" style="right: 8%; top: 20%; transform: scale(0.85); animation-delay: -2.5s;"></div>
     <div class="cloud anim-dr" style="right: 4%; top: 70%; transform: scale(0.62); animation-delay: -4s;"></div>
   </div>
 
   <header id="topbar">
-    <a class="glass-btn" href="index.html" aria-label="Accueil">
+    <a class="home-btn" href="index.html" aria-label="Accueil" title="Retour à l'accueil">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1V9.5"/></svg>
     </a>
     <div class="social">
@@ -463,8 +475,8 @@
     <section id="hero">
       <p class="kicker"><span class="dot"></span> Réservez en 1 minute</p>
       <h1>Audit <em>gratuit</em></h1>
-      <p class="lead">On analyse votre présence digitale ensemble et vous repartez avec les bonnes décisions.</p>
-      <p class="lead-accent">Un plan d'action clair, sans engagement.</p>
+      <p class="lead" style="font-family:'Space Grotesk','Helvetica Neue',sans-serif;font-weight:600;color:#ffffff;font-size:clamp(17px,1.9vw,22px);line-height:1.45;max-width:24ch;text-shadow:0 2px 10px rgba(60,30,0,0.35);">On analyse votre présence digitale ensemble <span style="color:#ffe9a8;">et vous repartez avec les bonnes décisions.</span></p>
+      <p class="lead-accent" style="margin:18px 0 0;"><span style="display:inline-flex;align-items:center;gap:8px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(13px,1.4vw,16px);letter-spacing:0.01em;color:#fff;background:linear-gradient(to bottom,#f9a13a,#f0740b);padding:9px 18px;border-radius:999px;box-shadow:0 8px 20px rgba(120,50,0,0.35),inset 0 1px 1px rgba(255,255,255,0.4);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 6.9L21 9.2l-5.2 4.2L17.6 22 12 17.8 6.4 22l1.8-8.6L3 9.2l6.6-.3z"/></svg>Un plan d'action clair, sans engagement</span></p>
       <ul class="perks">
         <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> 30 minutes en visio</li>
         <li><span class="chk"><svg viewBox="0 0 24 24" fill="none" stroke="#a54a00" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span> 100 % gratuit, zéro engagement</li>
