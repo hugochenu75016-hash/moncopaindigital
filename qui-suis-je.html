@@ -10,16 +10,16 @@
 <link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 <link rel="manifest" href="/favicons/site.webmanifest">
-<meta name="theme-color" content="#F3852B">
+<meta name="theme-color" content="#6EC1F0">
 <title>Qui suis-je ? · Mon Copain Digital</title>
 <meta name="description" content="Moi c'est Hugo, 23 ans, développeur web et commercial de formation. Votre copain digital pour apprivoiser le numérique en douceur, sans jargon et à votre rythme.">
 <link rel="canonical" href="https://moncopaindigital.fr/qui-suis-je.html">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;family=Grandstander:wght@500;600;700&amp;display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
-    --bg: #FF7A00;
+    --bg: #6EC1F0;
     --ink: #4d2000;
     --stroke: #7a3300;
     --cream: #fff8ef;
@@ -82,6 +82,19 @@
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,1), inset 0 -5px 14px rgba(255,150,60,0.32), 0 14px 32px rgba(120,50,0,0.38);
   }
   .glass-btn:active { transform: translateY(0) scale(0.99); }
+  /* Bouton maison blanc (retour menu) */
+  .home-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 48px; height: 48px; border-radius: 50%; flex: 0 0 auto;
+    color: #8a6a0c; text-decoration: none; cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.9); background: #fff;
+    box-shadow: 0 10px 24px rgba(120,50,0,0.30);
+    transition: transform .28s cubic-bezier(.2,1,.3,1), box-shadow .28s ease, background .28s ease;
+  }
+  .home-btn svg { width: 22px; height: 22px; }
+  .home-btn:hover { transform: translateY(-3px) scale(1.06); background: #fff; box-shadow: 0 14px 32px rgba(120,50,0,0.4); }
+  .home-btn:active { transform: translateY(0) scale(0.98); }
+  body.night .home-btn { color: #37407e; }
   #topbar .social { display: flex; align-items: center; gap: 12px; }
   .social-btn {
     width: 44px; height: 44px; border-radius: 50%;
@@ -330,45 +343,6 @@
   #site-footer {
     position: relative; z-index: 10; margin-top: clamp(20px, 4vh, 48px);
     padding: clamp(40px, 5vw, 68px) clamp(16px, 4vw, 48px) clamp(24px, 3vw, 34px);
-    opacity: 0; transform: translateY(48px);
-    transition: opacity .8s cubic-bezier(.2,.8,.25,1), transform .8s cubic-bezier(.2,.8,.25,1);
-  }
-  #site-footer.revealed { opacity: 1; transform: none; }
-  #site-footer .sf-inner > *, #site-footer .sf-legal {
-    opacity: 0; transform: translateY(24px);
-    transition: opacity .7s cubic-bezier(.2,.8,.25,1), transform .7s cubic-bezier(.2,.8,.25,1);
-  }
-  #site-footer.revealed .sf-inner > *, #site-footer.revealed .sf-legal {
-    opacity: 1; transform: none;
-  }
-  #site-footer.revealed .sf-inner > *:nth-child(1) { transition-delay: .08s; }
-  #site-footer.revealed .sf-inner > *:nth-child(2) { transition-delay: .16s; }
-  #site-footer.revealed .sf-inner > *:nth-child(3) { transition-delay: .24s; }
-  #site-footer.revealed .sf-inner > *:nth-child(4) { transition-delay: .32s; }
-  #site-footer.revealed .sf-legal { transition-delay: .4s; }
-  @media (prefers-reduced-motion: reduce) {
-    #site-footer, #site-footer .sf-inner > *, #site-footer .sf-legal {
-      opacity: 1; transform: none; transition: none;
-    }
-  }
-  /* Révélation des sections au défilement (cascade des éléments) */
-  #page > section:not(#hero) > * {
-    opacity: 0; transform: translateY(42px);
-    transition: opacity .65s cubic-bezier(.2,.8,.25,1), transform .65s cubic-bezier(.2,.8,.25,1);
-  }
-  #page > section:not(#hero).in-view > * { opacity: 1; transform: none; }
-  #page > section:not(#hero).in-view > *:nth-child(1) { transition-delay: .05s; }
-  #page > section:not(#hero).in-view > *:nth-child(2) { transition-delay: .17s; }
-  #page > section:not(#hero).in-view > *:nth-child(3) { transition-delay: .29s; }
-  #page > section:not(#hero).in-view > *:nth-child(4) { transition-delay: .41s; }
-  #page > section:not(#hero).in-view > *:nth-child(5) { transition-delay: .53s; }
-  @media (prefers-reduced-motion: reduce) {
-    #page > section:not(#hero) > * { opacity: 1; transform: none; transition: none; }
-  }
-  #site-footer {
-    background: var(--bg);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
-    overflow: hidden;
   }
   #site-footer .sf-inner {
     max-width: 1160px; margin: 0 auto;
@@ -601,7 +575,7 @@
   </div>
 
   <header id="topbar">
-    <a class="glass-btn" href="index.html" aria-label="Accueil" style="width:48px;height:48px;padding:0;border-radius:50%;">
+    <a class="home-btn" href="index.html" aria-label="Accueil" title="Retour à l'accueil">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.75 19.5v-5.5h4.5v5.5"/></svg>
     </a>
     <div class="social">
@@ -619,7 +593,7 @@
         <p class="kicker"><span class="dot"></span> Qui suis-je&nbsp;?</p>
         <h1>Hugo</h1>
         <p class="role">Votre copain digital — développeur web &amp; commercial de formation</p>
-        <p class="lead">J'ai 23 ans, d'origine normande et aujourd'hui parisien, et j'ai grandi avec le numérique. Après avoir été développeur web puis commercial, j'ai eu envie de mettre cette double casquette — technique <strong>et</strong> humaine — au service de celles et ceux que la technologie intimide.</p>
+        <p class="lead" style="font-weight:700;font-family:'Grandstander',cursive;">J'ai 23 ans, d'origine normande et aujourd'hui parisien, et j'ai grandi avec le numérique. Après avoir été développeur web puis commercial, j'ai eu envie de mettre cette double casquette — technique <strong>et</strong> humaine — au service de celles et ceux que la technologie intimide.</p>
         <div class="stats">
           <div class="stat"><span class="n"><span class="star">★</span> 5/5</span><span class="l">note moyenne des avis</span></div>
           <div class="stat"><span class="n">200+</span><span class="l">personnes accompagnées</span></div>
