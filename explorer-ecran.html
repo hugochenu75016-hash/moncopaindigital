@@ -350,6 +350,38 @@
     padding:8px 16px; border-radius:999px;
   }
   #replay:hover{ background:#fff; }
+  #playbtn{
+    position:absolute; bottom:14px; right:16px; z-index:13; cursor:pointer; display:none;
+    align-items:center; gap:7px;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; letter-spacing:.06em; text-transform:uppercase;
+    color:#fff; background:linear-gradient(180deg,#ff8a3d,#ef6d0b); border:1px solid rgba(120,60,0,0.35);
+    padding:8px 15px; border-radius:999px; box-shadow:0 4px 12px rgba(200,90,0,0.4);
+    transition:transform .12s ease, filter .12s ease;
+  }
+  #playbtn:hover{ transform:translateY(-2px); filter:brightness(1.06); }
+  #playbtn svg{ width:17px; height:17px; }
+
+  /* Mini-jeu attrape-pièces */
+  #game{ position:absolute; inset:0; z-index:40; background:rgba(8,26,40,0.94); display:none; flex-direction:column; }
+  #game.show{ display:flex; }
+  #game .g-top{ display:flex; align-items:center; justify-content:space-between; padding:12px 16px; font-family:'Fredoka',sans-serif; color:#fff; }
+  #game .g-score{ font-weight:700; font-size:16px; }
+  #game .g-time{ font-weight:600; font-size:14px; color:#ffd27a; }
+  #game .g-close{ cursor:pointer; background:rgba(255,255,255,0.16); border:none; color:#fff; width:30px; height:30px; border-radius:50%; font-size:16px; line-height:1; }
+  #game .g-close:hover{ background:rgba(255,255,255,0.3); }
+  #gcanvas{ flex:1; width:100%; display:block; touch-action:none; }
+  #game .g-over{ position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px; background:rgba(8,26,40,0.7); font-family:'Fredoka',sans-serif; color:#fff; text-align:center; }
+  #game .g-over.show{ display:flex; }
+  #game .g-over h3{ margin:0; font-size:60px; }
+  #game .g-over .g-final{ font-size:96px; font-weight:700; color:#ffd27a; }
+  #game .g-over button{ cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:700; font-size:26px; text-transform:uppercase; letter-spacing:.06em; color:#fff; background:linear-gradient(180deg,#ff8a3d,#ef6d0b); border:none; padding:18px 44px; border-radius:999px; }
+  #game .g-over #g-back{ background:#fff; color:#ef6d0b; }
+  .g-coin{ display:inline-flex; align-items:center; justify-content:center; vertical-align:middle;
+    width:24px; height:24px; border-radius:50%; font-family:'Orbitron',sans-serif; font-weight:900;
+    font-size:8px; letter-spacing:0.3px; color:#a9700a;
+    background:radial-gradient(circle at 36% 30%, #fff6c8 0%, #ffe27a 26%, #f6b81e 56%, #c98708 100%);
+    box-shadow:inset 0 1px 2px rgba(255,255,255,0.6), 0 2px 5px rgba(120,80,0,0.4); }
+  .g-final .g-coin-lg{ width:74px; height:74px; font-size:22px; }
 
   /* ===== Power-on CRT ===== */
   #power{ position:fixed; inset:0; z-index:50; background:#000; pointer-events:none; }
@@ -725,7 +757,7 @@
 
     <!-- Finale -->
     <div id="finale">
-      <a class="cta-buy" id="cta-buy" href="paiement.html?offre=seance" target="_top">Réserver ma séance</a>
+      <a class="cta-buy" id="cta-buy" href="rendez-vous.html" target="_top">Réserver ma séance</a>
       <div class="reassure">
         <span>✔ Sans engagement</span><span>✔ Crédit d'impôt 50%</span><span>✔ Satisfait ou revu</span>
       </div>
@@ -735,6 +767,26 @@
     <div id="progress"></div>
     <button id="skip" type="button">Passer ▸</button>
     <button id="replay" type="button">↺ Revoir</button>
+    <button id="playbtn" type="button">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 8a5 5 0 0 0-5 5v.5a3.5 3.5 0 0 0 6.3 2.1l.6-.8a2 2 0 0 1 1.6-.8h2.8a2 2 0 0 1 1.6.8l.6.8a3.5 3.5 0 0 0 6.3-2.1V13a5 5 0 0 0-5-5H7Zm0 3.2c.4 0 .7.3.7.7v.6h.6a.7.7 0 0 1 0 1.4h-.6v.6a.7.7 0 0 1-1.4 0v-.6h-.6a.7.7 0 0 1 0-1.4h.6v-.6c0-.4.3-.7.7-.7Zm9.5-.2a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm-2 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>
+      Jouer
+    </button>
+
+    <!-- Mini-jeu attrape-pièces -->
+    <div id="game">
+      <div class="g-top">
+        <span class="g-score"><span class="g-coin">MCD</span> <b id="g-score-n">0</b></span>
+        <span class="g-time"><b id="g-time-n">20</b>s</span>
+        <button class="g-close" id="g-close" type="button" aria-label="Fermer">✕</button>
+      </div>
+      <canvas id="gcanvas"></canvas>
+      <div class="g-over" id="g-over">
+        <h3>Bien joué&nbsp;!</h3>
+        <div class="g-final"><span class="g-coin g-coin-lg">MCD</span> <span id="g-final-n">0</span></div>
+        <button id="g-again" type="button">Rejouer</button>
+        <button id="g-back" type="button">Retour</button>
+      </div>
+    </div>
   </main>
 
   <div id="power"><div class="line"></div></div>
@@ -746,6 +798,7 @@
   var progress = document.getElementById('progress');
   var skip = document.getElementById('skip');
   var replay = document.getElementById('replay');
+  var playbtn = document.getElementById('playbtn');
   var power = document.getElementById('power');
   var aud = 'part';
 
@@ -953,7 +1006,7 @@
       if(!sc.choice && !sc.final){
         timer = setTimeout(function(){ go(i+1); }, sc.dur);
       }
-      if(sc.final){ replay.style.display='block'; skip.style.display='none'; }
+      if(sc.final){ replay.style.display='block'; skip.style.display='none'; playbtn.style.display='inline-flex'; }
     }, 180);
   }
 
@@ -969,21 +1022,199 @@
   skip.addEventListener('click', function(){
     clearTimeout(timer);
     document.getElementById('choice').classList.remove('show');
-    go(scenes.length-1);
+    go(idx+1);
   });
   replay.addEventListener('click', function(){
-    replay.style.display='none'; skip.style.display='';
+    replay.style.display='none'; skip.style.display=''; playbtn.style.display='none';
     document.getElementById('finale').classList.remove('show');
     go(0);
   });
 
+  // ===== Mini-jeu : attrape les pièces =====
+  (function(){
+    var gEl = document.getElementById('game');
+    var cv = document.getElementById('gcanvas');
+    var ctx2 = cv.getContext('2d');
+    var scoreN = document.getElementById('g-score-n');
+    var timeN = document.getElementById('g-time-n');
+    var over = document.getElementById('g-over');
+    var finalN = document.getElementById('g-final-n');
+    var raf = null, running = false;
+    var W = 0, H = 0, dpr = 1;
+    var joyVX = 0;
+    var basket, coins, score, tLeft, lastSpawn, lastTick, startT;
+
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = cv.clientWidth; H = cv.clientHeight;
+      cv.width = W * dpr; cv.height = H * dpr;
+      ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function reset(){
+      resize();
+      basket = { x: W/2, w: 76, h: 20, y: 0 };
+      basket.y = H - 46;
+      coins = []; score = 0; tLeft = 20;
+      lastSpawn = 0; startT = performance.now(); lastTick = startT;
+      scoreN.textContent = '0'; timeN.textContent = '20';
+      over.classList.remove('show');
+    }
+    function spawn(){
+      var r = 13;
+      coins.push({ x: r + Math.random()*(W-2*r), y: -r, r: r, vy: 2.1 + Math.random()*2.3 });
+    }
+    function drawCoin(c){
+      ctx2.beginPath(); ctx2.arc(c.x, c.y, c.r, 0, 7); 
+      ctx2.fillStyle = '#f5b921'; ctx2.fill();
+      ctx2.lineWidth = 2; ctx2.strokeStyle = '#c98708'; ctx2.stroke();
+      ctx2.fillStyle = '#a9700a'; ctx2.font = 'bold 14px Orbitron, sans-serif';
+      ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+      ctx2.fillText('€', c.x, c.y+1);
+    }
+    function loop(now){
+      if(!running) return;
+      var dt = now - lastTick;
+      // temps
+      var elapsed = (now - startT)/1000;
+      tLeft = Math.max(0, 20 - Math.floor(elapsed));
+      timeN.textContent = tLeft;
+      if(elapsed >= 20){ return end(); }
+      // spawn
+      if(now - lastSpawn > 620){ spawn(); lastSpawn = now; }
+      // déplacement au joystick de la borne
+      if(joyVX){ basket.x = Math.max(basket.w/2, Math.min(W - basket.w/2, basket.x + joyVX * 11 * (dt/16.7))); }
+      lastTick = now;
+      ctx2.clearRect(0,0,W,H);
+      // pièces
+      for(var i=coins.length-1;i>=0;i--){
+        var c = coins[i];
+        c.y += c.vy * (dt/16.7);
+        if(c.y - c.r > basket.y && c.y - c.r < basket.y + basket.h + 10 &&
+           c.x > basket.x - basket.w/2 - c.r && c.x < basket.x + basket.w/2 + c.r &&
+           c.y + c.r >= basket.y){
+          score++; scoreN.textContent = score; coins.splice(i,1); playPop(); continue;
+        }
+        if(c.y - c.r > H){ coins.splice(i,1); continue; }
+        drawCoin(c);
+      }
+      // panier
+      ctx2.fillStyle = '#ff8a3d';
+      ctx2.strokeStyle = '#c85a00'; ctx2.lineWidth = 3;
+      roundRect(basket.x - basket.w/2, basket.y, basket.w, basket.h, 8);
+      ctx2.fill(); ctx2.stroke();
+      raf = requestAnimationFrame(loop);
+    }
+    function roundRect(x,y,w,h,r){
+      ctx2.beginPath();
+      ctx2.moveTo(x+r,y); ctx2.arcTo(x+w,y,x+w,y+h,r); ctx2.arcTo(x+w,y+h,x,y+h,r);
+      ctx2.arcTo(x,y+h,x,y,r); ctx2.arcTo(x,y,x+w,y,r); ctx2.closePath();
+    }
+    var actx = null;
+    function playPop(){
+      try{
+        var AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+        actx = actx || new AC(); var t = actx.currentTime;
+        var g = actx.createGain(); g.gain.setValueAtTime(0.14,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);
+        var o = actx.createOscillator(); o.type='square'; o.frequency.setValueAtTime(880,t); o.frequency.setValueAtTime(1245,t+0.05);
+        o.connect(g).connect(actx.destination); o.start(t); o.stop(t+0.16);
+      }catch(e){}
+    }
+    function end(){
+      running = false; if(raf) cancelAnimationFrame(raf);
+      finalN.textContent = score; over.classList.add('show');
+    }
+    function start(){
+      gEl.classList.add('show'); reset(); running = true;
+      try{ parent.postMessage({ type:'game-start' }, '*'); }catch(e){}
+      raf = requestAnimationFrame(loop);
+    }
+    function quit(){
+      running = false; if(raf) cancelAnimationFrame(raf); gEl.classList.remove('show');
+      try{ parent.postMessage({ type:'game-end' }, '*'); }catch(e){}
+    }
+    function move(clientX){
+      var r = cv.getBoundingClientRect();
+      basket.x = Math.max(basket.w/2, Math.min(W - basket.w/2, clientX - r.left));
+    }
+    cv.addEventListener('pointermove', function(e){ if(running) move(e.clientX); });
+    cv.addEventListener('pointerdown', function(e){ if(running) move(e.clientX); });
+    // joystick de la borne (message du parent)
+    window.addEventListener('message', function(e){
+      var d = e.data || {};
+      if(d.type === 'joy'){ joyVX = Math.max(-1, Math.min(1, d.nx || 0)); }
+    });
+    playbtn.addEventListener('click', start);
+    document.getElementById('g-close').addEventListener('click', quit);
+    document.getElementById('g-again').addEventListener('click', function(){ reset(); running = true; raf = requestAnimationFrame(loop); });
+    document.getElementById('g-back').addEventListener('click', quit);
+    window.addEventListener('resize', function(){ if(gEl.classList.contains('show')) resize(); });
+  })();
+
   // power-on puis démarrage
+  function crtPowerSound(){
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return false;
+      var ctx = new AC();
+      if(ctx.state === 'suspended'){ ctx.close(); return false; }
+      var now = ctx.currentTime;
+
+      // Thump grave (le "clunk" de mise sous tension)
+      var thump = ctx.createOscillator();
+      var tg = ctx.createGain();
+      thump.type = 'sine';
+      thump.frequency.setValueAtTime(160, now);
+      thump.frequency.exponentialRampToValueAtTime(45, now + 0.18);
+      tg.gain.setValueAtTime(0.0001, now);
+      tg.gain.exponentialRampToValueAtTime(0.5, now + 0.02);
+      tg.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+      thump.connect(tg).connect(ctx.destination);
+      thump.start(now); thump.stop(now + 0.4);
+
+      // Sifflement aigu du transfo de ligne (~15.7 kHz descendant)
+      var whine = ctx.createOscillator();
+      var wg = ctx.createGain();
+      whine.type = 'triangle';
+      whine.frequency.setValueAtTime(15700, now + 0.04);
+      whine.frequency.exponentialRampToValueAtTime(9000, now + 1.6);
+      wg.gain.setValueAtTime(0.0001, now + 0.04);
+      wg.gain.exponentialRampToValueAtTime(0.06, now + 0.15);
+      wg.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+      whine.connect(wg).connect(ctx.destination);
+      whine.start(now + 0.04); whine.stop(now + 1.9);
+
+      // Crépitement statique (dégaussage)
+      var dur = 0.5, buf = ctx.createBuffer(1, ctx.sampleRate*dur, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for(var s=0;s<d.length;s++){ d[s] = (Math.random()*2-1) * (1 - s/d.length); }
+      var noise = ctx.createBufferSource(); noise.buffer = buf;
+      var ng = ctx.createGain();
+      ng.gain.setValueAtTime(0.14, now);
+      ng.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+      var hp = ctx.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=1200;
+      noise.connect(hp).connect(ng).connect(ctx.destination);
+      noise.start(now);
+      return true;
+    }catch(e){ return false; }
+  }
+
   function boot(){
+    crtPowerSound();
     power.classList.add('on');
     setTimeout(function(){ power.classList.add('off'); }, 900);
     setTimeout(function(){ go(0); }, 700);
   }
   boot();
+  // Si l'audio est bloqué au chargement (autoplay), on joue le son au 1er geste.
+  var soundPlayed = false;
+  ['click','touchstart','keydown'].forEach(function(ev){
+    document.addEventListener(ev, function once(){
+      if(!soundPlayed){ soundPlayed = crtPowerSound(); }
+      if(soundPlayed){
+        ['click','touchstart','keydown'].forEach(function(e2){ document.removeEventListener(e2, once); });
+      }
+    });
+  });
 })();
 </script>
 </body>
