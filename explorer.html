@@ -482,8 +482,8 @@
       0 4px 10px rgba(60,30,0,0.45);
   }
   .arcade-coin::after {
-    content: '€'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    font-family:'Orbitron',sans-serif; font-weight:900; font-size:28px; color:#a9700a;
+    content: 'MCP'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Orbitron',sans-serif; font-weight:900; font-size:16px; letter-spacing:0.5px; color:#a9700a;
     text-shadow: 0 1px 0 rgba(255,250,210,0.8);
   }
   .marquee.bump { animation: mqBump 0.32s ease; }
@@ -861,15 +861,18 @@
       var deg = nx * 17;
       shaft.style.transform = 'translateX(-50%) rotate(' + deg + 'deg)';
       ball.style.transform = 'translate(' + (nx*20) + 'px, ' + (ny*13 + 4) + 'px) scale(1.05)';
+      if(window.__gameActive){
+        var f = document.getElementById('ecran-frame');
+        if(f && f.contentWindow){ f.contentWindow.postMessage({ type:'joy', nx:nx }, '*'); }
+      }
     }
     setTilt(0, 0.15);
     function move(e){
       var b = (js.querySelector('.base') || js).getBoundingClientRect();
-      var cx = b.left + b.width/2, cy = b.top + b.height/2;
-      var nx = (e.clientX - cx) / 42, ny = (e.clientY - cy) / 42;
+      var cx = b.left + b.width/2;
+      var nx = (e.clientX - cx) / 42;
       nx = Math.max(-1, Math.min(1, nx));
-      ny = Math.max(-1, Math.min(1, ny));
-      setTilt(nx, ny);
+      setTilt(nx, 0);
     }
     js.addEventListener('pointerdown', function(e){
       dragging = true; js.classList.add('grabbing');
@@ -933,6 +936,7 @@
     if(!isFinite(SC) || SC < 1) SC = 4.4;
     var tx = (window.innerWidth/2 - (sr.left + sr.width/2)) / SC;
     var ty = (window.innerHeight/2 - (sr.top + sr.height/2)) / SC;
+    window.__zoomState = { SC: SC, ox: ox, oy: oy, tx: tx, ty: ty };
     document.body.style.transformOrigin = ox + 'px ' + oy + 'px';
     document.body.style.transition = 'transform 2.4s cubic-bezier(.4,0,.2,1)';
     requestAnimationFrame(function(){
@@ -1026,6 +1030,8 @@
     smStart.addEventListener('click', function(){
       if(ecran && !ecran.src){ ecran.src = 'explorer-ecran.html'; }
       fitEcran();
+      document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
+      if(screen){ screen.classList.remove('holding-coin'); }
       var menu = document.getElementById('screen-menu');
       if(menu){ menu.classList.remove('on'); }
       if(screen){ screen.classList.add('showecran'); }
@@ -1056,6 +1062,49 @@
   if(back){ back.addEventListener('click', backOut); }
   var ecranExit = document.getElementById('ecran-exit');
   if(ecranExit){ ecranExit.addEventListener('click', backOut); }
+
+  // ===== Mode jeu : dézoomer un peu pour montrer le joystick =====
+  var js2 = document.querySelector('.joystick');
+  function measurePage(el){
+    var prevT = document.body.style.transition, prev = document.body.style.transform;
+    document.body.style.transition = 'none';
+    document.body.style.transform = 'none';
+    var r = el.getBoundingClientRect();
+    var box = { vl:r.left, vt:r.top, w:r.width, h:r.height, px:r.left+window.scrollX, py:r.top+window.scrollY };
+    document.body.style.transform = prev;
+    void document.body.offsetWidth;
+    document.body.style.transition = prevT;
+    return box;
+  }
+  function enterGameView(){
+    if(!screen || !js2) return;
+    var s = measurePage(screen), j = measurePage(js2);
+    var top = s.vt, bottom = j.vt + j.h;
+    var cxv = s.vl + s.w/2, cyv = (top + bottom)/2;
+    var w = Math.max(s.w, j.w) * 1.35, h = (bottom - top) * 1.14;
+    var S = Math.min(window.innerWidth*0.94 / w, window.innerHeight*0.94 / h);
+    if(!isFinite(S) || S < 0.2) S = 1;
+    var tx = (window.innerWidth/2 - cxv) / S;
+    var ty = (window.innerHeight/2 - cyv) / S;
+    document.body.style.transformOrigin = (cxv+window.scrollX) + 'px ' + (cyv+window.scrollY) + 'px';
+    document.body.style.transition = 'transform 1.1s cubic-bezier(.4,0,.2,1)';
+    requestAnimationFrame(function(){
+      document.body.style.transform = 'scale(' + S + ') translate(' + tx + 'px,' + ty + 'px)';
+    });
+  }
+  function exitGameView(){
+    var z = window.__zoomState; if(!z) return;
+    document.body.style.transformOrigin = z.ox + 'px ' + z.oy + 'px';
+    document.body.style.transition = 'transform 1.1s cubic-bezier(.4,0,.2,1)';
+    requestAnimationFrame(function(){
+      document.body.style.transform = 'scale(' + z.SC + ') translate(' + z.tx + 'px,' + z.ty + 'px)';
+    });
+  }
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if(d.type === 'game-start'){ window.__gameActive = true; enterGameView(); }
+    else if(d.type === 'game-end'){ window.__gameActive = false; exitGameView(); }
+  });
 })();
 </script>
 <script>
