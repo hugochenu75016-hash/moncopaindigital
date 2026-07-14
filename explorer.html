@@ -390,6 +390,95 @@
   .decal .slot { position:absolute; bottom: 16px; width: 12px; height: 22px; background:#2a1503; border-radius:3px; }
   .decal .slot.l { left: 40px; } .decal .slot.r { right: 40px; }
 
+  /* Sticker MCD (feature 5) */
+  .sticker-mcd {
+    position:absolute; left:14px; bottom:150px; z-index:6;
+    width:60px; height:60px; border-radius:50%;
+    background: radial-gradient(circle at 38% 32%, #fff2d0, #ffd34d 55%, #f0a000 100%);
+    border:3px solid #fff; box-shadow:0 3px 8px rgba(60,20,0,0.4);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Orbitron',sans-serif; font-weight:900; font-size:17px; color:#a8470a;
+    transform:rotate(-11deg);
+  }
+
+  /* Compteur CREDITS (feature 6) */
+  .credits {
+    position:absolute; left:50%; top:14px; transform:translateX(-50%);
+    font-family:'Orbitron',sans-serif; font-weight:700; font-size:13px; letter-spacing:.12em;
+    color:#ffd98a; background:#2a1503; padding:5px 12px; border-radius:5px;
+    box-shadow:inset 0 0 8px rgba(0,0,0,0.6); white-space:nowrap;
+  }
+  .credits b { color:#5fe38a; }
+
+  /* Coin return (feature 10) */
+  .coin-return {
+    position:absolute; right:22px; bottom:20px; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    background:none; border:none; padding:0;
+  }
+  .coin-return .cr-slot {
+    width:44px; height:44px; border-radius:8px;
+    background:linear-gradient(180deg,#3a1c04,#1c0e02);
+    box-shadow:inset 0 2px 4px rgba(0,0,0,0.7), 0 1px 0 rgba(255,180,120,0.3);
+    position:relative;
+  }
+  .coin-return .cr-slot::after {
+    content:''; position:absolute; left:50%; top:12px; transform:translateX(-50%);
+    width:20px; height:20px; border-radius:50%; border:2px solid #6a3a12;
+  }
+  .coin-return .cr-lbl {
+    font-family:'Orbitron',sans-serif; font-weight:700; font-size:9px; letter-spacing:.14em; color:#3a1c04;
+  }
+  .coin-return:active { transform:translateY(2px); }
+
+  /* Ombre portée au sol (feature 9) */
+  .cab-shadow {
+    position:fixed; left:50%; bottom:6%; width:340px; height:60px;
+    transform:translateX(-50%); border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(10,30,50,0.5) 0%, rgba(10,30,50,0) 72%);
+    filter:blur(4px); z-index:1; pointer-events:none;
+    animation: shadowSway 9s ease-in-out infinite;
+  }
+  @keyframes shadowSway { 0%,100%{ transform:translateX(-50%) scaleX(1); } 50%{ transform:translateX(-50%) scaleX(0.9); } }
+
+  /* Poussière flottante dans le halo (feature 4) */
+  .dust { position:fixed; left:50%; bottom:8%; width:460px; height:220px; transform:translateX(-50%); z-index:1; pointer-events:none; }
+  .dust i {
+    position:absolute; bottom:0; width:4px; height:4px; border-radius:50%;
+    background:rgba(180,220,255,0.7); box-shadow:0 0 5px rgba(150,200,255,0.6);
+    animation: dustRise linear infinite;
+  }
+  @keyframes dustRise {
+    0%   { transform:translateY(0) translateX(0); opacity:0; }
+    15%  { opacity:1; }
+    85%  { opacity:0.8; }
+    100% { transform:translateY(-200px) translateX(var(--dx,10px)); opacity:0; }
+  }
+
+  /* Shake à la pièce (feature 7) */
+  @keyframes cabShake {
+    0%,100%{ transform: rotateX(6deg) rotateY(-22deg) scale(0.62) translateX(0); }
+    20%{ transform: rotateX(6deg) rotateY(-22deg) scale(0.62) translateX(-8px); }
+    40%{ transform: rotateX(6deg) rotateY(-22deg) scale(0.62) translateX(7px); }
+    60%{ transform: rotateX(6deg) rotateY(-22deg) scale(0.62) translateX(-4px); }
+    80%{ transform: rotateX(6deg) rotateY(-22deg) scale(0.62) translateX(3px); }
+  }
+  .cabinet.shake { animation: cabShake .5s ease-in-out !important; }
+
+  /* Fumée de la prise (feature 8) */
+  .plug-smoke { position:absolute; z-index:5; pointer-events:none; opacity:0; }
+  .plug-smoke.on i {
+    position:absolute; width:14px; height:14px; border-radius:50%;
+    background:radial-gradient(circle, rgba(220,220,220,0.55), rgba(220,220,220,0));
+    animation: smokeUp 2.4s ease-out infinite;
+  }
+  .plug-smoke.on { opacity:1; }
+  @keyframes smokeUp {
+    0%   { transform:translateY(0) scale(0.5); opacity:0; }
+    20%  { opacity:0.6; }
+    100% { transform:translateY(-46px) scale(1.7); opacity:0; }
+  }
+
   /* Barre haute */
   #topbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 50;
@@ -704,6 +793,18 @@
     <div class="cloud anim-f2" style="left: 12%; top: 82%; transform: scale(0.55);"></div>
   </div>
   <div class="floor-glow"></div>
+  <div class="cab-shadow" aria-hidden="true"></div>
+  <div class="dust" aria-hidden="true">
+    <i style="left:12%; --dx:14px; animation-duration:7s; animation-delay:0s;"></i>
+    <i style="left:24%; --dx:-10px; animation-duration:9s; animation-delay:1.2s;"></i>
+    <i style="left:38%; --dx:8px; animation-duration:6.5s; animation-delay:2.4s;"></i>
+    <i style="left:50%; --dx:-14px; animation-duration:8.5s; animation-delay:0.6s;"></i>
+    <i style="left:62%; --dx:12px; animation-duration:7.5s; animation-delay:3s;"></i>
+    <i style="left:74%; --dx:-8px; animation-duration:9.5s; animation-delay:1.8s;"></i>
+    <i style="left:86%; --dx:10px; animation-duration:6.8s; animation-delay:2.1s;"></i>
+    <i style="left:30%; --dx:-12px; animation-duration:8.2s; animation-delay:4s;"></i>
+    <i style="left:68%; --dx:9px; animation-duration:7.2s; animation-delay:3.6s;"></i>
+  </div>
   <div class="scene">
     <h1 id="page-title">Explorer</h1>
   <div class="socket-fixed" aria-hidden="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:820px; height:560px; z-index:1; pointer-events:none;">
@@ -745,6 +846,11 @@
         <path d="M753,478 C753,488 757,493 762,493 C767,493 771,488 771,478 Z" fill="#191b1f"/>
       </g>
     </svg>
+    <div class="plug-smoke" id="plug-smoke" style="left:90%; top:73%; width:24px; height:24px;">
+      <i style="left:0; animation-delay:0s;"></i>
+      <i style="left:8px; animation-delay:0.8s;"></i>
+      <i style="left:-4px; animation-delay:1.6s;"></i>
+    </div>
   </div>
 <div class="wire-bg" aria-hidden="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:820px; height:560px; z-index:1; pointer-events:none;">
     <svg viewBox="0 0 820 560" width="820" height="560" style="overflow:visible;">
@@ -773,6 +879,7 @@
       <div class="face side-r"></div>
       <div class="face top"></div>
       <div class="face front">
+        <div class="sticker-mcd" aria-hidden="true">MCD</div>
 
         <div class="marquee">
           <div class="m1">MON COPAIN DIGITAL</div>
@@ -813,6 +920,11 @@
         </div>
 
         <div class="lower">
+          <div class="credits">CREDITS <b id="credits-n">00</b></div>
+          <button class="coin-return" id="coin-return" type="button" aria-label="Coin return">
+            <span class="cr-slot"></span>
+            <span class="cr-lbl">PUSH</span>
+          </button>
         </div>
       </div>
     </div>
@@ -994,15 +1106,52 @@
     anim.onfinish = function(){
       coin.remove();
       window.__coinFalling = false;
-      if(cab){ cab.classList.remove('bump'); void cab.offsetWidth; cab.classList.add('bump'); }
+      if(cab){ cab.classList.remove('bump','shake'); void cab.offsetWidth; cab.classList.add('bump','shake'); setTimeout(function(){ cab.classList.remove('shake'); }, 520); }
       startInsertCoin();
     };
   });
+  // Coin return (easter egg) : recrache une pièce + petit "clink"
+  (function(){
+    var cr = document.getElementById('coin-return');
+    if(!cr || !cab) return;
+    cr.addEventListener('click', function(e){
+      e.stopPropagation();
+      // clink métallique
+      try{
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if(AC){ var a = window.__coinCtx || (window.__coinCtx = new AC()); if(a.state==='suspended') a.resume();
+          var t=a.currentTime; var g=a.createGain(); g.gain.setValueAtTime(0.16,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.4);
+          var o=a.createOscillator(); o.type='triangle'; o.frequency.setValueAtTime(1760,t); o.frequency.exponentialRampToValueAtTime(660,t+0.3);
+          o.connect(g).connect(a.destination); o.start(t); o.stop(t+0.42);
+        }
+      }catch(err){}
+      // pièce recrachée
+      var r = cr.getBoundingClientRect();
+      var c = document.createElement('div');
+      c.className = 'arcade-coin';
+      c.style.left = (r.left + r.width/2) + 'px';
+      c.style.top = (r.top + window.scrollY + 10) + 'px';
+      document.body.appendChild(c);
+      c.animate([
+        { transform:'translate(-50%,-50%) translateY(0) rotateY(0deg)', opacity:1 },
+        { transform:'translate(-50%,-50%) translateY(40px) rotateY(540deg)', opacity:1, offset:0.7 },
+        { transform:'translate(-50%,-50%) translateY(70px) rotateY(720deg) scale(0.4)', opacity:0 }
+      ], { duration:900, easing:'cubic-bezier(.5,.05,.7,1)' }).onfinish = function(){ c.remove(); };
+      if(cab){ cab.classList.remove('shake'); void cab.offsetWidth; cab.classList.add('shake'); setTimeout(function(){ cab.classList.remove('shake'); }, 520); }
+    });
+  })();
+
   function startInsertCoin(){
     var r = cab.getBoundingClientRect();
     var el = document.createElement('div');
     el.className = 'plus-one'; el.textContent = '+1';
     coinSound();
+    // compteur crédits
+    var cn = document.getElementById('credits-n');
+    if(cn){ var v = (parseInt(cn.textContent,10)||0) + 1; cn.textContent = (v<10?'0':'') + v; }
+    // fumée de la prise (impulsion)
+    var ps = document.getElementById('plug-smoke');
+    if(ps){ ps.classList.add('on'); setTimeout(function(){ ps.classList.remove('on'); }, 2800); }
     if(screen){ screen.classList.add('holding-coin'); }
     el.style.left = (r.left + r.width/2) + 'px';
     el.style.top = (r.top + window.scrollY - 74) + 'px';
