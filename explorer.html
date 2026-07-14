@@ -63,6 +63,15 @@
     50%     { transform: rotateX(6deg) rotateY(-14deg) scale(0.62); }
   }
 
+  @media (max-width: 640px) {
+    .cabinet { transform: rotateX(6deg) rotateY(-18deg) scale(0.5); animation: swayM 9s ease-in-out infinite; }
+    @keyframes swayM {
+      0%,100% { transform: rotateX(6deg) rotateY(-20deg) scale(0.5); }
+      50%     { transform: rotateX(6deg) rotateY(-12deg) scale(0.5); }
+    }
+    .floor-glow { width: 300px; }
+  }
+
   .face { position: absolute; }
 
   /* Front */
@@ -153,11 +162,11 @@
   }
   .screen .hero-char .hc-idle, .screen .hero-char .hc-up { position:absolute; inset:0; image-rendering: pixelated; }
   .screen .hero-char .hc-idle {
-    background: url('maincaracterokbras.png') center bottom / contain no-repeat;
+    background: url('favicons/maincaracterokbras.png') center bottom / contain no-repeat;
     animation: heroIdleShow 3.4s ease-in-out infinite;
   }
   .screen .hero-char .hc-up {
-    background: url('maincaracterok.png') center bottom / contain no-repeat;
+    background: url('favicons/maincaracterok.png') center bottom / contain no-repeat;
     animation: heroUpShow 3.4s ease-in-out infinite;
   }
   @keyframes heroIdleShow {
@@ -168,6 +177,14 @@
   }
   .screen.coined .hero-char .hc-idle { animation:none; opacity:1; }
   .screen.coined .hero-char .hc-up { animation:none; opacity:0; }
+  .screen .hero-char .hc-coin {
+    position:absolute; inset:0; image-rendering:pixelated; opacity:0;
+    background: url('favicons/maincaracterpieces.png') center bottom / contain no-repeat;
+    transition: opacity .35s ease;
+  }
+  .screen.holding-coin .hero-char .hc-idle,
+  .screen.holding-coin .hero-char .hc-up { animation:none; opacity:0; }
+  .screen.holding-coin .hero-char .hc-coin { opacity:1; }
   .screen .title {
     position:absolute; left:0; right:0; top:14px; text-align:center;
     font-family:'Orbitron',sans-serif; font-weight:900; font-size:15px; letter-spacing:2px;
@@ -517,13 +534,63 @@
   }
   .caption {
     cursor: pointer; user-select: none; -webkit-user-select: none;
-    position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; z-index: 5;
+    position: fixed; bottom: 48px; left: 0; right: 0; text-align: center; z-index: 5;
     font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 30px; letter-spacing: 3px;
-    color: rgba(90,40,0,0.7); text-transform: uppercase;
+    text-transform: uppercase;
+    color: #ffe08a;
+    background: linear-gradient(180deg, #fff4c4 0%, #ffcf5e 34%, #e8a621 62%, #b8790f 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 1px rgba(120,72,0,0.55); paint-order: stroke fill;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.35), 0 2px 4px rgba(120,72,0,0.45);
+    filter: drop-shadow(0 6px 14px rgba(180,120,10,0.4));
   }
+  /* ===== Mode nuit + interrupteur jour/nuit (bas gauche) ===== */
+  html, body { transition: background .7s ease; }
+  body.night { background: radial-gradient(125% 95% at 50% -12%, #21326a 0%, #14204a 42%, #0b1230 100%) !important; }
+  body.night .cloud { opacity: 0.30; filter: saturate(0.5) brightness(0.8); }
+  body.night #page-title { color: rgba(220,228,255,0.9); }
+
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .8s ease; }
+  body.night #stars { opacity: 1; }
+  #stars .star { position: absolute; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,0.9); animation: starTwinkle var(--tw, 3.5s) ease-in-out infinite; }
+  @keyframes starTwinkle { 0%,100% { opacity: .25; transform: scale(.7); } 50% { opacity: 1; transform: scale(1); } }
+
+  #theme-switch { position: fixed; left: clamp(16px,3vw,32px); bottom: clamp(16px,3vh,30px); z-index: 90; display: flex; align-items: center; gap: 9px; }
+  #theme-switch .ts-lbl { font-family: 'Fredoka', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: .5px; color: rgba(90,40,0,0.72); text-transform: uppercase; transition: color .5s ease; }
+  body.night #theme-switch .ts-lbl { color: rgba(220,228,255,0.8); }
+  .dn-toggle {
+    position: relative; flex: 0 0 auto; width: 74px; height: 40px; border-radius: 999px; cursor: pointer; padding: 0;
+    border: 1px solid rgba(255,255,255,0.55);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.16) 45%, rgba(255,255,255,0.06) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), inset 0 -4px 10px rgba(255,150,60,0.2), 0 10px 24px rgba(120,50,0,0.3);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition: background .5s ease, box-shadow .3s ease, transform .2s ease;
+  }
+  .dn-toggle:hover { transform: translateY(-2px) scale(1.04); }
+  body.night .dn-toggle {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.30) 0%, rgba(120,140,220,0.14) 100%);
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.6), inset 0 -4px 10px rgba(60,90,200,0.3), 0 10px 24px rgba(10,16,48,0.5);
+  }
+  .dn-thumb {
+    position: absolute; top: 4px; left: 4px; width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(to bottom, #fff8ef, #ffe6b8); color: #e0851a;
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.95), 0 6px 14px rgba(120,50,0,0.4);
+    transition: transform .45s cubic-bezier(.5,1.4,.4,1), background .45s ease, color .45s ease;
+  }
+  body.night .dn-thumb {
+    transform: translateX(34px);
+    background: linear-gradient(to bottom, #eaf0ff, #b9c6ef); color: #37407e;
+    box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 6px 14px rgba(10,16,48,0.6);
+  }
+  .dn-thumb svg { width: 19px; height: 19px; }
 </style>
 </head>
 <body>
+<div id="stars" aria-hidden="true"></div>
+<div id="theme-switch">
+  <button class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb"></span></button>
+</div>
 <!-- ===== Transition portes entre pages ===== -->
 <style id="door-tx-style">
   #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
@@ -703,7 +770,7 @@
         <div class="bezel">
           <div class="screen">
             <div class="title">MON COPAIN DIGITAL</div>
-            <div class="hero-char"><div class="hc-idle"></div><div class="hc-up"></div></div>
+            <div class="hero-char"><div class="hc-idle"></div><div class="hc-up"></div><div class="hc-coin"></div></div>
             <div class="grid"></div>
             <div class="screen-menu" id="screen-menu">
               <button class="sm-start" type="button" id="sm-start">START</button>
@@ -851,7 +918,8 @@
       var n = document.querySelector(sel);
       if(n){ n.style.transition = 'opacity .5s ease'; n.style.opacity = '0'; }
     });
-    var SC = 4.4;
+    var SC = Math.min(window.innerWidth * 0.98 / sr.width, window.innerHeight * 0.94 / sr.height);
+    if(!isFinite(SC) || SC < 1) SC = 4.4;
     var tx = (window.innerWidth/2 - (sr.left + sr.width/2)) / SC;
     var ty = (window.innerHeight/2 - (sr.top + sr.height/2)) / SC;
     document.body.style.transformOrigin = ox + 'px ' + oy + 'px';
@@ -883,7 +951,8 @@
       { transform:'translate(-50%,-50%) translateY(6px) rotateY(180deg) scale(1)', opacity:1, offset:0.12 },
       { transform:'translate(-50%,-50%) translateY('+(endY-startY)+'px) rotateY(1080deg) scale(1)', opacity:1, offset:0.82 },
       { transform:'translate(-50%,-50%) translateY('+(endY-startY+14)+'px) rotateY(1260deg) scale(0.35)', opacity:0 }
-    ], { duration: 1000, easing:'cubic-bezier(.55,.05,.7,1)' });
+    ], { duration: 1700, easing:'cubic-bezier(.55,.05,.7,1)' });
+    setTimeout(function(){ if(screen){ screen.classList.add('holding-coin'); } }, 800);
     anim.onfinish = function(){
       coin.remove();
       window.__coinFalling = false;
@@ -941,7 +1010,7 @@
       cab.style.transform = '';
       var stk = document.querySelector('.labels .tk.start');
       if(stk){ stk.classList.remove('on'); }
-      if(screen){ screen.classList.remove('coined'); }
+      if(screen){ screen.classList.remove('coined'); screen.classList.remove('holding-coin'); }
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       setTimeout(function(){ cab.style.transition = ''; cab.style.animation = ''; }, 820);
       ['#topbar', '#scroll-hint', '.caption'].forEach(function(sel){
@@ -952,6 +1021,38 @@
   if(back){ back.addEventListener('click', backOut); }
   var ecranExit = document.getElementById('ecran-exit');
   if(ecranExit){ ecranExit.addEventListener('click', backOut); }
+})();
+</script>
+<script>
+(function(){
+  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.5 4.5l1.8 1.8M17.7 17.7l1.8 1.8M2 12h2.5M19.5 12H22M4.5 19.5l1.8-1.8M17.7 6.3l1.8-1.8"/></svg>';
+  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>';
+  var thumb = document.getElementById('dn-thumb');
+  var box = document.getElementById('stars');
+  if (box) {
+    var h = '';
+    for (var i = 0; i < 64; i++) {
+      var x = (Math.random()*100).toFixed(2), y = (Math.random()*100).toFixed(2);
+      var s = (1.4 + Math.random()*2.2);
+      var tw = (2.4 + Math.random()*3.6).toFixed(2), dl = (-Math.random()*4).toFixed(2);
+      h += '<span class="star" style="left:' + x + '%;top:' + y + '%;width:' + s.toFixed(1) + 'px;height:' + s.toFixed(1) + 'px;--tw:' + tw + 's;animation-delay:' + dl + 's"></span>';
+    }
+    box.innerHTML = h;
+  }
+  window.applyNight = function(on){
+    document.documentElement.classList.toggle('night', on);
+    document.body.classList.toggle('night', on);
+    if (thumb) thumb.innerHTML = on ? MOON : SUN;
+    try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
+  };
+  window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
+  var saved = null;
+  try { saved = localStorage.getItem('mcd-theme'); } catch(e){}
+  var night;
+  if (saved === 'night') night = true;
+  else if (saved === 'day') night = false;
+  else { var hr = new Date().getHours(); night = (hr >= 23 || hr < 7); }
+  applyNight(night);
 })();
 </script>
 </body>
