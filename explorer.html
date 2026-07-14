@@ -145,18 +145,29 @@
     -webkit-mask-image: linear-gradient(to top, #000 0%, rgba(0,0,0,0.15) 70%, transparent 100%);
   }
   @keyframes scroll { to { background-position: 0 26px; } }
-  .screen .sun {
-    position: absolute; left: 50%; top: 26%; width: 120px; height: 120px; transform: translateX(-50%);
-    border-radius: 50%;
-    background: linear-gradient(180deg, #ffd27a 0%, #ff7a1a 55%, #ff3d81 100%);
-    box-shadow: 0 0 40px rgba(255,120,30,0.8);
+  .screen .hero-char {
+    position: absolute; left: 50%; bottom: 20px; height: 74%; width: auto; aspect-ratio: 1/1;
+    transform: translateX(-50%);
+    filter: sepia(1) saturate(2.4) hue-rotate(-18deg) brightness(1.05) contrast(1.12)
+            drop-shadow(0 0 10px rgba(255,130,40,0.55));
   }
-  .screen .sun::after {
-    content:''; position:absolute; inset:0; border-radius:50%;
-    background: repeating-linear-gradient(to bottom, transparent 0 12px, #060402 12px 17px);
-    mask: linear-gradient(to bottom, transparent 45%, #000 45%);
-    -webkit-mask: linear-gradient(to bottom, transparent 45%, #000 45%);
+  .screen .hero-char .hc-idle, .screen .hero-char .hc-up { position:absolute; inset:0; image-rendering: pixelated; }
+  .screen .hero-char .hc-idle {
+    background: url('maincaracterokbras.png') center bottom / contain no-repeat;
+    animation: heroIdleShow 3.4s ease-in-out infinite;
   }
+  .screen .hero-char .hc-up {
+    background: url('maincaracterok.png') center bottom / contain no-repeat;
+    animation: heroUpShow 3.4s ease-in-out infinite;
+  }
+  @keyframes heroIdleShow {
+    0%,38% { opacity:1; } 50%,88% { opacity:0; } 100% { opacity:1; }
+  }
+  @keyframes heroUpShow {
+    0%,38% { opacity:0; } 50%,88% { opacity:1; } 100% { opacity:0; }
+  }
+  .screen.coined .hero-char .hc-idle { animation:none; opacity:1; }
+  .screen.coined .hero-char .hc-up { animation:none; opacity:0; }
   .screen .title {
     position:absolute; left:0; right:0; top:14px; text-align:center;
     font-family:'Orbitron',sans-serif; font-weight:900; font-size:15px; letter-spacing:2px;
@@ -186,6 +197,29 @@
     color:#ffd27a; text-shadow:0 0 8px rgba(255,140,40,0.9); margin-bottom:3px;
   }
   .screen .sm-nav { display:flex; flex-direction:column; gap:4px; width:100%; align-items:stretch; }
+  .screen .sm-start {
+    text-decoration:none; text-transform:uppercase; text-align:center;
+    font-family:'Orbitron',sans-serif; font-weight:900; font-size:20px; letter-spacing:4px;
+    color:#ffd27a; text-shadow:0 0 10px rgba(255,150,40,0.95), 0 0 20px rgba(255,120,30,0.6);
+    padding:6px 18px; margin:6px 0 2px; border-radius:6px;
+    animation: smStartBlink 1s steps(1) infinite; transition:color .15s ease;
+  }
+  .screen .sm-start:hover { color:#fff; animation:none; }
+  @keyframes smStartBlink { 50% { opacity:0.15; } }
+  .screen .sm-start { border:none; background:transparent; cursor:pointer; }
+  .screen .ecran-frame {
+    position:absolute; top:0; left:0; border:0; transform-origin: top left;
+    opacity:0; visibility:hidden; z-index:6; transition: opacity .45s ease;
+  }
+  .screen.showecran .ecran-frame { opacity:1; visibility:visible; }
+  .screen .ecran-exit {
+    position:absolute; top:6px; left:6px; z-index:7; cursor:pointer;
+    width:20px; height:20px; border-radius:50%; padding:0; line-height:1;
+    font-size:10px; color:#ffd27a; background:rgba(20,10,4,0.7);
+    border:1px solid rgba(255,140,40,0.5); display:none; align-items:center; justify-content:center;
+  }
+  .screen.showecran .ecran-exit { display:flex; }
+  .screen .ecran-exit:hover { color:#fff; background:rgba(255,120,30,0.35); }
   .screen .sm-item {
     text-align:center; text-decoration:none; text-transform:uppercase;
     font-family:'Fredoka',sans-serif; font-weight:700; font-size:8px; letter-spacing:1px;
@@ -248,11 +282,11 @@
     position: absolute; left: 0; top: 0; width: 58px; height: 58px; border-radius: 50%;
     transform: translate(10px, 16px) scale(1.06);
     background:
-      radial-gradient(circle at 34% 26%, #ffe0c0 0%, #ff9e50 22%, #ff6a12 52%, #c8360a 82%, #8f2405 100%);
+      radial-gradient(circle at 34% 26%, #ffd4d0 0%, #ff5a54 22%, #e51f1f 52%, #a80f12 82%, #6e070a 100%);
     box-shadow:
-      inset -7px -9px 16px rgba(90,20,0,0.55),
-      inset 5px 6px 12px rgba(255,220,180,0.45),
-      0 10px 18px rgba(60,20,0,0.5);
+      inset -7px -9px 16px rgba(80,0,0,0.55),
+      inset 5px 6px 12px rgba(255,200,195,0.45),
+      0 10px 18px rgba(60,0,0,0.5);
   }
   .joystick .ball::before {
     content:''; position:absolute; left:22%; top:16%; width:20px; height:14px; border-radius:50%;
@@ -268,12 +302,12 @@
     position: relative; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; touch-action: none;
     transition: transform .09s ease, box-shadow .09s ease;
     background:
-      radial-gradient(circle at 38% 28%, #ffe0b0 0%, #ff9a3a 34%, #f0740b 62%, #b83f04 100%);
+      radial-gradient(circle at 38% 28%, #ffd4d0 0%, #ff5a54 34%, #e51f1f 62%, #8f0a0d 100%);
     box-shadow:
-      inset -3px -5px 9px rgba(90,20,0,0.5),
-      inset 3px 4px 7px rgba(255,235,200,0.85),
-      0 10px 14px rgba(50,18,0,0.55),
-      0 3px 4px rgba(50,18,0,0.5);
+      inset -3px -5px 9px rgba(70,0,0,0.5),
+      inset 3px 4px 7px rgba(255,210,205,0.85),
+      0 10px 14px rgba(45,0,0,0.55),
+      0 3px 4px rgba(45,0,0,0.5);
   }
   /* embase en relief (rebord de la borne) */
   .abtn::before {
@@ -471,6 +505,16 @@
   #retro-ui .r-back { position: absolute; top: 18px; left: 18px; z-index: 6; cursor: pointer; font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; letter-spacing:2px; color:#ffb14d; background:rgba(255,120,30,0.12); border:1px solid rgba(255,140,40,0.45); padding:9px 16px; border-radius:999px; text-transform:uppercase; }
   #retro-ui .r-back:hover { background:rgba(255,120,30,0.25); color:#fff; }
 
+  #page-title {
+    position: fixed; top: clamp(14px,2.4vw,26px); left: 0; right: 0; z-index: 40;
+    height: 48px; display: flex; align-items: center; justify-content: center;
+    text-align: center; pointer-events: none; margin: 0;
+    font-family: 'Fredoka', 'Helvetica Neue', sans-serif;
+    font-weight: 700; font-size: clamp(34px, 4.6vw, 68px); line-height: 0.92;
+    letter-spacing: 0.005em; color: #ffffff;
+    -webkit-text-stroke: 3px #7a3300; paint-order: stroke fill;
+    text-shadow: 0 2px 0 #7a3300, 0 4px 0 #632900, 0 6px 0 #4d2000, 0 12px 20px rgba(70,28,0,0.5);
+  }
   .caption {
     cursor: pointer; user-select: none; -webkit-user-select: none;
     position: fixed; bottom: 20px; left: 0; right: 0; text-align: center; z-index: 5;
@@ -582,6 +626,7 @@
   </div>
   <div class="floor-glow"></div>
   <div class="scene">
+    <h1 id="page-title">Explorer</h1>
   <div class="socket-fixed" aria-hidden="true" style="position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:820px; height:560px; z-index:1; pointer-events:none;">
     <svg viewBox="0 0 820 560" width="820" height="560" style="overflow:visible;">
       <rect x="730" y="406" width="64" height="70" rx="13" fill="#eef1f4"/>
@@ -592,9 +637,33 @@
       <circle cx="762" cy="454" r="2.4" fill="#2b3a48"/>
       <!-- fiche branchée -->
       <g class="plug-fiche" style="transition: transform .8s cubic-bezier(.5,0,.3,1);">
-      <rect x="746" y="422" width="34" height="38" rx="8" fill="#3a1c04"/>
-      <rect x="746" y="422" width="34" height="38" rx="8" fill="none" stroke="rgba(255,180,90,0.3)" stroke-width="1.5"/>
-      <rect x="752" y="429" width="22" height="8" rx="3" fill="#c9560a"/>
+        <defs>
+          <linearGradient id="plugBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#4b4f57"/><stop offset="38%" stop-color="#26292f"/><stop offset="100%" stop-color="#0a0b0e"/>
+          </linearGradient>
+          <linearGradient id="plugPin" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#8f969d"/><stop offset="32%" stop-color="#eef1f4"/><stop offset="60%" stop-color="#c2c8ce"/><stop offset="100%" stop-color="#767c83"/>
+          </linearGradient>
+        </defs>
+        <!-- ombre de contact sur la prise -->
+        <ellipse cx="762" cy="460" rx="26" ry="20" fill="rgba(0,0,0,0.28)"/>
+        <!-- broches rondes métal, engagées dans les trous -->
+        <rect x="753" y="426" width="6" height="14" rx="3" fill="url(#plugPin)"/>
+        <rect x="765" y="426" width="6" height="14" rx="3" fill="url(#plugPin)"/>
+        <rect x="754.6" y="427" width="1.5" height="11" rx="0.7" fill="rgba(255,255,255,0.85)"/>
+        <rect x="766.6" y="427" width="1.5" height="11" rx="0.7" fill="rgba(255,255,255,0.85)"/>
+        <!-- corps moulé, plaqué contre la prise -->
+        <rect x="738" y="432" width="48" height="42" rx="14" fill="#08090b"/>
+        <rect x="740.5" y="434" width="43" height="38" rx="12" fill="url(#plugBody)"/>
+        <!-- liseré supérieur (contact avec la prise) -->
+        <rect x="744" y="435" width="36" height="3.5" rx="1.75" fill="rgba(255,255,255,0.26)"/>
+        <!-- petite vis centrale -->
+        <circle cx="762" cy="452" r="3.4" fill="#0a0b0e"/>
+        <circle cx="762" cy="452" r="3.4" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="0.9"/>
+        <line x1="762" y1="449.4" x2="762" y2="454.6" stroke="rgba(255,255,255,0.2)" stroke-width="0.8"/>
+        <!-- gaine / réducteur de tension -->
+        <path d="M749,470 C749,486 755,496 762,496 C769,496 775,486 775,470 Z" fill="#0c0d10"/>
+        <path d="M753,478 C753,488 757,493 762,493 C767,493 771,488 771,478 Z" fill="#191b1f"/>
       </g>
     </svg>
   </div>
@@ -609,14 +678,14 @@
         </filter>
       </defs>
       <!-- ombre portee -->
-      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 724,392 749,440" fill="none" stroke="#000" stroke-width="17" stroke-linecap="round" filter="url(#wireShadow)" opacity="0.35"/>
+      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 742,446 762,492" fill="none" stroke="#000" stroke-width="17" stroke-linecap="round" filter="url(#wireShadow)" opacity="0.35"/>
       <!-- corps caoutchouc -->
-      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 724,392 749,440" fill="none" stroke="#141519" stroke-width="17" stroke-linecap="round"/>
-      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 724,392 749,440" fill="none" stroke="url(#wireGradBg)" stroke-width="14" stroke-linecap="round"/>
+      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 742,446 762,492" fill="none" stroke="#141519" stroke-width="17" stroke-linecap="round"/>
+      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 742,446 762,492" fill="none" stroke="url(#wireGradBg)" stroke-width="14" stroke-linecap="round"/>
       <!-- reflet principal net -->
-      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 724,392 749,440" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="3" stroke-linecap="round" transform="translate(-2,-3)"/>
+      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 742,446 762,492" fill="none" stroke="rgba(255,255,255,0.55)" stroke-width="3" stroke-linecap="round" transform="translate(-2,-3)"/>
       <!-- reflet doux large -->
-      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 724,392 749,440" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="7" stroke-linecap="round" transform="translate(-1,-2)"/>
+      <path d="M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 742,446 762,492" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="7" stroke-linecap="round" transform="translate(-1,-2)"/>
     </svg>
   </div>
   <div class="stage">
@@ -634,20 +703,15 @@
         <div class="bezel">
           <div class="screen">
             <div class="title">MON COPAIN DIGITAL</div>
-            <div class="sun"></div>
+            <div class="hero-char"><div class="hc-idle"></div><div class="hc-up"></div></div>
             <div class="grid"></div>
-            <div class="press">PRESS START</div>
             <div class="screen-menu" id="screen-menu">
-              <div class="sm-title">MENU</div>
-              <nav class="sm-nav">
-                <a class="sm-item" href="espace-compte.html">▶ Votre Bulle</a>
-                <a class="sm-item" href="Nosoffres.html">Nos offres</a>
-                <a class="sm-item" href="rendez-vous.html">Rendez-vous</a>
-                <a class="sm-item" href="contact.html">Contact</a>
-              </nav>
+              <button class="sm-start" type="button" id="sm-start">START</button>
               <button class="sm-back" type="button" id="sm-back">◄ Quitter</button>
             </div>
             <div class="scan"></div>
+            <iframe class="ecran-frame" id="ecran-frame" title="Explorer" scrolling="no"></iframe>
+            <button class="ecran-exit" type="button" id="ecran-exit" aria-label="Quitter">◄</button>
           </div>
         </div>
 
@@ -759,8 +823,7 @@
   if(!wb) return;
   var paths = wb.querySelectorAll('path');
   function upd(){
-    var S = window.scrollY || 0;
-    var d = "M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,"+(332+S*0.18)+" C640,"+(320+S*0.12)+" 724,392 749,440";
+    var d = "M300,250 C240,256 150,250 140,300 C133,340 210,346 220,310 C226,286 190,296 200,320 C214,360 262,372 322,366 C440,362 520,350 560,332 C640,320 742,446 762,492";
     paths.forEach(function(p){ p.setAttribute('d', d); });
   }
   window.addEventListener('scroll', upd, {passive:true});
@@ -838,16 +901,37 @@
     if(mq){ mq.classList.remove('bump'); void mq.offsetWidth; mq.classList.add('bump'); }
     var stk = document.querySelector('.labels .tk.start');
     if(stk){ stk.classList.add('on'); }
+    if(screen){ screen.classList.add('coined'); }
     cab.style.animation = 'none';
     cab.style.transition = 'transform 1.2s cubic-bezier(.4,0,.2,1)';
     cab.style.transform = 'rotateX(0deg) rotateY(0deg) scale(0.62)';
     setTimeout(zoomIntoScreen, 2000);
   }
   var back = document.getElementById('sm-back');
-  if(back){
-    back.addEventListener('click', function(){
+  var ecran = document.getElementById('ecran-frame');
+  function fitEcran(){
+    if(!ecran || !screen) return;
+    var W = screen.clientWidth, H = screen.clientHeight;
+    if(!W || !H) return;
+    ecran.style.width = '1000px';
+    ecran.style.height = (1000 * H / W) + 'px';
+    ecran.style.transform = 'scale(' + (W / 1000) + ')';
+  }
+  var smStart = document.getElementById('sm-start');
+  if(smStart){
+    smStart.addEventListener('click', function(){
+      if(ecran && !ecran.src){ ecran.src = 'explorer-ecran.html'; }
+      fitEcran();
       var menu = document.getElementById('screen-menu');
       if(menu){ menu.classList.remove('on'); }
+      if(screen){ screen.classList.add('showecran'); }
+    });
+  }
+  window.addEventListener('resize', fitEcran);
+  function backOut(){
+      var menu = document.getElementById('screen-menu');
+      if(menu){ menu.classList.remove('on'); }
+      if(screen){ screen.classList.remove('showecran'); }
       var press = document.querySelector('.screen .press');
       if(press){ press.style.opacity = ''; }
       document.body.style.transition = 'transform .7s ease';
@@ -857,14 +941,17 @@
       cab.style.transform = '';
       var stk = document.querySelector('.labels .tk.start');
       if(stk){ stk.classList.remove('on'); }
+      if(screen){ screen.classList.remove('coined'); }
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       setTimeout(function(){ cab.style.transition = ''; cab.style.animation = ''; }, 820);
       ['#topbar', '#scroll-hint', '.caption'].forEach(function(sel){
         var n = document.querySelector(sel); if(n){ n.style.opacity = ''; }
       });
       zooming = false;
-    });
   }
+  if(back){ back.addEventListener('click', backOut); }
+  var ecranExit = document.getElementById('ecran-exit');
+  if(ecranExit){ ecranExit.addEventListener('click', backOut); }
 })();
 </script>
 </body>
