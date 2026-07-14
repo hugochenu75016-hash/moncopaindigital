@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explorer · Le parcours · Mon Copain Digital</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Orbitron:wght@700;900&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap">
+<style>
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; overflow:hidden; font-family:'Fredoka','Helvetica Neue',sans-serif; }
+  a{ color:#e0700b; } a:hover{ color:#b95a08; }
+
+  /* ===== Scène : ciel + nuages ===== */
+  #sky{
+    position:fixed; inset:0; overflow:hidden;
+    background:linear-gradient(180deg,#93d6f7 0%,#6EC1F0 46%,#9bdbf3 100%);
+  }
+  #ground{
+    position:absolute; left:0; right:0; bottom:0; height:22%;
+    background:linear-gradient(180deg, rgba(150,210,150,0) 0%, #7ec96f 38%, #63b95a 100%);
+    box-shadow: inset 0 8px 24px rgba(255,255,255,0.35);
+  }
+  #ground::before{
+    content:""; position:absolute; left:0; right:0; top:0; height:14px;
+    background:radial-gradient(ellipse 60% 100% at 50% 100%, rgba(255,255,255,0.5), transparent 70%);
+  }
+  .cloud{
+    position:absolute; width:120px; height:44px; border-radius:44px;
+    background:linear-gradient(to bottom,#ffffff 0%,#eef7ff 70%,#d8ecfb 100%);
+    box-shadow: inset 0 6px 8px rgba(255,255,255,0.95), inset 0 -8px 12px rgba(150,190,220,0.4), 0 14px 30px rgba(60,110,150,0.18);
+  }
+  .cloud::before,.cloud::after{
+    content:""; position:absolute; border-radius:50%;
+    background:radial-gradient(circle at 38% 30%,#ffffff 0%,#eef7ff 65%,#d8ecfb 100%);
+    box-shadow: inset 0 4px 5px rgba(255,255,255,0.95);
+  }
+  .cloud::before{ width:56px; height:56px; top:-24px; left:16px; }
+  .cloud::after{ width:40px; height:40px; top:-16px; left:62px; }
+  @keyframes drift{ from{ transform:translateX(-18px);} to{ transform:translateX(18px);} }
+  @keyframes driftBig{ from{ transform:translateX(-30px);} to{ transform:translateX(30px);} }
+
+  /* ===== Personnage ===== */
+  #hero{
+    position:absolute; bottom:20%; left:50%;
+    width:clamp(190px,22vw,300px); height:auto;
+    transform:translateX(-50%);
+    transition:left 1.35s cubic-bezier(.45,0,.25,1), transform 1.35s cubic-bezier(.45,0,.25,1);
+    z-index:5; transform-origin:bottom center;
+  }
+  #hero.face-left{ transform:translateX(-50%) scaleX(-1); }
+  #hero svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 14px 18px rgba(40,80,40,0.28)); overflow:visible; }
+
+  /* joints */
+  .jt{ transform-box:fill-box; }
+  .leg-b,.leg-f{ transform-box:fill-box; transform-origin:50% 6%; }
+  .arm-b,.arm-f{ transform-box:fill-box; transform-origin:50% 8%; }
+  .fore-f,.fore-b{ transform-box:fill-box; transform-origin:50% 6%; }
+  #head{ transform-box:fill-box; transform-origin:50% 96%; transition:transform .5s ease; }
+  #char-inner{ transform-box:fill-box; }
+  .mouth{ transform-box:fill-box; transform-origin:50% 50%; }
+  .eyelid{ transform-box:fill-box; transform-origin:50% 0%; transform:scaleY(0); }
+
+  /* blink */
+  @keyframes blink{ 0%,94%,100%{ transform:scaleY(0);} 97%{ transform:scaleY(1);} }
+  .eyelid{ animation:blink 4.2s infinite; }
+
+  /* idle breathing */
+  @keyframes breathe{ 0%,100%{ transform:translateY(0) rotate(0deg);} 50%{ transform:translateY(-3px) rotate(.4deg);} }
+  #char-inner{ animation:breathe 3.4s ease-in-out infinite; }
+
+  /* ---- WALK ---- */
+  @keyframes legFwd{ 0%,100%{ transform:rotate(-24deg);} 50%{ transform:rotate(24deg);} }
+  @keyframes legBack{ 0%,100%{ transform:rotate(24deg);} 50%{ transform:rotate(-24deg);} }
+  @keyframes armFwd{ 0%,100%{ transform:rotate(22deg);} 50%{ transform:rotate(-22deg);} }
+  @keyframes armBack{ 0%,100%{ transform:rotate(-22deg);} 50%{ transform:rotate(22deg);} }
+  @keyframes bob{ 0%,100%{ transform:translateY(0);} 25%{ transform:translateY(-6px);} 75%{ transform:translateY(-6px);} }
+  #hero.walking #char-inner{ animation:bob .52s ease-in-out infinite; }
+  #hero.walking .leg-f{ animation:legFwd .52s ease-in-out infinite; }
+  #hero.walking .leg-b{ animation:legBack .52s ease-in-out infinite; }
+  #hero.walking .arm-f{ animation:armFwd .52s ease-in-out infinite; }
+  #hero.walking .arm-b{ animation:armBack .52s ease-in-out infinite; }
+
+  /* ---- POSES (front arm = the expressive one) ---- */
+  .arm-f,.arm-b,.fore-f,.leg-f,.leg-b{ transition:transform .5s cubic-bezier(.4,1.3,.4,1); }
+  #hero.wave .arm-f{ transform:rotate(158deg); }
+  #hero.wave .fore-f{ animation:waveHand .5s ease-in-out infinite; }
+  @keyframes waveHand{ 0%,100%{ transform:rotate(-18deg);} 50%{ transform:rotate(14deg);} }
+  #hero.point .arm-f{ transform:rotate(-96deg); }
+  #hero.point .fore-f{ transform:rotate(8deg); }
+  #hero.think .arm-f{ transform:rotate(-128deg); }
+  #hero.think .fore-f{ transform:rotate(-66deg); }
+  #hero.think #head{ transform:rotate(-7deg); }
+  #hero.cheer .arm-f{ transform:rotate(168deg); }
+  #hero.cheer .arm-b{ transform:rotate(-168deg); }
+  #hero.present .arm-f{ transform:rotate(-58deg); }
+  #hero.present .fore-f{ transform:rotate(26deg); }
+
+  /* ---- TALK ---- */
+  @keyframes talkMouth{ 0%,100%{ transform:scaleY(.5);} 50%{ transform:scaleY(1.35);} }
+  #hero.talking .mouth{ animation:talkMouth .22s ease-in-out infinite; }
+
+  /* ---- KNOCK (toc toc) ---- */
+  #hero.knock #char-inner{ animation:none; transform:rotate(2deg); }
+  #hero.knock .arm-b{ transform:rotate(-74deg); }
+  #hero.knock .fore-b{ animation:knockTap .42s ease-in-out infinite; }
+  @keyframes knockTap{ 0%,100%{ transform:rotate(-34deg);} 50%{ transform:rotate(12deg);} }
+
+  /* ---- PLUG (branche le téléphone) ---- */
+  #hero.plug #char-inner{ animation:none; transform:rotate(9deg) translateY(4px); }
+  #hero.plug .arm-b{ transform:rotate(-20deg); }
+  #hero.plug .fore-b{ animation:plugPush .8s ease-in-out infinite; }
+  @keyframes plugPush{ 0%,100%{ transform:rotate(50deg);} 50%{ transform:rotate(64deg);} }
+  #hero.plug .arm-f{ transform:rotate(12deg); }
+  #hero.plug .leg-f{ transform:rotate(12deg); }
+  #hero.plug .leg-b{ transform:rotate(-8deg); }
+
+  /* ---- RIDE (trottinette) ---- */
+  #hero.ride #char-inner{ animation:none; transform:translateY(24px) rotate(-6deg); }
+  #hero.ride .arm-f{ transform:rotate(-52deg); }
+  #hero.ride .fore-f{ transform:rotate(-16deg); }
+  #hero.ride .arm-b{ transform:rotate(-50deg); }
+  #hero.ride .fore-b{ transform:rotate(-22deg); }
+  #hero.ride .leg-f{ transform:rotate(7deg); }
+  #hero.ride .leg-b{ transform:rotate(-7deg); }
+  #scooter{
+    position:absolute; bottom:18%; left:50%; width:clamp(200px,24vw,320px); height:auto;
+    transform:translateX(-50%); z-index:6; opacity:0; pointer-events:none;
+    transition:left 1.35s cubic-bezier(.45,0,.25,1), opacity .3s ease, transform .35s ease;
+  }
+  #scooter.show{ opacity:1; }
+  #scooter.face-left{ transform:translateX(-50%) scaleX(-1); }
+  #scooter svg{ width:100%; height:auto; display:block; filter:drop-shadow(0 10px 14px rgba(40,80,40,0.28)); overflow:visible; }
+  .wheel{ transform-box:view-box; }
+  #scooter.rolling .wheel{ animation:spin .5s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg);} }
+  #speedlines{
+    position:absolute; bottom:20%; width:120px; height:120px; z-index:4; opacity:0;
+    transition:opacity .3s ease;
+  }
+  #speedlines.show{ opacity:1; }
+  #speedlines i{ position:absolute; height:5px; border-radius:3px; background:rgba(255,255,255,0.85); animation:zoom .4s linear infinite; }
+  @keyframes zoom{ 0%{ transform:translateX(0); opacity:0;} 30%{ opacity:1;} 100%{ transform:translateX(-60px); opacity:0;} }
+
+  /* ---- HALL d'entrée (scène "toc toc") ---- */
+  #hall{ position:absolute; inset:0; z-index:3; opacity:0; visibility:hidden; transition:opacity .55s ease; }
+  #hall.show{ opacity:1; visibility:visible; }
+  #hall .wall{ position:absolute; inset:0; background:linear-gradient(180deg,#efe2cf 0%,#e3d2b8 62%,#d8c6a6 100%); }
+  #hall .floor{ position:absolute; left:0; right:0; bottom:0; height:26%; background:repeating-linear-gradient(90deg,#b98a55 0 42px,#ad7f4b 42px 44px); box-shadow:inset 0 10px 22px rgba(90,50,10,0.28); }
+  #hall .skirting{ position:absolute; left:0; right:0; bottom:26%; height:14px; background:#c9b48c; }
+  #hall .lamp{ position:absolute; top:8%; left:16%; width:54px; height:80px; }
+  #hall .lamp .shade{ position:absolute; top:0; left:2px; width:50px; height:34px; border-radius:8px 8px 22px 22px; background:linear-gradient(180deg,#ffe6a8,#ffcf6b); box-shadow:0 0 34px rgba(255,200,90,0.75); }
+  #hall .lamp .glow{ position:absolute; top:30px; left:12px; width:30px; height:46px; background:radial-gradient(ellipse at 50% 0,rgba(255,215,120,0.6),transparent 70%); }
+  .hall-door{ position:absolute; bottom:26%; right:16%; width:clamp(140px,17vw,210px); z-index:1; }
+  #hall .hall-door.office{ display:none; }
+  #hall.pro .hall-door.home{ display:none; }
+  #hall.pro .hall-door.office{ display:block; }
+  /* Hall de bureau (pro) */
+  #hall.pro .wall{ background:linear-gradient(180deg,#e7edf2 0%,#d3dee7 60%,#c2d0da 100%); }
+  #hall.pro .floor{ background:repeating-linear-gradient(90deg,#cdd6dd 0 46px,#c2ccd4 46px 48px); box-shadow:inset 0 10px 22px rgba(60,80,100,0.22); }
+  #hall.pro .skirting{ background:#aab7c1; }
+  #hall.pro .lamp{ display:none; }
+  #hall .office-decor{ display:none; }
+  #hall.pro .office-decor{ display:block; }
+  #hall .wall-sign{ position:absolute; top:11%; left:14%; padding:8px 16px; border-radius:8px; background:#3f4e5b; color:#e8eef3; font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(12px,1.4vw,18px); letter-spacing:2px; box-shadow:0 6px 14px rgba(40,60,80,0.25); }
+  #hall .planter{ position:absolute; bottom:26%; left:34%; width:46px; height:74px; z-index:1; }
+  #hall .planter .pot{ position:absolute; bottom:0; left:7px; width:32px; height:30px; border-radius:4px 4px 8px 8px; background:#7a8894; }
+  #hall .planter .frond{ position:absolute; bottom:26px; left:18px; width:10px; height:48px; border-radius:50%; background:#4e9a40; transform-origin:bottom center; }
+  #hall .planter .frond.a{ transform:rotate(24deg); background:#5aa84a; } #hall .planter .frond.b{ transform:rotate(-24deg); background:#66b855; }
+  .hall-door svg{ display:block; width:100%; height:auto; filter:drop-shadow(-8px 6px 14px rgba(60,30,0,0.25)); }
+  .knock-fx{ position:absolute; right:30%; bottom:52%; z-index:6; font-family:'Fredoka',sans-serif; font-weight:700; color:#7a4a12; font-size:clamp(15px,1.9vw,26px); opacity:0; }
+  #hall.show .knock-fx{ animation:knockPop 1.4s ease-in-out infinite; }
+  @keyframes knockPop{ 0%,64%,100%{ opacity:0; transform:translateY(6px) scale(.6);} 14%,44%{ opacity:1; transform:translateY(0) scale(1);} }
+
+  /* ---- SALON (branche le téléphone fixe) ---- */
+  #salon{ position:absolute; inset:0; z-index:3; opacity:0; visibility:hidden; transition:opacity .55s ease; }
+  #salon.show{ opacity:1; visibility:visible; }
+  #salon .wall{ position:absolute; inset:0; background:linear-gradient(180deg,#dfeaf2 0%,#cfe0ec 60%,#c2d6e4 100%); }
+  #salon .floor{ position:absolute; left:0; right:0; bottom:0; height:26%; background:repeating-linear-gradient(90deg,#c69a63 0 46px,#b98d55 46px 48px); box-shadow:inset 0 10px 22px rgba(90,50,10,0.25); }
+  #salon .skirting{ position:absolute; left:0; right:0; bottom:26%; height:12px; background:#eef3f7; }
+  #salon .rug{ position:absolute; left:50%; bottom:6%; width:64%; height:15%; transform:translateX(-50%); border-radius:50%; background:radial-gradient(ellipse at 50% 50%,#e7b98a,#d89f6a); opacity:.8; }
+  #salon .window{ position:absolute; top:12%; left:12%; width:20%; height:34%; border-radius:6px; background:linear-gradient(180deg,#bfe8ff,#8fd0ff); box-shadow:0 0 0 8px #eef3f7, 0 10px 20px rgba(60,90,120,0.2); }
+  #salon .window::before{ content:""; position:absolute; inset:0; background:linear-gradient(120deg,transparent 46%,rgba(255,255,255,.5) 48% 52%,transparent 54%); }
+  #salon .window .bar-v{ position:absolute; left:50%; top:0; bottom:0; width:6px; background:#eef3f7; transform:translateX(-50%); }
+  #salon .window .bar-h{ position:absolute; top:50%; left:0; right:0; height:6px; background:#eef3f7; transform:translateY(-50%); }
+  #salon .sofa{ position:absolute; bottom:24%; left:6%; width:26%; height:20%; border-radius:16px 16px 8px 8px; background:linear-gradient(180deg,#7fa6c8,#5f86a8); box-shadow:inset 0 6px 0 rgba(255,255,255,0.14); }
+  #salon .sofa::before{ content:""; position:absolute; left:-4%; bottom:0; width:22%; height:70%; border-radius:12px; background:#6f96b8; }
+  #salon .sofa::after{ content:""; position:absolute; right:-4%; bottom:0; width:22%; height:70%; border-radius:12px; background:#6f96b8; }
+  #salon .plant{ position:absolute; bottom:24%; right:6%; width:56px; height:110px; }
+  #salon .plant .pot{ position:absolute; bottom:0; left:8px; width:40px; height:40px; border-radius:6px 6px 10px 10px; background:#c17a3f; }
+  #salon .plant .leaf{ position:absolute; bottom:34px; left:24px; width:14px; height:60px; border-radius:50% 50% 50% 50%/60% 60% 40% 40%; background:#5aa84a; transform-origin:bottom center; }
+  #salon .plant .leaf.l2{ transform:rotate(30deg); background:#4e9a40; }
+  #salon .plant .leaf.l3{ transform:rotate(-30deg); background:#66b855; }
+  /* table + téléphone fixe */
+  .phone-set{ position:absolute; bottom:26%; left:46%; width:clamp(120px,15vw,190px); z-index:1; }
+  .phone-set svg{ display:block; width:100%; height:auto; filter:drop-shadow(0 8px 12px rgba(40,60,80,0.28)); }
+  #phone-led{ transition:fill .25s ease; }
+  #salon.lit #phone-led{ fill:#4fe04f; }
+  /* Bureau d'entreprise (pro) */
+  #salon.office .wall{ background:linear-gradient(180deg,#e7edf2 0%,#d3dee7 60%,#c2d0da 100%); }
+  #salon.office .floor{ background:repeating-linear-gradient(90deg,#cdd6dd 0 46px,#c2ccd4 46px 48px); }
+  #salon.office .plant, #salon.office .sofa, #salon.office .phone-set, #salon.office .home-jack, #salon.office .rug{ display:none; }
+  #salon .office-work{ display:none; }
+  #salon.office .office-work{ display:block; position:absolute; bottom:14%; left:34%; width:clamp(210px,28vw,340px); z-index:6; transform-origin:bottom center; transform:scaleY(1.34); }
+  #salon .office-work svg{ display:block; width:100%; height:auto; filter:drop-shadow(0 10px 16px rgba(40,60,80,0.25)); }
+  #hero.work #char-inner{ animation:none; transform:rotate(9deg); }
+  #hero.work .arm-f{ transform:rotate(34deg); } #hero.work .fore-f{ transform:rotate(26deg); }
+  #hero.work .arm-b{ transform:rotate(40deg); } #hero.work .fore-b{ transform:rotate(22deg); }
+  #hero.work .leg-f{ transform:rotate(8deg); }
+  #salon.lit #phone-glow{ opacity:1; }
+  #phone-glow{ opacity:0; transition:opacity .3s ease; }
+
+  /* ---- COZY : Oscar aide une grand-mère sur le canapé ---- */
+  #cozy{ position:absolute; inset:0; z-index:3; opacity:0; visibility:hidden; transition:opacity .55s ease; }
+  #cozy.show{ opacity:1; visibility:visible; }
+  #cozy .wall{ position:absolute; inset:0; background:linear-gradient(180deg,#f0e6d4 0%,#e7d7bd 62%,#dcc9a8 100%); }
+  #cozy .floor{ position:absolute; left:0; right:0; bottom:0; height:20%; background:repeating-linear-gradient(90deg,#c69a63 0 46px,#b98d55 46px 48px); }
+  #cozy .window{ position:absolute; top:9%; right:12%; width:18%; height:32%; border-radius:6px; background:linear-gradient(180deg,#bfe8ff,#8fd0ff); box-shadow:0 0 0 8px #f4ece0; }
+  #cozy .window::after{ content:""; position:absolute; inset:0; background:linear-gradient(120deg,transparent 46%,rgba(255,255,255,.5) 48% 52%,transparent 54%); }
+  #cozy .sofa-back{ position:absolute; left:50%; bottom:20%; transform:translateX(-50%); width:64%; height:30%; border-radius:26px 26px 0 0; background:linear-gradient(180deg,#c98f6a,#b87a54); z-index:1; }
+  #cozy-front{ position:absolute; inset:0; z-index:2; opacity:0; visibility:hidden; transition:opacity .55s ease; pointer-events:none; }
+  #cozy-front.show{ opacity:1; visibility:visible; }
+  #cozy-front .sofa-front{ position:absolute; left:50%; bottom:8%; transform:translateX(-50%); width:74%; height:22%; border-radius:20px; background:linear-gradient(180deg,#d89a72,#bd7c56); box-shadow:inset 0 8px 0 rgba(255,255,255,0.14), 0 12px 22px rgba(70,40,10,0.28); }
+  #cozy-front .sofa-arm{ position:absolute; bottom:9%; width:9%; height:28%; border-radius:16px; background:#c2825c; }
+  #cozy-front .sofa-arm.l{ left:10%; } #cozy-front .sofa-arm.r{ right:10%; }
+  #cozy-front .cushion{ position:absolute; bottom:24%; width:18%; height:12%; border-radius:14px; background:#e0a97f; }
+  #cozy-front .cushion.c1{ left:16%; transform:rotate(-6deg); } #cozy-front .cushion.c2{ right:16%; transform:rotate(6deg); background:#d69a6e; }
+  #granny{ position:absolute; right:30%; bottom:14%; width:clamp(150px,19vw,250px); z-index:5; }
+  #granny svg{ display:block; width:100%; height:auto; filter:drop-shadow(0 10px 14px rgba(70,40,10,0.22)); }
+  #granny.talkg .g-mouth{ animation:talkMouth .26s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 50%; }
+
+  /* ---- SEAT (Oscar assis) ---- */
+  #hero.seat #char-inner{ animation:none; transform:rotate(6deg); }
+  #hero.seat .leg-f{ transform:rotate(10deg); }
+  #hero.seat .leg-b{ transform:rotate(-8deg); }
+  #hero.seat .arm-b{ transform:rotate(-42deg); }
+  #hero.seat .fore-b{ transform:rotate(34deg); }
+  #hero.seat .arm-f{ transform:rotate(16deg); }
+
+  /* ===== Bulle de dialogue ===== */
+  #bubble{
+    position:absolute; z-index:8; max-width:min(46%,440px);
+    background:#fff; color:#3a2205; border:3px solid #3a2205; border-radius:20px;
+    padding:16px 20px; font-size:clamp(15px,1.7vw,24px); font-weight:600; line-height:1.28;
+    box-shadow:0 10px 0 rgba(58,34,5,0.18), 0 18px 34px rgba(40,80,40,0.25);
+    opacity:0; transform:translateY(10px) scale(.94); transition:opacity .3s ease, transform .3s cubic-bezier(.3,1.5,.4,1);
+    pointer-events:none;
+  }
+  #bubble.show{ opacity:1; transform:translateY(0) scale(1); }
+  #bubble::after{
+    content:""; position:absolute; bottom:-20px; left:var(--tx,38px); transform:translateX(-50%); width:0; height:0;
+    border:12px solid transparent; border-top-color:#3a2205; border-bottom:0;
+  }
+  #bubble::before{
+    content:""; position:absolute; bottom:-14px; left:var(--tx,41px); transform:translateX(-50%); width:0; height:0; z-index:1;
+    border:9px solid transparent; border-top-color:#fff; border-bottom:0;
+  }
+  #bubble .cursor{ display:inline-block; width:.6ch; color:#e0700b; animation:cur .5s steps(1) infinite; }
+  @keyframes cur{ 50%{ opacity:0; } }
+
+  /* ===== Props ===== */
+  .prop{
+    position:absolute; bottom:20%; z-index:4; opacity:0; transform:translateY(24px) scale(.9);
+    transition:opacity .5s ease, transform .5s cubic-bezier(.3,1.4,.4,1);
+  }
+  .prop.show{ opacity:1; transform:translateY(0) scale(1); }
+  .prop svg{ display:block; filter:drop-shadow(0 10px 14px rgba(40,80,40,0.25)); }
+
+  /* ===== Choix public ===== */
+  #choice{
+    position:absolute; left:50%; bottom:24%; transform:translateX(-50%) translateY(14px);
+    z-index:9; display:flex; gap:clamp(12px,2vw,26px); opacity:0; pointer-events:none;
+    transition:opacity .4s ease, transform .4s cubic-bezier(.3,1.4,.4,1);
+  }
+  #choice.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+  .choice-btn{
+    cursor:pointer; border:none; border-radius:18px; padding:clamp(14px,1.8vw,22px) clamp(20px,2.6vw,34px);
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(15px,1.7vw,22px); color:#fff;
+    display:flex; flex-direction:column; align-items:center; gap:6px; min-width:clamp(130px,15vw,190px);
+    box-shadow:0 8px 0 rgba(0,0,0,0.18), 0 14px 26px rgba(40,80,40,0.28); transition:transform .14s ease, box-shadow .14s ease;
+  }
+  .choice-btn .ico{ font-size:clamp(26px,3vw,40px); line-height:1; }
+  .choice-btn small{ font-weight:600; font-size:clamp(11px,1.2vw,14px); opacity:.92; }
+  .choice-btn.part{ background:linear-gradient(180deg,#ff9a3a,#ef6d0b); }
+  .choice-btn.pro{ background:linear-gradient(180deg,#3f7fe0,#2159c0); }
+  .choice-btn:hover{ transform:translateY(-3px); box-shadow:0 11px 0 rgba(0,0,0,0.18), 0 18px 30px rgba(40,80,40,0.32); }
+  .choice-btn:active{ transform:translateY(3px); box-shadow:0 4px 0 rgba(0,0,0,0.18); }
+
+  /* ===== Étoiles preuve ===== */
+  #stars{
+    position:absolute; left:50%; top:16%; transform:translateX(-50%) scale(.6); z-index:8;
+    display:flex; gap:6px; opacity:0; transition:opacity .4s ease, transform .5s cubic-bezier(.3,1.6,.4,1);
+  }
+  #stars.show{ opacity:1; transform:translateX(-50%) scale(1); }
+  #stars span{ font-size:clamp(26px,3.4vw,46px); color:#ffcb2e; filter:drop-shadow(0 3px 0 #c8860a); animation:pop .4s backwards; }
+  @keyframes pop{ from{ transform:scale(0) rotate(-30deg);} to{ transform:scale(1) rotate(0);} }
+
+  /* ===== Carte offre ===== */
+  #offer{
+    position:absolute; right:6%; top:50%; transform:translateY(-50%) translateX(30px); z-index:8;
+    width:clamp(210px,26vw,320px); background:#fff; border:3px solid #3a2205; border-radius:22px;
+    padding:clamp(16px,2vw,24px); box-shadow:0 12px 0 rgba(58,34,5,0.18), 0 20px 40px rgba(40,80,40,0.3);
+    opacity:0; pointer-events:none; transition:opacity .45s ease, transform .5s cubic-bezier(.3,1.4,.4,1);
+    text-align:center;
+  }
+  #offer.show{ opacity:1; transform:translateY(-50%) translateX(0); }
+  #offer .tag{ display:inline-block; background:#fff0d6; color:#c8600a; font-weight:700; font-size:12px; letter-spacing:.12em; text-transform:uppercase; padding:5px 12px; border-radius:999px; }
+  #offer h3{ margin:12px 0 4px; font-family:'Fredoka',sans-serif; font-size:clamp(18px,2vw,26px); color:#3a2205; }
+  #offer .big{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(40px,5vw,66px); color:#e0700b; line-height:1; }
+  #offer .big small{ font-size:.4em; color:#3a2205; }
+  #offer .net{ margin-top:8px; font-size:clamp(13px,1.4vw,17px); color:#2b7a2b; font-weight:700; }
+  #offer .net b{ color:#1f6b1f; }
+  #offer .sub{ margin-top:6px; font-size:12px; color:#8a6b45; }
+
+  /* ===== CTA finale ===== */
+  #finale{
+    position:absolute; left:50%; bottom:22%; transform:translateX(-50%) translateY(16px); z-index:9;
+    display:flex; flex-direction:column; align-items:center; gap:12px; opacity:0; pointer-events:none;
+    transition:opacity .5s ease, transform .5s cubic-bezier(.3,1.5,.4,1);
+  }
+  #finale.show{ opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+  .cta-buy{
+    cursor:pointer; text-decoration:none; text-transform:uppercase; text-align:center;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(18px,2.4vw,32px); letter-spacing:.04em;
+    color:#fff; padding:clamp(15px,1.8vw,22px) clamp(30px,4vw,56px); border-radius:999px;
+    background:linear-gradient(180deg,#ff9a3a 0%,#ef6d0b 60%,#d95e00 100%);
+    box-shadow:0 9px 0 #9c4405, 0 18px 30px rgba(150,60,0,0.4);
+    animation:ctaPulse 1.2s ease-in-out infinite; transition:transform .12s ease;
+  }
+  .cta-buy:hover{ transform:translateY(-2px); }
+  .cta-buy:active{ transform:translateY(5px); box-shadow:0 3px 0 #9c4405; }
+  @keyframes ctaPulse{ 0%,100%{ box-shadow:0 9px 0 #9c4405, 0 18px 30px rgba(150,60,0,0.4);} 50%{ box-shadow:0 9px 0 #9c4405, 0 18px 44px rgba(255,140,40,0.75);} }
+  #finale .reassure{ font-size:clamp(12px,1.3vw,16px); color:#2b6b8f; font-weight:600; display:flex; gap:14px; }
+  #finale .reassure span{ display:inline-flex; align-items:center; gap:5px; }
+
+  /* ===== Progress + skip ===== */
+  #progress{ position:absolute; top:16px; left:50%; transform:translateX(-50%); z-index:12; display:flex; gap:8px; }
+  #progress i{ width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,0.55); box-shadow:0 1px 2px rgba(0,0,0,0.2); transition:all .3s ease; }
+  #progress i.on{ background:#ef6d0b; transform:scale(1.3); }
+  #skip{
+    position:absolute; bottom:14px; right:16px; z-index:12; cursor:pointer;
+    font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+    color:#2b6b8f; background:rgba(255,255,255,0.7); border:1px solid rgba(43,107,143,0.4);
+    padding:8px 16px; border-radius:999px; transition:all .15s ease;
+  }
+  #skip:hover{ background:#fff; color:#154f6e; }
+  #replay{
+    position:absolute; bottom:14px; left:16px; z-index:12; cursor:pointer; display:none;
+    font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
+    color:#2b6b8f; background:rgba(255,255,255,0.7); border:1px solid rgba(43,107,143,0.4);
+    padding:8px 16px; border-radius:999px;
+  }
+  #replay:hover{ background:#fff; }
+
+  /* ===== Power-on CRT ===== */
+  #power{ position:fixed; inset:0; z-index:50; background:#000; pointer-events:none; }
+  #power .line{ position:absolute; left:0; right:0; top:50%; height:3px; background:#fff; box-shadow:0 0 30px 6px rgba(255,255,255,0.9); transform:translateY(-50%) scaleX(1); }
+  #power.on{ animation:powerBg .12s .28s forwards; }
+  #power.on .line{ animation:powerLine .5s cubic-bezier(.6,0,.3,1) forwards; }
+  @keyframes powerLine{
+    0%{ transform:translateY(-50%) scaleX(.02); height:3px; opacity:1; }
+    35%{ transform:translateY(-50%) scaleX(1); height:3px; opacity:1; }
+    100%{ transform:translateY(-50%) scaleX(1); height:120vh; opacity:0; }
+  }
+  @keyframes powerBg{ to{ background:transparent; } }
+  #power.off{ display:none; }
+</style>
+</head>
+<body>
+  <main id="sky">
+    <div class="cloud" style="top:12%; left:8%; animation:driftBig 11s ease-in-out infinite alternate;"></div>
+    <div class="cloud" style="top:22%; left:66%; transform:scale(1.3); animation:drift 9s ease-in-out infinite alternate;"></div>
+    <div class="cloud" style="top:44%; left:30%; transform:scale(.8); animation:drift 13s ease-in-out infinite alternate;"></div>
+    <div class="cloud" style="top:8%; left:44%; transform:scale(.7); animation:driftBig 15s ease-in-out infinite alternate;"></div>
+    <div class="cloud" style="top:58%; left:80%; transform:scale(.9); animation:drift 10s ease-in-out infinite alternate;"></div>
+    <div id="ground"></div>
+
+    <!-- Hall d'entrée (scène toc toc) -->
+    <div id="hall">
+      <div class="wall"></div>
+      <div class="lamp"><div class="shade"></div><div class="glow"></div></div>
+      <div class="skirting"></div>
+      <div class="floor"></div>
+      <div class="office-decor">
+        <div class="wall-sign">MON COPAIN DIGITAL</div>
+        <div class="planter"><span class="frond a"></span><span class="frond b"></span><span class="frond"></span><span class="pot"></span></div>
+      </div>
+      <div class="knock-fx">toc toc&nbsp;!</div>
+      <div class="hall-door home">
+        <svg viewBox="0 0 170 300">
+          <rect x="6" y="6" width="158" height="294" rx="6" fill="#a5824f"/>
+          <rect x="16" y="14" width="138" height="286" rx="4" fill="#8a6d45"/>
+          <rect x="30" y="28" width="110" height="96" rx="5" fill="#6f5636"/>
+          <rect x="30" y="140" width="110" height="140" rx="5" fill="#6f5636"/>
+          <rect x="34" y="32" width="102" height="88" rx="4" fill="none" stroke="#5e4830" stroke-width="3"/>
+          <rect x="34" y="144" width="102" height="132" rx="4" fill="none" stroke="#5e4830" stroke-width="3"/>
+          <circle cx="126" cy="158" r="7" fill="#ffd27a"/>
+          <circle cx="126" cy="158" r="7" fill="none" stroke="#b98a2e" stroke-width="2"/>
+          <rect x="70" y="60" width="30" height="26" rx="3" fill="#c9a86a"/>
+        </svg>
+      </div>
+      <div class="hall-door office">
+        <svg viewBox="0 0 170 300">
+          <rect x="6" y="6" width="158" height="294" rx="6" fill="#5a6b7a"/>
+          <rect x="16" y="14" width="138" height="286" rx="4" fill="#3f4e5b"/>
+          <rect x="30" y="28" width="110" height="150" rx="5" fill="#9fd2ef"/>
+          <rect x="30" y="28" width="110" height="150" rx="5" fill="url(#officeGlass)"/>
+          <line x1="30" y1="103" x2="140" y2="103" stroke="#3f4e5b" stroke-width="4"/>
+          <rect x="44" y="196" width="82" height="22" rx="4" fill="#e8eef3"/>
+          <text x="85" y="212" font-family="Fredoka,sans-serif" font-size="13" font-weight="700" fill="#3f4e5b" text-anchor="middle">BUREAU</text>
+          <rect x="120" y="150" width="9" height="56" rx="4" fill="#cfd8df"/>
+          <defs><linearGradient id="officeGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset=".5" stop-color="#9fd2ef"/><stop offset=".55" stop-color="#cdeaff"/><stop offset="1" stop-color="#8ec6e8"/></linearGradient></defs>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Salon (scène téléphone fixe) -->
+    <div id="salon">
+      <div class="wall"></div>
+      <div class="window"><div class="bar-v"></div><div class="bar-h"></div></div>
+      <div class="skirting"></div>
+      <div class="floor"></div>
+      <div class="rug"></div>
+      <div class="sofa"></div>
+      <div class="plant"><span class="leaf"></span><span class="leaf l2"></span><span class="leaf l3"></span><span class="pot"></span></div>
+      <div class="phone-set">
+        <svg viewBox="0 0 200 150">
+          <rect x="10" y="96" width="180" height="14" rx="4" fill="#a5794a"/>
+          <rect x="22" y="110" width="12" height="38" rx="3" fill="#8a6338"/>
+          <rect x="166" y="110" width="12" height="38" rx="3" fill="#8a6338"/>
+          <rect x="58" y="60" width="92" height="40" rx="8" fill="#3a4653"/>
+          <path d="M52 52 q6 -14 22 -12 l58 0 q16 -2 22 12 l-10 6 q-8 -8 -20 -6 l-42 0 q-12 -2 -20 6 z" fill="#2c3742"/>
+          <g fill="#8fa2b3">
+            <rect x="70" y="80" width="8" height="6" rx="1"/><rect x="84" y="80" width="8" height="6" rx="1"/><rect x="98" y="80" width="8" height="6" rx="1"/>
+            <rect x="70" y="90" width="8" height="6" rx="1"/><rect x="84" y="90" width="8" height="6" rx="1"/><rect x="98" y="90" width="8" height="6" rx="1"/>
+          </g>
+          <circle id="phone-glow" cx="134" cy="84" r="12" fill="#4fe04f" opacity="0"/>
+          <circle id="phone-led" cx="134" cy="84" r="5" fill="#c24a4a"/>
+          <path d="M150 92 q40 8 44 44" fill="none" stroke="#2c3742" stroke-width="4"/>
+        </svg>
+      </div>
+      <div style="position:absolute; bottom:26%; left:40%; width:24px; height:32px; border-radius:5px; background:#eef3f7; box-shadow:0 3px 6px rgba(40,60,80,0.2); z-index:6;" class="home-jack">
+        <span style="position:absolute; left:7px; top:9px; width:4px; height:10px; border-radius:2px; background:#9fb0c0;"></span>
+        <span style="position:absolute; right:7px; top:9px; width:4px; height:10px; border-radius:2px; background:#9fb0c0;"></span>
+      </div>
+      <div class="office-work">
+        <svg viewBox="0 0 280 230">
+          <!-- pieds -->
+          <rect x="30" y="120" width="12" height="104" rx="3" fill="#46545f"/>
+          <rect x="238" y="120" width="12" height="104" rx="3" fill="#46545f"/>
+          <rect x="40" y="210" width="200" height="8" rx="3" fill="#3c4954"/>
+          <!-- plateau du bureau -->
+          <rect x="4" y="118" width="272" height="18" rx="5" fill="#5a6b7a"/>
+          <rect x="4" y="118" width="272" height="6" rx="3" fill="#738799"/>
+          <!-- caisson tiroirs -->
+          <rect x="196" y="136" width="54" height="74" rx="4" fill="#4d5b67"/>
+          <rect x="204" y="146" width="38" height="4" rx="2" fill="#6f8091"/>
+          <rect x="204" y="164" width="38" height="4" rx="2" fill="#6f8091"/>
+          <rect x="204" y="182" width="38" height="4" rx="2" fill="#6f8091"/>
+          <!-- écran -->
+          <rect x="150" y="44" width="104" height="66" rx="6" fill="#2c3742"/>
+          <rect x="157" y="51" width="90" height="52" rx="3" fill="#9fd2ef"/>
+          <rect x="163" y="58" width="52" height="6" rx="3" fill="#5aa0c8"/>
+          <rect x="163" y="70" width="70" height="5" rx="2.5" fill="#bfe0f2"/>
+          <rect x="163" y="80" width="64" height="5" rx="2.5" fill="#bfe0f2"/>
+          <rect x="163" y="90" width="40" height="5" rx="2.5" fill="#bfe0f2"/>
+          <rect x="196" y="110" width="12" height="8" fill="#2c3742"/>
+          <!-- clavier + souris -->
+          <rect x="40" y="120" width="92" height="10" rx="3" fill="#c2ccd4"/>
+          <circle cx="146" cy="125" r="5" fill="#c2ccd4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Cozy : Oscar + grand-mère sur le canapé -->
+    <div id="cozy">
+      <div class="wall"></div>
+      <div class="window"></div>
+      <div class="floor"></div>
+      <div class="sofa-back"></div>
+      <div id="granny">
+        <svg viewBox="0 0 220 360">
+          <!-- corps assis / gilet -->
+          <path d="M46 300 q-6 -150 64 -152 q70 2 64 152 z" fill="#b98fc4"/>
+          <!-- jambes (collants + chaussons) -->
+          <rect x="78" y="286" width="22" height="58" rx="10" fill="#cfcac3"/>
+          <rect x="120" y="286" width="22" height="58" rx="10" fill="#cfcac3"/>
+          <ellipse cx="84" cy="346" rx="19" ry="10" fill="#7a4e8c"/>
+          <ellipse cx="136" cy="346" rx="19" ry="10" fill="#7a4e8c"/>
+          <path d="M56 250 q54 22 108 0 l0 26 q-54 20 -108 0 z" fill="#a67cb6"/>
+          <path d="M110 150 q-30 2 -34 40 l68 0 q-4 -38 -34 -40 z" fill="#efe3f4"/>
+          <line x1="110" y1="156" x2="110" y2="240" stroke="#a07cb0" stroke-width="3"/>
+          <!-- bras tenant le tel -->
+          <rect x="60" y="180" width="26" height="70" rx="13" fill="#b98fc4"/>
+          <rect x="134" y="180" width="26" height="70" rx="13" fill="#b98fc4"/>
+          <circle cx="73" cy="250" r="13" fill="#e8c2a0"/>
+          <circle cx="147" cy="250" r="13" fill="#e8c2a0"/>
+          <!-- mobile -->
+          <rect x="92" y="228" width="36" height="58" rx="6" fill="#2c3742"/>
+          <rect x="96" y="234" width="28" height="42" rx="3" fill="#8fd0ff"/>
+          <circle cx="110" cy="281" r="2.6" fill="#8fa2b3"/>
+          <!-- tête -->
+          <g>
+            <rect x="100" y="104" width="20" height="50" rx="8" fill="#e0b48f"/>
+            <path d="M74 74 q0 -44 36 -44 q36 0 36 44 q0 36 -36 40 q-36 -4 -36 -40 z" fill="#e8c2a0"/>
+            <!-- chignon + cheveux gris -->
+            <path d="M72 72 q-4 -48 38 -48 q42 0 38 48 q-8 -22 -20 -24 q6 -12 -8 -14 q-10 12 -24 8 q-16 6 -18 22 q-4 -4 -6 8 z" fill="#d7d2cc"/>
+            <circle cx="110" cy="20" r="12" fill="#cfc9c2"/>
+            <!-- lunettes -->
+            <circle cx="95" cy="70" r="12" fill="none" stroke="#5a4632" stroke-width="3"/>
+            <circle cx="125" cy="70" r="12" fill="none" stroke="#5a4632" stroke-width="3"/>
+            <line x1="107" y1="70" x2="113" y2="70" stroke="#5a4632" stroke-width="3"/>
+            <circle cx="95" cy="70" r="4" fill="#4a331f"/>
+            <circle cx="125" cy="70" r="4" fill="#4a331f"/>
+            <!-- joues + sourire -->
+            <circle cx="84" cy="86" r="6" fill="#ecab8f" opacity=".6"/>
+            <circle cx="136" cy="86" r="6" fill="#ecab8f" opacity=".6"/>
+            <ellipse class="g-mouth" cx="110" cy="92" rx="8" ry="4" fill="#7a3b30"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+    <div id="cozy-front">
+      <div class="sofa-front"></div>
+      <div class="sofa-arm l"></div>
+      <div class="sofa-arm r"></div>
+      <div class="cushion c1"></div>
+      <div class="cushion c2"></div>
+    </div>
+
+    <!-- Props -->
+    <div class="prop" id="prop-pc" style="left:7%;">
+      <svg width="260" height="300" viewBox="0 0 260 300">
+        <!-- lampe de chevet -->
+        <ellipse cx="52" cy="60" rx="30" ry="26" fill="#ffe08a"/>
+        <path d="M28 58 q24 -40 48 0 z" fill="#ffcf6b"/>
+        <ellipse cx="52" cy="60" rx="42" ry="34" fill="#ffd76b" opacity="0.28"/>
+        <rect x="49" y="82" width="6" height="66" fill="#8a6338"/>
+        <rect x="34" y="146" width="36" height="10" rx="4" fill="#6f5636"/>
+        <!-- ordinateur -->
+        <rect x="120" y="60" width="110" height="74" rx="8" fill="#3a4a58"/>
+        <rect x="128" y="68" width="94" height="58" rx="4" fill="url(#pcg)"/>
+        <text x="175" y="106" font-family="Fredoka,sans-serif" font-size="34" fill="#2b5f8a" text-anchor="middle" font-weight="700">?!</text>
+        <rect x="160" y="134" width="30" height="14" fill="#2c3a46"/>
+        <rect x="144" y="148" width="62" height="9" rx="4" fill="#2c3a46"/>
+        <!-- bureau -->
+        <rect x="6" y="152" width="248" height="18" rx="5" fill="#b07f4a"/>
+        <rect x="6" y="152" width="248" height="6" rx="3" fill="#c69a63"/>
+        <rect x="26" y="170" width="15" height="128" rx="3" fill="#8a6338"/>
+        <!-- caisson à tiroirs -->
+        <rect x="188" y="170" width="62" height="128" rx="4" fill="#9a6c3f"/>
+        <rect x="196" y="180" width="46" height="30" rx="3" fill="#8a6338"/>
+        <rect x="196" y="216" width="46" height="30" rx="3" fill="#8a6338"/>
+        <rect x="196" y="252" width="46" height="36" rx="3" fill="#8a6338"/>
+        <rect x="212" y="192" width="14" height="5" rx="2.5" fill="#d8b98a"/>
+        <rect x="212" y="228" width="14" height="5" rx="2.5" fill="#d8b98a"/>
+        <rect x="212" y="266" width="14" height="5" rx="2.5" fill="#d8b98a"/>
+        <defs><linearGradient id="pcg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bfe6ff"/><stop offset="1" stop-color="#8fd0ff"/></linearGradient></defs>
+      </svg>
+    </div>
+    <div class="prop" id="prop-tab" style="right:12%;">
+      <svg width="110" height="140" viewBox="0 0 110 140">
+        <rect x="8" y="6" width="94" height="128" rx="12" fill="#2c3a46"/>
+        <rect x="16" y="16" width="78" height="108" rx="5" fill="#eafaf0"/>
+        <circle cx="55" cy="70" r="26" fill="none" stroke="#37a91f" stroke-width="7"/>
+        <path d="M44 70l8 8 16-18" fill="none" stroke="#37a91f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="55" cy="128" r="3" fill="#8a97a2"/>
+      </svg>
+    </div>
+    <div class="prop" id="prop-box" style="right:12%;">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <rect x="24" y="40" width="72" height="64" rx="10" fill="#33414d"/>
+        <circle cx="42" cy="94" r="4" fill="#5fd94a"/>
+        <circle cx="58" cy="94" r="4" fill="#5fd94a"/>
+        <path d="M60 40C60 40 42 42 34 54" fill="none" stroke="#8fd6ff" stroke-width="5" stroke-linecap="round" opacity=".9"/>
+        <g stroke="#ffb14d" stroke-width="5" fill="none" stroke-linecap="round">
+          <path d="M60 34c10 0 19 4 26 11"/>
+          <path d="M60 22c14 0 27 6 36 16"/>
+          <path d="M60 10c18 0 35 8 47 21"/>
+        </g>
+      </svg>
+    </div>
+    <div class="prop" id="prop-door" style="right:14%;">
+      <svg width="150" height="210" viewBox="0 0 150 210">
+        <rect x="14" y="14" width="122" height="196" rx="8" fill="#c9b48c"/>
+        <rect x="22" y="22" width="106" height="188" rx="5" fill="#8a6d45"/>
+        <rect x="34" y="36" width="82" height="70" rx="4" fill="#6f5636"/>
+        <rect x="34" y="120" width="82" height="74" rx="4" fill="#6f5636"/>
+        <circle cx="104" cy="116" r="6" fill="#ffd27a"/>
+        <rect x="52" y="-2" width="46" height="18" rx="4" fill="#7ec96f"/>
+      </svg>
+    </div>
+
+    <!-- Étoiles -->
+    <div id="stars"><span style="animation-delay:.0s">★</span><span style="animation-delay:.08s">★</span><span style="animation-delay:.16s">★</span><span style="animation-delay:.24s">★</span><span style="animation-delay:.32s">★</span></div>
+
+    <!-- Carte offre -->
+    <div id="offer">
+      <span class="tag">Séance à domicile ou visio</span>
+      <h3>1 heure, un vrai humain</h3>
+      <div class="big">49<small>€</small></div>
+      <div class="net">soit <b>24,50 €</b> après crédit d'impôt 50%</div>
+      <div class="sub">Sans engagement · À votre rythme</div>
+    </div>
+
+    <!-- Choix public -->
+    <div id="choice">
+      <button class="choice-btn part" data-aud="part"><span class="ico">🏡</span>Particulier<small>Chez moi, à mon rythme</small></button>
+      <button class="choice-btn pro" data-aud="pro"><span class="ico">💼</span>Professionnel<small>Pour mon activité</small></button>
+    </div>
+
+    <!-- Personnage -->
+    <div id="speedlines">
+      <i style="top:20%; width:44px; animation-delay:0s;"></i>
+      <i style="top:44%; width:60px; animation-delay:.12s;"></i>
+      <i style="top:66%; width:36px; animation-delay:.06s;"></i>
+      <i style="top:82%; width:52px; animation-delay:.18s;"></i>
+    </div>
+    <div id="scooter">
+      <svg viewBox="0 0 300 200" aria-hidden="true">
+        <g class="wheel" style="transform-origin:58px 168px;">
+          <circle cx="58" cy="168" r="27" fill="#2b2b30"/>
+          <circle cx="58" cy="168" r="12" fill="#c7ccd2"/>
+          <circle cx="58" cy="168" r="3.5" fill="#6b6f76"/>
+          <rect x="56" y="156" width="4" height="24" fill="#8a8f96"/>
+          <rect x="46" y="166" width="24" height="4" fill="#8a8f96"/>
+        </g>
+        <g class="wheel" style="transform-origin:222px 168px;">
+          <circle cx="222" cy="168" r="27" fill="#2b2b30"/>
+          <circle cx="222" cy="168" r="12" fill="#c7ccd2"/>
+          <circle cx="222" cy="168" r="3.5" fill="#6b6f76"/>
+          <rect x="220" y="156" width="4" height="24" fill="#8a8f96"/>
+          <rect x="210" y="166" width="24" height="4" fill="#8a8f96"/>
+        </g>
+        <!-- plateau -->
+        <path d="M56 150 L206 150 q10 0 12 8 l0 4 q-2 6 -12 6 L64 168 q-10 0 -10 -9 z" fill="#ef6d0b"/>
+        <rect x="70" y="150" width="128" height="4" rx="2" fill="#ffb14d" opacity=".8"/>
+        <!-- colonne + guidon -->
+        <path d="M218 156 L232 34" stroke="#3a3a40" stroke-width="11" stroke-linecap="round"/>
+        <path d="M210 36 q22 -10 44 -2" stroke="#2b2b30" stroke-width="11" stroke-linecap="round" fill="none"/>
+        <circle cx="208" cy="38" r="7" fill="#5a4632"/>
+        <circle cx="256" cy="36" r="7" fill="#5a4632"/>
+      </svg>
+    </div>
+    <!-- Personnage -->
+    <div id="hero">
+      <svg viewBox="0 0 240 400" aria-label="Mon Copain Digital">
+        <g id="char-inner">
+          <!-- ombre -->
+          <ellipse cx="120" cy="392" rx="66" ry="12" fill="rgba(40,80,40,0.18)"/>
+
+          <!-- JAMBE ARRIÈRE -->
+          <g class="leg-b">
+            <rect x="112" y="250" width="26" height="104" rx="12" fill="#b8a074"/>
+            <path d="M108 350 h34 l6 20 q0 8 -10 8 h-30 q-6 0 -6 -8 z" fill="#5a4632"/>
+          </g>
+          <!-- JAMBE AVANT -->
+          <g class="leg-f">
+            <rect x="104" y="250" width="28" height="106" rx="13" fill="#cbb58f"/>
+            <path d="M99 352 h36 l7 20 q0 8 -10 8 h-32 q-7 0 -7 -8 z" fill="#6b5238"/>
+          </g>
+
+          <!-- BRAS ARRIÈRE -->
+          <g class="arm-b">
+            <rect x="150" y="176" width="22" height="72" rx="11" fill="#e4e1d7"/>
+            <g class="fore-b">
+              <rect x="152" y="238" width="18" height="46" rx="9" fill="#e4e1d7"/>
+              <circle cx="161" cy="288" r="12" fill="#e8b78f"/>
+            </g>
+          </g>
+
+          <!-- TORSE / chemise -->
+          <g id="torso">
+            <path d="M84 178 q36 -20 72 0 l6 74 q-42 16 -84 0 z" fill="#f3f1ea"/>
+            <path d="M84 178 q36 -20 72 0 l3 20 q-39 -16 -78 0 z" fill="#ffffff" opacity=".7"/>
+            <path d="M120 168 l-14 14 8 10 6 -8 6 8 8 -10 z" fill="#e7e3da"/>
+            <rect x="128" y="196" width="22" height="26" rx="3" fill="#e7e3da"/>
+            <rect x="131" y="201" width="16" height="4" rx="2" fill="#cbb58f"/>
+            <rect x="131" y="209" width="16" height="4" rx="2" fill="#cbb58f"/>
+            <line x1="120" y1="182" x2="120" y2="250" stroke="#e0dccf" stroke-width="2"/>
+          </g>
+
+          <!-- TÊTE -->
+          <g id="head">
+            <rect x="112" y="150" width="16" height="20" rx="6" fill="#e0aa80"/>
+            <path d="M78 96 q0 -54 42 -54 q42 0 42 54 q0 42 -42 46 q-42 -4 -42 -46 z" fill="#e8b78f"/>
+            <path d="M108 138 q12 8 24 0 l0 8 q-12 8 -24 0 z" fill="#d79e73"/>
+            <!-- cheveux -->
+            <path d="M74 96 q-4 -60 46 -62 q52 2 46 60 q-6 -30 -22 -34 q4 12 -2 18 q-10 -20 -30 -16 q-18 4 -22 22 q-6 -6 -8 8 q-4 6 -6 4 z" fill="#6b4a2f"/>
+            <path d="M120 34 q-30 2 -40 34 q14 -20 40 -20 q26 0 40 20 q-10 -32 -40 -34 z" fill="#7d5738"/>
+            <!-- sourcils -->
+            <rect x="92" y="86" width="18" height="5" rx="2.5" fill="#6b4a2f"/>
+            <rect x="130" y="86" width="18" height="5" rx="2.5" fill="#6b4a2f"/>
+            <!-- yeux -->
+            <g>
+              <ellipse cx="101" cy="99" rx="9" ry="10" fill="#fff"/>
+              <circle cx="103" cy="100" r="4.4" fill="#4a331f"/>
+              <rect class="eyelid" x="92" y="89" width="18" height="12" rx="6" fill="#e8b78f"/>
+            </g>
+            <g>
+              <ellipse cx="139" cy="99" rx="9" ry="10" fill="#fff"/>
+              <circle cx="141" cy="100" r="4.4" fill="#4a331f"/>
+              <rect class="eyelid" x="130" y="89" width="18" height="12" rx="6" fill="#e8b78f" style="animation-delay:.05s"/>
+            </g>
+            <!-- nez -->
+            <path d="M120 100 l-5 16 q5 4 10 0 z" fill="#d79e73"/>
+            <!-- bouche -->
+            <ellipse class="mouth" cx="120" cy="128" rx="15" ry="7" fill="#7a3b30"/>
+            <path d="M106 126 q14 12 28 0" fill="none" stroke="#7a3b30" stroke-width="0"/>
+          </g>
+
+          <!-- BRAS AVANT (expressif) -->
+          <g class="arm-f">
+            <rect x="68" y="176" width="22" height="72" rx="11" fill="#f3f1ea"/>
+            <g class="fore-f">
+              <rect x="70" y="238" width="18" height="46" rx="9" fill="#f3f1ea"/>
+              <circle cx="79" cy="288" r="12.5" fill="#e8b78f"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Bulle -->
+    <div id="bubble"></div>
+
+    <!-- Finale -->
+    <div id="finale">
+      <a class="cta-buy" id="cta-buy" href="paiement.html?offre=seance" target="_top">Réserver ma séance</a>
+      <div class="reassure">
+        <span>✔ Sans engagement</span><span>✔ Crédit d'impôt 50%</span><span>✔ Satisfait ou revu</span>
+      </div>
+    </div>
+
+    <!-- UI -->
+    <div id="progress"></div>
+    <button id="skip" type="button">Passer ▸</button>
+    <button id="replay" type="button">↺ Revoir</button>
+  </main>
+
+  <div id="power"><div class="line"></div></div>
+
+<script>
+(function(){
+  var hero = document.getElementById('hero');
+  var bubble = document.getElementById('bubble');
+  var progress = document.getElementById('progress');
+  var skip = document.getElementById('skip');
+  var replay = document.getElementById('replay');
+  var power = document.getElementById('power');
+  var aud = 'part';
+
+  var POSES = ['wave','point','think','cheer','present','ride','knock','plug','seat','work'];
+  function setPose(p){
+    hero.classList.remove.apply(hero.classList, POSES);
+    hero.classList.remove('walking');
+    if(p) hero.classList.add(p);
+  }
+  function faceTo(dir){ hero.classList.toggle('face-left', dir === 'left'); }
+  function jumpTo(el, pct){ var t = el.style.transition; el.style.transition = 'none'; el.style.left = pct + '%'; void el.offsetWidth; el.style.transition = ''; }
+  function hideScooter(){ var s = document.getElementById('scooter'); s.classList.remove('show','rolling'); document.getElementById('speedlines').classList.remove('show'); }
+  function hideHall(){ document.getElementById('hall').classList.remove('show'); }
+  function hideSalon(){ var s=document.getElementById('salon'); s.classList.remove('show','lit','office'); }
+  function hideCozy(){ var c=document.getElementById('cozy'); c.classList.remove('show'); document.getElementById('cozy-front').classList.remove('show'); document.getElementById('granny').classList.remove('talkg'); hero.style.bottom=''; }
+
+  function showProp(id){
+    ['prop-pc','prop-tab','prop-box'].forEach(function(p){
+      document.getElementById(p).classList.toggle('show', p === id);
+    });
+  }
+  function hideProps(){ showProp(null); }
+
+  // déplacement + marche
+  function moveTo(leftPct, dir, cb){
+    faceTo(dir);
+    setPose(null);
+    hero.classList.add('walking');
+    hero.style.left = leftPct + '%';
+    var done = false;
+    function end(){ if(done) return; done = true; hero.classList.remove('walking'); faceTo('right'); if(cb) cb(); }
+    setTimeout(end, 1400);
+  }
+
+  // bulle avec effet "typewriter" + bouche qui parle
+  var typeTimer = null;
+  function say(html, x, y){
+    clearInterval(typeTimer);
+    bubble.style.right = 'auto';
+    hero.classList.add('talking');
+    // mesure avec le texte complet pour figer la taille
+    bubble.style.width = 'auto';
+    bubble.innerHTML = html;
+    bubble.classList.add('show');
+    var bw = bubble.offsetWidth, bh = bubble.offsetHeight;
+    bubble.style.width = bw + 'px';
+    positionBubble(bw, bh);
+    // machine à écrire
+    var tmp = document.createElement('div'); tmp.innerHTML = html;
+    var plain = tmp.textContent; var full = html; var i = 0;
+    bubble.innerHTML = '<span class="txt"></span><span class="cursor">▍</span>';
+    var txt = bubble.querySelector('.txt');
+    typeTimer = setInterval(function(){
+      i++;
+      txt.textContent = plain.slice(0, i);
+      if(i >= plain.length){
+        clearInterval(typeTimer);
+        bubble.innerHTML = full;
+        hero.classList.remove('talking');
+      }
+    }, 34);
+  }
+  function positionBubble(bw, bh){
+    var hr = hero.getBoundingClientRect();
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var cx = hr.left + hr.width/2;
+    var headTop = hr.top;
+    var left = cx - bw/2;
+    left = Math.max(10, Math.min(left, vw - bw - 10));
+    var top = headTop - bh - 22;
+    top = Math.max(10, top);
+    bubble.style.left = left + 'px';
+    bubble.style.top = top + 'px';
+    bubble.style.setProperty('--tx', (cx - left) + 'px');
+  }
+  function hush(){ clearInterval(typeTimer); hero.classList.remove('talking'); }
+  function hideBubble(){ bubble.classList.remove('show'); bubble.style.width='auto'; }
+
+  function tailored(){
+    return aud === 'pro'
+      ? "Pour votre activité : site, cloud, dépannage. On vous rend le numérique <b>simple et rentable</b>."
+      : "Chez vous, à votre rythme : mails, photos, visio avec les petits-enfants. <b>Zéro jargon</b>, promis.";
+  }
+
+  // ===== SCÉNARIO =====
+  var scenes = [
+    { dur:5200, run:function(){
+        hideProps(); document.getElementById('offer').classList.remove('show');
+        document.getElementById('stars').classList.remove('show');
+        moveTo(38,'right',function(){
+          setPose('wave');
+          say("Bonjour&nbsp;! Moi c'est <b>Oscar</b>, votre Copain Digital 👋", '46%','20%');
+        });
+    }},
+    { dur:7200, run:function(){
+        showProp('prop-pc');
+        moveTo(30,'left',function(){
+          setPose('think');
+          say("Le numérique vous file des sueurs froides&nbsp;? Mails, box, tablette… la <b>galère</b>.", '44%','14%');
+        });
+    }},
+    { dur:6800, run:function(){
+        hideProps();
+        moveTo(46,'right',function(){
+          setPose('present');
+          say("Respirez 😌 On réconcilie avec le numérique celles et ceux que la tech a <b>oubliés</b>.", '52%','16%');
+        });
+    }},
+    { choice:true, run:function(){
+        hideProps();
+        moveTo(30,'right',function(){
+          setPose('point'); faceTo('right');
+          say("Dites-moi… vous êtes plut&ocirc;t&nbsp;?", '42%','16%');
+          document.getElementById('choice').classList.add('show');
+        });
+    }},
+    { dur:5600, run:function(){
+        hideProps();
+        var sc = document.getElementById('scooter'), sl = document.getElementById('speedlines');
+        jumpTo(hero, 4); jumpTo(sc, 4);
+        setPose('ride'); faceTo('right'); sc.classList.remove('face-left');
+        sc.classList.add('show','rolling'); sl.classList.add('show');
+        sl.style.left = '48%';
+        requestAnimationFrame(function(){ hero.style.left = '66%'; sc.style.left = '66%'; });
+        setTimeout(function(){
+          sc.classList.remove('rolling'); sl.classList.remove('show');
+          say("En selle&nbsp;! J'enfourche mon scooter et <b>j'arrive chez vous</b> 🛵", '', '');
+        }, 1500);
+    }},
+    { dur:5200, run:function(){
+        hideScooter();
+        var hall = document.getElementById('hall');
+        hall.classList.toggle('pro', aud === 'pro');
+        hall.classList.add('show');
+        jumpTo(hero, 8);
+        moveTo(60,'right',function(){
+          setPose('knock');
+          say("Toc toc&nbsp;! Me voilà, <b>ravi de vous rencontrer</b> " + (aud === 'pro' ? '🏢' : '🏠'), '', '');
+        });
+    }},
+    { dur:6400, run:function(){
+        document.getElementById('choice').classList.remove('show');
+        var salon = document.getElementById('salon');
+        var pro = (aud === 'pro');
+        salon.classList.remove('lit'); salon.classList.toggle('office', pro); salon.classList.add('show');
+        jumpTo(hero, 6);
+        moveTo(pro ? 50 : 52,'right',function(){
+          setPose(pro ? 'work' : 'plug');
+          say(tailored(), '', '');
+          if(!pro){ setTimeout(function(){ salon.classList.add('lit'); }, 1600); }
+        });
+    }},
+    { dur:5400, run:function(){
+        hideProps();
+        moveTo(40,'right',function(){
+          setPose('cheer');
+          document.getElementById('stars').classList.add('show');
+          say("Des <b>milliers de sourires</b> retrouvés. Note moyenne ★★★★★.", '46%','30%');
+        });
+    }},
+    { dur:6800, proSkip:true, run:function(){
+        document.getElementById('stars').classList.remove('show');
+        document.getElementById('offer').classList.remove('show');
+        var cozy = document.getElementById('cozy'); cozy.classList.add('show');
+        document.getElementById('cozy-front').classList.add('show');
+        jumpTo(hero, 6); hero.style.bottom = '13%';
+        moveTo(44,'right',function(){
+          setPose('seat');
+          document.getElementById('granny').classList.add('talkg');
+          say("Une heure, un vrai humain à vos côtés.", '', '');
+        });
+    }},
+    { final:true, run:function(){
+        document.getElementById('offer').classList.remove('show');
+        hideProps();
+        moveTo(30,'right',function(){
+          setPose('cheer');
+          say("On se lance&nbsp;? Je vous accompagne dès maintenant&nbsp;! 🚀", '42%','14%');
+          document.getElementById('finale').classList.add('show');
+        });
+    }}
+  ];
+
+  // dots
+  scenes.forEach(function(){ var d=document.createElement('i'); progress.appendChild(d); });
+  var dots = progress.querySelectorAll('i');
+
+  var idx = -1, timer = null;
+  function go(i){
+    if(i >= scenes.length) return;
+    clearTimeout(timer);
+    idx = i;
+    dots.forEach(function(d,k){ d.classList.toggle('on', k===i); });
+    var sc = scenes[i];
+    if(sc.proSkip && aud === 'pro'){ return go(i+1); }
+    hideBubble();
+    if(!sc.choice){ document.getElementById('choice').classList.remove('show'); }
+    if(i !== 4){ hideScooter(); }
+    if(i !== 5){ hideHall(); }
+    if(i !== 6){ hideSalon(); }
+    if(i !== 8){ hideCozy(); }
+    // petit délai pour laisser la bulle disparaître avant la marche
+    setTimeout(function(){
+      sc.run();
+      if(!sc.choice && !sc.final){
+        timer = setTimeout(function(){ go(i+1); }, sc.dur);
+      }
+      if(sc.final){ replay.style.display='block'; skip.style.display='none'; }
+    }, 180);
+  }
+
+  // choix
+  document.querySelectorAll('.choice-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      aud = b.getAttribute('data-aud');
+      document.getElementById('choice').classList.remove('show');
+      go(idx+1);
+    });
+  });
+
+  skip.addEventListener('click', function(){
+    clearTimeout(timer);
+    document.getElementById('choice').classList.remove('show');
+    go(scenes.length-1);
+  });
+  replay.addEventListener('click', function(){
+    replay.style.display='none'; skip.style.display='';
+    document.getElementById('finale').classList.remove('show');
+    go(0);
+  });
+
+  // power-on puis démarrage
+  function boot(){
+    power.classList.add('on');
+    setTimeout(function(){ power.classList.add('off'); }, 900);
+    setTimeout(function(){ go(0); }, 700);
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
