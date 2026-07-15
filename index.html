@@ -684,8 +684,9 @@
   <div id="stars"></div>
   <div id="title" style="display:none"></div>
   <a id="top-logo" href="/" aria-label="Mon Copain Digital" style="position:fixed; top:-8px; left:50%; transform:translateX(-50%); z-index:40; display:block;">
-    <img src="/logomcd.png" alt="Mon Copain Digital" style="display:block; width:clamp(320px,40vw,600px); height:auto; filter:drop-shadow(0 6px 16px rgba(30,12,0,0.35));">
+    <img src="logomcd.png" alt="Mon Copain Digital" style="display:block; width:clamp(320px,40vw,600px); height:auto; filter:drop-shadow(0 6px 16px rgba(30,12,0,0.35));">
   </a>
+  <style>@media (max-width:640px){ #top-logo{ top:64px !important; } #top-logo img{ width:min(50vw,220px) !important; } }</style>
 
   <!-- Offre Coupe du Monde -->
 
@@ -1513,7 +1514,7 @@ function start() {
               if (m.map) { m.map.encoding = THREE.sRGBEncoding; m.map.needsUpdate = true; }
               m.emissive = new THREE.Color(0xffffff);
               m.emissiveMap = m.map || null;
-              m.emissiveIntensity = 0.9;       // auto-éclairé par sa texture (look flat toy)
+              m.emissiveIntensity = 0.32;      // auto-éclairé par sa texture (réduit pour éviter la surbrillance)
               m.needsUpdate = true;
             });
           }
@@ -1619,7 +1620,7 @@ function start() {
             if (!seatGrp.visible) { glow.intensity = 0; return; }
             const t = performance.now() / 1000;
             const f = 1 + 0.22 * Math.sin(t * 7.3) + 0.13 * Math.sin(t * 17.1) + 0.06 * Math.sin(t * 31.7);
-            glow.intensity = 22 * f;                       // scintillement (reflets sur lui)
+            glow.intensity = 12 * f;                       // scintillement (reflets sur lui)
             screenGlass.emissiveIntensity = 1.4 * f;       // dalle qui vacille
           })();
 
@@ -2107,8 +2108,8 @@ start();
     try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
   };
   window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
-  // au lancement : nuit entre 23h et 7h
-  function isNightHour(){ var h = new Date().getHours(); return h >= 23 || h < 7; }
+  // au lancement : nuit entre 23h et 6h (le soleil se déclenche à 6h)
+  function isNightHour(){ var h = new Date().getHours(); return h >= 23 || h < 6; }
   var lastAuto = isNightHour();
   applyNight(lastAuto, true);
   // Le #liquid-sun est ins\u00e9r\u00e9 plus bas dans le DOM : on attend qu'il existe pour poser la couronne.
@@ -2131,6 +2132,7 @@ start();
   .acct-badge::after{content:'';position:absolute;top:100%;right:16px;border:5px solid transparent;border-top-color:#e11d10;}
   @keyframes acctBadgePulse{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
   .acct-sq:hover{transform:translateY(-2px) scale(1.06);}
+  @media (max-width:640px){ .acct-badge{font-size:8px;padding:4px 7px;} .acct-badge::after{right:12px;border-width:4px;} }
   .acct-sq img{width:100%;height:100%;object-fit:contain;display:block;}
   .acct-sq.fixed{position:fixed;top:clamp(14px,2.4vw,26px);right:clamp(16px,4vw,48px);z-index:9999;}
   #acct-pop{position:fixed;top:calc(clamp(14px,2.4vw,26px) + 58px);right:clamp(16px,4vw,48px);z-index:10000;width:264px;border-radius:22px;padding:20px 20px 18px;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
