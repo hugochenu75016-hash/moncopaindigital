@@ -597,6 +597,8 @@
     ov.classList.remove('loading');
     void ov.offsetWidth;
     ov.classList.add('opening');
+    // 1 s après l'ouverture des portes : le personnage tombe sur la planète
+    setTimeout(function(){ if(window.__startFall) window.__startFall(); }, 1000);
   }
   function tryOpen(){ if(modelReady && pageLoaded) doOpen(); }
   // Appelé quand le personnage 3D est prêt : n'ouvre que si toute la page est aussi chargée.
@@ -680,7 +682,10 @@
 <div id="wrap">
   <canvas id="scene"></canvas>
   <div id="stars"></div>
-  <div id="title"><img src="logocoupeworld.png" alt="Mon Copain Digital" style="display:block;margin:0 auto;width:clamp(300px,48vw,620px);height:auto;filter:drop-shadow(0 10px 22px rgba(70,28,0,0.35));"></div>
+  <div id="title" style="display:none"></div>
+  <a id="top-logo" href="/" aria-label="Mon Copain Digital" style="position:fixed; top:clamp(12px,2.2vw,26px); left:50%; transform:translateX(-50%); z-index:40; display:block;">
+    <img src="/logomcd.png" alt="Mon Copain Digital" style="display:block; width:clamp(120px,14vw,190px); height:auto; filter:drop-shadow(0 6px 16px rgba(30,12,0,0.35));">
+  </a>
 
   <!-- Offre Coupe du Monde -->
 
@@ -1409,6 +1414,7 @@ function start() {
 
     // --- Décor Coupe du Monde : drapeaux tricolores + ballon géant ---
     (() => {
+      return; // retiré (ballon + drapeaux)
       const flagFR = () => {
         const fg = new THREE.Group();
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.065, 2.5, 10),
@@ -1462,40 +1468,57 @@ function start() {
 
     // ===== CHAISE SCANDINAVE EN BOIS — en grand, plein centre de la planète =====
     (() => {
-      // Chaise procédurale retirée : on charge le GLB fourni à la place.
+      // Chaise procédurale retirée : on charge le GLB animé (chute) fourni.
       const cLoader = new THREE.GLTFLoader();
       const cDraco = new THREE.DRACOLoader();
       cDraco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
       cLoader.setDRACOLoader(cDraco);
-      cLoader.load('maincaracterfootfr.glb', (gltf) => {
+      cLoader.load('maincaractersitidle.glb', (gltf) => {
         const grp = new THREE.Group();
         const model = gltf.scene;
-        // normalise la hauteur à 1
-        let box = new THREE.Box3().setFromObject(model);
-        model.scale.setScalar(1 / (box.max.y - box.min.y));
-        model.updateMatrixWorld(true);
-        // recentre X/Z, pose la base à l'origine
-        box = new THREE.Box3().setFromObject(model);
-        const c = new THREE.Vector3(); box.getCenter(c);
-        model.position.x -= c.x;
-        model.position.z -= c.z;
-        model.position.y -= box.min.y;
+        grp.add(model);
+        world.add(grp);
+        model.position.set(0, 0, 0);
+        model.scale.setScalar(1);
+        model.updateWorldMatrix(true, true);
+
+        // Squelette Meshy : la bbox géométrique (bind pose) ne reflète pas la
+        // taille réelle skinnée. On mesure la boîte des OS pour normaliser.
+        let sk = null; model.traverse(o => { if (o.isSkinnedMesh) sk = o; });
+        const bv = new THREE.Vector3();
+        const bbox = new THREE.Box3();
+        if (sk) {
+          sk.skeleton.update();
+          sk.skeleton.bones.forEach(b => { b.updateWorldMatrix(true, false); bbox.expandByPoint(b.getWorldPosition(bv).clone()); });
+        } else {
+          bbox.setFromObject(model);
+        }
+        const bc = new THREE.Vector3(); bbox.getCenter(bc);
+        const H = (bbox.max.y - bbox.min.y) || 1;
+        const MARGIN = 1.35;                    // tête/pieds débordent des articulations
+        model.scale.setScalar(1 / (H * MARGIN));
+        // recentre X/Z sur les os, base ~ au sol
+        model.position.x -= bc.x / (H * MARGIN);
+        model.position.z -= bc.z / (H * MARGIN);
+        model.position.y -= bbox.min.y / (H * MARGIN);
         model.traverse(o => {
           if (o.isMesh) {
             o.castShadow = true; o.receiveShadow = true; o.layers.enable(CHAIR_LAYER);
+            o.frustumCulled = false;
             const mats = Array.isArray(o.material) ? o.material : [o.material];
             mats.forEach(m => {
               if (!m) return;
-              if (m.map) { m.map.encoding = THREE.LinearEncoding; }
+              m.metalness = 0;                 // Meshy exporte en métal (rendu noir sans env-map)
+              m.roughness = 0.85;
+              if (m.map) { m.map.encoding = THREE.sRGBEncoding; m.map.needsUpdate = true; }
               m.emissive = new THREE.Color(0xffffff);
               m.emissiveMap = m.map || null;
-              m.emissiveIntensity = 0.03;
+              m.emissiveIntensity = 0.9;       // auto-éclairé par sa texture (look flat toy)
               m.needsUpdate = true;
             });
           }
         });
         grp.add(model);
-        // réglages : hauteur ~ celle de l'ancienne chaise. Ajustables via window.__chairTune(...)
         const CT = window.__chairT = { scale: 13.5, z: -1.0, y: 0, rotY: 0 };
         const apply = () => {
           grp.scale.setScalar(CT.scale);
@@ -1506,13 +1529,242 @@ function start() {
         apply();
         window.__chairTune = (o) => { Object.assign(CT, o); apply(); };
         window.__chair = grp;
-        // modèle prêt : on ouvre les portes
-        if (window.mcdDoorsOpen) setTimeout(window.mcdDoorsOpen, 200);
+
+        // ===== Chaise sous le personnage (révélée au moment de l'assise) =====
+        (function buildSeat(){
+          const seatGrp = new THREE.Group();
+          // Bois de noyer ancien (foncé, patiné) + laiton pour les fleurons
+          const wood = new THREE.MeshStandardMaterial({ color: 0x4a2b13, roughness: 0.55, metalness: 0.05 });
+          const woodD = new THREE.MeshStandardMaterial({ color: 0x351d0c, roughness: 0.6, metalness: 0.05 });
+          const brass = new THREE.MeshStandardMaterial({ color: 0x9c7a33, roughness: 0.35, metalness: 0.7 });
+          const add = (mesh, x, y, z) => { mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; mesh.layers.enable(CHAIR_LAYER); seatGrp.add(mesh); return mesh; };
+          const box = (w, h, d, x, y, z, m) => add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m || wood), x, y, z);
+          // pied/barreau tourné (cylindre + renflement)
+          const turned = (h, r, x, y, z, m) => {
+            const g = new THREE.Group();
+            const col = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.72, r, h, 12), m || wood); col.position.y = h / 2;
+            const bulb = new THREE.Mesh(new THREE.SphereGeometry(r * 1.35, 12, 10), m || wood); bulb.position.y = h * 0.34; bulb.scale.y = 0.7;
+            g.add(col); g.add(bulb);
+            g.traverse(o => { if (o.isMesh){ o.castShadow = true; o.receiveShadow = true; o.layers.enable(CHAIR_LAYER); } });
+            g.position.set(x, y, z); seatGrp.add(g); return g;
+          };
+          // dimensions en unités "personnage" (hauteur perso ≈ 1)
+          const SH = 0.26;        // hauteur d'assise
+          const SW = 0.5, SD = 0.48, TT = 0.05, backH = 0.42;
+          const lx = SW/2 - 0.06, lz = SD/2 - 0.06;
+          // assise + tablier (skirt) mouluré
+          box(SW, TT, SD, 0, SH, 0);
+          box(SW - 0.02, 0.05, 0.03, 0, SH - 0.05, SD/2 - 0.02);        // tablier avant
+          box(0.03, 0.05, SD - 0.04, SW/2 - 0.02, SH - 0.05, 0);        // tablier droit
+          box(0.03, 0.05, SD - 0.04, -SW/2 + 0.02, SH - 0.05, 0);       // tablier gauche
+          // pieds avant tournés + traverse (rallongés vers le bas pour toucher le sol)
+          const cDrop = 0.32;
+          turned(SH + cDrop, 0.035, -lx, -cDrop, lz, wood);
+          turned(SH + cDrop, 0.035, lx, -cDrop, lz, wood);
+          box(SW - 0.05, 0.03, 0.03, 0, SH * 0.28, lz);                 // entretoise avant
+          // montants arrière = pieds prolongés jusqu'au dossier (turned)
+          turned(SH + backH + cDrop, 0.04, -lx, -cDrop, -lz, woodD);
+          turned(SH + backH + cDrop, 0.04, lx, -cDrop, -lz, woodD);
+          // fleurons laiton au sommet des montants
+          add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), brass), -lx, SH + backH, -lz);
+          add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), brass), lx, SH + backH, -lz);
+          // fronton galbé (haut) + traverse basse
+          const crest = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, SW, 12), wood);
+          crest.rotation.z = Math.PI / 2; add(crest, 0, SH + backH - 0.03, -lz);
+          box(SW - 0.06, 0.035, 0.03, 0, SH + backH * 0.35, -lz);       // traverse basse dossier
+          // 3 barreaux tournés verticaux dans le dossier
+          [-0.13, 0, 0.13].forEach(bx => turned(backH * 0.62, 0.022, bx, SH + backH * 0.37, -lz, wood));
+
+          // ===== Bureau + écran + webcam, devant lui (révélé avec la chaise) =====
+          const DZ = 0.62;                 // distance du bureau devant l'assise
+          const DTOP = 0.44;               // hauteur du plateau
+          const metal = new THREE.MeshStandardMaterial({ color: 0x2a2d33, roughness: 0.5, metalness: 0.4 });
+          const screenFrame = new THREE.MeshStandardMaterial({ color: 0x17191d, roughness: 0.5, metalness: 0.2 });
+          const screenGlass = new THREE.MeshStandardMaterial({ color: 0x0a1730, roughness: 0.25, metalness: 0.1, emissive: new THREE.Color(0x3f86ff), emissiveIntensity: 1.4, side: THREE.DoubleSide });
+          const lensMat = new THREE.MeshStandardMaterial({ color: 0x0b0d10, roughness: 0.2, metalness: 0.6 });
+          // plateau + tablier
+          box(0.78, 0.04, 0.42, 0, DTOP, DZ, woodD);
+          box(0.74, 0.05, 0.03, 0, DTOP - 0.05, DZ + 0.19, wood);
+          // 4 pieds tournés (rallongés vers le bas pour toucher la planète courbe)
+          const legDrop = 0.4, legH = DTOP + legDrop;
+          [[-0.34, DZ - 0.18], [0.34, DZ - 0.18], [-0.34, DZ + 0.18], [0.34, DZ + 0.18]]
+            .forEach(p => turned(legH, 0.03, p[0], -legDrop, p[1], woodD));
+          // écran : pied + bras + dalle (face vers lui, côté -z)
+          box(0.14, 0.02, 0.10, 0, DTOP + 0.02, DZ + 0.02, metal);         // socle
+          box(0.03, 0.16, 0.03, 0, DTOP + 0.10, DZ + 0.04, metal);         // colonne
+          box(0.46, 0.28, 0.03, 0, DTOP + 0.26, DZ - 0.02, screenFrame);   // cadre
+          add(new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.24), screenGlass), 0, DTOP + 0.26, DZ - 0.036); // dalle allumée face au personnage
+          // clavier + souris sur le plateau (devant l'écran, côté perso)
+          const kbBase = new THREE.MeshStandardMaterial({ color: 0x1b1d22, roughness: 0.6, metalness: 0.2 });
+          const keyMat = new THREE.MeshStandardMaterial({ color: 0x2c2f36, roughness: 0.5, metalness: 0.15 });
+          const kb = box(0.34, 0.015, 0.12, 0, DTOP + 0.028, DZ - 0.18, kbBase);   // socle clavier
+          for (let r = 0; r < 3; r++){ for (let c = 0; c < 9; c++){
+            box(0.028, 0.008, 0.028, -0.16 + c * 0.038, DTOP + 0.04, DZ - 0.145 - r * 0.035, keyMat); // touches
+          }}
+          const mouse = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 10), kbBase);
+          mouse.scale.set(1, 0.5, 1.4); add(mouse, 0.26, DTOP + 0.035, DZ - 0.17);   // souris
+          // webcam sur le haut de l'écran
+          const cam = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.045, 0.045), screenFrame);
+          add(cam, 0, DTOP + 0.42, DZ - 0.02);
+          const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.02, 12), lensMat);
+          lens.rotation.x = Math.PI / 2; add(lens, 0, DTOP + 0.42, DZ - 0.045);
+
+          // Lumière bleue scintillante de l'écran, projetée sur lui
+          const glow = new THREE.PointLight(0x3f7bff, 0, 26, 1.2);
+          glow.position.set(0, DTOP + 0.26, DZ - 0.12);   // devant la dalle, vers le perso
+          glow.layers.set(CHAIR_LAYER);                   // éclaire le personnage (layer 1)
+          seatGrp.add(glow);
+          (function flickerScreen(){
+            requestAnimationFrame(flickerScreen);
+            if (!seatGrp.visible) { glow.intensity = 0; return; }
+            const t = performance.now() / 1000;
+            const f = 1 + 0.22 * Math.sin(t * 7.3) + 0.13 * Math.sin(t * 17.1) + 0.06 * Math.sin(t * 31.7);
+            glow.intensity = 22 * f;                       // scintillement (reflets sur lui)
+            screenGlass.emissiveIntensity = 1.4 * f;       // dalle qui vacille
+          })();
+
+          // réglages (mêmes repères que le perso) — aligné sous le bassin assis
+          const ST = window.__seatT = { scale: 7.2, x: 0, y: 0.6, z: -0.8, rotY: 0 };
+          const applySeat = () => {
+            seatGrp.scale.setScalar(ST.scale);
+            dropGroup(seatGrp, 90, 0, ST.rotY);
+            seatGrp.position.x += ST.x;
+            seatGrp.position.z += ST.z;
+            seatGrp.position.y += ST.y;
+          };
+          applySeat();
+          seatGrp.visible = false;
+          window.__seat = seatGrp;
+          window.__seatTune = (o) => { Object.assign(ST, o); applySeat(); };
+          window.__chairShow = () => { seatGrp.visible = true; };
+          // repère de l'os Hips pour garder la chaise pile sous le bassin
+          let hipsBone = null; model.traverse(o => { if (o.isSkinnedMesh){ o.skeleton.bones.forEach(b => { if (b.name === 'Hips') hipsBone = b; }); } });
+          const _hp = new THREE.Vector3();
+          window.__seatFollow = () => {
+            if (!hipsBone || !seatGrp.visible) return;
+            hipsBone.getWorldPosition(_hp);
+            world.worldToLocal(_hp);               // même repère que seatGrp
+            seatGrp.position.x = _hp.x + ST.x;     // sous le bassin (+ ajustement fin)
+            seatGrp.position.z = _hp.z + ST.z;
+          };
+        })();
+
+        // ----- Animations -----
+        const mixer = new THREE.AnimationMixer(model);
+        window.__charMixer = mixer;
+        const clips = {};
+        let sitIdleClipFromModel = null;
+        // le modèle est chargé depuis le GLB sitidle -> son unique clip = la boucle assise
+        sitIdleClipFromModel = (gltf.animations && gltf.animations[0]) || null;
+        function act(name){ return clips[name] ? mixer.clipAction(clips[name]) : null; }
+
+        const finalY = grp.position.y;
+        const DROP_H = 42;                     // hauteur de départ (au-dessus de l'écran)
+        // Verrou anti-dérive : on épingle le bassin au centre pour TOUTES les phases,
+        // pour que chute + lever + assise se passent au même endroit (pas de saut).
+        let hipsLock = null; model.traverse(o => { if (o.isSkinnedMesh){ o.skeleton.bones.forEach(b => { if (b.name === 'Hips') hipsLock = b; }); } });
+        const _lockTarget = new THREE.Vector3();
+        const _lockCur = new THREE.Vector3();
+        let lockXZ = null;                     // {x,z} cible en repère world-local, fixé au 1er frame
+        function pinHips(){
+          if (!hipsLock) return;
+          hipsLock.getWorldPosition(_lockCur); world.worldToLocal(_lockCur);
+          if (!lockXZ){ lockXZ = { x: grp.position.x, z: grp.position.z }; }  // centre de référence
+          grp.position.x += (lockXZ.x - _lockCur.x);
+          grp.position.z += (lockXZ.z - _lockCur.z);
+        }
+        grp.position.y = finalY + DROP_H;      // perché en haut, hors champ
+        grp.visible = false;
+
+        let phase = 'idle';                    // idle -> falling -> standup -> sitting -> done
+        let t0 = 0;
+        let standupClip = null;                // Stand_Up (autre GLB, même squelette)
+        let sitClip = null;                    // Stand_to_Sit (autre GLB, même squelette)
+        let sitIdleClip = null;                // Sitting_Answering_Questions (boucle assise)
+        sitIdleClip = sitIdleClipFromModel;
+
+        // relèvement : joue Stand_Up (clip d'un autre GLB, squelette identique).
+        // Si le clip n'est pas encore chargé, on FIGE la pose de chute (jamais de T-pose)
+        // et on attend son arrivée (voir __charTick).
+        function playStandUp(){
+          const fall = act('Armature|Fall1|baselayer'); if (fall) fall.fadeOut(0.3);
+          phase = 'standup';
+          const su = mixer.clipAction(standupClip);
+          su.reset(); su.setLoop(THREE.LoopOnce, 1); su.clampWhenFinished = true;
+          su.fadeIn(0.3).play();
+          mixer.addEventListener('finished', function onUp(e){
+            if (e.action === su){ mixer.removeEventListener('finished', onUp); su._done = true; startSit(); }
+          });
+        }
+        function playSit(){
+          phase = 'sitting';
+          const st = mixer.clipAction(sitClip);
+          st.reset(); st.setLoop(THREE.LoopOnce, 1); st.clampWhenFinished = true;
+          st.fadeIn(0.3).play();
+          // la chaise n'apparaît qu'à mi-descente (sinon elle traverse ses jambes debout)
+          const showDelay = Math.max(400, (sitClip.duration || 2) * 1000 * 0.5);
+          setTimeout(function(){ if (window.__chairShow) window.__chairShow(); }, showDelay);
+          mixer.addEventListener('finished', function onSit(e){
+            if (e.action === st){ mixer.removeEventListener('finished', onSit); startSitIdle(st); }
+          });
+        }
+        // boucle assise (répond aux questions) — toujours sur la chaise
+        var _sitAction = null;
+        function startSitIdle(prevAction){
+          if (prevAction) _sitAction = prevAction;
+          if (sitIdleClip){
+            phase = 'sitidle';
+            if (typeof autoSpin !== 'undefined') autoSpin = true;   // la planète se remet à tourner
+            const idle = mixer.clipAction(sitIdleClip);
+            idle.reset(); idle.setLoop(THREE.LoopRepeat); idle.clampWhenFinished = false;
+            idle.fadeIn(0.4).play();
+            if (_sitAction) _sitAction.fadeOut(0.4);
+          } else {
+            phase = 'waitsitidle';   // garde la pose assise figée jusqu'au chargement
+          }
+        }
+        function startSit(){
+          if (sitClip){ playSit(); }
+          else { phase = 'waitsit'; }           // on attend le clip (pose de fin de lever figée)
+        }
+        function startStandUp(){
+          const fall = act('Armature|Fall1|baselayer');
+          if (standupClip){ playStandUp(); }
+          else {
+            // clip pas prêt : on garde la dernière image de la chute (pose figée, poids 1)
+            phase = 'waitstandup';
+            if (fall){ fall.paused = true; fall.clampWhenFinished = true; }
+          }
+        }
+
+        // (modèle + clip d'assise proviennent du même GLB : rien d'autre à charger)
+
+        window.__startFall = function(){
+          if (phase !== 'idle') return;
+          grp.position.y = finalY;                 // directement en position assise
+          if (window.__chairShow) window.__chairShow();   // chaise + bureau visibles
+          if (typeof autoSpin !== 'undefined') autoSpin = true;
+          if (sitIdleClip){ grp.visible = true; startSitIdle(); }
+          else { phase = 'waitsitidle'; }          // on attend le clip (reste caché, pas de T-pose)
+        };
+
+        // tick appelé chaque frame par animate()
+        window.__charTick = function(now){
+          if (phase === 'waitsitidle'){
+            if (sitIdleClip){ grp.visible = true; startSitIdle(); }   // clip prêt -> boucle assise
+          }
+          if (phase === 'sitidle' || phase === 'waitsitidle'){ if (window.__seatFollow) window.__seatFollow(); }
+          if (phase !== 'idle'){ pinHips(); }   // épingle le bassin au centre (anti-dérive)
+        };
+
+        // modèle prêt : on ouvre les portes (et le perso est déjà assis)
+        if (window.__startFall) window.__startFall();
+        if (window.mcdDoorsOpen) window.mcdDoorsOpen();
       }, (ev) => {
         const f = document.getElementById('cl-fill');
         if (f && ev && ev.lengthComputable) f.style.width = Math.round((ev.loaded / ev.total) * 100) + '%';
       }, (err) => {
-        console.error('chair GLB load error', err);
+        console.error('character GLB load error', err);
         if (window.mcdDoorsOpen) window.mcdDoorsOpen();
       });
       return;
@@ -1629,6 +1881,7 @@ function start() {
 
     // ===== Drapeau blanc « Soutiens l'équipe de France » planté près du personnage =====
     (() => {
+      return; // drapeau retiré
       const outer = new THREE.Group();   // pour le placement au sol
       const flag = new THREE.Group();    // contenu (mât + toile)
       outer.add(flag);
@@ -1791,8 +2044,8 @@ function start() {
       });
     })();
 
-    let rotY = 0.0, rotX = 0.0, tRotY = 0.0, tRotX = 0.0;
-    const autoSpin = true;
+    let rotY = 0.6, rotX = 0.0, tRotY = 0.6, tRotX = 0.0;   // vue de 3/4 (diagonale opposée) au lancement
+    let autoSpin = false;   // la planète ne tourne qu'une fois le perso installé (boucle assise)
 
     const resize = () => {
       const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -1804,6 +2057,10 @@ function start() {
 
     const animate = () => {
       requestAnimationFrame(animate);
+      var __now = performance.now();
+      if (window.__charMixer){ window.__charMixer.update(Math.min(0.05, (window.__lastT ? (__now - window.__lastT) : 16) / 1000)); }
+      window.__lastT = __now;
+      if (window.__charTick){ window.__charTick(__now); }
       if (autoSpin) tRotY += 0.0016;
       rotY += (tRotY - rotY) * 0.08;
       rotX += (tRotX - rotX) * 0.08;
@@ -2348,9 +2605,9 @@ start();
   };
   tick(); setInterval(tick, 1000);
 
-  // Confettis tricolores
+  // Confettis tricolores (retirés)
   const box = document.getElementById('confetti');
-  if (box) {
+  if (false && box) {
     const cols = ['#0055A4', '#FFFFFF', '#EF4135'];
     for (let i = 0; i < 26; i++) {
       const sp = document.createElement('span');
