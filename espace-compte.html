@@ -2002,7 +2002,9 @@
       if(c) c.payreqs.push(pr);
       admin.allPayreqs.push({ pr:pr, clientId:(c&&c.id)||null, clientNom:(c&&c.nom)||pr.client_name||pr.client_email||'Client' });
     });
-    var list = Object.keys(map).map(function(k){ var c=map[k]; if(!c.nom) c.nom='Client '+String(k).slice(0,6); return c; });
+    var list = Object.keys(map).map(function(k){ var c=map[k];
+      if(k===authUser.id){ if(!c.email) c.email=authUser.email||''; if(!c.nom) c.nom=(authUser.user_metadata&&authUser.user_metadata.nom)||'Hugo Chenu'; }
+      if(!c.nom){ c.nom = (c.email && c.email.indexOf('@')>-1) ? c.email.split('@')[0] : ('Client '+String(k).slice(0,6)); } return c; });
     list.sort(function(a,b){ return admUnread(b)-admUnread(a) || a.nom.localeCompare(b.nom); });
     admin.clients = list; admin.byId = map;
     admin.coachs = coachs.map(function(x){ return { id:x.id, nom:x.nom, role:x.role||'', email:x.email||'', tel:x.tel||'', avatar:x.avatar||'', user_id:x.user_id||null }; }).sort(function(a,b){ return a.nom.localeCompare(b.nom); });
