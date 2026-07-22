@@ -1655,6 +1655,8 @@
     }catch(e){ /* localStorage indispo : on ne bloque pas */ }
   }
 
+  /* Réécrit les anciens marqueurs système « Client xxxxxx (Admin/Rôle) » -> « Hugo Chenu (…) » */
+  function sysNote(t){ return String(t||'').replace(/Client [0-9a-fA-F]{6}(?= \()/g, 'Hugo Chenu'); }
   /* ---------- Navigation ---------- */
   var VIEW_TITLES = {
     dash: ['Espace client', 'Bonjour'],
@@ -1807,7 +1809,7 @@
     var ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H8l-4 4z"/></svg>';
     var ME = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
     body.innerHTML = current.messages.map(function(m){
-      if(m.from==='system'){ return '<div class="sys-note">'+esc(m.text)+'</div>'; }
+      if(m.from==='system'){ return '<div class="sys-note">'+esc(sysNote(m.text))+'</div>'; }
       var mine = m.from==='me';
       var mav = mine ? (current.avatar ? '<span class="mav" style="background-image:url('+current.avatar+');background-size:cover;background-position:center;"></span>' : '<span class="mav">'+ME+'</span>') : (m.authorAvatar ? '<span class="mav" style="background-image:url('+m.authorAvatar+');background-size:cover;background-position:center;"></span>' : '<span class="mav">'+ICON+'</span>');
       var lbl = (!mine && m.author) ? '<span style="display:block;font-size:11px;font-weight:700;color:#8a6a0c;margin-bottom:3px;">'+esc(m.author)+'</span>' : '';
@@ -2003,7 +2005,7 @@
       admin.allPayreqs.push({ pr:pr, clientId:(c&&c.id)||null, clientNom:(c&&c.nom)||pr.client_name||pr.client_email||'Client' });
     });
     var list = Object.keys(map).map(function(k){ var c=map[k];
-      if(k===authUser.id){ if(!c.email) c.email=authUser.email||''; if(!c.nom) c.nom=(authUser.user_metadata&&authUser.user_metadata.nom)||'Hugo Chenu'; }
+      if(k===authUser.id){ if(!c.email) c.email=authUser.email||''; if(!c.nom || /^Client [0-9a-fA-F]{6}$/.test(c.nom)) c.nom=(authUser.user_metadata&&authUser.user_metadata.nom)||'Hugo Chenu'; }
       if(!c.nom){ c.nom = (c.email && c.email.indexOf('@')>-1) ? c.email.split('@')[0] : ('Client '+String(k).slice(0,6)); } return c; });
     list.sort(function(a,b){ return admUnread(b)-admUnread(a) || a.nom.localeCompare(b.nom); });
     admin.clients = list; admin.byId = map;
@@ -2181,7 +2183,7 @@
       '<div style="display:flex;gap:10px;align-items:center;"><input data-p="status" value="'+esc(p.status||'')+'" placeholder="Statut (ex: En cours)" style="flex:1;font-family:inherit;font-size:14px;color:#fff;padding:11px 13px;border-radius:10px;border:1px solid rgba(255,255,255,0.4);background:rgba(255,255,255,0.12);outline:none;"><button class="link-btn" data-act="save-proj" data-id="'+p.id+'">Enregistrer</button></div>'+
       '</div>';
     }
-    var msgsHtml = c.messages.map(function(m){ if(m.sender==='system'||m.sender==='admin_note'){ return '<div class="sys-note">'+esc(m.text)+'</div>'; } var mine=m.sender==='them'; var av=mine?avMav(m.author_avatar||(admin.me&&admin.me.avatar), ICON_HUGO):avMav(c.avatar, ICON_USER); var lbl=(mine&&m.author_name)?'<span style="display:block;font-size:11px;font-weight:700;color:#ffd8b0;margin-bottom:3px;">'+esc(m.author_name)+'</span>':''; return '<div class="msg '+(mine?'me':'them')+'">'+av+'<div class="bubble">'+lbl+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>'; }).join('');
+    var msgsHtml = c.messages.map(function(m){ if(m.sender==='system'||m.sender==='admin_note'){ return '<div class="sys-note">'+esc(sysNote(m.text))+'</div>'; } var mine=m.sender==='them'; var av=mine?avMav(m.author_avatar||(admin.me&&admin.me.avatar), ICON_HUGO):avMav(c.avatar, ICON_USER); var lbl=(mine&&m.author_name)?'<span style="display:block;font-size:11px;font-weight:700;color:#ffd8b0;margin-bottom:3px;">'+esc(m.author_name)+'</span>':''; return '<div class="msg '+(mine?'me':'them')+'">'+av+'<div class="bubble">'+lbl+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>'; }).join('');
     $('#aview-client').innerHTML =
       '<a class="adm-back" data-act="back-clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour aux clients</a>'+
       '<div class="card" style="margin-bottom:20px;"><div class="profile-head" style="margin-bottom:0;justify-content:space-between;"><div style="display:flex;align-items:center;gap:18px;min-width:0;">'+avSpan('big-av', c.avatar, initials(c.nom))+'<div><div class="pn">'+esc(c.nom)+(c.manual?' <span class="pill gray" style="font-size:11px;">Sans compte</span>':'')+'</div><div class="pe">'+esc([c.tel,c.email,c.entreprise,c.adresse].filter(Boolean).join(' · ')||'Aucune coordonnée renseignée')+'</div></div></div>'+(admin.role==='coach'?'':'<button class="adm-iconbtn adm-del" data-act="del-client" data-id="'+c.id+'" title="Supprimer le client et son espace">'+TRASH+'</button>')+'</div></div>'+
@@ -2403,7 +2405,7 @@
     list.innerHTML = convs.map(function(c){ var last=c.messages[c.messages.length-1]; var u=admUnread(c); var st=convStatus(c.id); var chip=st==='paused'?'<span style="font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:10px;padding:2px 8px;border-radius:999px;margin-left:6px;background:rgba(255,210,120,0.32);color:#fff6df;">En pause</span>':(st==='closed'?'<span style="font-family:\'Fredoka\',sans-serif;font-weight:700;font-size:10px;padding:2px 8px;border-radius:999px;margin-left:6px;background:rgba(255,255,255,0.2);color:#ffe9cf;">Terminée</span>':''); return '<div class="adm-conv'+(c.id===admin.activeConv?' active':'')+'" style="'+(st!=='active'?'opacity:.72;':'')+'" data-act="open-conv" data-id="'+c.id+'"><span class="adm-ini">'+initials(c.nom)+'</span><div class="adm-conv-main"><div class="adm-conv-nm">'+esc(c.nom)+chip+'</div><div class="adm-conv-lm">'+(last.sender==='them'?'Vous : ':'')+esc(last.text).slice(0,42)+'</div></div>'+(u?'<span class="badge">'+u+'</span>':'')+'</div>'; }).join('');
     if(!hasActive){ $('#adm-chat-pane').innerHTML=PH; return; }
     var c=admin.byId[admin.activeConv];
-    var msgsHtml = c.messages.map(function(m){ if(m.sender==='system'||m.sender==='admin_note'){ return '<div class="sys-note">'+esc(m.text)+'</div>'; } var mine=m.sender==='them'; var av=mine?avMav(m.author_avatar||(admin.me&&admin.me.avatar), ICON_HUGO):avMav(c.avatar, ICON_USER); var lbl=(mine&&m.author_name)?'<span style="display:block;font-size:11px;font-weight:700;color:#ffd8b0;margin-bottom:3px;">'+esc(m.author_name)+'</span>':''; return '<div class="msg '+(mine?'me':'them')+'">'+av+'<div class="bubble">'+lbl+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>'; }).join('');
+    var msgsHtml = c.messages.map(function(m){ if(m.sender==='system'||m.sender==='admin_note'){ return '<div class="sys-note">'+esc(sysNote(m.text))+'</div>'; } var mine=m.sender==='them'; var av=mine?avMav(m.author_avatar||(admin.me&&admin.me.avatar), ICON_HUGO):avMav(c.avatar, ICON_USER); var lbl=(mine&&m.author_name)?'<span style="display:block;font-size:11px;font-weight:700;color:#ffd8b0;margin-bottom:3px;">'+esc(m.author_name)+'</span>':''; return '<div class="msg '+(mine?'me':'them')+'">'+av+'<div class="bubble">'+lbl+esc(m.text).replace(/\n/g,'<br>')+'<span class="time">'+esc(fmtTime(m.created_at))+'</span></div></div>'; }).join('');
     var st=convStatus(c.id);
     var stPill = st==='paused'?'<span class="pill amber">En pause</span>':(st==='closed'?'<span class="pill gray">Terminée</span>':'<span class="pill green">Active</span>');
     var ctrls='';
