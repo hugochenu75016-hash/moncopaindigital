@@ -612,6 +612,7 @@
     updateConnBadge();
   }
   async function connectNetwork(id){
+    if(id==='x' || id==='tiktok'){ await loadConnections(); renderConnexions(); toast(connections[id].connected ? (net(id).name+' est relié ✓') : (net(id).name+' : configuré côté serveur (secrets).')); return; }
     try{
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+CONN_FN_CONNECT, { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:id }) });
       if(r.status!==404){
@@ -624,7 +625,7 @@
     saveConns(); renderConnexions();
     toast(net(id).name+' reli\u00e9 en mode test (d\u00e9ployez « '+CONN_FN_CONNECT+' » pour l\u2019OAuth r\u00e9el).');
   }
-  function disconnectNetwork(id){ connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
+  function disconnectNetwork(id){ if(id==='x'||id==='tiktok'){ toast(net(id).name+' est g\u00e9r\u00e9 c\u00f4t\u00e9 serveur (secrets).'); return; } connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
 
   /* ============ NAV ============ */
   $all('.nav-item').forEach(function(n){ n.addEventListener('click', function(){ switchView(n.getAttribute('data-view')); }); });
@@ -850,15 +851,13 @@
     var later = comp.sched==='later';
     if(later && !$('#sc-date').value){ toast('Choisissez une date de programmation.'); return; }
     var connSel = nets.filter(function(id){ return connections[id].connected; });
-    if(!connSel.length){ toast('Connectez au moins un réseau avant de publier.', true); switchView('connexions'); return; }
-    var skipped = nets.filter(function(id){ return !connections[id].connected; });
+    if(!later && !connSel.length){ toast('Connectez au moins un réseau avant de publier.', true); switchView('connexions'); return; }
 
     var btn=this; btn.disabled=true;
     var mediaOut=[]; for(var mi=0; mi<comp.media.length; mi++){ var mm=comp.media[mi]; if(mm.type==='image'){ mediaOut.push({ type:'image', url:(await cropImage(mm.url, comp.crop.ratio, comp.crop.pos)), name:mm.name }); } else mediaOut.push(mm); }
-    var p=collectPost(later?'scheduled':'publishing'); p.nets=connSel; p.media=mediaOut; upsertLocalList(p); await persist(p);
-    if(skipped.length) toast('Non connecté, ignoré : '+skipped.map(function(id){ return net(id).name; }).join(', '));
+    var p=collectPost(later?'scheduled':'publishing'); p.nets = later ? nets : connSel; p.media=mediaOut; upsertLocalList(p); await persist(p);
 
-    if(later){ toast('Publication programmée 📅'); updateBadges(); resetComposer(); btn.disabled=false; return; }
+    if(later){ toast('Publication programmée 📅'); updateBadges(); renderCalendar(); resetComposer(); btn.disabled=false; return; }
 
     $('#publish-label').textContent='Publication…';
     var res=await callPublish(p);
