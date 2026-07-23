@@ -818,11 +818,13 @@
     if(over.length){ toast('Texte trop long pour : '+over.map(function(n){return n.name;}).join(', ')); return; }
     var later = comp.sched==='later';
     if(later && !$('#sc-date').value){ toast('Choisissez une date de programmation.'); return; }
-    var notConn = nets.filter(function(id){ return !connections[id].connected; });
-    if(notConn.length){ toast('Connectez d\u2019abord : '+notConn.map(function(id){ return net(id).name; }).join(', ')); switchView('connexions'); return; }
+    var connSel = nets.filter(function(id){ return connections[id].connected; });
+    if(!connSel.length){ toast('Connectez au moins un réseau avant de publier.', true); switchView('connexions'); return; }
+    var skipped = nets.filter(function(id){ return !connections[id].connected; });
 
     var btn=this; btn.disabled=true;
-    var p=collectPost(later?'scheduled':'publishing'); upsertLocalList(p); await persist(p);
+    var p=collectPost(later?'scheduled':'publishing'); p.nets=connSel; upsertLocalList(p); await persist(p);
+    if(skipped.length) toast('Non connecté, ignoré : '+skipped.map(function(id){ return net(id).name; }).join(', '));
 
     if(later){ toast('Publication programmée 📅'); updateBadges(); resetComposer(); btn.disabled=false; return; }
 
@@ -832,7 +834,7 @@
     p.results = res.results || null;
     if(!res.ok && res.notConfigured) p.status='pending_config';
     await persist(p); updateBadges();
-    if(res.ok){ toast('Publié sur '+nets.length+' réseau(x) 🚀'); resetComposer(); }
+    if(res.ok){ toast('Publié sur '+connSel.length+' réseau(x) 🚀'); resetComposer(); }
     else if(res.notConfigured){ toast('Enregistré. La fonction « '+PUBLISH_FN+' » n\u2019est pas encore déployée.'); resetComposer(); }
     else{ toast('Échec de publication. Voir l\u2019historique.'); $('#publish-label').textContent='Publier maintenant'; }
     btn.disabled=false;
