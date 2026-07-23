@@ -1179,6 +1179,7 @@
       if(r.status===404){ $('#conv-list').innerHTML='<div class="empty">Messagerie '+net+' à venir<br><span style="font-size:12px;">(fonction « social-messages » non déployée)</span></div>'; return; }
       var d=await r.json();
       if(net!==msg.net) return; // l'utilisateur a changé de réseau entre-temps
+      if(d && (d.error || d.note)){ $('#conv-list').innerHTML='<div class="empty" style="color:#c0341a;">'+esc(d.error||d.note)+'</div>'; msg.convs=[]; updateMsgBadges(); return; }
       msg.convs = (d && d.conversations) || [];
       renderConvList(); updateMsgBadges();
       if(msg.active){ var c=msg.convs.filter(function(x){return x.id===msg.active;})[0]; if(c) renderThread(c, false); }
