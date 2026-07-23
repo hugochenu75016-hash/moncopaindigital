@@ -394,10 +394,9 @@
             <input type="file" id="media-input" accept="image/*,video/*" multiple style="display:none;">
             <div class="media-thumbs" id="media-thumbs"></div>
             <div id="crop-box" style="display:none;">
-              <label class="cbl">Cadrage de l'aperçu</label>
+              <label class="cbl">Format de l'image</label>
               <div class="ratio-row" id="ratio-row"></div>
-              <label class="cbl" style="margin-top:14px;">Position verticale</label>
-              <input id="crop-pos" class="rng" type="range" min="0" max="100" value="50">
+              <div style="margin-top:10px;font-size:12.5px;color:#7a5c08;display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>Glissez la photo sur l'aperçu pour l'ajuster.</div>
             </div>
           </div>
 
@@ -677,15 +676,28 @@
 
   var RATIOS=[['1:1','Carr\u00e9'],['4:5','Portrait'],['1.91:1','Paysage'],['9:16','Vertical'],['original','Original']];
   function ratioCss(r){ return ({'1:1':'1/1','4:5':'4/5','1.91:1':'1.91/1','9:16':'9/16','original':'1/1'})[r]||'1/1'; }
-  function cropStyle(){ var c=comp.crop; if(c.ratio==='original') return 'object-fit:contain;background:#111;'; return 'object-fit:cover;object-position:center '+c.pos+'%;'; }
+  function cropStyle(){ var c=comp.crop; if(c.ratio==='original') return 'object-fit:contain;background:#111;'; return 'object-fit:cover;object-position:center '+c.pos+'%;cursor:grab;'; }
   function renderCrop(){
     var box=$('#crop-box'); box.style.display = comp.media.length ? 'block' : 'none';
     $('#ratio-row').innerHTML = RATIOS.map(function(r){ return '<div class="ratio-chip '+(comp.crop.ratio===r[0]?'on':'')+'" data-ratio="'+r[0]+'">'+r[1]+'</div>'; }).join('');
     $all('#ratio-row .ratio-chip').forEach(function(el){ el.addEventListener('click', function(){ comp.crop.ratio=el.getAttribute('data-ratio'); renderCrop(); renderPreview(); }); });
-    $('#crop-pos').value=comp.crop.pos;
-    $('#crop-pos').disabled = comp.crop.ratio==='original';
   }
-  $('#crop-pos').addEventListener('input', function(){ comp.crop.pos=+this.value; renderPreview(); });
+  // Glisser la photo sur l'aper\u00e7u pour ajuster la position verticale
+  (function(){
+    var stage=$('#pv-stage'), drag=null;
+    stage.addEventListener('pointerdown', function(e){
+      var el=e.target.closest('img,video'); if(!el || comp.crop.ratio==='original') return;
+      var r=el.getBoundingClientRect(); drag={ y:e.clientY, start:comp.crop.pos, h:r.height||1 };
+      el.style.cursor='grabbing'; try{ el.setPointerCapture(e.pointerId); }catch(_e){} e.preventDefault();
+    });
+    stage.addEventListener('pointermove', function(e){
+      if(!drag) return;
+      var delta = -((e.clientY - drag.y) / drag.h) * 100;
+      comp.crop.pos = Math.max(0, Math.min(100, Math.round(drag.start + delta)));
+      $all('#pv-stage img, #pv-stage video').forEach(function(el){ el.style.objectPosition='center '+comp.crop.pos+'%'; });
+    });
+    window.addEventListener('pointerup', function(){ if(drag){ drag=null; $all('#pv-stage img, #pv-stage video').forEach(function(el){ el.style.cursor='grab'; }); } });
+  })();
 
   // média
   $('#media-drop').addEventListener('click', function(){ $('#media-input').click(); });
@@ -729,6 +741,25 @@
   function initials(n){ return (String(n||'M').trim().split(/\s+/).map(function(w){return w[0];}).join('').slice(0,2)||'M').toUpperCase(); }
   function firstMedia(){ return comp.media[0]||null; }
   function mediaHtml(m){ if(!m) return ''; var st=cropStyle(); return m.type==='video'?('<video src="'+m.url+'" muted style="'+st+'"></video>'):('<img src="'+m.url+'" alt="" style="'+st+'">'); }
+  function ratioNum(r){ return ({'1:1':1,'4:5':0.8,'1.91:1':1.91,'9:16':0.5625,'original':0})[r]||1; }
+  // Recadre réellement une image (JPEG) selon le format + position, en restant dans les limites Instagram (0.8–1.91)
+  function cropImage(dataUrl, ratioStr, posPct){
+    return new Promise(function(resolve){
+      var img=new Image();
+      img.onload=function(){
+        var natural=img.width/img.height;
+        var target=ratioNum(ratioStr); if(!target) target=natural;
+        target=Math.max(0.8, Math.min(1.91, target));
+        var sw,sh,sx,sy;
+        if(natural>target){ sh=img.height; sw=Math.round(sh*target); sy=0; sx=Math.round((img.width-sw)*0.5); }
+        else { sw=img.width; sh=Math.round(sw/target); sx=0; sy=Math.round((img.height-sh)*((posPct==null?50:posPct)/100)); }
+        try{ var cv=document.createElement('canvas'); cv.width=sw; cv.height=sh; cv.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,sw,sh); resolve(cv.toDataURL('image/jpeg',0.92)); }
+        catch(e){ resolve(dataUrl); }
+      };
+      img.onerror=function(){ resolve(dataUrl); };
+      img.src=dataUrl;
+    });
+  }
   function tagsLine(){ var t=comp.tags.trim(); return t?('<div class="pv-tags">'+esc(t)+'</div>'):''; }
 
   function verticalPreview(label, accent){
@@ -823,7 +854,8 @@
     var skipped = nets.filter(function(id){ return !connections[id].connected; });
 
     var btn=this; btn.disabled=true;
-    var p=collectPost(later?'scheduled':'publishing'); p.nets=connSel; upsertLocalList(p); await persist(p);
+    var mediaOut=[]; for(var mi=0; mi<comp.media.length; mi++){ var mm=comp.media[mi]; if(mm.type==='image'){ mediaOut.push({ type:'image', url:(await cropImage(mm.url, comp.crop.ratio, comp.crop.pos)), name:mm.name }); } else mediaOut.push(mm); }
+    var p=collectPost(later?'scheduled':'publishing'); p.nets=connSel; p.media=mediaOut; upsertLocalList(p); await persist(p);
     if(skipped.length) toast('Non connecté, ignoré : '+skipped.map(function(id){ return net(id).name; }).join(', '));
 
     if(later){ toast('Publication programmée 📅'); updateBadges(); resetComposer(); btn.disabled=false; return; }
