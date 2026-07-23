@@ -880,7 +880,7 @@
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+PUBLISH_FN, {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+(tok||SUPABASE_ANON) },
-        body: JSON.stringify({ post_id:p.id, caption:p.caption, tags:p.tags, crop:p.crop, networks:p.nets, media:p.media, author:me.nom })
+        body: JSON.stringify({ post_id:p.id, caption:p.caption, tags:p.tags, crop:p.crop, formats:p.formats, networks:p.nets, media:p.media, author:me.nom })
       });
       if(r.status===404){ return { ok:false, notConfigured:true }; }
       var data=null; try{ data=await r.json(); }catch(e){}
