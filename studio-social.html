@@ -567,7 +567,7 @@
     </div>
   </aside>
   <main>
-    <div class="topbar"><div><h1 id="msg-title">Messages</h1><div class="ts" id="msg-sub">Choisissez un réseau à gauche.</div></div><div class="msg-refresh" id="msg-refresh" style="display:none;"><span class="pulse"></span>Actualisé toutes les 20 s</div></div>
+    <div class="topbar"><div><h1 id="msg-title">Messages</h1><div class="ts" id="msg-sub">Choisissez un réseau à gauche.</div></div><div class="msg-refresh" id="msg-refresh" style="display:none;"><span class="pulse"></span><span class="rlabel">Actualisé toutes les 20 s</span></div></div>
     <div class="msg-layout" id="msg-layout" style="display:none;">
       <div class="conv-col"><div class="conv-list" id="conv-list"></div></div>
       <div class="thread-col" id="thread-col"><div class="empty" style="margin:auto;">Sélectionnez une discussion.</div></div>
@@ -1165,10 +1165,12 @@
     $('#msg-title').textContent='Messages · '+net.charAt(0).toUpperCase()+net.slice(1);
     $('#msg-sub').textContent='Discussions de ce réseau.';
     $('#msg-hint').style.display='none'; $('#msg-layout').style.display='grid'; $('#msg-refresh').style.display='inline-flex';
+    var everyMs = (net==='x') ? 60000 : 20000;
+    var refEl=$('#msg-refresh'); if(refEl){ var lbl=refEl.querySelector('.rlabel'); if(lbl) lbl.textContent='Actualisé toutes les '+(everyMs/1000)+' s'; }
     $('#thread-col').innerHTML='<div class="empty" style="margin:auto;">Sélectionnez une discussion.</div>';
     loadConversations(true);
     if(msg.timer) clearInterval(msg.timer);
-    msg.timer=setInterval(function(){ loadConversations(false); }, 20000);
+    msg.timer=setInterval(function(){ loadConversations(false); }, everyMs);
   }
 
   async function loadConversations(showLoading){
