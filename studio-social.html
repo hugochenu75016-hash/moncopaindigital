@@ -667,13 +667,16 @@
     }); });
   }
   function renderCounters(){
-    $('#counters').innerHTML = NETS.filter(function(n){ return comp.nets[n.id]; }).map(function(n){
+    var html = NETS.filter(function(n){ return comp.nets[n.id]; }).map(function(n){
       var len=comp.caption.length, over=len>n.limit;
       return '<span class="cnt '+(over?'over':'')+'">'+esc(n.name)+' '+len+'/'+n.limit+'</span>';
     }).join('');
+    var hasLink = /(https?:\/\/|www\.|\b[a-z0-9-]+\.(fr|com|net|org|io|co|be)\b)/i.test(comp.caption+' '+comp.tags);
+    if(comp.nets.x && hasLink) html += '<span class="cnt over" title="Un lien dans un tweet coûte ~0,20 $ au lieu de ~0,015 $">⚠️ Lien détecté — post X plus coûteux</span>';
+    $('#counters').innerHTML = html;
   }
   $('#cap').addEventListener('input', function(){ comp.caption=this.value; renderCounters(); renderPreview(); });
-  $('#tags').addEventListener('input', function(){ comp.tags=this.value; renderPreview(); });
+  $('#tags').addEventListener('input', function(){ comp.tags=this.value; renderCounters(); renderPreview(); });
 
   var RATIOS=[['1:1','Carr\u00e9'],['4:5','Portrait'],['1.91:1','Paysage'],['9:16','Vertical'],['original','Original']];
   function ratioCss(r){ return ({'1:1':'1/1','4:5':'4/5','1.91:1':'1.91/1','9:16':'9/16','original':'1/1'})[r]||'1/1'; }
