@@ -315,6 +315,19 @@
   .msg-layout{ display:grid; grid-template-columns:320px 1fr; gap:0; background:var(--cream); border-radius:22px; overflow:hidden; box-shadow:0 18px 44px rgba(90,40,0,0.28); height:calc(100vh - 150px); min-height:460px; }
   @media(max-width:820px){ .msg-layout{ grid-template-columns:1fr; } }
   .conv-col{ border-right:1px solid rgba(120,60,0,0.12); overflow-y:auto; }
+  .conv-tools{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 14px; border-bottom:1px solid rgba(120,60,0,0.1); position:sticky; top:0; background:var(--cream); z-index:2; }
+  .selall{ font-size:13px; color:#6b5108; font-family:'Fredoka',sans-serif; font-weight:600; display:inline-flex; align-items:center; gap:7px; cursor:pointer; }
+  .selall input{ width:16px; height:16px; accent-color:#f3852b; }
+  .grp-btn{ cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:700; font-size:12.5px; color:#8a6a0c; background:#fff0dd; border:1px solid rgba(120,60,0,0.2); border-radius:999px; padding:6px 13px; }
+  .grp-btn.on{ background:#8a6a0c; color:#fff; border-color:transparent; }
+  .conv-filters{ display:flex; align-items:center; gap:6px; padding:8px 14px; border-bottom:1px solid rgba(120,60,0,0.1); position:sticky; top:45px; background:var(--cream); z-index:2; flex-wrap:wrap; }
+  .flt-lbl{ font-size:12px; color:#8a6a0c; font-family:'Fredoka',sans-serif; font-weight:600; }
+  .flt-chip{ cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; color:#6b5108; background:#fff6ea; border:1.5px solid rgba(120,60,0,0.16); border-radius:999px; padding:4px 11px; }
+  .flt-chip.on{ background:#8a6a0c; color:#fff; border-color:transparent; }
+  .flt-chip.clear{ color:#c0341a; }
+  .group-bar{ display:flex; flex-direction:column; gap:8px; padding:12px 14px; border-bottom:1px solid rgba(120,60,0,0.1); background:#fff6ea; }
+  .group-bar textarea{ resize:none; height:60px; font-family:inherit; font-size:13.5px; color:#2a1500; padding:10px 12px; border-radius:10px; border:1px solid rgba(120,60,0,0.22); background:#fff; outline:none; }
+  .conv .csel{ width:16px; height:16px; accent-color:#f3852b; flex:0 0 auto; }
   .conv-list{ display:flex; flex-direction:column; }
   .conv{ display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; border-bottom:1px solid rgba(120,60,0,0.08); transition:background .15s; }
   .conv:hover{ background:#fff2df; } .conv.active{ background:#ffe6c6; }
@@ -569,7 +582,24 @@
   <main>
     <div class="topbar"><div><h1 id="msg-title">Messages</h1><div class="ts" id="msg-sub">Choisissez un réseau à gauche.</div></div><div class="msg-refresh" id="msg-refresh" style="display:none;"><span class="pulse"></span><span class="rlabel">Actualisé toutes les 20 s</span></div></div>
     <div class="msg-layout" id="msg-layout" style="display:none;">
-      <div class="conv-col"><div class="conv-list" id="conv-list"></div></div>
+      <div class="conv-col">
+        <div class="conv-tools">
+          <label class="selall"><input type="checkbox" id="sel-all"> Tout sélectionner</label>
+          <button class="grp-btn" id="grp-toggle">Message groupé</button>
+        </div>
+        <div class="conv-filters">
+          <span class="flt-lbl">Émis &lt;</span>
+          <button class="flt-chip" data-flt="12">12 h</button>
+          <button class="flt-chip" data-flt="24">24 h</button>
+          <button class="flt-chip" data-flt="48">48 h</button>
+          <button class="flt-chip clear" data-flt="0">✕</button>
+        </div>
+        <div class="group-bar" id="group-bar" style="display:none;">
+          <textarea id="grp-text" placeholder="Message à envoyer aux conversations cochées…"></textarea>
+          <button class="th-send" id="grp-send">Envoyer à 0</button>
+        </div>
+        <div class="conv-list" id="conv-list"></div>
+      </div>
       <div class="thread-col" id="thread-col"><div class="empty" style="margin:auto;">Sélectionnez une discussion.</div></div>
     </div>
     <div class="msg-hint" id="msg-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg><div>Sélectionnez un réseau dans le menu de gauche pour voir vos discussions.</div></div>
@@ -1144,7 +1174,7 @@
   $('#hub-logout').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
 
   /* ============ MESSAGE SOCIAL ============ */
-  var msg = { net:null, convs:[], active:null, timer:null };
+  var msg = { net:null, convs:[], active:null, timer:null, selected:{} };
   function enterMessages(){
     $('#hub').classList.remove('show'); $('#app').classList.remove('show'); $('#msgapp').classList.add('show');
     $('#msg-me-name').textContent=me.nom; $('#msg-me-role').textContent=me.role;
@@ -1158,9 +1188,34 @@
   $('#msg-logout-btn').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
 
   $all('#msg-side .mnav').forEach(function(n){ n.addEventListener('click', function(){ selectMsgNet(n.getAttribute('data-mnet')); }); });
+  $('#grp-toggle').addEventListener('click', function(){ var g=$('#group-bar'); var open=g.style.display==='none'; g.style.display=open?'flex':'none'; this.classList.toggle('on', open); });
+  $('#sel-all').addEventListener('change', function(){ msg.selected={}; if(this.checked) msg.convs.forEach(function(c){ msg.selected[c.id]=true; }); renderConvList(); });
+  function lastMineTs(c){ var t=0; (c.messages||[]).forEach(function(m){ if(m.from==='me' && m.ts){ var d=+new Date(m.ts); if(d>t) t=d; } }); return t; }
+  $all('.flt-chip').forEach(function(chip){ chip.addEventListener('click', function(){
+    var h=+chip.getAttribute('data-flt');
+    $all('.flt-chip').forEach(function(c){ c.classList.toggle('on', c===chip && h>0); });
+    msg.selected={};
+    if(h>0){ var cut=Date.now()-h*3600*1000; msg.convs.forEach(function(c){ var t=lastMineTs(c); if(t && t>=cut) msg.selected[c.id]=true; }); if(!Object.keys(msg.selected).length) toast('Aucune conversation avec un message émis < '+h+' h.'); else { $('#group-bar').style.display='flex'; $('#grp-toggle').classList.add('on'); } }
+    renderConvList();
+  }); });
+  $('#grp-send').addEventListener('click', async function(){
+    var ids=Object.keys(msg.selected); var text=$('#grp-text').value.trim();
+    if(!ids.length){ toast('Cochez au moins une conversation.', true); return; }
+    if(!text){ toast('Écrivez un message.', true); return; }
+    var btn=this; btn.disabled=true; var okN=0, failN=0;
+    for(var i=0;i<ids.length;i++){ var c=msg.convs.filter(function(x){return x.id===ids[i];})[0]; if(!c) continue;
+      btn.textContent='Envoi… '+(i+1)+'/'+ids.length;
+      try{ var r=await fetch(SUPABASE_URL+'/functions/v1/social-reply', { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:msg.net, to:c.to, conversation_id:c.id, text:text }) });
+        var d=await r.json(); if(r.ok && d.ok!==false) okN++; else failN++; }catch(e){ failN++; }
+      if(msg.net==='x') await new Promise(function(res){ setTimeout(res, 1500); }); // évite le rate-limit X
+    }
+    btn.disabled=false; $('#grp-text').value=''; msg.selected={}; renderConvList();
+    toast('Message groupé : '+okN+' envoyé(s)'+(failN?', '+failN+' échec(s)':''));
+  });
 
   function selectMsgNet(net){
-    msg.net=net; msg.active=null;
+    msg.net=net; msg.active=null; msg.selected={};
+    var gb=$('#group-bar'); if(gb) gb.style.display='none'; var gt=$('#grp-toggle'); if(gt) gt.classList.remove('on'); var gx=$('#grp-text'); if(gx) gx.value='';
     $all('#msg-side .mnav').forEach(function(n){ n.classList.toggle('active', n.getAttribute('data-mnet')===net); });
     $('#msg-title').textContent='Messages · '+net.charAt(0).toUpperCase()+net.slice(1);
     $('#msg-sub').textContent='Discussions de ce réseau.';
@@ -1191,15 +1246,20 @@
   function convInitials(n){ return (String(n||'?').trim()[0]||'?').toUpperCase(); }
   function renderConvList(){
     var el=$('#conv-list');
-    if(!msg.convs.length){ el.innerHTML='<div class="empty">Aucune discussion.</div>'; return; }
+    if(!msg.convs.length){ el.innerHTML='<div class="empty">Aucune discussion.</div>'; updateGrpCount(); return; }
     el.innerHTML=msg.convs.map(function(c){
       var av=c.avatar?('style="background-image:url('+c.avatar+')"'):''; var ini=c.avatar?'':convInitials(c.name);
-      return '<div class="conv'+(msg.active===c.id?' active':'')+'" data-conv="'+esc(c.id)+'"><span class="cav" '+av+'>'+ini+'</span>'+
+      return '<div class="conv'+(msg.active===c.id?' active':'')+'" data-conv="'+esc(c.id)+'">'+
+        '<input type="checkbox" class="csel" data-sel="'+esc(c.id)+'"'+(msg.selected[c.id]?' checked':'')+'>'+
+        '<span class="cav" '+av+'>'+ini+'</span>'+
         '<div class="cmain"><div class="cn">'+esc(c.name||'Contact')+'</div><div class="cl">'+esc(c.last||'')+'</div></div>'+
         (c.unread?'<span class="cu">'+c.unread+'</span>':'')+'</div>';
     }).join('');
-    $all('#conv-list .conv').forEach(function(x){ x.addEventListener('click', function(){ openThread(x.getAttribute('data-conv')); }); });
+    $all('#conv-list .conv').forEach(function(x){ x.addEventListener('click', function(e){ if(e.target.classList.contains('csel')) return; openThread(x.getAttribute('data-conv')); }); });
+    $all('#conv-list .csel').forEach(function(cb){ cb.addEventListener('click', function(e){ e.stopPropagation(); var id=cb.getAttribute('data-sel'); if(cb.checked) msg.selected[id]=true; else delete msg.selected[id]; updateGrpCount(); }); });
+    updateGrpCount();
   }
+  function updateGrpCount(){ var n=Object.keys(msg.selected).length; var b=$('#grp-send'); if(b) b.textContent='Envoyer à '+n; var sa=$('#sel-all'); if(sa) sa.checked = msg.convs.length>0 && n===msg.convs.length; }
   function openThread(id){ msg.active=id; renderConvList(); var c=msg.convs.filter(function(x){return x.id===id;})[0]; if(c) renderThread(c, true); }
   function renderThread(c, scroll){
     var msgs=(c.messages||[]).map(function(m){ var txt=(m.text&&m.text.trim())?esc(m.text):'<span style="opacity:0.6;font-style:italic;">[image ou pièce jointe]</span>'; return '<div class="tmsg '+(m.from==='me'?'me':'them')+'">'+txt+(m.time?'<span class="mt">'+esc(m.time)+'</span>':'')+'</div>'; }).join('');
