@@ -1390,6 +1390,7 @@
   'use strict';
   var WEB3FORMS_KEY = 'a295b6e0-6693-4c68-bfcb-9656cd12d059';
   var SUPABASE_URL = 'https://nlesboqlnnpnmwlpvhif.supabase.co';
+  var WORKER_URL = 'https://rendezvous.hugochenu75016.workers.dev';
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXNib3Fsbm5wbm13bHB2aGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTE3NzEsImV4cCI6MjA5ODY4Nzc3MX0.vwu9FGgl4cXZ8KExSeL3IrgWjxIbhvDYKeSWP9sb7X8';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   var authUser = null;
@@ -2865,7 +2866,16 @@
       var mail = d.card.querySelector('#rx-mail').value.trim().toLowerCase();
       if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){ msg.style.display='block'; msg.style.color='#c0390b'; msg.textContent='Adresse email invalide.'; return; }
       var btn = this; btn.disabled = true; btn.textContent = 'Envoi…';
-      try{ await sb.auth.resetPasswordForEmail(mail, { redirectTo: location.origin + '/espace-compte.html' }); }catch(e){}
+      // Passe par le Worker : email de marque Mon Copain Digital (et pas le mail Supabase)
+      try{
+        await fetch(WORKER_URL, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ action:'reset', email: mail })
+        });
+      }catch(e){
+        try{ await sb.auth.resetPasswordForEmail(mail, { redirectTo: location.origin + '/espace-compte.html' }); }catch(e2){}
+      }
       msg.style.display='block'; msg.style.color='#2e7d32';
       msg.textContent = 'C\'est envoyé ! Consultez votre boîte mail (et vos spams).';
       btn.disabled = false; btn.textContent = 'Renvoyer';
