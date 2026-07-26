@@ -642,7 +642,8 @@
   const submitBtn = form.querySelector('.submit-btn');
   const WORKER_URL = 'https://rendezvous.hugochenu75016.workers.dev';
 
-  // Supabase — enregistrement de la réservation (pour l'agenda admin)
+  // Supabase — LECTURE SEULE : uniquement les créneaux déjà pris (aucune écriture,
+  // aucune création de compte côté navigateur : tout ça passe par le Worker).
   const SB_URL = 'https://nlesboqlnnpnmwlpvhif.supabase.co';
   const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXNib3Fsbm5wbm13bHB2aGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTE3NzEsImV4cCI6MjA5ODY4Nzc3MX0.vwu9FGgl4cXZ8KExSeL3IrgWjxIbhvDYKeSWP9sb7X8';
   let sbClient = null;
@@ -664,34 +665,21 @@
         (takenSlots[d] = takenSlots[d] || new Set()).add(h);
       });
       if(selectedDate) renderSlots();
-    } catch(e){}
+    } catch(e){ console.warn('Créneaux occupés indisponibles', e); }
   }
   loadTakenSlots();
-  async function saveBooking(o){
-    if(!sbClient) return;
-    let uid = null, created = false;
-    try { const s = await sbClient.auth.getSession(); uid = s && s.data && s.data.session && s.data.session.user ? s.data.session.user.id : null; } catch(e){}
-    // Création automatique d'un compte (mot de passe fixe) si pas déjà connecté
-    if(!uid && o.email){
-      try {
-        const r = await sbClient.auth.signUp({ email: o.email, password: 'MONCOPAINDIGITAL' });
-        const u = r && r.data && r.data.user;
-        // identities vide = compte déjà existant (Supabase masque) → on ne le recrée pas
-        if(u && u.id && !(u.identities && u.identities.length === 0)){ uid = u.id; created = true; }
-      } catch(e){}
-      if(created){ try { await sbClient.from('profiles').upsert({ id: uid, nom: o.nom, tel: o.tel, email: o.email, updated_at: new Date().toISOString() }); } catch(e){} }
-    }
-    try {
-      await sbClient.from('rendez_vous').insert({
-        user_id: uid,
-        titre: 'Audit gratuit',
-        date: o.date, heure: o.heure, type: o.type || 'Audit gratuit',
-        status: 'confirmed', nom: o.nom, email: o.email, tel: o.tel, notes: o.msg || null
-      });
-    } catch(e){}
-    // Ne pas laisser la session ouverte sur une page publique
-    if(created){ try { await sbClient.auth.signOut(); } catch(e){} }
-  }
+
+  const ERRORS = {
+    creneau_pris: "Ce créneau vient d'être réservé. Choisissez-en un autre.",
+    date_passee: "Cette date est déjà passée.",
+    dimanche_ferme: "Nous sommes fermés le dimanche.",
+    email_invalide: "Cette adresse email n'est pas valide.",
+    tel_invalide: "Ce numéro de téléphone n'est pas valide.",
+    heure_invalide: "Ce créneau n'existe pas.",
+    date_invalide: "Cette date n'est pas valide.",
+    nom_invalide: "Merci d'indiquer votre nom.",
+    config_serveur: "Le service de réservation est momentanément indisponible."
+  };
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -724,15 +712,21 @@
     submitBtn.style.cursor = 'wait';
     submitBtn.textContent = 'Envoi…';
 
-    // Enregistre la réservation dans l'agenda (Supabase)
-    saveBooking({ date: isoDate(selectedDate), heure: selectedSlot, type, nom, email, tel, msg });
-
+    // Le Worker fait tout côté serveur : vérif du créneau, compte client,
+    // enregistrement du rendez-vous, emails. Et il renvoie de VRAIES erreurs.
     fetch(WORKER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ nom, email, tel, type, when: whenStr, msg })
+      body: JSON.stringify({
+        nom, email, tel, type, msg,
+        date: isoDate(selectedDate), heure: selectedSlot, when: whenStr
+      })
     })
-    .then(r => r.json())
+    .then(async r => {
+      const data = await r.json().catch(() => null);
+      if (!data) throw new Error('Réponse illisible du serveur (HTTP ' + r.status + ')');
+      return data;
+    })
     .then(data => {
       if (data && data.success) {
         document.getElementById('confirm-when').textContent = whenStr;
@@ -742,10 +736,14 @@
         renderCal(); renderSlots(); updateSummary();
         loadTakenSlots();
       } else {
-        alert("Oups, l'envoi a échoué. Réessayez ou contactez-nous directement.");
+        const code = data && data.error;
+        if (code === 'creneau_pris') loadTakenSlots();
+        console.warn('Réservation refusée :', data);
+        alert(ERRORS[code] || "Oups, l'envoi a échoué. Réessayez ou contactez-nous directement.");
       }
     })
-    .catch(() => {
+    .catch(err => {
+      console.error('Réservation :', err);
       alert("Oups, l'envoi a échoué. Vérifiez votre connexion et réessayez.");
     })
     .finally(() => {
