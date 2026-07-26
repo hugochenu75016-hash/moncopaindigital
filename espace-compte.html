@@ -813,6 +813,7 @@
           </div>
           <button class="primary-btn" type="submit" style="background:#fff8ef;color:#F3852B;border:2px solid #ffffff;text-shadow:none;box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.95),0 12px 28px rgba(120,50,0,0.30);">Se connecter</button>
           <p class="auth-foot">Pas encore de compte ? <a href="#" id="go-signup">Créez-en un</a></p>
+          <p class="auth-foot" style="margin-top:6px;"><a href="#" id="go-forgot">Mot de passe oublié&nbsp;?</a></p>
         </form>
 
         <!-- Inscription -->
@@ -1482,6 +1483,7 @@
   tabSignup.addEventListener('click', function(){ switchTab('signup'); });
   $('#go-signup').addEventListener('click', function(e){ e.preventDefault(); switchTab('signup'); });
   $('#go-login').addEventListener('click', function(e){ e.preventDefault(); switchTab('login'); });
+  $('#go-forgot').addEventListener('click', function(e){ e.preventDefault(); showForgotDialog($('#l-email').value.trim()); });
   try{ if(new URLSearchParams(location.search).get('signup')==='1'){ switchTab('signup'); } }catch(e){}
 
   formSignup.addEventListener('submit', async function(e){
@@ -2791,9 +2793,93 @@
     document.addEventListener('click', function(e){ if(!e.target.closest('[data-client-picker]')){ $all('[data-rf="client-list"]').forEach(function(l){ l.style.display='none'; }); } });
   })();
 
+  /* ============ DÉFINITION DU MOT DE PASSE (lien reçu par email) ============ */
+  var HASH = String(location.hash || '') + '&' + String(location.search || '');
+  var IS_RECOVERY = /[#&?]type=recovery/.test(HASH);
+  var LINK_EXPIRED = /error_code=otp_expired|error=access_denied/.test(HASH);
+
+  function pwOverlay(inner){
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100001;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(150,66,0,0.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);';
+    var card = document.createElement('div');
+    card.style.cssText = 'max-width:420px;width:100%;border-radius:26px;padding:34px 30px;background:#fff;box-shadow:0 30px 70px rgba(90,40,0,0.5);font-family:\'Helvetica Neue\',Helvetica,Arial,sans-serif;';
+    card.innerHTML = inner;
+    ov.appendChild(card);
+    document.body.appendChild(ov);
+    return { ov: ov, card: card };
+  }
+  var PW_FIELD = 'width:100%;box-sizing:border-box;font-size:15px;padding:13px 14px;border-radius:12px;border:1.5px solid #f0d6b4;background:#fffaf3;color:#3a2410;outline:none;margin-bottom:12px;';
+  var PW_BTN = 'width:100%;cursor:pointer;font-family:\'Fredoka\',\'Helvetica Neue\',sans-serif;font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#fff;padding:14px;border-radius:999px;border:none;background:linear-gradient(to bottom,#f9a13a,#f0740b);box-shadow:0 10px 24px rgba(120,50,0,0.3);';
+  var PW_TITLE = 'margin:0 0 8px;font-family:\'Fredoka\',\'Helvetica Neue\',sans-serif;font-weight:700;font-size:24px;color:#e8690d;';
+  var PW_TXT = 'margin:0 0 20px;font-size:14.5px;line-height:1.55;color:#5a4326;';
+
+  var recoveryShown = false;
+  function showRecoveryDialog(){
+    if(recoveryShown) return; recoveryShown = true;
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+    var d = pwOverlay(
+      '<h2 style="'+PW_TITLE+'">Choisissez votre mot de passe</h2>'+
+      '<p style="'+PW_TXT+'">Il vous servira à ouvrir votre Bulle à chaque visite. 6 caractères minimum.</p>'+
+      '<input id="rc-p1" type="password" placeholder="Nouveau mot de passe" style="'+PW_FIELD+'">'+
+      '<input id="rc-p2" type="password" placeholder="Confirmez le mot de passe" style="'+PW_FIELD+'">'+
+      '<div id="rc-err" style="display:none;font-size:13.5px;color:#c0390b;margin:0 0 12px;"></div>'+
+      '<button id="rc-go" style="'+PW_BTN+'">Enregistrer</button>'
+    );
+    var err = d.card.querySelector('#rc-err');
+    function fail(m){ err.textContent = m; err.style.display = 'block'; }
+    d.card.querySelector('#rc-go').addEventListener('click', async function(){
+      var p1 = d.card.querySelector('#rc-p1').value, p2 = d.card.querySelector('#rc-p2').value;
+      if(p1.length < 6) return fail('6 caractères minimum.');
+      if(p1 !== p2) return fail('Les deux mots de passe sont différents.');
+      var btn = this; btn.disabled = true; btn.textContent = 'Enregistrement…';
+      var r;
+      try{ r = await sb.auth.updateUser({ password: p1 }); }catch(e){ r = { error: { message: 'Erreur réseau' } }; }
+      if(r && r.error){
+        btn.disabled = false; btn.textContent = 'Enregistrer';
+        return fail(/expired|invalid/i.test(r.error.message) ? 'Ce lien a expiré. Demandez-en un nouveau depuis « Mot de passe oublié ».' : r.error.message);
+      }
+      d.ov.remove();
+      var s = await sb.auth.getSession();
+      if(s && s.data && s.data.session){ authUser = s.data.session.user; await routeAfterAuth(); }
+    });
+    d.card.querySelector('#rc-p1').focus();
+  }
+
+  function showExpiredDialog(){
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+    showForgotDialog('', 'Ce lien a expiré', 'Les liens sont valables 24 h et à usage unique. Indiquez votre email, on vous en renvoie un tout neuf.');
+  }
+
+  function showForgotDialog(prefill, titre, texte){
+    var d = pwOverlay(
+      '<h2 style="'+PW_TITLE+'">'+(titre || 'Mot de passe oublié')+'</h2>'+
+      '<p style="'+PW_TXT+'">'+(texte || 'Indiquez votre email : vous recevrez un lien pour choisir un nouveau mot de passe.')+'</p>'+
+      '<input id="rx-mail" type="email" value="'+String(prefill||'').replace(/"/g,'&quot;')+'" placeholder="votre@email.fr" style="'+PW_FIELD+'">'+
+      '<div id="rx-msg" style="display:none;font-size:13.5px;margin:0 0 12px;"></div>'+
+      '<button id="rx-go" style="'+PW_BTN+'">Recevoir un lien</button>'+
+      '<button id="rx-close" style="width:100%;margin-top:10px;cursor:pointer;background:none;border:none;font-size:14px;color:#a86a2e;text-decoration:underline;">Retour à la connexion</button>'
+    );
+    var msg = d.card.querySelector('#rx-msg');
+    d.card.querySelector('#rx-close').addEventListener('click', function(){ d.ov.remove(); });
+    d.card.querySelector('#rx-go').addEventListener('click', async function(){
+      var mail = d.card.querySelector('#rx-mail').value.trim().toLowerCase();
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){ msg.style.display='block'; msg.style.color='#c0390b'; msg.textContent='Adresse email invalide.'; return; }
+      var btn = this; btn.disabled = true; btn.textContent = 'Envoi…';
+      try{ await sb.auth.resetPasswordForEmail(mail, { redirectTo: location.origin + '/espace-compte.html' }); }catch(e){}
+      msg.style.display='block'; msg.style.color='#2e7d32';
+      msg.textContent = 'C\'est envoyé ! Consultez votre boîte mail (et vos spams).';
+      btn.disabled = false; btn.textContent = 'Renvoyer';
+    });
+  }
+
+  sb.auth.onAuthStateChange(function(ev){ if(ev === 'PASSWORD_RECOVERY') showRecoveryDialog(); });
+
   /* ============================ DÉMARRAGE ============================ */
+  if(LINK_EXPIRED && !IS_RECOVERY){ showExpiredDialog(); }
   sb.auth.getSession().then(async function(res){
     var session = res && res.data && res.data.session;
+    // Lien de définition de mot de passe : on demande le mot de passe avant d'entrer
+    if(IS_RECOVERY){ showRecoveryDialog(); return; }
     if(session){ authUser = session.user; await routeAfterAuth(); }
   });
 })();
