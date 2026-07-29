@@ -738,6 +738,51 @@
     backdrop-filter:blur(6px) saturate(1.2); -webkit-backdrop-filter:blur(6px) saturate(1.2);
     box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.28),
       0 4px 10px rgba(150,62,22,.16); }
+  #mcd-sol { position:relative; overflow:visible; }
+  #mcd-sol-txt { position:relative; display:inline-block; }
+  .mcd-badge { position:absolute; bottom:calc(100% + 1px); left:calc(100% - 4px); pointer-events:none;
+    padding:2px 6px; border-radius:999px; background:#E11D10; color:#fff;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:9px; letter-spacing:.06em;
+    text-transform:uppercase; text-shadow:none; box-shadow:0 2px 6px rgba(180,20,10,.45);
+    transform-origin:0% 100%; transform:rotate(-16deg) scale(0);
+    animation:mcdInflate 2.1s cubic-bezier(.3,1.4,.4,1) .6s forwards; }
+  .mcd-badge::before { content:''; position:absolute; left:1px; bottom:-3px;
+    width:1.5px; height:4px; background:rgba(225,29,16,.65); transform:rotate(16deg);
+    transform-origin:50% 100%; }
+  @keyframes mcdInflate {
+    0%   { transform:rotate(-16deg) scale(0);    opacity:0; }
+    10%  { transform:rotate(-16deg) scale(.35);  opacity:1; }
+    45%  { transform:rotate(-14deg) scale(1.05); }
+    62%  { transform:rotate(-18deg) scale(1.35); }
+    76%  { transform:rotate(-13deg) scale(1.6);  }
+    92%  { transform:rotate(-16deg) scale(2.05); opacity:1; }
+    97%  { transform:rotate(-16deg) scale(2.45); opacity:.95; filter:brightness(1.5); }
+    100% { transform:rotate(-16deg) scale(2.7);  opacity:0; }
+  }
+  #mcd-drop a { position:relative; overflow:visible; }
+  #mcd-drop strong { position:relative; display:inline-block; }
+  .mcd-badge-static { position:absolute; bottom:calc(100% - 2px); left:calc(100% - 6px);
+    pointer-events:none; padding:2px 6px; border-radius:999px; background:#E11D10; color:#fff;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:9px; letter-spacing:.06em;
+    text-transform:uppercase; box-shadow:0 2px 6px rgba(180,20,10,.45);
+    transform:rotate(-16deg); transform-origin:0% 100%;
+    animation:mcdBadgeIn .45s cubic-bezier(.3,1.5,.4,1) both; }
+  .mcd-badge-static::before { content:''; position:absolute; left:1px; bottom:-3px;
+    width:1.5px; height:4px; background:rgba(225,29,16,.65); transform:rotate(16deg);
+    transform-origin:50% 100%; }
+  @keyframes mcdBadgeIn { 0%{ transform:rotate(-16deg) scale(0); } 100%{ transform:rotate(-16deg) scale(1); } }
+  .mcd-pop { position:absolute; bottom:calc(100% + 5px); left:calc(100% + 6px);
+    width:0; height:0; pointer-events:none; }
+  .mcd-pop i { position:absolute; width:11px; height:11px; border-radius:50%; background:#FF2A17;
+    box-shadow:0 0 0 2px rgba(255,255,255,.85), 0 4px 12px rgba(180,20,10,.6);
+    opacity:0; animation:mcdPop .75s cubic-bezier(.2,.9,.3,1) 2.62s forwards; }
+  .mcd-pop i:nth-child(2n) { background:#FFC24A; width:9px; height:9px; }
+  .mcd-pop i:nth-child(3n) { background:#FFF6EA; }
+  @keyframes mcdPop {
+    0%   { opacity:1; transform:translate(0,0) scale(.4); }
+    25%  { opacity:1; transform:translate(calc(var(--dx) * .5),calc(var(--dy) * .5)) scale(1.5); }
+    100% { opacity:0; transform:translate(calc(var(--dx) * 2.4),calc(var(--dy) * 2.4)) scale(.5); } }
+  @keyframes mcdBadgePulse { 0%,100%{ transform:rotate(-16deg) translateY(0); } 50%{ transform:rotate(-16deg) translateY(-2px); } }
   #mcd-drop { position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:12px;
     width:300px; padding:10px; border-radius:24px; display:none; flex-direction:column; gap:6px; }
   #mcd-drop.open { display:flex; }
@@ -904,10 +949,10 @@
     <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
       <a class="mcd-link is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
       <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je</a>
-      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false">Solutions <span style="font-size:9px;opacity:.7">&#9660;</span></button>
+      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions<span class="mcd-badge">Nouveau</span><span class="mcd-pop"><i style="--dx:-16px;--dy:-14px"></i><i style="--dx:14px;--dy:-18px"></i><i style="--dx:20px;--dy:6px"></i><i style="--dx:-20px;--dy:4px"></i><i style="--dx:2px;--dy:-24px"></i><i style="--dx:8px;--dy:16px"></i></span></span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
       <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
       <div id="mcd-drop" class="mcd-glass">
-        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio</strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
+        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio<span class="mcd-badge-static">Nouveau</span></strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
       </div>
     </nav>
 
