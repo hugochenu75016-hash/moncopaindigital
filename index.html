@@ -553,6 +553,13 @@
 <link id="gfont-Caveat" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@300;400;500;600;700&amp;display=swap">
 <link id="gfont-Fredoka" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;display=swap">
 <link id="gfont-Lilita" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&amp;display=swap">
+<style>
+  /* ===== Curseur orange Mon Copain Digital ===== */
+  html, body, #wrap, canvas, #page { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='6' fill='%23F3852B' stroke='%23FFF6EA' stroke-width='2'/%3E%3C/svg%3E") 12 12, auto; }
+  a, button, .glass-btn, .mcd-link, .mcd-cta, .enter-btn, .social-btn, .acct-sq,
+  [role="button"], input[type="submit"], select, label { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Ccircle cx='18' cy='18' r='13' fill='rgba(243,133,43,0.35)' stroke='%23F3852B' stroke-width='3'/%3E%3Ccircle cx='18' cy='18' r='3' fill='%23FFF6EA'/%3E%3C/svg%3E") 18 18, pointer; }
+  input[type="text"], input[type="email"], input[type="tel"], textarea { cursor: text; }
+</style>
 </head>
 <body style="font-family: &quot;Permanent Marker&quot;">
 <!-- ===== Transition portes entre pages ===== -->
@@ -2928,5 +2935,29 @@ start();
   });
 })();
 </script>
+
+<style id="mcd-cursor-label-css">
+  #mcd-cursor-label{ position:fixed; left:0; top:0; z-index:100001; pointer-events:none;
+    transform:translate3d(-100px,-100px,0); opacity:0; transition:opacity .2s ease;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:12px;
+    letter-spacing:.02em; color:#FFF6EA; background:#F3852B; padding:4px 9px; border-radius:999px;
+    box-shadow:0 4px 12px rgba(150,62,22,.35); white-space:nowrap; }
+  @media (hover:none){ #mcd-cursor-label{ display:none; } }
+</style>
+<div id="mcd-cursor-label">Vous</div>
+<script>
+(function(){
+  var el=document.getElementById('mcd-cursor-label'); if(!el) return;
+  var x=0,y=0,raf=0,shown=false;
+  window.addEventListener('pointermove', function(e){
+    if(e.pointerType==='touch') return;
+    x=e.clientX; y=e.clientY;
+    if(!shown){ shown=true; el.style.opacity='1'; }
+    if(!raf) raf=requestAnimationFrame(function(){ raf=0;
+      el.style.transform='translate3d('+(x+16)+'px,'+(y+16)+'px,0)'; });
+  }, {passive:true});
+  document.addEventListener('pointerleave', function(){ el.style.opacity='0'; shown=false; });
+})();
+<\/script>
 </body>
 </html>
