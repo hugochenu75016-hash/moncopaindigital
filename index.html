@@ -709,18 +709,15 @@
 
 
   /* ===== Entête pilule flottante (nouvelle structure) ===== */
-  #mcd-nav { position:absolute; top:clamp(14px,3vh,28px); left:0; right:0; padding:0 clamp(12px,3vw,40px);
-    display:flex; align-items:flex-start; justify-content:center; gap:14px 18px; flex-wrap:wrap; z-index:30; pointer-events:none; }
+  #mcd-nav { position:absolute; top:clamp(16px,3vh,30px); left:0; right:0; padding:0 clamp(12px,3vw,40px);
+    display:flex; align-items:center; justify-content:center; gap:14px 18px; flex-wrap:wrap; z-index:30; pointer-events:none; }
   #mcd-nav > * { pointer-events:auto; }
   .mcd-glass { background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
     border-radius:999px;
     box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34),
       inset 0 2px 3px rgba(255,255,255,.9), inset 0 -5px 10px rgba(255,180,120,.28); }
-  #mcd-logo { display:flex; align-items:center; padding:0; margin-right:auto; flex:none;
-    background:none !important; box-shadow:none !important; }
-  #mcd-logo img { display:block; height:64px; width:auto;
-    filter:drop-shadow(0 6px 16px rgba(30,12,0,.35)); }
-  #mcd-pill { position:relative; display:flex; align-items:center; gap:4px; padding:8px 10px; order:2;
+  #mcd-bottom { display:none; }
+  #mcd-pill { position:relative; display:flex; align-items:center; gap:4px; padding:8px 10px; margin:0 auto;
     animation:mcdFloat 6s ease-in-out infinite; }
   @keyframes mcdFloat { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
   .mcd-link { font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.04em;
@@ -736,10 +733,8 @@
   #mcd-drop a:hover { background:rgba(243,133,43,.14); }
   #mcd-drop strong { font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#8A4A12; }
   #mcd-drop em { font-style:normal; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; color:#B98455; }
-  #mcd-right { display:flex; align-items:center; gap:10px; margin-left:auto; order:3; flex:none; }
-  #mcd-soc { display:flex; align-items:center; gap:6px; padding:6px 10px; }
-  #mcd-soc .social-btn { width:38px !important; height:38px !important; }
-  #mcd-soc .social-btn svg { width:44px !important; height:44px !important; }
+  #mcd-right { position:fixed; top:clamp(20px,3.5vh,40px); right:clamp(20px,4vw,64px);
+    display:flex; align-items:center; gap:10px; z-index:30; }
   .mcd-cta { font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.06em;
     text-transform:uppercase; color:#FFF7DB; text-decoration:none; padding:15px 24px; border-radius:999px;
     background:linear-gradient(to bottom,#ff9c46,#f3852b);
@@ -747,14 +742,14 @@
     transition:transform .28s cubic-bezier(.2,1,.3,1), background .2s ease; }
   .mcd-cta:hover { transform:translateY(-2px); background:linear-gradient(to bottom,#ffab5e,#ff8f36); }
   #mcd-bottom { display:none; }
-  #top-logo { display:none !important; }
+  #mcd-bottom { display:none; }
+  #top-logo { z-index:40; top:clamp(86px,9.5vw,124px) !important; }
 
   @media (max-width: 1150px) {
     #mcd-pill { display:none; }
     .mcd-cta { display:none; }
-    #mcd-logo { padding:0; }
-    #mcd-logo img { height:44px; }
-    #mcd-nav { top:12px; flex-wrap:nowrap; }
+    #mcd-nav { top:auto; }
+    #top-logo { top:74px !important; }
     #mcd-bottom { display:flex; position:fixed; left:12px; right:12px; bottom:14px; z-index:60;
       gap:2px; padding:7px; align-items:stretch; }
     #mcd-bottom a { flex:1; min-height:44px; display:flex; align-items:center; justify-content:center;
@@ -790,9 +785,6 @@
   <!-- Confettis tricolores -->
   <div id="confetti"></div>
   <header id="mcd-nav">
-    <a id="mcd-logo" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Mon Copain Digital">
-      <img src="logomcd.png" alt="Mon Copain Digital">
-    </a>
 
     <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
       <a class="mcd-link is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
@@ -806,7 +798,6 @@
     </nav>
 
     <div id="mcd-right">
-      <div id="mcd-soc" class="mcd-glass"></div>
       <a class="mcd-cta" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
     </div>
   </header>
@@ -822,8 +813,6 @@
   <script>
   (function(){
     function init(){
-      var soc=document.getElementById('mcd-soc'), rail=document.getElementById('social-rail');
-      if(soc&&rail){ ['ig','li'].forEach(function(c){ var el=rail.querySelector('.social-btn.'+c); if(el) soc.appendChild(el); }); }
       var btn=document.getElementById('mcd-sol'), drop=document.getElementById('mcd-drop');
       if(btn&&drop){
         btn.addEventListener('click', function(e){ e.stopPropagation();
@@ -2768,7 +2757,6 @@ start();
     { sel: '#side-decor',rot: 0,   dx: 0   },
     { sel: '#title',     rot: -12, dx: -30 },
     { sel: '#liquid-sun',rot: 24,  dx: -40 },
-    { sel: '#mcd-logo',  rot: 16,  dx: -70 },
     { sel: '#mcd-right', rot: -16, dx: 70  },
     { sel: '#mcd-pill',  rot: 0,   dx: 0   },
     { sel: '#enter-wrap',rot: 8,   dx: 0   },
