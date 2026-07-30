@@ -2447,7 +2447,8 @@ start();
   if(window.__acctWidget) return; window.__acctWidget=true;
   var btn=document.createElement('button');
   btn.type='button'; btn.className='acct-sq'; btn.setAttribute('aria-label','Espace compte'); btn.title='Espace compte';
-  btn.innerHTML='<img src="boutonespacelog-trim.png" alt="Espace compte"><span class="acct-badge">Votre BULLE maintenant disponible !</span>';
+  var seen=false; try{ seen=localStorage.getItem('mcd-bulle-vue')==='1'; }catch(err){}
+  btn.innerHTML='<img src="boutonespacelog-trim.png" alt="Espace compte">'+(seen?'':'<span class="acct-badge">Votre BULLE maintenant disponible !</span>');
   var rail=document.querySelector('#social-rail');
   var social=document.querySelector('#topbar .social');
   if(rail){ rail.insertBefore(btn, rail.firstChild); }
@@ -2833,7 +2834,7 @@ start();
   </div>
 
   <div class="fs-legal">
-    <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
+    <span>© 2026 Mon Copain Digital</span>
   </div>
 </footer>
 <!-- ===== Fin pied de page ===== -->
