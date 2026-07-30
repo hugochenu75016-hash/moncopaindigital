@@ -809,7 +809,7 @@
   .mcd-link:hover { background:rgba(255,255,255,.34); color:#FFFFFF; }
   #mcd-bottom { display:none; }
   #top-logo { z-index:1 !important; top:clamp(58px,6.5vw,92px) !important; }
-  #logo-px { display:block; width:clamp(300px,38vw,620px); height:auto;
+  #logo-px { display:block; margin:0 auto; width:clamp(300px,38vw,620px); height:auto;
     filter:drop-shadow(0 6px 16px rgba(30,12,0,.28)); }
 
   @media (max-width: 1150px) {
@@ -852,14 +852,14 @@
   <canvas id="scene"></canvas>
   <div id="stars"></div>
   <div id="title" style="display:none"></div>
-  <a id="top-logo" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Mon Copain Digital" style="position:fixed; top:-8px; left:50%; transform:translateX(-50%); z-index:40; display:block;">
+  <a id="top-logo" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Mon Copain Digital" style="position:fixed; top:-8px; left:0; right:0; z-index:40; display:block; text-align:center;">
     <canvas id="logo-px" width="1100" height="390" role="img" aria-label="Mon Copain Digital"></canvas>
   </a>
   <script>
   (function(){
     var cv=document.getElementById('logo-px'); if(!cv) return;
     var ctx=cv.getContext('2d'), W=1100, H=390, LINES=['Mon Copain','Digital'];
-    var CELL=3, DOT=3, SIZE=185, LH=178, R=95, PUSH=34;
+    var CELL=3, DOT=3, SIZE=185, LH=178, R=210, PUSH=58;
     var BASE='#FFFFFF', HOT='#F3852B';
     var CX,CY,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
 
@@ -2915,6 +2915,7 @@ start();
     { sel: '#confetti',  rot: 0,   dx: 0   },
     { sel: '#side-decor',rot: 0,   dx: 0   },
     { sel: '#title',     rot: -12, dx: -30 },
+    { sel: '#top-logo',  rot: -8,  dx: 0   },
     { sel: '#liquid-sun',rot: 24,  dx: -40 },
     { sel: '#mcd-right', rot: -16, dx: 70  },
     { sel: '#mcd-left',  rot: 16,  dx: -70 },
