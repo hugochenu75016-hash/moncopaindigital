@@ -35,8 +35,65 @@
   .anim-f{ animation:floatY 6s ease-in-out infinite; }
   .anim-f2{ animation:floatY2 7.5s ease-in-out infinite; }
 
+  /* ===== Nav pilule flottante (même entête que le site) ===== */
+  #mcd-nav{ position:fixed; top:clamp(16px,3vh,30px); left:0; right:0; z-index:70;
+    display:flex; align-items:center; justify-content:center; pointer-events:none;
+    padding:0 clamp(12px,3vw,40px); }
+  #mcd-nav > *{ pointer-events:auto; }
+  body:has(#app.show) #mcd-nav{ display:none; }
+  #mcd-pill{ position:relative; display:flex; align-items:center; gap:4px; padding:8px 10px;
+    border-radius:999px;
+    background:linear-gradient(to bottom, rgba(255,255,255,.34) 0%, rgba(255,240,224,.18) 100%);
+    backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75), inset 0 -5px 12px rgba(255,180,120,.18),
+      0 14px 28px rgba(150,62,22,.20);
+    animation:mcdFloat 6s ease-in-out infinite; }
+  @keyframes mcdFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+  .mcd-link{ font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.04em;
+    text-transform:uppercase; color:#FFFFFF; text-shadow:0 1px 3px rgba(150,70,0,.45);
+    background:transparent; border:0; cursor:pointer; padding:11px 16px; border-radius:999px;
+    white-space:nowrap; text-decoration:none; display:flex; align-items:center; gap:6px;
+    transition:background .2s ease, color .2s ease; }
+  .mcd-link:hover{ background:rgba(255,255,255,.34); color:#FFFFFF; }
+  .mcd-link.is-active, .mcd-link.is-active:hover{ color:#F3852B; text-shadow:none;
+    background:linear-gradient(to bottom, #ffffff 0%, #fff6ec 55%, #ffeede 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.28),
+      0 4px 10px rgba(150,62,22,.16); }
+  #mcd-drop{ position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:12px;
+    width:300px; padding:10px; border-radius:24px; display:none; flex-direction:column; gap:6px;
+    background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
+    box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34); }
+  #mcd-drop.open{ display:flex; }
+  #mcd-drop a{ display:flex; flex-direction:column; gap:2px; padding:12px 14px; border-radius:16px; text-decoration:none; }
+  #mcd-drop a:hover{ background:rgba(243,133,43,.14); }
+  #mcd-drop strong{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#8A4A12; }
+  #mcd-drop em{ font-style:normal; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; color:#B98455; }
+  #mcd-right{ position:fixed; top:clamp(16px,3vh,30px); right:clamp(16px,4vw,48px); z-index:71;
+    display:flex; align-items:center; gap:10px; }
+  body:has(#app.show) #mcd-right{ display:none; }
+  .mcd-cta{ font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.06em;
+    text-transform:uppercase; color:#FFF7DB; text-decoration:none; padding:15px 24px; border-radius:999px;
+    background:linear-gradient(to bottom,#ff9c46,#f3852b);
+    box-shadow:0 6px 0 #c7620e, 0 16px 28px rgba(150,62,22,.34);
+    transition:transform .28s cubic-bezier(.2,1,.3,1), background .2s ease; }
+  .mcd-cta:hover{ background:linear-gradient(to bottom,#ffab5e,#ff8f36); }
+  @media (max-width:1150px){
+    #mcd-nav{ gap:10px; }
+    #mcd-right{ position:static; flex:none; justify-content:center; }
+    .mcd-cta{ font-size:11px; padding:12px 14px; letter-spacing:.04em; }
+    #mcd-nav{ top:calc(env(safe-area-inset-top,0px) + 14px); justify-content:flex-start;
+      padding-left:calc(env(safe-area-inset-left,0px) + 10px);
+      padding-right:calc(env(safe-area-inset-right,0px) + 10px); }
+    #mcd-pill{ flex:1 1 auto; min-width:0; padding:6px; justify-content:flex-start;
+      overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -webkit-overflow-scrolling:touch; animation:none; }
+    #mcd-pill::-webkit-scrollbar{ display:none; }
+    .mcd-link{ font-size:12px; padding:10px 12px; }
+    #mcd-drop{ left:0; transform:none; width:min(300px,78vw); }
+  }
+  @media (max-width:380px){ .mcd-link{ font-size:11px; padding:9px 10px; } }
+
   /* ===== Connexion ===== */
-  #auth{ position:relative; z-index:10; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:clamp(20px,5vh,60px) 18px; }
+  #auth{ position:relative; z-index:10; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:clamp(96px,14vh,140px) 18px clamp(20px,5vh,60px); }
   .auth-card{ width:min(92vw,420px); background:var(--cream); color:#2a1500; border-radius:28px; padding:clamp(26px,4vw,40px);
     box-shadow:0 26px 60px rgba(90,40,0,0.34); border:1px solid rgba(255,255,255,0.7); position:relative; z-index:2; }
   .auth-logo{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:26px; color:#F3852B; margin:0 0 2px; letter-spacing:-0.01em; }
@@ -276,7 +333,7 @@
   .banner svg{ width:22px; height:22px; flex:0 0 auto; margin-top:1px; }
 
   /* ===== Accueil ===== */
-  #hub{ display:none; position:relative; z-index:10; min-height:100vh; align-items:center; justify-content:center; padding:40px 20px; }
+  #hub{ display:none; position:relative; z-index:10; min-height:100vh; align-items:center; justify-content:center; padding:clamp(96px,14vh,140px) 20px 40px; }
   #hub.show{ display:flex; }
   .hub-inner{ width:100%; max-width:920px; }
   .hub-head{ text-align:center; margin-bottom:38px; }
@@ -366,6 +423,75 @@
 </head>
 <body>
 <div id="decor"></div>
+
+<nav id="mcd-nav" aria-label="Navigation principale">
+  <div id="mcd-pill">
+    <a class="mcd-link" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
+    <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je</a>
+    <button type="button" class="mcd-link is-active" id="mcd-sol" aria-expanded="false">Solutions <span style="font-size:9px;opacity:.7">&#9660;</span></button>
+    <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
+    <a class="mcd-link" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
+    <div id="mcd-drop">
+      <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio</strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main &#128273;</em></a>
+    </div>
+  </div>
+  <div id="mcd-right">
+    <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
+  </div>
+</nav>
+<script>
+(function(){
+  if(!window.mcdGo){ window.mcdGo=function(dest){
+    var ov=document.getElementById('door-tx');
+    if(!ov){ location.href=dest; return; }
+    void ov.offsetWidth; ov.classList.add('closing');
+    setTimeout(function(){ location.href=dest; }, 600);
+  }; }
+  function init(){
+    var btn=document.getElementById('mcd-sol'), drop=document.getElementById('mcd-drop');
+    if(!btn||!drop) return;
+    btn.addEventListener('click', function(e){ e.stopPropagation();
+      var open=drop.classList.toggle('open'); btn.setAttribute('aria-expanded', open?'true':'false'); });
+    document.addEventListener('click', function(){ drop.classList.remove('open'); btn.setAttribute('aria-expanded','false'); });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+  // effet aimanté sur le bouton "Nous contacter"
+  function magnet(){
+    var els=document.querySelectorAll('#mcd-right .mcd-cta');
+    if(!els.length) return;
+    var PULL=0.30, MAX=18, RANGE=150;
+    var items=[], raf=0, mx=0, my=0;
+    els.forEach(function(b){ b.style.willChange='transform'; items.push({el:b,tx:0,ty:0,r:null}); });
+    function measure(){ items.forEach(function(it){ it.r=it.el.getBoundingClientRect(); }); }
+    measure();
+    addEventListener('resize', measure, {passive:true});
+    addEventListener('scroll', measure, {passive:true});
+    function apply(){
+      raf=0;
+      items.forEach(function(it){
+        var r=it.r; if(!r) return;
+        var dx=mx-(r.left+r.width/2), dy=my-(r.top+r.height/2);
+        var d=Math.sqrt(dx*dx+dy*dy);
+        if(d<RANGE){
+          it.tx=Math.max(-MAX,Math.min(MAX,dx*PULL));
+          it.ty=Math.max(-MAX,Math.min(MAX,dy*PULL));
+          it.el.style.transition='transform .14s ease-out';
+        } else if(it.tx||it.ty){
+          it.tx=0; it.ty=0; it.el.style.transition='transform .35s cubic-bezier(.2,1,.3,1)';
+        } else return;
+        it.el.style.transform='translate('+it.tx.toFixed(1)+'px,'+it.ty.toFixed(1)+'px)';
+      });
+    }
+    window.addEventListener('pointermove', function(e){
+      if(e.pointerType==='touch') return;
+      mx=e.clientX; my=e.clientY;
+      if(!raf) raf=requestAnimationFrame(apply);
+    }, {passive:true});
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', magnet); else magnet();
+})();
+</script>
 
 <!-- ===== Connexion ===== -->
 <section id="auth">
