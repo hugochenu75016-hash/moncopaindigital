@@ -128,7 +128,7 @@
     display: inline-block;
     font-family: 'Fredoka', 'Baloo 2', 'Helvetica Neue', sans-serif;
     font-weight: 700;
-    font-size: clamp(30px, 5.4vw, 78px);
+    font-size: clamp(20px, 3.6vw, 52px);
     line-height: 0.95;
     letter-spacing: 0.005em;
     color: #ffffff;
@@ -402,7 +402,7 @@
     #title img { width: 100% !important; max-width: none !important; }
     #title h1 {
       width: auto !important; height: auto !important;
-      font-size: 34px !important; line-height: 0.95 !important;
+      font-size: 21px !important; line-height: 0.95 !important;
       -webkit-text-stroke-width: 2.5px !important;
     }
 
@@ -2627,6 +2627,14 @@ start();
     overflow-y:auto; -webkit-overflow-scrolling:touch;
   }
   #footer-sheet.show{ pointer-events:auto; }
+  /* fond orange uniquement quand la feuille est ouverte (sinon elle masquerait la page) */
+  #footer-sheet::before{
+    content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+    background:linear-gradient(to bottom, #e8690d 0%, #cf560b 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
+    opacity:0; transition:opacity .5s ease;
+  }
+  #footer-sheet.show::before{ opacity:1; }
 
   /* Grand mot en fond, rempli en dégradé */
   #footer-sheet .fs-bgword{
@@ -2671,6 +2679,20 @@ start();
   }
   @keyframes fsWave{0%,100%{transform:translateY(0) rotate(-1.5deg);}50%{transform:translateY(-8px) rotate(1.5deg);}}
 
+  #footer-sheet .fs-brand-lg{ align-self:center; }
+  #footer-sheet .fs-brand-lg span{
+    display:inline-block; line-height:0.98; letter-spacing:-0.01em;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
+    font-size:clamp(36px,4.6vw,74px);
+    background:linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,214,158,0.72) 45%, rgba(150,60,0,0.55) 100%);
+    -webkit-background-clip:text; background-clip:text;
+    color:transparent; -webkit-text-fill-color:transparent;
+    text-shadow:0 2px 24px rgba(120,50,0,0.14);
+  }
+  body.night #footer-sheet .fs-brand-lg span{
+    background:linear-gradient(170deg, rgba(255,255,255,0.92) 0%, rgba(180,196,255,0.7) 45%, rgba(60,80,170,0.55) 100%);
+    -webkit-background-clip:text; background-clip:text;
+  }
   #footer-sheet .fs-brand h2{
     margin:0 0 10px; font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
     font-size:clamp(24px,2.6vw,34px); line-height:1; color:#fff;
@@ -2694,28 +2716,13 @@ start();
     margin:2px 0 14px; font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700;
     font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#ffd9a8;
   }
-  #footer-sheet .fs-col ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; align-items:flex-start; gap:15px; }
+  #footer-sheet .fs-col ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
   #footer-sheet .fs-col a{
-    position:relative; width:fit-content; max-width:100%;
-    color:#8a3c00; text-decoration:none; font-family:'Fredoka','Helvetica Neue',sans-serif;
-    font-size:14.5px; font-weight:600; line-height:1.1;
-    display:inline-flex; align-items:center; gap:9px;
-    padding:9px 17px; border-radius:999px;
-    border:3px solid rgba(255,255,255,0.95);
-    text-shadow:0 1px 1px rgba(255,255,255,0.7);
-    background:
-      radial-gradient(130% 95% at 50% -18%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.55) 24%, rgba(255,255,255,0.1) 50%),
-      linear-gradient(to bottom, #ffffff 0%, #fbf4ea 52%, #efe0cf 100%);
-    box-shadow:
-      0 6px 0 rgba(255,255,255,0.5),
-      0 11px 18px rgba(60,30,0,0.34),
-      inset 0 2px 3px rgba(255,255,255,0.9),
-      inset 0 -6px 10px rgba(120,70,20,0.14);
-    transition:transform .13s cubic-bezier(.2,.8,.25,1), box-shadow .13s ease;
+    color:#fff; text-decoration:none; font-size:15px; font-weight:600;
+    display:inline-flex; align-items:center; gap:8px; transition:color .2s, transform .2s;
   }
-  #footer-sheet .fs-col a:hover{ transform:translateY(-2px); box-shadow:0 8px 0 rgba(255,255,255,0.55), 0 15px 24px rgba(60,30,0,0.4), inset 0 2px 3px rgba(255,255,255,1), inset 0 -6px 10px rgba(120,70,20,0.14); }
-  #footer-sheet .fs-col a:active{ transform:translateY(4px); box-shadow:0 1px 0 rgba(255,255,255,0.5), 0 3px 7px rgba(60,30,0,0.34), inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -4px 9px rgba(120,70,20,0.2); }
-  #footer-sheet .fs-col a .dot{ display:none; }
+  #footer-sheet .fs-col a:hover{ color:#fff3df; transform:translateX(3px); }
+  #footer-sheet .fs-col a .dot{ width:6px; height:6px; border-radius:50%; background:#ffd9a8; flex:0 0 auto; }
 
   #footer-sheet .fs-contact{ display:flex; flex-direction:column; gap:12px; }
   #footer-sheet .fs-phone{
@@ -2730,11 +2737,13 @@ start();
   #footer-sheet .fs-phone .ph-ic svg{ width:19px; height:19px; }
   #footer-sheet .fs-socials{ display:flex; gap:12px; margin-top:2px; }
   #footer-sheet .fs-socials a{
-    width:38px; height:38px; flex:0 0 auto; display:block;
-    background:none; border:none; box-shadow:none; transition:transform .2s;
+    width:44px; height:44px; flex:0 0 auto; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.4);
+    box-shadow:inset 0 2px 2px rgba(255,255,255,0.4); transition:transform .2s, background .2s;
   }
-  #footer-sheet .fs-socials a:hover{ transform:translateY(-3px); }
-  #footer-sheet .fs-socials svg{ width:38px !important; height:38px !important; display:block; }
+  #footer-sheet .fs-socials a:hover{ transform:translateY(-3px); background:rgba(255,255,255,0.24); }
+  #footer-sheet .fs-socials svg{ width:26px !important; height:26px !important; display:block; }
 
   /* pied légal */
   #footer-sheet .fs-legal{
@@ -2763,6 +2772,7 @@ start();
   @media (max-width:860px){
     #footer-sheet .fs-body{ grid-template-columns:1fr 1fr; gap:22px 30px; }
     #footer-sheet .fs-mascot{ display:none; }
+    #footer-sheet .fs-brand-lg{ grid-column:1 / -1; align-self:start; }
     #footer-sheet .fs-brand{ grid-column:1 / -1; }
   }
   @media (max-width:520px){
@@ -2771,7 +2781,6 @@ start();
   }
 </style>
 <footer id="footer-sheet" aria-label="Pied de page Mon Copain Digital" style="position:absolute;left:-12px;top:12px">
-  <div class="fs-bgword" aria-hidden="true">Mon Copain<br>Digital</div>
   <button class="fs-handle" type="button" onclick="if(window.mcdToHero)window.mcdToHero()" aria-label="Revenir en haut">
     <span class="bar"></span>
     <span class="chev">▲</span>
@@ -2779,30 +2788,32 @@ start();
   </button>
 
   <div class="fs-body">
-    <div class="fs-mascot"></div>
+    <div class="fs-brand-lg"><span>Mon Copain<br>Digital</span></div>
 
     <div class="fs-col">
       <h3>Le site</h3>
       <ul>
         <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
         <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
-        <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je</a></li>
+        <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
         <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
+        <li><a href="studio-social.html"><span class="dot"></span>Social Studio</a></li>
+        <li><a href="espace-compte.html"><span class="dot"></span>Espace compte</a></li>
       </ul>
     </div>
 
     <div class="fs-col fs-contact">
       <h3>Rester en lien</h3>
-      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:15px;">
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="espace-compte.html">Votre Bulle · Espace client</a></li>
+      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
+        <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
+        <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
       </ul>
       <div class="fs-socials">
         <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg viewBox="0 0 24 24"><defs><radialGradient id="fsIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#fsIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+          <svg viewBox="0 0 24 24"><defs><radialGradient id="fsIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#fsIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
         </a>
         <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
         </a>
       </div>
     </div>
@@ -2810,19 +2821,19 @@ start();
     <div class="fs-col">
       <h3>Loi applicable</h3>
       <ul>
-        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Mentions légales</a></li>
-        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Politique de confidentialité</a></li>
-        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Politique de cookies</a></li>
-        <li><a href="loiapplicablemcp.html"><span class="dot"></span>CGV — Conditions de vente</a></li>
-        <li><a href="loiapplicablemcp.html" style="white-space:nowrap;"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
-        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Accessibilité</a></li>
-        <li><a href="loiapplicablemcp.html"><span class="dot"></span>Gérer les cookies</a></li>
+        <li><a href="loiapplicablemcp.html#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
+        <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
+        <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
+        <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
+        <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+        <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
+        <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
       </ul>
     </div>
   </div>
 
   <div class="fs-legal">
-    <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier la vie numérique.</span>
+    <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
   </div>
 </footer>
 <!-- ===== Fin pied de page ===== -->
@@ -2988,6 +2999,8 @@ start();
     font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:12px;
     letter-spacing:.02em; color:#FFF6EA; background:#F3852B; padding:4px 9px; border-radius:999px;
     box-shadow:0 4px 12px rgba(150,62,22,.35); white-space:nowrap; }
+  #mcd-cursor-label.on-footer{ background:#6EC1F0; color:#08344E;
+    box-shadow:0 4px 12px rgba(20,90,140,.4); }
   @media (hover:none){ #mcd-cursor-label{ display:none; } }
 </style>
 <div id="mcd-cursor-label">Vous</div>
@@ -2995,10 +3008,13 @@ start();
 (function(){
   var el=document.getElementById('mcd-cursor-label'); if(!el) return;
   var x=0,y=0,raf=0,shown=false;
+  el.style.willChange='transform';
   window.addEventListener('pointermove', function(e){
     if(e.pointerType==='touch') return;
     x=e.clientX; y=e.clientY;
     if(!shown){ shown=true; el.style.opacity='1'; }
+    var fs=document.getElementById('footer-sheet');
+    el.classList.toggle('on-footer', !!(fs && fs.classList.contains('show')));
     if(!raf) raf=requestAnimationFrame(function(){ raf=0;
       el.style.transform='translate3d('+(x+16)+'px,'+(y+16)+'px,0)'; });
   }, {passive:true});
@@ -3015,9 +3031,15 @@ start();
     btn.style.willChange='transform';
     var tx=0,ty=0,sc=1,raf=0;
     function apply(){ raf=0; btn.style.transform='translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px) scale('+sc.toFixed(3)+')'; }
+    var R=null;
+    function measure(){ R=btn.getBoundingClientRect(); }
+    measure();
+    addEventListener('resize', measure, {passive:true});
+    addEventListener('scroll', measure, {passive:true});
     window.addEventListener('pointermove', function(e){
       if(e.pointerType==='touch') return;
-      var r=btn.getBoundingClientRect();
+      if(!R) measure();
+      var r=R;
       var cx=r.left+r.width/2, cy=r.top+r.height/2;
       var dx=e.clientX-cx, dy=e.clientY-cy;
       var d=Math.sqrt(dx*dx+dy*dy);
@@ -3044,25 +3066,33 @@ start();
     var els=document.querySelectorAll('#mcd-left .mcd-cta, #mcd-right .mcd-cta');
     if(!els.length) return;
     var PULL=0.30, MAX=18, RANGE=150;
-    els.forEach(function(btn){
-      var tx=0,ty=0,raf=0;
-      btn.style.willChange='transform';
-      function apply(){ raf=0; btn.style.transform='translate('+tx.toFixed(1)+'px,'+ty.toFixed(1)+'px)'; }
-      window.addEventListener('pointermove', function(e){
-        if(e.pointerType==='touch') return;
-        var r=btn.getBoundingClientRect();
-        var dx=e.clientX-(r.left+r.width/2), dy=e.clientY-(r.top+r.height/2);
+    var items=[], raf=0, mx=0, my=0;
+    els.forEach(function(btn){ btn.style.willChange='transform'; items.push({el:btn,tx:0,ty:0,r:null}); });
+    function measure(){ items.forEach(function(it){ it.r=it.el.getBoundingClientRect(); }); }
+    measure();
+    addEventListener('resize', measure, {passive:true});
+    addEventListener('scroll', measure, {passive:true});
+    function apply(){
+      raf=0;
+      items.forEach(function(it){
+        var r=it.r; if(!r) return;
+        var dx=mx-(r.left+r.width/2), dy=my-(r.top+r.height/2);
         var d=Math.sqrt(dx*dx+dy*dy);
         if(d<RANGE){
-          tx=Math.max(-MAX,Math.min(MAX,dx*PULL));
-          ty=Math.max(-MAX,Math.min(MAX,dy*PULL));
-          btn.style.transition='transform .14s ease-out';
-        } else if(tx||ty){
-          tx=0; ty=0; btn.style.transition='transform .35s cubic-bezier(.2,1,.3,1)';
+          it.tx=Math.max(-MAX,Math.min(MAX,dx*PULL));
+          it.ty=Math.max(-MAX,Math.min(MAX,dy*PULL));
+          it.el.style.transition='transform .14s ease-out';
+        } else if(it.tx||it.ty){
+          it.tx=0; it.ty=0; it.el.style.transition='transform .35s cubic-bezier(.2,1,.3,1)';
         } else return;
-        if(!raf) raf=requestAnimationFrame(apply);
-      }, {passive:true});
-    });
+        it.el.style.transform='translate('+it.tx.toFixed(1)+'px,'+it.ty.toFixed(1)+'px)';
+      });
+    }
+    window.addEventListener('pointermove', function(e){
+      if(e.pointerType==='touch') return;
+      mx=e.clientX; my=e.clientY;
+      if(!raf) raf=requestAnimationFrame(apply);
+    }, {passive:true});
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
