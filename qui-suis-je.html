@@ -343,6 +343,9 @@
   #site-footer {
     position: relative; z-index: 10; margin-top: clamp(20px, 4vh, 48px);
     padding: clamp(40px, 5vw, 68px) clamp(16px, 4vw, 48px) clamp(24px, 3vw, 34px);
+    background: linear-gradient(to bottom, #e8690d 0%, #cf560b 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(90,40,0,0.22);
+    overflow: hidden;
   }
   #site-footer .sf-inner {
     max-width: 1160px; margin: 0 auto;
@@ -363,51 +366,23 @@
     margin: 2px 0 14px; font-family: 'Fredoka','Helvetica Neue',sans-serif; font-weight: 700;
     font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: #ffd9a8;
   }
-  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 15px; }
+  #site-footer .sf-col ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
   #site-footer .sf-col a {
-    --c: #ffffff;
-    position: relative; width: fit-content; max-width: 100%;
-    color: #8a3c00; text-decoration: none; font-family: 'Fredoka','Helvetica Neue',sans-serif;
-    font-size: 14.5px; font-weight: 600; line-height: 1.1;
-    display: inline-flex; align-items: center; gap: 9px;
-    padding: 9px 17px; border-radius: 999px;
-    border: 3px solid rgba(255,255,255,0.95);
-    text-shadow: 0 1px 1px rgba(255,255,255,0.7);
-    background:
-      radial-gradient(130% 95% at 50% -18%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.55) 24%, rgba(255,255,255,0.1) 50%),
-      linear-gradient(to bottom, #ffffff 0%, #fbf4ea 52%, #efe0cf 100%);
-    box-shadow:
-      0 6px 0 rgba(255,255,255,0.5),
-      0 11px 18px rgba(60,30,0,0.34),
-      inset 0 2px 3px rgba(255,255,255,0.9),
-      inset 0 -6px 10px rgba(120,70,20,0.14);
-    transition: transform .13s cubic-bezier(.2,.8,.25,1), box-shadow .13s ease;
+    color: #fff; text-decoration: none; font-size: 15px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px; transition: color .2s, transform .2s;
   }
-  #site-footer .sf-col a:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 8px 0 rgba(255,255,255,0.55),
-      0 15px 24px rgba(60,30,0,0.4),
-      inset 0 2px 3px rgba(255,255,255,0.85),
-      inset 0 -6px 10px rgba(0,0,0,0.22);
-  }
-  #site-footer .sf-col a:active {
-    transform: translateY(4px);
-    box-shadow:
-      0 1px 0 rgba(255,255,255,0.5),
-      0 3px 7px rgba(60,30,0,0.34),
-      inset 0 2px 3px rgba(255,255,255,0.6),
-      inset 0 -4px 9px rgba(0,0,0,0.3);
-  }
-  #site-footer .sf-col a .dot { display: none; }
+  #site-footer .sf-col a:hover { color: #fff3df; transform: translateX(3px); }
+  #site-footer .sf-col a .dot { width: 6px; height: 6px; border-radius: 50%; background: #ffd9a8; flex: 0 0 auto; }
   #site-footer .sf-contact { display: flex; flex-direction: column; gap: 12px; }
   #site-footer .sf-socials { display: flex; gap: 12px; margin-top: 2px; }
   #site-footer .sf-socials a {
-    width: 38px; height: 38px; flex: 0 0 auto; display: block;
-    background: none; border: none; box-shadow: none; transition: transform .2s;
+    width: 44px; height: 44px; flex: 0 0 auto; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,0.4); transition: transform .2s, background .2s;
   }
-  #site-footer .sf-socials a:hover { transform: translateY(-3px); }
-  #site-footer .sf-socials svg { width: 38px !important; height: 38px !important; display: block; }
+  #site-footer .sf-socials a:hover { transform: translateY(-3px); background: rgba(255,255,255,0.24); }
+  #site-footer .sf-socials svg { width: 26px !important; height: 26px !important; display: block; }
   #site-footer .sf-legal {
     max-width: 1160px; margin: clamp(20px, 3vh, 34px) auto 0;
     padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.28);
@@ -503,8 +478,17 @@
   #mcd-drop strong { font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#8A4A12; }
   #mcd-drop em { font-style:normal; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; color:#B98455; }
 
+  #mcd-right { position:fixed; top:clamp(16px,3vh,30px); left:clamp(16px,4vw,48px); z-index:71;
+    display:flex; align-items:center; gap:10px; }
+  .mcd-cta { font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.06em;
+    text-transform:uppercase; color:#FFF7DB; text-decoration:none; padding:15px 24px; border-radius:999px;
+    background:linear-gradient(to bottom,#ff9c46,#f3852b);
+    box-shadow:0 6px 0 #c7620e, 0 16px 28px rgba(150,62,22,.34);
+    transition:transform .28s cubic-bezier(.2,1,.3,1), background .2s ease; }
+  .mcd-cta:hover { background:linear-gradient(to bottom,#ffab5e,#ff8f36); }
   @media (max-width: 1150px) {
-    #mcd-nav { top:calc(env(safe-area-inset-top, 0px) + 68px); justify-content:flex-start;
+    #mcd-nav { gap:10px;
+      top:calc(env(safe-area-inset-top, 0px) + 68px); justify-content:flex-start;
       padding-left:calc(env(safe-area-inset-left, 0px) + 10px);
       padding-right:calc(env(safe-area-inset-right, 0px) + 10px); }
     #mcd-pill { flex:1 1 auto; min-width:0; padding:6px; justify-content:flex-start;
@@ -513,6 +497,8 @@
     #mcd-pill::-webkit-scrollbar { display:none; }
     .mcd-link { font-size:12px; padding:10px 12px; }
     #mcd-drop { left:0; transform:none; width:min(300px,78vw); }
+    #mcd-right { position:static; flex:none; }
+    .mcd-cta { font-size:11px; padding:12px 14px; letter-spacing:.04em; }
   }
   @media (max-width: 380px) { .mcd-link { font-size:11px; padding:9px 10px; } }
 
@@ -637,14 +623,11 @@
   </div>
 
   <header id="topbar">
-    <a class="home-btn" href="index.html" aria-label="Accueil" title="Retour à l'accueil">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.75 19.5v-5.5h4.5v5.5"/></svg>
-    </a>
-    <div class="social">
+    <div class="social" style="margin-left:auto">
       <a class="social-btn logo-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
         <svg viewBox="0 0 24 24"><defs><radialGradient id="tbIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#tbIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
       </a>
-      <a class="social-btn logo-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg></a>
+      <a class="social-btn logo-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg></a>
     </div>
   </header>
 
@@ -655,12 +638,51 @@
       <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false">Solutions <span style="font-size:9px;opacity:.7">&#9660;</span></button>
       <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
       <a class="mcd-link" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
-      <a class="mcd-link" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Contact</a>
       <div id="mcd-drop">
         <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio</strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main &#128273;</em></a>
       </div>
     </div>
+  <div id="mcd-right">
+    <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
+  </div>
   </nav>
+  <script>
+  (function(){
+    function magnet(){
+      var els=document.querySelectorAll('#mcd-right .mcd-cta');
+      if(!els.length) return;
+      var PULL=0.30, MAX=18, RANGE=150;
+      var items=[], raf=0, mx=0, my=0;
+      els.forEach(function(b){ b.style.willChange='transform'; items.push({el:b,tx:0,ty:0,r:null}); });
+      function measure(){ items.forEach(function(it){ it.r=it.el.getBoundingClientRect(); }); }
+      measure();
+      addEventListener('resize', measure, {passive:true});
+      addEventListener('scroll', measure, {passive:true});
+      function apply(){
+        raf=0;
+        items.forEach(function(it){
+          var r=it.r; if(!r) return;
+          var dx=mx-(r.left+r.width/2), dy=my-(r.top+r.height/2);
+          var d=Math.sqrt(dx*dx+dy*dy);
+          if(d<RANGE){
+            it.tx=Math.max(-MAX,Math.min(MAX,dx*PULL));
+            it.ty=Math.max(-MAX,Math.min(MAX,dy*PULL));
+            it.el.style.transition='transform .14s ease-out';
+          } else if(it.tx||it.ty){
+            it.tx=0; it.ty=0; it.el.style.transition='transform .35s cubic-bezier(.2,1,.3,1)';
+          } else return;
+          it.el.style.transform='translate('+it.tx.toFixed(1)+'px,'+it.ty.toFixed(1)+'px)';
+        });
+      }
+      window.addEventListener('pointermove', function(e){
+        if(e.pointerType==='touch') return;
+        mx=e.clientX; my=e.clientY;
+        if(!raf) raf=requestAnimationFrame(apply);
+      }, {passive:true});
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', magnet); else magnet();
+  })();
+  </script>
   <script>
   (function(){
     function init(){
@@ -793,21 +815,23 @@
           <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
           <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
           <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
+          <li><a href="studio-social.html"><span class="dot"></span>Social Studio</a></li>
+          <li><a href="espace-compte.html"><span class="dot"></span>Espace compte</a></li>
         </ul>
       </div>
 
       <div class="sf-col sf-contact">
         <h3>Rester en lien</h3>
-        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-start;gap:15px;">
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
           <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
           <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
         </ul>
         <div class="sf-socials">
           <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-            <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+            <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
           </a>
           <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-            <svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
           </a>
         </div>
       </div>
@@ -819,7 +843,7 @@
           <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
           <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
           <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
-          <li><a href="loiapplicablemcp.html#cgu" style="white-space:nowrap;"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+          <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
           <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
           <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
         </ul>
@@ -827,7 +851,7 @@
     </div>
 
     <div class="sf-legal">
-      <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier la vie numérique.</span>
+      <span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span>
       <button class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb"></span></button>
     </div>
   </footer>
