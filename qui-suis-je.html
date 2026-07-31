@@ -683,7 +683,7 @@
   @media (max-width: 380px) { .mcd-link { font-size:11px; padding:9px 10px; } }
 
   #page-title {
-    position: fixed; top: clamp(78px,11vh,112px); left: 0; right: 0; z-index: 40;
+    position: absolute; top: clamp(78px,11vh,112px); left: 0; right: 0; z-index: 40;
     display: flex; align-items: center; justify-content: center;
     pointer-events: none; margin: 0;
   }
@@ -786,7 +786,7 @@
 <div id="door-tx" class="loading" aria-hidden="true">
   <div class="door l"></div>
   <div class="door r"></div>
-  <img class="dt-logo" src="logocoupeworld.png" alt="">
+  <img class="dt-logo" src="logomcd.png" alt="">
 </div>
 <script>
 (function(){
@@ -948,15 +948,16 @@
       var CELL=3, DOT=3, SIZE=185, LH=200, R=210, PUSH=58;
       var ORANGE=[243,133,43], WHITE=[255,255,255];
       var ORANGE_CSS='#F3852B', WHITE_CSS='#FFFFFF';
-      var CX,CY,EDGE,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
+      var CX,CY,EDGE,GRP,grid,cols,rows,N=0,mouse=null,raf=0;
+      var pivX=[], pivY=[], NG=0;
       function build(){
         var off=document.createElement('canvas'); off.width=W; off.height=H;
         var oc=off.getContext('2d');
         oc.fillStyle='#000'; oc.strokeStyle='#000'; oc.lineJoin='round'; oc.lineWidth=3;
         oc.textAlign='center'; oc.textBaseline='middle';
         for(var i=0;i<LINES.length;i++){
-          var s=SIZE; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif";
-          while(oc.measureText(LINES[i]).width>W-56 && s>40){ s-=4; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif"; }
+          var sz=SIZE; oc.font="700 "+sz+"px 'Fredoka','Baloo 2',sans-serif";
+          while(oc.measureText(LINES[i]).width>W-56 && sz>40){ sz-=4; oc.font="700 "+sz+"px 'Fredoka','Baloo 2',sans-serif"; }
           oc.strokeText(LINES[i], W/2, 20+LH*i+LH/2);
           oc.fillText(LINES[i], W/2, 20+LH*i+LH/2);
         }
@@ -969,6 +970,7 @@
           if(mask[(py*W+px)*4+3]>120){ grid[r*cols+c]=xs.length; xs.push(c*CELL); ys.push(r*CELL); }
         }}
         CX=new Int16Array(xs); CY=new Int16Array(ys); N=xs.length;
+
         EDGE=new Uint8Array(N);
         for(var rr=0;rr<rows;rr++){ for(var cc=0;cc<cols;cc++){
           var id=grid[rr*cols+cc]; if(id<0) continue;
@@ -980,44 +982,55 @@
           }}
           EDGE[id]=edge;
         }}
-        base=document.createElement('canvas'); base.width=W; base.height=H;
-        var bc=base.getContext('2d'), img=bc.createImageData(W,H), buf=img.data;
-        for(var i2=0;i2<N;i2++){
-          var rgb = EDGE[i2] ? ORANGE : WHITE;
-          for(var dy=0;dy<DOT;dy++){
-            var yy=CY[i2]+dy; if(yy>=H) break;
-            var p=(yy*W+CX[i2])*4;
-            for(var dx=0;dx<DOT;dx++,p+=4){
-              if(CX[i2]+dx>=W) break;
-              buf[p]=rgb[0]; buf[p+1]=rgb[1]; buf[p+2]=rgb[2]; buf[p+3]=255;
-            }
-          }
+
+        // découpage en lettres : colonnes vides = séparateurs
+        var colFilled=new Uint8Array(cols);
+        for(var c3=0;c3<cols;c3++){ for(var r3=0;r3<rows;r3++){ if(grid[r3*cols+c3]>=0){ colFilled[c3]=1; break; } } }
+        var colGrp=new Int16Array(cols); colGrp.fill(-1);
+        var g=-1, run=0;
+        for(var c4=0;c4<cols;c4++){
+          if(colFilled[c4]){ if(run>0 || g<0){ g++; } colGrp[c4]=g; run=0; }
+          else { run++; }
         }
-        bc.putImageData(img,0,0);
-        painted=false;
+        NG=g+1;
+        GRP=new Uint8Array(N);
+        var minX=[], maxX=[], minY=[];
+        for(var k=0;k<NG;k++){ minX[k]=1e9; maxX[k]=-1e9; minY[k]=1e9; }
+        for(var r5=0;r5<rows;r5++){ for(var c5=0;c5<cols;c5++){
+          var id2=grid[r5*cols+c5]; if(id2<0) continue;
+          var gg=colGrp[c5]; GRP[id2]=gg;
+          var X=CX[id2], Y=CY[id2];
+          if(X<minX[gg]) minX[gg]=X;
+          if(X>maxX[gg]) maxX[gg]=X;
+          if(Y<minY[gg]) minY[gg]=Y;
+        }}
+        pivX=[]; pivY=[];
+        for(var k2=0;k2<NG;k2++){ pivX[k2]=(minX[k2]+maxX[k2])/2; pivY[k2]=minY[k2]; }
       }
-      function frame(){
-        if(!base){ raf=requestAnimationFrame(frame); return; }
+
+      function frame(t){
+        if(!N){ raf=requestAnimationFrame(frame); return; }
+        t = t || performance.now();
         var m=mouse;
-        if(!painted || m || frame.was){
-          ctx.clearRect(0,0,W,H); ctx.drawImage(base,0,0); painted=true;
+        var cosA=[], sinA=[];
+        for(var k=0;k<NG;k++){
+          var a = 0.14 * Math.sin(t/2400*6.283 - k*0.32);
+          cosA[k]=Math.cos(a); sinA[k]=Math.sin(a);
+        }
+        ctx.clearRect(0,0,W,H);
+        for(var i=0;i<N;i++){
+          var gI=GRP[i], px=pivX[gI], py=pivY[gI];
+          var ox=CX[i]-px, oy=CY[i]-py;
+          var x = px + ox*cosA[gI] - oy*sinA[gI];
+          var y = py + ox*sinA[gI] + oy*cosA[gI];
+          var hot=false;
           if(m){
-            var pad=R+PUSH;
-            var x0=Math.max(0,m.x-pad), x1=Math.min(W,m.x+pad);
-            var y0=Math.max(0,m.y-pad), y1=Math.min(H,m.y+pad);
-            ctx.clearRect(x0,y0,x1-x0,y1-y0);
-            var c0=Math.max(0,Math.floor(x0/CELL)), c1=Math.min(cols-1,Math.ceil(x1/CELL));
-            var r0=Math.max(0,Math.floor(y0/CELL)), r1=Math.min(rows-1,Math.ceil(y1/CELL));
-            for(var r=r0;r<=r1;r++){ for(var c=c0;c<=c1;c++){
-              var i=grid[r*cols+c]; if(i<0) continue;
-              var x=CX[i], y=CY[i], dx=x-m.x, dy=y-m.y, d=Math.sqrt(dx*dx+dy*dy), hot=false;
-              if(d<R && d>0.001){ var f=1-d/R, k=PUSH*f*f; x+=(dx/d)*k; y+=(dy/d)*k; hot=true; }
-              var isEdge = EDGE[i];
-              ctx.fillStyle = (hot ? !isEdge : isEdge) ? ORANGE_CSS : WHITE_CSS;
-              ctx.fillRect(x,y,DOT,DOT);
-            }}
+            var dx=x-m.x, dy=y-m.y, d=Math.sqrt(dx*dx+dy*dy);
+            if(d<R && d>0.001){ var f=1-d/R, kk=PUSH*f*f; x+=(dx/d)*kk; y+=(dy/d)*kk; hot=true; }
           }
-          frame.was=!!m;
+          var isEdge=EDGE[i];
+          ctx.fillStyle = (hot ? !isEdge : isEdge) ? ORANGE_CSS : WHITE_CSS;
+          ctx.fillRect(x, y, DOT, DOT);
         }
         raf=requestAnimationFrame(frame);
       }
