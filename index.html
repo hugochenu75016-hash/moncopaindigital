@@ -809,7 +809,7 @@
   .mcd-link:hover { background:rgba(255,255,255,.34); color:#FFFFFF; }
   #mcd-bottom { display:none; }
   #top-logo { z-index:1 !important; top:clamp(58px,6.5vw,92px) !important; }
-  #logo-px { display:block; margin:0 auto; width:clamp(300px,38vw,620px); height:auto;
+  #logo-px { display:block; margin:0 auto; width:clamp(360px,50vw,820px); height:auto;
     filter:drop-shadow(0 6px 16px rgba(30,12,0,.28)); }
 
   @media (max-width: 1150px) {
@@ -860,16 +860,19 @@
     var cv=document.getElementById('logo-px'); if(!cv) return;
     var ctx=cv.getContext('2d'), W=1100, H=390, LINES=['Mon Copain','Digital'];
     var CELL=3, DOT=3, SIZE=185, LH=178, R=210, PUSH=58;
-    var BASE='#FFFFFF', HOT='#F3852B';
-    var CX,CY,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
+    var ORANGE=[243,133,43], WHITE=[255,255,255];
+    var ORANGE_CSS='#F3852B', WHITE_CSS='#FFFFFF';
+    var CX,CY,EDGE,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
 
     function build(){
       var off=document.createElement('canvas'); off.width=W; off.height=H;
       var oc=off.getContext('2d');
-      oc.fillStyle='#000'; oc.textAlign='center'; oc.textBaseline='middle';
+      oc.fillStyle='#000'; oc.strokeStyle='#000'; oc.lineJoin='round'; oc.lineWidth=5;
+      oc.textAlign='center'; oc.textBaseline='middle';
       for(var i=0;i<LINES.length;i++){
         var s=SIZE; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif";
-        while(oc.measureText(LINES[i]).width>W-40 && s>40){ s-=4; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif"; }
+        while(oc.measureText(LINES[i]).width>W-56 && s>40){ s-=4; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif"; }
+        oc.strokeText(LINES[i], W/2, 20+LH*i+LH/2);
         oc.fillText(LINES[i], W/2, 20+LH*i+LH/2);
       }
       var mask=oc.getImageData(0,0,W,H).data;
@@ -882,10 +885,23 @@
       }}
       CX=new Int16Array(xs); CY=new Int16Array(ys); N=xs.length;
 
+      // contour = point dont un des 8 voisins est vide
+      EDGE=new Uint8Array(N);
+      for(var rr=0;rr<rows;rr++){ for(var cc=0;cc<cols;cc++){
+        var id=grid[rr*cols+cc]; if(id<0) continue;
+        var edge=0;
+        for(var ny=-1;ny<=1 && !edge;ny++){ for(var nx=-1;nx<=1;nx++){
+          if(!nx && !ny) continue;
+          var r2=rr+ny, c2=cc+nx;
+          if(r2<0||c2<0||r2>=rows||c2>=cols||grid[r2*cols+c2]<0){ edge=1; break; }
+        }}
+        EDGE[id]=edge;
+      }}
+
       base=document.createElement('canvas'); base.width=W; base.height=H;
       var bc=base.getContext('2d'), img=bc.createImageData(W,H), buf=img.data;
-      var rgb=[255,255,255];
       for(var i2=0;i2<N;i2++){
+        var rgb = EDGE[i2] ? ORANGE : WHITE;
         for(var dy=0;dy<DOT;dy++){
           var yy=CY[i2]+dy; if(yy>=H) break;
           var p=(yy*W+CX[i2])*4;
@@ -915,7 +931,9 @@
             var i=grid[r*cols+c]; if(i<0) continue;
             var x=CX[i], y=CY[i], dx=x-m.x, dy=y-m.y, d=Math.sqrt(dx*dx+dy*dy), hot=false;
             if(d<R && d>0.001){ var f=1-d/R, k=PUSH*f*f; x+=(dx/d)*k; y+=(dy/d)*k; hot=true; }
-            ctx.fillStyle=hot?HOT:BASE; ctx.fillRect(x,y,DOT,DOT);
+            var isEdge = EDGE[i];
+            ctx.fillStyle = (hot ? !isEdge : isEdge) ? ORANGE_CSS : WHITE_CSS;
+            ctx.fillRect(x,y,DOT,DOT);
           }}
         }
         frame.was=!!m;
@@ -948,7 +966,7 @@
 
     <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
       <a class="mcd-link is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
-      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je</a>
+      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je ?</a>
       <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions<span class="mcd-badge">Nouveau</span><span class="mcd-pop"><i style="--dx:-16px;--dy:-14px"></i><i style="--dx:14px;--dy:-18px"></i><i style="--dx:20px;--dy:6px"></i><i style="--dx:-20px;--dy:4px"></i><i style="--dx:2px;--dy:-24px"></i><i style="--dx:8px;--dy:16px"></i></span></span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
       <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
       <div id="mcd-drop" class="mcd-glass">
@@ -983,7 +1001,7 @@
   })();
   </script>
   <div id="enter-wrap">
-    <button class="enter-btn" onclick="mcdGo('explorer.html')">Explorer</button>
+    <button class="enter-btn" onclick="mcdGo('qui-suis-je.html')">Explorer</button>
   </div>
 
   <!-- Écran de chargement retiré : ce sont les portes qui font le chargement -->
