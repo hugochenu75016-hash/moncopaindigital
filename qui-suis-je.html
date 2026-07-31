@@ -12,6 +12,7 @@
 <link rel="manifest" href="/favicons/site.webmanifest">
 <meta name="theme-color" content="#6EC1F0">
 <title>Qui suis-je ? · Mon Copain Digital</title>
+<link rel="prefetch" href="explorer-ecran.html" as="document">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Orbitron:wght@700;900&amp;family=Space+Grotesk:wght@500;600&amp;display=swap">
 <style>
   * { box-sizing: border-box; }
@@ -686,7 +687,7 @@
     display: flex; align-items: center; justify-content: center;
     pointer-events: none; margin: 0;
   }
-  #title-px { display:block; width: clamp(360px, 48vw, 800px); height: auto;
+  #title-px { display:block; width: clamp(300px, 40vw, 680px); height: auto;
     filter: drop-shadow(0 6px 16px rgba(30,12,0,.28)); }
   .caption {
     position: fixed; bottom: 48px; left: 0; right: 0; z-index: 5;
@@ -759,6 +760,10 @@
     box-shadow:0 0 70px rgba(90,40,0,0.45);}
   #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
   #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
+  #door-tx.loading{pointer-events:auto;}
+  #door-tx.loading .door.l,#door-tx.loading .door.r{transform:translateX(0)!important;animation:none!important;}
+  #door-tx.loading .dt-logo{opacity:1!important;animation:dtLogoPulse 1.6s ease-in-out infinite!important;}
+  @keyframes dtLogoPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
   #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
   #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
   #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
@@ -778,7 +783,7 @@
     #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
   }
 </style>
-<div id="door-tx" aria-hidden="true">
+<div id="door-tx" class="loading" aria-hidden="true">
   <div class="door l"></div>
   <div class="door r"></div>
   <img class="dt-logo" src="logocoupeworld.png" alt="">
@@ -818,7 +823,16 @@
   }
   window.mcdGo=go;
   try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
-  ov.classList.add('opening');
+  var opened=false;
+  function doOpen(){
+    if(opened) return; opened=true;
+    ov.classList.remove('loading');
+    void ov.offsetWidth;
+    ov.classList.add('opening');
+  }
+  if(document.readyState==='complete'){ doOpen(); }
+  else { window.addEventListener('load', doOpen); }
+  setTimeout(doOpen, 12000);
   window.addEventListener('pageshow', function(ev){
     if(ev.persisted){
       ov.classList.remove('closing');
@@ -932,15 +946,18 @@
       var cv=document.getElementById('title-px'); if(!cv) return;
       var ctx=cv.getContext('2d'), W=1100, H=240, LINES=['Qui suis-je ?'];
       var CELL=3, DOT=3, SIZE=185, LH=200, R=210, PUSH=58;
-      var BASE='#FFFFFF', HOT='#F3852B';
-      var CX,CY,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
+      var ORANGE=[243,133,43], WHITE=[255,255,255];
+      var ORANGE_CSS='#F3852B', WHITE_CSS='#FFFFFF';
+      var CX,CY,EDGE,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
       function build(){
         var off=document.createElement('canvas'); off.width=W; off.height=H;
         var oc=off.getContext('2d');
-        oc.fillStyle='#000'; oc.textAlign='center'; oc.textBaseline='middle';
+        oc.fillStyle='#000'; oc.strokeStyle='#000'; oc.lineJoin='round'; oc.lineWidth=3;
+        oc.textAlign='center'; oc.textBaseline='middle';
         for(var i=0;i<LINES.length;i++){
           var s=SIZE; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif";
-          while(oc.measureText(LINES[i]).width>W-40 && s>40){ s-=4; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif"; }
+          while(oc.measureText(LINES[i]).width>W-56 && s>40){ s-=4; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif"; }
+          oc.strokeText(LINES[i], W/2, 20+LH*i+LH/2);
           oc.fillText(LINES[i], W/2, 20+LH*i+LH/2);
         }
         var mask=oc.getImageData(0,0,W,H).data;
@@ -952,15 +969,27 @@
           if(mask[(py*W+px)*4+3]>120){ grid[r*cols+c]=xs.length; xs.push(c*CELL); ys.push(r*CELL); }
         }}
         CX=new Int16Array(xs); CY=new Int16Array(ys); N=xs.length;
+        EDGE=new Uint8Array(N);
+        for(var rr=0;rr<rows;rr++){ for(var cc=0;cc<cols;cc++){
+          var id=grid[rr*cols+cc]; if(id<0) continue;
+          var edge=0;
+          for(var ny=-1;ny<=1 && !edge;ny++){ for(var nx=-1;nx<=1;nx++){
+            if(!nx && !ny) continue;
+            var r2=rr+ny, c2=cc+nx;
+            if(r2<0||c2<0||r2>=rows||c2>=cols||grid[r2*cols+c2]<0){ edge=1; break; }
+          }}
+          EDGE[id]=edge;
+        }}
         base=document.createElement('canvas'); base.width=W; base.height=H;
         var bc=base.getContext('2d'), img=bc.createImageData(W,H), buf=img.data;
         for(var i2=0;i2<N;i2++){
+          var rgb = EDGE[i2] ? ORANGE : WHITE;
           for(var dy=0;dy<DOT;dy++){
             var yy=CY[i2]+dy; if(yy>=H) break;
             var p=(yy*W+CX[i2])*4;
             for(var dx=0;dx<DOT;dx++,p+=4){
               if(CX[i2]+dx>=W) break;
-              buf[p]=255; buf[p+1]=255; buf[p+2]=255; buf[p+3]=255;
+              buf[p]=rgb[0]; buf[p+1]=rgb[1]; buf[p+2]=rgb[2]; buf[p+3]=255;
             }
           }
         }
@@ -983,7 +1012,9 @@
               var i=grid[r*cols+c]; if(i<0) continue;
               var x=CX[i], y=CY[i], dx=x-m.x, dy=y-m.y, d=Math.sqrt(dx*dx+dy*dy), hot=false;
               if(d<R && d>0.001){ var f=1-d/R, k=PUSH*f*f; x+=(dx/d)*k; y+=(dy/d)*k; hot=true; }
-              ctx.fillStyle=hot?HOT:BASE; ctx.fillRect(x,y,DOT,DOT);
+              var isEdge = EDGE[i];
+              ctx.fillStyle = (hot ? !isEdge : isEdge) ? ORANGE_CSS : WHITE_CSS;
+              ctx.fillRect(x,y,DOT,DOT);
             }}
           }
           frame.was=!!m;
@@ -1372,7 +1403,10 @@
   var smStart = document.getElementById('sm-start');
   if(smStart){
     smStart.addEventListener('click', function(){
-      if(ecran && !ecran.src){ ecran.src = 'explorer-ecran.html'; }
+      if(ecran){
+        if(!ecran.src){ ecran.src = 'explorer-ecran.html'; }
+        else { try{ ecran.contentWindow.location.reload(); }catch(err){ ecran.src = 'explorer-ecran.html'; } }
+      }
       fitEcran();
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       if(screen){ screen.classList.remove('holding-coin'); }
@@ -1382,6 +1416,17 @@
     });
   }
   window.addEventListener('resize', fitEcran);
+  // Préchargement discret de l'écran de la borne : une fois la page chargée,
+  // on met la vidéo en cache (iframe caché) pour que START soit instantané.
+  (function(){
+    function warm(){
+      setTimeout(function(){
+        if(ecran && !ecran.src){ ecran.src = 'explorer-ecran.html'; fitEcran(); }
+      }, 1500);
+    }
+    if(document.readyState === 'complete'){ warm(); }
+    else { window.addEventListener('load', warm); }
+  })();
   function backOut(){
       var menu = document.getElementById('screen-menu');
       if(menu){ menu.classList.remove('on'); }
