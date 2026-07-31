@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Explorer · Le parcours · Mon Copain Digital</title>
+<title>Qui suis-je ? · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;family=Orbitron:wght@700;900&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap">
 <style>
   *{ box-sizing:border-box; }
@@ -246,6 +246,7 @@
     pointer-events:none;
   }
   #bubble.show{ opacity:1; transform:translateY(0) scale(1); }
+  #bubble.no-tail::before, #bubble.no-tail::after{ display:none; }
   #bubble::after{
     content:""; position:absolute; bottom:-20px; left:var(--tx,38px); transform:translateX(-50%); width:0; height:0;
     border:12px solid transparent; border-top-color:#3a2205; border-bottom:0;
@@ -354,18 +355,25 @@
   #progress .lvl{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; color:#fff; margin-right:4px; letter-spacing:.04em; }
   #skip{
     position:absolute; bottom:14px; right:16px; z-index:12; cursor:pointer;
-    font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
-    color:#2b6b8f; background:rgba(255,255,255,0.7); border:1px solid rgba(43,107,143,0.4);
-    padding:8px 16px; border-radius:999px; transition:all .15s ease;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; letter-spacing:.08em; text-transform:uppercase;
+    color:#fff; background:linear-gradient(180deg,#ff9a3a,#ef6d0b); border:1px solid rgba(120,60,0,0.35);
+    padding:12px 26px; border-radius:999px; transition:all .15s ease; box-shadow:0 5px 14px rgba(200,90,0,0.38);
   }
-  #skip:hover{ background:#fff; color:#154f6e; }
+  #skip:hover{ background:linear-gradient(180deg,#ffab5e,#ff8f36); color:#fff; }
   #replay{
-    position:absolute; bottom:14px; left:16px; z-index:12; cursor:pointer; display:none;
+    position:absolute; bottom:14px; left:78px; z-index:12; cursor:pointer; display:none;
     font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; letter-spacing:.08em; text-transform:uppercase;
     color:#2b6b8f; background:rgba(255,255,255,0.7); border:1px solid rgba(43,107,143,0.4);
     padding:8px 16px; border-radius:999px;
   }
   #replay:hover{ background:#fff; }
+  #ring{ position:absolute; bottom:12px; left:16px; z-index:12; width:52px; height:52px; opacity:0; transition:opacity .3s ease; }
+  #ring.show{ opacity:1; }
+  #ring svg{ width:100%; height:100%; transform:rotate(-90deg); display:block; }
+  #ring .bg{ fill:rgba(255,255,255,0.7); stroke:rgba(43,107,143,0.25); stroke-width:5; }
+  #ring .fg{ fill:none; stroke:#ef6d0b; stroke-width:5; stroke-linecap:round; }
+  #ring b{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#2b6b8f; }
   #music-btn{ position:absolute; top:14px; left:16px; z-index:14; cursor:pointer; width:38px; height:38px; border-radius:50%;
     font-size:18px; line-height:1; border:1px solid rgba(43,107,143,0.4); background:rgba(255,255,255,0.7); color:#2b6b8f; transition:all .15s ease; }
   #music-btn:hover{ background:#fff; }
@@ -841,6 +849,10 @@
     <button id="skip" type="button">Passer ▸</button>
     <button id="music-btn" type="button" aria-label="Musique">🔈</button>
     <button id="replay" type="button">↺ Revoir</button>
+    <div id="ring" aria-hidden="true">
+      <svg viewBox="0 0 52 52"><circle class="bg" cx="26" cy="26" r="21"></circle><circle class="fg" cx="26" cy="26" r="21" stroke-dasharray="131.9" stroke-dashoffset="0"></circle></svg>
+      <b>0</b>
+    </div>
     <button id="playbtn" type="button">
       <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 8a5 5 0 0 0-5 5v.5a3.5 3.5 0 0 0 6.3 2.1l.6-.8a2 2 0 0 1 1.6-.8h2.8a2 2 0 0 1 1.6.8l.6.8a3.5 3.5 0 0 0 6.3-2.1V13a5 5 0 0 0-5-5H7Zm0 3.2c.4 0 .7.3.7.7v.6h.6a.7.7 0 0 1 0 1.4h-.6v.6a.7.7 0 0 1-1.4 0v-.6h-.6a.7.7 0 0 1 0-1.4h.6v-.6c0-.4.3-.7.7-.7Zm9.5-.2a1 1 0 1 1 0 2 1 1 0 0 1 0-2Zm-2 2.5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>
       Jouer
@@ -899,38 +911,40 @@
 
   // Traductions FR -> EN (appliquées dans say())
   var TR = {
-    "Le numérique vous file des sueurs froides&nbsp;? Mails, box, tablette… la <b>galère</b>.":
-      "Does technology give you cold sweats? Email, router, tablet… what a <b>hassle</b>.",
-    "Respirez 😌 On réconcilie avec le numérique celles et ceux que la tech a <b>oubliés</b>.":
-      "Relax 😌 We reconnect with tech everyone it left <b>behind</b>.",
-    "Dites-moi… vous êtes plut&ocirc;t&nbsp;?": "Tell me… are you rather?",
-    "En selle&nbsp;! J'enfourche mon scooter et <b>j'arrive chez vous</b> 🛵":
-      "Hop on! I grab my scooter and <b>ride to your place</b> 🛵",
-    "Pour votre activité : site, cloud, dépannage. On vous rend le numérique <b>simple et rentable</b>.":
-      "For your business: website, cloud, support. We make tech <b>simple and profitable</b>.",
-    "Chez vous, à votre rythme : mails, photos, visio avec les petits-enfants. <b>Zéro jargon</b>, promis.":
-      "At home, at your pace: email, photos, video calls with grandkids. <b>Zero jargon</b>, promise.",
-    "Des <b>milliers de sourires</b> retrouvés. Note moyenne ★★★★★.":
-      "<b>Thousands of smiles</b> restored. Average rating ★★★★★.",
-    "Et après, on garde le lien&nbsp;: un petit SMS et je reviens 📱":
-      "And after, we stay in touch: a quick text and I'm back 📱",
-    "Une heure, un vrai humain à vos côtés.": "One hour, a real human by your side.",
-    "On se lance&nbsp;? Je vous accompagne dès maintenant&nbsp;! 🚀":
-      "Shall we start? I'm with you right now! 🚀"
+    "J'ai grandi avec le numérique. Mon premier métier&nbsp;: <b>développeur web</b>.":
+      "I grew up with technology. My first job: <b>web developer</b>.",
+    "Puis je suis passé <b>commercial</b>&nbsp;: écouter, s'adapter, parler la langue des gens — pas celle des machines.":
+      "Then I moved into <b>sales</b>: listening, adapting, speaking people's language — not machines'.",
+    "Un jour, j'ai vu mes proches perdus devant un téléphone. <b>Mon Copain Digital</b> est né de là.":
+      "One day I saw my own family lost in front of a phone. <b>Mon Copain Digital</b> was born from that.",
+    "Ma mission&nbsp;: réconcilier avec le numérique celles et ceux que la tech a <b>laissés de côté</b>.":
+      "My mission: reconnect with technology everyone it has <b>left behind</b>.",
+    "Normand devenu parisien, je me déplace dans <b>tout Paris et l'Île-de-France</b> 🛵":
+      "From Normandy, now a Parisian — I travel across <b>Paris and the whole Île-de-France</b> 🛵",
+    "Chez vous, sur <b>votre</b> matériel&nbsp;: c'est bien plus simple d'apprendre sur ses vrais appareils.":
+      "At your place, on <b>your own</b> devices: it's far easier to learn on the real thing.",
+    "Une heure, sans pression&nbsp;: mails, photos, visio avec les petits-enfants. <b>Zéro jargon</b>, promis.":
+      "One hour, no pressure: email, photos, video calls with the grandkids. <b>Zero jargon</b>, promise.",
+    "On refait ensemble, autant de fois qu'il le faut — jusqu'à ce que ce soit <b>vous</b> qui pilotiez.":
+      "We do it again together, as many times as needed — until <b>you</b> are the one in control.",
+    "Plus de <b>200 personnes accompagnées</b>. Note moyenne ★★★★★.":
+      "More than <b>200 people helped</b>. Average rating ★★★★★.",
+    "Et je reste joignable&nbsp;: un petit SMS et je repasse 📱":
+      "And I stay reachable: a quick text and I'm back 📱",
+    "On fait connaissance&nbsp;? Le premier pas, je vous le rends facile 🚀":
+      "Shall we meet? I'll make the first step an easy one 🚀"
   };
   function tr(html){ return (lang==='en' && TR[html]) ? TR[html] : html; }
   function greetLine(){
-    var place = (aud === 'pro') ? '🏢' : '🏠';
-    var who = playerName ? (', ' + playerName) : '';
     return (lang==='en')
-      ? "Knock knock! Here I am, <b>great to meet you" + who + "</b> " + place
-      : "Toc toc&nbsp;! Me voilà, <b>ravi de vous rencontrer" + who + "</b> " + place;
+      ? "Knock knock! Here I am — I come <b>to your home</b> 🏠"
+      : "Toc toc&nbsp;! Me voilà — je viens <b>jusque chez vous</b> 🏠";
   }
   function firstLine(){
     var who = playerName ? (' ' + playerName) : '';
     return (lang==='en')
-      ? "Hello" + who + "! I'm <b>Hugo</b>, your Digital Buddy 👋"
-      : "Bonjour" + who + "&nbsp;! Moi c'est <b>Hugo</b>, votre Copain Digital 👋";
+      ? "Hello" + who + "! I'm <b>Hugo</b>, 23 — your Digital Buddy 👋"
+      : "Bonjour" + who + "&nbsp;! Moi c'est <b>Hugo</b>, 23 ans — votre Copain Digital 👋";
   }
 
   // ===== Audio partagé (clics clavier + musique chiptune) =====
@@ -1000,14 +1014,16 @@
     bubble.style.width = 'auto';
     bubble.innerHTML = html;
     bubble.classList.add('show');
-    var bw = bubble.offsetWidth, bh = bubble.offsetHeight;
-    bubble.style.width = bw + 'px';
-    positionBubble(bw, bh);
+    positionBubble();
+    bubble.style.width = bubble.offsetWidth + 'px';
     // machine à écrire
     var tmp = document.createElement('div'); tmp.innerHTML = html;
     var plain = tmp.textContent; var full = html; var i = 0;
     bubble.innerHTML = '<span class="txt"></span><span class="cursor">▍</span>';
     var txt = bubble.querySelector('.txt');
+    if(pendingAdvance !== null){
+      startRing(plain.length * 34 + Math.max(3600, Math.round(plain.length * 90) + 1400));
+    } else { stopRing(); }
     typeTimer = setInterval(function(){
       i++;
       txt.textContent = plain.slice(0, i);
@@ -1016,64 +1032,91 @@
         clearInterval(typeTimer);
         bubble.innerHTML = full;
         hero.classList.remove('talking');
+        // temps de lecture confortable (lecture posée ≈ 11 caractères/seconde)
+        if(pendingAdvance !== null){
+          var next = pendingAdvance; pendingAdvance = null;
+          var read = Math.max(3600, Math.round(plain.length * 90) + 1400);
+          clearTimeout(timer);
+          timer = setTimeout(function(){ go(next); }, read);
+        }
       }
     }, 34);
   }
-  function positionBubble(bw, bh){
+  function positionBubble(){
     var hr = hero.getBoundingClientRect();
     var vw = window.innerWidth, vh = window.innerHeight;
-    var cx = hr.left + hr.width/2;
-    var headTop = hr.top;
-    var left = cx - bw/2;
-    left = Math.max(10, Math.min(left, vw - bw - 10));
-    var top = headTop - bh - 22;
-    top = Math.max(10, top);
-    bubble.style.left = left + 'px';
-    bubble.style.top = top + 'px';
-    bubble.style.setProperty('--tx', (cx - left) + 'px');
+    var pr = progress.getBoundingClientRect();
+    var safeTop = pr.bottom + 14;
+    var M = 14;
+
+    // largeur par défaut
+    bubble.style.maxWidth = Math.min(560, vw * 0.56) + 'px';
+    var bw = bubble.offsetWidth, bh = bubble.offsetHeight;
+
+    var cx = hr.left + hr.width / 2;
+    var topAbove = hr.top - bh - 22;
+
+    if(topAbove >= safeTop){
+      // au-dessus de la tête : placement classique avec queue
+      var left = Math.max(M, Math.min(cx - bw / 2, vw - bw - M));
+      bubble.classList.remove('no-tail');
+      bubble.style.left = left + 'px';
+      bubble.style.top = topAbove + 'px';
+      bubble.style.setProperty('--tx', Math.max(18, Math.min(bw - 18, cx - left)) + 'px');
+      return;
+    }
+
+    // sinon : sur le côté, jamais par-dessus le personnage ni la barre de niveau
+    var spaceR = vw - hr.right - M * 2;
+    var spaceL = hr.left - M * 2;
+    var side = spaceR >= spaceL ? 'right' : 'left';
+    var space = Math.max(160, side === 'right' ? spaceR : spaceL);
+    bubble.style.maxWidth = Math.min(560, space) + 'px';
+    bw = bubble.offsetWidth; bh = bubble.offsetHeight;
+    var l = side === 'right' ? Math.min(hr.right + M, vw - bw - M) : Math.max(M, hr.left - M - bw);
+    var t = Math.max(safeTop, Math.min(hr.top + 10, vh - bh - M));
+    bubble.classList.add('no-tail');
+    bubble.style.left = l + 'px';
+    bubble.style.top = t + 'px';
   }
   function hush(){ clearInterval(typeTimer); hero.classList.remove('talking'); }
-  function hideBubble(){ bubble.classList.remove('show'); bubble.style.width='auto'; }
+  function hideBubble(){ bubble.classList.remove('show'); bubble.style.width='auto'; bubble.style.maxWidth=''; }
 
-  function tailored(){
-    return aud === 'pro'
-      ? "Pour votre activité : site, cloud, dépannage. On vous rend le numérique <b>simple et rentable</b>."
-      : "Chez vous, à votre rythme : mails, photos, visio avec les petits-enfants. <b>Zéro jargon</b>, promis.";
-  }
-
-  // ===== SCÉNARIO =====
+  // ===== SCÉNARIO : qui suis-je =====
   var scenes = [
-    { dur:5200, run:function(){
-        hideProps(); document.getElementById('offer').classList.remove('show');
+    { dur:5400, run:function(){
+        hideProps();
         document.getElementById('stars').classList.remove('show');
-        moveTo(38,'right',function(){
-          setPose('wave');
-          say(firstLine(), '46%','20%');
+        moveTo(38,'right',function(){ setPose('wave'); say(firstLine()); });
+    }},
+    { dur:6600, run:function(){
+        showProp('prop-pc');
+        moveTo(30,'left',function(){
+          setPose('point');
+          say("J'ai grandi avec le numérique. Mon premier métier&nbsp;: <b>développeur web</b>.");
         });
     }},
     { dur:7200, run:function(){
-        showProp('prop-pc');
-        moveTo(30,'left',function(){
-          setPose('think');
-          say("Le numérique vous file des sueurs froides&nbsp;? Mails, box, tablette… la <b>galère</b>.", '44%','14%');
+        hideProps();
+        moveTo(44,'right',function(){
+          setPose('present');
+          say("Puis je suis passé <b>commercial</b>&nbsp;: écouter, s'adapter, parler la langue des gens — pas celle des machines.");
         });
     }},
-    { dur:6800, run:function(){
+    { dur:7000, run:function(){
         hideProps();
+        moveTo(34,'right',function(){
+          setPose('think');
+          say("Un jour, j'ai vu mes proches perdus devant un téléphone. <b>Mon Copain Digital</b> est né de là.");
+        });
+    }},
+    { dur:7000, run:function(){
         moveTo(46,'right',function(){
           setPose('present');
-          say("Respirez 😌 On réconcilie avec le numérique celles et ceux que la tech a <b>oubliés</b>.", '52%','16%');
+          say("Ma mission&nbsp;: réconcilier avec le numérique celles et ceux que la tech a <b>laissés de côté</b>.");
         });
     }},
-    { choice:true, run:function(){
-        hideProps();
-        moveTo(30,'right',function(){
-          setPose('point'); faceTo('right');
-          say("Dites-moi… vous êtes plut&ocirc;t&nbsp;?", '42%','16%');
-          document.getElementById('choice').classList.add('show');
-        });
-    }},
-    { dur:5600, run:function(){
+    { dur:5800, set:'scooter', run:function(){
         hideProps();
         var sc = document.getElementById('scooter'), sl = document.getElementById('speedlines');
         jumpTo(hero, 4); jumpTo(sc, 4);
@@ -1083,67 +1126,65 @@
         requestAnimationFrame(function(){ hero.style.left = '66%'; sc.style.left = '66%'; });
         setTimeout(function(){
           sc.classList.remove('rolling'); sl.classList.remove('show');
-          say("En selle&nbsp;! J'enfourche mon scooter et <b>j'arrive chez vous</b> 🛵", '', '');
+          say("Normand devenu parisien, je me déplace dans <b>tout Paris et l'Île-de-France</b> 🛵");
         }, 1500);
     }},
-    { dur:5200, run:function(){
+    { dur:5600, set:'hall', run:function(){
         hideScooter();
-        var hall = document.getElementById('hall');
-        hall.classList.toggle('pro', aud === 'pro');
-        hall.classList.add('show');
+        document.getElementById('hall').classList.add('show');
         jumpTo(hero, 8);
-        moveTo(60,'right',function(){
-          setPose('knock');
-          say(greetLine(), '', '');
-        });
+        moveTo(60,'right',function(){ setPose('knock'); say(greetLine()); });
     }},
-    { dur:6400, run:function(){
-        document.getElementById('choice').classList.remove('show');
+    { dur:7000, set:'salon', run:function(){
         var salon = document.getElementById('salon');
-        var pro = (aud === 'pro');
-        salon.classList.remove('lit'); salon.classList.toggle('office', pro); salon.classList.add('show');
+        salon.classList.remove('lit'); salon.classList.add('show');
         jumpTo(hero, 6);
-        moveTo(pro ? 50 : 52,'right',function(){
-          setPose(pro ? 'work' : 'plug');
-          say(tailored(), '', '');
-          if(!pro){ setTimeout(function(){ salon.classList.add('lit'); }, 1600); }
+        moveTo(52,'right',function(){
+          setPose('plug');
+          say("Chez vous, sur <b>votre</b> matériel&nbsp;: c'est bien plus simple d'apprendre sur ses vrais appareils.");
+          setTimeout(function(){ salon.classList.add('lit'); }, 1600);
         });
     }},
-    { dur:5400, run:function(){
-        hideProps();
-        moveTo(40,'right',function(){
-          setPose('cheer');
-          document.getElementById('stars').classList.add('show');
-          say("Des <b>milliers de sourires</b> retrouvés. Note moyenne ★★★★★.", '46%','30%');
-        });
-    }},
-    { dur:5600, run:function(){
-        hideProps();
-        document.getElementById('stars').classList.remove('show');
-        moveTo(34,'right',function(){
-          setPose('point');
-          document.getElementById('sms').classList.add('show');
-          say("Et après, on garde le lien&nbsp;: un petit SMS et je reviens 📱", '', '');
-        });
-    }},
-    { dur:6800, proSkip:true, run:function(){
-        document.getElementById('stars').classList.remove('show');
-        document.getElementById('offer').classList.remove('show');
+    { dur:7200, set:'cozy', run:function(){
         var cozy = document.getElementById('cozy'); cozy.classList.add('show');
         document.getElementById('cozy-front').classList.add('show');
         jumpTo(hero, 6); hero.style.bottom = '13%';
         moveTo(44,'right',function(){
           setPose('seat');
           document.getElementById('granny').classList.add('talkg');
-          say("Une heure, un vrai humain à vos côtés.", '', '');
+          say("Une heure, sans pression&nbsp;: mails, photos, visio avec les petits-enfants. <b>Zéro jargon</b>, promis.");
+        });
+    }},
+    { dur:6800, set:'cozy', run:function(){
+        var cozy = document.getElementById('cozy'); cozy.classList.add('show');
+        document.getElementById('cozy-front').classList.add('show');
+        hero.style.bottom = '13%';
+        setPose('seat');
+        document.getElementById('granny').classList.add('talkg');
+        say("On refait ensemble, autant de fois qu'il le faut — jusqu'à ce que ce soit <b>vous</b> qui pilotiez.");
+    }},
+    { dur:5800, run:function(){
+        hideProps();
+        moveTo(40,'right',function(){
+          setPose('cheer');
+          document.getElementById('stars').classList.add('show');
+          say("Plus de <b>200 personnes accompagnées</b>. Note moyenne ★★★★★.");
+        });
+    }},
+    { dur:5800, set:'sms', run:function(){
+        document.getElementById('stars').classList.remove('show');
+        moveTo(34,'right',function(){
+          setPose('point');
+          document.getElementById('sms').classList.add('show');
+          say("Et je reste joignable&nbsp;: un petit SMS et je repasse 📱");
         });
     }},
     { final:true, run:function(){
-        document.getElementById('offer').classList.remove('show');
         hideProps();
+        document.getElementById('stars').classList.remove('show');
         moveTo(30,'right',function(){
           setPose('cheer');
-          say("On se lance&nbsp;? Je vous accompagne dès maintenant&nbsp;! 🚀", '42%','14%');
+          say("On fait connaissance&nbsp;? Le premier pas, je vous le rends facile 🚀");
           document.getElementById('finale').classList.add('show');
         });
     }}
@@ -1154,7 +1195,27 @@
   scenes.forEach(function(){ var d=document.createElement('i'); progress.appendChild(d); });
   var dots = progress.querySelectorAll('i');
 
-  var idx = -1, timer = null;
+  var idx = -1, timer = null, pendingAdvance = null;
+
+  // ===== Anneau de progression du message =====
+  var ringEl = document.getElementById('ring');
+  var ringFg = ringEl.querySelector('.fg');
+  var ringNum = ringEl.querySelector('b');
+  var ringRaf = 0, RING_LEN = 2 * Math.PI * 21;
+  ringFg.setAttribute('stroke-dasharray', RING_LEN.toFixed(1));
+  function stopRing(){ cancelAnimationFrame(ringRaf); ringRaf = 0; ringEl.classList.remove('show'); }
+  function startRing(total){
+    cancelAnimationFrame(ringRaf);
+    if(!total || total < 300){ stopRing(); return; }
+    var t0 = performance.now();
+    ringEl.classList.add('show');
+    (function step(now){
+      var p = Math.min(1, (now - t0) / total);
+      ringFg.setAttribute('stroke-dashoffset', (RING_LEN * p).toFixed(1));
+      ringNum.textContent = Math.max(0, Math.ceil((total - (now - t0)) / 1000));
+      if(p < 1){ ringRaf = requestAnimationFrame(step); } else { ringEl.classList.remove('show'); }
+    })(t0);
+  }
   function go(i){
     if(i >= scenes.length) return;
     clearTimeout(timer);
@@ -1162,19 +1223,21 @@
     dots.forEach(function(d,k){ d.classList.toggle('on', k===i); d.classList.toggle('done', k<i); });
     var _ll = document.getElementById('lvl-label'); if(_ll){ _ll.textContent = 'NIV ' + (i+1) + '/' + scenes.length; }
     var sc = scenes[i];
-    if(sc.proSkip && aud === 'pro'){ return go(i+1); }
     hideBubble();
-    if(!sc.choice){ document.getElementById('choice').classList.remove('show'); }
-    if(i !== 4){ hideScooter(); }
-    if(i !== 5){ hideHall(); }
-    if(i !== 6){ hideSalon(); }
-    if(i !== 8){ document.getElementById('sms').classList.remove('show'); }
-    if(i !== 9){ hideCozy(); }
+    stopRing();
+    var set = sc.set || '';
+    if(set !== 'scooter'){ hideScooter(); }
+    if(set !== 'hall'){ hideHall(); }
+    if(set !== 'salon'){ hideSalon(); }
+    if(set !== 'sms'){ document.getElementById('sms').classList.remove('show'); }
+    if(set !== 'cozy'){ hideCozy(); }
     // petit délai pour laisser la bulle disparaître avant la marche
     setTimeout(function(){
+      pendingAdvance = sc.final ? null : (i+1);
       sc.run();
-      if(!sc.choice && !sc.final){
-        timer = setTimeout(function(){ go(i+1); }, sc.dur);
+      if(!sc.final){
+        // filet de sécurité si aucune bulle n'est affichée
+        timer = setTimeout(function(){ if(pendingAdvance !== null){ var n=pendingAdvance; pendingAdvance=null; go(n); } }, (sc.dur || 6000) + 9000);
       }
       if(sc.final){ replay.style.display='block'; skip.style.display='none'; playbtn.style.display='inline-flex'; }
     }, 180);
@@ -1198,6 +1261,8 @@
   function armIdle(){
     clearTimeout(idleTimer);
     if(idleShown) return;
+    // pendant la lecture automatique, on ne coupe jamais la vidéo
+    if(!(scenes[idx] && scenes[idx].final)) return;
     idleTimer = setTimeout(function(){
       idleShown = true;
       clearTimeout(timer);
