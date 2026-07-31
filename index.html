@@ -809,7 +809,7 @@
   .mcd-link:hover { background:rgba(255,255,255,.34); color:#FFFFFF; }
   #mcd-bottom { display:none; }
   #top-logo { z-index:1 !important; top:clamp(58px,6.5vw,92px) !important; }
-  #logo-px { display:block; margin:0 auto; width:clamp(300px,40vw,660px); height:auto;
+  #logo-px { display:block; margin:0 auto; width:clamp(280px,36vw,590px); height:auto;
     filter:drop-shadow(0 6px 16px rgba(30,12,0,.28)); }
 
   @media (max-width: 1150px) {
@@ -890,7 +890,7 @@
       for(var rr=0;rr<rows;rr++){ for(var cc=0;cc<cols;cc++){
         var id=grid[rr*cols+cc]; if(id<0) continue;
         var edge=0;
-        for(var ny=-1;ny<=1 && !edge;ny++){ for(var nx=-1;nx<=1;nx++){
+        for(var ny=-2;ny<=2 && !edge;ny++){ for(var nx=-2;nx<=2;nx++){
           if(!nx && !ny) continue;
           var r2=rr+ny, c2=cc+nx;
           if(r2<0||c2<0||r2>=rows||c2>=cols||grid[r2*cols+c2]<0){ edge=1; break; }
@@ -901,7 +901,7 @@
       base=document.createElement('canvas'); base.width=W; base.height=H;
       var bc=base.getContext('2d'), img=bc.createImageData(W,H), buf=img.data;
       for(var i2=0;i2<N;i2++){
-        var rgb = EDGE[i2] ? ORANGE : WHITE;
+        var rgb = WHITE;
         for(var dy=0;dy<DOT;dy++){
           var yy=CY[i2]+dy; if(yy>=H) break;
           var p=(yy*W+CX[i2])*4;
@@ -931,8 +931,7 @@
             var i=grid[r*cols+c]; if(i<0) continue;
             var x=CX[i], y=CY[i], dx=x-m.x, dy=y-m.y, d=Math.sqrt(dx*dx+dy*dy), hot=false;
             if(d<R && d>0.001){ var f=1-d/R, k=PUSH*f*f; x+=(dx/d)*k; y+=(dy/d)*k; hot=true; }
-            var isEdge = EDGE[i];
-            ctx.fillStyle = (hot ? !isEdge : isEdge) ? ORANGE_CSS : WHITE_CSS;
+            ctx.fillStyle = hot ? ORANGE_CSS : WHITE_CSS;
             ctx.fillRect(x,y,DOT,DOT);
           }}
         }
