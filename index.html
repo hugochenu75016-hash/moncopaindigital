@@ -192,11 +192,11 @@
     cursor: pointer;
     font-family: 'Fredoka', 'Helvetica Neue', sans-serif;
     font-weight: 700;
-    font-size: clamp(20px, 2.2vw, 30px);
+    font-size: clamp(24px, 2.7vw, 37px);
     letter-spacing: 0.16em;
     text-transform: uppercase;
     color: #fff8ef;
-    padding: 16px 60px;
+    padding: 19px 72px;
     border-radius: 999px;
     border: 2.5px solid transparent;
     background: transparent;
@@ -432,8 +432,8 @@
 
     /* Bouton ENTRER / Explorer plus compact */
     .enter-btn {
-      font-size: 18px !important;
-      padding: 12px 40px !important;
+      font-size: 22px !important;
+      padding: 14px 48px !important;
       letter-spacing: 0.12em !important;
     }
     #enter-wrap { bottom: clamp(18px, 4vh, 32px) !important; }
@@ -850,7 +850,6 @@
 </style>
 <div id="wrap">
   <canvas id="scene"></canvas>
-  <div id="stars"></div>
   <div id="title" style="display:none"></div>
   <a id="top-logo" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Mon Copain Digital" style="position:fixed; top:-8px; left:0; right:0; z-index:40; display:block; text-align:center;">
     <canvas id="logo-px" width="1100" height="390" role="img" aria-label="Mon Copain Digital"></canvas>
@@ -966,7 +965,7 @@
     <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
       <a class="mcd-link is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
       <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je ?</a>
-      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions<span class="mcd-badge">Nouveau</span><span class="mcd-pop"><i style="--dx:-16px;--dy:-14px"></i><i style="--dx:14px;--dy:-18px"></i><i style="--dx:20px;--dy:6px"></i><i style="--dx:-20px;--dy:4px"></i><i style="--dx:2px;--dy:-24px"></i><i style="--dx:8px;--dy:16px"></i></span></span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
+      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions</span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
       <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
       <div id="mcd-drop" class="mcd-glass">
         <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio<span class="mcd-badge-static">Nouveau</span></strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
@@ -1046,8 +1045,6 @@
     </a>
   </div>
 
-  <!-- Interrupteur Jour / Nuit -->
-  <button class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb"></span></button>
 </div>
 <script>
 function start() {
@@ -1345,81 +1342,165 @@ function start() {
       const m = new THREE.Mesh(boxGeo, mat); m.scale.set(w, h, d); m.position.y = y; return m;
     };
 
-    // --- Eiffel Tower (treillis détaillé, 3 étages) ---
+    // --- Tour Eiffel (profil exponentiel, treillis croisé, arcades, ascenseurs) ---
     (() => {
       const g = new THREE.Group();
-      const ironLite = new THREE.MeshStandardMaterial({ color: 0x7c6a50, roughness: 0.6, metalness: 0.3 });
-      const C = [[1, 1], [1, -1], [-1, -1], [-1, 1]];
+      const ironLite = new THREE.MeshStandardMaterial({ color: 0x8d795b, roughness: 0.58, metalness: 0.3 });
+      const ironDark = new THREE.MeshStandardMaterial({ color: 0x5d4c38, roughness: 0.62, metalness: 0.35 });
+      const glassMat = new THREE.MeshStandardMaterial({ color: 0xbcd8e8, roughness: 0.2, metalness: 0.15, transparent: true, opacity: 0.55 });
       const lerp = (a, b, f) => a + (b - a) * f;
-      const cpos = (i, half, y) => new THREE.Vector3(C[i][0] * half, y, C[i][1] * half);
+      const V = (x, y, z) => new THREE.Vector3(x, y, z);
+      const S = [[1, 1], [1, -1], [-1, -1], [-1, 1]];
       const beam = (a, b, t, mat) => {
         const m = new THREE.Mesh(boxGeo, mat || ironMat);
         m.scale.set(t, a.distanceTo(b), t);
         m.position.copy(a).add(b).multiplyScalar(0.5);
         m.quaternion.setFromUnitVectors(UP, b.clone().sub(a).normalize());
-        g.add(m);
+        g.add(m); return m;
       };
-      const lattice = (yb, hb, yt, ht, bays, t) => {
-        for (let i = 0; i < 4; i++) beam(cpos(i, hb, yb), cpos(i, ht, yt), t);
-        for (let k = 0; k <= bays; k++) {
-          const f = k / bays, y = lerp(yb, yt, f), half = lerp(hb, ht, f);
-          for (let i = 0; i < 4; i++) beam(cpos(i, half, y), cpos((i + 1) % 4, half, y), t * 0.7);
-        }
+
+      // ----- géométrie maîtresse -----
+      const Y1 = 1.52, Y2 = 3.10, Y3 = 5.05, YTOP = 5.50;
+      const HB = 1.24, H1 = 0.55, H2 = 0.305, H3 = 0.112;
+      // profil réel : forte inclinaison au sol, tangente verticale en haut de chaque tronçon
+      const halfAt = (y) => {
+        if (y <= Y1) return H1 + (HB - H1) * Math.pow(1 - y / Y1, 2.15);
+        if (y <= Y2) return H2 + (H1 - H2) * Math.pow(1 - (y - Y1) / (Y2 - Y1), 1.75);
+        const f = Math.min(1, (y - Y2) / (Y3 - Y2));
+        return H3 + (H2 - H3) * Math.pow(1 - f, 1.35);
+      };
+      const corner = (i, y) => { const hh = halfAt(y); return V(S[i][0] * hh, y, S[i][1] * hh); };
+
+      // caisson treillis à croix de Saint-André
+      const trellis = (pts, bays, t, mat) => {
+        const lv = [];
+        for (let k = 0; k <= bays; k++) lv.push(pts(k / bays));
         for (let k = 0; k < bays; k++) {
-          const f0 = k / bays, f1 = (k + 1) / bays;
-          const y0 = lerp(yb, yt, f0), h0 = lerp(hb, ht, f0);
-          const y1 = lerp(yb, yt, f1), h1 = lerp(hb, ht, f1);
           for (let i = 0; i < 4; i++) {
-            const A = cpos(i, h0, y0), B = cpos((i + 1) % 4, h0, y0);
-            const Cc = cpos(i, h1, y1), D = cpos((i + 1) % 4, h1, y1);
-            beam(A, D, t * 0.55); beam(B, Cc, t * 0.55);
+            beam(lv[k][i], lv[k + 1][i], t, mat);
+            const a = lv[k][i], b = lv[k][(i + 1) % 4], c = lv[k + 1][i], d = lv[k + 1][(i + 1) % 4];
+            beam(a, b, t * 0.6, mat);
+            beam(a, d, t * 0.36, mat);
+            beam(b, c, t * 0.36, mat);
           }
         }
-      };
-      const plat = (y, half, th) => {
-        const m = new THREE.Mesh(boxGeo, ironLite);
-        m.scale.set(half * 2 + 0.26, th, half * 2 + 0.26); m.position.y = y; g.add(m);
-        const rail = new THREE.Mesh(boxGeo, ironMat);
-        rail.scale.set(half * 2 + 0.30, 0.05, half * 2 + 0.30); rail.position.y = y + th * 0.5 + 0.05; g.add(rail);
+        for (let i = 0; i < 4; i++) beam(lv[bays][i], lv[bays][(i + 1) % 4], t * 0.6, mat);
+        return lv;
       };
 
-      const yA = 0, hA = 1.25;
-      const y1 = 1.7, h1 = 0.6;
-      const y2 = 3.4, h2 = 0.32;
-      const y3 = 4.7, h3 = 0.16;
-      const yTop = 5.3;
-
-      for (let i = 0; i < 4; i++) {
-        beam(cpos(i, hA, yA), cpos(i, 0.9, 0.85), 0.07);
-        beam(cpos(i, 0.9, 0.85), cpos(i, h1, y1), 0.06);
+      // ----- 4 pieds évasés -----
+      const legSide = (f) => lerp(0.30, 0.135, Math.pow(f, 0.8));
+      const legPts = (L) => (f) => {
+        const y = lerp(0.02, Y1, f), c = corner(L, y), s = legSide(f) * 0.5;
+        return S.map(o => V(c.x + o[0] * s, y, c.z + o[1] * s));
+      };
+      for (let L = 0; L < 4; L++) {
+        trellis(legPts(L), 9, 0.05);
+        // socle maçonné sous chaque pied
+        const base = new THREE.Mesh(boxGeo, ironDark);
+        const c0 = corner(L, 0.02);
+        base.scale.set(0.40, 0.10, 0.40); base.position.set(c0.x, 0.04, c0.z); g.add(base);
+        const plinth = new THREE.Mesh(boxGeo, ironLite);
+        plinth.scale.set(0.50, 0.05, 0.50); plinth.position.set(c0.x, 0.005, c0.z); g.add(plinth);
+        // rail d'ascenseur incliné dans le pied
+        for (let k = 0; k < 9; k++) {
+          const f0 = k / 9, f1 = (k + 1) / 9;
+          const y0 = lerp(0.06, Y1 - 0.05, f0), y1r = lerp(0.06, Y1 - 0.05, f1);
+          const a0 = corner(L, y0), a1 = corner(L, y1r);
+          const inw = 0.055;
+          beam(V(a0.x - Math.sign(a0.x) * inw, y0, a0.z - Math.sign(a0.z) * inw),
+               V(a1.x - Math.sign(a1.x) * inw, y1r, a1.z - Math.sign(a1.z) * inw), 0.024, ironDark);
+        }
       }
-      [-1, 1].forEach(sz => {
-        const arc = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.05, 6, 20, Math.PI), ironMat);
-        arc.position.set(0, 0.78, sz * 0.98); g.add(arc);
+
+      // ----- arcades entre les pieds (double arc + remplissage rayonnant) -----
+      const AY = 0.60, archR = halfAt(AY) * 0.99, off = halfAt(AY);
+      const faces = [[0, 1], [0, -1], [1, 1], [1, -1]];
+      faces.forEach(([ax, s]) => {
+        const rot = ax ? Math.PI / 2 : 0;
+        const pos = ax ? V(s * off, AY, 0) : V(0, AY, s * off);
+        [[archR, 0.045, ironLite], [archR - 0.15, 0.026, ironMat]].forEach(([r, tb, m]) => {
+          const arc = new THREE.Mesh(new THREE.TorusGeometry(r, tb, 8, 28, Math.PI), m);
+          arc.rotation.y = rot; arc.position.copy(pos); g.add(arc);
+        });
+        for (let k = -5; k <= 5; k++) {
+          const a = (k / 5) * (Math.PI / 2) * 0.86 + Math.PI / 2;
+          const p1 = V(Math.cos(a) * (archR - 0.15), Math.sin(a) * (archR - 0.15), 0);
+          const p2 = V(Math.cos(a) * archR, Math.sin(a) * archR, 0);
+          const map = (p) => ax ? V(s * off, AY + p.y, p.x) : V(p.x, AY + p.y, s * off);
+          beam(map(p1), map(p2), 0.02, ironMat);
+        }
+        // guirlande de festons sous l'arc intérieur
+        for (let k = -4; k <= 4; k++) {
+          const a = (k / 4) * (Math.PI / 2) * 0.8 + Math.PI / 2;
+          const px = Math.cos(a) * (archR - 0.17), py = Math.sin(a) * (archR - 0.17);
+          const map = (X, Y) => ax ? V(s * off, AY + Y, X) : V(X, AY + Y, s * off);
+          if (py > 0.10) beam(map(px, py), map(px, py - 0.10), 0.014, ironMat);
+        }
       });
-      [-1, 1].forEach(sx => {
-        const arc = new THREE.Mesh(new THREE.TorusGeometry(0.8, 0.05, 6, 20, Math.PI), ironMat);
-        arc.rotation.y = Math.PI / 2; arc.position.set(sx * 0.98, 0.78, 0); g.add(arc);
+
+      // poutre-ceinture sous le 1er étage
+      [[0, 1], [0, -1], [1, 1], [1, -1]].forEach(([ax, s]) => {
+        const gir = new THREE.Mesh(boxGeo, ironDark);
+        const w = (H1 + 0.24) * 2;
+        gir.scale.set(ax ? 0.09 : w, 0.13, ax ? w : 0.09);
+        gir.position.set(ax ? s * (H1 + 0.10) : 0, Y1 - 0.14, ax ? 0 : s * (H1 + 0.10));
+        g.add(gir);
       });
-      plat(y1, h1, 0.16);
 
-      lattice(y1, h1, y2, h2, 4, 0.05);
-      plat(y2, h2, 0.12);
+      // ----- plateformes -----
+      const plat = (y, half, th, ov, rail) => {
+        const slab = new THREE.Mesh(boxGeo, ironLite);
+        slab.scale.set(half * 2 + ov, th, half * 2 + ov); slab.position.y = y; g.add(slab);
+        const r1 = new THREE.Mesh(boxGeo, ironMat);
+        r1.scale.set(half * 2 + ov + 0.05, rail, half * 2 + ov + 0.05);
+        r1.position.y = y + th * 0.5 + rail * 0.5; g.add(r1);
+        const r2 = new THREE.Mesh(boxGeo, ironLite);
+        r2.scale.set(half * 2 + ov - 0.06, rail * 0.35, half * 2 + ov - 0.06);
+        r2.position.y = y + th * 0.5 + rail * 0.5; g.add(r2);
+      };
+      plat(Y1, H1, 0.12, 0.30, 0.13);
+      plat(Y2, H2, 0.09, 0.20, 0.10);
+      plat(Y3, H3, 0.06, 0.12, 0.07);
 
-      lattice(y2, h2, y3, h3, 4, 0.038);
-      plat(y3, h3, 0.09);
+      // pavillons du 1er étage + salon vitré du 2e
+      [[-1, 0], [1, 0]].forEach(([sx, sz]) => {
+        const pav = new THREE.Mesh(boxGeo, ironLite);
+        pav.scale.set(0.34, 0.20, 0.62); pav.position.set(sx * (H1 + 0.05), Y1 + 0.16, sz); g.add(pav);
+        const win = new THREE.Mesh(boxGeo, glassMat);
+        win.scale.set(0.36, 0.10, 0.52); win.position.set(sx * (H1 + 0.05), Y1 + 0.17, sz); g.add(win);
+      });
+      const salon = new THREE.Mesh(boxGeo, glassMat);
+      salon.scale.set(H2 * 2 + 0.16, 0.13, H2 * 2 + 0.16); salon.position.y = Y2 + 0.12; g.add(salon);
+      const salonTop = new THREE.Mesh(boxGeo, ironLite);
+      salonTop.scale.set(H2 * 2 + 0.22, 0.03, H2 * 2 + 0.22); salonTop.position.y = Y2 + 0.19; g.add(salonTop);
 
-      const camp = new THREE.Mesh(new THREE.CylinderGeometry(0.1, h3 * 0.95, yTop - y3, 4), ironLite);
-      camp.position.y = (y3 + yTop) / 2; camp.rotation.y = Math.PI / 4; g.add(camp);
-      const cupola = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), ironLite);
-      cupola.position.y = yTop; g.add(cupola);
-      const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.04, 1.0, 8), ironMat);
-      ant.position.y = yTop + 0.5; g.add(ant);
-      const tip = new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 6), ironMat);
-      tip.position.y = yTop + 1.0; g.add(tip);
+      // ----- fûts -----
+      trellis((f) => { const y = lerp(Y1, Y2, f); return [0, 1, 2, 3].map(i => corner(i, y)); }, 8, 0.042);
+      trellis((f) => { const y = lerp(Y2, Y3, f); return [0, 1, 2, 3].map(i => corner(i, y)); }, 13, 0.028);
+
+      // ----- campanile, dôme, antenne -----
+      const camp = new THREE.Mesh(new THREE.CylinderGeometry(H3 * 0.78, H3 * 1.06, YTOP - Y3, 4), ironLite);
+      camp.position.y = (Y3 + YTOP) / 2; camp.rotation.y = Math.PI / 4; g.add(camp);
+      const campWin = new THREE.Mesh(new THREE.CylinderGeometry(H3 * 0.80, H3 * 0.95, (YTOP - Y3) * 0.55, 4), glassMat);
+      campWin.position.y = (Y3 + YTOP) / 2; campWin.rotation.y = Math.PI / 4; g.add(campWin);
+      const cornice = new THREE.Mesh(boxGeo, ironMat);
+      cornice.scale.set(H3 * 2.3, 0.03, H3 * 2.3); cornice.position.y = YTOP - 0.02; g.add(cornice);
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.115, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), ironLite);
+      dome.position.y = YTOP; g.add(dome);
+      const lantern = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.042, 0.09, 8), ironLite);
+      lantern.position.y = YTOP + 0.14; g.add(lantern);
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.030, 0.92, 8), ironMat);
+      mast.position.y = YTOP + 0.62; g.add(mast);
+      [0.26, 0.50, 0.74].forEach((o, n) => {
+        const r = new THREE.Mesh(new THREE.TorusGeometry(0.030 - n * 0.007, 0.0075, 6, 14), ironMat);
+        r.rotation.x = Math.PI / 2; r.position.y = YTOP + o; g.add(r);
+      });
+      const tip = new THREE.Mesh(new THREE.SphereGeometry(0.020, 10, 8), ironMat);
+      tip.position.y = YTOP + 1.10; g.add(tip);
 
       g.scale.setScalar(1.0);
-      dropGroup(g, 44, -28, 0.4);
+      dropGroup(g, 44, 152, 0.6);
     })();
 
     // --- Basketball court ---
@@ -1461,7 +1542,7 @@ function start() {
         rim.rotation.x = Math.PI / 2; rim.position.set(sd * 1.2, 0.46, 0); g.add(rim);
       });
       g.scale.setScalar(0.62);
-      placeFacing(g, 41, -41, Math.PI);
+      placeFacing(g, 41, 139, Math.PI);
       g.position.addScaledVector(g.position.clone().normalize(), 0.12);
     })();
 
@@ -1586,7 +1667,7 @@ function start() {
       g.add(mkBox(W - 0.25, 0.34, D - 0.2, H + 0.17, creamMat));
       g.add(mkBox(W + 0.38, 0.26, D + 0.34, 0.13, stoneMats[3]));
       g.scale.setScalar(0.9);
-      dropGroup(g, 44, 152, 0.6);
+      dropGroup(g, 44, -28, 0.4);
     })();
 
     // --- Notre-Dame ---
@@ -1833,90 +1914,138 @@ function start() {
         // ===== Chaise sous le personnage (révélée au moment de l'assise) =====
         (function buildSeat(){
           const seatGrp = new THREE.Group();
-          // Bois de noyer ancien (foncé, patiné) + laiton pour les fleurons
-          const wood = new THREE.MeshStandardMaterial({ color: 0x4a2b13, roughness: 0.55, metalness: 0.05 });
-          const woodD = new THREE.MeshStandardMaterial({ color: 0x351d0c, roughness: 0.6, metalness: 0.05 });
-          const brass = new THREE.MeshStandardMaterial({ color: 0x9c7a33, roughness: 0.35, metalness: 0.7 });
+          // ===== Mobilier moderne minimaliste : chêne clair + piètement acier noir =====
+          const oakLight = new THREE.MeshStandardMaterial({ color: 0xd8c1a0, roughness: 0.62, metalness: 0.03 });
+          const oakEdge  = new THREE.MeshStandardMaterial({ color: 0xc9ae8a, roughness: 0.66, metalness: 0.03 });
+          const steel    = new THREE.MeshStandardMaterial({ color: 0x1b1d21, roughness: 0.38, metalness: 0.75 });
+          const shellMat = new THREE.MeshStandardMaterial({ color: 0xe8762a, roughness: 0.62, metalness: 0.05 });
+          const padMat   = new THREE.MeshStandardMaterial({ color: 0xc25a15, roughness: 0.9, metalness: 0.02 });
           const add = (mesh, x, y, z) => { mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true; mesh.layers.enable(CHAIR_LAYER); seatGrp.add(mesh); return mesh; };
-          const box = (w, h, d, x, y, z, m) => add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m || wood), x, y, z);
-          // pied/barreau tourné (cylindre + renflement)
-          const turned = (h, r, x, y, z, m) => {
-            const g = new THREE.Group();
-            const col = new THREE.Mesh(new THREE.CylinderGeometry(r * 0.72, r, h, 12), m || wood); col.position.y = h / 2;
-            const bulb = new THREE.Mesh(new THREE.SphereGeometry(r * 1.35, 12, 10), m || wood); bulb.position.y = h * 0.34; bulb.scale.y = 0.7;
-            g.add(col); g.add(bulb);
-            g.traverse(o => { if (o.isMesh){ o.castShadow = true; o.receiveShadow = true; o.layers.enable(CHAIR_LAYER); } });
-            g.position.set(x, y, z); seatGrp.add(g); return g;
+          const box = (w, hh, d, x, y, z, m) => add(new THREE.Mesh(new THREE.BoxGeometry(w, hh, d), m || oakLight), x, y, z);
+          const cyl = (rt, rb, hh, x, y, z, m, seg) => add(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, hh, seg || 20), m || steel), x, y, z);
+          // pied fuselé incliné (acier noir)
+          const legTo = (x0, z0, x1, z1, y0, y1, r0, r1, m) => {
+            const a = new THREE.Vector3(x0, y0, z0), b = new THREE.Vector3(x1, y1, z1);
+            const dir = new THREE.Vector3().subVectors(b, a), len = dir.length();
+            const g = new THREE.Mesh(new THREE.CylinderGeometry(r0, r1, len, 14), m || steel);
+            g.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+            return add(g, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
           };
-          // dimensions en unités "personnage" (hauteur perso ≈ 1)
-          const SH = 0.26;        // hauteur d'assise
-          const SW = 0.5, SD = 0.48, TT = 0.05, backH = 0.42;
-          const lx = SW/2 - 0.06, lz = SD/2 - 0.06;
-          // assise + tablier (skirt) mouluré
-          box(SW, TT, SD, 0, SH, 0);
-          box(SW - 0.02, 0.05, 0.03, 0, SH - 0.05, SD/2 - 0.02);        // tablier avant
-          box(0.03, 0.05, SD - 0.04, SW/2 - 0.02, SH - 0.05, 0);        // tablier droit
-          box(0.03, 0.05, SD - 0.04, -SW/2 + 0.02, SH - 0.05, 0);       // tablier gauche
-          // pieds avant tournés + traverse (rallongés vers le bas pour toucher le sol)
-          const cDrop = 0.32;
-          turned(SH + cDrop, 0.035, -lx, -cDrop, lz, wood);
-          turned(SH + cDrop, 0.035, lx, -cDrop, lz, wood);
-          box(SW - 0.05, 0.03, 0.03, 0, SH * 0.28, lz);                 // entretoise avant
-          // montants arrière = pieds prolongés jusqu'au dossier (turned)
-          turned(SH + backH + cDrop, 0.04, -lx, -cDrop, -lz, woodD);
-          turned(SH + backH + cDrop, 0.04, lx, -cDrop, -lz, woodD);
-          // fleurons laiton au sommet des montants
-          add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), brass), -lx, SH + backH, -lz);
-          add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 10), brass), lx, SH + backH, -lz);
-          // fronton galbé (haut) + traverse basse
-          const crest = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, SW, 12), wood);
-          crest.rotation.z = Math.PI / 2; add(crest, 0, SH + backH - 0.03, -lz);
-          box(SW - 0.06, 0.035, 0.03, 0, SH + backH * 0.35, -lz);       // traverse basse dossier
-          // 3 barreaux tournés verticaux dans le dossier
-          [-0.13, 0, 0.13].forEach(bx => turned(backH * 0.62, 0.022, bx, SH + backH * 0.37, -lz, wood));
 
-          // ===== Bureau + écran + webcam, devant lui (révélé avec la chaise) =====
-          const DZ = 0.62;                 // distance du bureau devant l'assise
-          const DTOP = 0.44;               // hauteur du plateau
-          const metal = new THREE.MeshStandardMaterial({ color: 0x2a2d33, roughness: 0.5, metalness: 0.4 });
-          const screenFrame = new THREE.MeshStandardMaterial({ color: 0x17191d, roughness: 0.5, metalness: 0.2 });
-          const screenGlass = new THREE.MeshStandardMaterial({ color: 0x0a1730, roughness: 0.25, metalness: 0.1, emissive: new THREE.Color(0x3f86ff), emissiveIntensity: 1.4, side: THREE.DoubleSide });
+          // ---------- CHAISE : coque moulée claire sur piètement acier ----------
+          const SH = 0.27;                       // hauteur d'assise
+          const cDrop = 0.32;                    // prolongement sous le sol courbe
+          // assise : coque arrondie légèrement creusée
+          const seatPan = cyl(0.235, 0.215, 0.045, 0, SH, 0, shellMat, 32);
+          seatPan.scale.set(1.06, 1, 0.98);
+          const seatLip = cyl(0.245, 0.235, 0.014, 0, SH + 0.024, 0, shellMat, 32);
+          seatLip.scale.set(1.06, 1, 0.98);
+          // coussin fin
+          const pad = cyl(0.205, 0.195, 0.022, 0, SH + 0.038, 0.005, padMat, 32);
+          pad.scale.set(1.05, 1, 0.96);
+          // dossier : panneau cintré (arc de cylindre ouvert)
+          const backGeo = new THREE.CylinderGeometry(0.27, 0.27, 0.30, 28, 1, true, Math.PI * 0.70, Math.PI * 0.60);
+          const back = new THREE.Mesh(backGeo, shellMat); back.material.side = THREE.DoubleSide;
+          add(back, 0, SH + 0.30, -0.02);
+          // 2 montants acier reliant l'assise au dossier
+          legTo(-0.16, -0.14, -0.20, -0.16, SH + 0.01, SH + 0.30, 0.014, 0.012);
+          legTo( 0.16, -0.14,  0.20, -0.16, SH + 0.01, SH + 0.30, 0.014, 0.012);
+          // 4 pieds fuselés légèrement évasés + embouts
+          [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+            legTo(sx * 0.14, sz * 0.14, sx * 0.20, sz * 0.19, SH - 0.02, -cDrop, 0.019, 0.011);
+          });
+          // traverses fines entre pieds (avant/arrière)
+          box(0.34, 0.014, 0.014, 0, SH * 0.42, 0.165, steel);
+          box(0.34, 0.014, 0.014, 0, SH * 0.42, -0.165, steel);
+
+          // ===== BUREAU : plateau chêne clair, piètement acier noir en U =====
+          const DZ = 0.64;                 // distance du bureau devant l'assise
+          const DTOP = 0.45;               // hauteur du plateau
+          const DW = 0.96, DD = 0.48, legDrop = 0.4;
+          box(DW, 0.032, DD, 0, DTOP, DZ, oakLight);                       // plateau
+          box(DW + 0.006, 0.010, DD + 0.006, 0, DTOP - 0.019, DZ, oakEdge); // chant
+          // deux piètements en U (tube plat acier)
+          [-1, 1].forEach(s => {
+            const px = s * (DW / 2 - 0.07);
+            box(0.022, DTOP + legDrop, 0.026, px, (DTOP - legDrop) / 2 - 0.02, DZ - 0.16, steel);
+            box(0.022, DTOP + legDrop, 0.026, px, (DTOP - legDrop) / 2 - 0.02, DZ + 0.16, steel);
+            box(0.026, 0.022, 0.40, px, DTOP - 0.05, DZ, steel);            // traverse haute
+          });
+          box(DW - 0.20, 0.020, 0.022, 0, DTOP - 0.11, DZ + 0.15, steel);   // barre arrière
+          box(DW - 0.34, 0.014, 0.10, 0, DTOP - 0.09, DZ + 0.19, steel);    // passe-câbles
+
+          // ===== ÉCRAN : dalle fine, cadre noir, pied plat =====
+          const screenFrame = new THREE.MeshStandardMaterial({ color: 0x141619, roughness: 0.45, metalness: 0.35 });
+          const screenGlass = new THREE.MeshStandardMaterial({ color: 0x0a1730, roughness: 0.22, metalness: 0.1, emissive: new THREE.Color(0x3f86ff), emissiveIntensity: 1.4, side: THREE.DoubleSide });
           const lensMat = new THREE.MeshStandardMaterial({ color: 0x0b0d10, roughness: 0.2, metalness: 0.6 });
-          // plateau + tablier
-          box(0.78, 0.04, 0.42, 0, DTOP, DZ, woodD);
-          box(0.74, 0.05, 0.03, 0, DTOP - 0.05, DZ + 0.19, wood);
-          // 4 pieds tournés (rallongés vers le bas pour toucher la planète courbe)
-          const legDrop = 0.4, legH = DTOP + legDrop;
-          [[-0.34, DZ - 0.18], [0.34, DZ - 0.18], [-0.34, DZ + 0.18], [0.34, DZ + 0.18]]
-            .forEach(p => turned(legH, 0.03, p[0], -legDrop, p[1], woodD));
-          // écran : pied + bras + dalle (face vers lui, côté -z)
-          box(0.14, 0.02, 0.10, 0, DTOP + 0.02, DZ + 0.02, metal);         // socle
-          box(0.03, 0.16, 0.03, 0, DTOP + 0.10, DZ + 0.04, metal);         // colonne
-          box(0.46, 0.28, 0.03, 0, DTOP + 0.26, DZ - 0.02, screenFrame);   // cadre
-          add(new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.24), screenGlass), 0, DTOP + 0.26, DZ - 0.036); // dalle allumée face au personnage
-          // clavier + souris sur le plateau (devant l'écran, côté perso)
-          const kbBase = new THREE.MeshStandardMaterial({ color: 0x1b1d22, roughness: 0.6, metalness: 0.2 });
-          const keyMat = new THREE.MeshStandardMaterial({ color: 0x2c2f36, roughness: 0.5, metalness: 0.15 });
-          const kb = box(0.34, 0.015, 0.12, 0, DTOP + 0.028, DZ - 0.18, kbBase);   // socle clavier
-          for (let r = 0; r < 3; r++){ for (let c = 0; c < 9; c++){
-            box(0.028, 0.008, 0.028, -0.16 + c * 0.038, DTOP + 0.04, DZ - 0.145 - r * 0.035, keyMat); // touches
-          }}
-          const mouse = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 10), kbBase);
-          mouse.scale.set(1, 0.5, 1.4); add(mouse, 0.26, DTOP + 0.035, DZ - 0.17);   // souris
-          // webcam sur le haut de l'écran
-          const cam = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.045, 0.045), screenFrame);
-          add(cam, 0, DTOP + 0.42, DZ - 0.02);
-          const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.02, 12), lensMat);
-          lens.rotation.x = Math.PI / 2; add(lens, 0, DTOP + 0.42, DZ - 0.045);
+          const base = cyl(0.105, 0.115, 0.012, 0, DTOP + 0.022, DZ + 0.05, screenFrame, 28);
+          base.scale.set(1.2, 1, 0.8);
+          box(0.030, 0.20, 0.020, 0, DTOP + 0.12, DZ + 0.05, screenFrame);        // colonne
+          box(0.52, 0.30, 0.014, 0, DTOP + 0.30, DZ + 0.028, screenFrame);        // coque arrière
+          box(0.53, 0.31, 0.006, 0, DTOP + 0.30, DZ + 0.018, screenFrame);        // cadre fin
+          add(new THREE.Mesh(new THREE.PlaneGeometry(0.505, 0.285), screenGlass), 0, DTOP + 0.305, DZ + 0.014);
+          box(0.53, 0.016, 0.008, 0, DTOP + 0.147, DZ + 0.018, screenFrame);      // menton
+
+          // ===== WEBCAM clipsée sur l'écran =====
+          box(0.085, 0.026, 0.028, 0, DTOP + 0.462, DZ + 0.024, screenFrame);
+          const lens = cyl(0.013, 0.013, 0.016, 0, DTOP + 0.462, DZ + 0.010, lensMat, 16);
+          lens.rotation.x = Math.PI / 2;
+          add(new THREE.Mesh(new THREE.SphereGeometry(0.005, 8, 6), new THREE.MeshStandardMaterial({ color: 0x2ad07a, emissive: 0x2ad07a, emissiveIntensity: 2 })), 0.032, DTOP + 0.462, DZ + 0.010);
+
+          // ===== CLAVIER bas profil + SOURIS =====
+          const kbBody = new THREE.MeshStandardMaterial({ color: 0x22252a, roughness: 0.55, metalness: 0.25 });
+          const keyMat = new THREE.MeshStandardMaterial({ color: 0xeceae4, roughness: 0.65, metalness: 0.05 });
+          box(0.38, 0.012, 0.125, 0, DTOP + 0.022, DZ - 0.17, kbBody);
+          for (let r = 0; r < 4; r++){
+            for (let c = 0; c < 12; c++){
+              box(0.024, 0.007, 0.022, -0.163 + c * 0.0295, DTOP + 0.032, DZ - 0.215 + r * 0.028, keyMat);
+            }
+          }
+          box(0.115, 0.007, 0.022, 0.0, DTOP + 0.032, DZ - 0.103, keyMat);   // barre d'espace
+          const mouse = new THREE.Mesh(new THREE.SphereGeometry(0.032, 16, 12), kbBody);
+          mouse.scale.set(0.95, 0.42, 1.45); add(mouse, 0.28, DTOP + 0.028, DZ - 0.16);
+          box(0.006, 0.004, 0.018, 0.28, DTOP + 0.045, DZ - 0.185, keyMat);  // molette
+
+          // ===== TASSE DE CAFÉ =====
+          const mugMat = new THREE.MeshStandardMaterial({ color: 0xf3f0ea, roughness: 0.5, metalness: 0.03 });
+          cyl(0.036, 0.030, 0.062, -0.33, DTOP + 0.047, DZ - 0.10, mugMat, 20);
+          const handle = new THREE.Mesh(new THREE.TorusGeometry(0.022, 0.006, 8, 16), mugMat);
+          handle.rotation.y = Math.PI / 2; add(handle, -0.365, DTOP + 0.05, DZ - 0.10);
+          cyl(0.031, 0.031, 0.004, -0.33, DTOP + 0.076, DZ - 0.10, new THREE.MeshStandardMaterial({ color: 0x3a2415, roughness: 0.35 }), 20);
+
+          // ===== CARNET + STYLO =====
+          const noteMat = new THREE.MeshStandardMaterial({ color: 0x2c3138, roughness: 0.75, metalness: 0.03 });
+          const paperMat = new THREE.MeshStandardMaterial({ color: 0xf6f4ee, roughness: 0.85, metalness: 0 });
+          const note = box(0.15, 0.014, 0.20, 0.33, DTOP + 0.023, DZ + 0.02, noteMat); note.rotation.y = -0.22;
+          const paper = box(0.142, 0.004, 0.192, 0.334, DTOP + 0.032, DZ + 0.021, paperMat); paper.rotation.y = -0.22;
+          const pen = cyl(0.0045, 0.0045, 0.13, 0.335, DTOP + 0.040, DZ + 0.02, steel, 12);
+          pen.rotation.set(Math.PI / 2, 0, 0.42);
+
+          // ===== LAMPE D'ARCHITECTE (acier noir) =====
+          const lampX = 0.40, lampZ = DZ + 0.17;
+          cyl(0.055, 0.062, 0.014, lampX, DTOP + 0.023, lampZ, steel, 24);
+          legTo(lampX, lampZ, lampX - 0.02, lampZ - 0.10, DTOP + 0.03, DTOP + 0.30, 0.010, 0.009);
+          legTo(lampX - 0.02, lampZ - 0.10, lampX - 0.10, lampZ - 0.17, DTOP + 0.30, DTOP + 0.40, 0.009, 0.008);
+          add(new THREE.Mesh(new THREE.SphereGeometry(0.014, 10, 8), steel), lampX - 0.02, DTOP + 0.30, lampZ - 0.10);
+          const shade = new THREE.Mesh(new THREE.ConeGeometry(0.055, 0.075, 20, 1, true), steel);
+          shade.material.side = THREE.DoubleSide;
+          shade.rotation.set(0.9, 0, 0.6); add(shade, lampX - 0.115, DTOP + 0.385, lampZ - 0.19);
+          const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.017, 12, 10), new THREE.MeshStandardMaterial({ color: 0xfff0d0, emissive: 0xffd79a, emissiveIntensity: 1.6 }));
+          add(bulb, lampX - 0.128, DTOP + 0.355, lampZ - 0.205);
+          const lampLight = new THREE.PointLight(0xffd8a0, 6, 3.2, 1.6);
+          lampLight.position.set(lampX - 0.14, DTOP + 0.33, lampZ - 0.22);
+          lampLight.layers.set(CHAIR_LAYER);
+          seatGrp.add(lampLight);
 
           // Lumière bleue scintillante de l'écran, projetée sur lui
           const glow = new THREE.PointLight(0x3f7bff, 0, 26, 1.2);
-          glow.position.set(0, DTOP + 0.26, DZ - 0.12);   // devant la dalle, vers le perso
+          glow.position.set(0, DTOP + 0.30, DZ - 0.06);   // devant la dalle, vers le perso
           glow.layers.set(CHAIR_LAYER);                   // éclaire le personnage (layer 1)
           seatGrp.add(glow);
           (function flickerScreen(){
             requestAnimationFrame(flickerScreen);
-            if (!seatGrp.visible) { glow.intensity = 0; return; }
+            if (!seatGrp.visible) { glow.intensity = 0; lampLight.intensity = 0; return; }
+            lampLight.intensity = 6;
             const t = performance.now() / 1000;
             const f = 1 + 0.22 * Math.sin(t * 7.3) + 0.13 * Math.sin(t * 17.1) + 0.06 * Math.sin(t * 31.7);
             glow.intensity = 12 * f;                       // scintillement (reflets sur lui)
@@ -2377,51 +2506,17 @@ start();
 </script>
 <script>
 (function(){
-  var SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.5M12 19.5V22M4.5 4.5l1.8 1.8M17.7 17.7l1.8 1.8M2 12h2.5M19.5 12H22M4.5 19.5l1.8-1.8M17.7 6.3l1.8-1.8"/></svg>';
-  var MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a6.6 6.6 0 0 0 9.8 9.8z"/></svg>';
-  var thumb = document.getElementById('dn-thumb');
-  var box = document.getElementById('stars');
-  if (box) {
-    var h = '';
-    for (var i = 0; i < 64; i++) {
-      var x = (Math.random()*100).toFixed(2), y = (Math.random()*70).toFixed(2);
-      var big = Math.random() < 0.12;
-      var s = big ? (7 + Math.random()*6) : (1.4 + Math.random()*2.2);
-      var tw = (2.4 + Math.random()*3.6).toFixed(2), dl = (-Math.random()*4).toFixed(2);
-      h += '<span class="star' + (big ? ' big' : '') + '" style="left:' + x + '%;top:' + y + '%;width:' + s.toFixed(1) + 'px;height:' + s.toFixed(1) + 'px;--tw:' + tw + 's;animation-delay:' + dl + 's"></span>';
-    }
-    box.innerHTML = h;
-  }
-  window.applyNight = function(on, skipAnim){
-    document.documentElement.classList.toggle('night', on);
-    document.body.classList.toggle('night', on);
-    if (thumb) thumb.innerHTML = on ? MOON : SUN;
-    var sky = document.getElementById('liquid-sun');
-    if (sky) {
-      if (!skipAnim) { sky.classList.remove('to-day','to-night'); void sky.offsetWidth; sky.classList.add(on ? 'to-night' : 'to-day'); }
-      // La couronne de flammes n'apparaît que lorsque le soleil est fixe.
-      if (on) { sky.classList.remove('flames-on'); }
-      else if (skipAnim) { sky.classList.add('flames-on'); }
-      else { setTimeout(function(){ if (!document.body.classList.contains('night')) sky.classList.add('flames-on'); }, 1500); }
-    }
-    try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
-  };
-  window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
-  // au lancement : nuit entre 23h et 6h (le soleil se déclenche à 6h)
-  function isNightHour(){ var h = new Date().getHours(); return h >= 23 || h < 6; }
-  var lastAuto = isNightHour();
-  applyNight(lastAuto, true);
-  // Le #liquid-sun est ins\u00e9r\u00e9 plus bas dans le DOM : on attend qu'il existe pour poser la couronne.
+  // Mode jour uniquement (mode nuit retiré)
+  window.applyNight = function(){};
+  window.toggleNight = function(){};
+  document.documentElement.classList.remove('night');
+  document.body.classList.remove('night');
+  try { localStorage.setItem('mcd-theme', 'day'); } catch(e){}
   (function ensureFlames(){
     var s = document.getElementById('liquid-sun');
     if (!s) { return void requestAnimationFrame(ensureFlames); }
-    if (!document.body.classList.contains('night')) s.classList.add('flames-on');
+    s.classList.add('flames-on');
   })();
-  // bascule automatique en direct au passage de l'heure (23h -> lune, 7h -> soleil)
-  setInterval(function(){
-    var want = isNightHour();
-    if (want !== lastAuto) { lastAuto = want; applyNight(want); }
-  }, 20000);
 })();
 </script>
 <!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
@@ -2952,7 +3047,6 @@ start();
     { sel: '#enter-wrap',rot: 8,   dx: 0   },
     { sel: '#social-rail',rot: 12, dx: 46  },
     { sel: '#scroll-hint',rot: 6,  dx: 30  },
-    { sel: '.dn-toggle', rot: -12, dx: -46 },
     { sel: '#scene',     rot: 5,   dx: 0   }
   ];
   var items = specs.map(function(s){
