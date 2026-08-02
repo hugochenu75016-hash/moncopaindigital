@@ -917,9 +917,13 @@
     void ov.offsetWidth;
     ov.classList.add('opening');
   }
-  if(document.readyState==='complete'){ doOpen(); }
-  else { window.addEventListener('load', doOpen); }
-  setTimeout(doOpen, 12000);
+  function whenCharReady(){
+    if(window.__rmLoaded){ doOpen(); return; }
+    window.addEventListener('rm-loaded', doOpen, { once:true });
+  }
+  if(document.readyState==='complete'){ whenCharReady(); }
+  else { window.addEventListener('load', whenCharReady); }
+  setTimeout(doOpen, 25000);   // filet de sécurité
   window.addEventListener('pageshow', function(ev){
     if(ev.persisted){
       ov.classList.remove('closing');
@@ -1731,7 +1735,8 @@
 (function(){
   var wrap = document.getElementById('repairman');
   var cv = document.getElementById('rm-canvas');
-  if(!wrap || !cv || !window.THREE) return;
+  var announce = function(){ if(window.__rmLoaded) return; window.__rmLoaded = true; window.dispatchEvent(new Event('rm-loaded')); };
+  if(!wrap || !cv || !window.THREE){ announce(); return; }
   var W = wrap.clientWidth, H = wrap.clientHeight;
   var renderer = new THREE.WebGLRenderer({ canvas: cv, alpha: true, antialias: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
@@ -1747,7 +1752,7 @@
   var root = new THREE.Group(); scene.add(root);
   var mixer = null, clock = new THREE.Clock();
 
-  new THREE.GLTFLoader().load('Meshy_AI_Animation_019fc4ac-9218-78a0-837d-db3d33e7aad4_withSkin.glb', function(gltf){
+  new THREE.GLTFLoader().load('personnage-reparateur.glb', function(gltf){
     var m = gltf.scene;
     m.traverse(function(o){ if(o.isMesh){ o.frustumCulled = false; } });
     // bounds fiables (Box3.setFromObject est faux sur un skinned mesh non posé)
@@ -1821,7 +1826,8 @@
       mixer.clipAction(gltf.animations[0]).play();
     }
     apply();
-  });
+    requestAnimationFrame(function(){ requestAnimationFrame(announce); });
+  }, undefined, announce);
 
   function apply(){
     root.rotation.y = T.rotY;
