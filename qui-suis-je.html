@@ -41,7 +41,7 @@
   html[data-appweb] #enter-wrap { bottom:calc(21vw + 56px + env(safe-area-inset-bottom, 0px)) !important; }
   /* Bouton Démarrer entre la borne et « scroll for more » */
   html[data-appweb] #page-title { display:block !important; }
-  html[data-appweb] #page-title { top:18vh !important; left:0 !important; right:0 !important;
+  html[data-appweb] #page-title { top:9vh !important; left:0 !important; right:0 !important;
     justify-content:center !important; text-align:center !important; }
   html[data-appweb] #title-px { width:min(90vw,430px) !important; margin:0 auto !important; }
   html[data-appweb] .caption { position:absolute !important;
@@ -54,7 +54,7 @@
   html[data-appweb] #mcd-bottom {
     display:grid !important; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr);
     position:fixed; left:10px; right:10px; z-index:9998;
-    bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+    bottom:calc(22px + env(safe-area-inset-bottom, 0px));
     align-items:stretch; gap:2px; padding:7px; border:0;
     border-radius:26px;
     background:linear-gradient(to bottom, rgba(255,255,255,.97) 0%, rgba(255,248,240,.95) 100%) !important;
@@ -125,7 +125,7 @@
   /* Barre haute : sous l'encoche, et sans le bouton Ma bulle (déjà dans le menu) */
   html[data-appweb] #topbar { position:absolute !important;
     top:calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
-  html[data-appweb] #topbar .social a[aria-label="Votre Bulle"] { display:none !important; }
+  html[data-appweb] #topbar { display:none !important; }
   /* Pied de page : plein écran jusqu'en bas (l'inline absolute le tronquait) */
   html[data-appweb] #footer-sheet { position:fixed !important; left:0 !important; top:0 !important;
     right:0 !important; bottom:0 !important; }
@@ -277,6 +277,7 @@
     .socket-fixed, .wire-bg { display: none !important; }
     #page-title { display: none !important; }
     .scene { padding-bottom: 22vh; }
+    html[data-appweb] .stage { margin-top:12px !important; }
     .caption { bottom: 15vh; } .cap-txt { font-size: 22px !important; padding: 14px 48px !important; letter-spacing: .12em; }
   }
 
@@ -1767,6 +1768,8 @@
   function upd(){
     raf = 0;
     var near = (window.scrollY + window.innerHeight) > (document.documentElement.scrollHeight - 220);
+    // mobile : l'indice disparaît dès qu'on quitte le haut de page
+    if(document.documentElement.getAttribute('data-appweb') === '1') near = near || window.scrollY > 40;
     hint.classList.toggle('hide', near);
   }
   window.addEventListener('scroll', function(){ if(!raf) raf = requestAnimationFrame(upd); }, {passive:true});
