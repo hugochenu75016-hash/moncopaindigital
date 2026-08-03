@@ -8,10 +8,178 @@
 <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="48x48" href="/favicons/favicon-48.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
-<link rel="manifest" href="/favicons/site.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/favicon-180.png">
+<link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#6EC1F0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Copain Digital">
 <title>Qui suis-je ? · Mon Copain Digital</title>
+<script>
+/* Détection mobile / desktop AVANT le premier pixel : le mode app est déjà en place
+   pendant que les portes sont fermées, donc aucun saut de mise en page à l'ouverture. */
+(function(){
+  var d = document.documentElement;
+  var forced = /[?&]appweb=1/.test(location.search);
+  var mobile = forced || (matchMedia('(max-width: 820px)').matches && matchMedia('(hover: none)').matches);
+  d.setAttribute('data-device', mobile ? 'mobile' : 'desktop');
+  if(mobile) d.setAttribute('data-appweb','1');
+})();
+</script>
+<!-- Mode application sur mobile (sans installation) -->
+<style id="mcd-appweb">
+@media (max-width: 820px) {
+  html[data-appweb] { -webkit-text-size-adjust:100%; overscroll-behavior:none;
+    overflow-x:hidden; max-width:100%; touch-action:pan-y; }
+  /* Pas de marge basse ici : elle laissait une bande blanche sous le pied de page */
+  html[data-appweb] body { overscroll-behavior:none; overflow-x:hidden; max-width:100%; }
+  html[data-appweb] * { -webkit-tap-highlight-color:transparent; }
+  /* Indice « scroll for more » repoussé au-dessus du menu */
+  html[data-appweb] #scroll-hint { bottom:calc(21vw + 38px + env(safe-area-inset-bottom, 0px)) !important; }
+  /* Bouton Explorer remonté au-dessus du menu */
+  html[data-appweb] #enter-wrap { bottom:calc(21vw + 56px + env(safe-area-inset-bottom, 0px)) !important; }
+  /* Bouton Démarrer entre la borne et « scroll for more » */
+  html[data-appweb] #page-title { display:block !important; }
+  html[data-appweb] #page-title { top:18vh !important; left:0 !important; right:0 !important;
+    justify-content:center !important; text-align:center !important; }
+  html[data-appweb] #title-px { width:min(72vw,340px) !important; margin:0 auto !important; }
+  html[data-appweb] .caption { bottom:calc(21vw + 82px + env(safe-area-inset-bottom, 0px)) !important; }
+  html[data-appweb] .cap-txt { font-size:30px !important; padding:18px 60px !important; }
+  @keyframes capBreath { 0%,100% { transform:scale(1); } 50% { transform:scale(1.09); } }
+  html[data-appweb] #mcd-nav { display:none !important; }
+  html[data-appweb] #top-logo { top:calc(max(env(safe-area-inset-top, 0px), 34px) + 18px) !important; }
+
+  html[data-appweb] #mcd-bottom {
+    display:grid !important; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr);
+    position:fixed; left:10px; right:10px; z-index:9998;
+    bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+    align-items:stretch; gap:2px; padding:7px; border:0;
+    border-radius:26px;
+    background:linear-gradient(to bottom, rgba(255,255,255,.97) 0%, rgba(255,248,240,.95) 100%) !important;
+    backdrop-filter:blur(16px) saturate(1.35); -webkit-backdrop-filter:blur(16px) saturate(1.35);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -5px 12px rgba(255,180,120,.16),
+      0 14px 30px rgba(150,62,22,.22) !important;
+    transition:transform .32s cubic-bezier(.2,1,.3,1), opacity .24s ease; }
+  html[data-appweb] #mcd-bottom.mcd-footer-off,
+  html[data-appweb] #mcd-bottom.mcd-hidden {
+    transform:translateY(calc(100% + 24px)); opacity:0; pointer-events:none; }
+  html[data-appweb] #mcd-bottom > a,
+  html[data-appweb] #mcd-bottom > button {
+    border:0; cursor:pointer; -webkit-appearance:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    min-height:17vw; max-height:82px; padding:1.2vw 2px; min-width:0; overflow:visible; border-radius:999px; text-decoration:none;
+    font-family:'Fredoka',sans-serif; font-weight:900; font-size:clamp(10.5px,2.9vw,13px); letter-spacing:.01em;
+    text-transform:uppercase; line-height:1; background:transparent;
+    color:#8A4A12; text-shadow:none;
+    transition:background .2s ease, color .2s ease; }
+  html[data-appweb] #mcd-bottom > a svg,
+  html[data-appweb] #mcd-bottom > button svg { width:7.5vw; height:7.5vw; max-width:34px; max-height:34px; display:block; }
+  html[data-appweb] #mcd-bottom > a img,
+  html[data-appweb] #mcd-bottom > button img { width:26px; height:26px; display:block; object-fit:contain;
+    filter:drop-shadow(0 2px 4px rgba(150,62,22,.22)); }
+  html[data-appweb] #mcd-bottom > a.bulle { gap:0; }
+  html[data-appweb] #mcd-offres-pop,
+  html[data-appweb] #mcd-qui-pop,
+  html[data-appweb] #mcd-bulle-pop {
+    position:absolute; left:10px; right:10px; bottom:calc(100% + 12px);
+    display:flex; flex-direction:column; gap:4px; padding:8px; border-radius:22px;
+    background:linear-gradient(to bottom, rgba(255,255,255,.98) 0%, rgba(255,248,240,.96) 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), 0 16px 34px rgba(150,62,22,.26);
+    opacity:0; transform:translateY(10px) scale(.97); transform-origin:50% 100%;
+    pointer-events:none; transition:opacity .2s ease, transform .26s cubic-bezier(.2,1,.3,1); }
+  html[data-appweb] #mcd-bottom.pop-open #mcd-offres-pop,
+  html[data-appweb] #mcd-bottom.pop-qui #mcd-qui-pop,
+  html[data-appweb] #mcd-bottom.pop-bulle #mcd-bulle-pop {
+    opacity:1; transform:none; pointer-events:auto; }
+  html[data-appweb] #mcd-offres-pop a,
+  html[data-appweb] #mcd-qui-pop a,
+  html[data-appweb] #mcd-bulle-pop a {
+    display:flex; align-items:center; gap:10px; padding:14px 16px; border-radius:16px;
+    text-decoration:none; font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px;
+    color:#8A4A12; min-height:48px; }
+  html[data-appweb] #mcd-offres-pop a:active,
+  html[data-appweb] #mcd-qui-pop a:active,
+  html[data-appweb] #mcd-bulle-pop a:active { background:rgba(243,133,43,.14); color:#F3852B; }
+  html[data-appweb] #mcd-offres-pop .dot,
+  html[data-appweb] #mcd-qui-pop .dot,
+  html[data-appweb] #mcd-bulle-pop .dot { width:7px; height:7px; border-radius:50%;
+    background:#F3852B; flex:0 0 auto; }
+  html[data-appweb] #mcd-offres-pop .tag { margin-left:auto; font-size:10px; font-weight:900;
+    letter-spacing:.06em; text-transform:uppercase; color:#FFF7DB; padding:4px 9px;
+    border-radius:999px; background:linear-gradient(to bottom,#ff9c46,#f3852b); }
+  html[data-appweb] #mcd-bottom > .qui { gap:0; }
+  html[data-appweb] #mcd-bottom > .qui img { width:22.3vw; height:22.3vw; max-width:104px; max-height:104px; margin:-3.1vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > a.accueil { gap:0; }
+  html[data-appweb] #mcd-bottom > a.accueil img { width:22.3vw; height:22.3vw; max-width:104px; max-height:104px; margin:-3.1vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > .offres { gap:0; }
+  html[data-appweb] #mcd-bottom > .offres img { width:20.3vw; height:20.3vw; max-width:95px; max-height:95px; margin:-2.9vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > .bulle img { width:16vw; height:16vw; max-width:75px; max-height:75px;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  /* Bouton « Votre Bulle » du rail masqué : il est déjà dans le menu du bas */
+  html[data-appweb] .acct-sq, html[data-appweb] .acct-badge { display:none !important; }
+  /* Barre haute : sous l'encoche, et sans le bouton Ma bulle (déjà dans le menu) */
+  html[data-appweb] #topbar { top:calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
+  html[data-appweb] #topbar .social a[aria-label="Votre Bulle"] { display:none !important; }
+  /* Pied de page : plein écran jusqu'en bas (l'inline absolute le tronquait) */
+  html[data-appweb] #footer-sheet { position:fixed !important; left:0 !important; top:0 !important;
+    right:0 !important; bottom:0 !important; }
+  html[data-appweb] #mcd-bottom > a:active,
+  html[data-appweb] #mcd-bottom > button:active { background:rgba(243,133,43,.14); color:#F3852B; }
+  html[data-appweb] #mcd-bottom > a.is-active {
+    color:#F3852B; text-shadow:none;
+    background:linear-gradient(to bottom, #fff6ec 0%, #ffeede 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.32),
+      0 2px 6px rgba(150,62,22,.14); }
+  html[data-appweb] #mcd-bottom > a.rdv {
+    color:#FFF7DB; text-shadow:0 1px 2px rgba(150,70,0,.45);
+    background:linear-gradient(to bottom,#ff9c46,#f3852b);
+    box-shadow:0 4px 0 #c7620e, 0 8px 16px rgba(150,62,22,.30); }
+  html[data-appweb] #mcd-bottom > a.rdv.is-active { color:#FFF7DB;
+    background:linear-gradient(to bottom,#ffab5e,#ff8f36); }
+
+  html[data-appweb] body { animation:mcdAppIn .34s ease both; }
+  @keyframes mcdAppIn { from { opacity:0; } to { opacity:1; } }
+}
+</style>
+<script>
+(function(){
+  if(document.documentElement.getAttribute('data-appweb') !== '1') return;
+  // Le menu s'efface dès qu'on descend, et ne revient qu'en haut de page
+  function autoHide(){
+    var bar = document.getElementById('mcd-bottom'); if(!bar) return;
+    var last = window.scrollY || 0, raf = 0;
+    function upd(){
+      raf = 0;
+      var y = window.scrollY || 0;
+      if(y > 60 && y > last) bar.classList.add('mcd-hidden');
+      else if(y <= 40) bar.classList.remove('mcd-hidden');
+      last = y;
+    }
+    addEventListener('scroll', function(){ bar.classList.remove('pop-open'); bar.classList.remove('pop-qui'); bar.classList.remove('pop-bulle'); if(!raf) raf = requestAnimationFrame(upd); }, {passive:true});
+    document.addEventListener('click', function(ev){
+      if(!bar.contains(ev.target)){ bar.classList.remove('pop-open'); bar.classList.remove('pop-qui'); bar.classList.remove('pop-bulle'); }
+    }, true);
+    upd();
+    // Masqué aussi quand le pied de page est ouvert
+    var sheet = document.getElementById('footer-sheet');
+    if(sheet && window.MutationObserver){
+      var sync = function(){ bar.classList.toggle('mcd-footer-off', sheet.classList.contains('show')); };
+      new MutationObserver(sync).observe(sheet, {attributes:true, attributeFilter:['class']});
+      sync();
+    }
+    // Onglet actif d'après la page courante
+    var here = (location.pathname.split('/').pop() || 'index.html');
+    bar.querySelectorAll('a').forEach(function(a){
+      a.classList.toggle('is-active', (a.getAttribute('href')||'').split('/').pop() === here);
+    });
+  }
+  addEventListener('DOMContentLoaded', autoHide);
+})();
+</script>
+
 <link rel="prefetch" href="explorer-ecran.html" as="document">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -70,7 +238,11 @@
   @keyframes rmSpark{ 0%{ transform:translate(0,0) scale(1); opacity:1; } 100%{ transform:translate(var(--sx),var(--sy)) scale(.2); opacity:0; } }
   #rm-glow{ position:absolute; left:44%; top:47%; width:70px; height:70px; margin:-35px 0 0 -35px; border-radius:50%;
     background:radial-gradient(circle, rgba(255,205,110,.55) 0%, rgba(255,150,30,0) 70%); opacity:0; }
-  @media (max-width: 640px){ #repairman{ right:-122px; bottom:4px; width:250px; height:290px; } }
+  /* Mobile : le réparateur suit exactement la réduction du meuble (scale .5 depuis le centre de la scène) */
+  @media (max-width: 640px){
+    #repairman{ right:-214px; bottom:6px; width:420px; height:470px;
+      transform:translate(26px,22px) scale(.5); transform-origin:26px 166px; }
+  }
 
   /* ===== Cabinet 3D ===== */
   .cabinet {
@@ -1010,6 +1182,24 @@
     <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
   </div>
   </nav>
+  <nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
+    <a class="accueil" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
+    <button type="button" class="qui" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-qui');" aria-label="Qui suis-je" aria-haspopup="true"><img src="boutonquisuisje.png" alt="" aria-hidden="true"></button>
+    <button type="button" class="offres" onclick="this.parentNode.classList.remove('pop-qui');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-open');" aria-label="Nos offres" aria-haspopup="true"><img src="boutonnosoffresmob.png" alt="" aria-hidden="true"></button>
+    <button type="button" class="bulle" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-qui');this.parentNode.classList.toggle('pop-bulle');" aria-label="Ma bulle" aria-haspopup="true"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></button>
+    <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"></path></svg>RDV</a>
+    <div id="mcd-bulle-pop" role="menu" aria-label="Ma bulle">
+      <a href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" role="menuitem"><span class="dot"></span>Ma Bulle</a>
+    </div>
+    <div id="mcd-qui-pop" role="menu" aria-label="Qui suis-je">
+      <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')" role="menuitem"><span class="dot"></span>Qui suis-je</a>
+      <a href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')" role="menuitem"><span class="dot"></span>Nous contacter</a>
+    </div>
+    <div id="mcd-offres-pop" role="menu" aria-label="Nos offres">
+      <a href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')" role="menuitem"><span class="dot"></span>Nos offres</a>
+      <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><span class="dot"></span>Social Studio<span class="tag">Nouveau</span></a>
+    </div>
+  </nav>
   <script>
   (function(){
     function magnet(){
@@ -1657,7 +1847,7 @@
     var ox = sr.left + sr.width/2 + window.scrollX;
     var oy = sr.top + sr.height/2 + window.scrollY;
     document.body.style.overflow = 'hidden';
-    ['#topbar', '#mcd-nav', '#mcd-right', '#page-title', '#scroll-hint', '.caption'].forEach(function(sel){
+    ['#topbar', '#mcd-nav', '#mcd-right', '#page-title', '#scroll-hint', '.caption', '#mcd-bottom'].forEach(function(sel){
       var n = document.querySelector(sel);
       if(n){ n.style.transition = 'opacity .5s ease'; n.style.opacity = '0'; }
     });
@@ -1842,7 +2032,7 @@
       if(window.__rmShow) window.__rmShow(true);
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       setTimeout(function(){ cab.style.transition = ''; cab.style.animation = ''; }, 820);
-      ['#topbar', '#mcd-nav', '#mcd-right', '#page-title', '#scroll-hint', '.caption'].forEach(function(sel){
+      ['#topbar', '#mcd-nav', '#mcd-right', '#page-title', '#scroll-hint', '.caption', '#mcd-bottom'].forEach(function(sel){
         var n = document.querySelector(sel); if(n){ n.style.opacity = ''; n.style.transform = ''; n.style.pointerEvents = ''; }
       });
       zooming = false;
@@ -1922,6 +2112,21 @@
 (function(){
   function init(){
     var btn=document.querySelector('.cap-txt'); if(!btn) return;
+    // Mobile : bouton fixe, pas de suivi du curseur — juste une respiration
+    if(document.documentElement.getAttribute('data-appweb') === '1'){
+      var start = function(){ btn.style.animation = 'capBreath 2.2s ease-in-out infinite'; };
+      var ov = document.getElementById('door-tx');
+      if(ov && window.MutationObserver){
+        if(ov.classList.contains('opening')) setTimeout(start, 1000);
+        else {
+          var mo = new MutationObserver(function(){
+            if(ov.classList.contains('opening')){ mo.disconnect(); setTimeout(start, 1000); }
+          });
+          mo.observe(ov, {attributes:true, attributeFilter:['class']});
+        }
+      } else setTimeout(start, 1000);
+      return;
+    }
     var PULL=0.38, MAX=40, RANGE=190, OVER=1.85;
     btn.style.transition='transform .25s cubic-bezier(.2,1,.3,1)';
     var tx=0,ty=0,sc=1,raf=0,R=null;
