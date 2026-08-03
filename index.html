@@ -69,7 +69,13 @@
   html[data-appweb] #mcd-bottom > a img { width:26px; height:26px; display:block; object-fit:contain;
     filter:drop-shadow(0 2px 4px rgba(150,62,22,.22)); }
   html[data-appweb] #mcd-bottom > a.bulle { gap:0; }
-  html[data-appweb] #mcd-bottom > a.bulle img { width:40px; height:40px;
+  html[data-appweb] #mcd-bottom > a.accueil { gap:0; }
+  html[data-appweb] #mcd-bottom > a.accueil img { width:40px; height:40px;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > a.offres { gap:0; }
+  html[data-appweb] #mcd-bottom > a.offres img { width:40px; height:40px;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > a.bulle img { width:44px; height:44px;
     filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
   /* Bouton « Votre Bulle » du rail masqué : il est déjà dans le menu du bas */
   html[data-appweb] .acct-sq, html[data-appweb] .acct-badge { display:none !important; }
@@ -96,31 +102,6 @@
 <script>
 (function(){
   if(document.documentElement.getAttribute('data-appweb') !== '1') return;
-  function build(){
-
-  var ICONS = {
-    'index.html':'<path d="M3 10.6 12 3.5l9 7.1V20a1 1 0 0 1-1 1h-5.2v-6.1H9.2V21H4a1 1 0 0 1-1-1z"/>',
-    'qui-suis-je.html':'<circle cx="12" cy="7.6" r="3.9"/><path d="M4.2 20.4c0-3.9 3.5-6.4 7.8-6.4s7.8 2.5 7.8 6.4a.9.9 0 0 1-.9.9H5.1a.9.9 0 0 1-.9-.9z"/>',
-    'Nosoffres.html':'<rect x="3.2" y="3.2" width="7.4" height="7.4" rx="2"/><rect x="13.4" y="3.2" width="7.4" height="7.4" rx="2"/><rect x="3.2" y="13.4" width="7.4" height="7.4" rx="2"/><rect x="13.4" y="13.4" width="7.4" height="7.4" rx="2"/>',
-    'espace-compte.html':'<path d="M12 2.8a9.2 9.2 0 1 1-4.6 17.2l-3.6 1.1a.8.8 0 0 1-1-1l1-3.4A9.2 9.2 0 0 1 12 2.8z"/><circle cx="12" cy="9.6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 16.2c.4-2 2-3 4-3s3.6 1 4 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
-    'contact.html':'<path d="M12 3.4c-5 0-9 3.3-9 7.5 0 2.4 1.3 4.5 3.4 5.9l-.8 3.4a.7.7 0 0 0 1 .8l3.9-2a11 11 0 0 0 1.5.1c5 0 9-3.4 9-7.6s-4-8.1-9-8.1z"/>',
-    'rendez-vous.html':'<path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"/>'
-  };
-  var IMG = { 'espace-compte.html':'boutonespacelog-trim.png' };
-  var here = (location.pathname.split('/').pop() || 'index.html');
-  document.querySelectorAll('#mcd-bottom > a').forEach(function(a){
-    var file = (a.getAttribute('href') || '').split('/').pop();
-    if(IMG[file] && !a.querySelector('img')){
-      a.insertAdjacentHTML('afterbegin','<img src="'+IMG[file]+'" alt="" aria-hidden="true">');
-    } else {
-      var d = ICONS[file];
-      if(d && !a.querySelector('svg')){
-        a.insertAdjacentHTML('afterbegin','<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">'+d+'</svg>');
-      }
-    }
-    a.classList.toggle('is-active', file === here);
-  });
-  }
   // Le menu s'efface dès qu'on descend, et ne revient qu'en haut de page
   function autoHide(){
     var bar = document.getElementById('mcd-bottom'); if(!bar) return;
@@ -141,9 +122,13 @@
       new MutationObserver(sync).observe(sheet, {attributes:true, attributeFilter:['class']});
       sync();
     }
+    // Onglet actif d'après la page courante
+    var here = (location.pathname.split('/').pop() || 'index.html');
+    bar.querySelectorAll('a').forEach(function(a){
+      a.classList.toggle('is-active', (a.getAttribute('href')||'').split('/').pop() === here);
+    });
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){ build(); autoHide(); });
-  else { build(); autoHide(); }
+  addEventListener('DOMContentLoaded', autoHide);
 })();
 </script>
 
@@ -1112,11 +1097,11 @@
   </header>
 
   <nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
-    <a class="is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
-    <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je</a>
-    <a href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Offres</a>
-    <a class="bulle" href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" aria-label="Ma bulle"></a>
-    <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">RDV</a>
+    <a class="accueil is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
+    <a class="qui" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7.6" r="3.9"></circle><path d="M4.2 20.4c0-3.9 3.5-6.4 7.8-6.4s7.8 2.5 7.8 6.4a.9.9 0 0 1-.9.9H5.1a.9.9 0 0 1-.9-.9z"></path></svg>Qui suis-je</a>
+    <a class="offres" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')" aria-label="Nos offres"><img src="boutonnosoffresmob.png" alt="" aria-hidden="true"></a>
+    <a class="bulle" href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" aria-label="Ma bulle"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></a>
+    <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"></path></svg>RDV</a>
   </nav>
 
   <script>
