@@ -80,15 +80,15 @@
   html[data-appweb] #mcd-bottom > button img { width:26px; height:26px; display:block; object-fit:contain;
     filter:drop-shadow(0 2px 4px rgba(150,62,22,.22)); }
   html[data-appweb] #mcd-bottom > a.bulle { gap:0; }
+  /* Onglets — dépliage vertical, fiches vignette + sous-titre */
   html[data-appweb] #mcd-offres-pop,
   html[data-appweb] #mcd-qui-pop,
   html[data-appweb] #mcd-bulle-pop {
     position:absolute; left:10px; right:10px; bottom:calc(100% + 12px);
-    display:flex; flex-direction:column; gap:4px; padding:8px; border-radius:22px;
-    background:linear-gradient(to bottom, rgba(255,255,255,.98) 0%, rgba(255,248,240,.96) 100%);
-    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), 0 16px 34px rgba(150,62,22,.26);
-    opacity:0; transform:translateY(10px) scale(.97); transform-origin:50% 100%;
-    pointer-events:none; transition:opacity .2s ease, transform .26s cubic-bezier(.2,1,.3,1); }
+    display:flex; flex-direction:column; gap:2px; padding:8px; border-radius:24px;
+    background:#fff; box-shadow:0 18px 40px rgba(16,54,84,.22);
+    opacity:0; transform:scaleY(.2); transform-origin:50% 100%; pointer-events:none;
+    transition:opacity .18s ease, transform .34s cubic-bezier(.2,1.3,.3,1); }
   html[data-appweb] #mcd-bottom.pop-open #mcd-offres-pop,
   html[data-appweb] #mcd-bottom.pop-qui #mcd-qui-pop,
   html[data-appweb] #mcd-bottom.pop-bulle #mcd-bulle-pop {
@@ -96,16 +96,42 @@
   html[data-appweb] #mcd-offres-pop a,
   html[data-appweb] #mcd-qui-pop a,
   html[data-appweb] #mcd-bulle-pop a {
-    display:flex; align-items:center; gap:10px; padding:14px 16px; border-radius:16px;
-    text-decoration:none; font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px;
-    color:#8A4A12; min-height:48px; }
+    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:18px;
+    text-decoration:none; font-family:'Fredoka',sans-serif; color:#0e1a24; min-height:56px; }
+  html[data-appweb] #mcd-offres-pop a:nth-child(even),
+  html[data-appweb] #mcd-qui-pop a:nth-child(even),
+  html[data-appweb] #mcd-bulle-pop a:nth-child(even) { background:#f6f8fa; }
   html[data-appweb] #mcd-offres-pop a:active,
   html[data-appweb] #mcd-qui-pop a:active,
-  html[data-appweb] #mcd-bulle-pop a:active { background:rgba(243,133,43,.14); color:#F3852B; }
-  html[data-appweb] #mcd-offres-pop .dot,
-  html[data-appweb] #mcd-qui-pop .dot,
-  html[data-appweb] #mcd-bulle-pop .dot { width:7px; height:7px; border-radius:50%;
-    background:#F3852B; flex:0 0 auto; }
+  html[data-appweb] #mcd-bulle-pop a:active { background:rgba(243,133,43,.12); }
+  html[data-appweb] #mcd-offres-pop b,
+  html[data-appweb] #mcd-qui-pop b,
+  html[data-appweb] #mcd-bulle-pop b { display:block; font-size:15.5px; font-weight:600; }
+  html[data-appweb] #mcd-offres-pop em,
+  html[data-appweb] #mcd-qui-pop em,
+  html[data-appweb] #mcd-bulle-pop em { font-style:normal; font-size:12.5px; color:#5c6b78;
+    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+  /* vignettes calibrées : même diamètre visible (~34px) malgré les marges internes des PNG */
+  html[data-appweb] #mcd-offres-pop .th,
+  html[data-appweb] #mcd-qui-pop .th,
+  html[data-appweb] #mcd-bulle-pop .th { flex:0 0 auto; object-fit:contain; display:block;
+    width:40px; height:40px; margin:0; }
+  html[data-appweb] #mcd-qui-pop img.th { width:52px; height:52px; margin:-6px -6px -6px 0; }
+  html[data-appweb] #mcd-offres-pop img.th { width:48px; height:48px; margin:-4px -4px -4px 0; }
+  html[data-appweb] #mcd-offres-pop img.th.studio { width:52px; height:52px; margin:-6px -6px -6px 0; }
+  html[data-appweb] #mcd-bulle-pop img.th { width:38px; height:38px; }
+  html[data-appweb] #mcd-offres-pop span.th,
+  html[data-appweb] #mcd-qui-pop span.th,
+  html[data-appweb] #mcd-bulle-pop span.th { width:34px; height:34px; border-radius:12px; margin:0 3px 0 0;
+    background:radial-gradient(circle at 32% 26%,#fff,#e9eef5 58%,#dae1ea); position:relative;
+    box-shadow:inset 0 1.5px 2px #fff, 0 2px 5px rgba(16,54,84,.14); }
+  html[data-appweb] #mcd-offres-pop span.th::after,
+  html[data-appweb] #mcd-qui-pop span.th::after,
+  html[data-appweb] #mcd-bulle-pop span.th::after { content:""; position:absolute;
+    left:50%; top:50%; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; border-radius:50%; background:#F3852B; }
+  html[data-appweb] #mcd-offres-pop .chev,
+  html[data-appweb] #mcd-qui-pop .chev,
+  html[data-appweb] #mcd-bulle-pop .chev { margin-left:auto; color:#F3852B; font-size:17px; font-weight:700; }
   html[data-appweb] #mcd-offres-pop .tag { margin-left:auto; font-size:10px; font-weight:900;
     letter-spacing:.06em; text-transform:uppercase; color:#FFF7DB; padding:4px 9px;
     border-radius:999px; background:linear-gradient(to bottom,#ff9c46,#f3852b); }
@@ -243,11 +269,11 @@
     background:radial-gradient(circle, rgba(255,205,110,.55) 0%, rgba(255,150,30,0) 70%); opacity:0; }
   /* Mobile : le réparateur suit exactement la réduction du meuble (scale .5 depuis le centre de la scène) */
   @media (max-width: 640px){
-    #repairman{ right:-214px; bottom:6px; width:420px; height:470px;
-      transform:translate(40px,85px) scale(.5); transform-origin:26px 166px; }
+    #repairman{ right:-194px; bottom:6px; width:420px; height:470px;
+      transform:translate(44px,85px) scale(.5); transform-origin:26px 166px; }
     /* étincelles / halo replacés sur le trou de la borne */
-    #rm-sparks{ left:23%; top:40%; }
-    #rm-flare{ left:23%; top:40%; }
+    #rm-sparks{ left:25%; top:40%; }
+    #rm-flare{ left:25%; top:40%; }
   }
 
   /* ===== Cabinet 3D ===== */
@@ -1196,15 +1222,15 @@
     <button type="button" class="bulle" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-qui');this.parentNode.classList.toggle('pop-bulle');" aria-label="Ma bulle" aria-haspopup="true"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></button>
     <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"></path></svg>RDV</a>
     <div id="mcd-bulle-pop" role="menu" aria-label="Ma bulle">
-      <a href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" role="menuitem"><span class="dot"></span>Ma Bulle</a>
+      <a href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" role="menuitem"><img class="th" src="boutonespacelog-trim.png" alt="" aria-hidden="true"><span><b>Ma Bulle</b><em>Votre espace client</em></span><span class="chev">&#8250;</span></a>
     </div>
     <div id="mcd-qui-pop" role="menu" aria-label="Qui suis-je">
-      <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')" role="menuitem"><span class="dot"></span>Qui suis-je</a>
-      <a href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')" role="menuitem"><span class="dot"></span>Nous contacter</a>
+      <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')" role="menuitem"><img class="th" src="boutonquisuisje.png" alt="" aria-hidden="true"><span><b>Qui suis-je</b><em>Mon parcours en trois minutes</em></span><span class="chev">&#8250;</span></a>
+      <a href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')" role="menuitem"><img class="th" src="boutonmessagerie.png" alt="" aria-hidden="true"><span><b>Nous contacter</b><em>Parlons de votre projet</em></span><span class="chev">&#8250;</span></a>
     </div>
     <div id="mcd-offres-pop" role="menu" aria-label="Nos offres">
-      <a href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')" role="menuitem"><span class="dot"></span>Nos offres</a>
-      <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><span class="dot"></span>Social Studio<span class="tag">Nouveau</span></a>
+      <a href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')" role="menuitem"><img class="th" src="boutonnosoffresmob.png" alt="" aria-hidden="true"><span><b>Nos offres</b><em>Formules et tarifs</em></span><span class="chev">&#8250;</span></a>
+      <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><img class="th studio" src="boutonstudiosocialmob.png" alt="" aria-hidden="true"><span><b>Social Studio</b><em>Vos réseaux clé en main</em></span><span class="tag">Nouveau</span></a>
     </div>
   </nav>
   <script>
@@ -1851,6 +1877,8 @@
   function zoomIntoScreen(){
     if(zooming || !screen) return;
     zooming = true;
+    // les étincelles se coupent dès le clic sur Démarrer
+    if(window.__rmSparksStop) window.__rmSparksStop();
     document.body.classList.add('plain-cursor');
     var sr = screen.getBoundingClientRect();
     var ox = sr.left + sr.width/2 + window.scrollX;
@@ -2039,6 +2067,7 @@
       if(screen){ screen.classList.remove('coined'); screen.classList.remove('holding-coin'); }
       document.body.classList.remove('plain-cursor');
       if(window.__rmShow) window.__rmShow(true);
+      if(window.__rmSparksStart) window.__rmSparksStart();
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       setTimeout(function(){ cab.style.transition = ''; cab.style.animation = ''; }, 820);
       ['#topbar', '#mcd-nav', '#mcd-right', '#page-title', '#scroll-hint', '.caption', '#mcd-bottom'].forEach(function(sel){
@@ -2399,8 +2428,12 @@
       setTimeout(function(e){ return function(){ e.remove(); }; }(el), 900);
     }
   }
+  var sparksOn = true;
+  window.__rmSparksStop = function(){ sparksOn = false; if(sp) sp.innerHTML = ''; if(flare) flare.style.opacity = '0'; };
+  window.__rmSparksStart = function(){ sparksOn = true; };
   (function loopSparks(){
-    burst();
+    if(rmVisible && sparksOn) burst();
+    else if(sp) sp.innerHTML = '';
     setTimeout(loopSparks, 260 + Math.random() * 900);
   })();
 
