@@ -1803,7 +1803,8 @@
         else { try{ ecran.contentWindow.location.reload(); }catch(err){ ecran.src = 'explorer-ecran.html'; } }
       }
       fitEcran();
-      document.body.classList.remove('plain-cursor');
+      document.body.classList.add('plain-cursor');
+      if(window.__rmShow) window.__rmShow(false);
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       if(screen){ screen.classList.remove('holding-coin'); }
       var menu = document.getElementById('screen-menu');
@@ -1838,6 +1839,7 @@
       if(stk){ stk.classList.remove('on'); }
       if(screen){ screen.classList.remove('coined'); screen.classList.remove('holding-coin'); }
       document.body.classList.remove('plain-cursor');
+      if(window.__rmShow) window.__rmShow(true);
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       setTimeout(function(){ cab.style.transition = ''; cab.style.animation = ''; }, 820);
       ['#topbar', '#mcd-nav', '#mcd-right', '#page-title', '#scroll-hint', '.caption'].forEach(function(sel){
@@ -2122,9 +2124,11 @@
   hoseMesh.visible = false;
   scene.add(hoseMesh);
   var _a = new THREE.Vector3(), _b = new THREE.Vector3(), _p = new THREE.Vector3();
+  var rmVisible = true;
   function updateHose(){
     var o = window.__rmOutlet, t = window.__rmTorch;
     if(!o || !t) return;
+    if(!rmVisible){ hoseMesh.visible = false; return; }
     o.getWorldPosition(_a);
     t.getWorldPosition(_b);
     var d = _b.distanceTo(_a);
@@ -2144,6 +2148,15 @@
     hoseMesh.geometry = geo;
     hoseMesh.visible = true;
   }
+  window.__rmShow = function(on){
+    rmVisible = !!on;
+    wrap.style.transition = 'opacity .35s ease';
+    wrap.style.opacity = on ? '1' : '0';
+    if(window.__rmTank) window.__rmTank.visible = !!on;
+    if(window.__rmStool) window.__rmStool.visible = !!on;
+    root.visible = !!on;
+    if(hoseMesh) hoseMesh.visible = !!on;
+  };
   window.__rmTune = function(o){ Object.assign(T, o); apply(); };
   apply();
 
