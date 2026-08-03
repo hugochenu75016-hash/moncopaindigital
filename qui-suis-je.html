@@ -99,7 +99,7 @@
     .socket-fixed, .wire-bg { display: none !important; }
     #page-title { display: none !important; }
     .scene { padding-bottom: 22vh; }
-    .caption { bottom: 15vh; } .cap-txt { font-size: 32px; letter-spacing: 2px; }
+    .caption { bottom: 15vh; } .cap-txt { font-size: 22px !important; padding: 14px 48px !important; letter-spacing: .12em; }
   }
 
   .face { position: absolute; }
@@ -634,6 +634,12 @@
   #site-footer .sf-col a:hover { color: #fff3df; transform: translateX(3px); }
   #site-footer .sf-col a .dot { width: 6px; height: 6px; border-radius: 50%; background: #ffd9a8; flex: 0 0 auto; }
   #site-footer .sf-contact { display: flex; flex-direction: column; gap: 12px; }
+  #site-footer .sf-socials{ display:flex; gap:12px; margin-top:6px; }
+  #site-footer .sf-socials a{ width:44px; height:44px; flex:0 0 auto; border-radius:14px;
+    display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.16);
+    box-shadow:inset 0 2px 2px rgba(255,255,255,0.4); transition:transform .2s, background .2s; }
+  #site-footer .sf-socials a:hover{ transform:translateY(-3px); background:rgba(255,255,255,0.24); }
+  #site-footer .sf-socials svg{ width:26px !important; height:26px !important; display:block; }
   #site-footer .sf-legal { max-width: 1160px; margin: clamp(20px,3vh,34px) auto 0; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.28); font-size: 13px; color: #ffe4c4; text-align: center; }
   @media (max-width: 860px) { #site-footer .sf-inner { grid-template-columns: 1fr 1fr; gap: 26px 30px; } #site-footer .sf-brand { grid-column: 1 / -1; } }
   @media (max-width: 520px) { #site-footer .sf-inner { grid-template-columns: 1fr; gap: 22px; } }
@@ -653,7 +659,7 @@
   }
   @keyframes mqBump { 0%,100% { transform: translateY(0); } 42% { transform: translateY(-7px); } }
   .arcade-coin {
-    position: absolute; z-index: 1; pointer-events: none; width: 56px; height: 56px; border-radius: 50%;
+    position: absolute; z-index: 1; pointer-events: none; width: 84px; height: 84px; border-radius: 50%;
     transform: translate(-50%, -50%); will-change: transform, opacity;
     background:
       radial-gradient(circle at 36% 30%, #fff6c8 0%, #ffe27a 26%, #f6b81e 56%, #c98708 100%);
@@ -663,7 +669,7 @@
   }
   .arcade-coin::after {
     content: 'MCD'; position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    font-family:'Orbitron',sans-serif; font-weight:900; font-size:16px; letter-spacing:0.5px; color:#a9700a;
+    font-family:'Orbitron',sans-serif; font-weight:900; font-size:24px; letter-spacing:0.5px; color:#a9700a;
     text-shadow: 0 1px 0 rgba(255,250,210,0.8);
   }
   .marquee.bump { animation: mqBump 0.32s ease; }
@@ -781,16 +787,48 @@
     display: flex; justify-content: center; pointer-events: none;
   }
   .cap-txt {
+    position: relative;
     pointer-events: auto; cursor: pointer; user-select: none; -webkit-user-select: none;
     display: inline-block; will-change: transform;
-    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 44px; letter-spacing: 4px;
+    font-family: 'Fredoka', 'Helvetica Neue', sans-serif;
+    font-weight: 700;
+    font-size: clamp(24px, 2.7vw, 37px);
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: #ffe08a;
-    background: linear-gradient(180deg, #fff4c4 0%, #ffcf5e 34%, #e8a621 62%, #b8790f 100%);
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    -webkit-text-stroke: 1.4px rgba(120,72,0,0.55); paint-order: stroke fill;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.35), 0 2px 4px rgba(120,72,0,0.45);
-    filter: drop-shadow(0 6px 14px rgba(180,120,10,0.4));
+    color: #fff8ef;
+    padding: 19px 72px;
+    border-radius: 999px;
+    border: 2.5px solid transparent;
+    background: transparent;
+    box-shadow: none;
+    text-shadow:
+      0 0 8px rgba(255, 160, 70, 0.95),
+      0 0 18px rgba(255, 130, 30, 0.8),
+      0 2px 3px rgba(150, 70, 0, 0.55);
+    transition: transform .28s cubic-bezier(.2, 1, .3, 1), text-shadow .28s ease;
+    animation: neonPulse 2.4s ease-in-out infinite;
+  }
+  .cap-txt:hover {
+    transform: translateY(-2px) scale(1.05);
+    text-shadow:
+      0 0 12px rgba(255, 180, 90, 1),
+      0 0 28px rgba(255, 140, 40, 0.95),
+      0 2px 3px rgba(150, 70, 0, 0.6);
+  }
+  .cap-txt:active { transform: translateX(0) scale(0.99); }
+  @keyframes neonPulse {
+    0%, 100% {
+      text-shadow:
+        0 0 8px rgba(255, 160, 70, 0.95),
+        0 0 18px rgba(255, 130, 30, 0.8),
+        0 2px 3px rgba(150, 70, 0, 0.55);
+    }
+    50% {
+      text-shadow:
+        0 0 12px rgba(255, 180, 90, 1),
+        0 0 30px rgba(255, 140, 40, 0.95),
+        0 2px 3px rgba(150, 70, 0, 0.55);
+    }
   }
   /* ===== Mode nuit + interrupteur jour/nuit (bas gauche) ===== */
   html, body { transition: background .7s ease; }
@@ -832,13 +870,24 @@
     box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.9), 0 6px 14px rgba(10,16,48,0.6);
   }
   .dn-thumb svg { width: 19px; height: 19px; }
+
+  /* ===== Curseur orange Mon Copain Digital ===== */
+  html, body, #wrap, canvas, #page { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='6' fill='%23F3852B' stroke='%23FFF6EA' stroke-width='2'/%3E%3C/svg%3E") 12 12, auto; }
+  a, button, .glass-btn, .mcd-link, .mcd-cta, .enter-btn, .social-btn, .acct-sq,
+  [role="button"], input[type="submit"], select, label { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Ccircle cx='18' cy='18' r='13' fill='rgba(243,133,43,0.35)' stroke='%23F3852B' stroke-width='3'/%3E%3Ccircle cx='18' cy='18' r='3' fill='%23FFF6EA'/%3E%3C/svg%3E") 18 18, pointer; }
+  input[type="text"], input[type="email"], input[type="tel"], textarea { cursor: text; }
+  /* dans la borne : curseur système classique */
+  body.plain-cursor, body.plain-cursor #wrap, body.plain-cursor canvas, body.plain-cursor .screen,
+  body.plain-cursor .ecran-frame, body.plain-cursor div, body.plain-cursor span { cursor: auto !important; }
+  body.plain-cursor a, body.plain-cursor button, body.plain-cursor [role="button"],
+  body.plain-cursor label, body.plain-cursor select, body.plain-cursor input[type="submit"] { cursor: pointer !important; }
+  body.plain-cursor input[type="text"], body.plain-cursor input[type="email"],
+  body.plain-cursor input[type="tel"], body.plain-cursor textarea { cursor: text !important; }
+  body.plain-cursor #mcd-cursor-label { display: none !important; }
 </style>
 </head>
 <body>
 <div id="stars" aria-hidden="true"></div>
-<div id="theme-switch">
-  <button class="dn-toggle" aria-label="Basculer jour / nuit" onclick="toggleNight()"><span class="dn-thumb" id="dn-thumb"></span></button>
-</div>
 <!-- ===== Transition portes entre pages ===== -->
 <style id="door-tx-style">
   #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
@@ -1032,6 +1081,8 @@
   </div>
   <div class="scene">
     <h1 id="page-title"><canvas id="title-px" width="1100" height="240" role="img" aria-label="Qui suis-je ?"></canvas></h1>
+
+
     <script>
     (function(){
       var cv=document.getElementById('title-px'); if(!cv) return;
@@ -1039,7 +1090,14 @@
       var CELL=3, DOT=3, SIZE=185, LH=200, R=210, PUSH=58;
       var ORANGE=[243,133,43], WHITE=[255,255,255];
       var ORANGE_CSS='#F3852B', WHITE_CSS='#FFFFFF';
-      var CX,CY,EDGE,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
+      var CX,CY,EDGE,grid,cols,rows,N=0,base=null,baseOrange=null,sweep=null,mouse=null,raf=0,painted=false;
+      var LETTERS=[], edgeCv=null;
+      var MODE = 'none';   // demo (enchaîne tout) | sweep | scan | rain | blink | letters | none
+      var DEMO = ['marquee','crt','dither','insert'], DEMO_MS = 6000;
+      var BAYER = [0,8,2,10, 12,4,14,6, 3,11,1,9, 15,7,13,5];
+      try { MODE = localStorage.getItem('mcd-title-fx') || MODE; } catch(e){}
+      window.__titleFX = function(m){ MODE = m; try{ localStorage.setItem('mcd-title-fx', m); }catch(e){} };
+      function rnd01(i){ var x = Math.sin(i * 127.1) * 43758.5453; return x - Math.floor(x); }
 
       function build(){
         var off=document.createElement('canvas'); off.width=W; off.height=H;
@@ -1089,31 +1147,169 @@
           }
         }
         bc.putImageData(img,0,0);
+        // même titre, en orange : sert au balayage animé
+        baseOrange=document.createElement('canvas'); baseOrange.width=W; baseOrange.height=H;
+        var oc2=baseOrange.getContext('2d');
+        oc2.drawImage(base,0,0);
+        oc2.globalCompositeOperation='source-in';
+        oc2.fillStyle=ORANGE_CSS; oc2.fillRect(0,0,W,H);
+        oc2.globalCompositeOperation='source-over';
+        sweep=document.createElement('canvas'); sweep.width=W; sweep.height=H;
+        // contour des lettres, en orange
+        edgeCv=document.createElement('canvas'); edgeCv.width=W; edgeCv.height=H;
+        var ec=edgeCv.getContext('2d'); ec.fillStyle=ORANGE_CSS;
+        for(var ie=0;ie<N;ie++){ if(EDGE[ie]) ec.fillRect(CX[ie],CY[ie],DOT,DOT); }
+        // découpage en lettres : suites de colonnes remplies
+        var colFilled=new Uint8Array(cols);
+        for(var c4=0;c4<cols;c4++){ for(var r4=0;r4<rows;r4++){ if(grid[r4*cols+c4]>=0){ colFilled[c4]=1; break; } } }
+        LETTERS=[]; var run=-1;
+        for(var c5=0;c5<=cols;c5++){
+          if(c5<cols && colFilled[c5]){ if(run<0) run=c5; }
+          else if(run>=0){ LETTERS.push([run*CELL, (c5-run)*CELL]); run=-1; }
+        }
         painted=false;
       }
 
-      function frame(){
+      function frame(t){
         if(!base){ raf=requestAnimationFrame(frame); return; }
+        t = t || performance.now();
         var m=mouse;
-        if(!painted || m || frame.was){
-          ctx.clearRect(0,0,W,H); ctx.drawImage(base,0,0); painted=true;
-          if(m){
-            var pad=R+PUSH;
-            var x0=Math.max(0,m.x-pad), x1=Math.min(W,m.x+pad);
-            var y0=Math.max(0,m.y-pad), y1=Math.min(H,m.y+pad);
-            ctx.clearRect(x0,y0,x1-x0,y1-y0);
-            var c0=Math.max(0,Math.floor(x0/CELL)), c1=Math.min(cols-1,Math.ceil(x1/CELL));
-            var r0=Math.max(0,Math.floor(y0/CELL)), r1=Math.min(rows-1,Math.ceil(y1/CELL));
-            for(var r=r0;r<=r1;r++){ for(var c=c0;c<=c1;c++){
-              var i=grid[r*cols+c]; if(i<0) continue;
-              var x=CX[i], y=CY[i], dx=x-m.x, dy=y-m.y, d=Math.sqrt(dx*dx+dy*dy), hot=false;
-              if(d<R && d>0.001){ var f=1-d/R, k=PUSH*f*f; x+=(dx/d)*k; y+=(dy/d)*k; hot=true; }
-              ctx.fillStyle = hot ? ORANGE_CSS : WHITE_CSS;
-              ctx.fillRect(x,y,DOT,DOT);
+        ctx.imageSmoothingEnabled=false;
+        ctx.clearRect(0,0,W,H);
+        ctx.drawImage(base,0,0);
+
+        // ----- masque du motif orange (bords francs, aucun dégradé) -----
+        var BAND=210, cxs=-999;
+        var FX = MODE;
+        if(FX === 'demo'){ FX = DEMO[Math.floor(t / DEMO_MS) % DEMO.length]; }
+        if(FX !== 'none'){
+          var sc=sweep.getContext('2d');
+          sc.imageSmoothingEnabled=false;
+          sc.setTransform(1,0,0,1,0,0);
+          sc.globalCompositeOperation='source-over';
+          sc.clearRect(0,0,W,H);
+          sc.save();
+          sc.beginPath();
+          if(FX === 'sweep'){
+            var PERIOD=4200, p=(t % PERIOD)/PERIOD;
+            cxs=-BAND*1.6 + p*(W + BAND*3.2);
+            var sk=BAND*1.1;
+            sc.moveTo(cxs-BAND*0.55, 0);
+            sc.lineTo(cxs+BAND*0.55, 0);
+            sc.lineTo(cxs+BAND*0.55+sk, H);
+            sc.lineTo(cxs-BAND*0.55+sk, H);
+            sc.closePath();
+          } else if(FX === 'scan'){
+            var SP=2600, q1=(t % SP)/SP, yl=-40 + q1*(H+80);
+            sc.rect(0, Math.round(yl/CELL)*CELL, W, CELL*7);
+            sc.rect(0, Math.round((yl-CELL*12)/CELL)*CELL, W, CELL*2);
+            sc.rect(0, Math.round((yl-CELL*18)/CELL)*CELL, W, CELL);
+          } else if(FX === 'rain'){
+            var COLW=CELL*5, nCols=Math.ceil(W/COLW);
+            for(var k=0;k<nCols;k++){
+              var sp=1600+rnd01(k)*2600, ph=((t + rnd01(k+99)*sp) % sp)/sp;
+              var len=CELL*(8+Math.floor(rnd01(k+7)*10));
+              sc.rect(k*COLW, Math.round((-len + ph*(H+len*2))/CELL)*CELL, COLW-CELL, len);
+            }
+          } else if(FX === 'blink'){
+            var BW=CELL*4, gx=Math.ceil(W/BW), gy=Math.ceil(H/BW), slot=Math.floor(t/140);
+            for(var bx=0;bx<gx;bx++){ for(var by=0;by<gy;by++){
+              if(rnd01(bx*97 + by*31 + slot*13) > 0.90) sc.rect(bx*BW, by*BW, BW, BW);
             }}
+          } else if(FX === 'boot' && LETTERS.length){
+            // les lettres s'allument une par une puis tout s'éteint
+            var CY2=LETTERS.length*300 + 900, u=(t % CY2);
+            var upto=Math.floor(u/300);
+            if(upto <= LETTERS.length){
+              for(var bi=0; bi<Math.min(upto, LETTERS.length); bi++) sc.rect(LETTERS[bi][0], 0, LETTERS[bi][1], H);
+            } else if(((u/160)|0) % 2 === 0){ sc.rect(0,0,W,H); }
+          } else if(FX === 'charge'){
+            // niveau orange qui monte puis redescend
+            var CP=5200, cp=(t % CP)/CP;
+            var lvl=cp<0.62 ? (cp/0.62) : (1-(cp-0.62)/0.38);
+            var yTop=H - lvl*H;
+            for(var xw=0; xw<W; xw+=CELL){
+              var wv=Math.round((Math.sin(xw*0.035 + t*0.006)*CELL*2)/CELL)*CELL;
+              sc.rect(xw, Math.round((yTop+wv)/CELL)*CELL, CELL, H);
+            }
+          } else if(FX === 'glitch'){
+            var slot2=Math.floor(t/110);
+            for(var gi=0; gi<5; gi++){
+              var rr1=rnd01(slot2*7 + gi*23);
+              if(rr1 > 0.55) continue;
+              var gy1=Math.round((rr1*H*2)/CELL)*CELL, gh=CELL*(2+Math.floor(rnd01(slot2+gi*5)*6));
+              sc.rect(0, gy1, W, gh);
+            }
+          } else if(FX === 'radar'){
+            var RP=3200, rp=(t % RP)/RP, rad=rp*(W*0.62), th=CELL*6;
+            sc.arc(W/2, H/2, Math.max(1,rad), 0, Math.PI*2);
+            sc.arc(W/2, H/2, Math.max(0.5,rad-th), 0, Math.PI*2, true);
+          } else if(FX === 'marquee'){
+            // guirlande d'ampoules qui court sur le contour des lettres
+            var MS=1400, mp=(t % MS)/MS, SPC=CELL*14, LGT=CELL*5;
+            for(var mx=-SPC; mx<W+SPC; mx+=SPC){
+              sc.rect(Math.round((mx + mp*SPC)/CELL)*CELL, 0, LGT, H);
+            }
+          } else if(FX === 'crt'){
+            // trame entrelacée + barre de balayage qui roule
+            var par=Math.floor(t/70) % 2;
+            for(var ry=0; ry<H; ry+=CELL*2){ sc.rect(0, ry + par*CELL, W, CELL); }
+            var RB=3000, rb=(t % RB)/RB;
+            sc.rect(0, Math.round((-CELL*14 + rb*(H+CELL*28))/CELL)*CELL, W, CELL*12);
+          } else if(FX === 'dither'){
+            // transition tramée 8 bits (Bayer 4x4)
+            var DP=4400, dp=(t % DP)/DP;
+            var lv=dp<0.5 ? dp*2 : (1-dp)*2;
+            var thr=Math.round(lv*16), BS=CELL*3;
+            var gxs=Math.ceil(W/BS), gys=Math.ceil(H/BS);
+            for(var dx2=0; dx2<gxs; dx2++){ for(var dy2=0; dy2<gys; dy2++){
+              if(BAYER[(dy2%4)*4 + (dx2%4)] < thr) sc.rect(dx2*BS, dy2*BS, BS, BS);
+            }}
+          } else if(FX === 'insert'){
+            // clignotement d'attente type "INSERT COIN"
+            var IP=1800, ip=(t % IP);
+            if(ip < 620 || (ip > 900 && ip < 1000) || (ip > 1100 && ip < 1200)) sc.rect(0,0,W,H);
+          } else if(FX === 'edge'){
+            sc.rect(0,0,W,H);
+          } else if(FX === 'letters' && LETTERS.length){
+            var STEP=340, idx=Math.floor(t/STEP) % LETTERS.length;
+            var L=LETTERS[idx]; sc.rect(L[0], 0, L[1], H);
+            if((t%STEP)/STEP < 0.4){ var pv=LETTERS[(idx-1+LETTERS.length)%LETTERS.length]; sc.rect(pv[0], 0, pv[1], H); }
           }
-          frame.was=!!m;
+          sc.clip();
+          if(FX === 'marquee'){
+            sc.drawImage(edgeCv,0,0);
+          } else if(FX === 'edge'){
+            sc.drawImage(edgeCv,0,0);
+            var EP=2400, ep=(t % EP)/EP;
+            if(ep > 0.86) sc.drawImage(baseOrange,0,0);   // flash plein toutes les 2,4 s
+          } else if(FX === 'glitch'){
+            var off=Math.round((rnd01(Math.floor(t/110)*3)*2-1)*CELL*4/CELL)*CELL;
+            sc.drawImage(baseOrange, off, 0);
+          } else {
+            sc.drawImage(baseOrange,0,0);
+          }
+          sc.restore();
+          ctx.drawImage(sweep,0,0);
         }
+
+        if(m){
+          var pad=R+PUSH;
+          var x0=Math.max(0,m.x-pad), x1=Math.min(W,m.x+pad);
+          var y0=Math.max(0,m.y-pad), y1=Math.min(H,m.y+pad);
+          ctx.clearRect(x0,y0,x1-x0,y1-y0);
+          var c0=Math.max(0,Math.floor(x0/CELL)), c1=Math.min(cols-1,Math.ceil(x1/CELL));
+          var r0=Math.max(0,Math.floor(y0/CELL)), r1=Math.min(rows-1,Math.ceil(y1/CELL));
+          for(var r=r0;r<=r1;r++){ for(var c=c0;c<=c1;c++){
+            var i=grid[r*cols+c]; if(i<0) continue;
+            var x=CX[i], y=CY[i], dx=x-m.x, dy=y-m.y, d=Math.sqrt(dx*dx+dy*dy), hot=false;
+            if(d<R && d>0.001){ var f=1-d/R, k=PUSH*f*f; x+=(dx/d)*k; y+=(dy/d)*k; hot=true; }
+            var inBand = Math.abs((x + (y/H)*BAND*2) - cxs) < BAND*0.55;
+            ctx.fillStyle = (hot || inBand) ? ORANGE_CSS : WHITE_CSS;
+            ctx.fillRect(x,y,DOT,DOT);
+          }}
+        }
+        if(MODE === 'demo' && window.__titleTag){ window.__titleTag(FX); }
         raf=requestAnimationFrame(frame);
       }
 
@@ -1331,6 +1527,8 @@
           <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
           <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
           <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
+          <li><a href="studio-social.html"><span class="dot"></span>Social Studio</a></li>
+          <li><a href="espace-compte.html"><span class="dot"></span>Espace compte</a></li>
         </ul>
       </div>
       <div class="sf-col sf-contact">
@@ -1339,21 +1537,47 @@
           <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
           <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
         </ul>
+        <div class="sf-socials">
+          <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><defs><radialGradient id="sfIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#sfIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
+          </a>
+        </div>
+
       </div>
       <div class="sf-col">
         <h3>Loi applicable</h3>
         <ul>
           <li><a href="loiapplicablemcp.html#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
           <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
+          <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
           <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
           <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
+          <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
+          <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
         </ul>
       </div>
     </div>
-    <div class="sf-legal"><span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span></div>
   </footer>
   <div class="caption"><span class="cap-txt">Démarrer</span></div>
   <div id="scroll-hint" aria-hidden="true">scroll for more <span class="sc-chev">▼</span></div>
+<script>
+(function(){
+  var hint = document.getElementById('scroll-hint');
+  if(!hint) return;
+  var raf = 0;
+  function upd(){
+    raf = 0;
+    var near = (window.scrollY + window.innerHeight) > (document.documentElement.scrollHeight - 220);
+    hint.classList.toggle('hide', near);
+  }
+  window.addEventListener('scroll', function(){ if(!raf) raf = requestAnimationFrame(upd); }, {passive:true});
+  window.addEventListener('resize', upd);
+  upd();
+})();
+</script>
 <script>
 (function(){
   var js = document.querySelector('.joystick');
@@ -1428,6 +1652,7 @@
   function zoomIntoScreen(){
     if(zooming || !screen) return;
     zooming = true;
+    document.body.classList.add('plain-cursor');
     var sr = screen.getBoundingClientRect();
     var ox = sr.left + sr.width/2 + window.scrollX;
     var oy = sr.top + sr.height/2 + window.scrollY;
@@ -1478,6 +1703,10 @@
   cap.addEventListener('click', function(){
     if(zooming || window.__coinFalling) return;
     window.__coinFalling = true;
+    cap.style.transition = 'opacity .35s ease, transform .35s ease';
+    cap.style.opacity = '0';
+    cap.style.transform = 'translateY(10px) scale(.94)';
+    cap.style.pointerEvents = 'none';
     var sr = screen.getBoundingClientRect();
     var cx = sr.left + sr.width/2 + window.scrollX;
     var startY = window.scrollY - 40;
@@ -1574,6 +1803,7 @@
         else { try{ ecran.contentWindow.location.reload(); }catch(err){ ecran.src = 'explorer-ecran.html'; } }
       }
       fitEcran();
+      document.body.classList.remove('plain-cursor');
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       if(screen){ screen.classList.remove('holding-coin'); }
       var menu = document.getElementById('screen-menu');
@@ -1607,10 +1837,11 @@
       var stk = document.querySelector('.labels .tk.start');
       if(stk){ stk.classList.remove('on'); }
       if(screen){ screen.classList.remove('coined'); screen.classList.remove('holding-coin'); }
+      document.body.classList.remove('plain-cursor');
       document.querySelectorAll('.plus-one').forEach(function(p){ p.remove(); });
       setTimeout(function(){ cab.style.transition = ''; cab.style.animation = ''; }, 820);
       ['#topbar', '#mcd-nav', '#mcd-right', '#page-title', '#scroll-hint', '.caption'].forEach(function(sel){
-        var n = document.querySelector(sel); if(n){ n.style.opacity = ''; }
+        var n = document.querySelector(sel); if(n){ n.style.opacity = ''; n.style.transform = ''; n.style.pointerEvents = ''; }
       });
       zooming = false;
   }
@@ -1678,20 +1909,11 @@
     }
     box.innerHTML = h;
   }
-  window.applyNight = function(on){
-    document.documentElement.classList.toggle('night', on);
-    document.body.classList.toggle('night', on);
-    if (thumb) thumb.innerHTML = on ? MOON : SUN;
-    try { localStorage.setItem('mcd-theme', on ? 'night' : 'day'); } catch(e){}
-  };
-  window.toggleNight = function(){ applyNight(!document.body.classList.contains('night')); };
-  var saved = null;
-  try { saved = localStorage.getItem('mcd-theme'); } catch(e){}
-  var night;
-  if (saved === 'night') night = true;
-  else if (saved === 'day') night = false;
-  else { var hr = new Date().getHours(); night = (hr >= 23 || hr < 7); }
-  applyNight(night);
+  // fond jour permanent (mode nuit retiré)
+  window.applyNight = function(){};
+  window.toggleNight = function(){};
+  document.documentElement.classList.remove('night');
+  document.body.classList.remove('night');
 })();
 </script>
 <script>
@@ -1969,6 +2191,34 @@
     if(!W || !H) return;
     renderer.setSize(W, H, false); cam.aspect = W / H; cam.updateProjectionMatrix();
   });
+})();
+</script>
+<style id="mcd-cursor-label-css">
+  #mcd-cursor-label{ position:fixed; left:0; top:0; z-index:100001; pointer-events:none;
+    transform:translate3d(-100px,-100px,0); opacity:0; transition:opacity .2s ease;
+    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:12px;
+    letter-spacing:.02em; color:#FFF6EA; background:#F3852B; padding:4px 9px; border-radius:999px;
+    box-shadow:0 4px 12px rgba(150,62,22,.35); white-space:nowrap; }
+  #mcd-cursor-label.on-footer{ background:#6EC1F0; color:#08344E;
+    box-shadow:0 4px 12px rgba(20,90,140,.4); }
+  @media (hover:none){ #mcd-cursor-label{ display:none; } }
+</style>
+<div id="mcd-cursor-label">Vous</div>
+<script>
+(function(){
+  var el=document.getElementById('mcd-cursor-label'); if(!el) return;
+  var x=0,y=0,raf=0,shown=false;
+  el.style.willChange='transform';
+  window.addEventListener('pointermove', function(e){
+    if(e.pointerType==='touch') return;
+    x=e.clientX; y=e.clientY;
+    if(!shown){ shown=true; el.style.opacity='1'; }
+    var fs=document.getElementById('footer-sheet');
+    el.classList.toggle('on-footer', !!(fs && fs.classList.contains('show')));
+    if(!raf) raf=requestAnimationFrame(function(){ raf=0;
+      el.style.transform='translate3d('+(x+16)+'px,'+(y+16)+'px,0)'; });
+  }, {passive:true});
+  document.addEventListener('pointerleave', function(){ el.style.opacity='0'; shown=false; });
 })();
 </script>
 </body>
