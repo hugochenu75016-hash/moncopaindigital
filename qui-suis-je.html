@@ -27,10 +27,11 @@
 })();
 </script>
 <!-- Mode application sur mobile (sans installation) -->
+<style>#mcd-bottom{display:none;}</style>
 <style id="mcd-appweb">
 @media (max-width: 820px) {
   html[data-appweb] { -webkit-text-size-adjust:100%; overscroll-behavior:none;
-    overflow-x:hidden; max-width:100%; touch-action:pan-y; }
+    overflow-x:hidden; max-width:100%; touch-action:pan-y pinch-zoom; }
   /* Pas de marge basse ici : elle laissait une bande blanche sous le pied de page */
   html[data-appweb] body { overscroll-behavior:none; overflow-x:hidden; max-width:100%; }
   html[data-appweb] * { -webkit-tap-highlight-color:transparent; }
@@ -42,8 +43,9 @@
   html[data-appweb] #page-title { display:block !important; }
   html[data-appweb] #page-title { top:18vh !important; left:0 !important; right:0 !important;
     justify-content:center !important; text-align:center !important; }
-  html[data-appweb] #title-px { width:min(72vw,340px) !important; margin:0 auto !important; }
-  html[data-appweb] .caption { bottom:calc(21vw + 82px + env(safe-area-inset-bottom, 0px)) !important; }
+  html[data-appweb] #title-px { width:min(90vw,430px) !important; margin:0 auto !important; }
+  html[data-appweb] .caption { position:absolute !important;
+    bottom:calc(21vw + 82px + env(safe-area-inset-bottom, 0px)) !important; }
   html[data-appweb] .cap-txt { font-size:30px !important; padding:18px 60px !important; }
   @keyframes capBreath { 0%,100% { transform:scale(1); } 50% { transform:scale(1.09); } }
   html[data-appweb] #mcd-nav { display:none !important; }
@@ -121,7 +123,8 @@
   /* Bouton « Votre Bulle » du rail masqué : il est déjà dans le menu du bas */
   html[data-appweb] .acct-sq, html[data-appweb] .acct-badge { display:none !important; }
   /* Barre haute : sous l'encoche, et sans le bouton Ma bulle (déjà dans le menu) */
-  html[data-appweb] #topbar { top:calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
+  html[data-appweb] #topbar { position:absolute !important;
+    top:calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
   html[data-appweb] #topbar .social a[aria-label="Votre Bulle"] { display:none !important; }
   /* Pied de page : plein écran jusqu'en bas (l'inline absolute le tronquait) */
   html[data-appweb] #footer-sheet { position:fixed !important; left:0 !important; top:0 !important;
@@ -241,7 +244,10 @@
   /* Mobile : le réparateur suit exactement la réduction du meuble (scale .5 depuis le centre de la scène) */
   @media (max-width: 640px){
     #repairman{ right:-214px; bottom:6px; width:420px; height:470px;
-      transform:translate(26px,22px) scale(.5); transform-origin:26px 166px; }
+      transform:translate(40px,85px) scale(.5); transform-origin:26px 166px; }
+    /* étincelles / halo replacés sur le trou de la borne */
+    #rm-sparks{ left:23%; top:40%; }
+    #rm-flare{ left:23%; top:40%; }
   }
 
   /* ===== Cabinet 3D ===== */
@@ -2245,7 +2251,11 @@
       // oriente la buse vers la machine (monde), une fois pour toutes
       holder.updateWorldMatrix(true, false);
       var qw = new THREE.Quaternion(); holder.getWorldQuaternion(qw);
-      var dir = new THREE.Vector3(-0.85, -0.25, 0.46).normalize().applyQuaternion(qw.clone().invert());
+      // mobile : le personnage est décalé plus bas, la buse doit viser plus haut vers le trou
+      var aim = (document.documentElement.getAttribute('data-appweb') === '1')
+        ? new THREE.Vector3(-0.85, 0.34, 0.46)
+        : new THREE.Vector3(-0.85, -0.25, 0.46);
+      var dir = aim.normalize().applyQuaternion(qw.clone().invert());
       torch.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), dir.normalize());
       window.__rmHolder = holder;
       window.__rmTorch = torch;
