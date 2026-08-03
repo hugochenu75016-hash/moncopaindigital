@@ -74,7 +74,8 @@
     filter:drop-shadow(0 2px 4px rgba(150,62,22,.22)); }
   html[data-appweb] #mcd-bottom > a.bulle { gap:0; }
   html[data-appweb] #mcd-offres-pop,
-  html[data-appweb] #mcd-qui-pop {
+  html[data-appweb] #mcd-qui-pop,
+  html[data-appweb] #mcd-bulle-pop {
     position:absolute; left:10px; right:10px; bottom:calc(100% + 12px);
     display:flex; flex-direction:column; gap:4px; padding:8px; border-radius:22px;
     background:linear-gradient(to bottom, rgba(255,255,255,.98) 0%, rgba(255,248,240,.96) 100%);
@@ -82,17 +83,21 @@
     opacity:0; transform:translateY(10px) scale(.97); transform-origin:50% 100%;
     pointer-events:none; transition:opacity .2s ease, transform .26s cubic-bezier(.2,1,.3,1); }
   html[data-appweb] #mcd-bottom.pop-open #mcd-offres-pop,
-  html[data-appweb] #mcd-bottom.pop-qui #mcd-qui-pop {
+  html[data-appweb] #mcd-bottom.pop-qui #mcd-qui-pop,
+  html[data-appweb] #mcd-bottom.pop-bulle #mcd-bulle-pop {
     opacity:1; transform:none; pointer-events:auto; }
   html[data-appweb] #mcd-offres-pop a,
-  html[data-appweb] #mcd-qui-pop a {
+  html[data-appweb] #mcd-qui-pop a,
+  html[data-appweb] #mcd-bulle-pop a {
     display:flex; align-items:center; gap:10px; padding:14px 16px; border-radius:16px;
     text-decoration:none; font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px;
     color:#8A4A12; min-height:48px; }
   html[data-appweb] #mcd-offres-pop a:active,
-  html[data-appweb] #mcd-qui-pop a:active { background:rgba(243,133,43,.14); color:#F3852B; }
+  html[data-appweb] #mcd-qui-pop a:active,
+  html[data-appweb] #mcd-bulle-pop a:active { background:rgba(243,133,43,.14); color:#F3852B; }
   html[data-appweb] #mcd-offres-pop .dot,
-  html[data-appweb] #mcd-qui-pop .dot { width:7px; height:7px; border-radius:50%;
+  html[data-appweb] #mcd-qui-pop .dot,
+  html[data-appweb] #mcd-bulle-pop .dot { width:7px; height:7px; border-radius:50%;
     background:#F3852B; flex:0 0 auto; }
   html[data-appweb] #mcd-offres-pop .tag { margin-left:auto; font-size:10px; font-weight:900;
     letter-spacing:.06em; text-transform:uppercase; color:#FFF7DB; padding:4px 9px;
@@ -106,7 +111,7 @@
   html[data-appweb] #mcd-bottom > .offres { gap:0; }
   html[data-appweb] #mcd-bottom > .offres img { width:20.3vw; height:20.3vw; max-width:95px; max-height:95px; margin:-2.9vw 0;
     filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
-  html[data-appweb] #mcd-bottom > a.bulle img { width:16vw; height:16vw; max-width:75px; max-height:75px;
+  html[data-appweb] #mcd-bottom > .bulle img { width:16vw; height:16vw; max-width:75px; max-height:75px;
     filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
   /* Bouton « Votre Bulle » du rail masqué : il est déjà dans le menu du bas */
   html[data-appweb] .acct-sq, html[data-appweb] .acct-badge { display:none !important; }
@@ -145,9 +150,9 @@
       else if(y <= 40) bar.classList.remove('mcd-hidden');
       last = y;
     }
-    addEventListener('scroll', function(){ bar.classList.remove('pop-open'); bar.classList.remove('pop-qui'); if(!raf) raf = requestAnimationFrame(upd); }, {passive:true});
+    addEventListener('scroll', function(){ bar.classList.remove('pop-open'); bar.classList.remove('pop-qui'); bar.classList.remove('pop-bulle'); if(!raf) raf = requestAnimationFrame(upd); }, {passive:true});
     document.addEventListener('click', function(ev){
-      if(!bar.contains(ev.target)){ bar.classList.remove('pop-open'); bar.classList.remove('pop-qui'); }
+      if(!bar.contains(ev.target)){ bar.classList.remove('pop-open'); bar.classList.remove('pop-qui'); bar.classList.remove('pop-bulle'); }
     }, true);
     upd();
     // Masqué aussi quand le pied de page est ouvert
@@ -1132,10 +1137,13 @@
 
   <nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
     <a class="accueil is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
-    <button type="button" class="qui" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.toggle('pop-qui');" aria-label="Qui suis-je" aria-haspopup="true"><img src="boutonquisuisje.png" alt="" aria-hidden="true"></button>
-    <button type="button" class="offres" onclick="this.parentNode.classList.remove('pop-qui');this.parentNode.classList.toggle('pop-open');" aria-label="Nos offres" aria-haspopup="true"><img src="boutonnosoffresmob.png" alt="" aria-hidden="true"></button>
-    <a class="bulle" href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" aria-label="Ma bulle"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></a>
+    <button type="button" class="qui" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-qui');" aria-label="Qui suis-je" aria-haspopup="true"><img src="boutonquisuisje.png" alt="" aria-hidden="true"></button>
+    <button type="button" class="offres" onclick="this.parentNode.classList.remove('pop-qui');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-open');" aria-label="Nos offres" aria-haspopup="true"><img src="boutonnosoffresmob.png" alt="" aria-hidden="true"></button>
+    <button type="button" class="bulle" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-qui');this.parentNode.classList.toggle('pop-bulle');" aria-label="Ma bulle" aria-haspopup="true"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></button>
     <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"></path></svg>RDV</a>
+    <div id="mcd-bulle-pop" role="menu" aria-label="Ma bulle">
+      <a href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" role="menuitem"><span class="dot"></span>Ma Bulle</a>
+    </div>
     <div id="mcd-qui-pop" role="menu" aria-label="Qui suis-je">
       <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')" role="menuitem"><span class="dot"></span>Qui suis-je</a>
       <a href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')" role="menuitem"><span class="dot"></span>Nous contacter</a>
