@@ -812,14 +812,41 @@
   @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
   @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
   @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  #door-tx .dt-spin{position:absolute;left:50%;top:calc(50% + clamp(96px,17vw,168px));
+    transform:translate(-50%,-50%);width:clamp(46px,9.5vw,68px);height:clamp(46px,9.5vw,68px);
+    color:#FFE6C4;opacity:0;transition:opacity .25s ease;
+    filter:drop-shadow(0 3px 6px rgba(120,50,0,.45));}
+  #door-tx.loading .dt-spin{opacity:.95;}
+  #door-tx.closing .dt-spin{opacity:0;}
   @media (prefers-reduced-motion:reduce){
     #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
+    #door-tx .dt-spin{display:none;}
   }
 </style>
 <div id="door-tx" class="loading" aria-hidden="true">
   <div class="door l"></div>
   <div class="door r"></div>
   <img class="dt-logo" src="logomcd.png" alt="">
+  <svg class="dt-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+    <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2">
+      <animate id="mcdS1" fill="freeze" attributeName="x" begin="0;mcdS12.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS2" fill="freeze" attributeName="y" begin="mcdS9.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS3" fill="freeze" attributeName="x" begin="mcdS10.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS4" fill="freeze" attributeName="y" begin="mcdS11.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="1" y="13" fill="currentColor" rx="2">
+      <animate id="mcdS5" fill="freeze" attributeName="y" begin="mcdS1.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS6" fill="freeze" attributeName="x" begin="mcdS2.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS7" fill="freeze" attributeName="y" begin="mcdS3.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS8" fill="freeze" attributeName="x" begin="mcdS4.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="13" y="13" fill="currentColor" rx="2">
+      <animate id="mcdS9" fill="freeze" attributeName="x" begin="mcdS5.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS10" fill="freeze" attributeName="y" begin="mcdS6.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS11" fill="freeze" attributeName="x" begin="mcdS7.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS12" fill="freeze" attributeName="y" begin="mcdS8.end" dur="0.2s" values="1;13"/>
+    </rect>
+  </svg>
 </div>
 <script>
 (function(){
@@ -1230,7 +1257,7 @@
   })();
   </script>
   <div id="enter-wrap">
-    <button class="enter-btn" onclick="mcdGo('qui-suis-je.html')">Explorer</button>
+    <button class="enter-btn" onclick="mcdGo('explorer.html')">Explorer</button>
   </div>
 
   <!-- Écran de chargement retiré : ce sont les portes qui font le chargement -->
