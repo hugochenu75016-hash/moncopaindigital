@@ -2,409 +2,1638 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="/favicons/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicons/favicon-180.png">
+<link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#6EC1F0">
-<title>Page en cours de développement · Mon Copain Digital</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;display=swap">
-<style>
-  *{ box-sizing:border-box; }
-  html,body{ margin:0; min-height:100%; }
-  body{ background:#6EC1F0; overflow-x:hidden; font-family:'Fredoka','Helvetica Neue',Arial,sans-serif;
-    min-height:100vh; transition:background .7s ease; }
-  .scene{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:150px 16px 80px; position:relative; }
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Copain Digital">
+<meta name="application-name" content="Copain Digital">
+<title>Explorer · Mon Copain Digital</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;900&amp;display=swap">
+<script>
+/* Détection mobile / desktop AVANT le premier pixel : le mode app est déjà en place
+   pendant que les portes sont fermées, donc aucun saut de mise en page à l'ouverture. */
+(function(){
+  var d = document.documentElement;
+  var forced = /[?&]appweb=1/.test(location.search);
+  var mobile = forced || (matchMedia('(max-width: 820px)').matches && matchMedia('(hover: none)').matches);
+  d.setAttribute('data-device', mobile ? 'mobile' : 'desktop');
+  if(mobile) d.setAttribute('data-appweb','1');
+})();
+</script>
+<style id="mcd-appweb">
+@media (max-width: 820px) {
+  html[data-appweb] { -webkit-text-size-adjust:100%; overscroll-behavior:none;
+    overflow-x:hidden; max-width:100%; touch-action:pan-y pinch-zoom; }
+  html[data-appweb] body { overscroll-behavior:none; overflow-x:hidden; max-width:100%;
+    padding-bottom:calc(21vw + 32px + env(safe-area-inset-bottom, 0px)) !important; }
+  html[data-appweb] * { -webkit-tap-highlight-color:transparent; }
+  /* Indice « scroll for more » repoussé au-dessus du menu */
+  html[data-appweb] #scroll-hint { bottom:calc(21vw + 38px + env(safe-area-inset-bottom, 0px)) !important;
+    transition:opacity .3s ease; }
+  html[data-appweb] #scroll-hint.mcd-hidden { opacity:0 !important; }
+  /* Bouton Explorer remonté au-dessus du menu */
+  html[data-appweb] #enter-wrap { bottom:calc(21vw + 56px + env(safe-area-inset-bottom, 0px)) !important; }
+  @keyframes entBreath { 0%,100% { transform:scale(1); } 50% { transform:scale(1.08); } }
+  html[data-appweb] #mcd-nav { display:none !important; }
+  html[data-appweb] #top-logo { top:calc(max(env(safe-area-inset-top, 0px), 34px) + 18px) !important; }
 
-  /* ===== Barre haute (réseaux + Votre Bulle) ===== */
-  #topbar{ position:fixed; top:0; left:0; right:0; z-index:50;
-    display:flex; align-items:center; justify-content:flex-end;
-    gap:12px; padding:clamp(14px,2.4vw,26px) clamp(16px,4vw,48px); pointer-events:none; }
-  #topbar > *{ pointer-events:auto; }
-  #topbar .social{ display:flex; align-items:center; gap:12px; }
-  .social-btn{ width:44px; height:44px; border-radius:12px; padding:0; overflow:hidden;
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-    box-shadow:0 8px 20px rgba(60,90,120,0.3); transition:transform .26s cubic-bezier(.2,1,.3,1); }
-  .social-btn:hover{ transform:translateY(-2px) scale(1.08); }
-  .social-btn svg{ width:100%; height:100%; display:block; }
-
-  /* ===== Nav pilule flottante ===== */
-  #mcd-nav{ position:fixed; top:clamp(16px,3vh,30px); left:0; right:0; z-index:70;
-    display:flex; align-items:center; justify-content:center; pointer-events:none;
-    padding:0 clamp(12px,3vw,40px); }
-  #mcd-nav > *{ pointer-events:auto; }
-  #mcd-pill{ position:relative; display:flex; align-items:center; gap:4px; padding:8px 10px;
-    border-radius:999px;
-    background:linear-gradient(to bottom, rgba(255,255,255,.34) 0%, rgba(255,240,224,.18) 100%);
-    backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3);
-    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75), inset 0 -5px 12px rgba(255,180,120,.18),
-      0 14px 28px rgba(150,62,22,.20);
-    animation:mcdFloat 6s ease-in-out infinite; }
-  @keyframes mcdFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
-  .mcd-link{ font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.04em;
-    text-transform:uppercase; color:#FFFFFF; text-shadow:0 1px 3px rgba(150,70,0,.45);
-    background:transparent; border:0; cursor:pointer; padding:11px 16px; border-radius:999px;
-    white-space:nowrap; text-decoration:none; display:flex; align-items:center; gap:6px;
+  html[data-appweb] #mcd-bottom {
+    display:grid !important; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr);
+    position:fixed; left:10px; right:10px; z-index:9998;
+    bottom:calc(22px + env(safe-area-inset-bottom, 0px));
+    align-items:stretch; gap:2px; padding:7px; border:0;
+    border-radius:26px;
+    background:linear-gradient(to bottom, rgba(255,255,255,.97) 0%, rgba(255,248,240,.95) 100%) !important;
+    backdrop-filter:blur(16px) saturate(1.35); -webkit-backdrop-filter:blur(16px) saturate(1.35);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -5px 12px rgba(255,180,120,.16),
+      0 14px 30px rgba(150,62,22,.22) !important;
+    transition:transform .32s cubic-bezier(.2,1,.3,1), opacity .24s ease; }
+  html[data-appweb] #mcd-bottom.mcd-footer-off,
+  html[data-appweb] #mcd-bottom.mcd-hidden {
+    transform:translateY(calc(100% + 24px)); opacity:0; pointer-events:none; }
+  html[data-appweb] #mcd-bottom > a,
+  html[data-appweb] #mcd-bottom > button {
+    border:0; cursor:pointer; -webkit-appearance:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    min-height:17vw; max-height:82px; padding:1.2vw 2px; min-width:0; overflow:visible; border-radius:999px; text-decoration:none;
+    font-family:'Fredoka',sans-serif; font-weight:900; font-size:clamp(10.5px,2.9vw,13px); letter-spacing:.01em;
+    text-transform:uppercase; line-height:1; background:transparent;
+    color:#8A4A12; text-shadow:none;
     transition:background .2s ease, color .2s ease; }
-  .mcd-link:hover{ background:rgba(255,255,255,.34); color:#FFFFFF; }
-  .mcd-link.is-active, .mcd-link.is-active:hover{ color:#F3852B; text-shadow:none;
+  html[data-appweb] #mcd-bottom > a svg,
+  html[data-appweb] #mcd-bottom > button svg { width:7.5vw; height:7.5vw; max-width:34px; max-height:34px; display:block; }
+  html[data-appweb] #mcd-bottom > a img,
+  html[data-appweb] #mcd-bottom > button img { width:26px; height:26px; display:block; object-fit:contain;
+    filter:drop-shadow(0 2px 4px rgba(150,62,22,.22)); }
+  html[data-appweb] #mcd-bottom > a.bulle { gap:0; }
+  /* Onglets — dépliage vertical, fiches vignette + sous-titre */
+  html[data-appweb] #mcd-offres-pop,
+  html[data-appweb] #mcd-qui-pop,
+  html[data-appweb] #mcd-bulle-pop {
+    position:absolute; left:10px; right:10px; bottom:calc(100% + 12px);
+    display:flex; flex-direction:column; gap:2px; padding:8px; border-radius:24px;
+    background:#fff; box-shadow:0 18px 40px rgba(16,54,84,.22);
+    opacity:0; transform:scaleY(.2); transform-origin:50% 100%; pointer-events:none;
+    transition:opacity .18s ease, transform .34s cubic-bezier(.2,1.3,.3,1); }
+  html[data-appweb] #mcd-bottom.pop-open #mcd-offres-pop,
+  html[data-appweb] #mcd-bottom.pop-qui #mcd-qui-pop,
+  html[data-appweb] #mcd-bottom.pop-bulle #mcd-bulle-pop {
+    opacity:1; transform:none; pointer-events:auto; }
+  html[data-appweb] #mcd-offres-pop a,
+  html[data-appweb] #mcd-qui-pop a,
+  html[data-appweb] #mcd-bulle-pop a {
+    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:18px;
+    text-decoration:none; font-family:'Fredoka',sans-serif; color:#0e1a24; min-height:56px; }
+  html[data-appweb] #mcd-offres-pop a:nth-child(even),
+  html[data-appweb] #mcd-qui-pop a:nth-child(even),
+  html[data-appweb] #mcd-bulle-pop a:nth-child(even) { background:#f6f8fa; }
+  html[data-appweb] #mcd-offres-pop a:active,
+  html[data-appweb] #mcd-qui-pop a:active,
+  html[data-appweb] #mcd-bulle-pop a:active { background:rgba(243,133,43,.12); }
+  html[data-appweb] #mcd-offres-pop b,
+  html[data-appweb] #mcd-qui-pop b,
+  html[data-appweb] #mcd-bulle-pop b { display:block; font-size:15.5px; font-weight:600; }
+  html[data-appweb] #mcd-offres-pop em,
+  html[data-appweb] #mcd-qui-pop em,
+  html[data-appweb] #mcd-bulle-pop em { font-style:normal; font-size:12.5px; color:#5c6b78;
+    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+  /* vignettes calibrées : même diamètre visible (~34px) malgré les marges internes des PNG */
+  html[data-appweb] #mcd-offres-pop .th,
+  html[data-appweb] #mcd-qui-pop .th,
+  html[data-appweb] #mcd-bulle-pop .th { flex:0 0 auto; object-fit:contain; display:block;
+    width:40px; height:40px; margin:0; }
+  html[data-appweb] #mcd-qui-pop img.th { width:52px; height:52px; margin:-6px -6px -6px 0; }
+  html[data-appweb] #mcd-offres-pop img.th { width:48px; height:48px; margin:-4px -4px -4px 0; }
+  html[data-appweb] #mcd-offres-pop img.th.studio { width:52px; height:52px; margin:-6px -6px -6px 0; }
+  html[data-appweb] #mcd-bulle-pop img.th { width:38px; height:38px; }
+  html[data-appweb] #mcd-offres-pop span.th,
+  html[data-appweb] #mcd-qui-pop span.th,
+  html[data-appweb] #mcd-bulle-pop span.th { width:34px; height:34px; border-radius:12px; margin:0 3px 0 0;
+    background:radial-gradient(circle at 32% 26%,#fff,#e9eef5 58%,#dae1ea); position:relative;
+    box-shadow:inset 0 1.5px 2px #fff, 0 2px 5px rgba(16,54,84,.14); }
+  html[data-appweb] #mcd-offres-pop span.th::after,
+  html[data-appweb] #mcd-qui-pop span.th::after,
+  html[data-appweb] #mcd-bulle-pop span.th::after { content:""; position:absolute;
+    left:50%; top:50%; width:11px; height:11px; margin:-5.5px 0 0 -5.5px; border-radius:50%; background:#F3852B; }
+  html[data-appweb] #mcd-offres-pop .chev,
+  html[data-appweb] #mcd-qui-pop .chev,
+  html[data-appweb] #mcd-bulle-pop .chev { margin-left:auto; color:#F3852B; font-size:17px; font-weight:700; }
+  html[data-appweb] #mcd-offres-pop .tag { margin-left:auto; font-size:10px; font-weight:900;
+    letter-spacing:.06em; text-transform:uppercase; color:#FFF7DB; padding:4px 9px;
+    border-radius:999px; background:linear-gradient(to bottom,#ff9c46,#f3852b); }
+  html[data-appweb] #mcd-bottom > .qui { gap:0; }
+  html[data-appweb] #mcd-bottom > .qui img { width:22.3vw; height:22.3vw; max-width:104px; max-height:104px; margin:-3.1vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > a.accueil { gap:0; }
+  html[data-appweb] #mcd-bottom > a.accueil img { width:22.3vw; height:22.3vw; max-width:104px; max-height:104px; margin:-3.1vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > .offres { gap:0; }
+  html[data-appweb] #mcd-bottom > .offres img { width:20.3vw; height:20.3vw; max-width:95px; max-height:95px; margin:-2.9vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > .bulle img { width:16vw; height:16vw; max-width:75px; max-height:75px;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  /* Bouton « Votre Bulle » du rail masqué : il est déjà dans le menu du bas */
+  html[data-appweb] .acct-sq, html[data-appweb] .acct-badge { display:none !important; }
+  /* Pied de page : plein écran jusqu'en bas (l'inline absolute le tronquait) */
+  html[data-appweb] #footer-sheet { position:fixed !important; left:0 !important; top:0 !important;
+    right:0 !important; bottom:0 !important; }
+  html[data-appweb] #mcd-bottom > a:active,
+  html[data-appweb] #mcd-bottom > button:active { background:rgba(243,133,43,.14); color:#F3852B; }
+  html[data-appweb] #mcd-bottom > a.is-active {
+    color:#F3852B; text-shadow:none;
+    background:linear-gradient(to bottom, #fff6ec 0%, #ffeede 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.32),
+      0 2px 6px rgba(150,62,22,.14); }
+  html[data-appweb] #mcd-bottom > a.rdv,
+  html[data-appweb] #mcd-bottom > a.rdv.is-active {
+    position:relative; align-self:center; justify-self:center;
+    width:17.5vw; height:17.5vw; max-width:78px; max-height:78px; min-height:0;
+    padding:0; gap:1px; border-radius:50%; overflow:visible;
+    color:#FFF7E6; text-shadow:0 1px 2px rgba(150,70,0,.42);
+    background:
+      radial-gradient(circle at 33% 22%, rgba(255,255,255,.80) 0%, rgba(255,255,255,0) 44%),
+      radial-gradient(circle at 72% 86%, rgba(255,158,72,.75) 0%, rgba(255,158,72,0) 58%),
+      radial-gradient(circle at 50% 36%, #ffab60 0%, #f4862c 50%, #dd6a1b 82%, #bb520f 100%);
+    box-shadow:
+      inset 0 7px 12px rgba(255,220,180,.55),
+      inset 0 -8px 14px rgba(146,58,0,.42),
+      inset 0 0 0 1px rgba(255,255,255,.22),
+      0 12px 22px rgba(150,62,22,.36),
+      0 3px 6px rgba(150,62,22,.22);
+    transform:translateY(-5px) scale(1.08);
+    transition:transform .22s cubic-bezier(.2,1,.3,1), box-shadow .22s ease; }
+  html[data-appweb] #mcd-bottom > a.rdv::after {
+    content:""; position:absolute; left:22%; top:11%; width:40%; height:26%;
+    border-radius:50%; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 50%, rgba(255,255,255,.75) 0%, rgba(255,255,255,0) 70%);
+    filter:blur(1px); }
+  html[data-appweb] #mcd-bottom > a.rdv:active {
+    background:
+      radial-gradient(circle at 33% 22%, rgba(255,255,255,.66) 0%, rgba(255,255,255,0) 44%),
+      radial-gradient(circle at 50% 36%, #f79a4c 0%, #e87a24 52%, #c95c14 84%, #a94a0d 100%);
+    transform:translateY(-2px) scale(1.03);
+    box-shadow:
+      inset 0 6px 10px rgba(255,214,170,.42),
+      inset 0 -7px 12px rgba(146,58,0,.5),
+      0 6px 12px rgba(150,62,22,.3); }
+  html[data-appweb] #mcd-bottom > a.rdv svg {
+    position:relative; z-index:1; width:8vw !important; height:8vw !important;
+    max-width:32px !important; max-height:32px !important;
+    filter:drop-shadow(0 1px 2px rgba(140,58,0,.4)); }
+
+  html[data-appweb] body { animation:mcdAppIn .34s ease both; }
+  @keyframes mcdAppIn { from { opacity:0; } to { opacity:1; } }
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<style>
+  * { box-sizing:border-box; }
+  html, body { margin:0; padding:0; height:100%; background:#6EC1F0; overflow:hidden; }
+  #wrap { position:fixed; inset:0; overflow:hidden; background:linear-gradient(180deg,#2E9FE0 0%,#57BCEE 46%,#8AD8F5 100%); }
+  #scene { display:block; width:100%; height:100%; touch-action:none; position:relative; z-index:2; }
+
+  #xp-title { position:fixed; left:0; right:0; top:calc(env(safe-area-inset-top,0px) + 86px); z-index:12;
+    text-align:center; pointer-events:none; font-family:'Fredoka',sans-serif; }
+  #xp-title b { display:block; font-size:clamp(26px,5.4vw,46px); font-weight:900; color:#fff;
+    text-shadow:0 3px 0 rgba(150,70,0,.28), 0 10px 24px rgba(30,12,0,.3); letter-spacing:.01em; }
+  #xp-title span { display:block; margin-top:6px; font-size:clamp(12px,2.6vw,15px); font-weight:600;
+    color:#FFF3E2; text-shadow:0 2px 6px rgba(120,50,0,.4); }
+  html[data-appweb] #xp-title { top:calc(env(safe-area-inset-top,0px) + 22px); }
+
+  #poi-layer { position:fixed; inset:0; z-index:11; pointer-events:none; }
+  .poi { position:absolute; transform:translate(-50%,-100%); display:flex; flex-direction:column;
+    align-items:center; gap:4px; font-family:'Fredoka',sans-serif; transition:opacity .2s ease; }
+  .poi b { pointer-events:auto; cursor:pointer; padding:8px 14px; border-radius:999px; font-size:13px; font-weight:700;
+    color:#8A4A12; background:linear-gradient(to bottom,#fffdfa,#ffeede);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), 0 6px 14px rgba(150,62,22,.28);
+    white-space:nowrap; }
+  .poi i { width:2px; height:16px; background:rgba(255,255,255,.75); border-radius:2px; }
+  .poi.near b { color:#fff; background:linear-gradient(to bottom,#ff9c46,#f3852b);
+    box-shadow:0 4px 0 #c7620e, 0 10px 20px rgba(150,62,22,.34); }
+
+  #sun-face { position:fixed; z-index:10; right:clamp(30px,7vw,120px); top:calc(env(safe-area-inset-top,0px) + 110px);
+    width:clamp(70px,9vw,120px); height:clamp(70px,9vw,120px); pointer-events:none;
+    animation:sunBob 5s ease-in-out infinite; }
+  @keyframes sunBob { 0%,100%{ transform:translateY(0) rotate(-3deg); } 50%{ transform:translateY(-8px) rotate(3deg); } }
+  #sun-face svg { overflow:visible; }
+  #sun-face .sun-flames { transform-box:fill-box; transform-origin:center; animation:sunFlamesSpin 26s linear infinite; }
+  #sun-face .sf { transform-box:fill-box; transform-origin:50% 100%; fill:url(#flameGrad); will-change:transform,opacity;
+    animation:flmeFlick 1.4s ease-in-out infinite; }
+  @keyframes flmeFlick { 0%,100%{ transform:scaleY(.85) scaleX(1.02); opacity:.7; } 45%{ transform:scaleY(1.42) scaleX(.8); opacity:1; } 72%{ transform:scaleY(1.08) scaleX(.94); opacity:.9; } }
+  @keyframes sunFlamesSpin { to { transform:rotate(360deg); } }
+  #grid-btn { position:fixed; z-index:14; right:clamp(16px,3vw,32px); bottom:calc(env(safe-area-inset-bottom,0px) + 22px);
+    padding:11px 18px; border:0; cursor:pointer; border-radius:999px;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; color:#8A4A12;
+    background:linear-gradient(to bottom,#fffdfa,#ffeede);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), 0 6px 14px rgba(150,62,22,.28); }
+  #grid-btn[aria-pressed="false"] { color:#fff; background:rgba(255,255,255,.22); box-shadow:none; }
+  html[data-appweb] #grid-btn { bottom:calc(21vw + 52px + env(safe-area-inset-bottom,0px)); }
+  #joy { position:fixed; left:calc(env(safe-area-inset-left,0px) + 20px);
+    bottom:calc(21vw + 46px + env(safe-area-inset-bottom,0px)); z-index:13;
+    width:118px; height:118px; border-radius:50%; display:none; touch-action:none;
+    background:radial-gradient(circle at 50% 40%, rgba(255,255,255,.42), rgba(255,255,255,.16));
+    box-shadow:inset 0 2px 3px rgba(255,255,255,.7), 0 10px 24px rgba(150,62,22,.24);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  html[data-appweb] #joy { display:block; }
+  #joy .knob { position:absolute; left:50%; top:50%; width:52px; height:52px; margin:-26px 0 0 -26px;
+    border-radius:50%; background:linear-gradient(to bottom,#ffb266,#f3852b);
+    box-shadow:inset 0 2px 2px rgba(255,255,255,.6), 0 6px 14px rgba(150,62,22,.4); }
+
+  #hint { position:fixed; left:50%; transform:translateX(-50%); z-index:12;
+    bottom:calc(env(safe-area-inset-bottom,0px) + 26px);
+    font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:#FFF3E2;
+    text-shadow:0 2px 6px rgba(120,50,0,.45); pointer-events:none; transition:opacity .5s ease; }
+  html[data-appweb] #hint { bottom:calc(21vw + 52px + env(safe-area-inset-bottom,0px)); left:auto; right:20px; transform:none; }
+
+  #avis { position:fixed; inset:0; z-index:100002; display:none; align-items:center; justify-content:center;
+    padding:24px; background:rgba(40,18,0,.42); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  #avis.open { display:flex; }
+  #avis .sheet { width:min(420px,100%); max-height:78vh; overflow:auto; border-radius:26px; padding:24px 22px 18px;
+    background:linear-gradient(to bottom,#fffdfa,#fff3e4); box-shadow:0 30px 60px rgba(90,40,0,.4);
+    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+  #avis h2 { margin:0 0 4px; font-family:'Fredoka',sans-serif; font-size:24px; font-weight:900; color:#8A4A12; }
+  #avis .sub { margin:0 0 18px; font-size:13px; color:#B98455; }
+  #avis .card { padding:14px 16px; border-radius:18px; background:#fff; margin-bottom:10px;
+    box-shadow:0 4px 12px rgba(150,62,22,.1); }
+  #avis .stars { color:#F3852B; font-size:13px; letter-spacing:2px; }
+  #avis .card p { margin:6px 0 8px; font-size:14px; line-height:1.5; color:#3d2a1a; text-wrap:pretty; }
+  #avis .who { font-family:'Fredoka',sans-serif; font-size:12.5px; font-weight:600; color:#B98455; }
+  #avis .close { display:block; width:100%; margin-top:6px; padding:14px; border:0; cursor:pointer;
+    border-radius:999px; font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px; color:#fff;
+    background:linear-gradient(to bottom,#ff9c46,#f3852b); box-shadow:0 4px 0 #c7620e; }
+</style>
+</head>
+<body>
+<!-- ===== Verrou d'accès (temporaire, le temps du chantier) ===== -->
+<style id="gate-css">
+  #mcd-gate { position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#2F4E8F 0%,#1B3A72 100%); font-family:'Fredoka',sans-serif; }
+  #mcd-gate.hidden { display:none; }
+  #mcd-gate .box { width:min(92vw,380px); background:#FFF8EC; border-radius:26px; padding:30px 26px 26px;
+    box-shadow:0 22px 44px rgba(10,25,60,.45); text-align:center; }
+  #mcd-gate h2 { margin:0 0 6px; font-size:20px; font-weight:900; color:#243B6B; letter-spacing:.01em; }
+  #mcd-gate p { margin:0 0 18px; font-size:13px; line-height:1.45; color:#6B7A96; }
+  #mcd-gate input { width:100%; box-sizing:border-box; padding:14px 16px; font-family:inherit; font-size:18px;
+    font-weight:800; letter-spacing:.22em; text-align:center; color:#243B6B; background:#fff;
+    border:2px solid #E2D8C6; border-radius:14px; outline:none; }
+  #mcd-gate input:focus { border-color:#DC5E10; }
+  #mcd-gate button { margin-top:14px; width:100%; padding:15px 20px; border:0; cursor:pointer; border-radius:999px;
+    font-family:inherit; font-weight:900; font-size:14px; letter-spacing:.06em; text-transform:uppercase; color:#FFF7DB;
+    background:linear-gradient(to bottom,#ff9c46,#f3852b); box-shadow:0 6px 0 #c7620e, 0 16px 28px rgba(150,62,22,.34); }
+  #mcd-gate button:active { transform:translateY(3px); box-shadow:0 3px 0 #c7620e; }
+  #mcd-gate .err { margin:12px 0 0; font-size:12px; font-weight:700; color:#C0392B; opacity:0; transition:opacity .2s; }
+  #mcd-gate.wrong .err { opacity:1; }
+  #mcd-gate.wrong .box { animation:gateShake .32s ease; }
+  @keyframes gateShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
+</style>
+<div id="mcd-gate" role="dialog" aria-modal="true" aria-label="Accès protégé">
+  <div class="box">
+    <h2>Chantier en cours</h2>
+    <p>Cette page est en construction. Entrez le code d'accès pour continuer.</p>
+    <input id="gate-input" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••" aria-label="Code d'accès">
+    <button id="gate-go" type="button">Entrer</button>
+    <p class="err">Code incorrect</p>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY = 'mcd-explorer-gate';
+  var g = document.getElementById('mcd-gate'), inp = document.getElementById('gate-input');
+  try { if (sessionStorage.getItem(KEY) === 'ok') { g.classList.add('hidden'); return; } } catch(e){}
+  document.documentElement.style.overflow = 'hidden';
+  setTimeout(function(){ inp.focus(); }, 120);
+  function tryIt(){
+    if (inp.value.trim() === '123456') {
+      try { sessionStorage.setItem(KEY, 'ok'); } catch(e){}
+      document.documentElement.style.overflow = '';
+      g.classList.add('hidden');
+    } else {
+      g.classList.remove('wrong'); void g.offsetWidth; g.classList.add('wrong');
+      inp.value = ''; inp.focus();
+    }
+  }
+  document.getElementById('gate-go').addEventListener('click', tryIt);
+  inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') tryIt(); });
+})();
+</script>
+<!-- ===== Fin verrou d'accès ===== -->
+<!-- ===== Transition portes entre pages ===== -->
+<style id="door-tx-style">
+  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
+  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
+    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
+    box-shadow:0 0 70px rgba(90,40,0,0.45);}
+  /* État par défaut : portes ouvertes (hors écran), aucune animation à l'arrivée directe */
+  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
+  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
+  /* État chargement : portes fermées, maintenues jusqu'à ce que le personnage soit prêt */
+  #door-tx.loading{pointer-events:auto;}
+  #door-tx.loading .door.l,#door-tx.loading .door.r{transform:translateX(0)!important;animation:none!important;}
+  #door-tx.loading .dt-logo{opacity:1!important;animation:dtLogoPulse 1.6s ease-in-out infinite!important;}
+  @keyframes dtLogoPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
+  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
+    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
+  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
+  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
+  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
+  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
+  #door-tx.closing{pointer-events:auto;}
+  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
+  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
+  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
+  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  #door-tx .dt-spin{position:absolute;left:50%;top:calc(50% + clamp(96px,17vw,168px));
+    transform:translate(-50%,-50%);width:clamp(46px,9.5vw,68px);height:clamp(46px,9.5vw,68px);
+    color:#FFE6C4;opacity:0;transition:opacity .25s ease;
+    filter:drop-shadow(0 3px 6px rgba(120,50,0,.45));}
+  #door-tx.loading .dt-spin{opacity:.95;}
+  #door-tx.closing .dt-spin{opacity:0;}
+  @media (prefers-reduced-motion:reduce){
+    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
+    #door-tx .dt-spin{display:none;}
+  }
+</style>
+<div id="door-tx" class="loading" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="logomcd.png" alt="">
+  <svg class="dt-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+    <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2">
+      <animate id="mcdS1" fill="freeze" attributeName="x" begin="0;mcdS12.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS2" fill="freeze" attributeName="y" begin="mcdS9.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS3" fill="freeze" attributeName="x" begin="mcdS10.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS4" fill="freeze" attributeName="y" begin="mcdS11.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="1" y="13" fill="currentColor" rx="2">
+      <animate id="mcdS5" fill="freeze" attributeName="y" begin="mcdS1.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS6" fill="freeze" attributeName="x" begin="mcdS2.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS7" fill="freeze" attributeName="y" begin="mcdS3.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS8" fill="freeze" attributeName="x" begin="mcdS4.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="13" y="13" fill="currentColor" rx="2">
+      <animate id="mcdS9" fill="freeze" attributeName="x" begin="mcdS5.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS10" fill="freeze" attributeName="y" begin="mcdS6.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS11" fill="freeze" attributeName="x" begin="mcdS7.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS12" fill="freeze" attributeName="y" begin="mcdS8.end" dur="0.2s" values="1;13"/>
+    </rect>
+  </svg>
+</div>
+<script>
+(function(){
+  if(window.__doorTx) return; window.__doorTx=true;
+  var ov=document.getElementById('door-tx');
+  if(!ov) return;
+  var DUR=1000;
+  function isInternal(a){
+    if(!a) return false;
+    if(a.target && a.target!=='_self') return false;
+    if(a.hasAttribute('download')) return false;
+    var href=a.getAttribute('href')||'';
+    if(!href || href.charAt(0)==='#') return false;
+    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
+    if(url.origin!==location.origin) return false;
+    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented) return;
+    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target.closest ? e.target.closest('a[href]') : null;
+    if(!isInternal(a)) return;
+    e.preventDefault();
+    go(a.href);
+  }, true);
+  // Fermeture des portes puis redirection (pour les boutons onclick + les liens)
+  function go(dest){
+    if(ov.classList.contains('closing')) return;
+    try{ sessionStorage.setItem('mcd-door-nav','1'); }catch(err){}
+    void ov.offsetWidth;
+    ov.classList.add('closing');
+    setTimeout(function(){ window.location.href=dest; }, DUR);
+  }
+  window.mcdGo=go;
+  try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
+  // Les portes servent d'écran de chargement : elles restent fermées jusqu'à ce que
+  // le personnage 3D soit prêt, puis window.mcdDoorsOpen() les ouvre.
+  var opened=false, modelReady=false, pageLoaded=(document.readyState==='complete');
+  function doOpen(){
+    if(opened) return; opened=true;
+    ov.classList.remove('loading');
+    void ov.offsetWidth;
+    ov.classList.add('opening');
+    // 1 s après l'ouverture des portes : le personnage tombe sur la planète
+    setTimeout(function(){ if(window.__startFall) window.__startFall(); }, 1000);
+  }
+  function tryOpen(){ if(modelReady && pageLoaded) doOpen(); }
+  // Appelé quand le personnage 3D est prêt : n'ouvre que si toute la page est aussi chargée.
+  window.mcdDoorsOpen=function(){ modelReady=true; tryOpen(); };
+  window.addEventListener('load', function(){ pageLoaded=true; tryOpen(); });
+  // Filet de sécurité : ouverture forcée après 20s si un chargement échoue.
+  setTimeout(doOpen, 20000);
+  window.addEventListener('pageshow', function(ev){
+    if(ev.persisted){
+      ov.classList.remove('closing');
+      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
+    }
+  });
+})();
+</script>
+<!-- ===== Fin transition portes ===== -->
+<style>
+  /* ===== Entête pilule flottante (nouvelle structure) ===== */
+  #mcd-nav { position:absolute; top:clamp(16px,3vh,30px); left:0; right:0; padding:0 clamp(12px,3vw,40px);
+    display:flex; align-items:center; justify-content:center; gap:14px 18px; flex-wrap:wrap; z-index:30; pointer-events:none; }
+  #mcd-nav > * { pointer-events:auto; }
+  .mcd-glass { background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
+    border-radius:999px;
+    box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34),
+      inset 0 2px 3px rgba(255,255,255,.9), inset 0 -5px 10px rgba(255,180,120,.28); }
+  #mcd-bottom { display:none; }
+  #mcd-pill { position:relative; display:flex; align-items:center; gap:4px; padding:8px 10px; margin:0 auto;
+    animation:mcdFloat 6s ease-in-out infinite; }
+  @keyframes mcdFloat { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+  .mcd-link { font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.04em;
+    text-transform:uppercase; color:#C77B33; background:transparent; border:0; cursor:pointer;
+    padding:11px 16px; border-radius:999px; white-space:nowrap; text-decoration:none;
+    display:flex; align-items:center; gap:6px; transition:background .2s ease, color .2s ease; }
+  .mcd-link:hover { background:rgba(243,133,43,.14); color:#F3852B; }
+  .mcd-link.is-active, .mcd-link.is-active:hover {
+    color:#F3852B; text-shadow:none;
     background:linear-gradient(to bottom, #ffffff 0%, #fff6ec 55%, #ffeede 100%);
+    backdrop-filter:blur(6px) saturate(1.2); -webkit-backdrop-filter:blur(6px) saturate(1.2);
     box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.28),
       0 4px 10px rgba(150,62,22,.16); }
-  #mcd-drop{ position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:12px;
-    width:300px; padding:10px; border-radius:24px; display:none; flex-direction:column; gap:6px;
-    background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
-    box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34); }
-  #mcd-drop.open{ display:flex; }
-  #mcd-drop a{ display:flex; flex-direction:column; gap:2px; padding:12px 14px; border-radius:16px; text-decoration:none; }
-  #mcd-drop a:hover{ background:rgba(243,133,43,.14); }
-  #mcd-drop strong{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#8A4A12; }
-  #mcd-drop em{ font-style:normal; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; color:#B98455; }
-  #mcd-right{ position:fixed; top:clamp(16px,3vh,30px); left:clamp(16px,4vw,48px); z-index:71;
-    display:flex; align-items:center; gap:10px; }
-  .mcd-cta{ font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.06em;
+  #mcd-sol { position:relative; overflow:visible; }
+  #mcd-sol-txt { position:relative; display:inline-block; }
+  .mcd-badge { position:absolute; bottom:calc(100% + 1px); left:calc(100% - 4px); pointer-events:none;
+    padding:2px 6px; border-radius:999px; background:#E11D10; color:#fff;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:9px; letter-spacing:.06em;
+    text-transform:uppercase; text-shadow:none; box-shadow:0 2px 6px rgba(180,20,10,.45);
+    transform-origin:0% 100%; transform:rotate(-16deg) scale(0);
+    animation:mcdInflate 2.1s cubic-bezier(.3,1.4,.4,1) .6s forwards; }
+  .mcd-badge::before { content:''; position:absolute; left:1px; bottom:-3px;
+    width:1.5px; height:4px; background:rgba(225,29,16,.65); transform:rotate(16deg);
+    transform-origin:50% 100%; }
+  @keyframes mcdInflate {
+    0%   { transform:rotate(-16deg) scale(0);    opacity:0; }
+    10%  { transform:rotate(-16deg) scale(.35);  opacity:1; }
+    45%  { transform:rotate(-14deg) scale(1.05); }
+    62%  { transform:rotate(-18deg) scale(1.35); }
+    76%  { transform:rotate(-13deg) scale(1.6);  }
+    92%  { transform:rotate(-16deg) scale(2.05); opacity:1; }
+    97%  { transform:rotate(-16deg) scale(2.45); opacity:.95; filter:brightness(1.5); }
+    100% { transform:rotate(-16deg) scale(2.7);  opacity:0; }
+  }
+  #mcd-drop a { position:relative; overflow:visible; }
+  #mcd-drop strong { position:relative; display:inline-block; }
+  .mcd-badge-static { position:absolute; bottom:calc(100% - 2px); left:calc(100% - 6px);
+    pointer-events:none; padding:2px 6px; border-radius:999px; background:#E11D10; color:#fff;
+    font-family:'Fredoka',sans-serif; font-weight:700; font-size:9px; letter-spacing:.06em;
+    text-transform:uppercase; box-shadow:0 2px 6px rgba(180,20,10,.45);
+    transform:rotate(-16deg); transform-origin:0% 100%;
+    animation:mcdBadgeIn .45s cubic-bezier(.3,1.5,.4,1) both; }
+  .mcd-badge-static::before { content:''; position:absolute; left:1px; bottom:-3px;
+    width:1.5px; height:4px; background:rgba(225,29,16,.65); transform:rotate(16deg);
+    transform-origin:50% 100%; }
+  @keyframes mcdBadgeIn { 0%{ transform:rotate(-16deg) scale(0); } 100%{ transform:rotate(-16deg) scale(1); } }
+  .mcd-pop { position:absolute; bottom:calc(100% + 5px); left:calc(100% + 6px);
+    width:0; height:0; pointer-events:none; }
+  .mcd-pop i { position:absolute; width:11px; height:11px; border-radius:50%; background:#FF2A17;
+    box-shadow:0 0 0 2px rgba(255,255,255,.85), 0 4px 12px rgba(180,20,10,.6);
+    opacity:0; animation:mcdPop .75s cubic-bezier(.2,.9,.3,1) 2.62s forwards; }
+  .mcd-pop i:nth-child(2n) { background:#FFC24A; width:9px; height:9px; }
+  .mcd-pop i:nth-child(3n) { background:#FFF6EA; }
+  @keyframes mcdPop {
+    0%   { opacity:1; transform:translate(0,0) scale(.4); }
+    25%  { opacity:1; transform:translate(calc(var(--dx) * .5),calc(var(--dy) * .5)) scale(1.5); }
+    100% { opacity:0; transform:translate(calc(var(--dx) * 2.4),calc(var(--dy) * 2.4)) scale(.5); } }
+  @keyframes mcdBadgePulse { 0%,100%{ transform:rotate(-16deg) translateY(0); } 50%{ transform:rotate(-16deg) translateY(-2px); } }
+  #mcd-drop { position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:12px;
+    width:300px; padding:10px; border-radius:24px; display:none; flex-direction:column; gap:6px; }
+  #mcd-drop.open { display:flex; }
+  #mcd-drop a { display:flex; flex-direction:column; gap:2px; padding:12px 14px; border-radius:16px; text-decoration:none; }
+  #mcd-drop a:hover { background:rgba(243,133,43,.14); }
+  #mcd-drop strong { font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#8A4A12; }
+  #mcd-drop em { font-style:normal; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; color:#B98455; }
+  #mcd-right { position:fixed; top:clamp(20px,3.5vh,40px); right:clamp(20px,4vw,64px);
+    display:flex; align-items:center; gap:10px; z-index:30; }
+  #mcd-left { position:fixed; top:clamp(20px,3.5vh,40px); left:clamp(20px,4vw,64px);
+    display:flex; align-items:center; gap:10px; z-index:30; }
+  .mcd-cta { font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.06em;
     text-transform:uppercase; color:#FFF7DB; text-decoration:none; padding:15px 24px; border-radius:999px;
     background:linear-gradient(to bottom,#ff9c46,#f3852b);
     box-shadow:0 6px 0 #c7620e, 0 16px 28px rgba(150,62,22,.34);
     transition:transform .28s cubic-bezier(.2,1,.3,1), background .2s ease; }
-  .mcd-cta:hover{ background:linear-gradient(to bottom,#ffab5e,#ff8f36); }
-  @media (max-width:1150px){
-    #mcd-nav{ gap:10px; top:calc(env(safe-area-inset-top,0px) + 68px); justify-content:flex-start;
-      padding-left:calc(env(safe-area-inset-left,0px) + 10px);
-      padding-right:calc(env(safe-area-inset-right,0px) + 10px); }
-    #mcd-pill{ flex:1 1 auto; min-width:0; padding:6px; justify-content:flex-start;
-      overflow-x:auto; overflow-y:hidden; scrollbar-width:none; animation:none; }
-    #mcd-pill::-webkit-scrollbar{ display:none; }
-    .mcd-link{ font-size:12px; padding:10px 12px; }
-    #mcd-drop{ left:0; transform:none; width:min(300px,78vw); }
-    #mcd-right{ position:static; flex:none; }
-    .mcd-cta{ font-size:11px; padding:12px 14px; letter-spacing:.04em; }
-    .scene{ padding-top:200px; }
+  .mcd-cta:hover { background:linear-gradient(to bottom,#ffab5e,#ff8f36); }
+  #mcd-pill.mcd-glass, #mcd-bottom.mcd-glass {
+    background:linear-gradient(to bottom, rgba(255,255,255,.34) 0%, rgba(255,240,224,.18) 100%);
+    backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75), inset 0 -5px 12px rgba(255,180,120,.18),
+      0 14px 28px rgba(150,62,22,.20); }
+  .mcd-link { color:#FFFFFF; text-shadow:0 1px 3px rgba(150,70,0,.45); }
+  .mcd-link:hover { background:rgba(255,255,255,.34); color:#FFFFFF; }
+  #mcd-bottom { display:none; }
+  #top-logo { z-index:1 !important; top:clamp(58px,6.5vw,92px) !important; }
+  #logo-px { display:block; margin:0 auto; width:clamp(280px,36vw,590px); height:auto;
+    filter:drop-shadow(0 6px 16px rgba(30,12,0,.28)); }
+
+  @media (max-width: 1150px) {
+    /* Entête en haut, sous l'encoche / Dynamic Island / poinçon Android */
+    #mcd-nav { top:calc(env(safe-area-inset-top, 0px) + 12px); flex-wrap:nowrap;
+      align-items:center; justify-content:flex-start; gap:8px;
+      padding-left:calc(env(safe-area-inset-left, 0px) + 10px);
+      padding-right:calc(env(safe-area-inset-right, 0px) + 10px); }
+    #mcd-pill { display:flex; flex:1 1 auto; min-width:0; margin:0; padding:6px;
+      justify-content:flex-start; overflow-x:auto; overflow-y:hidden;
+      scrollbar-width:none; -webkit-overflow-scrolling:touch; animation:none; }
+    #mcd-pill::-webkit-scrollbar { display:none; }
+    .mcd-link { font-size:12px; padding:10px 12px; }
+    #mcd-drop { left:0; transform:none; width:min(300px,78vw); }
+    #mcd-left { display:none; }
+    #mcd-right { position:static; flex:none; }
+    .mcd-cta { display:inline-flex; font-size:11px; padding:12px 14px; letter-spacing:.04em; }
+    #mcd-bottom { display:none; }
+    #top-logo { top:calc(env(safe-area-inset-top, 0px) + 84px) !important; }
   }
-  @media (max-width:380px){ .mcd-link{ font-size:11px; padding:9px 10px; } }
 
-  /* ===== Pied de page ===== */
-  #site-footer{ position:relative; z-index:60;
-    padding:clamp(40px,5vw,68px) clamp(16px,4vw,48px) clamp(24px,3vw,34px);
-    background:linear-gradient(to bottom,#e8690d 0%,#cf560b 100%);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.28), 0 -20px 40px rgba(60,90,120,0.22); overflow:hidden; }
-  #site-footer .sf-inner{ max-width:1160px; margin:0 auto; display:grid; grid-template-columns:auto 1fr 1fr 1fr; gap:clamp(20px,3.4vw,54px); align-items:start; }
-  #site-footer .sf-brand{ align-self:center; }
-  #site-footer .sf-brand span{ display:inline-block; line-height:0.98; letter-spacing:-0.01em;
-    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:clamp(36px,4.6vw,74px);
-    background:linear-gradient(170deg, rgba(255,255,255,0.9) 0%, rgba(255,214,158,0.72) 45%, rgba(150,60,0,0.55) 100%);
-    -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
-  #site-footer .sf-col h3{ margin:2px 0 14px; font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:#ffd9a8; }
-  #site-footer .sf-col ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:11px; }
-  #site-footer .sf-col a{ color:#fff; text-decoration:none; font-size:15px; font-weight:600; display:inline-flex; align-items:center; gap:8px; transition:color .2s, transform .2s; }
-  #site-footer .sf-col a:hover{ color:#fff3df; transform:translateX(3px); }
-  #site-footer .sf-col a .dot{ width:6px; height:6px; border-radius:50%; background:#ffd9a8; flex:0 0 auto; }
-  #site-footer .sf-contact{ display:flex; flex-direction:column; gap:12px; }
-  #site-footer .sf-legal{ max-width:1160px; margin:clamp(20px,3vh,34px) auto 0; padding-top:16px; border-top:1px solid rgba(255,255,255,0.28); font-size:13px; color:#ffe4c4; text-align:center; }
-  @media (max-width:860px){ #site-footer .sf-inner{ grid-template-columns:1fr 1fr; gap:26px 30px; } #site-footer .sf-brand{ grid-column:1 / -1; } }
-  @media (max-width:520px){ #site-footer .sf-inner{ grid-template-columns:1fr; gap:22px; } }
-  a{ color:#fff; } a:hover{ color:#fff3df; }
+  @media (max-width: 380px) {
+    .mcd-link { font-size:11px; padding:9px 10px; }
+    .mcd-cta { font-size:10px; padding:11px 11px; }
+  }
 
-  #decor{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
-  .cloud{ position:absolute; width:120px; height:44px; border-radius:44px;
-    background:linear-gradient(to bottom,#ffffff 0%,#fff3e0 55%,#f6d7ad 100%);
-    box-shadow:inset 0 6px 8px rgba(255,255,255,0.95), inset 0 -8px 12px rgba(190,120,50,0.35), 0 14px 30px rgba(120,50,0,0.28); }
-  .cloud::before,.cloud::after{ content:""; position:absolute; border-radius:50%;
-    background:radial-gradient(circle at 38% 30%,#ffffff 0%,#fff0da 65%,#f2cfa0 100%);
-    box-shadow:inset 0 4px 5px rgba(255,255,255,0.95); }
-  .cloud::before{ width:56px; height:56px; top:-24px; left:16px; }
-  .cloud::after{ width:40px; height:40px; top:-16px; left:62px; }
-  @keyframes drift{ from{ transform:translateX(-18px);} to{ transform:translateX(18px);} }
-  @keyframes driftBig{ from{ transform:translateX(-30px);} to{ transform:translateX(30px);} }
 
-  #wrap{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:clamp(18px,4vh,40px); }
-  #wip-px{ display:block; width:min(88vw,900px); height:auto; filter:drop-shadow(0 8px 20px rgba(30,12,0,.30)); }
-  .back{ text-decoration:none; font-weight:700; font-size:14px; letter-spacing:.06em; text-transform:uppercase;
-    color:#FFF7DB; padding:14px 26px; border-radius:999px;
-    background:linear-gradient(to bottom,#ff9c46,#f3852b);
-    box-shadow:0 6px 0 #c7620e, 0 16px 28px rgba(150,62,22,.34);
-    transition:background .2s ease; will-change:transform; }
-  .back:hover{ background:linear-gradient(to bottom,#ffab5e,#ff8f36); color:#FFF7DB; }
-
-  /* ===== Curseur orange Mon Copain Digital ===== */
-  html, body, .scene, canvas { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='6' fill='%23F3852B' stroke='%23FFF6EA' stroke-width='2'/%3E%3C/svg%3E") 12 12, auto; }
-  a, button, .mcd-link, .mcd-cta, .back, .social-btn,
-  [role="button"], input[type="submit"], select, label { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Ccircle cx='18' cy='18' r='13' fill='rgba(243,133,43,0.35)' stroke='%23F3852B' stroke-width='3'/%3E%3Ccircle cx='18' cy='18' r='3' fill='%23FFF6EA'/%3E%3C/svg%3E") 18 18, pointer; }
-
-  /* étiquette « Vous » qui suit le curseur */
-  #mcd-cursor-label{ position:fixed; left:0; top:0; z-index:100001; pointer-events:none;
-    transform:translate3d(-100px,-100px,0); opacity:0; transition:opacity .2s ease;
-    font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:700; font-size:12px;
-    letter-spacing:.02em; color:#FFF6EA; background:#F3852B; padding:4px 9px; border-radius:999px;
-    box-shadow:0 4px 12px rgba(150,62,22,.35); white-space:nowrap; }
-  @media (hover:none){ #mcd-cursor-label{ display:none; } }
 </style>
-</head>
-<body>
-  <div id="decor">
-    <div class="cloud" style="top:12%; left:8%; animation:driftBig 11s ease-in-out infinite alternate;"></div>
-    <div class="cloud" style="top:24%; left:70%; transform:scale(1.25); animation:drift 9s ease-in-out infinite alternate;"></div>
-    <div class="cloud" style="top:62%; left:14%; transform:scale(.8); animation:drift 13s ease-in-out infinite alternate;"></div>
-    <div class="cloud" style="top:74%; left:76%; transform:scale(.65); animation:driftBig 15s ease-in-out infinite alternate;"></div>
-  </div>
+<div id="wrap">
+  <canvas id="scene"></canvas>
+  <header id="mcd-nav">
+    <div id="mcd-left">
+      <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
+    </div>
 
-  <header id="topbar">
-    <div class="social">
-      <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-        <svg viewBox="0 0 24 24"><defs><radialGradient id="exIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#exIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
-      </a>
-      <a class="social-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
-      </a>
-      <a class="social-btn" href="espace-compte.html" aria-label="Votre Bulle" title="Votre Bulle" style="background:transparent;box-shadow:none;">
-        <img src="boutonespacelog-trim.png" alt="Votre Bulle" style="width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 8px 16px rgba(60,90,120,0.3));">
-      </a>
+    <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
+      <a class="mcd-link" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
+      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je ?</a>
+      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions</span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
+      <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
+      <div id="mcd-drop" class="mcd-glass">
+        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio<span class="mcd-badge-static">Nouveau</span></strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
+      </div>  </nav>
+
+    <div id="mcd-right">
+      <a class="mcd-cta" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
     </div>
   </header>
 
-  <nav id="mcd-nav" aria-label="Navigation principale">
-    <div id="mcd-pill">
-      <a class="mcd-link" href="index.html">Accueil</a>
-      <a class="mcd-link" href="qui-suis-je.html">Qui suis-je</a>
-      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false">Solutions <span style="font-size:9px;opacity:.7">&#9660;</span></button>
-      <a class="mcd-link" href="Nosoffres.html">Nos offres</a>
-      <a class="mcd-link" href="rendez-vous.html">Rendez-vous</a>
-      <div id="mcd-drop">
-        <a href="studio-social.html"><strong>Social Studio</strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main &#128273;</em></a>
-      </div>
+  <nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
+    <a class="accueil" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
+    <button type="button" class="qui" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-qui');" aria-label="Qui suis-je" aria-haspopup="true"><img src="boutonquisuisje.png" alt="" aria-hidden="true"></button>
+    <button type="button" class="offres" onclick="this.parentNode.classList.remove('pop-qui');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-open');" aria-label="Nos offres" aria-haspopup="true"><img src="boutonnosoffresmob.png" alt="" aria-hidden="true"></button>
+    <button type="button" class="bulle" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-qui');this.parentNode.classList.toggle('pop-bulle');" aria-label="Ma bulle" aria-haspopup="true"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></button>
+    <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"></path></svg>RDV</a>
+    <div id="mcd-bulle-pop" role="menu" aria-label="Ma bulle">
+      <a href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" role="menuitem"><img class="th" src="boutonespacelog-trim.png" alt="" aria-hidden="true"><span><b>Ma Bulle</b><em>Votre espace client</em></span><span class="chev">&#8250;</span></a>
     </div>
-    <div id="mcd-right">
-      <a class="mcd-cta" href="contact.html">Nous contacter</a>
+    <div id="mcd-qui-pop" role="menu" aria-label="Qui suis-je">
+      <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')" role="menuitem"><img class="th" src="boutonquisuisje.png" alt="" aria-hidden="true"><span><b>Qui suis-je</b><em>Mon parcours en trois minutes</em></span><span class="chev">&#8250;</span></a>
+      <a href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')" role="menuitem"><img class="th" src="boutonmessagerie.png" alt="" aria-hidden="true"><span><b>Nous contacter</b><em>Parlons de votre projet</em></span><span class="chev">&#8250;</span></a>
+    </div>
+    <div id="mcd-offres-pop" role="menu" aria-label="Nos offres">
+      <a href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')" role="menuitem"><img class="th" src="boutonnosoffresmob.png" alt="" aria-hidden="true"><span><b>Nos offres</b><em>Formules et tarifs</em></span><span class="chev">&#8250;</span></a>
+      <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><img class="th studio" src="boutonstudiosocialmob.png" alt="" aria-hidden="true"><span><b>Social Studio</b><em>Vos réseaux clé en main</em></span><span class="tag">Nouveau</span></a>
     </div>
   </nav>
+</div>
+<div id="poi-layer"></div>
+<div id="sun-face" aria-hidden="true"><svg viewBox="0 0 140 140" width="100%" height="100%">
+    <defs>
+      <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fff3c8" stop-opacity="0.9"/>
+        <stop offset="28%" stop-color="#ffdf7e" stop-opacity="0.55"/>
+        <stop offset="55%" stop-color="#ffb545" stop-opacity="0.22"/>
+        <stop offset="100%" stop-color="#ff9a2e" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="sunDisc" cx="40%" cy="36%" r="72%">
+        <stop offset="0%" stop-color="#fffdf3"/>
+        <stop offset="30%" stop-color="#fff0b0"/>
+        <stop offset="62%" stop-color="#ffcf52"/>
+        <stop offset="88%" stop-color="#ffa826"/>
+        <stop offset="100%" stop-color="#f5871a"/>
+      </radialGradient>
+      <radialGradient id="sunLimb" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+        <stop offset="80%" stop-color="#ffffff" stop-opacity="0"/>
+        <stop offset="96%" stop-color="#ffe9a0" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#ff9c22" stop-opacity="0.9"/>
+      </radialGradient>
+      <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="#ff7a1a"/>
+        <stop offset="55%" stop-color="#ffb23c"/>
+        <stop offset="100%" stop-color="#fff1a8"/>
+      </linearGradient>
+    </defs>
+    <circle cx="70" cy="70" r="70" fill="url(#sunGlow)"/>
+    <g class="sun-flames">
+      <g transform="rotate(0,70,70)"><path class="sf" style="animation-delay:-.1s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(30,70,70)"><path class="sf" style="animation-delay:-.7s;animation-duration:1.7s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(60,70,70)"><path class="sf" style="animation-delay:-1.2s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(90,70,70)"><path class="sf" style="animation-delay:-.4s;animation-duration:1.6s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(120,70,70)"><path class="sf" style="animation-delay:-.9s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(150,70,70)"><path class="sf" style="animation-delay:-.25s;animation-duration:1.8s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(180,70,70)"><path class="sf" style="animation-delay:-1.1s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(210,70,70)"><path class="sf" style="animation-delay:-.5s;animation-duration:1.5s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(240,70,70)"><path class="sf" style="animation-delay:-.85s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(270,70,70)"><path class="sf" style="animation-delay:-.3s;animation-duration:1.7s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+      <g transform="rotate(300,70,70)"><path class="sf" style="animation-delay:-1.0s" d="M70,32 C77,24 76,14 70,6 C64,14 63,24 70,32 Z"/></g>
+      <g transform="rotate(330,70,70)"><path class="sf" style="animation-delay:-.6s;animation-duration:1.6s" d="M70,32 C76,25 75,17 70,10 C65,17 64,25 70,32 Z"/></g>
+    </g>
+    <circle cx="70" cy="70" r="40" fill="url(#sunDisc)"/>
+    <circle cx="70" cy="70" r="40" fill="url(#sunLimb)"/>
+    <ellipse cx="57" cy="55" rx="15" ry="10" fill="#fffef7" opacity="0.5"/>
+</svg></div>
+<button id="grid-btn" type="button" aria-pressed="true">Repères</button>
+<div id="joy"><div class="knob"></div></div>
+<div id="hint">Clique pour marcher · glisse pour tourner · molette pour zoomer</div>
 
-  <div class="scene">
-  <div id="wrap">
-    <canvas id="wip-px" width="1300" height="440" role="img" aria-label="Page en cours de développement"></canvas>
-    <a class="back" href="index.html">Retour à l'accueil</a>
+<div id="avis" role="dialog" aria-label="Avis clients">
+  <div class="sheet">
+    <h2>Le kiosque des avis</h2>
+    <p class="sub">Ce que disent les personnes accompagnées</p>
+    <div class="card"><div class="stars">★★★★★</div><p>Site livré en trois semaines, et surtout expliqué simplement. Je sais enfin le modifier moi-même.</p><div class="who">Camille · fleuriste</div></div>
+    <div class="card"><div class="stars">★★★★★</div><p>J'avais peur du côté technique. Hugo prend le temps, il traduit tout en français normal.</p><div class="who">Yanis · coach sportif</div></div>
+    <div class="card"><div class="stars">★★★★★</div><p>Mes rendez-vous se prennent tout seuls depuis la refonte. Je passe moins de temps au téléphone.</p><div class="who">Sophie · praticienne bien-être</div></div>
+    <button class="close" type="button" onclick="document.getElementById('avis').classList.remove('open')">Fermer</button>
   </div>
-  </div>
+</div>
+<script>
+(function(){
+  var cv = document.getElementById('scene');
+  var renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  <footer id="site-footer" aria-label="Pied de page Mon Copain Digital">
-    <div class="sf-inner">
-      <div class="sf-brand"><span>Mon Copain<br>Digital</span></div>
-      <div class="sf-col">
-        <h3>Le site</h3>
-        <ul>
-          <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
-          <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
-          <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
-          <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
-        </ul>
-      </div>
-      <div class="sf-col sf-contact">
-        <h3>Rester en lien</h3>
-        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
-          <li><a href="contact.html"><span class="dot"></span>Contact</a></li>
-          <li><a href="espace-compte.html"><span class="dot"></span>Votre Bulle · Espace client</a></li>
-        </ul>
-      </div>
-      <div class="sf-col">
-        <h3>Loi applicable</h3>
-        <ul>
-          <li><a href="loiapplicablemcp.html#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
-          <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
-          <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
-          <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="sf-legal"><span>© 2026 Mon Copain Digital — Fait avec ❤️ pour vous simplifier le numérique.</span></div>
-  </footer>
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(20, 1, 1, 400);
+  var LOOK = new THREE.Vector3(0, 2.5, 0);
+  var azim = 0.62, elev = 0.58, dist = 74, baseDist = 74, zoom = 1.32;
 
-  <script>
-  (function(){
-    var btn=document.getElementById('mcd-sol'), drop=document.getElementById('mcd-drop');
-    if(!btn||!drop) return;
-    btn.addEventListener('click', function(e){ e.stopPropagation();
-      var open=drop.classList.toggle('open'); btn.setAttribute('aria-expanded', open?'true':'false'); });
-    document.addEventListener('click', function(){ drop.classList.remove('open'); btn.setAttribute('aria-expanded','false'); });
+  function placeCam(){
+    var ce = Math.cos(elev), se = Math.sin(elev);
+    camera.position.set(Math.sin(azim) * ce, se, Math.cos(azim) * ce).multiplyScalar(dist).add(LOOK);
+    camera.lookAt(LOOK);
+  }
+  function resize(){
+    var w = innerWidth, h = innerHeight, a = w / h;
+    baseDist = 74 * (a < 0.8 ? 1.4 : a < 1.15 ? 1.16 : 1);
+    dist = baseDist * zoom;
+    camera.aspect = a;
+    camera.updateProjectionMatrix();
+    placeCam();
+    renderer.setSize(w, h, false);
+  }
+  addEventListener('resize', resize); resize();
+
+  scene.add(new THREE.HemisphereLight(0xdff2ff, 0x86b06a, 0.72));
+  var fill = new THREE.DirectionalLight(0xbfe6ff, 0.22); fill.position.set(-14, 10, -6); scene.add(fill);
+  var sun = new THREE.DirectionalLight(0xfff0d8, 1.1);
+  sun.position.set(14, 22, 10); sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.radius = 3;
+  sun.shadow.bias = -0.0006;
+  var sc = sun.shadow.camera; sc.left = -14; sc.right = 14; sc.top = 14; sc.bottom = -14; sc.near = 1; sc.far = 60;
+  scene.add(sun);
+
+  // rampe de tons : ombrage en aplats, façon dessin animé
+  var GRAD = (function(){
+    var d = new Uint8Array([90, 150, 205, 255]);
+    var t = new THREE.DataTexture(d, d.length, 1, THREE.LuminanceFormat);
+    t.minFilter = THREE.NearestFilter; t.magFilter = THREE.NearestFilter; t.generateMipmaps = false;
+    t.needsUpdate = true; return t;
   })();
+  function mat(c){ return new THREE.MeshToonMaterial({ color: c, gradientMap: GRAD }); }
+  var RGEO = {};
+  function roundedGeo(w, h, d, r){
+    var key = [w, h, d, r].join('_');
+    if (RGEO[key]) return RGEO[key];
+    var sw = Math.max(0.001, w - 2 * r), sh = Math.max(0.001, h - 2 * r), sd = Math.max(0.001, d - 2 * r);
+    var s = new THREE.Shape();
+    s.moveTo(-sw / 2, -sh / 2); s.lineTo(sw / 2, -sh / 2); s.lineTo(sw / 2, sh / 2); s.lineTo(-sw / 2, sh / 2); s.closePath();
+    var g = new THREE.ExtrudeGeometry(s, { depth: sd, bevelEnabled: true, bevelThickness: r, bevelSize: r, bevelSegments: 2, curveSegments: 1, steps: 1 });
+    g.translate(0, 0, -sd / 2);
+    g.computeVertexNormals();
+    RGEO[key] = g; return g;
+  }
+  function box(w, h, d, c, r){
+    var rad = Math.min(0.09, w * 0.28, h * 0.28, d * 0.28);
+    var geo = rad > 0.012 ? roundedGeo(w, h, d, rad) : new THREE.BoxGeometry(w, h, d);
+    var m = new THREE.Mesh(geo, mat(c, r)); m.castShadow = true; m.receiveShadow = true; return m;
+  }
+  function cyl(rt, rb, h, c, s){ var m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, s || 24), mat(c)); m.castShadow = true; m.receiveShadow = true; return m; }
+
+  // ---- la planète : mer, île, rue ----
+  var NAVY = 0x2F4E8F, NAVY_D = 0x24406F, CREAM = 0xEFD9AE, CREAM2 = 0xE3C894, TERRA = 0xE85C1E;
+  var ASPH = 0x4C5157, WALK = 0xD9D2C4, WOOD = 0xA9713C, LEAF = 0x63B84B, LEAF2 = 0x7FCF5F;
+
+  var sea = new THREE.Mesh(new THREE.CircleGeometry(80, 64), new THREE.MeshStandardMaterial({ color: 0x1C86C6, roughness: 0.35, metalness: 0.05 }));
+  sea.userData.noOutline = true; sea.rotation.x = -Math.PI / 2; sea.position.y = -1.6; sea.receiveShadow = true; scene.add(sea);
+  // contour irrégulier de l'île
+  function islandShape(scale){
+    var s = new THREE.Shape(), N = 96;
+    for (var i = 0; i <= N; i++) {
+      var t = i / N * Math.PI * 2;
+      var r = (17.4 + 2.9 * Math.sin(3 * t + 0.7) + 1.9 * Math.sin(5 * t + 2.1) + 1.3 * Math.sin(2 * t - 1.2) + 0.8 * Math.sin(7 * t)) * scale;
+      var x = Math.cos(t) * r, y = Math.sin(t) * r;
+      if (i === 0) s.moveTo(x, y); else s.lineTo(x, y);
+    }
+    s.closePath(); return s;
+  }
+  function slab(scale, depth, topY, color){
+    var g = new THREE.ExtrudeGeometry(islandShape(scale), { depth: depth, bevelEnabled: false, curveSegments: 1 });
+    g.rotateX(-Math.PI / 2); g.computeBoundingBox();
+    g.translate(0, topY - g.boundingBox.max.y, 0);
+    g.computeVertexNormals();
+    var m = new THREE.Mesh(g, mat(color));
+    m.castShadow = true; m.receiveShadow = true; m.userData.noOutline = true; scene.add(m); return m;
+  }
+  var foamG = new THREE.ExtrudeGeometry(islandShape(1.1), { depth: 0.06, bevelEnabled: false, curveSegments: 1 });
+  foamG.rotateX(-Math.PI / 2);
+  var foam = new THREE.Mesh(foamG, new THREE.MeshBasicMaterial({ color: 0x9DE7F2, transparent: true, opacity: 0.5 }));
+  foam.position.y = -1.5; foam.userData.noOutline = true; scene.add(foam);
+
+  var R = 17.4;
+  slab(1.0, 0.55, 0.06, 0xEBCF8C);
+  slab(0.955, 0.62, 0.11, 0x74C24C);
+  slab(0.99, 2.4, -0.5, 0xC08A4E);
+  slab(0.62, 2.2, -2.6, 0xA9743E);
+
+  // routes découpées sur le contour de l'île
+  function insideIsland(wx, wz, inset){
+    var d = Math.hypot(wx, wz); if (d < 0.01) return true;
+    var t = Math.atan2(-wz, wx);
+    var r = (17.4 + 2.9 * Math.sin(3 * t + 0.7) + 1.9 * Math.sin(5 * t + 2.1) + 1.3 * Math.sin(2 * t - 1.2) + 0.8 * Math.sin(7 * t)) * 0.955 - inset;
+    return d <= r;
+  }
+  function coast(wx, wz, dx, dz, inset){
+    for (var i = 0; i < 300; i++) {
+      if (!insideIsland(wx + dx * 0.12, wz + dz * 0.12, inset)) break;
+      wx += dx * 0.12; wz += dz * 0.12;
+    }
+    return { x: wx, z: wz };
+  }
+  function clipStrip(o){
+    var N = 18, pts = [];
+    for (var i = 0; i <= N; i++) {
+      var u = o.c - o.halfW + (i / N) * o.halfW * 2, v;
+      var e = o.dir === 'z' ? coast(u, 0, 0, 1, o.inset) : coast(0, u, 1, 0, o.inset);
+      v = o.dir === 'z' ? e.z : e.x;
+      if (o.b !== null && o.b !== undefined) v = Math.min(v, o.b);
+      pts.push(o.dir === 'z' ? [u, v] : [v, u]);
+    }
+    for (var j = N; j >= 0; j--) {
+      var u2 = o.c - o.halfW + (j / N) * o.halfW * 2, v2;
+      if (o.a !== null && o.a !== undefined) { v2 = o.a; }
+      else {
+        var e2 = o.dir === 'z' ? coast(u2, 0, 0, -1, o.inset) : coast(0, u2, -1, 0, o.inset);
+        v2 = o.dir === 'z' ? e2.z : e2.x;
+      }
+      pts.push(o.dir === 'z' ? [u2, v2] : [v2, u2]);
+    }
+    var s = new THREE.Shape();
+    pts.forEach(function(p, k){ if (k === 0) s.moveTo(p[0], -p[1]); else s.lineTo(p[0], -p[1]); });
+    s.closePath();
+    var g = new THREE.ExtrudeGeometry(s, { depth: o.thick, bevelEnabled: false, curveSegments: 1 });
+    g.rotateX(-Math.PI / 2); g.computeBoundingBox();
+    g.translate(0, o.top - g.boundingBox.max.y, 0);
+    g.computeVertexNormals();
+    var m = new THREE.Mesh(g, mat(o.color));
+    m.receiveShadow = true; m.userData.noOutline = true; scene.add(m); return m;
+  }
+  clipStrip({ dir: 'z', c: 0, halfW: 1.45, a: null, b: null, top: 0.25, thick: 0.14, color: ASPH, inset: 0.55 });
+  clipStrip({ dir: 'x', c: -3.4, halfW: 1.35, a: -2.0, b: null, top: 0.25, thick: 0.14, color: ASPH, inset: 0.55 });
+  clipStrip({ dir: 'z', c: -2.13, halfW: 0.675, a: null, b: null, top: 0.34, thick: 0.3, color: WALK, inset: 0.85 });
+  clipStrip({ dir: 'z', c: 2.13, halfW: 0.675, a: null, b: null, top: 0.34, thick: 0.3, color: WALK, inset: 0.85 });
+  clipStrip({ dir: 'x', c: -1.05, halfW: 0.65, a: -2.0, b: null, top: 0.34, thick: 0.3, color: WALK, inset: 0.85 });
+  clipStrip({ dir: 'x', c: -5.75, halfW: 0.65, a: -2.0, b: null, top: 0.34, thick: 0.3, color: WALK, inset: 0.85 });
+  for (var zz = -17; zz <= 11; zz += 2.1) {
+    if (zz > -5.4 && zz < -1.4) continue;
+    if (!insideIsland(0, zz - 0.7, 1.5) || !insideIsland(0, zz + 0.7, 1.5)) continue;
+    var dash = box(0.16, 0.03, 0.95, 0xF4EEE0); dash.position.set(0, 0.26, zz); scene.add(dash);
+  }
+  for (var i = 0; i < 5; i++) {
+    var st = box(0.34, 0.04, 2.2, 0xFAF4E6); st.position.set(-1.05 + i * 0.52, 0.26, -0.4); scene.add(st);
+  }
+
+  // ---- immeubles ----
+  function building(o){
+    var g = new THREE.Group();
+    var w = o.w, d = o.d, hh = o.h, face = o.face || CREAM, dir = o.dir;
+    var body = box(w, hh, d, face, 0.9); body.position.y = hh / 2; g.add(body);
+    var ground = box(w * 1.005, 1.35, d * 1.005, o.shop || CREAM2, 0.9); ground.position.y = 0.67; g.add(ground);
+    var cor = box(w * 1.06, 0.16, d * 1.06, 0xFFF6E4); cor.position.y = 1.42; g.add(cor);
+    var top = box(w * 1.06, 0.14, d * 1.06, 0xFFF6E4); top.position.y = hh - 0.05; g.add(top);
+    var roof = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.98, 0.95, 4), mat(NAVY, 0.8));
+    roof.scale.set(w * 1.03 / 1.4, 1, d * 1.03 / 1.4); roof.rotation.y = Math.PI / 4;
+    roof.position.y = hh + 0.46; roof.castShadow = true; g.add(roof);
+    var ridge = box(w * 0.5, 0.16, d * 0.5, NAVY_D); ridge.position.y = hh + 0.95; g.add(ridge);
+    (o.chim || []).forEach(function(c){
+      var ch = box(0.34, 0.75, 0.34, TERRA); ch.position.set(c[0], hh + 0.95, c[1]); g.add(ch);
+      var cap = box(0.42, 0.1, 0.42, 0xB4502C); cap.position.set(c[0], hh + 1.36, c[1]); g.add(cap);
+    });
+    var fz = dir * (d / 2 + 0.02);
+    var rows = Math.max(1, Math.floor((hh - 1.6) / 1.05));
+    var cols = Math.max(2, Math.round(w / 1.05));
+    for (var r = 0; r < rows; r++) {
+      for (var c = 0; c < cols; c++) {
+        var x = -w / 2 + (c + 0.5) * (w / cols), y = 2.05 + r * 1.05;
+        var fr = box(0.52, 0.72, 0.08, 0xFFFBF2); fr.position.set(x, y, fz); g.add(fr);
+        var gl = box(0.4, 0.6, 0.05, 0x63A9D8, 0.35); gl.position.set(x, y, fz + dir * 0.03); g.add(gl);
+        var bx = box(0.56, 0.16, 0.2, 0x8C5A32); bx.position.set(x, y - 0.44, fz + dir * 0.08); g.add(bx);
+        [-0.16, 0, 0.16].forEach(function(ox, k){
+          var fl = new THREE.Mesh(new THREE.SphereGeometry(0.075, 8, 6), mat(k === 1 ? 0xF25C54 : 0xF7A6B0));
+          fl.position.set(x + ox, y - 0.33, fz + dir * 0.1); g.add(fl);
+        });
+      }
+    }
+    // devanture
+    var vw = box(w * 0.42, 0.85, 0.08, 0x8FD0EE, 0.3); vw.position.set(-w * 0.2, 0.82, fz); g.add(vw);
+    var dr = box(0.62, 1.15, 0.08, 0x7A4A22); dr.position.set(w * 0.26, 0.57, fz); g.add(dr);
+    if (o.awning) {
+      var aw = new THREE.Group();
+      var n = Math.max(4, Math.round(w * 1.6));
+      for (var s = 0; s < n; s++) {
+        var st2 = box(w * 0.62 / n, 0.1, 0.95, s % 2 ? 0xFF6A10 : 0xFFF8EC);
+        st2.position.set(-w * 0.2 - w * 0.31 + (s + 0.5) * (w * 0.62 / n), 1.42, dir * (d / 2 + 0.42));
+        st2.rotation.x = dir * 0.24; aw.add(st2);
+      }
+      g.add(aw);
+    }
+    g.position.set(o.x, 0.34, o.z); g.rotation.y = o.rot || 0; scene.add(g); return g;
+  }
+
+
+  // ---- mobilier ----
+  function lamp(x, z, flip){
+    var g = new THREE.Group();
+    var base = cyl(0.2, 0.26, 0.22, 0x2B3138, 10); base.position.y = 0.11; g.add(base);
+    var p = cyl(0.07, 0.1, 3.1, 0x2B3138, 10); p.position.y = 1.65; g.add(p);
+    [-0.42, 0.42].forEach(function(o){
+      var arm = box(0.44, 0.07, 0.07, 0x2B3138); arm.position.set(o / 2, 3.02, 0); g.add(arm);
+      var hood = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.16, 8), mat(0x2B3138)); hood.position.set(o, 3.06, 0); g.add(hood);
+      var gl = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 8), new THREE.MeshStandardMaterial({ color: 0xFFE9A8, emissive: 0xFFC85A, emissiveIntensity: 0.65, roughness: 0.4 }));
+      gl.position.set(o, 2.86, 0); g.add(gl);
+    });
+    var fin = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.24, 8), mat(0x2B3138)); fin.position.y = 3.3; g.add(fin);
+    g.position.set(x, 0.34, z); g.rotation.y = flip ? Math.PI / 2 : 0; scene.add(g);
+  }
+  lamp(-2.15, 4.6); lamp(-2.15, -1.2); lamp(2.15, 1.8, true); lamp(2.15, -7.4, true); lamp(4.4, -1.05, true);
+
+  function tree(x, z, s){
+    var g = new THREE.Group();
+    var pit = new THREE.Mesh(new THREE.CircleGeometry(0.46, 12), mat(0x7A6647)); pit.rotation.x = -Math.PI / 2; pit.position.y = 0.02; g.add(pit);
+    var t = cyl(0.15, 0.22, 1.15, 0x8B5E34, 8); t.position.y = 0.58; g.add(t);
+    [[0, 1.55, 0, 0.78, LEAF], [0.42, 1.24, 0.24, 0.5, LEAF2], [-0.36, 1.32, -0.22, 0.46, LEAF2], [0.08, 2.02, -0.1, 0.44, LEAF2]].forEach(function(c){
+      var m = new THREE.Mesh(new THREE.SphereGeometry(c[3], 14, 12), mat(c[4]));
+      m.position.set(c[0], c[1], c[2]); m.castShadow = true; g.add(m);
+    });
+    g.position.set(x, 0.34, z); g.scale.setScalar(s || 1); scene.add(g);
+  }
+  tree(-3.3, 8.2, 1); tree(3.3, -3.4, 1);
+  tree(-8.6, 3.6, 0.9); tree(8.2, -6.2, 0.8);
+  tree(-11.2, 5.2, 1.05); tree(6.8, 10.6, 0.95); tree(0.6, -11.6, 0.9);
+  function bushPatch(x, z, s){
+    var g = new THREE.Group();
+    [[0, 0, 0.5], [0.5, 0.2, 0.34], [-0.44, -0.18, 0.3]].forEach(function(c){
+      var m = new THREE.Mesh(new THREE.SphereGeometry(c[2], 12, 10), mat(0x69BE4E));
+      m.position.set(c[0], c[2] * 0.75, c[1]); m.castShadow = true; g.add(m);
+    });
+    g.position.set(x, 0.34, z); g.scale.setScalar(s || 1); scene.add(g);
+  }
+  bushPatch(-9.0, 2.0); bushPatch(8.6, 3.4, 0.9); bushPatch(-5.0, 9.6, 1.05);
+  bushPatch(5.4, -8.0, 0.95); bushPatch(-11.0, -7.4, 0.9); bushPatch(11.0, 8.0, 0.85);
+
+  var extras = [];
+  // plage en croissant le long de la côte ouest
   (function(){
-    var els=document.querySelectorAll('#mcd-right .mcd-cta, .back');
-    if(!els.length) return;
-    var PULL=0.30, MAX=18, RANGE=150, raf=0, mx=0, my=0, items=[];
-    els.forEach(function(el){ el.style.willChange='transform'; items.push({el:el,tx:0,ty:0,r:null}); });
-    function measure(){ items.forEach(function(it){ it.r=it.el.getBoundingClientRect(); }); }
-    measure();
-    addEventListener('resize', measure, {passive:true});
-    addEventListener('scroll', measure, {passive:true});
-    function apply(){
-      raf=0;
-      items.forEach(function(it){
-        var r=it.r; if(!r) return;
-        var dx=mx-(r.left+r.width/2), dy=my-(r.top+r.height/2);
-        var d=Math.sqrt(dx*dx+dy*dy);
-        if(d<RANGE){ it.tx=Math.max(-MAX,Math.min(MAX,dx*PULL)); it.ty=Math.max(-MAX,Math.min(MAX,dy*PULL)); it.el.style.transition='transform .14s ease-out'; }
-        else if(it.tx||it.ty){ it.tx=0; it.ty=0; it.el.style.transition='transform .35s cubic-bezier(.2,1,.3,1)'; }
-        else return;
-        it.el.style.transform='translate('+it.tx.toFixed(1)+'px,'+it.ty.toFixed(1)+'px)';
+    function rShape(t){ return (17.4 + 2.9 * Math.sin(3 * t + 0.7) + 1.9 * Math.sin(5 * t + 2.1) + 1.3 * Math.sin(2 * t - 1.2) + 0.8 * Math.sin(7 * t)) * 0.955; }
+    var tA = 2.95, tB = 5.05, N = 30, s = new THREE.Shape();
+    for (var i = 0; i <= N; i++) {
+      var t = tA + (i / N) * (tB - tA), r = rShape(t) - 0.15;
+      var p = [Math.cos(t) * r, Math.sin(t) * r];
+      if (i === 0) s.moveTo(p[0], p[1]); else s.lineTo(p[0], p[1]);
+    }
+    for (var j = N; j >= 0; j--) {
+      var t2 = tA + (j / N) * (tB - tA), r2 = rShape(t2) - 2.9 + 0.7 * Math.sin(t2 * 5.3);
+      s.lineTo(Math.cos(t2) * r2, Math.sin(t2) * r2);
+    }
+    s.closePath();
+    var g = new THREE.ExtrudeGeometry(s, { depth: 0.09, bevelEnabled: false, curveSegments: 1 });
+    g.rotateX(-Math.PI / 2); g.computeBoundingBox();
+    g.translate(0, 0.155 - g.boundingBox.max.y, 0);
+    var m = new THREE.Mesh(g, mat(0xF0D488));
+    m.receiveShadow = true; m.userData.noOutline = true; scene.add(m);
+
+    // parasol + serviette
+    var pg = new THREE.Group();
+    var pole = cyl(0.05, 0.06, 1.7, 0xFFF6E8, 8); pole.position.y = 0.85; pg.add(pole);
+    var top = new THREE.Mesh(new THREE.ConeGeometry(1.05, 0.55, 10), mat(0xFF6A10));
+    top.position.y = 1.75; top.castShadow = true; pg.add(top);
+    var knob2 = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), mat(0xFFF6E8)); knob2.position.y = 2.06; pg.add(knob2);
+    pg.position.set(-10.2, 0.16, 11.2); pg.rotation.z = 0.1; scene.add(pg);
+    var towel = box(0.85, 0.05, 1.5, 0x3D7EC2); towel.position.set(-9.1, 0.19, 10.4); towel.rotation.y = 0.5; scene.add(towel);
+    var towel2 = box(0.8, 0.05, 1.45, 0xF25C54); towel2.position.set(-10.9, 0.19, 9.4); towel2.rotation.y = 0.85; scene.add(towel2);
+
+    // baigneur dans l'eau
+    var SKIN2 = 0xE0A878;
+    var swm = new THREE.Group();
+    var hd = new THREE.Mesh(new THREE.SphereGeometry(0.19, 14, 10), mat(SKIN2)); hd.position.y = 0.12; hd.castShadow = true; swm.add(hd);
+    var cap = new THREE.Mesh(new THREE.SphereGeometry(0.2, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xF25C54)); cap.position.y = 0.14; swm.add(cap);
+    var sh = box(0.46, 0.14, 0.3, SKIN2); sh.position.set(0, -0.02, -0.22); swm.add(sh);
+    var aL = new THREE.Group(), aR = new THREE.Group();
+    [aL, aR].forEach(function(arm2, i){
+      arm2.position.set(i ? 0.26 : -0.26, 0, -0.2);
+      var m2 = box(0.11, 0.5, 0.12, SKIN2); m2.position.y = 0.25; arm2.add(m2); swm.add(arm2);
+    });
+    var buoy = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.15, 10, 22), mat(0xFF6A10));
+    buoy.rotation.x = Math.PI / 2; buoy.position.y = -0.05; buoy.castShadow = true; swm.add(buoy);
+    var legs = new THREE.Group(); legs.position.set(0, -0.05, -0.42);
+    var lgL = box(0.12, 0.09, 0.4, SKIN2); lgL.position.set(-0.1, 0, -0.18); legs.add(lgL);
+    var lgR = box(0.12, 0.09, 0.4, SKIN2); lgR.position.set(0.1, 0, -0.18); legs.add(lgR);
+    swm.add(legs);
+    var splash = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 6), new THREE.MeshBasicMaterial({ color: 0xEFFCFF, transparent: true, opacity: 0.85 }));
+    splash.position.set(0, -0.02, -0.72); splash.userData.noOutline = true; swm.add(splash);
+    swm.scale.setScalar(1.5);
+    swm.position.set(-18.6, -1.32, 13.4); swm.rotation.y = 2.4; scene.add(swm);
+    var ripple = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.05, 8, 20), new THREE.MeshBasicMaterial({ color: 0xCFF3F8, transparent: true, opacity: 0.7 }));
+    ripple.scale.setScalar(1.5); ripple.rotation.x = Math.PI / 2; ripple.position.set(-18.6, -1.42, 13.4); ripple.userData.noOutline = true; scene.add(ripple);
+    extras.push(function(t){
+      swm.position.y = -1.32 + Math.sin(t * 2.2) * 0.05;
+      aL.rotation.x = t * 3.4; aR.rotation.x = t * 3.4 + Math.PI;
+      lgL.position.y = Math.sin(t * 7) * 0.09; lgR.position.y = -Math.sin(t * 7) * 0.09;
+      var sp = 0.9 + 0.35 * Math.abs(Math.sin(t * 7));
+      splash.scale.set(sp, sp * 0.7, sp);
+      var k = 1.5 + 0.35 * Math.sin(t * 2.2);
+      ripple.scale.set(k, k, 1.5);
+      ripple.material.opacity = 0.4 + 0.25 * Math.sin(t * 2.2 + 1);
+    });
+
+    // deux bronzeurs sur les serviettes
+    function bather(x, z, rot, suit, wave){
+      var g = new THREE.Group();
+      var torso = box(0.4, 0.13, 0.58, SKIN2); torso.position.set(0, 0.2, 0.05); g.add(torso);
+      var suitB = box(0.42, 0.15, 0.24, suit); suitB.position.set(0, 0.2, -0.05); g.add(suitB);
+      var hd2 = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 10), mat(SKIN2)); hd2.position.set(0, 0.24, 0.46); hd2.castShadow = true; g.add(hd2);
+      var hair2 = new THREE.Mesh(new THREE.SphereGeometry(0.165, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2.1), mat(wave ? 0x3A2317 : 0x6B4226)); hair2.position.set(0, 0.25, 0.47); hair2.rotation.x = -0.9; g.add(hair2);
+      var legL2 = box(0.13, 0.1, 0.5, SKIN2); legL2.position.set(-0.11, 0.18, -0.52); g.add(legL2);
+      var legR2 = box(0.13, 0.1, 0.5, SKIN2); legR2.position.set(0.11, 0.18, -0.52); g.add(legR2);
+      var armW = new THREE.Group(); armW.position.set(0.24, 0.2, 0.28);
+      var am = box(0.1, 0.42, 0.11, SKIN2); am.position.y = 0.21; armW.add(am);
+      armW.rotation.x = 1.1; g.add(armW);
+      var armL2 = box(0.1, 0.09, 0.42, SKIN2); armL2.position.set(-0.24, 0.18, 0.12); g.add(armL2);
+      g.position.set(x, 0.17, z); g.rotation.y = rot; scene.add(g);
+      extras.push(function(t){
+        if (wave) armW.rotation.z = Math.sin(t * 1.6) * 0.55;
+        else {
+          var lift = Math.max(0, Math.sin(t * 1.1));
+          legL2.rotation.x = -lift * 0.55; legL2.position.z = -0.52 + lift * 0.08; legL2.position.y = 0.18 + lift * 0.12;
+        }
       });
     }
-    window.addEventListener('pointermove', function(e){
-      if(e.pointerType==='touch') return;
-      mx=e.clientX; my=e.clientY;
-      if(!raf) raf=requestAnimationFrame(apply);
-    }, {passive:true});
+    // rameur dans la barque
+    var rower = new THREE.Group();
+    var rTorso = box(0.36, 0.44, 0.24, 0xFFF6EC); rTorso.position.y = 0.42; rower.add(rTorso);
+    var rHead = new THREE.Mesh(new THREE.SphereGeometry(0.17, 14, 10), mat(SKIN2)); rHead.position.y = 0.78; rHead.castShadow = true; rower.add(rHead);
+    var rHat = cyl(0.2, 0.22, 0.07, 0xF7C948, 12); rHat.position.y = 0.88; rower.add(rHat);
+    var rHatTop = cyl(0.13, 0.14, 0.1, 0xF7C948, 12); rHatTop.position.y = 0.94; rower.add(rHatTop);
+    var rArms = new THREE.Group(); rArms.position.set(0, 0.52, 0.1);
+    [-0.22, 0.22].forEach(function(o){ var a2 = box(0.09, 0.09, 0.42, SKIN2); a2.position.set(o, 0, 0.16); rArms.add(a2); });
+    var oar = cyl(0.035, 0.035, 1.9, 0x9A6437, 8);
+    oar.rotation.z = Math.PI / 2 - 0.35; oar.position.set(0.1, -0.05, 0.34); rArms.add(oar);
+    var blade = box(0.1, 0.3, 0.16, 0x9A6437); blade.position.set(0.95, -0.35, 0.34); rArms.add(blade);
+    rower.add(rArms);
+    rower.scale.setScalar(1.35);
+    rower.position.set(-14.5, -0.9, 15.5); rower.rotation.y = -0.5; scene.add(rower);
+    extras.push(function(t){
+      rArms.rotation.x = Math.sin(t * 1.8) * 0.35;
+      rower.rotation.z = Math.sin(t * 1.8 + 0.6) * 0.06;
+      rower.position.y = -0.9 + Math.sin(t * 1.4) * 0.04;
+    });
+
+    bather(-9.1, 10.4, 0.5, 0xF25C54, true);
+    bather(-10.9, 9.4, 0.85, 0x3D7EC2, false);
   })();
-  </script>
 
-<script>
-(function(){
-  var cv=document.getElementById('wip-px'); if(!cv) return;
-  var ctx=cv.getContext('2d'), W=1300, H=440, LINES=['Page en cours','de développement'];
-  var CELL=3, DOT=3, SIZE=150, LH=200, R=210, PUSH=58;
-  var ORANGE=[243,133,43], WHITE=[255,255,255];
-  var ORANGE_CSS='#F3852B', WHITE_CSS='#FFFFFF';
-  var CX,CY,EDGE,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
-  var discCells=null, dotsX=[], dotsY=0, DOT_R=15, DOT_GAP=38;
+  function bench(x, z, rot){
+    var g = new THREE.Group();
+    for (var i = 0; i < 3; i++) { var sl = box(1.5, 0.08, 0.13, WOOD); sl.position.set(0, 0.44, -0.15 + i * 0.15); g.add(sl); }
+    for (var j = 0; j < 3; j++) { var bk = box(1.5, 0.12, 0.07, WOOD); bk.position.set(0, 0.6 + j * 0.15, -0.24); bk.rotation.x = 0.14; g.add(bk); }
+    [-0.62, 0.62].forEach(function(o){ var l = box(0.09, 0.44, 0.5, 0x2B3138); l.position.set(o, 0.22, -0.05); g.add(l); });
+    g.position.set(x, 0.34, z); g.rotation.y = rot; scene.add(g);
+  }
+  bench(-8.2, 6.0, 0.6); bench(9.4, -6.2, -0.7);
 
-  function build(){
-    var off=document.createElement('canvas'); off.width=W; off.height=H;
-    var oc=off.getContext('2d');
-    oc.fillStyle='#000'; oc.textAlign='center'; oc.textBaseline='middle';
-    var lastRight=0, lastY=0;
-    for(var i=0;i<LINES.length;i++){
-      var last = (i === LINES.length-1);
-      var lim = last ? (W-40-(DOT_GAP*2+DOT_R*2+60)) : (W-40);
-      var s=SIZE; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif";
-      while(oc.measureText(LINES[i]).width>lim && s>40){ s-=4; oc.font="700 "+s+"px 'Fredoka','Baloo 2',sans-serif"; }
-      var lw=oc.measureText(LINES[i]).width;
-      var cxLine = last ? (W/2 - (DOT_GAP*2+DOT_R*2+50)/2) : W/2;
-      oc.fillText(LINES[i], cxLine, 20+LH*i+LH/2);
-      if(last){ lastRight = cxLine + lw/2; lastY = 20+LH*i+LH/2; }
+  function pot(x, z, c){
+    var g = new THREE.Group();
+    var p = cyl(0.24, 0.19, 0.36, 0xC96B3E, 12); p.position.y = 0.18; g.add(p);
+    var rim = cyl(0.27, 0.26, 0.08, 0xEE6A28, 12); rim.position.y = 0.36; g.add(rim);
+    var b = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 10), mat(LEAF2)); b.position.y = 0.6; b.castShadow = true; g.add(b);
+    for (var k = 0; k < 4; k++) {
+      var f = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 6), mat(c || 0xF25C54));
+      f.position.set(Math.cos(k * 1.6) * 0.2, 0.72 + (k % 2) * 0.06, Math.sin(k * 1.6) * 0.2); g.add(f);
     }
-    dotsY = lastY + 14;
-    dotsX = [0,1,2].map(function(k){ return lastRight + 40 + k*DOT_GAP; });
-    // disque en pixels (réutilisé pour les 3 points)
-    discCells = [];
-    for(var dyy=-DOT_R-CELL; dyy<=DOT_R+CELL; dyy+=CELL){
-      for(var dxx=-DOT_R-CELL; dxx<=DOT_R+CELL; dxx+=CELL){
-        var dist=Math.sqrt(dxx*dxx+dyy*dyy);
-        if(dist<=DOT_R){ discCells.push([dxx,dyy, dist > DOT_R-CELL*2 ? 1 : 0]); }
-      }
+    g.position.set(x, 0.34, z); scene.add(g);
+  }
+  pot(-3.4, 0.2, 0xF25C54); pot(-3.4, -2.6, 0xF7C948); pot(3.4, 3.4, 0xF25C54); pot(3.4, -1.0, 0xF7A6B0); pot(4.9, -6.6, 0xF7C948);
+
+  // barque
+  (function(){
+    var g = new THREE.Group();
+    var hull = new THREE.Mesh(new THREE.SphereGeometry(1, 18, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xFF6A10, roughness: 0.7, side: THREE.DoubleSide }));
+    hull.scale.set(1.5, 0.6, 0.72); hull.castShadow = true; g.add(hull);
+    var lip = new THREE.Mesh(new THREE.TorusGeometry(1, 0.07, 8, 26), mat(0xFFF6E8));
+    lip.rotation.x = Math.PI / 2; lip.scale.set(1.5, 0.72, 1); g.add(lip);
+    var seat = box(1.0, 0.08, 0.5, 0xFFF6E8); seat.position.y = -0.08; g.add(seat);
+    var oar = cyl(0.04, 0.04, 1.7, WOOD, 6); oar.position.set(0.2, 0.1, 0.6); oar.rotation.set(0.3, 0.4, 1.1); g.add(oar);
+    g.position.set(-14.5, -1.05, 15.5); g.rotation.y = -0.5; scene.add(g);
+  })();
+
+  // camionnette
+  (function(){
+    var g = new THREE.Group();
+    var body = box(1.5, 1.05, 2.7, 0xF7C948); body.position.y = 0.85; g.add(body);
+    var cab = box(1.45, 0.75, 1.0, 0xF7C948); cab.position.set(0, 0.6, 1.5); g.add(cab);
+    var ws = box(1.3, 0.5, 0.06, 0x8FD0EE, 0.3); ws.position.set(0, 0.72, 1.99); g.add(ws);
+    [[-0.78, 0.9], [0.78, 0.9], [-0.78, -0.95], [0.78, -0.95]].forEach(function(w){
+      var t = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.18, 14), mat(0x2B3138));
+      t.rotation.z = Math.PI / 2; t.position.set(w[0], 0.3, w[1]); t.castShadow = true; g.add(t);
+    });
+    g.position.set(7.4, 0.34, -2.0); g.rotation.y = Math.PI / 2; scene.add(g);
+  })();
+
+  // vélo
+  (function(){
+    var g = new THREE.Group();
+    [-0.42, 0.42].forEach(function(o){
+      var w = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.045, 8, 20), mat(0x2B3138));
+      w.position.set(o, 0.28, 0); g.add(w);
+    });
+    var fr = box(0.8, 0.05, 0.05, 0xFF6A10); fr.position.set(0, 0.45, 0); g.add(fr);
+    var bar = box(0.05, 0.3, 0.05, 0xFF6A10); bar.position.set(0.34, 0.55, 0); g.add(bar);
+    g.position.set(8.6, 0.34, -4.6); g.rotation.y = 0.5; scene.add(g);
+  })();
+
+  // nuages
+  function cloud(x, y, z, s){
+    var g = new THREE.Group();
+    [[0, 0, 0, 1], [0.85, -0.12, 0.1, 0.72], [-0.8, -0.16, -0.05, 0.66], [0.3, 0.42, -0.1, 0.6]].forEach(function(c){
+      var m = new THREE.Mesh(new THREE.SphereGeometry(c[3], 14, 12), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 1 }));
+      m.position.set(c[0], c[1], c[2]); g.add(m);
+    });
+    g.position.set(x, y, z); g.scale.setScalar(s); scene.add(g); return g;
+  }
+  var clouds = [cloud(-9, 9.5, 6, 1.1), cloud(8.5, 10.5, -3, 0.9), cloud(2, 12, 9, 0.8)];
+
+  // ---- points d'intérêt ----
+  var POIS = [];
+  function addPoi(cfg){ cfg.group.position.set(cfg.x, 0.34, cfg.z); scene.add(cfg.group); POIS.push(cfg); }
+
+  var kios = new THREE.Group();
+  (function(){
+    var OR = 0xDC5E10, ORD = 0x9E3F05, BLU = 0x1B5FD4, BLUD = 0x14479C,
+        GLASS = 0x6FC4EA, GLASS2 = 0xA9DDF2, WHT = 0xFFF8EC;
+    var W = 3.4, D = 3.0, Hg = 2.2;
+
+    // dalle + parvis
+    var slab = box(W + 0.5, 0.22, D + 0.5, ORD); slab.position.y = 0.11; kios.add(slab);
+
+    // coque vitrée du rez-de-chaussée
+    var glass = box(W - 0.3, Hg - 0.2, D - 0.3, GLASS); glass.position.y = 0.22 + (Hg - 0.2) / 2; kios.add(glass);
+    // reflets clairs : bandeau haut des vitres
+    [[0, (D - 0.28) / 2], [0, -(D - 0.28) / 2]].forEach(function(p){
+      var r = box(W - 0.9, 0.5, 0.04, GLASS2); r.position.set(p[0], 1.62, p[1]); kios.add(r);
+    });
+    [[(W - 0.28) / 2, 0], [-(W - 0.28) / 2, 0]].forEach(function(p){
+      var r = box(0.04, 0.5, D - 0.9, GLASS2); r.position.set(p[0], 1.62, p[1]); kios.add(r);
+    });
+
+    // ossature orange : poteaux d'angle
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function(s){
+      var p = box(0.3, Hg + 0.1, 0.3, OR);
+      p.position.set(s[0] * (W / 2 - 0.15), 0.22 + (Hg + 0.1) / 2, s[1] * (D / 2 - 0.15)); kios.add(p);
+    });
+    // meneaux orange sur les façades avant/arrière
+    for (var i = -1; i <= 1; i++) {
+      [-(D / 2 - 0.13), D / 2 - 0.13].forEach(function(z){
+        var m = box(0.17, Hg - 0.1, 0.14, OR); m.position.set(i * 0.92, 0.22 + (Hg - 0.1) / 2, z); kios.add(m);
+      });
     }
-    var mask=oc.getImageData(0,0,W,H).data;
-    cols=Math.ceil(W/CELL); rows=Math.ceil(H/CELL);
-    grid=new Int32Array(cols*rows); grid.fill(-1);
-    var xs=[], ys=[];
-    for(var r=0;r<rows;r++){ for(var c=0;c<cols;c++){
-      var px=Math.min(W-1,(c*CELL+CELL/2)|0), py=Math.min(H-1,(r*CELL+CELL/2)|0);
-      if(mask[(py*W+px)*4+3]>120){ grid[r*cols+c]=xs.length; xs.push(c*CELL); ys.push(r*CELL); }
-    }}
-    CX=new Int16Array(xs); CY=new Int16Array(ys); N=xs.length;
+    // meneaux orange sur les côtés
+    [-0.78, 0.78].forEach(function(z){
+      [-(W / 2 - 0.13), W / 2 - 0.13].forEach(function(x){
+        var m = box(0.14, Hg - 0.1, 0.17, OR); m.position.set(x, 0.22 + (Hg - 0.1) / 2, z); kios.add(m);
+      });
+    });
 
-    // repérage du contour : un point est "bord" si un de ses 8 voisins est vide
-    EDGE=new Uint8Array(N);
-    for(var rr=0;rr<rows;rr++){ for(var cc=0;cc<cols;cc++){
-      var id=grid[rr*cols+cc]; if(id<0) continue;
-      var edge=0;
-      for(var ny=-1;ny<=1 && !edge;ny++){ for(var nx=-1;nx<=1;nx++){
-        if(!nx && !ny) continue;
-        var r2=rr+ny, c2=cc+nx;
-        if(r2<0||c2<0||r2>=rows||c2>=cols||grid[r2*cols+c2]<0){ edge=1; break; }
-      }}
-      EDGE[id]=edge;
-    }}
+    // ceinture / acrotère orange au sommet du rez-de-chaussée
+    var yB = 0.22 + Hg + 0.14;
+    [[0, -(D / 2 - 0.16), W, 0.32], [0, D / 2 - 0.16, W, 0.32]].forEach(function(b){
+      var e = box(b[2], 0.42, b[3], OR); e.position.set(b[0], yB, b[1]); kios.add(e);
+    });
+    [-(W / 2 - 0.16), W / 2 - 0.16].forEach(function(x){
+      var e = box(0.32, 0.42, D, OR); e.position.set(x, yB, 0); kios.add(e);
+    });
+    // plancher de terrasse à l'intérieur de l'acrotère
+    var terr = box(W - 0.6, 0.14, D - 0.6, ORD); terr.position.y = yB - 0.12; kios.add(terr);
 
-    base=document.createElement('canvas'); base.width=W; base.height=H;
-    var bc=base.getContext('2d'), img=bc.createImageData(W,H), buf=img.data;
-    for(var i2=0;i2<N;i2++){
-      var col = EDGE[i2] ? ORANGE : WHITE;
-      for(var dy=0;dy<DOT;dy++){
-        var yy=CY[i2]+dy; if(yy>=H) break;
-        var p=(yy*W+CX[i2])*4;
-        for(var dx=0;dx<DOT;dx++,p+=4){
-          if(CX[i2]+dx>=W) break;
-          buf[p]=col[0]; buf[p+1]=col[1]; buf[p+2]=col[2]; buf[p+3]=255;
+    // étage bleu en retrait
+    var uW = 1.95, uD = 1.7, uH = 1.5, uy = yB + 0.06 + uH / 2;
+    var up = box(uW, uH, uD, BLU); up.position.set(-0.28, uy, 0.16); kios.add(up);
+    var cap = box(uW + 0.22, 0.26, uD + 0.22, BLUD); cap.position.set(-0.28, uy + uH / 2 + 0.09, 0.16); kios.add(cap);
+    var capIn = box(uW - 0.3, 0.1, uD - 0.3, BLU); capIn.position.set(-0.28, uy + uH / 2 + 0.2, 0.16); kios.add(capIn);
+    // poteaux orange qui montent jusqu'à l'étage, côté entrée
+    [[0.92, -1.02], [1.28, -0.2]].forEach(function(p){
+      var q = box(0.22, uH + 0.12, 0.22, OR); q.position.set(p[0], yB + 0.08 + (uH + 0.12) / 2, p[1]); kios.add(q);
+    });
+
+    // entrée : avant-corps orange, porte, marches, marquise
+    var porch = box(1.05, Hg + 0.5, 0.5, OR); porch.position.set(1.0, 0.22 + (Hg + 0.5) / 2, -(D / 2 - 0.02)); kios.add(porch);
+    var door = box(0.6, 1.35, 0.1, BLUD); door.position.set(1.0, 0.9, -(D / 2 + 0.2)); kios.add(door);
+    var dGlass = box(0.44, 0.95, 0.06, GLASS2); dGlass.position.set(1.0, 1.05, -(D / 2 + 0.25)); kios.add(dGlass);
+    var awn = box(0.86, 0.1, 0.34, WHT); awn.position.set(1.0, 1.78, -(D / 2 + 0.3)); awn.rotation.x = -0.14; kios.add(awn);
+    var st1 = box(1.2, 0.12, 0.5, WHT); st1.position.set(1.0, 0.16, -(D / 2 + 0.36)); kios.add(st1);
+    var st2 = box(1.45, 0.1, 0.32, WHT); st2.position.set(1.0, 0.06, -(D / 2 + 0.62)); kios.add(st2);
+    // enseigne
+    var sign = box(0.5, 0.34, 0.06, WHT); sign.position.set(1.0, 2.28, -(D / 2 + 0.22)); kios.add(sign);
+
+    // petits conifères
+    function fir(x, z, s){
+      var g = new THREE.Group();
+      var tr = cyl(0.05, 0.07, 0.16, 0x7A4A22, 8); tr.position.y = 0.08; g.add(tr);
+      var c1 = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.62, 10), mat(0x4FA83D)); c1.position.y = 0.45; c1.castShadow = true; g.add(c1);
+      var c2 = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.44, 10), mat(0x63BF4B)); c2.position.y = 0.78; c2.castShadow = true; g.add(c2);
+      g.position.set(x, 0.2, z); g.scale.setScalar(s); kios.add(g);
+    }
+    fir(-W / 2 - 0.3, -D / 2 + 0.2, 1.0);
+    fir(-W / 2 + 0.5, -D / 2 - 0.42, 0.85);
+    fir(W / 2 + 0.28, -D / 2 + 0.9, 0.9);
+    fir(W / 2 + 0.1, D / 2 + 0.3, 0.8);
+    fir(-W / 2 - 0.36, D / 2 + 0.1, 0.9);
+  })();
+  kios.scale.setScalar(1.45);
+  addPoi({ group: kios, x: -11.4, z: -13.2, y: 7.6, label: 'Studio social', act: function(){ nav('studio-social.html'); } });
+
+  var shop = new THREE.Group();
+  (function(){
+    var b = box(3.0, 2.5, 2.4, 0xF7E7C8, 0.9); b.position.y = 1.25; shop.add(b);
+    var g0 = box(3.02, 1.3, 2.42, 0x2F6B9F, 0.9); g0.position.y = 0.65; shop.add(g0);
+    var roof = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.0, 0.8, 4), mat(NAVY, 0.8));
+    roof.scale.set(3.1 / 1.42, 1, 2.5 / 1.42); roof.rotation.y = Math.PI / 4; roof.position.y = 2.86; roof.castShadow = true; shop.add(roof);
+    for (var i = 0; i < 8; i++) {
+      var s = box(0.34, 0.1, 0.95, i % 2 ? 0xFF6A10 : 0xFFF8EC);
+      s.position.set(-1.19 + i * 0.34, 1.44, -1.66); s.rotation.x = -0.24; shop.add(s);
+    }
+    var win = box(1.5, 0.9, 0.08, 0x8FD0EE, 0.3); win.position.set(-0.6, 0.78, -1.22); shop.add(win);
+    var door = box(0.7, 1.2, 0.08, 0x7A4A22); door.position.set(1.0, 0.6, -1.22); shop.add(door);
+    var sign = new THREE.Mesh(new THREE.CircleGeometry(0.3, 20), mat(0xFF6A10)); sign.position.set(0, 1.95, -1.21); shop.add(sign);
+  })();
+  addPoi({ group: shop, x: 5.2, z: 3.6, y: 3.6, label: 'Atelier des offres', act: function(){ nav('Nosoffres.html'); } });
+
+  // kiosque des avis (petit kiosque octogonal, à l'emplacement libéré)
+  var avisK = new THREE.Group();
+  (function(){
+    var OR = 0xDC5E10, ORD = 0x9E3F05, WHT = 0xFFF8EC, BLU = 0x1B5FD4;
+    var socle = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.62, 0.24, 8), mat(0xE8D9BE));
+    socle.position.y = 0.12; socle.receiveShadow = true; avisK.add(socle);
+    var body = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 1.9, 8), mat(WHT, 0.9));
+    body.position.y = 1.19; body.castShadow = true; avisK.add(body);
+    // panneaux vitrés sur 5 pans
+    for (var i = 0; i < 8; i++) {
+      var a = i * Math.PI / 4 + Math.PI / 8;
+      if (i === 2) continue; // pan de service
+      var gl = box(0.82, 1.1, 0.06, 0x6FC4EA, 0.35);
+      gl.position.set(Math.cos(a) * 1.11, 1.35, Math.sin(a) * 1.11);
+      gl.rotation.y = -a; avisK.add(gl);
+    }
+    var comptoir = new THREE.Mesh(new THREE.CylinderGeometry(1.32, 1.32, 0.16, 8), mat(OR));
+    comptoir.position.y = 0.72; avisK.add(comptoir);
+    var band = new THREE.Mesh(new THREE.CylinderGeometry(1.28, 1.28, 0.3, 8), mat(OR));
+    band.position.y = 2.24; avisK.add(band);
+    var roof = new THREE.Mesh(new THREE.ConeGeometry(1.85, 0.9, 8), mat(ORD, 0.85));
+    roof.position.y = 2.85; roof.castShadow = true; avisK.add(roof);
+    var knob = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), mat(0xFFD84D));
+    knob.position.y = 3.4; avisK.add(knob);
+    // enseigne
+    var sign = box(1.15, 0.34, 0.09, BLU); sign.position.set(0, 2.24, 1.3); avisK.add(sign);
+    // trois étoiles au-dessus du comptoir
+    [-0.34, 0, 0.34].forEach(function(o){
+      var st = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), mat(0xFFD84D));
+      st.position.set(o, 1.86, 1.24); avisK.add(st);
+    });
+  })();
+  avisK.scale.setScalar(1.7);
+  addPoi({ group: avisK, x: -7.5, z: 5.8, y: 6.6, label: 'Le kiosque des avis', act: function(){ document.getElementById('avis').classList.add('open'); } });
+
+
+  // La Poste (décor derrière la boîte aux lettres)
+  function textPlane(txt, w, hgt, bg, fg){
+    var c = document.createElement('canvas'); c.width = 512; c.height = Math.round(512 * hgt / w);
+    var x = c.getContext('2d');
+    x.fillStyle = bg; x.fillRect(0, 0, c.width, c.height);
+    x.fillStyle = fg; x.font = '900 ' + Math.round(c.height * 0.62) + 'px Fredoka, sans-serif';
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText(txt, c.width / 2, c.height / 2 + 2);
+    var t = new THREE.CanvasTexture(c); t.anisotropy = 4;
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(w, hgt), new THREE.MeshBasicMaterial({ map: t }));
+    m.userData.noOutline = true; return m;
+  }
+  var poste = new THREE.Group();
+  (function(){
+    var ORANGE = 0xFF6A10, ORANGE_D = 0xC94A00, TRIM = 0xFFF3E0, NAVY2 = 0x2F4E8F;
+    var W = 3.4, D = 2.8, FH = 1.45;                 // largeur, profondeur, hauteur d'étage
+
+    var socle = box(W + 0.3, 0.28, D + 0.3, 0xE8D9BE); socle.position.y = 0.14; poste.add(socle);
+
+    for (var f = 0; f < 3; f++) {
+      var y0 = 0.28 + f * FH;
+      var body = box(W, FH, D, f === 0 ? ORANGE_D : ORANGE, 0.9);
+      body.position.y = y0 + FH / 2; poste.add(body);
+      var band = box(W + 0.14, 0.16, D + 0.14, TRIM);
+      band.position.y = y0 + FH; poste.add(band);
+
+      // fenêtres en façade (+z) et sur le côté (+x)
+      for (var c = 0; c < 3; c++) {
+        var wx = -W / 2 + (c + 0.5) * (W / 3);
+        if (f === 0 && c === 1) continue;            // emplacement de la porte
+        var fr = box(0.6, 0.8, 0.08, TRIM); fr.position.set(wx, y0 + FH * 0.55, D / 2 + 0.02); poste.add(fr);
+        var gl = box(0.46, 0.64, 0.05, 0x8FD0EE, 0.3); gl.position.set(wx, y0 + FH * 0.55, D / 2 + 0.06); poste.add(gl);
+        if (f > 0) {
+          var bal = box(0.7, 0.08, 0.22, TRIM); bal.position.set(wx, y0 + FH * 0.16, D / 2 + 0.12); poste.add(bal);
+          var rail = box(0.7, 0.22, 0.05, NAVY2); rail.position.set(wx, y0 + FH * 0.26, D / 2 + 0.22); poste.add(rail);
         }
       }
-    }
-    bc.putImageData(img,0,0);
-    painted=false;
-  }
-
-  function drawDots(t){
-    if(!discCells) return;
-    // chaque point se lève l'un après l'autre
-    var CYCLE = 1200, HOP = 300;
-    for(var k=0;k<3;k++){
-      var p = ((t - k*HOP) % CYCLE + CYCLE) % CYCLE;
-      var off = p < HOP ? -Math.sin(p/HOP*Math.PI) * 16 : 0;
-      var bx = dotsX[k], by = dotsY + off;
-      for(var i=0;i<discCells.length;i++){
-        var c=discCells[i];
-        ctx.fillStyle = c[2] ? ORANGE_CSS : WHITE_CSS;
-        ctx.fillRect(bx+c[0], by+c[1], CELL, CELL);
+      for (var s = 0; s < 2; s++) {
+        var sz = -D / 4 + s * (D / 2);
+        var sfr = box(0.08, 0.72, 0.5, TRIM); sfr.position.set(W / 2 + 0.02, y0 + FH * 0.55, sz); poste.add(sfr);
+        var sgl = box(0.05, 0.58, 0.38, 0x8FD0EE, 0.3); sgl.position.set(W / 2 + 0.06, y0 + FH * 0.55, sz); poste.add(sgl);
       }
     }
-  }
 
-  function frame(t){
-    if(!base){ raf=requestAnimationFrame(frame); return; }
-    var m=mouse;
-    {
-      ctx.clearRect(0,0,W,H); ctx.drawImage(base,0,0); painted=true;
-      if(m){
-        var pad=R+PUSH;
-        var x0=Math.max(0,m.x-pad), x1=Math.min(W,m.x+pad);
-        var y0=Math.max(0,m.y-pad), y1=Math.min(H,m.y+pad);
-        ctx.clearRect(x0,y0,x1-x0,y1-y0);
-        var c0=Math.max(0,Math.floor(x0/CELL)), c1=Math.min(cols-1,Math.ceil(x1/CELL));
-        var r0=Math.max(0,Math.floor(y0/CELL)), r1=Math.min(rows-1,Math.ceil(y1/CELL));
-        for(var r=r0;r<=r1;r++){ for(var c=c0;c<=c1;c++){
-          var i=grid[r*cols+c]; if(i<0) continue;
-          var x=CX[i], y=CY[i], dx=x-m.x, dy=y-m.y, d=Math.sqrt(dx*dx+dy*dy), hot=false;
-          if(d<R && d>0.001){ var f=1-d/R, k=PUSH*f*f; x+=(dx/d)*k; y+=(dy/d)*k; hot=true; }
-          // au repos : contour orange / intérieur blanc — au survol : l'inverse
-          var isEdge = EDGE[i];
-          ctx.fillStyle = (hot ? !isEdge : isEdge) ? ORANGE_CSS : WHITE_CSS;
-          ctx.fillRect(x,y,DOT,DOT);
-        }}
-      }
-      frame.was=!!m;
-      drawDots(t || performance.now());
+    var topY = 0.28 + 3 * FH;
+    var roof = box(W + 0.35, 0.34, D + 0.35, NAVY2); roof.position.y = topY + 0.17; poste.add(roof);
+    var attic = box(W * 0.42, 0.5, D * 0.42, ORANGE); attic.position.set(0.7, topY + 0.55, -0.3); poste.add(attic);
+    var atticRoof = box(W * 0.48, 0.14, D * 0.48, NAVY2); atticRoof.position.set(0.7, topY + 0.85, -0.3); poste.add(atticRoof);
+    var mast2 = cyl(0.04, 0.05, 1.2, 0xB0B8C0, 8); mast2.position.set(-1.2, topY + 0.7, 0); poste.add(mast2);
+    var flag2 = box(0.55, 0.3, 0.04, NAVY2); flag2.position.set(-0.93, topY + 1.15, 0); poste.add(flag2);
+
+    // rez-de-chaussée : entrée, auvent, enseigne
+    var door = box(0.85, 1.15, 0.1, NAVY2); door.position.set(0, 0.86, D / 2 + 0.02); poste.add(door);
+    var doorGl = box(0.66, 0.9, 0.05, 0x8FD0EE, 0.3); doorGl.position.set(0, 0.92, D / 2 + 0.07); poste.add(doorGl);
+    var step = box(1.3, 0.14, 0.5, 0xE8D9BE); step.position.set(0, 0.24, D / 2 + 0.3); poste.add(step);
+    var aw2 = box(1.7, 0.14, 0.7, NAVY2); aw2.position.set(0, 1.6, D / 2 + 0.32); aw2.rotation.x = 0.2; poste.add(aw2);
+
+    var sign = textPlane('LA POSTE', 2.1, 0.52, '#FFF8EC', '#2F4E8F');
+    sign.position.set(0, 1.95, D / 2 + 0.04); poste.add(sign);
+    var logoP = new THREE.Mesh(new THREE.CircleGeometry(0.3, 22), mat(0xF7C948));
+    logoP.position.set(1.2, 1.95, D / 2 + 0.05); logoP.userData.noOutline = true; poste.add(logoP);
+  })();
+  poste.rotation.y = 0;
+  addPoi({ group: poste, x: 8.4, z: -13.4, y: 4.2, label: 'La Poste', act: function(){ nav('contact.html'); } });
+
+  // parking décoratif autour de La Poste (statique, non interactif)
+  (function(){
+    var PX = 8.4, PZ = -13.4;                      // position de La Poste
+    var ASPH2 = 0x6A6E75, LINE = 0xF4EEE0;
+
+    // dalle : bande devant la façade + accès vers la rue transversale
+    function slabBox(w, d, x, z, rot){
+      var m = box(w, 0.16, d, ASPH2, 0.98);
+      m.position.set(x, 0.3, z); m.rotation.y = rot || 0;
+      m.receiveShadow = true; m.castShadow = false; m.userData.noOutline = true;
+      scene.add(m); return m;
     }
-    raf=requestAnimationFrame(frame);
+    slabBox(7.4, 5.2, PX - 1.2, PZ + 3.0, 0);      // aire de stationnement
+    // entrée de parking raccordée à la rue transversale (bord de chaussée z = -4.75)
+    slabBox(2.6, 3.3, 5.2, -6.35, 0);              // allée
+    slabBox(4.2, 1.0, 5.2, -5.05, 0);              // évasement au raccord
+
+    // marquage des places
+    for (var i = 0; i < 5; i++) {
+      var l = box(0.09, 0.03, 2.0, LINE);
+      l.position.set(PX - 4.3 + i * 1.6, 0.32, PZ + 2.2); scene.add(l);
+    }
+    var head = box(6.6, 0.03, 0.09, LINE); head.position.set(PX - 1.2, 0.32, PZ + 1.2); scene.add(head);
+
+    // bordure basse côté pelouse
+    var curbA2 = box(4.4, 0.22, 0.16, 0xC0B7A4); curbA2.position.set(8.7, 0.36, PZ + 5.5); scene.add(curbA2);
+    // guidage au sol de l'entrée
+    [-1.1, 1.1].forEach(function(o){
+      var gl2 = box(0.09, 0.03, 3.0, 0xF4EEE0); gl2.position.set(5.2 + o, 0.32, -6.4); scene.add(gl2);
+    });
+
+    // voitures garées
+    function car(x, z, col){
+      var g2 = new THREE.Group();
+      var b3 = box(1.15, 0.5, 2.0, col); b3.position.y = 0.48; g2.add(b3);
+      var cab = box(1.02, 0.4, 0.95, col); cab.position.set(0, 0.86, -0.1); g2.add(cab);
+      var ws = box(0.92, 0.3, 0.05, 0x8FD0EE, 0.3); ws.position.set(0, 0.86, 0.36); g2.add(ws);
+      var lamp2 = box(0.8, 0.1, 0.05, 0xFFF3D0); lamp2.position.set(0, 0.5, 1.0); g2.add(lamp2);
+      [[-0.6, 0.66], [0.6, 0.66], [-0.6, -0.66], [0.6, -0.66]].forEach(function(w){
+        var t2 = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.16, 12), mat(0x2B3138));
+        t2.rotation.z = Math.PI / 2; t2.position.set(w[0], 0.23, w[1]); t2.castShadow = true; g2.add(t2);
+      });
+      g2.position.set(x, 0.38, z); scene.add(g2);
+    }
+    car(PX - 3.5, PZ + 2.2, 0xF25C54);
+    car(PX - 1.9, PZ + 2.2, 0xFFFDF8);
+    car(PX + 1.3, PZ + 2.2, 0x3D7EC2);
+
+    // panneau P à l'entrée
+    var pPost = cyl(0.06, 0.07, 1.5, 0xB0B8C0, 8); pPost.position.set(6.9, 1.05, -5.4); scene.add(pPost);
+    var pPan = box(0.62, 0.62, 0.08, 0x2F4E8F); pPan.position.set(6.9, 1.95, -5.4); scene.add(pPan);
+    var pTxt = textPlane('P', 0.42, 0.42, '#2F4E8F', '#FFFDF8');
+    pTxt.position.set(6.9, 1.95, -5.35); scene.add(pTxt);
+  })();
+
+  // quadrillage de repérage : lettres A→ sur l'axe X, chiffres 1→ sur l'axe Z
+  var GRID = (function(){
+    var STEP = 4, EXT = 18, g = new THREE.Group(), lines = new THREE.Group();
+    var matLine = new THREE.LineBasicMaterial({ color: 0x12354A, transparent: true, opacity: 0.6 });
+    function seg(a, b){
+      var geo = new THREE.BufferGeometry().setFromPoints([a, b]);
+      var l = new THREE.Line(geo, matLine); l.userData.noOutline = true; lines.add(l);
+    }
+    var nx = Math.ceil(EXT / STEP), y = 0.42;
+    for (var i = -nx; i <= nx; i++) {
+      seg(new THREE.Vector3(i * STEP, y, -EXT), new THREE.Vector3(i * STEP, y, EXT));
+      seg(new THREE.Vector3(-EXT, y, i * STEP), new THREE.Vector3(EXT, y, i * STEP));
+    }
+    g.add(lines);
+
+    var LET = 'ABCDEFGHIJ';
+    for (var c = 0; c < 2 * nx; c++) {
+      var lab = textPlane(LET[c] || '?', 2.6, 2.6, 'rgba(255,255,255,0)', '#12354A');
+      lab.material.transparent = true;
+      lab.rotation.x = -Math.PI / 2;
+      lab.position.set(-EXT + STEP / 2 + c * STEP, 0.45, EXT - 1.8);
+      g.add(lab);
+    }
+    for (var r = 0; r < 2 * nx; r++) {
+      var lab2 = textPlane(String(r + 1), 2.6, 2.6, 'rgba(255,255,255,0)', '#12354A');
+      lab2.material.transparent = true;
+      lab2.rotation.x = -Math.PI / 2;
+      lab2.position.set(-EXT + 1.8, 0.45, -EXT + STEP / 2 + r * STEP);
+      g.add(lab2);
+    }
+    scene.add(g); return g;
+  })();
+
+  // passants
+  function makeFig(x, z, rot, shirt, pant, pose){
+    var g = new THREE.Group();
+    var torso = box(0.4, 0.48, 0.26, shirt); torso.position.y = 0.86; g.add(torso);
+    var head = new THREE.Mesh(new THREE.SphereGeometry(0.19, 16, 12), mat(0xE0A878)); head.position.y = 1.26; head.castShadow = true; g.add(head);
+    var hair = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.9), mat(0x3A2317)); hair.position.y = 1.29; g.add(hair);
+    [[-0.11, pose], [0.11, -pose]].forEach(function(p){
+      var l = box(0.12, 0.6, 0.13, pant); l.position.set(p[0], 0.32, 0); l.rotation.x = p[1]; g.add(l);
+    });
+    [[-0.27, -pose], [0.27, pose]].forEach(function(p){
+      var arm = box(0.11, 0.46, 0.12, shirt); arm.position.set(p[0], 0.85, 0); arm.rotation.x = p[1]; g.add(arm);
+    });
+    g.position.set(x, 0.3, z); g.rotation.y = rot; scene.add(g);
+  }
+  makeFig(1.0, -0.2, 2.6, 0xF7C948, 0x2F4E8F, 0.5);
+  makeFig(-0.9, -6.4, 0.7, 0x3D7EC2, 0x37424E, 0.35);
+
+  var mail = new THREE.Group();
+  (function(){
+    var p = cyl(0.11, 0.13, 1.05, 0x8A6A3A, 10); p.position.y = 0.52; mail.add(p);
+    var b = box(0.72, 0.95, 0.6, 0xF7C948); b.position.y = 1.42; mail.add(b);
+    var lid = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.6, 16, 1, false, 0, Math.PI), mat(0xFFD95E));
+    lid.rotation.z = Math.PI / 2; lid.rotation.y = Math.PI / 2; lid.position.y = 1.9; lid.castShadow = true; mail.add(lid);
+    var slot = box(0.46, 0.08, 0.05, 0x8A6A3A); slot.position.set(0, 1.72, 0.31); mail.add(slot);
+    var plate = box(0.5, 0.3, 0.04, 0x2F4E8F); plate.position.set(0, 1.3, 0.31); mail.add(plate);
+  })();
+  mail.position.set(6.7, 0.34, -7.9); scene.add(mail);
+
+
+  // ---- contours façon dessin animé ----
+  var OUTLINE = new THREE.MeshBasicMaterial({ color: 0x2A2016, side: THREE.BackSide });
+  function outlineAll(){
+    var todo = [];
+    scene.traverse(function(o){
+      if (!o.isMesh || o.userData.noOutline || o.material === OUTLINE) return;
+      o.geometry.computeBoundingSphere();
+      var rr = o.geometry.boundingSphere ? o.geometry.boundingSphere.radius : 0;
+      var s = o.scale;
+      var sc = rr * Math.max(s.x, s.y, s.z);
+      if (sc < 0.34 || sc > 6) return;
+      todo.push(o);
+    });
+    todo.forEach(function(o){
+      var m = new THREE.Mesh(o.geometry, OUTLINE);
+      m.scale.setScalar(1.045);
+      m.renderOrder = -1;
+      o.add(m);
+    });
   }
 
-  window.addEventListener('pointermove', function(e){
-    var r=cv.getBoundingClientRect();
-    if(e.clientX<r.left-40||e.clientX>r.right+40||e.clientY<r.top-40||e.clientY>r.bottom+40){ mouse=null; return; }
-    mouse={ x:(e.clientX-r.left)/r.width*W, y:(e.clientY-r.top)/r.height*H };
-  }, {passive:true});
+  function nav(u){ if (window.mcdGo) window.mcdGo(u); else location.href = u; }
 
-  function start(){ build(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame); }
-  if(document.fonts && document.fonts.load){ document.fonts.load("700 150px 'Fredoka'").then(start).catch(start); }
-  else { start(); }
-})();
-</script>
-<script>
-(function(){
-  try{
-    var saved=localStorage.getItem('mcd-theme');
-    var night = saved==='night' ? true : saved==='day' ? false : (new Date().getHours()>=23 || new Date().getHours()<7);
-    if(night){ document.body.style.background='radial-gradient(125% 95% at 50% -12%, #21326a 0%, #14204a 42%, #0b1230 100%)'; }
-  }catch(e){}
-})();
-</script>
-<div id="mcd-cursor-label">Vous</div>
-<script>
-(function(){
-  var el=document.getElementById('mcd-cursor-label'); if(!el) return;
-  var x=0,y=0,raf=0,shown=false;
-  window.addEventListener('pointermove', function(e){
-    if(e.pointerType==='touch') return;
-    x=e.clientX; y=e.clientY;
-    if(!shown){ shown=true; el.style.opacity='1'; }
-    if(!raf) raf=requestAnimationFrame(function(){ raf=0;
-      el.style.transform='translate3d('+(x+16)+'px,'+(y+16)+'px,0)'; });
-  }, {passive:true});
-  document.addEventListener('pointerleave', function(){ el.style.opacity='0'; shown=false; });
+  // ---- personnage ----
+  var hero = new THREE.Group();
+  var legL, legR, armL, armR;
+  (function(){
+    var SKIN = 0xE0A878, SHIRT = 0xFF6A10, PANT = 0x2F4E8F, HAIR = 0x3A2317;
+    var torso = box(0.5, 0.6, 0.3, SHIRT); torso.position.y = 1.02; hero.add(torso);
+    var head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 18, 14), mat(SKIN)); head.position.y = 1.52; head.castShadow = true; hero.add(head);
+    var hair = new THREE.Mesh(new THREE.SphereGeometry(0.255, 18, 14, 0, Math.PI * 2, 0, Math.PI / 1.9), mat(HAIR)); hair.position.y = 1.55; hero.add(hair);
+    function limb(x, len, col){
+      var g = new THREE.Group(); g.position.set(x, len === 0.55 ? 1.25 : 0.72, 0);
+      var m = box(0.15, len, 0.16, col); m.position.y = -len / 2; g.add(m); hero.add(g); return g;
+    }
+    armL = limb(-0.34, 0.55, SHIRT); armR = limb(0.34, 0.55, SHIRT);
+    legL = limb(-0.14, 0.72, PANT); legR = limb(0.14, 0.72, PANT);
+  })();
+  hero.scale.setScalar(1.22);
+  hero.position.set(0, 0.25, 2.6);
+  scene.add(hero);
+
+  var shadow = new THREE.Mesh(new THREE.CircleGeometry(0.42, 20), new THREE.MeshBasicMaterial({ color: 0x2E5B3A, transparent: true, opacity: 0.22 }));
+  shadow.scale.setScalar(1.22); shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.27; scene.add(shadow);
+
+  // ---- contrôles ----
+  var target = null, keys = {}, joy = { x: 0, y: 0 }, moved = false;
+  var ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
+  function clampX(x){ return Math.max(-2.6, Math.min(2.6, x)); }
+  function clampZ(z){ return Math.max(-16.5, Math.min(10.5, z)); }
+
+  var drag = null;
+  function walkTo(e){
+    var r = cv.getBoundingClientRect();
+    var nx = ((e.clientX - r.left) / r.width) * 2 - 1, ny = -((e.clientY - r.top) / r.height) * 2 + 1;
+    ray.setFromCamera({ x: nx, y: ny }, camera);
+    if (ray.ray.intersectPlane(plane, hit)) {
+      var tx = clampX(hit.x), tz = clampZ(hit.z);
+      while (!insideIsland(tx, tz, 1.0) && Math.hypot(tx, tz) > 1) { tx *= 0.96; tz *= 0.96; }
+      target = new THREE.Vector3(tx, 0, tz);
+    }
+  }
+  cv.style.cursor = 'grab';
+  cv.addEventListener('pointerdown', function(e){
+    drag = { x: e.clientX, y: e.clientY, a: azim, e: elev, moved: false };
+    cv.setPointerCapture(e.pointerId);
+    cv.style.cursor = 'grabbing';
+  });
+  cv.addEventListener('pointermove', function(e){
+    if (!drag) return;
+    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 6) return;
+    drag.moved = true;
+    azim = drag.a - dx * 0.006;
+    elev = Math.max(0.14, Math.min(1.15, drag.e + dy * 0.004));
+    placeCam();
+  });
+  cv.addEventListener('pointerup', function(e){
+    if (!drag) return;
+    if (!drag.moved) walkTo(e);
+    drag = null; cv.style.cursor = 'grab';
+  });
+  cv.addEventListener('pointercancel', function(){ drag = null; cv.style.cursor = 'grab'; });
+
+  function setZoom(z){
+    zoom = Math.max(0.55, Math.min(2.4, z));
+    dist = baseDist * zoom;
+    placeCam();
+  }
+  cv.addEventListener('wheel', function(e){
+    e.preventDefault();
+    setZoom(zoom * (1 + (e.deltaY > 0 ? 0.12 : -0.12)));
+  }, { passive: false });
+
+  // pincer pour zoomer (tactile)
+  (function(){
+    var pts = {}, startGap = 0, startZoom = 1;
+    cv.addEventListener('pointerdown', function(e){ pts[e.pointerId] = e; });
+    cv.addEventListener('pointermove', function(e){
+      if (!pts[e.pointerId]) return;
+      pts[e.pointerId] = e;
+      var ids = Object.keys(pts);
+      if (ids.length !== 2) return;
+      drag = null;
+      var a = pts[ids[0]], b = pts[ids[1]];
+      var gap = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      if (!startGap) { startGap = gap; startZoom = zoom; return; }
+      setZoom(startZoom * (startGap / gap));
+    });
+    function drop(e){ delete pts[e.pointerId]; startGap = 0; }
+    cv.addEventListener('pointerup', drop);
+    cv.addEventListener('pointercancel', drop);
+  })();
+  addEventListener('keydown', function(e){ keys[e.key.toLowerCase()] = true; });
+  addEventListener('keyup', function(e){ keys[e.key.toLowerCase()] = false; });
+
+  (function(){
+    var pad = document.getElementById('joy'), knob = pad.querySelector('.knob'), active = false, cx = 0, cy = 0;
+    function set(e){
+      var r = pad.getBoundingClientRect();
+      var dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
+      var d = Math.hypot(dx, dy), max = 34;
+      if (d > max) { dx *= max / d; dy *= max / d; d = max; }
+      knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+      joy.x = dx / max; joy.y = dy / max;
+    }
+    pad.addEventListener('pointerdown', function(e){ active = true; pad.setPointerCapture(e.pointerId); set(e); e.preventDefault(); });
+    pad.addEventListener('pointermove', function(e){ if (active) set(e); });
+    function end(){ active = false; joy.x = 0; joy.y = 0; knob.style.transform = ''; }
+    pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
+  })();
+
+  // ---- étiquettes ----
+  var layer = document.getElementById('poi-layer'), v = new THREE.Vector3();
+  POIS.forEach(function(p){
+    var el = document.createElement('div'); el.className = 'poi';
+    el.innerHTML = '<b></b><i></i>';
+    el.querySelector('b').textContent = p.label;
+    el.querySelector('b').addEventListener('click', function(){ p.act(); });
+    layer.appendChild(el); p.el = el;
+  });
+
+  // ---- boucle ----
+  var clock = new THREE.Clock(), phase = 0, SPEED = 3.1;
+  function tick(){
+    var dt = Math.min(clock.getDelta(), 0.05);
+    var vx = 0, vz = 0;
+    var kx = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['q'] || keys['a'] || keys['arrowleft'] ? 1 : 0);
+    var ky = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['z'] || keys['w'] || keys['arrowup'] ? 1 : 0);
+    var ix = kx || joy.x, iy = ky || joy.y;
+    if (Math.abs(ix) > 0.08 || Math.abs(iy) > 0.08) {
+      target = null;
+      var ca = Math.cos(azim), sa = Math.sin(azim);
+      vx = ix * ca + iy * sa; vz = -ix * sa + iy * ca;
+      var l = Math.hypot(vx, vz); if (l > 1) { vx /= l; vz /= l; }
+    } else if (target) {
+      var dx = target.x - hero.position.x, dz = target.z - hero.position.z, d = Math.hypot(dx, dz);
+      if (d < 0.12) { target = null; } else { vx = dx / d; vz = dz / d; }
+    }
+
+    var speed = Math.hypot(vx, vz);
+    if (speed > 0.01) {
+      moved = true;
+      hero.position.x += vx * SPEED * dt;
+      hero.position.z += vz * SPEED * dt;
+      hero.position.x = clampX(hero.position.x); hero.position.z = clampZ(hero.position.z);
+      var want = Math.atan2(vx, vz);
+      var diff = ((want - hero.rotation.y + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
+      hero.rotation.y += diff * Math.min(1, dt * 12);
+      phase += dt * 9 * speed;
+    } else { phase += (0 - phase % (Math.PI * 2)) * 0; }
+
+    var sw = speed > 0.01 ? Math.sin(phase) * 0.7 : Math.sin(phase) * 0.7 * 0;
+    legL.rotation.x = sw; legR.rotation.x = -sw;
+    armL.rotation.x = -sw * 0.8; armR.rotation.x = sw * 0.8;
+    hero.position.y = 0.25 + (speed > 0.01 ? Math.abs(Math.sin(phase)) * 0.06 : 0);
+    shadow.position.set(hero.position.x, 0.27, hero.position.z);
+
+    if (moved) { var hn = document.getElementById('hint'); if (hn) hn.style.opacity = '0'; }
+
+    camera.updateMatrixWorld();
+    POIS.forEach(function(p){
+      v.set(p.group.position.x, p.y, p.group.position.z).project(camera);
+      p.el.style.left = ((v.x * 0.5 + 0.5) * innerWidth) + 'px';
+      p.el.style.top = ((-v.y * 0.5 + 0.5) * innerHeight) + 'px';
+      var d = Math.hypot(hero.position.x - p.group.position.x, hero.position.z - p.group.position.z);
+      p.el.classList.toggle('near', d < 2.6);
+      p.el.style.opacity = d < 2.6 ? '1' : '.82';
+    });
+
+    var tSec = performance.now() / 1000;
+    extras.forEach(function(f){ f(tSec); });
+    clouds.forEach(function(c, i){ c.position.x += Math.sin(performance.now() / 9000 + i) * dt * 0.35; });
+    renderer.render(scene, camera);
+    requestAnimationFrame(tick);
+  }
+  (function(){
+    var gb = document.getElementById('grid-btn');
+    gb.addEventListener('click', function(){
+      var on = gb.getAttribute('aria-pressed') === 'true';
+      gb.setAttribute('aria-pressed', on ? 'false' : 'true');
+      GRID.visible = !on;
+    });
+  })();
+  outlineAll();
+  tick();
+
+  if (window.mcdDoorsOpen) window.mcdDoorsOpen();
 })();
 </script>
 </body>
