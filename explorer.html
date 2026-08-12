@@ -20,7 +20,7 @@
 (function(){
   var d = document.documentElement;
   var forced = /[?&]appweb=1/.test(location.search);
-  var mobile = forced || (matchMedia('(max-width: 820px)').matches && matchMedia('(hover: none)').matches);
+  var mobile = forced || matchMedia('(max-width: 820px)').matches;
   d.setAttribute('data-device', mobile ? 'mobile' : 'desktop');
   if(mobile) d.setAttribute('data-appweb','1');
 })();
@@ -259,298 +259,6 @@
     box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), 0 6px 14px rgba(150,62,22,.28); }
   #grid-btn[aria-pressed="false"] { color:#fff; background:rgba(255,255,255,.22); box-shadow:none; }
   html[data-appweb] #grid-btn { bottom:calc(21vw + 52px + env(safe-area-inset-bottom,0px)); }
-  #joy { position:fixed; left:calc(env(safe-area-inset-left,0px) + 20px);
-    bottom:calc(21vw + 46px + env(safe-area-inset-bottom,0px)); z-index:13;
-    width:118px; height:118px; border-radius:50%; display:none; touch-action:none;
-    background:radial-gradient(circle at 50% 40%, rgba(255,255,255,.42), rgba(255,255,255,.16));
-    box-shadow:inset 0 2px 3px rgba(255,255,255,.7), 0 10px 24px rgba(150,62,22,.24);
-    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
-  html[data-appweb] #joy { display:block; }
-  #joy .knob { position:absolute; left:50%; top:50%; width:52px; height:52px; margin:-26px 0 0 -26px;
-    border-radius:50%; background:linear-gradient(to bottom,#ffb266,#f3852b);
-    box-shadow:inset 0 2px 2px rgba(255,255,255,.6), 0 6px 14px rgba(150,62,22,.4); }
-
-  #hint { position:fixed; left:50%; transform:translateX(-50%); z-index:12;
-    bottom:calc(env(safe-area-inset-bottom,0px) + 26px);
-    font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:#FFF3E2;
-    text-shadow:0 2px 6px rgba(120,50,0,.45); pointer-events:none; transition:opacity .5s ease; }
-  html[data-appweb] #hint { bottom:calc(21vw + 52px + env(safe-area-inset-bottom,0px)); left:auto; right:20px; transform:none; }
-
-  #avis { position:fixed; inset:0; z-index:100002; display:none; align-items:center; justify-content:center;
-    padding:24px; background:rgba(40,18,0,.42); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
-  #avis.open { display:flex; }
-  #avis .sheet { width:min(420px,100%); max-height:78vh; overflow:auto; border-radius:26px; padding:24px 22px 18px;
-    background:linear-gradient(to bottom,#fffdfa,#fff3e4); box-shadow:0 30px 60px rgba(90,40,0,.4);
-    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
-  #avis h2 { margin:0 0 4px; font-family:'Fredoka',sans-serif; font-size:24px; font-weight:900; color:#8A4A12; }
-  #avis .sub { margin:0 0 18px; font-size:13px; color:#B98455; }
-  #avis .card { padding:14px 16px; border-radius:18px; background:#fff; margin-bottom:10px;
-    box-shadow:0 4px 12px rgba(150,62,22,.1); }
-  #avis .stars { color:#F3852B; font-size:13px; letter-spacing:2px; }
-  #avis .card p { margin:6px 0 8px; font-size:14px; line-height:1.5; color:#3d2a1a; text-wrap:pretty; }
-  #avis .who { font-family:'Fredoka',sans-serif; font-size:12.5px; font-weight:600; color:#B98455; }
-  #avis .close { display:block; width:100%; margin-top:6px; padding:14px; border:0; cursor:pointer;
-    border-radius:999px; font-family:'Fredoka',sans-serif; font-weight:700; font-size:15px; color:#fff;
-    background:linear-gradient(to bottom,#ff9c46,#f3852b); box-shadow:0 4px 0 #c7620e; }
-</style>
-</head>
-<body>
-<!-- ===== Verrou d'accès (temporaire, le temps du chantier) ===== -->
-<style id="gate-css">
-  #mcd-gate { position:fixed; inset:0; z-index:99999; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(180deg,#2F4E8F 0%,#1B3A72 100%); font-family:'Fredoka',sans-serif; }
-  #mcd-gate.hidden { display:none; }
-  #mcd-gate .box { width:min(92vw,380px); background:#FFF8EC; border-radius:26px; padding:30px 26px 26px;
-    box-shadow:0 22px 44px rgba(10,25,60,.45); text-align:center; }
-  #mcd-gate h2 { margin:0 0 6px; font-size:20px; font-weight:900; color:#243B6B; letter-spacing:.01em; }
-  #mcd-gate p { margin:0 0 18px; font-size:13px; line-height:1.45; color:#6B7A96; }
-  #mcd-gate input { width:100%; box-sizing:border-box; padding:14px 16px; font-family:inherit; font-size:18px;
-    font-weight:800; letter-spacing:.22em; text-align:center; color:#243B6B; background:#fff;
-    border:2px solid #E2D8C6; border-radius:14px; outline:none; }
-  #mcd-gate input:focus { border-color:#DC5E10; }
-  #mcd-gate button { margin-top:14px; width:100%; padding:15px 20px; border:0; cursor:pointer; border-radius:999px;
-    font-family:inherit; font-weight:900; font-size:14px; letter-spacing:.06em; text-transform:uppercase; color:#FFF7DB;
-    background:linear-gradient(to bottom,#ff9c46,#f3852b); box-shadow:0 6px 0 #c7620e, 0 16px 28px rgba(150,62,22,.34); }
-  #mcd-gate button:active { transform:translateY(3px); box-shadow:0 3px 0 #c7620e; }
-  #mcd-gate .err { margin:12px 0 0; font-size:12px; font-weight:700; color:#C0392B; opacity:0; transition:opacity .2s; }
-  #mcd-gate.wrong .err { opacity:1; }
-  #mcd-gate.wrong .box { animation:gateShake .32s ease; }
-  @keyframes gateShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
-</style>
-<div id="mcd-gate" role="dialog" aria-modal="true" aria-label="Accès protégé">
-  <div class="box">
-    <h2>Chantier en cours</h2>
-    <p>Cette page est en construction. Entrez le code d'accès pour continuer.</p>
-    <input id="gate-input" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••" aria-label="Code d'accès">
-    <button id="gate-go" type="button">Entrer</button>
-    <p class="err">Code incorrect</p>
-  </div>
-</div>
-<script>
-(function(){
-  var KEY = 'mcd-explorer-gate';
-  var g = document.getElementById('mcd-gate'), inp = document.getElementById('gate-input');
-  try { if (sessionStorage.getItem(KEY) === 'ok') { g.classList.add('hidden'); return; } } catch(e){}
-  document.documentElement.style.overflow = 'hidden';
-  setTimeout(function(){ inp.focus(); }, 120);
-  function tryIt(){
-    if (inp.value.trim() === '123456') {
-      try { sessionStorage.setItem(KEY, 'ok'); } catch(e){}
-      document.documentElement.style.overflow = '';
-      g.classList.add('hidden');
-    } else {
-      g.classList.remove('wrong'); void g.offsetWidth; g.classList.add('wrong');
-      inp.value = ''; inp.focus();
-    }
-  }
-  document.getElementById('gate-go').addEventListener('click', tryIt);
-  inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') tryIt(); });
-})();
-</script>
-<!-- ===== Fin verrou d'accès ===== -->
-<!-- ===== Transition portes entre pages ===== -->
-<style id="door-tx-style">
-  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
-  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
-    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
-    box-shadow:0 0 70px rgba(90,40,0,0.45);}
-  /* État par défaut : portes ouvertes (hors écran), aucune animation à l'arrivée directe */
-  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
-  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
-  /* État chargement : portes fermées, maintenues jusqu'à ce que le personnage soit prêt */
-  #door-tx.loading{pointer-events:auto;}
-  #door-tx.loading .door.l,#door-tx.loading .door.r{transform:translateX(0)!important;animation:none!important;}
-  #door-tx.loading .dt-logo{opacity:1!important;animation:dtLogoPulse 1.6s ease-in-out infinite!important;}
-  @keyframes dtLogoPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
-  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
-  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
-  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
-    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
-  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
-  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
-  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
-  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
-  #door-tx.closing{pointer-events:auto;}
-  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
-  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
-  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
-  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
-  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
-  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-  #door-tx .dt-spin{position:absolute;left:50%;top:calc(50% + clamp(96px,17vw,168px));
-    transform:translate(-50%,-50%);width:clamp(46px,9.5vw,68px);height:clamp(46px,9.5vw,68px);
-    color:#FFE6C4;opacity:0;transition:opacity .25s ease;
-    filter:drop-shadow(0 3px 6px rgba(120,50,0,.45));}
-  #door-tx.loading .dt-spin{opacity:.95;}
-  #door-tx.closing .dt-spin{opacity:0;}
-  @media (prefers-reduced-motion:reduce){
-    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
-    #door-tx .dt-spin{display:none;}
-  }
-</style>
-<div id="door-tx" class="loading" aria-hidden="true">
-  <div class="door l"></div>
-  <div class="door r"></div>
-  <img class="dt-logo" src="logomcd.png" alt="">
-  <svg class="dt-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-    <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2">
-      <animate id="mcdS1" fill="freeze" attributeName="x" begin="0;mcdS12.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS2" fill="freeze" attributeName="y" begin="mcdS9.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS3" fill="freeze" attributeName="x" begin="mcdS10.end" dur="0.2s" values="13;1"/>
-      <animate id="mcdS4" fill="freeze" attributeName="y" begin="mcdS11.end" dur="0.2s" values="13;1"/>
-    </rect>
-    <rect width="10" height="10" x="1" y="13" fill="currentColor" rx="2">
-      <animate id="mcdS5" fill="freeze" attributeName="y" begin="mcdS1.end" dur="0.2s" values="13;1"/>
-      <animate id="mcdS6" fill="freeze" attributeName="x" begin="mcdS2.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS7" fill="freeze" attributeName="y" begin="mcdS3.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS8" fill="freeze" attributeName="x" begin="mcdS4.end" dur="0.2s" values="13;1"/>
-    </rect>
-    <rect width="10" height="10" x="13" y="13" fill="currentColor" rx="2">
-      <animate id="mcdS9" fill="freeze" attributeName="x" begin="mcdS5.end" dur="0.2s" values="13;1"/>
-      <animate id="mcdS10" fill="freeze" attributeName="y" begin="mcdS6.end" dur="0.2s" values="13;1"/>
-      <animate id="mcdS11" fill="freeze" attributeName="x" begin="mcdS7.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS12" fill="freeze" attributeName="y" begin="mcdS8.end" dur="0.2s" values="1;13"/>
-    </rect>
-  </svg>
-</div>
-<script>
-(function(){
-  if(window.__doorTx) return; window.__doorTx=true;
-  var ov=document.getElementById('door-tx');
-  if(!ov) return;
-  var DUR=1000;
-  function isInternal(a){
-    if(!a) return false;
-    if(a.target && a.target!=='_self') return false;
-    if(a.hasAttribute('download')) return false;
-    var href=a.getAttribute('href')||'';
-    if(!href || href.charAt(0)==='#') return false;
-    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
-    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
-    if(url.origin!==location.origin) return false;
-    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
-    return true;
-  }
-  document.addEventListener('click', function(e){
-    if(e.defaultPrevented) return;
-    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    var a=e.target.closest ? e.target.closest('a[href]') : null;
-    if(!isInternal(a)) return;
-    e.preventDefault();
-    go(a.href);
-  }, true);
-  // Fermeture des portes puis redirection (pour les boutons onclick + les liens)
-  function go(dest){
-    if(ov.classList.contains('closing')) return;
-    try{ sessionStorage.setItem('mcd-door-nav','1'); }catch(err){}
-    void ov.offsetWidth;
-    ov.classList.add('closing');
-    setTimeout(function(){ window.location.href=dest; }, DUR);
-  }
-  window.mcdGo=go;
-  try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
-  // Les portes servent d'écran de chargement : elles restent fermées jusqu'à ce que
-  // le personnage 3D soit prêt, puis window.mcdDoorsOpen() les ouvre.
-  var opened=false, modelReady=false, pageLoaded=(document.readyState==='complete');
-  function doOpen(){
-    if(opened) return; opened=true;
-    ov.classList.remove('loading');
-    void ov.offsetWidth;
-    ov.classList.add('opening');
-    // 1 s après l'ouverture des portes : le personnage tombe sur la planète
-    setTimeout(function(){ if(window.__startFall) window.__startFall(); }, 1000);
-  }
-  function tryOpen(){ if(modelReady && pageLoaded) doOpen(); }
-  // Appelé quand le personnage 3D est prêt : n'ouvre que si toute la page est aussi chargée.
-  window.mcdDoorsOpen=function(){ modelReady=true; tryOpen(); };
-  window.addEventListener('load', function(){ pageLoaded=true; tryOpen(); });
-  // Filet de sécurité : ouverture forcée après 20s si un chargement échoue.
-  setTimeout(doOpen, 20000);
-  window.addEventListener('pageshow', function(ev){
-    if(ev.persisted){
-      ov.classList.remove('closing');
-      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
-    }
-  });
-})();
-</script>
-<!-- ===== Fin transition portes ===== -->
-<style>
-  /* ===== Entête pilule flottante (nouvelle structure) ===== */
-  #mcd-nav { position:absolute; top:clamp(16px,3vh,30px); left:0; right:0; padding:0 clamp(12px,3vw,40px);
-    display:flex; align-items:center; justify-content:center; gap:14px 18px; flex-wrap:wrap; z-index:30; pointer-events:none; }
-  #mcd-nav > * { pointer-events:auto; }
-  .mcd-glass { background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
-    border-radius:999px;
-    box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34),
-      inset 0 2px 3px rgba(255,255,255,.9), inset 0 -5px 10px rgba(255,180,120,.28); }
-  #mcd-bottom { display:none; }
-  #mcd-pill { position:relative; display:flex; align-items:center; gap:4px; padding:8px 10px; margin:0 auto;
-    animation:mcdFloat 6s ease-in-out infinite; }
-  @keyframes mcdFloat { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
-  .mcd-link { font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.04em;
-    text-transform:uppercase; color:#C77B33; background:transparent; border:0; cursor:pointer;
-    padding:11px 16px; border-radius:999px; white-space:nowrap; text-decoration:none;
-    display:flex; align-items:center; gap:6px; transition:background .2s ease, color .2s ease; }
-  .mcd-link:hover { background:rgba(243,133,43,.14); color:#F3852B; }
-  .mcd-link.is-active, .mcd-link.is-active:hover {
-    color:#F3852B; text-shadow:none;
-    background:linear-gradient(to bottom, #ffffff 0%, #fff6ec 55%, #ffeede 100%);
-    backdrop-filter:blur(6px) saturate(1.2); -webkit-backdrop-filter:blur(6px) saturate(1.2);
-    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.28),
-      0 4px 10px rgba(150,62,22,.16); }
-  #mcd-sol { position:relative; overflow:visible; }
-  #mcd-sol-txt { position:relative; display:inline-block; }
-  .mcd-badge { position:absolute; bottom:calc(100% + 1px); left:calc(100% - 4px); pointer-events:none;
-    padding:2px 6px; border-radius:999px; background:#E11D10; color:#fff;
-    font-family:'Fredoka',sans-serif; font-weight:700; font-size:9px; letter-spacing:.06em;
-    text-transform:uppercase; text-shadow:none; box-shadow:0 2px 6px rgba(180,20,10,.45);
-    transform-origin:0% 100%; transform:rotate(-16deg) scale(0);
-    animation:mcdInflate 2.1s cubic-bezier(.3,1.4,.4,1) .6s forwards; }
-  .mcd-badge::before { content:''; position:absolute; left:1px; bottom:-3px;
-    width:1.5px; height:4px; background:rgba(225,29,16,.65); transform:rotate(16deg);
-    transform-origin:50% 100%; }
-  @keyframes mcdInflate {
-    0%   { transform:rotate(-16deg) scale(0);    opacity:0; }
-    10%  { transform:rotate(-16deg) scale(.35);  opacity:1; }
-    45%  { transform:rotate(-14deg) scale(1.05); }
-    62%  { transform:rotate(-18deg) scale(1.35); }
-    76%  { transform:rotate(-13deg) scale(1.6);  }
-    92%  { transform:rotate(-16deg) scale(2.05); opacity:1; }
-    97%  { transform:rotate(-16deg) scale(2.45); opacity:.95; filter:brightness(1.5); }
-    100% { transform:rotate(-16deg) scale(2.7);  opacity:0; }
-  }
-  #mcd-drop a { position:relative; overflow:visible; }
-  #mcd-drop strong { position:relative; display:inline-block; }
-  .mcd-badge-static { position:absolute; bottom:calc(100% - 2px); left:calc(100% - 6px);
-    pointer-events:none; padding:2px 6px; border-radius:999px; background:#E11D10; color:#fff;
-    font-family:'Fredoka',sans-serif; font-weight:700; font-size:9px; letter-spacing:.06em;
-    text-transform:uppercase; box-shadow:0 2px 6px rgba(180,20,10,.45);
-    transform:rotate(-16deg); transform-origin:0% 100%;
-    animation:mcdBadgeIn .45s cubic-bezier(.3,1.5,.4,1) both; }
-  .mcd-badge-static::before { content:''; position:absolute; left:1px; bottom:-3px;
-    width:1.5px; height:4px; background:rgba(225,29,16,.65); transform:rotate(16deg);
-    transform-origin:50% 100%; }
-  @keyframes mcdBadgeIn { 0%{ transform:rotate(-16deg) scale(0); } 100%{ transform:rotate(-16deg) scale(1); } }
-  .mcd-pop { position:absolute; bottom:calc(100% + 5px); left:calc(100% + 6px);
-    width:0; height:0; pointer-events:none; }
-  .mcd-pop i { position:absolute; width:11px; height:11px; border-radius:50%; background:#FF2A17;
-    box-shadow:0 0 0 2px rgba(255,255,255,.85), 0 4px 12px rgba(180,20,10,.6);
-    opacity:0; animation:mcdPop .75s cubic-bezier(.2,.9,.3,1) 2.62s forwards; }
-  .mcd-pop i:nth-child(2n) { background:#FFC24A; width:9px; height:9px; }
-  .mcd-pop i:nth-child(3n) { background:#FFF6EA; }
-  @keyframes mcdPop {
-    0%   { opacity:1; transform:translate(0,0) scale(.4); }
-    25%  { opacity:1; transform:translate(calc(var(--dx) * .5),calc(var(--dy) * .5)) scale(1.5); }
-    100% { opacity:0; transform:translate(calc(var(--dx) * 2.4),calc(var(--dy) * 2.4)) scale(.5); } }
-  @keyframes mcdBadgePulse { 0%,100%{ transform:rotate(-16deg) translateY(0); } 50%{ transform:rotate(-16deg) translateY(-2px); } }
-  #mcd-drop { position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:12px;
-    width:300px; padding:10px; border-radius:24px; display:none; flex-direction:column; gap:6px; }
-  #mcd-drop.open { display:flex; }
-  #mcd-drop a { display:flex; flex-direction:column; gap:2px; padding:12px 14px; border-radius:16px; text-decoration:none; }
-  #mcd-drop a:hover { background:rgba(243,133,43,.14); }
-  #mcd-drop strong { font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#8A4A12; }
-  #mcd-drop em { font-style:normal; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; color:#B98455; }
   #mcd-right { position:fixed; top:clamp(20px,3.5vh,40px); right:clamp(20px,4vw,64px);
     display:flex; align-items:center; gap:10px; z-index:30; }
   #mcd-left { position:fixed; top:clamp(20px,3.5vh,40px); left:clamp(20px,4vw,64px);
@@ -686,7 +394,6 @@
     <circle cx="70" cy="70" r="40" fill="url(#sunLimb)"/>
     <ellipse cx="57" cy="55" rx="15" ry="10" fill="#fffef7" opacity="0.5"/>
 </svg></div>
-<div id="joy"><div class="knob"></div></div>
 
 <div id="avis" role="dialog" aria-label="Avis clients">
   <div class="sheet">
@@ -718,7 +425,9 @@
   }
   function resize(){
     var w = innerWidth, h = innerHeight, a = w / h;
-    baseDist = 74 * (a < 0.8 ? 1.4 : a < 1.15 ? 1.16 : 1);
+    baseDist = 74 * (a < 0.55 ? 2.0 : a < 0.8 ? 1.72 : a < 1.15 ? 1.3 : 1);
+    // en portrait, l'île remonte dans le cadre : la place libérée en bas accueille les fiches et le menu
+    LOOK.set(0, a < 0.8 ? -9 : 2.5, 0);
     dist = baseDist * zoom;
     camera.aspect = a;
     camera.updateProjectionMatrix();
@@ -1843,7 +1552,7 @@
   shadow.visible = false;
 
   // ---- contrôles ----
-  var target = null, keys = {}, joy = { x: 0, y: 0 }, moved = false;
+  var target = null, keys = {}, moved = false;
   var ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
   function clampX(x){ return Math.max(-2.6, Math.min(2.6, x)); }
   function clampZ(z){ return Math.max(-16.5, Math.min(10.5, z)); }
@@ -1906,21 +1615,6 @@
   addEventListener('keydown', function(e){ keys[e.key.toLowerCase()] = true; });
   addEventListener('keyup', function(e){ keys[e.key.toLowerCase()] = false; });
 
-  (function(){
-    var pad = document.getElementById('joy'), knob = pad.querySelector('.knob'), active = false, cx = 0, cy = 0;
-    function set(e){
-      var r = pad.getBoundingClientRect();
-      var dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2);
-      var d = Math.hypot(dx, dy), max = 34;
-      if (d > max) { dx *= max / d; dy *= max / d; d = max; }
-      knob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
-      joy.x = dx / max; joy.y = dy / max;
-    }
-    pad.addEventListener('pointerdown', function(e){ active = true; pad.setPointerCapture(e.pointerId); set(e); e.preventDefault(); });
-    pad.addEventListener('pointermove', function(e){ if (active) set(e); });
-    function end(){ active = false; joy.x = 0; joy.y = 0; knob.style.transform = ''; }
-    pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
-  })();
 
   // ---- étiquettes ----
   var layer = document.getElementById('poi-layer'), v = new THREE.Vector3();
@@ -2047,7 +1741,7 @@
     var vx = 0, vz = 0;
     var kx = (keys['d'] || keys['arrowright'] ? 1 : 0) - (keys['q'] || keys['a'] || keys['arrowleft'] ? 1 : 0);
     var ky = (keys['s'] || keys['arrowdown'] ? 1 : 0) - (keys['z'] || keys['w'] || keys['arrowup'] ? 1 : 0);
-    var ix = kx || joy.x, iy = ky || joy.y;
+    var ix = kx, iy = ky;
     if (Math.abs(ix) > 0.08 || Math.abs(iy) > 0.08) {
       target = null;
       var ca = Math.cos(azim), sa = Math.sin(azim);
