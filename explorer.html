@@ -768,7 +768,8 @@
   var NAVY = 0x2F4E8F, NAVY_D = 0x24406F, CREAM = 0xEFD9AE, CREAM2 = 0xE3C894, TERRA = 0xE85C1E;
   var ASPH = 0x4C5157, WALK = 0xD9D2C4, WOOD = 0xA9713C, LEAF = 0x63B84B, LEAF2 = 0x7FCF5F;
 
-  var sea = new THREE.Mesh(new THREE.CircleGeometry(80, 64), new THREE.MeshStandardMaterial({ color: 0x1C86C6, roughness: 0.35, metalness: 0.05 }));
+  var shotCam = null, shotHidden = [];
+  var sea = new THREE.Mesh(new THREE.CircleGeometry(80, 64), new THREE.MeshStandardMaterial({ color: 0x11629B, roughness: 0.35, metalness: 0.05 }));
   sea.userData.noOutline = true; sea.rotation.x = -Math.PI / 2; sea.position.y = -1.6; sea.receiveShadow = true; scene.add(sea);
   // contour irrégulier de l'île
   function islandShape(scale){
@@ -991,6 +992,69 @@
   bushPatch(5.4, -8.0, 0.95); bushPatch(-11.0, -7.4, 0.9); bushPatch(11.0, 8.0, 0.85);
 
   var extras = [];
+
+  // ---- mer cartoon : houle en relief, crêtes d'écume, anneaux de ressac ----
+  var seaH = function(){ return 0; };
+  (function(){
+    scene.remove(sea);
+    var SEG = 76, SIZE = 200;
+    var g = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG);
+    g.rotateX(-Math.PI / 2);
+    var swell = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x11629B, roughness: 0.42, metalness: 0.06, flatShading: true }));
+    swell.position.y = -1.6; swell.receiveShadow = true; swell.userData.noOutline = true; scene.add(swell);
+
+    var pos = g.attributes.position, n = pos.count;
+    var bx = new Float32Array(n), bz = new Float32Array(n), fade = new Float32Array(n);
+    for (var i = 0; i < n; i++) {
+      bx[i] = pos.getX(i); bz[i] = pos.getZ(i);
+      var d = Math.sqrt(bx[i] * bx[i] + bz[i] * bz[i]);
+      fade[i] = Math.min(1, Math.max(0, (d - 18.5) / 9));   // la houle se lève au large, plate près de la côte
+    }
+    function wave(x, z, t){
+      return Math.sin(x * 0.15 + t * 1.05) * 0.44
+           + Math.sin(z * 0.19 - t * 0.85) * 0.36
+           + Math.sin((x + z) * 0.10 + t * 0.55) * 0.52
+           + Math.sin((x - z) * 0.27 - t * 1.45) * 0.15;
+    }
+    seaH = function(x, z, t){
+      var d = Math.sqrt(x * x + z * z);
+      return wave(x, z, t) * Math.min(1, Math.max(0, (d - 18.5) / 9));
+    };
+
+    // moutons d'écume qui montent et descendent avec la houle
+    var caps = [];
+    var capMat = new THREE.MeshBasicMaterial({ color: 0xE8F8FF, transparent: true, opacity: 0.85 });
+    for (var c = 0; c < 26; c++) {
+      var a = (c / 26) * Math.PI * 2 + (c % 3) * 0.4;
+      var rr = 24 + (c * 7.3) % 34;
+      var cap = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 2.3 + (c % 4) * 0.7, 6), capMat);
+      cap.rotation.z = Math.PI / 2; cap.rotation.y = a * 1.7;
+      cap.userData.noOutline = true; scene.add(cap);
+      caps.push({ m: cap, x: Math.cos(a) * rr, z: Math.sin(a) * rr, ph: c * 1.3 });
+    }
+
+    var acc = 0;
+    extras.push(function(t){
+      acc++;
+      if (acc % 2 === 0) {                                // houle recalculée une frame sur deux
+        for (var i = 0; i < n; i++) {
+          if (fade[i] === 0) continue;
+          pos.setY(i, wave(bx[i], bz[i], t) * fade[i]);
+        }
+        pos.needsUpdate = true;
+        g.computeVertexNormals();
+      }
+      for (var j = 0; j < caps.length; j++) {
+        var o = caps[j];
+        var y = seaH(o.x, o.z, t);
+        o.m.position.set(o.x, -1.6 + y + 0.42, o.z);
+        o.m.material.opacity = 0.18 + Math.max(0, y) * 0.62;
+        o.m.rotation.x = Math.sin(t * 0.8 + o.ph) * 0.25;
+      }
+      foam.scale.set(1 + Math.sin(t * 0.9) * 0.006, 1, 1 + Math.sin(t * 0.9 + 1) * 0.006);
+      foam.material.opacity = 0.42 + Math.sin(t * 1.4) * 0.1;
+    });
+  })();
   // plage en croissant le long de la côte ouest
   (function(){
     function rShape(t){ return (17.4 + 2.9 * Math.sin(3 * t + 0.7) + 1.9 * Math.sin(5 * t + 2.1) + 1.3 * Math.sin(2 * t - 1.2) + 0.8 * Math.sin(7 * t)) * 0.955; }
@@ -1347,38 +1411,110 @@
   // kiosque des avis (petit kiosque octogonal, à l'emplacement libéré)
   var avisK = new THREE.Group();
   (function(){
-    var OR = 0xDC5E10, ORD = 0x9E3F05, WHT = 0xFFF8EC, BLU = 0x1B5FD4;
-    var socle = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.62, 0.24, 8), mat(0xE8D9BE));
-    socle.position.y = 0.12; socle.receiveShadow = true; avisK.add(socle);
-    var body = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 1.9, 8), mat(WHT, 0.9));
-    body.position.y = 1.19; body.castShadow = true; avisK.add(body);
-    // panneaux vitrés sur 5 pans
-    for (var i = 0; i < 8; i++) {
-      var a = i * Math.PI / 4 + Math.PI / 8;
-      if (i === 2) continue; // pan de service
-      var gl = box(0.82, 1.1, 0.06, 0x6FC4EA, 0.35);
-      gl.position.set(Math.cos(a) * 1.11, 1.35, Math.sin(a) * 1.11);
-      gl.rotation.y = -a; avisK.add(gl);
+    var OR = 0xDC5E10, ORD = 0x9E3F05, WHT = 0xFFF8EC, BLU = 0x1B5FD4, BLACK = 0x111111;
+
+    function addOutlinedMesh(geometry, material, scaleOffset) {
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.castShadow = true;
+      var outlineMat = new THREE.MeshBasicMaterial({ color: BLACK, side: THREE.BackSide });
+      var outlineMesh = new THREE.Mesh(geometry, outlineMat);
+      outlineMesh.scale.multiplyScalar(scaleOffset || 1.05);
+      outlineMesh.userData.noOutline = true;
+      var group = new THREE.Group();
+      group.add(outlineMesh); group.add(mesh);
+      return group;
     }
-    var comptoir = new THREE.Mesh(new THREE.CylinderGeometry(1.32, 1.32, 0.16, 8), mat(OR));
-    comptoir.position.y = 0.72; avisK.add(comptoir);
-    var band = new THREE.Mesh(new THREE.CylinderGeometry(1.28, 1.28, 0.3, 8), mat(OR));
+
+    var socleGrp = addOutlinedMesh(new THREE.CylinderGeometry(1.5, 1.7, 0.28, 8), mat(0xD4C4A8), 1.03);
+    socleGrp.position.y = 0.14; avisK.add(socleGrp);
+
+    // plancher intérieur + muret bas seulement : l'intérieur reste visible
+    var floor = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.1, 8), mat(0xE7D9BF));
+    floor.position.y = 0.32; floor.receiveShadow = true; avisK.add(floor);
+    var mur = addOutlinedMesh(new THREE.CylinderGeometry(1.2, 1.2, 0.5, 8), mat(WHT, 0.95), 1.02);
+    mur.position.y = 0.5; avisK.add(mur);
+
+    // montants d'angle + vitres claires
+    for (var i = 0; i < 8; i++) {
+      var a = i / 8 * Math.PI * 2, an = (i + 0.5) / 8 * Math.PI * 2;
+      var post = box(0.12, 1.6, 0.12, i % 2 ? WHT : ORD);
+      post.position.set(Math.cos(an) * 1.2, 1.52, Math.sin(an) * 1.2);
+      post.rotation.y = -an; avisK.add(post);
+    }
+
+    // personnage assis derrière le comptoir
+    (function(){
+      var p = new THREE.Group();
+      var stool = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.1, 10), mat(ORD));
+      stool.position.y = 0.62; p.add(stool);
+      var leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.3, 8), mat(0x8A9198));
+      leg.position.y = 0.45; p.add(leg);
+      var torso = box(0.42, 0.46, 0.3, 0x2F6FD0);
+      torso.position.y = 0.9; p.add(torso);
+      var head = new THREE.Mesh(new THREE.SphereGeometry(0.19, 14, 12), mat(0xF3C7A2));
+      head.position.y = 1.28; p.add(head);
+      var hair = new THREE.Mesh(new THREE.SphereGeometry(0.2, 14, 12, 0, Math.PI * 2, 0, Math.PI / 1.9), mat(0x3A2A1C));
+      hair.position.y = 1.31; p.add(hair);
+      // bras posés sur le comptoir
+      [-1, 1].forEach(function(s){
+        var arm = box(0.1, 0.1, 0.34, 0xF3C7A2);
+        arm.position.set(s * 0.24, 0.98, 0.16); arm.rotation.x = -0.25; p.add(arm);
+      });
+      // cuisses
+      [-1, 1].forEach(function(s){
+        var thigh = box(0.14, 0.12, 0.3, 0x35435A);
+        thigh.position.set(s * 0.11, 0.66, 0.14); p.add(thigh);
+      });
+      p.position.set(0, 0.05, -0.28); p.rotation.y = 0.1; avisK.add(p);
+    })();
+
+    var comptoirGrp = addOutlinedMesh(new THREE.CylinderGeometry(1.38, 1.38, 0.18, 8), mat(OR), 1.03);
+    comptoirGrp.position.y = 0.72; avisK.add(comptoirGrp);
+
+    var band = new THREE.Mesh(new THREE.CylinderGeometry(1.28, 1.28, 0.32, 8), mat(OR));
     band.position.y = 2.24; avisK.add(band);
-    var roof = new THREE.Mesh(new THREE.ConeGeometry(1.85, 0.9, 8), mat(ORD, 0.85));
-    roof.position.y = 2.85; roof.castShadow = true; avisK.add(roof);
-    var knob = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 8), mat(0xFFD84D));
-    knob.position.y = 3.4; avisK.add(knob);
-    // enseigne
-    var sign = box(1.15, 0.34, 0.09, BLU); sign.position.set(0, 2.24, 1.3); avisK.add(sign);
-    // trois étoiles au-dessus du comptoir
-    [-0.34, 0, 0.34].forEach(function(o){
-      var st = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 6), mat(0xFFD84D));
-      st.position.set(o, 1.86, 1.24); avisK.add(st);
+
+    var roofGrp = addOutlinedMesh(new THREE.ConeGeometry(2.0, 1.1, 8), mat(ORD, 0.85), 1.02);
+    roofGrp.position.y = 2.85; avisK.add(roofGrp);
+
+    var knob = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), mat(0xFFD84D));
+    knob.position.y = 3.45; avisK.add(knob);
+
+    var sign = box(1.2, 0.36, 0.09, BLU);
+    sign.position.set(0, 2.24, 1.32); avisK.add(sign);
+
+    [-0.38, 0, 0.38].forEach(function(o){
+      var medal = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.05, 12), mat(0xFFD84D));
+      medal.rotation.x = Math.PI / 2;
+      medal.position.set(o, 1.88, 1.26); avisK.add(medal);
     });
   })();
   avisK.scale.setScalar(1.7);
   extras.push(function(t){ avisK.rotation.y = t * 0.28; });
   addPoi({ group: avisK, x: -7.5, z: 5.8, y: 6.6, label: 'Le kiosque des avis', act: function(){ document.getElementById('avis').classList.add('open'); } });
+
+  // capture isolée du kiosque (outil d'export)
+  window.__kioskShot = function(on){
+    if (on) {
+      shotHidden = [];
+      scene.children.forEach(function(o){
+        if (o === avisK || o.isLight) return;
+        if (o.visible) { shotHidden.push(o); o.visible = false; }
+      });
+      var bb = new THREE.Box3().setFromObject(avisK), ctr = bb.getCenter(new THREE.Vector3());
+      var size = bb.getSize(new THREE.Vector3()), rad = Math.max(size.x, size.y, size.z) * 0.85;
+      shotCam = new THREE.PerspectiveCamera(30, renderer.domElement.width / renderer.domElement.height, 0.5, 200);
+      var d2 = rad / Math.tan(15 * Math.PI / 180) * 1.15;
+      shotCam.position.set(ctr.x + d2 * 0.55, ctr.y + d2 * 0.42, ctr.z + d2 * 0.72);
+      shotCam.lookAt(ctr);
+      shotCam.updateProjectionMatrix();
+      document.querySelectorAll('.poi').forEach(function(e){ e.style.visibility = 'hidden'; });
+    } else {
+      shotHidden.forEach(function(o){ o.visible = true; });
+      shotHidden = []; shotCam = null;
+      document.querySelectorAll('.poi').forEach(function(e){ e.style.visibility = ''; });
+    }
+  };
 
 
   // La Poste (décor derrière la boîte aux lettres)
@@ -1975,7 +2111,7 @@
         p.m.material.opacity = 0.42 * (1 - u * 0.85);
       }
     })();
-    renderer.render(scene, camera);
+    renderer.render(scene, shotCam || camera);
     requestAnimationFrame(tick);
   }
   GRID.visible = false;
@@ -2031,10 +2167,12 @@
     wake.rotation.x = Math.PI / 2; wake.userData.noOutline = true; scene.add(wake);
     extras.push(function(t){
       var a = -t * 0.055 + 1.2, R2 = 27;
-      boat.position.set(Math.cos(a) * R2, -1.35 + Math.sin(t * 0.9) * 0.07, Math.sin(a) * R2);
+      var bxp = Math.cos(a) * R2, bzp = Math.sin(a) * R2;
+      boat.position.set(bxp, -1.35 + seaH(bxp, bzp, t) * 0.9 + Math.sin(t * 0.9) * 0.05, bzp);
       boat.rotation.y = -a + Math.PI / 2;
       boat.rotation.z = Math.sin(t * 0.8) * 0.05;
-      wake.position.set(boat.position.x, -1.46, boat.position.z);
+      boat.rotation.x = (seaH(bxp + 2, bzp, t) - seaH(bxp - 2, bzp, t)) * 0.09;
+      wake.position.set(boat.position.x, boat.position.y - 0.11, boat.position.z);
       wake.scale.setScalar(1 + Math.sin(t * 1.6) * 0.06);
     });
 
