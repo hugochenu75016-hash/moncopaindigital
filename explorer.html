@@ -1722,7 +1722,9 @@
       lastT = tSec;
       var f = 1 - Math.exp(-dt * 14);                 // lissage rapide, indépendant du framerate
       for (var i = 0; i < POIS.length; i++) {
-        var p = POIS[i], want = p === hovered ? 1 : 0;
+        var p = POIS[i];
+        // le bâtiment grossit au survol, et aussi dès que sa fiche est ouverte (tap mobile)
+        var want = (p === hovered || (p.card && p.card.classList.contains('open'))) ? 1 : 0;
         p.hoverK += (want - p.hoverK) * f;
         if (want === 0 && p.hoverK < 0.0008) p.hoverK = 0;
         if (want === 1 && p.hoverK > 0.9992) p.hoverK = 1;
