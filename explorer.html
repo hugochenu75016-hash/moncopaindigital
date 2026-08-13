@@ -287,23 +287,73 @@
     box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), 0 6px 14px rgba(150,62,22,.28); }
   #grid-btn[aria-pressed="false"] { color:#fff; background:rgba(255,255,255,.22); box-shadow:none; }
   html[data-appweb] #grid-btn { bottom:calc(21vw + 52px + env(safe-area-inset-bottom,0px)); }
-  #mcd-right { position:fixed; top:clamp(20px,3.5vh,40px); right:clamp(20px,4vw,64px);
-    display:flex; align-items:center; gap:10px; z-index:30; }
-  #mcd-left { position:fixed; top:clamp(20px,3.5vh,40px); left:clamp(20px,4vw,64px);
-    display:flex; align-items:center; gap:10px; z-index:30; }
+  /* ===== Barre haute : réseaux + Votre Bulle (repris de Nos offres) ===== */
+  #topbar { position:fixed; top:0; right:0; z-index:72;
+    display:flex; align-items:center; gap:12px;
+    padding:clamp(14px,2.4vw,26px) clamp(16px,4vw,48px); }
+  #topbar .social { display:flex; align-items:center; gap:12px; }
+  .social-btn { width:44px; height:44px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:#fff7db; text-decoration:none;
+    border:1px solid #FFD98A;
+    background:linear-gradient(to bottom, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.12) 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.9), inset 0 -4px 10px rgba(255,150,60,0.22), 0 8px 20px rgba(120,50,0,0.28);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    transition:transform .26s cubic-bezier(.2,1,.3,1), box-shadow .26s ease; }
+  .social-btn:hover { transform:translateY(-2px) scale(1.08);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,1), 0 12px 26px rgba(120,50,0,0.34); }
+  .social-btn svg { width:21px; height:21px; }
+  .social-btn.logo-btn { width:38px; height:38px; border-radius:0; border:none; background:none;
+    box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+  .social-btn.logo-btn:hover { transform:translateY(-2px); box-shadow:none; }
+  .social-btn.logo-btn svg { width:38px; height:38px; }
+  html[data-appweb] #topbar, html[data-appweb] .acct-sq, html[data-appweb] #acct-pop { display:none !important; }
+
+  /* ===== Nav pilule flottante (même entête que Nos offres) ===== */
+  #mcd-nav { position:fixed; top:clamp(16px,3vh,30px); left:0; right:0; z-index:70;
+    display:flex; align-items:center; justify-content:center; pointer-events:none;
+    padding:0 clamp(12px,3vw,40px); }
+  #mcd-nav > * { pointer-events:auto; }
+  #mcd-pill { position:relative; display:flex; align-items:center; gap:4px; padding:8px 10px;
+    border-radius:999px;
+    background:linear-gradient(to bottom, rgba(255,255,255,.34) 0%, rgba(255,240,224,.18) 100%);
+    backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75), inset 0 -5px 12px rgba(255,180,120,.18),
+      0 14px 28px rgba(150,62,22,.20);
+    animation:mcdFloat 6s ease-in-out infinite; }
+  #mcd-bottom.mcd-glass {
+    background:linear-gradient(to bottom, rgba(255,255,255,.34) 0%, rgba(255,240,224,.18) 100%);
+    backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75), inset 0 -5px 12px rgba(255,180,120,.18),
+      0 14px 28px rgba(150,62,22,.20); }
+  @keyframes mcdFloat { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+  .mcd-link { font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.04em;
+    text-transform:uppercase; color:#FFFFFF; text-shadow:0 1px 3px rgba(150,70,0,.45);
+    background:transparent; border:0; cursor:pointer; padding:11px 16px; border-radius:999px;
+    white-space:nowrap; text-decoration:none; display:flex; align-items:center; gap:6px;
+    transition:background .2s ease, color .2s ease; }
+  .mcd-link:hover { background:rgba(255,255,255,.34); color:#FFFFFF; }
+  .mcd-link.is-active, .mcd-link.is-active:hover { color:#F3852B; text-shadow:none;
+    background:linear-gradient(to bottom, #ffffff 0%, #fff6ec 55%, #ffeede 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.28),
+      0 4px 10px rgba(150,62,22,.16); }
+  #mcd-drop { position:absolute; top:100%; left:50%; transform:translateX(-50%); margin-top:12px;
+    width:300px; padding:10px; border-radius:24px; display:none; flex-direction:column; gap:6px;
+    background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
+    box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34); }
+  #mcd-drop.open { display:flex; }
+  #mcd-drop a { display:flex; flex-direction:column; gap:2px; padding:12px 14px; border-radius:16px; text-decoration:none; }
+  #mcd-drop a:hover { background:rgba(243,133,43,.14); }
+  #mcd-drop strong { font-family:'Fredoka',sans-serif; font-weight:700; font-size:17px; color:#8A4A12; }
+  #mcd-drop em { font-style:normal; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; color:#B98455; }
+  #mcd-right { position:fixed; top:clamp(16px,3vh,30px); left:clamp(16px,4vw,48px); z-index:71;
+    display:flex; align-items:center; gap:10px; }
   .mcd-cta { font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.06em;
     text-transform:uppercase; color:#FFF7DB; text-decoration:none; padding:15px 24px; border-radius:999px;
     background:linear-gradient(to bottom,#ff9c46,#f3852b);
     box-shadow:0 6px 0 #c7620e, 0 16px 28px rgba(150,62,22,.34);
     transition:transform .28s cubic-bezier(.2,1,.3,1), background .2s ease; }
   .mcd-cta:hover { background:linear-gradient(to bottom,#ffab5e,#ff8f36); }
-  #mcd-pill.mcd-glass, #mcd-bottom.mcd-glass {
-    background:linear-gradient(to bottom, rgba(255,255,255,.34) 0%, rgba(255,240,224,.18) 100%);
-    backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3);
-    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75), inset 0 -5px 12px rgba(255,180,120,.18),
-      0 14px 28px rgba(150,62,22,.20); }
-  .mcd-link { color:#FFFFFF; text-shadow:0 1px 3px rgba(150,70,0,.45); }
-  .mcd-link:hover { background:rgba(255,255,255,.34); color:#FFFFFF; }
   #mcd-bottom { display:none; }
   #top-logo { z-index:1 !important; top:clamp(58px,6.5vw,92px) !important; }
   #logo-px { display:block; margin:0 auto; width:clamp(280px,36vw,590px); height:auto;
@@ -337,24 +387,67 @@
 </style>
 <div id="wrap">
   <canvas id="scene"></canvas>
-  <header id="mcd-nav">
-    <div id="mcd-left">
-      <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
-    </div>
-
-    <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
-      <a class="mcd-link" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
-      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je ?</a>
-      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions</span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
-      <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
-      <div id="mcd-drop" class="mcd-glass">
-        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio<span class="mcd-badge-static">Nouveau</span></strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
-      </div>  </nav>
-
-    <div id="mcd-right">
-      <a class="mcd-cta" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
+  <header id="topbar">
+    <div class="social">
+      <a class="social-btn logo-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg viewBox="0 0 24 24"><defs><radialGradient id="tbIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="0" y="0" width="24" height="24" rx="7" fill="url(#tbIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
+      </a>
+      <a class="social-btn logo-btn" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24"><rect x="0" y="0" width="24" height="24" rx="6" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg></a>
     </div>
   </header>
+
+  <nav id="mcd-nav" aria-label="Navigation principale">
+    <div id="mcd-pill">
+      <a class="mcd-link" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
+      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je</a>
+      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions</span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
+      <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
+      <a class="mcd-link" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
+      <div id="mcd-drop">
+        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio</strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main &#128273;</em></a>
+      </div>
+    </div>
+  <div id="mcd-right">
+    <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
+  </div>
+  </nav>
+  <script>
+  (function(){
+    function magnet(){
+      var els=document.querySelectorAll('#mcd-right .mcd-cta');
+      if(!els.length) return;
+      var PULL=0.30, MAX=18, RANGE=150;
+      var items=[], raf=0, mx=0, my=0;
+      els.forEach(function(b){ b.style.willChange='transform'; items.push({el:b,tx:0,ty:0,r:null}); });
+      function measure(){ items.forEach(function(it){ it.r=it.el.getBoundingClientRect(); }); }
+      measure();
+      addEventListener('resize', measure, {passive:true});
+      addEventListener('scroll', measure, {passive:true});
+      function apply(){
+        raf=0;
+        items.forEach(function(it){
+          var r=it.r; if(!r) return;
+          var dx=mx-(r.left+r.width/2), dy=my-(r.top+r.height/2);
+          var d=Math.sqrt(dx*dx+dy*dy);
+          if(d<RANGE){
+            it.tx=Math.max(-MAX,Math.min(MAX,dx*PULL));
+            it.ty=Math.max(-MAX,Math.min(MAX,dy*PULL));
+            it.el.style.transition='transform .14s ease-out';
+          } else if(it.tx||it.ty){
+            it.tx=0; it.ty=0; it.el.style.transition='transform .35s cubic-bezier(.2,1,.3,1)';
+          } else return;
+          it.el.style.transform='translate('+it.tx.toFixed(1)+'px,'+it.ty.toFixed(1)+'px)';
+        });
+      }
+      window.addEventListener('pointermove', function(e){
+        if(e.pointerType==='touch') return;
+        mx=e.clientX; my=e.clientY;
+        if(!raf) raf=requestAnimationFrame(apply);
+      }, {passive:true});
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', magnet); else magnet();
+  })();
+  </script>
 
   <nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
     <a class="accueil" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
@@ -376,6 +469,134 @@
   </nav>
 </div>
 <div id="poi-layer"></div>
+
+<!-- ===== Transition portes entre pages (identique à index.html) ===== -->
+<style id="door-tx-style">
+  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
+  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
+    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
+    box-shadow:0 0 70px rgba(90,40,0,0.45);}
+  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
+  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
+  #door-tx.loading{pointer-events:auto;}
+  #door-tx.loading .door.l,#door-tx.loading .door.r{transform:translateX(0)!important;animation:none!important;}
+  #door-tx.loading .dt-logo{opacity:1!important;animation:dtLogoPulse 1.6s ease-in-out infinite!important;}
+  @keyframes dtLogoPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
+  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
+    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
+  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
+  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
+  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
+  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
+  #door-tx.closing{pointer-events:auto;}
+  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
+  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
+  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
+  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  #door-tx .dt-spin{position:absolute;left:50%;top:calc(50% + clamp(96px,17vw,168px));
+    transform:translate(-50%,-50%);width:clamp(46px,9.5vw,68px);height:clamp(46px,9.5vw,68px);
+    color:#FFE6C4;opacity:0;transition:opacity .25s ease;
+    filter:drop-shadow(0 3px 6px rgba(120,50,0,.45));}
+  #door-tx.loading .dt-spin{opacity:.95;}
+  #door-tx.closing .dt-spin{opacity:0;}
+  @media (prefers-reduced-motion:reduce){
+    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
+    #door-tx .dt-spin{display:none;}
+  }
+</style>
+<div id="door-tx" class="loading" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="logomcd.png" alt="">
+  <svg class="dt-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+    <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2">
+      <animate id="mcdS1" fill="freeze" attributeName="x" begin="0;mcdS12.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS2" fill="freeze" attributeName="y" begin="mcdS9.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS3" fill="freeze" attributeName="x" begin="mcdS10.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS4" fill="freeze" attributeName="y" begin="mcdS11.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="1" y="13" fill="currentColor" rx="2">
+      <animate id="mcdS5" fill="freeze" attributeName="y" begin="mcdS1.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS6" fill="freeze" attributeName="x" begin="mcdS2.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS7" fill="freeze" attributeName="y" begin="mcdS3.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS8" fill="freeze" attributeName="x" begin="mcdS4.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="13" y="13" fill="currentColor" rx="2">
+      <animate id="mcdS9" fill="freeze" attributeName="x" begin="mcdS5.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS10" fill="freeze" attributeName="y" begin="mcdS6.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS11" fill="freeze" attributeName="x" begin="mcdS7.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS12" fill="freeze" attributeName="y" begin="mcdS8.end" dur="0.2s" values="1;13"/>
+    </rect>
+  </svg>
+</div>
+<script>
+(function(){
+  if(window.__doorTx) return; window.__doorTx=true;
+  var ov=document.getElementById('door-tx');
+  if(!ov) return;
+  var DUR=1000;
+  function isInternal(a){
+    if(!a) return false;
+    if(a.target && a.target!=='_self') return false;
+    if(a.hasAttribute('download')) return false;
+    var href=a.getAttribute('href')||'';
+    if(!href || href.charAt(0)==='#') return false;
+    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
+    if(url.origin!==location.origin) return false;
+    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented) return;
+    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target.closest ? e.target.closest('a[href]') : null;
+    if(!isInternal(a)) return;
+    e.preventDefault();
+    go(a.href);
+  }, true);
+  function go(dest){
+    if(ov.classList.contains('closing')) return;
+    try{ sessionStorage.setItem('mcd-door-nav','1'); }catch(err){}
+    void ov.offsetWidth;
+    ov.classList.add('closing');
+    setTimeout(function(){ window.location.href=dest; }, DUR);
+  }
+  window.mcdGo=go;
+  try{ sessionStorage.removeItem('mcd-door-nav'); }catch(err){}
+  // Les portes restent fermées jusqu'à ce que la page ET la vidéo mobile soient prêtes.
+  var opened=false, filmReady=false, pageLoaded=(document.readyState==='complete');
+  function doOpen(){
+    if(opened) return; opened=true;
+    ov.classList.remove('loading');
+    void ov.offsetWidth;
+    ov.classList.add('opening');
+  }
+  function tryOpen(){ if(filmReady && pageLoaded) doOpen(); }
+  window.addEventListener('load', function(){ pageLoaded=true; tryOpen(); });
+  function preloadFilm(){
+    var fr=document.querySelector('#ss-sheet iframe');
+    if(!fr){ filmReady=true; tryOpen(); return; }
+    fr.removeAttribute('loading');
+    fr.addEventListener('load', function(){ filmReady=true; tryOpen(); }, { once:true });
+    fr.setAttribute('src', fr.dataset.src);
+    setTimeout(function(){ filmReady=true; tryOpen(); }, 12000);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', preloadFilm); else preloadFilm();
+  setTimeout(doOpen, 20000);
+  window.addEventListener('pageshow', function(ev){
+    if(ev.persisted){
+      ov.classList.remove('closing');
+      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
+    }
+  });
+})();
+</script>
+<!-- ===== Fin transition portes ===== -->
 <div id="ss-sheet" role="dialog" aria-label="Social Studio" aria-modal="true">
   <div class="box">
     <button type="button" class="x" aria-label="Fermer">&#10005;</button>
@@ -386,10 +607,27 @@
 <script>
   (function(){
     var sh = document.getElementById('ss-sheet'), fr = sh.querySelector('iframe');
+    // l'iframe reste chargée en mémoire (préchargée derrière les portes) :
+    // à l'ouverture on ne recharge rien, on remet juste le film à zéro.
+    fr.addEventListener('load', function(){ if (fr.getAttribute('src') !== 'about:blank') fr.dataset.ready = '1'; });
+    function rewind(cb){
+      // l'iframe reste chargée : on remet juste la tête de lecture à 0
+      // (raccourci « 0 » de l'engine) — la lecture en boucle continue.
+      try {
+        var w = fr.contentWindow;
+        w.dispatchEvent(new w.KeyboardEvent('keydown', { key: '0', code: 'Digit0', bubbles: true }));
+      } catch (e) {}
+      cb();
+    }
     window.openStudioSheet = function(){
-      if (!fr.getAttribute('src')) fr.setAttribute('src', fr.dataset.src);
       sh.classList.remove('closing');
-      sh.classList.add('open');
+      if (fr.dataset.ready === '1') { rewind(function(){ sh.classList.add('open'); }); return; }
+      // préchargement encore en cours : on attend la fin du chargement
+      var shown = false;
+      var show = function(){ if (shown) return; shown = true; sh.classList.add('open'); };
+      if (!fr.getAttribute('src') || fr.getAttribute('src') === 'about:blank') fr.setAttribute('src', fr.dataset.src);
+      fr.addEventListener('load', show, { once:true });
+      setTimeout(show, 6000);
     };
     function close(){
       if (!sh.classList.contains('open')) return;
@@ -2489,5 +2727,56 @@
   if (window.mcdDoorsOpen) window.mcdDoorsOpen();
 })();
 </script>
+<!-- ===== Widget Espace compte (haut droite, liquid) ===== -->
+<style id="acct-widget-css">
+  .acct-sq{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff7db;border:none;background:transparent;box-shadow:none;transition:transform .26s cubic-bezier(.2,1,.3,1);padding:0;}
+  .acct-sq:hover{transform:translateY(-2px) scale(1.06);}
+  .acct-sq svg{width:23px;height:23px;}
+  .acct-sq img{width:100%;height:100%;object-fit:contain;display:block;}
+  #acct-pop .ap-ic img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(120,50,0,0.25));}
+  .acct-sq.fixed{position:fixed;top:clamp(14px,2.4vw,26px);right:clamp(16px,4vw,48px);z-index:9999;}
+  #acct-pop{position:fixed;top:calc(clamp(14px,2.4vw,26px) + 58px);right:clamp(16px,4vw,48px);z-index:10000;width:264px;border-radius:22px;padding:20px 20px 18px;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;transition:opacity .22s ease,transform .22s cubic-bezier(.2,1,.3,1);border:1px solid rgba(255,255,255,0.55);background:linear-gradient(to bottom,rgba(255,255,255,0.34) 0%,rgba(255,255,255,0.14) 60%,rgba(255,255,255,0.08) 100%);box-shadow:inset 0 2px 1px rgba(255,255,255,0.8),0 24px 54px rgba(90,40,0,0.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;}
+  #acct-pop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+  #acct-pop .ap-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  #acct-pop .ap-ic{width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;color:#d24a2a;background:linear-gradient(to bottom,#fff8ef,#ffe1cf);box-shadow:0 5px 12px rgba(120,50,0,0.25);}
+  #acct-pop .ap-ic svg{width:19px;height:19px;}
+  #acct-pop .ap-title{font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:16px;color:#fff;text-shadow:0 1px 2px rgba(150,70,0,0.4);}
+  #acct-pop .ap-txt{margin:0 0 16px;font-size:13.5px;line-height:1.45;color:#fff3df;}
+  #acct-pop .ap-actions{display:flex;flex-direction:column;gap:9px;}
+  #acct-pop .ap-btn{cursor:pointer;text-decoration:none;text-align:center;font-family:'Fredoka','Helvetica Neue',sans-serif;font-weight:700;font-size:14px;padding:12px;border-radius:999px;transition:transform .2s,box-shadow .2s,background .2s;border:1.5px solid rgba(255,255,255,0.55);}
+  #acct-pop .ap-btn.open{color:#8a3c00;background:linear-gradient(to bottom,#fff8ef,#ffe6bb);box-shadow:0 8px 18px rgba(120,50,0,0.3);}
+  #acct-pop .ap-btn.open:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(120,50,0,0.38);}
+  #acct-pop .ap-btn.close{color:#fff;background:rgba(255,255,255,0.12);}
+  #acct-pop .ap-btn.close:hover{background:rgba(255,255,255,0.22);}
+</style>
+<div id="acct-pop" role="dialog" aria-label="Votre Bulle">
+  <div class="ap-head">
+    <span class="ap-ic"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
+    <span class="ap-title">Votre Bulle</span>
+  </div>
+  <p class="ap-txt">Voulez-vous ouvrir votre espace personnel&nbsp;?</p>
+  <div class="ap-actions">
+    <a class="ap-btn open" href="espace-compte.html">Ouvrir votre Bulle</a>
+    <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
+  </div>
+</div>
+<script>
+(function(){
+  if(window.__acctWidget) return; window.__acctWidget=true;
+  var btn=document.createElement('button');
+  btn.type='button'; btn.className='acct-sq'; btn.setAttribute('aria-label','Espace compte'); btn.title='Espace compte';
+  btn.innerHTML='<img src="boutonespacelog-trim.png" alt="Espace compte">';
+  var social=document.querySelector('#topbar .social');
+  if(social){ social.appendChild(btn); }
+  else { btn.classList.add('fixed'); document.body.appendChild(btn); }
+  var pop=document.getElementById('acct-pop'); var open=false;
+  function set(v){ open=v; pop.classList.toggle('show',open); }
+  btn.addEventListener('click',function(e){ e.stopPropagation(); set(!open); });
+  document.getElementById('acct-close').addEventListener('click',function(e){ e.stopPropagation(); set(false); });
+  document.addEventListener('click',function(e){ if(open && !pop.contains(e.target) && !btn.contains(e.target)){ set(false); } });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') set(false); });
+})();
+</script>
+<!-- ===== Fin widget Espace compte ===== -->
 </body>
 </html>
