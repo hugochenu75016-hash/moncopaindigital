@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#FFF3E6"/><rect x="70" y="40" width="60" height="120" rx="16" fill="#2b2f38"/><rect x="76" y="46" width="48" height="108" rx="11" fill="#FFF8EF"/><circle cx="100" cy="100" r="16" fill="#f3852b"/></svg></template>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;900&amp;display=swap">
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#FFFFFF; font-family:'Fredoka',sans-serif; -webkit-font-smoothing:antialiased; overflow:hidden; }
+  a { color:#c7620e; text-decoration:none; }
+  a:hover { color:#f3852b; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+</helmet>
+
+<div id="ss-wrap" style="height:100vh; display:flex; flex-direction:column; align-items:center; gap:12px; padding:16px 16px 18px; background:radial-gradient(120% 80% at 50% 0%, #FFF3E6 0%, #FFFFFF 62%)">
+
+  <div id="ss-top" style="display:flex; align-items:center; gap:8px; align-self:stretch">
+    <span style="width:26px; height:26px; border-radius:8px; background:linear-gradient(#ff9c46,#f3852b); box-shadow:0 3px 0 #c7620e"></span>
+    <b style="flex:1; font-size:13.5px; color:#7a3300">Social Studio</b>
+    <button type="button" id="ss-replay" onClick="{{ replay }}" style="padding:6px 12px; border:0; cursor:pointer; border-radius:999px; font-family:'Fredoka',sans-serif; font-size:11px; font-weight:700; color:#8A4A12; background:#FFF3E6">Revoir</button>
+  </div>
+
+  <div id="ss-phone" style="position:relative; width:214px; flex:1; min-height:0; border-radius:34px; padding:9px; background:linear-gradient(#3a3f4b,#23272f); box-shadow:0 20px 34px rgba(60,30,0,.28), inset 0 1px 1px rgba(255,255,255,.28)">
+    <span style="position:absolute; left:50%; top:15px; transform:translateX(-50%); width:52px; height:5px; border-radius:999px; background:rgba(255,255,255,.22); z-index:6"></span>
+    <div id="ss-screen" style="position:relative; height:100%; border-radius:26px; overflow:hidden; background:#FFF8EF">
+
+      <div style="position:absolute; left:9px; right:9px; top:9px; z-index:5; display:flex; gap:4px">
+        <span style="flex:1; height:3px; border-radius:999px; background:rgba(122,51,0,.18); overflow:hidden"><span id="ss-b0" style="display:block; width:0%; height:100%; background:#f3852b"></span></span>
+        <span style="flex:1; height:3px; border-radius:999px; background:rgba(122,51,0,.18); overflow:hidden"><span id="ss-b1" style="display:block; width:0%; height:100%; background:#f3852b"></span></span>
+        <span style="flex:1; height:3px; border-radius:999px; background:rgba(122,51,0,.18); overflow:hidden"><span id="ss-b2" style="display:block; width:0%; height:100%; background:#f3852b"></span></span>
+        <span style="flex:1; height:3px; border-radius:999px; background:rgba(122,51,0,.18); overflow:hidden"><span id="ss-b3" style="display:block; width:0%; height:100%; background:#f3852b"></span></span>
+        <span style="flex:1; height:3px; border-radius:999px; background:rgba(122,51,0,.18); overflow:hidden"><span id="ss-b4" style="display:block; width:0%; height:100%; background:#f3852b"></span></span>
+      </div>
+
+      <div id="sc0" style="position:absolute; inset:0; padding:34px 18px 18px; display:flex; flex-direction:column; justify-content:center; gap:12px; background:linear-gradient(#FFF3E6,#FFE7CE)">
+        <span class="l" style="align-self:flex-start; padding:4px 10px; border-radius:999px; background:#fff; font-size:9px; font-weight:900; letter-spacing:.08em; color:#c7620e">SOCIAL STUDIO</span>
+        <h2 class="l" style="margin:0; font-size:25px; line-height:1.08; font-weight:900; color:#7a3300; letter-spacing:-.01em">Vos r&eacute;seaux vous prennent tout votre temps.</h2>
+        <p class="l" style="margin:0; font-size:12.5px; line-height:1.5; color:#a06a34">Ou pire&#8239;: ils dorment depuis trois semaines.</p>
+      </div>
+
+      <div id="sc1" style="position:absolute; inset:0; padding:34px 18px 18px; display:flex; flex-direction:column; justify-content:center; gap:11px; background:#FFF8EF">
+        <b class="l" style="font-size:14px; color:#7a3300">Ce que &ccedil;a donne, en vrai</b>
+        <div class="l" style="display:flex; align-items:center; gap:9px; padding:11px; border-radius:14px; background:#FDF2E4"><span style="font-size:16px">&#128533;</span><span style="flex:1; font-size:11.5px; line-height:1.45; color:#a06a34">2 posts par mois, publi&eacute;s au hasard</span></div>
+        <div class="l" style="display:flex; align-items:center; gap:9px; padding:11px; border-radius:14px; background:#FDF2E4"><span style="font-size:16px">&#128340;</span><span style="flex:1; font-size:11.5px; line-height:1.45; color:#a06a34">1 h perdue &agrave; chercher quoi dire</span></div>
+        <div class="l" style="display:flex; align-items:center; gap:9px; padding:11px; border-radius:14px; background:#FDF2E4"><span style="font-size:16px">&#128201;</span><span style="flex:1; font-size:11.5px; line-height:1.45; color:#a06a34">Une audience qui ne bouge plus</span></div>
+      </div>
+
+      <div id="sc2" style="position:absolute; inset:0; padding:34px 16px 16px; display:flex; flex-direction:column; gap:10px; background:#FFF8EF">
+        <b class="l" style="font-size:14px; color:#7a3300">On vous envoie le mois entier</b>
+        <div class="l" style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px">
+          <span style="aspect-ratio:1; border-radius:6px; background:#F1E6D6"></span><span class="d" style="aspect-ratio:1; border-radius:6px; background:linear-gradient(#ff9c46,#f3852b)"></span><span style="aspect-ratio:1; border-radius:6px; background:#F1E6D6"></span><span class="d" style="aspect-ratio:1; border-radius:6px; background:linear-gradient(#ff9c46,#f3852b)"></span><span style="aspect-ratio:1; border-radius:6px; background:#F1E6D6"></span><span class="d" style="aspect-ratio:1; border-radius:6px; background:linear-gradient(#1B5FD4,#12409b)"></span><span style="aspect-ratio:1; border-radius:6px; background:#F1E6D6"></span>
+          <span class="d" style="aspect-ratio:1; border-radius:6px; background:linear-gradient(#ff9c46,#f3852b)"></span><span style="aspect-ratio:1; border-radius:6px; background:#F1E6D6"></span><span class="d" style="aspect-ratio:1; border-radius:6px; background:linear-gradient(#ff9c46,#f3852b)"></span><span style="aspect-ratio:1; border-radius:6px; background:#F1E6D6"></span><span class="d" style="aspect-ratio:1; border-radius:6px; background:linear-gradient(#1B5FD4,#12409b)"></span><span style="aspect-ratio:1; border-radius:6px; background:#F1E6D6"></span><span style="aspect-ratio:1; border-radius:6px; background:#F1E6D6"></span>
+        </div>
+        <div class="l" style="display:flex; align-items:center; gap:9px; padding:10px 11px; border-radius:13px; background:#fff; box-shadow:inset 0 0 0 2px #f3852b"><b style="font-size:13px; color:#7a3300">04</b><span style="flex:1; display:flex; flex-direction:column"><b style="font-size:11px; color:#7a3300">Coulisses du studio</b><span style="font-size:9.5px; color:#b98455">12:30 &middot; Story</span></span><span style="font-size:12px; color:#4b7a4f">&#10003;</span></div>
+        <div class="l" style="display:flex; align-items:center; gap:9px; padding:10px 11px; border-radius:13px; background:#FDF7EE"><b style="font-size:13px; color:#7a3300">06</b><span style="flex:1; display:flex; flex-direction:column"><b style="font-size:11px; color:#7a3300">Avant / apr&egrave;s client</b><span style="font-size:9.5px; color:#b98455">18:00 &middot; Carrousel</span></span><span style="font-size:12px; color:#4b7a4f">&#10003;</span></div>
+        <div class="l" style="margin-top:auto; display:flex; align-items:center; gap:8px; padding:10px 11px; border-radius:13px; background:#F4FBF3"><span style="font-size:13px">&#10003;</span><span style="font-size:10.5px; line-height:1.4; color:#4b7a4f">Vous validez en une minute. On publie.</span></div>
+      </div>
+
+      <div id="sc3" style="position:absolute; inset:0; padding:34px 16px 16px; display:flex; flex-direction:column; gap:10px; background:#FFF8EF">
+        <b class="l" style="font-size:14px; color:#7a3300">Un contenu, trois plateformes</b>
+        <div id="ss-cards" style="position:relative; flex:1; min-height:0">
+          <div class="pc" style="position:absolute; inset:0; border-radius:16px; overflow:hidden; background:#fff; box-shadow:0 8px 18px rgba(122,51,0,.14); display:flex; flex-direction:column">
+            <div style="display:flex; align-items:center; gap:7px; padding:9px 10px; border-bottom:1px solid #f4e6d3"><span style="width:20px; height:20px; border-radius:999px; background:linear-gradient(#ff9c46,#f3852b)"></span><b style="flex:1; font-size:9.5px; color:#7a3300">mon.copain.digital</b><span style="padding:3px 7px; border-radius:999px; background:#FFEEDE; font-size:8px; font-weight:900; letter-spacing:.05em; color:#c7620e">INSTAGRAM</span></div>
+            <div style="flex:1; background:repeating-linear-gradient(45deg,#ead9c1 0 8px,#f6e8d6 8px 16px)"></div>
+            <div style="padding:9px 10px; display:flex; flex-direction:column; gap:4px"><div style="display:flex; gap:8px; font-size:9px; font-weight:700; color:#c7620e"><span>&#9829; 248</span><span>&#128172; 31</span><span>&#8599; 12</span></div><p style="margin:0; font-size:9.5px; line-height:1.4; color:#a06a34">Trois signes qu'il est temps de d&eacute;l&eacute;guer.</p></div>
+          </div>
+          <div class="pc" style="position:absolute; inset:0; border-radius:16px; overflow:hidden; background:#fff; box-shadow:0 8px 18px rgba(122,51,0,.14); display:flex; flex-direction:column">
+            <div style="display:flex; align-items:center; gap:7px; padding:9px 10px; border-bottom:1px solid #f4e6d3"><span style="width:20px; height:20px; border-radius:999px; background:#111"></span><b style="flex:1; font-size:9.5px; color:#7a3300">@moncopaindigital</b><span style="padding:3px 7px; border-radius:999px; background:#EEF1F6; font-size:8px; font-weight:900; letter-spacing:.05em; color:#3b4657">X</span></div>
+            <p style="margin:0; padding:10px 11px 6px; font-size:10.5px; line-height:1.45; color:#7a3300">Compte repris &agrave; 400 abonn&eacute;s. Quatre mois plus tard&#8239;: 2 100, sans un euro de pub. Le fil complet &#128071;</p>
+            <div style="flex:1; margin:0 11px 10px; border-radius:10px; background:repeating-linear-gradient(45deg,#ead9c1 0 8px,#f6e8d6 8px 16px)"></div>
+            <div style="padding:0 11px 10px; display:flex; gap:9px; font-size:9px; font-weight:700; color:#c7620e"><span>&#128172; 18</span><span>&#128257; 42</span><span>&#9829; 310</span></div>
+          </div>
+          <div class="pc" style="position:absolute; inset:0; border-radius:16px; overflow:hidden; background:#1a1d24; box-shadow:0 8px 18px rgba(122,51,0,.14); display:flex; flex-direction:column">
+            <div style="flex:1; background:repeating-linear-gradient(115deg,#3a3f4b 0 10px,#454b58 10px 20px); display:flex; flex-direction:column; justify-content:flex-end; padding:11px; gap:5px">
+              <span style="align-self:flex-start; padding:3px 7px; border-radius:999px; background:rgba(255,255,255,.18); font-size:8px; font-weight:900; letter-spacing:.05em; color:#FFF8EF">TIKTOK</span>
+              <b style="font-size:11px; color:#FFF8EF">Une journ&eacute;e au studio, en 28 s</b>
+              <span style="font-size:9px; color:rgba(255,248,239,.7)">&#9834; son original &middot; 4 812 &#9829;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="sc4" style="position:absolute; inset:0; padding:34px 18px 18px; display:flex; flex-direction:column; justify-content:center; gap:13px; background:linear-gradient(#1a74b4,#11629B)">
+        <div class="l" style="display:flex; flex-direction:column; gap:1px"><b style="font-size:40px; line-height:1; font-weight:900; color:#FFF8EF">+425&#8239;%</b><span style="font-size:11.5px; color:rgba(255,248,239,.78)">de port&eacute;e en quatre mois</span></div>
+        <div class="l" style="display:flex; gap:9px">
+          <span style="flex:1; padding:11px; border-radius:13px; background:rgba(255,248,239,.14); display:flex; flex-direction:column; gap:2px"><b style="font-size:17px; font-weight:900; color:#FFF8EF">12</b><span style="font-size:9.5px; color:rgba(255,248,239,.72)">posts / mois</span></span>
+          <span style="flex:1; padding:11px; border-radius:13px; background:rgba(255,248,239,.14); display:flex; flex-direction:column; gap:2px"><b style="font-size:17px; font-weight:900; color:#FFF8EF">1 h</b><span style="font-size:9.5px; color:rgba(255,248,239,.72)">de votre temps</span></span>
+        </div>
+        <p class="l" style="margin:0; font-size:12px; line-height:1.5; color:rgba(255,248,239,.85)">On s'occupe de tout. Vous validez, une fois par mois.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <a href="rendez-vous.html" id="ss-cta" style="align-self:stretch; padding:14px; border-radius:999px; text-align:center; font-size:13.5px; font-weight:900; letter-spacing:.04em; text-transform:uppercase; color:#FFF7DB; background:linear-gradient(to bottom,#ff9c46,#f3852b); box-shadow:0 5px 0 #c7620e, 0 12px 22px rgba(150,62,22,.28)" style-hover="background:linear-gradient(to bottom,#ffab5e,#ff8f36)">R&eacute;server un appel</a>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:430,&quot;height&quot;:560}}">
+class Component extends DCLogic {
+  componentDidMount() {
+    this.embedMode();
+    this._wait = setInterval(() => {
+      if (!window.gsap) return;
+      clearInterval(this._wait);
+      this.g = window.gsap;
+      this.play();
+      this.bindScroll();
+    }, 60);
+  }
+
+  // en fiche (iframe) : le téléphone EST la fiche — plus de bureau autour
+  embedMode() {
+    if (window.self === window.top) return;
+    const $ = id => document.getElementById(id);
+    const wrap = $('ss-wrap'), phone = $('ss-phone'), top = $('ss-top'), cta = $('ss-cta'), screen = $('ss-screen');
+    if (!wrap || !phone) return;
+    wrap.style.padding = '0';
+    wrap.style.gap = '0';
+    wrap.style.background = 'transparent';
+    document.documentElement.style.background = 'transparent';
+    document.body.style.background = 'transparent';
+    phone.style.width = '100%';
+    phone.style.borderRadius = '34px';
+    if (screen) screen.style.borderRadius = '25px';
+    phone.style.boxShadow = 'none';
+    if (top) top.style.display = 'none';
+    if (cta && screen) {
+      screen.appendChild(cta);
+      cta.style.position = 'absolute';
+      cta.style.left = '12px';
+      cta.style.right = '12px';
+      cta.style.bottom = '12px';
+      cta.style.zIndex = '7';
+      cta.style.padding = '12px';
+      cta.style.fontSize = '12px';
+      cta.style.alignSelf = 'auto';
+      cta.target = '_top';
+      for (let i = 0; i < 5; i++) { const sc = $('sc' + i); if (sc) sc.style.paddingBottom = '62px'; }
+    }
+  }
+
+  // molette / glissé vertical : on avance ou recule d'une étape
+  bindScroll() {
+    if (this._bound) return;
+    this._bound = true;
+    let lock = 0;
+    const step = dir => {
+      const now = performance.now();
+      if (now - lock < 420 || !this.tl || !this.starts) return;
+      lock = now;
+      const t = this.tl.time();
+      let i = 0;
+      for (let k = 0; k < this.starts.length; k++) if (t >= this.starts[k] - .05) i = k;
+      const next = Math.max(0, Math.min(this.starts.length - 1, i + dir));
+      this.tl.pause();
+      this.tl.time(this.starts[next]);
+      this.tl.play();
+    };
+    addEventListener('wheel', e => { e.preventDefault(); step(e.deltaY > 0 ? 1 : -1); }, { passive: false });
+    let y0 = null;
+    addEventListener('touchstart', e => { y0 = e.touches[0].clientY; }, { passive: true });
+    addEventListener('touchmove', e => {
+      if (y0 === null) return;
+      const dy = y0 - e.touches[0].clientY;
+      if (Math.abs(dy) > 34) { step(dy > 0 ? 1 : -1); y0 = e.touches[0].clientY; }
+    }, { passive: true });
+    addEventListener('touchend', () => { y0 = null; });
+    addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') step(1);
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') step(-1);
+    });
+  }
+  componentWillUnmount() { clearInterval(this._wait); if (this.tl) this.tl.kill(); }
+
+  renderVals() { return { replay: () => this.play() }; }
+
+  play() {
+    const g = this.g;
+    if (!g) return;
+    if (this.tl) this.tl.kill();
+
+    const HOLD = [10, 10, 10, 10, 10];
+    const scenes = [0, 1, 2, 3, 4].map(i => document.getElementById('sc' + i));
+    const bars = [0, 1, 2, 3, 4].map(i => document.getElementById('ss-b' + i));
+    if (!scenes[0] || !bars[0]) return;
+
+    g.set(scenes, { autoAlpha: 0 });
+    g.set(bars, { width: '0%' });
+    g.set('#ss-phone', { autoAlpha: 1 });
+
+    const tl = g.timeline();
+    this.tl = tl;
+
+    g.set(scenes[0], { autoAlpha: 1 });
+    tl.from('#ss-phone', { y: 30, scale: .94, autoAlpha: 0, duration: .6, ease: 'back.out(1.4)' });
+
+    this.starts = [];
+    scenes.forEach((sc, i) => {
+      const lines = sc.querySelectorAll('.l');
+      this.starts.push(tl.duration());
+      tl.set(sc, { autoAlpha: 1 })
+        .fromTo(lines, { y: 16, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .42, stagger: .09, ease: 'power3.out' }, '<')
+        .to(bars[i], { width: '100%', duration: HOLD[i], ease: 'none' }, '<');
+
+      if (i === 2) {
+        tl.fromTo(sc.querySelectorAll('.d'),
+          { scale: .4, autoAlpha: 0 },
+          { scale: 1, autoAlpha: 1, duration: .3, stagger: .05, ease: 'back.out(2)' }, '<.25');
+      }
+      if (i === 3) {
+        const cards = sc.querySelectorAll('.pc');
+        const t0 = tl.duration() - HOLD[i];   // début réel de la scène
+        const step = HOLD[i] / cards.length;  // les trois cartes se partagent la scène
+        g.set(cards, { autoAlpha: 0, y: 18 });
+        cards.forEach((c, k) => {
+          tl.to(c, { autoAlpha: 1, y: 0, duration: .34, ease: 'power3.out' }, t0 + k * step);
+          if (k < cards.length - 1) tl.to(c, { autoAlpha: 0, duration: .3, ease: 'power2.in' }, t0 + (k + 1) * step - .12);
+        });
+      }
+      if (i === 4) {
+        tl.fromTo('#ss-cta', { y: 12, scale: .96 }, { y: 0, scale: 1, duration: .45, ease: 'back.out(1.6)', immediateRender: false }, '<.3');
+      }
+
+      tl.to(sc, { autoAlpha: 0, duration: .3, ease: 'power2.in' });
+    });
+
+    tl.to({}, { duration: .4 });
+    tl.call(() => { g.set(scenes[4], { autoAlpha: 1 }); });
+  }
+}
+
+</script>
+</body>
+</html>
