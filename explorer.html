@@ -242,6 +242,33 @@
     border-radius:999px; background:rgba(122,51,0,.1); color:#7a3300; font-size:14px; line-height:1; }
   @media (max-width: 820px) { #poi-cards { bottom:calc(21vw + 56px + env(safe-area-inset-bottom,0px)); } }
 
+  /* fiche Social Studio : même ancrage que les autres fiches, en bas à droite */
+  #ss-sheet { position:fixed; z-index:60; right:clamp(16px,3vw,32px); bottom:calc(env(safe-area-inset-bottom,0px) + 84px);
+    width:min(304px, calc(100vw - 32px)); height:min(72vh, 620px);
+    opacity:0; transform-origin:50% 100%; pointer-events:none; will-change:transform,opacity; }
+  #ss-sheet.open { pointer-events:auto; animation:ssDrop .66s cubic-bezier(.3,1.1,.4,1) both; }
+  #ss-sheet.closing { animation:ssSquashOut .36s cubic-bezier(.5,0,.9,.4) both; }
+  /* rebond écrasé : squash & stretch à l'arrivée et au départ */
+  @keyframes ssDrop {
+    0%   { opacity:0; transform:translateY(-70%) scaleY(1.12) scaleX(.92); }
+    55%  { opacity:1; transform:translateY(0) scaleY(.86) scaleX(1.1); }
+    75%  { opacity:1; transform:translateY(-7%) scaleY(1.05) scaleX(.97); }
+    100% { opacity:1; transform:none; }
+  }
+  @keyframes ssSquashOut {
+    0%   { opacity:1; transform:none; }
+    25%  { opacity:1; transform:scaleY(.88) scaleX(1.08); }
+    100% { opacity:0; transform:translateY(70%) scaleY(1.1) scaleX(.9); }
+  }
+  #ss-sheet .box { position:relative; width:100%; height:100%; border-radius:34px; overflow:hidden;
+    background:transparent; }
+  #ss-sheet iframe { display:block; width:100%; height:100%; border:0; border-radius:34px; background:transparent; }
+  #ss-sheet .x { position:absolute; top:10px; right:10px; z-index:2; width:30px; height:30px; border:0; cursor:pointer;
+    border-radius:999px; font-family:'Fredoka',sans-serif; font-size:15px; line-height:1; color:#7a3300;
+    background:#FFF8EF; box-shadow:0 4px 0 #d8c3a6, 0 8px 16px rgba(16,54,84,.28); }
+  @media (max-width: 820px) { #ss-sheet { right:12px; left:auto; width:min(290px, calc(100vw - 24px)); height:min(64vh,560px);
+    bottom:calc(21vw + 56px + env(safe-area-inset-bottom,0px)); } }
+
   #sun-face { position:fixed; z-index:10; right:clamp(30px,7vw,120px); top:calc(env(safe-area-inset-top,0px) + 110px);
     width:clamp(70px,9vw,120px); height:clamp(70px,9vw,120px); pointer-events:none;
     animation:sunBob 5s ease-in-out infinite; }
@@ -348,6 +375,33 @@
   </nav>
 </div>
 <div id="poi-layer"></div>
+<div id="ss-sheet" role="dialog" aria-label="Social Studio" aria-modal="true">
+  <div class="box">
+    <button type="button" class="x" aria-label="Fermer">&#10005;</button>
+    <iframe title="Social Studio" data-src="Social Studio.dc.html" loading="lazy"></iframe>
+  </div>
+</div>
+<script>
+  (function(){
+    var sh = document.getElementById('ss-sheet'), fr = sh.querySelector('iframe');
+    window.openStudioSheet = function(){
+      if (!fr.getAttribute('src')) fr.setAttribute('src', fr.dataset.src);
+      sh.classList.remove('closing');
+      sh.classList.add('open');
+    };
+    function close(){
+      if (!sh.classList.contains('open')) return;
+      sh.classList.add('closing');
+      setTimeout(function(){ sh.classList.remove('open'); sh.classList.remove('closing'); }, 360);
+    }
+    sh.querySelector('.x').addEventListener('click', close);
+    addEventListener('pointerdown', function(e){
+      if (!sh.classList.contains('open')) return;
+      if (!sh.contains(e.target) && !(e.target.closest && e.target.closest('.poi'))) close();
+    });
+    addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+  })();
+</script>
 <div id="sun-face" aria-hidden="true"><svg viewBox="0 0 140 140" width="100%" height="100%">
     <defs>
       <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
@@ -1654,7 +1708,9 @@
       el.classList.toggle('sel', !open);
     }
     sign.addEventListener('click', function(e){
-      e.stopPropagation(); toggle();
+      e.stopPropagation();
+      if (p.label === 'Studio social') { closeCards(null); pinnedCard = null; openStudioSheet(); return; }
+      toggle();
       pinnedCard = card.classList.contains('open') ? card : null;
     });
     card.querySelector('.go').addEventListener('click', function(e){ e.stopPropagation(); p.act(); });
@@ -1681,6 +1737,8 @@
       if (hits.length && hits[0].distance < bestD) { bestD = hits[0].distance; best = POIS[i]; }
     }
     if (!best || !best.card) return false;
+    // Studio social : pas de fiche réduite, on ouvre directement la page complète
+    if (best.label === 'Studio social') { closeCards(null); pinnedCard = null; openStudioSheet(); return true; }
     closeCards(best.card);
     best.card.classList.add('open');
     best.el.classList.add('sel');
@@ -1706,7 +1764,7 @@
       }
       hovered = best;
       // survol d'un bâtiment : sa fiche s'ouvre, sauf si une fiche est épinglée par un clic
-      if (!pinnedCard) {
+      if (!pinnedCard && !(best && best.label === 'Studio social')) {
         if (best && best.card) {
           closeCards(best.card);
           best.card.classList.add('open');
