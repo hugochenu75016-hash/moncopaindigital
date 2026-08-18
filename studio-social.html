@@ -7,6 +7,15 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 <meta name="theme-color" content="#6EC1F0">
+<script>
+(function(){
+  var d = document.documentElement;
+  var forced = /[?&]appweb=1/.test(location.search);
+  var mobile = forced || (matchMedia('(max-width: 820px)').matches && matchMedia('(hover: none)').matches);
+  d.setAttribute('data-device', mobile ? 'mobile' : 'desktop');
+  if(mobile) d.setAttribute('data-appweb','1');
+})();
+</script>
 <title>Studio Social · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Baloo+2:wght@600;700;800&amp;display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -105,6 +114,11 @@
     padding:0 clamp(12px,3vw,40px); }
   #mcd-nav > *{ pointer-events:auto; }
   body:has(#app.show) #mcd-nav{ display:none; }
+  .mcd-glass{ background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
+    border-radius:999px;
+    box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34),
+      inset 0 2px 3px rgba(255,255,255,.9), inset 0 -5px 10px rgba(255,180,120,.28); }
+  #mcd-bottom{ display:none; }
   #mcd-pill{ position:relative; display:flex; align-items:center; gap:4px; padding:8px 10px;
     border-radius:999px;
     background:linear-gradient(to bottom, rgba(255,255,255,.34) 0%, rgba(255,240,224,.18) 100%);
@@ -523,8 +537,261 @@
   .conn-btn.ghost{ background:#fff0dd; color:#8a6a0c; border-color:rgba(120,60,0,0.2); box-shadow:none; }
   .conn-btn.ghost:hover{ background:#ffe6c6; }
 </style>
+<style id="mcd-appweb">
+@media (max-width: 820px) {
+  html[data-appweb] { -webkit-text-size-adjust:100%; overscroll-behavior:none;
+    overflow-x:hidden; max-width:100%; touch-action:pan-y pinch-zoom; }
+  html[data-appweb] body { overscroll-behavior:none; overflow-x:hidden; max-width:100%;
+    padding-bottom:calc(21vw + 32px + env(safe-area-inset-bottom, 0px)) !important; }
+  html[data-appweb] * { -webkit-tap-highlight-color:transparent; }
+  html[data-appweb] #mcd-nav, html[data-appweb] #mcd-social, html[data-appweb] #mcd-right { display:none !important; }
+  body:has(#app.show) #mcd-bottom, body:has(#msgapp.show) #mcd-bottom { display:none !important; }
+
+  html[data-appweb] #mcd-bottom {
+    display:grid !important; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr);
+    position:fixed; left:10px; right:10px; z-index:9998;
+    bottom:calc(22px + env(safe-area-inset-bottom, 0px));
+    align-items:stretch; gap:2px; padding:7px; border:0;
+    border-radius:26px;
+    background:linear-gradient(to bottom, rgba(255,255,255,.97) 0%, rgba(255,248,240,.95) 100%) !important;
+    backdrop-filter:blur(16px) saturate(1.35); -webkit-backdrop-filter:blur(16px) saturate(1.35);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -5px 12px rgba(255,180,120,.16),
+      0 14px 30px rgba(150,62,22,.22) !important;
+    transition:transform .32s cubic-bezier(.2,1,.3,1), opacity .24s ease; }
+  html[data-appweb] #mcd-bottom.mcd-hidden {
+    transform:translateY(calc(100% + 24px)); opacity:0; pointer-events:none; }
+  html[data-appweb] #mcd-bottom > a,
+  html[data-appweb] #mcd-bottom > button {
+    border:0; cursor:pointer; -webkit-appearance:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    min-height:17vw; max-height:82px; padding:1.2vw 2px; min-width:0; overflow:visible; border-radius:999px; text-decoration:none;
+    font-family:'Fredoka',sans-serif; font-weight:900; font-size:clamp(10.5px,2.9vw,13px); letter-spacing:.01em;
+    text-transform:uppercase; line-height:1; background:transparent;
+    color:#8A4A12; text-shadow:none;
+    transition:background .2s ease, color .2s ease; }
+  html[data-appweb] #mcd-bottom > a svg,
+  html[data-appweb] #mcd-bottom > button svg { width:7.5vw; height:7.5vw; max-width:34px; max-height:34px; display:block; }
+  html[data-appweb] #mcd-bottom > a img,
+  html[data-appweb] #mcd-bottom > button img { width:26px; height:26px; display:block; object-fit:contain;
+    filter:drop-shadow(0 2px 4px rgba(150,62,22,.22)); }
+  html[data-appweb] #mcd-bottom > a.bulle { gap:0; }
+  html[data-appweb] #mcd-offres-pop,
+  html[data-appweb] #mcd-qui-pop,
+  html[data-appweb] #mcd-bulle-pop {
+    position:absolute; left:10px; right:10px; bottom:calc(100% + 12px);
+    display:flex; flex-direction:column; gap:2px; padding:8px; border-radius:24px;
+    background:#fff; box-shadow:0 18px 40px rgba(16,54,84,.22);
+    opacity:0; transform:scaleY(.2); transform-origin:50% 100%; pointer-events:none;
+    transition:opacity .18s ease, transform .34s cubic-bezier(.2,1.3,.3,1); }
+  html[data-appweb] #mcd-bottom.pop-open #mcd-offres-pop,
+  html[data-appweb] #mcd-bottom.pop-qui #mcd-qui-pop,
+  html[data-appweb] #mcd-bottom.pop-bulle #mcd-bulle-pop {
+    opacity:1; transform:none; pointer-events:auto; }
+  html[data-appweb] #mcd-offres-pop a,
+  html[data-appweb] #mcd-qui-pop a,
+  html[data-appweb] #mcd-bulle-pop a {
+    display:flex; align-items:center; gap:13px; padding:12px 14px; border-radius:18px;
+    text-decoration:none; font-family:'Fredoka',sans-serif; color:#0e1a24; min-height:56px; }
+  html[data-appweb] #mcd-offres-pop a:nth-child(even),
+  html[data-appweb] #mcd-qui-pop a:nth-child(even),
+  html[data-appweb] #mcd-bulle-pop a:nth-child(even) { background:#f6f8fa; }
+  html[data-appweb] #mcd-offres-pop a:active,
+  html[data-appweb] #mcd-qui-pop a:active,
+  html[data-appweb] #mcd-bulle-pop a:active { background:rgba(243,133,43,.12); }
+  html[data-appweb] #mcd-offres-pop b,
+  html[data-appweb] #mcd-qui-pop b,
+  html[data-appweb] #mcd-bulle-pop b { display:block; font-size:15.5px; font-weight:600; }
+  html[data-appweb] #mcd-offres-pop em,
+  html[data-appweb] #mcd-qui-pop em,
+  html[data-appweb] #mcd-bulle-pop em { font-style:normal; font-size:12.5px; color:#5c6b78;
+    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+  html[data-appweb] #mcd-offres-pop .th,
+  html[data-appweb] #mcd-qui-pop .th,
+  html[data-appweb] #mcd-bulle-pop .th { flex:0 0 auto; object-fit:contain; display:block;
+    width:40px; height:40px; margin:0; }
+  html[data-appweb] #mcd-qui-pop img.th { width:52px; height:52px; margin:-6px -6px -6px 0; }
+  html[data-appweb] #mcd-offres-pop img.th { width:48px; height:48px; margin:-4px -4px -4px 0; }
+  html[data-appweb] #mcd-offres-pop img.th.studio { width:52px; height:52px; margin:-6px -6px -6px 0; }
+  html[data-appweb] #mcd-bulle-pop img.th { width:38px; height:38px; }
+  html[data-appweb] #mcd-offres-pop .chev,
+  html[data-appweb] #mcd-qui-pop .chev,
+  html[data-appweb] #mcd-bulle-pop .chev { margin-left:auto; color:#F3852B; font-size:17px; font-weight:700; }
+  html[data-appweb] #mcd-offres-pop .tag { margin-left:auto; font-size:10px; font-weight:900;
+    letter-spacing:.06em; text-transform:uppercase; color:#FFF7DB; padding:4px 9px;
+    border-radius:999px; background:linear-gradient(to bottom,#ff9c46,#f3852b); }
+  html[data-appweb] #mcd-bottom > .qui img { width:22.3vw; height:22.3vw; max-width:104px; max-height:104px; margin:-3.1vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > a.accueil { gap:0; }
+  html[data-appweb] #mcd-bottom > a.accueil img { width:22.3vw; height:22.3vw; max-width:104px; max-height:104px; margin:-3.1vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > .offres img { width:20.3vw; height:20.3vw; max-width:95px; max-height:95px; margin:-2.9vw 0;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] #mcd-bottom > .bulle img { width:16vw; height:16vw; max-width:75px; max-height:75px;
+    filter:drop-shadow(0 3px 6px rgba(150,62,22,.26)); }
+  html[data-appweb] .acct-sq, html[data-appweb] .acct-badge { display:none !important; }
+  html[data-appweb] #mcd-bottom > a:active,
+  html[data-appweb] #mcd-bottom > button:active { background:rgba(243,133,43,.14); color:#F3852B; }
+  html[data-appweb] #mcd-bottom > a.is-active {
+    color:#F3852B; text-shadow:none;
+    background:linear-gradient(to bottom, #fff6ec 0%, #ffeede 100%);
+    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.32),
+      0 2px 6px rgba(150,62,22,.14); }
+  html[data-appweb] #mcd-bottom > a.rdv,
+  html[data-appweb] #mcd-bottom > a.rdv.is-active {
+    position:relative; align-self:center; justify-self:center;
+    width:17.5vw; height:17.5vw; max-width:78px; max-height:78px; min-height:0;
+    padding:0; gap:1px; border-radius:50%; overflow:visible;
+    color:#FFF7E6; text-shadow:0 1px 2px rgba(150,70,0,.42);
+    background:
+      radial-gradient(circle at 33% 22%, rgba(255,255,255,.80) 0%, rgba(255,255,255,0) 44%),
+      radial-gradient(circle at 72% 86%, rgba(255,158,72,.75) 0%, rgba(255,158,72,0) 58%),
+      radial-gradient(circle at 50% 36%, #ffab60 0%, #f4862c 50%, #dd6a1b 82%, #bb520f 100%);
+    box-shadow:
+      inset 0 7px 12px rgba(255,220,180,.55),
+      inset 0 -8px 14px rgba(146,58,0,.42),
+      inset 0 0 0 1px rgba(255,255,255,.22),
+      0 12px 22px rgba(150,62,22,.36),
+      0 3px 6px rgba(150,62,22,.22);
+    transform:translateY(-5px) scale(1.08);
+    transition:transform .22s cubic-bezier(.2,1,.3,1), box-shadow .22s ease; }
+  html[data-appweb] #mcd-bottom > a.rdv::after {
+    content:""; position:absolute; left:22%; top:11%; width:40%; height:26%;
+    border-radius:50%; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 50%, rgba(255,255,255,.75) 0%, rgba(255,255,255,0) 70%);
+    filter:blur(1px); }
+  html[data-appweb] #mcd-bottom > a.rdv:active {
+    background:
+      radial-gradient(circle at 33% 22%, rgba(255,255,255,.66) 0%, rgba(255,255,255,0) 44%),
+      radial-gradient(circle at 50% 36%, #f79a4c 0%, #e87a24 52%, #c95c14 84%, #a94a0d 100%);
+    transform:translateY(-2px) scale(1.03);
+    box-shadow:
+      inset 0 6px 10px rgba(255,214,170,.42),
+      inset 0 -7px 12px rgba(146,58,0,.5),
+      0 6px 12px rgba(150,62,22,.3); }
+  html[data-appweb] #mcd-bottom > a.rdv svg {
+    position:relative; z-index:1; width:8vw !important; height:8vw !important;
+    max-width:32px !important; max-height:32px !important;
+    filter:drop-shadow(0 1px 2px rgba(140,58,0,.4)); }
+  html[data-appweb] body { animation:mcdAppIn .34s ease both; }
+  @keyframes mcdAppIn { from { opacity:0; } to { opacity:1; } }
+}
+</style>
+<style id="door-tx-style">
+  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
+  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
+    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
+    box-shadow:0 0 70px rgba(90,40,0,0.45);}
+  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
+  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
+  #door-tx.loading{pointer-events:auto;}
+  #door-tx.loading .door.l,#door-tx.loading .door.r{transform:translateX(0)!important;animation:none!important;}
+  #door-tx.loading .dt-logo{opacity:1!important;animation:dtLogoPulse 1.6s ease-in-out infinite!important;}
+  @keyframes dtLogoPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
+  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
+  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
+    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
+  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
+  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
+  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
+  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
+  #door-tx.closing{pointer-events:auto;}
+  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
+  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
+  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
+  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
+  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  #door-tx .dt-spin{position:absolute;left:50%;top:calc(50% + clamp(96px,17vw,168px));
+    transform:translate(-50%,-50%);width:clamp(46px,9.5vw,68px);height:clamp(46px,9.5vw,68px);
+    color:#FFE6C4;opacity:0;transition:opacity .25s ease;
+    filter:drop-shadow(0 3px 6px rgba(120,50,0,.45));}
+  #door-tx.loading .dt-spin{opacity:.95;}
+  #door-tx.closing .dt-spin{opacity:0;}
+  @media (prefers-reduced-motion:reduce){
+    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
+    #door-tx .dt-spin{display:none;}
+  }
+</style>
 </head>
 <body>
+<div id="door-tx" class="loading" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="logomcd.png" alt="">
+  <svg class="dt-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+    <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2">
+      <animate id="mcdS1b" fill="freeze" attributeName="x" begin="0;mcdS12b.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS2b" fill="freeze" attributeName="y" begin="mcdS9b.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS3b" fill="freeze" attributeName="x" begin="mcdS10b.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS4b" fill="freeze" attributeName="y" begin="mcdS11b.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="1" y="13" fill="currentColor" rx="2">
+      <animate id="mcdS5b" fill="freeze" attributeName="y" begin="mcdS1b.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS6b" fill="freeze" attributeName="x" begin="mcdS2b.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS7b" fill="freeze" attributeName="y" begin="mcdS3b.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS8b" fill="freeze" attributeName="x" begin="mcdS4b.end" dur="0.2s" values="13;1"/>
+    </rect>
+    <rect width="10" height="10" x="13" y="13" fill="currentColor" rx="2">
+      <animate id="mcdS9b" fill="freeze" attributeName="x" begin="mcdS5b.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS10b" fill="freeze" attributeName="y" begin="mcdS6b.end" dur="0.2s" values="13;1"/>
+      <animate id="mcdS11b" fill="freeze" attributeName="x" begin="mcdS7b.end" dur="0.2s" values="1;13"/>
+      <animate id="mcdS12b" fill="freeze" attributeName="y" begin="mcdS8b.end" dur="0.2s" values="1;13"/>
+    </rect>
+  </svg>
+</div>
+<script>
+(function(){
+  if(window.__doorTx) return; window.__doorTx=true;
+  var ov=document.getElementById('door-tx');
+  if(!ov) return;
+  var DUR=1000;
+  function isInternal(a){
+    if(!a) return false;
+    if(a.target && a.target!=='_self') return false;
+    if(a.hasAttribute('download')) return false;
+    var href=a.getAttribute('href')||'';
+    if(!href || href.charAt(0)==='#') return false;
+    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+    var url; try{ url=new URL(a.href, location.href); }catch(e){ return false; }
+    if(url.origin!==location.origin) return false;
+    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented) return;
+    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target.closest ? e.target.closest('a[href]') : null;
+    if(!isInternal(a)) return;
+    e.preventDefault();
+    go(a.href);
+  }, true);
+  function go(dest){
+    if(ov.classList.contains('closing')) return;
+    void ov.offsetWidth;
+    ov.classList.add('closing');
+    setTimeout(function(){ window.location.href=dest; }, DUR);
+  }
+  window.mcdGo=go;
+  var opened=false, appReady=false, pageLoaded=(document.readyState==='complete');
+  function doOpen(){
+    if(opened) return; opened=true;
+    ov.classList.remove('loading');
+    void ov.offsetWidth;
+    ov.classList.add('opening');
+  }
+  function tryOpen(){ if(appReady && pageLoaded) doOpen(); }
+  window.mcdDoorsOpen=function(){ appReady=true; tryOpen(); };
+  window.addEventListener('load', function(){ pageLoaded=true; tryOpen(); });
+  setTimeout(doOpen, 20000);
+  window.addEventListener('pageshow', function(ev){
+    if(ev.persisted){
+      ov.classList.remove('closing');
+      ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
+    }
+  });
+})();
+</script>
 <div id="decor"></div>
 
 <nav id="mcd-nav" aria-label="Navigation principale">
@@ -551,6 +818,52 @@
     <button type="button" class="acct-sq" id="acct-btn" aria-label="Espace compte" title="Espace compte"><img src="boutonespacelog-trim.png" alt="Espace compte"></button>
   </div>
 </nav>
+
+<nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
+  <a class="accueil" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
+  <button type="button" class="qui" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-qui');" aria-label="Qui suis-je" aria-haspopup="true"><img src="boutonquisuisje.png" alt="" aria-hidden="true"></button>
+  <button type="button" class="offres" onclick="this.parentNode.classList.remove('pop-qui');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-open');" aria-label="Nos offres" aria-haspopup="true"><img src="boutonnosoffresmob.png" alt="" aria-hidden="true"></button>
+  <button type="button" class="bulle" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-qui');this.parentNode.classList.toggle('pop-bulle');" aria-label="Ma bulle" aria-haspopup="true"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></button>
+  <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"></path></svg>RDV</a>
+  <div id="mcd-bulle-pop" role="menu" aria-label="Ma bulle">
+    <a href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" role="menuitem"><img class="th" src="boutonespacelog-trim.png" alt="" aria-hidden="true"><span><b>Ma Bulle</b><em>Votre espace client</em></span><span class="chev">&#8250;</span></a>
+  </div>
+  <div id="mcd-qui-pop" role="menu" aria-label="Qui suis-je">
+    <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')" role="menuitem"><img class="th" src="boutonquisuisje.png" alt="" aria-hidden="true"><span><b>Qui suis-je</b><em>Mon parcours en trois minutes</em></span><span class="chev">&#8250;</span></a>
+    <a href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')" role="menuitem"><img class="th" src="boutonmessagerie.png" alt="" aria-hidden="true"><span><b>Nous contacter</b><em>Parlons de votre projet</em></span><span class="chev">&#8250;</span></a>
+  </div>
+  <div id="mcd-offres-pop" role="menu" aria-label="Nos offres">
+    <a href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')" role="menuitem"><img class="th" src="boutonnosoffresmob.png" alt="" aria-hidden="true"><span><b>Nos offres</b><em>Formules et tarifs</em></span><span class="chev">&#8250;</span></a>
+    <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><img class="th studio" src="boutonstudiosocialmob.png" alt="" aria-hidden="true"><span><b>Social Studio</b><em>Vos reseaux cle en main</em></span><span class="tag">Nouveau</span></a>
+  </div>
+</nav>
+
+<script>
+(function(){
+  if(document.documentElement.getAttribute('data-appweb') !== '1') return;
+  function autoHide(){
+    var bar = document.getElementById('mcd-bottom'); if(!bar) return;
+    var last = window.scrollY || 0, raf = 0;
+    function upd(){
+      raf = 0;
+      var y = window.scrollY || 0;
+      if(y > 60 && y > last) bar.classList.add('mcd-hidden');
+      else if(y <= 40) bar.classList.remove('mcd-hidden');
+      last = y;
+    }
+    addEventListener('scroll', function(){ bar.classList.remove('pop-open'); bar.classList.remove('pop-qui'); bar.classList.remove('pop-bulle'); if(!raf) raf = requestAnimationFrame(upd); }, {passive:true});
+    document.addEventListener('click', function(ev){
+      if(!bar.contains(ev.target)){ bar.classList.remove('pop-open'); bar.classList.remove('pop-qui'); bar.classList.remove('pop-bulle'); }
+    }, true);
+    upd();
+    var here = (location.pathname.split('/').pop() || 'index.html');
+    bar.querySelectorAll('a').forEach(function(a){
+      a.classList.toggle('is-active', (a.getAttribute('href')||'').split('/').pop() === here);
+    });
+  }
+  addEventListener('DOMContentLoaded', autoHide);
+})();
+</script>
 
 
 <div id="acct-pop" role="dialog" aria-label="Votre Bulle">
@@ -1485,6 +1798,7 @@
 
   /* ============ START ============ */
   async function startApp(){
+    if(window.mcdDoorsOpen) window.mcdDoorsOpen();
     $('#auth').style.display='none';
     $('#me-name').textContent=me.nom;
     $('#me-role').textContent=me.role;
@@ -1627,6 +1941,7 @@
       var s=await sb.auth.getSession();
       if(s && s.data && s.data.session){ authUser=s.data.session.user; if(await resolveAccount()){ await startApp(); return; } }
     }catch(e){}
+    if(window.mcdDoorsOpen) window.mcdDoorsOpen();
   })();
 })();
 </script>
