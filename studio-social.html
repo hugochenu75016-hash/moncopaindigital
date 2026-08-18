@@ -477,6 +477,32 @@
   #msgapp.show{ display:grid; grid-template-columns:250px 1fr; }
   #msg-side{ position:sticky; top:0; align-self:start; height:100vh; display:flex; flex-direction:column; padding:26px 18px; gap:6px; }
   @media(max-width:980px){ #msgapp.show{ grid-template-columns:1fr; } #msg-side{ position:relative; height:auto; flex-direction:row; flex-wrap:wrap; align-items:center; } #msg-side .spacer{ display:none; } #msg-side .brand{ flex:1 0 100%; } }
+  #clientsapp{ display:none; position:relative; z-index:10; min-height:100vh; }
+  #clientsapp.show{ display:grid; grid-template-columns:250px 1fr; }
+  #clients-side{ position:sticky; top:0; align-self:start; height:100vh; display:flex; flex-direction:column; padding:26px 18px; gap:6px; }
+  @media(max-width:980px){ #clientsapp.show{ grid-template-columns:1fr; } #clients-side{ position:relative; height:auto; flex-direction:row; flex-wrap:wrap; align-items:center; } #clients-side .spacer{ display:none; } #clients-side .brand{ flex:1 0 100%; } }
+  .acting-banner{ display:flex; align-items:center; gap:12px; justify-content:space-between; padding:12px 18px; border-radius:16px; margin-bottom:20px;
+    background:linear-gradient(to bottom,#f8e7ac 0%,#eecd73 55%,#e4bf5a 100%); color:#5a4400; font-family:'Fredoka',sans-serif; font-weight:600; }
+  .acting-banner button{ cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px; color:#5a4400; padding:8px 16px; border-radius:999px; background:#fff; border:1px solid rgba(120,60,0,0.2); }
+  .report-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; margin-bottom:22px; }
+  .rstat{ background:#fff6ea; border:1px solid rgba(120,60,0,0.14); border-radius:18px; padding:18px; text-align:center; }
+  .rstat .n{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:28px; color:#5a4400; }
+  .rstat .l{ font-size:12.5px; color:#8a6a0c; margin-top:4px; }
+  @media print{ #mcd-nav,#mcd-social,#side,.btn-ghost,.acting-banner button,.logout{ display:none !important; } }
+  #reportsapp{ display:none; position:relative; z-index:10; min-height:100vh; }
+  #reportsapp.show{ display:grid; grid-template-columns:250px 1fr; }
+  #reports-side{ position:sticky; top:0; align-self:start; height:100vh; display:flex; flex-direction:column; padding:26px 18px; gap:6px; }
+  @media(max-width:980px){ #reportsapp.show{ grid-template-columns:1fr; } #reports-side{ position:relative; height:auto; flex-direction:row; flex-wrap:wrap; align-items:center; } #reports-side .spacer{ display:none; } #reports-side .brand{ flex:1 0 100%; } }
+  .dele-toggle{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 20px; border-radius:18px; margin-bottom:22px;
+    background:linear-gradient(to bottom,#f8e7ac 0%,#eecd73 55%,#e4bf5a 100%); color:#5a4400; }
+  .dele-toggle .dt-txt{ font-size:13.5px; line-height:1.5; max-width:520px; }
+  .dele-toggle .dt-txt b{ font-family:'Fredoka',sans-serif; }
+  .switch{ position:relative; width:50px; height:28px; flex:0 0 auto; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch .slider{ position:absolute; cursor:pointer; inset:0; background:rgba(90,68,0,0.3); border-radius:999px; transition:.2s; }
+  .switch .slider::before{ content:""; position:absolute; width:22px; height:22px; left:3px; top:3px; background:#fff; border-radius:50%; transition:.2s; }
+  .switch input:checked + .slider{ background:#5a4400; }
+  .switch input:checked + .slider::before{ transform:translateX(22px); }
   .mni{ width:22px; height:22px; border-radius:50%; flex:0 0 auto; }
   .mni.instagram{ background:linear-gradient(45deg,#f09433,#dc2743,#bc1888); }
   .mni.facebook{ background:#1877F2; } .mni.x{ background:#0f0f0f; } .mni.tiktok{ background:#010101; }
@@ -994,6 +1020,22 @@
         <span class="hub-cd">Gérer vos messages et commentaires de tous vos réseaux au même endroit.</span>
         <span class="hub-go">Ouvrir →</span>
       </button>
+      <button class="hub-card" data-tool="clients" id="hub-card-clients" style="display:none;">
+        <span class="hub-ic" style="background:linear-gradient(135deg,#8a6a0c,#5a4400);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        <span class="hub-ct">Gestion clients</span>
+        <span class="hub-cd">Publiez et gérez les réseaux de vos clients, avec leur autorisation.</span>
+        <span class="hub-go">Ouvrir →</span>
+      </button>
+      <button class="hub-card" data-tool="reports">
+        <span class="hub-ic" style="background:linear-gradient(135deg,#2ecc71,#1f7a44);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+        </span>
+        <span class="hub-ct">Rapports</span>
+        <span class="hub-cd">Suivez vos abonnés, votre engagement et vos publications qui performent.</span>
+        <span class="hub-go">Ouvrir →</span>
+      </button>
     </div>
     <div class="hub-foot"><span id="hub-me">—</span> · <span class="hub-logout" id="hub-logout">Déconnexion</span></div>
   </div>
@@ -1042,6 +1084,10 @@
   </aside>
 
   <main>
+    <div class="acting-banner" id="acting-banner" style="display:none;">
+      <span>Vous g&eacute;rez actuellement le compte de <b id="acting-name">&mdash;</b></span>
+      <button type="button" id="acting-exit">Quitter ce compte</button>
+    </div>
     <!-- Connexions -->
     <section class="view active" id="view-connexions">
       <div class="topbar"><div><h1>Connexions</h1><div class="ts">Reliez vos comptes avant de publier.</div></div><button class="btn-ghost" id="conn-refresh">Vérifier</button></div>
@@ -1055,6 +1101,10 @@
             3. Revenez ici et cliquez sur « Connecter » à côté d'Instagram : une fenêtre Facebook s'ouvre pour autoriser l'accès.
           </div>
         </div>
+      </div>
+      <div class="dele-toggle" id="dele-toggle" style="display:none;">
+        <div class="dt-txt"><b>Autoriser l'agence à gérer votre compte.</b><br>Si activé, l'équipe Mon Copain Digital peut composer, publier et répondre à vos messages en votre nom, uniquement à votre demande. Vous pouvez désactiver à tout moment.</div>
+        <label class="switch"><input type="checkbox" id="dele-check"><span class="slider"></span></label>
       </div>
       <div class="conn-grid" id="conn-grid"></div>
     </section>
@@ -1205,6 +1255,56 @@
   </main>
 </div>
 
+<!-- ===== Gestion clients (agence) ===== -->
+<div id="clientsapp">
+  <aside id="clients-side">
+    <div class="brand"><a class="home-btn" href="index.html" title="Accueil du site"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></a><span class="bt">Gestion clients<small>Mon Copain Digital</small></span></div>
+    <div class="spacer"></div>
+    <div class="side-foot">
+      <div class="un" id="clients-me-name">—</div>
+      <div class="rl" id="clients-me-role">—</div>
+      <div class="logout" id="clients-hub-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Accueil</div>
+      <div class="logout" id="clients-logout-btn" style="margin-left:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Déconnexion</div>
+    </div>
+  </aside>
+  <main>
+    <div class="topbar"><div><h1>Gestion clients</h1><div class="ts">Gérez les réseaux de vos clients, avec leur autorisation.</div></div><button class="btn-ghost" id="clients-refresh">Actualiser</button></div>
+    <div class="banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div>Seuls les clients ayant explicitement activé « Autoriser l'agence à gérer mon compte » depuis leur espace apparaissent ici. Cliquez sur un client pour composer, publier et répondre à ses messages en son nom.</div>
+    </div>
+    <div class="card"><div class="list" id="clients-list"></div></div>
+  </main>
+</div>
+
+<!-- ===== Rapports ===== -->
+<div id="reportsapp">
+  <aside id="reports-side">
+    <div class="brand"><a class="home-btn" href="index.html" title="Accueil du site"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></a><span class="bt">Rapports<small>Mon Copain Digital</small></span></div>
+    <div class="spacer"></div>
+    <div class="side-foot">
+      <div class="un" id="reports-me-name">—</div>
+      <div class="rl" id="reports-me-role">—</div>
+      <div class="logout" id="reports-hub-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>Accueil</div>
+      <div class="logout" id="reports-logout-btn" style="margin-left:8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Déconnexion</div>
+    </div>
+  </aside>
+  <main>
+    <div class="topbar"><div><h1>Rapports</h1><div class="ts" id="reports-sub">Performance de votre compte Instagram.</div></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn-ghost" id="reports-refresh">Actualiser</button>
+        <button class="btn-ghost" id="reports-print">Imprimer / Exporter en PDF</button>
+      </div>
+    </div>
+    <div class="report-grid" id="report-grid">
+      <div class="rstat"><div class="n">—</div><div class="l">Abonnés</div></div>
+      <div class="rstat"><div class="n">—</div><div class="l">Publications</div></div>
+      <div class="rstat"><div class="n">—</div><div class="l">Engagement moyen</div></div>
+    </div>
+    <div class="card"><h2>Publications récentes</h2><p class="sub">Likes et commentaires de vos 12 derniers posts.</p><div class="list" id="report-posts"></div></div>
+  </main>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -1251,6 +1351,9 @@
   var connections = { instagram:{connected:false,account:''}, x:{connected:false,account:''}, tiktok:{connected:false,account:''}, facebook:{connected:false,account:''} };
   var CONN_FN_STATUS='social-status', CONN_FN_CONNECT='social-connect', CONN_LS='mcd_social_conns';
   var storeMode = 'unknown';   // 'db' | 'local'
+  var actingAs = null, actingName = '';   // agence : id + nom du client actuellement gere
+  function effectiveUid(){ return actingAs || (authUser && authUser.id); }
+  function scopedAlone(){ return !me.isTeam || !!actingAs; }
   var LS_KEY = 'mcd_social_posts';
 
   /* ===== Décor ===== */
@@ -1346,12 +1449,12 @@
     // Chaque client ne voit que ses propres publications ; l'equipe interne partage le calendrier commun.
     try{
       var q=sb.from('social_posts').select('*').order('created_at',{ascending:false});
-      if(!me.isTeam) q=q.eq('author_id', authUser.id);
+      if(scopedAlone()) q=q.eq('author_id', effectiveUid());
       var r=await q;
       if(!r.error && r.data){ storeMode='db'; posts=r.data.map(fromRow); return; }
     }catch(e){}
     storeMode='local'; posts=loadLocal();
-    if(!me.isTeam) posts=posts.filter(function(p){ return p.author_id===authUser.id; });
+    if(scopedAlone()) posts=posts.filter(function(p){ return p.author_id===effectiveUid(); });
   }
   function fromRow(row){
     return { id:row.id, author_id:row.author_id, author_name:row.author_name, caption:row.caption||'', tags:row.tags||'', crop:row.crop||{ratio:'1:1',pos:50}, formats:row.formats||{instagram:'Post',x:'Post',tiktok:'Vidéo',facebook:'Post'},
@@ -1388,7 +1491,8 @@
   async function authHeaders(){ var ses=await sb.auth.getSession(); var tok=ses&&ses.data&&ses.data.session&&ses.data.session.access_token; return { 'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+(tok||SUPABASE_ANON) }; }
   async function loadConnections(){
     try{
-      var r=await fetch(SUPABASE_URL+'/functions/v1/'+CONN_FN_STATUS, { method:'GET', headers:await authHeaders() });
+      var qs = actingAs ? ('?on_behalf_of='+encodeURIComponent(actingAs)) : '';
+      var r=await fetch(SUPABASE_URL+'/functions/v1/'+CONN_FN_STATUS+qs, { method:'GET', headers:await authHeaders() });
       if(r.ok){ var d=await r.json(); if(d){ NETS.forEach(function(n){ if(d[n.id]) connections[n.id]={ connected:!!d[n.id].connected, account:d[n.id].account||'' }; }); saveConns(); return; } }
     }catch(e){}
     loadConnsLocal();
@@ -1413,6 +1517,7 @@
     updateConnBadge();
   }
   async function connectNetwork(id){
+    if(actingAs){ toast('Seul le client peut connecter ou reconnecter son propre compte.', true); return; }
     if(id==='x' || id==='tiktok'){ await loadConnections(); renderConnexions(); toast(connections[id].connected ? (net(id).name+' est relié ✓') : (net(id).name+' : configuré côté serveur (secrets).')); return; }
     try{
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+CONN_FN_CONNECT, { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:id }) });
@@ -1426,7 +1531,7 @@
     saveConns(); renderConnexions();
     toast(net(id).name+' reli\u00e9 en mode test (d\u00e9ployez « '+CONN_FN_CONNECT+' » pour l\u2019OAuth r\u00e9el).');
   }
-  function disconnectNetwork(id){ if(id==='x'||id==='tiktok'){ toast(net(id).name+' est g\u00e9r\u00e9 c\u00f4t\u00e9 serveur (secrets).'); return; } connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
+  function disconnectNetwork(id){ if(actingAs){ toast('Seul le client peut déconnecter son propre compte.', true); return; } if(id==='x'||id==='tiktok'){ toast(net(id).name+' est g\u00e9r\u00e9 c\u00f4t\u00e9 serveur (secrets).'); return; } connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
 
   /* ============ NAV ============ */
   $all('.nav-item').forEach(function(n){ n.addEventListener('click', function(){ switchView(n.getAttribute('data-view')); }); });
@@ -1624,7 +1729,7 @@
     return new Date(d+'T'+(t||'09:00')).toISOString();
   }
   function collectPost(status){
-    return { id:comp.editingId||newId(), author_id:authUser.id, author_name:me.nom,
+    return { id:comp.editingId||newId(), author_id:effectiveUid(), author_name:actingAs?(actingName+' (via '+me.nom+')'):me.nom,
       caption:comp.caption, tags:comp.tags, crop:comp.crop, formats:comp.formats, media:comp.media.slice(), nets:selectedNets(),
       status:status, scheduled_at:scheduledISO(), results:null,
       created_at: (comp.editingId && findPost(comp.editingId)) ? findPost(comp.editingId).created_at : new Date().toISOString() };
@@ -1683,7 +1788,7 @@
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+PUBLISH_FN, {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+(tok||SUPABASE_ANON) },
-        body: JSON.stringify({ post_id:p.id, caption:p.caption, tags:p.tags, crop:p.crop, formats:p.formats, networks:p.nets, media:p.media, author:me.nom })
+        body: JSON.stringify({ post_id:p.id, caption:p.caption, tags:p.tags, crop:p.crop, formats:p.formats, networks:p.nets, media:p.media, author:me.nom, on_behalf_of:actingAs||undefined })
       });
       if(r.status===404){ return { ok:false, notConfigured:true }; }
       var data=null; try{ data=await r.json(); }catch(e){}
@@ -1808,20 +1913,109 @@
     await loadConnections();
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
     updateBadges(); renderConnexions();
+    var hcc=$('#hub-card-clients'); if(hcc) hcc.style.display = me.isTeam ? 'flex' : 'none';
+    var dt=$('#dele-toggle'); if(dt) dt.style.display = me.isTeam ? 'none' : 'flex';
+    if(!me.isTeam) loadDelegation();
     try{ var cp=new URLSearchParams(location.search).get('connect');
       if(cp==='ok'){ enterStudio(); toast('Compte relié avec succès ✓'); history.replaceState(null,'',location.pathname); return; }
       else if(cp==='error'){ enterStudio(); toast('Échec de la connexion au réseau.', true); history.replaceState(null,'',location.pathname); return; }
     }catch(e){}
     showHub();
   }
-  function showHub(){ $('#app').classList.remove('show'); $('#hub').classList.add('show'); }
-  function enterStudio(){ $('#hub').classList.remove('show'); $('#app').classList.add('show'); switchView('connexions'); }
+  function showHub(){ actingAs=null; actingName=''; $('#app').classList.remove('show'); $('#clientsapp').classList.remove('show'); $('#reportsapp').classList.remove('show'); $('#hub').classList.add('show'); }
+  function enterStudio(){ $('#hub').classList.remove('show'); $('#clientsapp').classList.remove('show'); $('#app').classList.add('show');
+    var ab=$('#acting-banner');
+    if(actingAs){ ab.style.display='flex'; $('#acting-name').textContent=actingName; loadPosts(); loadConnections().then(renderConnexions); }
+    else { ab.style.display='none'; }
+    switchView('connexions');
+  }
   $all('#hub .hub-card').forEach(function(c){ c.addEventListener('click', function(){
     var t=c.getAttribute('data-tool');
     if(t==='studio') enterStudio();
-    else enterMessages();
+    else if(t==='messages') enterMessages();
+    else if(t==='clients') enterClients();
+    else if(t==='reports') enterReports();
   }); });
   $('#hub-logout').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
+  $('#acting-exit').addEventListener('click', function(){ showHub(); });
+
+  /* ============ GESTION CLIENTS (agence) ============ */
+  function enterClients(){ $('#hub').classList.remove('show'); $('#clientsapp').classList.add('show');
+    $('#clients-me-name').textContent=me.nom; $('#clients-me-role').textContent=me.role;
+    loadClientsList();
+  }
+  $('#clients-hub-btn').addEventListener('click', function(){ showHub(); });
+  $('#clients-logout-btn').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
+  $('#clients-refresh').addEventListener('click', loadClientsList);
+  async function loadClientsList(){
+    $('#clients-list').innerHTML='<div class="empty">Chargement…</div>';
+    try{
+      var r=await fetch(SUPABASE_URL+'/functions/v1/agency-clients', { headers:await authHeaders() });
+      var d=await r.json();
+      var list=(d && d.clients) || [];
+      if(!list.length){ $('#clients-list').innerHTML='<div class="empty">Aucun client n’a encore autorisé l’agence. Demandez-leur d’activer l’option dans leur onglet Connexions.</div>'; return; }
+      $('#clients-list').innerHTML = list.map(function(c){
+        return '<div class="item"><div class="ithumb">'+esc(initials(c.nom||c.email||'C'))+'</div>'+
+          '<div class="imain"><div class="it1">'+esc(c.nom||c.email)+'</div><div class="it2">'+esc(c.email||'')+'</div></div>'+
+          '<div class="iend"><button class="conn-btn" data-cid="'+esc(c.user_id)+'" data-cname="'+esc(c.nom||c.email)+'">Gérer</button></div></div>';
+      }).join('');
+      $all('#clients-list [data-cid]').forEach(function(b){ b.addEventListener('click', function(){
+        actingAs=b.getAttribute('data-cid'); actingName=b.getAttribute('data-cname');
+        enterStudio();
+      }); });
+    }catch(e){ $('#clients-list').innerHTML='<div class="empty">Fonction « agency-clients » non déployée pour le moment.</div>'; }
+  }
+
+  /* ============ DÉLÉGATION (côté client) ============ */
+  async function loadDelegation(){
+    try{
+      var r=await fetch(SUPABASE_URL+'/functions/v1/agency-clients?self=1', { headers:await authHeaders() });
+      var d=await r.json();
+      $('#dele-check').checked = !!(d && d.agency_access);
+    }catch(e){}
+  }
+  var _deleBox=$('#dele-check'); if(_deleBox) _deleBox.addEventListener('change', async function(){
+    var on=this.checked;
+    try{
+      await fetch(SUPABASE_URL+'/functions/v1/agency-clients', { method:'POST', headers:await authHeaders(), body:JSON.stringify({ agency_access:on }) });
+      toast(on ? 'Accès agence activé.' : 'Accès agence désactivé.');
+    }catch(e){ toast('Fonction « agency-clients » non déployée pour le moment.', true); this.checked=!on; }
+  });
+
+  /* ============ RAPPORTS ============ */
+  function enterReports(){ $('#hub').classList.remove('show'); $('#reportsapp').classList.add('show');
+    $('#reports-me-name').textContent=me.nom; $('#reports-me-role').textContent=me.role;
+    $('#reports-sub').textContent = actingAs ? ('Performance du compte de '+actingName+'.') : 'Performance de votre compte Instagram.';
+    loadReport();
+  }
+  $('#reports-hub-btn').addEventListener('click', function(){ showHub(); });
+  $('#reports-logout-btn').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
+  $('#reports-refresh').addEventListener('click', loadReport);
+  $('#reports-print').addEventListener('click', function(){ window.print(); });
+  async function loadReport(){
+    $('#report-posts').innerHTML='<div class="empty">Chargement…</div>';
+    try{
+      var qs='?network=instagram'+(actingAs?('&on_behalf_of='+encodeURIComponent(actingAs)):'');
+      var r=await fetch(SUPABASE_URL+'/functions/v1/social-insights'+qs, { headers:await authHeaders() });
+      var d=await r.json();
+      if(!d || d.error || !d.account){ $('#report-posts').innerHTML='<div class="empty">'+esc((d&&(d.error||d.note))||'Fonction « social-insights » non déployée pour le moment.')+'</div>'; return; }
+      renderReport(d);
+    }catch(e){ $('#report-posts').innerHTML='<div class="empty">Fonction « social-insights » non déployée pour le moment.</div>'; }
+  }
+  function renderReport(d){
+    var a=d.account||{}, posts=d.media||[];
+    var totalEng=0; posts.forEach(function(p){ totalEng += (p.like_count||0)+(p.comments_count||0); });
+    var avgEng = (posts.length && a.followers_count) ? ((totalEng/posts.length)/a.followers_count*100).toFixed(1)+'%' : '—';
+    $('#report-grid').innerHTML =
+      '<div class="rstat"><div class="n">'+(a.followers_count!=null?a.followers_count:'—')+'</div><div class="l">Abonnés</div></div>'+
+      '<div class="rstat"><div class="n">'+(a.media_count!=null?a.media_count:'—')+'</div><div class="l">Publications</div></div>'+
+      '<div class="rstat"><div class="n">'+avgEng+'</div><div class="l">Engagement moyen</div></div>';
+    $('#report-posts').innerHTML = posts.length ? posts.map(function(p){
+      return '<div class="item"><div class="ithumb">'+(p.media_type==='VIDEO'?'▶':'🖼')+'</div>'+
+        '<div class="imain"><div class="it1">'+esc((p.caption||'').slice(0,60)||'(sans légende)')+'</div>'+
+        '<div class="it2">'+fmtDate(p.timestamp)+' · ❤ '+(p.like_count||0)+' · 💬 '+(p.comments_count||0)+'</div></div></div>';
+    }).join('') : '<div class="empty">Aucune publication trouvée.</div>';
+  }
 
   /* ============ MESSAGE SOCIAL ============ */
   var msg = { net:null, convs:[], active:null, timer:null, selected:{} };
@@ -1855,7 +2049,7 @@
     var btn=this; btn.disabled=true; var okN=0, failN=0;
     for(var i=0;i<ids.length;i++){ var c=msg.convs.filter(function(x){return x.id===ids[i];})[0]; if(!c) continue;
       btn.textContent='Envoi… '+(i+1)+'/'+ids.length;
-      try{ var r=await fetch(SUPABASE_URL+'/functions/v1/social-reply', { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:msg.net, to:c.to, conversation_id:c.id, text:text }) });
+      try{ var r=await fetch(SUPABASE_URL+'/functions/v1/social-reply', { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:msg.net, to:c.to, conversation_id:c.id, text:text, on_behalf_of:actingAs||undefined }) });
         var d=await r.json(); if(r.ok && d.ok!==false) okN++; else failN++; }catch(e){ failN++; }
       if(msg.net==='x') await new Promise(function(res){ setTimeout(res, 1500); }); // évite le rate-limit X
     }
@@ -1882,7 +2076,8 @@
     var net=msg.net; if(!net) return;
     if(showLoading) $('#conv-list').innerHTML='<div class="empty">Chargement…</div>';
     try{
-      var r=await fetch(SUPABASE_URL+'/functions/v1/social-messages?network='+net, { headers:await authHeaders() });
+      var moqs = actingAs ? ('&on_behalf_of='+encodeURIComponent(actingAs)) : '';
+      var r=await fetch(SUPABASE_URL+'/functions/v1/social-messages?network='+net+moqs, { headers:await authHeaders() });
       if(r.status===404){ $('#conv-list').innerHTML='<div class="empty">Messagerie '+net+' à venir<br><span style="font-size:12px;">(fonction « social-messages » non déployée)</span></div>'; return; }
       var d=await r.json();
       if(net!==msg.net) return; // l'utilisateur a changé de réseau entre-temps
@@ -1925,7 +2120,7 @@
     var c=msg.convs.filter(function(x){return x.id===msg.active;})[0]; if(!c) return;
     c.messages=c.messages||[]; c.messages.push({ from:'me', text:text, time:'à l\u2019instant' }); renderThread(c, true); input.value='';
     try{
-      var r=await fetch(SUPABASE_URL+'/functions/v1/social-reply', { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:msg.net, to:c.to, conversation_id:msg.active, text:text }) });
+      var r=await fetch(SUPABASE_URL+'/functions/v1/social-reply', { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:msg.net, to:c.to, conversation_id:msg.active, text:text, on_behalf_of:actingAs||undefined }) });
       if(r.status===404){ toast('Réponse non envoyée : fonction « social-reply » à déployer.', true); }
       else { var d=await r.json(); if(!r.ok || d.ok===false) toast('Envoi refusé : '+((d&&d.error)||'erreur')); }
     }catch(e){ toast('Erreur réseau à l\u2019envoi.', true); }
