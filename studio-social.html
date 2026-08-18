@@ -113,7 +113,7 @@
     display:flex; align-items:center; justify-content:center; pointer-events:none;
     padding:0 clamp(12px,3vw,40px); }
   #mcd-nav > *{ pointer-events:auto; }
-  body:has(#app.show) #mcd-nav{ display:none; }
+  body:has(#app.show, #msgapp.show, #clientsapp.show, #reportsapp.show) #mcd-nav{ display:none; }
   .mcd-glass{ background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
     border-radius:999px;
     box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34),
@@ -148,7 +148,7 @@
   #mcd-drop em{ font-style:normal; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; color:#B98455; }
   #mcd-social{ position:fixed; top:clamp(16px,3vh,30px); right:clamp(16px,4vw,48px); z-index:71;
     display:flex; align-items:center; gap:12px; }
-  body:has(#app.show) #mcd-social{ display:none; }
+  body:has(#app.show, #msgapp.show, #clientsapp.show, #reportsapp.show) #mcd-social{ display:none; }
   .social-btn{ width:38px; height:38px; display:flex; align-items:center; justify-content:center;
     cursor:pointer; color:#fff7db; text-decoration:none; border:none; background:none;
     transition:transform .26s cubic-bezier(.2,1,.3,1); }
@@ -183,7 +183,7 @@
   #acct-pop .ap-btn.close:hover{ background:rgba(255,255,255,0.22); }
   #mcd-right{ position:fixed; top:clamp(16px,3vh,30px); left:clamp(16px,4vw,48px); z-index:71;
     display:flex; align-items:center; gap:10px; }
-  body:has(#app.show) #mcd-right{ display:none; }
+  body:has(#app.show, #msgapp.show, #clientsapp.show, #reportsapp.show) #mcd-right{ display:none; }
   .mcd-cta{ font-family:'Fredoka',sans-serif; font-weight:900; font-size:14px; letter-spacing:.06em;
     text-transform:uppercase; color:#FFF7DB; text-decoration:none; padding:15px 24px; border-radius:999px;
     background:linear-gradient(to bottom,#ff9c46,#f3852b);
@@ -571,7 +571,7 @@
     padding-bottom:calc(21vw + 32px + env(safe-area-inset-bottom, 0px)) !important; }
   html[data-appweb] * { -webkit-tap-highlight-color:transparent; }
   html[data-appweb] #mcd-nav, html[data-appweb] #mcd-social, html[data-appweb] #mcd-right { display:none !important; }
-  body:has(#app.show) #mcd-bottom, body:has(#msgapp.show) #mcd-bottom { display:none !important; }
+  body:has(#app.show, #msgapp.show, #clientsapp.show, #reportsapp.show) #mcd-bottom { display:none !important; }
 
   html[data-appweb] #mcd-bottom {
     display:grid !important; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr);
@@ -830,9 +830,6 @@
     <div id="mcd-drop">
       <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio</strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main &#128273;</em></a>
     </div>
-  </div>
-  <div id="mcd-right">
-    <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
   </div>
   <div id="mcd-social">
     <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
@@ -2190,5 +2187,196 @@
       <span>© 2026 Mon Copain Digital</span>
     </div>
   </footer>
+
+<!-- ===== WIDGET "LE COPAIN" (Marshall) ===== -->
+<style>
+  .mcd-chat, .mcd-chat * { box-sizing: border-box; }
+  .mcd-chat {
+    --orange: #F3852B; --orange-clair: #FF9C46; --orange-fonce: #C7620E;
+    --encre: #3B2A1C; --gris: #A08A76; --creme: #FFF8EF; --creme-2: #FFF1E2;
+    font-family: 'Nunito', system-ui, sans-serif;
+    position: fixed; left: clamp(16px, 4vw, 48px); top: clamp(16px,3vh,30px);
+    z-index: 9990;
+    opacity: 0; transition: opacity .5s ease .3s;
+  }
+  .mcd-chat.mcd-chat-pret { opacity: 1; }
+  body:has(#app.show, #msgapp.show, #clientsapp.show, #reportsapp.show) .mcd-chat { display:none; }
+  html[data-appweb] .mcd-chat { top: calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
+  html[data-appweb] .mcd-lanceur { width: 54px; height: 54px; }
+  html[data-appweb] .mcd-fenetre { max-height: calc(100vh - 21vw - 150px - env(safe-area-inset-bottom, 0px)); }
+  .mcd-lanceur {
+    width: 62px; height: 62px; padding: 0;
+    border: none; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(to bottom, #ffb066, #ef7d21);
+    cursor: pointer; font-size: 0;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 6px 0 #b8520f, 0 14px 24px rgba(150,62,22,.24);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .mcd-lanceur img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; transform: scale(1.55); transform-origin: 50% 8%; display: block; }
+  .mcd-lanceur:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 8px 0 #b8520f, 0 18px 28px rgba(150,62,22,.28); }
+  .mcd-lanceur:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 3px 0 #b8520f; }
+  .mcd-lanceur:focus-visible { outline: 3px solid var(--orange-fonce); outline-offset: 3px; }
+  .mcd-fenetre {
+    display: none;
+    position: absolute; left: 0; top: 78px;
+    width: 392px; max-width: calc(100vw - 32px);
+    height: 540px; max-height: calc(100vh - 190px);
+    background: var(--creme);
+    border-radius: 30px;
+    box-shadow: 0 24px 48px rgba(150,62,22,.26), inset 0 2px 0 rgba(255,255,255,.9);
+    overflow: hidden;
+    flex-direction: column;
+  }
+  .mcd-chat[data-ouvert="true"] .mcd-fenetre { display: flex; }
+  .mcd-entete {
+    background: linear-gradient(to bottom, var(--orange-clair), var(--orange));
+    box-shadow: 0 4px 0 var(--orange-fonce);
+    color: #FFF7DB; padding: 18px 20px;
+    display: flex; align-items: center; gap: 13px;
+  }
+  .mcd-avatar {
+    width: 46px; height: 46px; flex: none; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(to bottom, #ffb066, #ef7d21);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.55), 0 3px 6px rgba(150,62,22,.28);
+  }
+  .mcd-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; transform: scale(1.55); transform-origin: 50% 8%; display: block; }
+  .mcd-entete h2 { margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 900; font-size: 19px; line-height: 1.1; color: #FFF7DB; text-shadow: 0 2px 0 rgba(150,70,0,.32); }
+  .mcd-entete p  { margin: 3px 0 0; font-size: 12.5px; font-weight: 600; color: #FFEFDA; }
+  .mcd-fermer {
+    margin-left: auto; width: 32px; height: 32px; flex: none;
+    background: rgba(255,255,255,.24); border: none; border-radius: 50%;
+    color: #FFF7DB; font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .mcd-fermer:hover { background: rgba(255,255,255,.4); }
+  .mcd-fermer:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .mcd-fil { flex: 1; overflow-y: auto; padding: 20px 18px; display: flex; flex-direction: column; gap: 14px; background: linear-gradient(180deg, var(--creme), var(--creme-2)); }
+  .mcd-bulle { max-width: 80%; padding: 12px 15px; font-size: 14.5px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+  .mcd-bulle.assistant { align-self: flex-start; background: #fff; color: var(--encre); border-radius: 20px 20px 20px 6px; box-shadow: 0 3px 0 rgba(199,98,14,.16), 0 8px 18px rgba(150,62,22,.12); }
+  .mcd-bulle.visiteur { align-self: flex-end; font-weight: 600; background: linear-gradient(to bottom, var(--orange-clair), var(--orange)); color: #FFF7DB; border-radius: 20px 20px 6px 20px; box-shadow: 0 3px 0 var(--orange-fonce); }
+  .mcd-bulle.erreur { align-self: center; background: #FDECEC; color: #92312F; font-size: 13px; border-radius: 16px; }
+  .mcd-bulle a { color: var(--orange-fonce); }
+  .mcd-points { display: inline-flex; gap: 5px; align-items: center; height: 9px; }
+  .mcd-points i { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); animation: mcd-saut 1.2s infinite ease-in-out; }
+  .mcd-points i:nth-child(2) { animation-delay: .15s; }
+  .mcd-points i:nth-child(3) { animation-delay: .3s; }
+  @keyframes mcd-saut { 0%,60%,100% { transform: translateY(0); opacity:.45 } 30% { transform: translateY(-5px); opacity:1 } }
+  .mcd-suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 18px 14px; background: var(--creme-2); }
+  .mcd-suggestions button {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    background: #fff; border: none; color: var(--orange-fonce);
+    border-radius: 999px; padding: 8px 14px; font-size: 12.5px; cursor: pointer;
+    box-shadow: 0 3px 0 rgba(199,98,14,.2);
+    transition: transform .16s ease, background .16s ease;
+  }
+  .mcd-suggestions button:hover { background: #fff6ec; transform: translateY(-1px); }
+  .mcd-suggestions button:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(199,98,14,.2); }
+  .mcd-saisie { display: flex; gap: 10px; align-items: center; padding: 14px 16px 10px; background: #fff; box-shadow: 0 -3px 0 rgba(199,98,14,.1); }
+  .mcd-saisie textarea {
+    flex: 1; resize: none; border: none; border-radius: 24px;
+    background: #FFF3E6; box-shadow: inset 0 2px 4px rgba(199,98,14,.14);
+    padding: 13px 17px; font: inherit; font-size: 14.5px; max-height: 90px; color: var(--encre);
+  }
+  .mcd-saisie textarea::placeholder { color: var(--gris); }
+  .mcd-saisie textarea:focus { outline: 2px solid var(--orange); outline-offset: 1px; }
+  .mcd-envoyer {
+    width: 50px; height: 50px; flex: none; padding: 0;
+    border: none; border-radius: 18px;
+    background: linear-gradient(to bottom, var(--orange-clair), var(--orange));
+    box-shadow: 0 4px 0 var(--orange-fonce), 0 8px 16px rgba(150,62,22,.22);
+    color: #FFF7E6; cursor: pointer;
+    display: grid; place-items: center;
+    transition: transform .16s ease, box-shadow .16s ease;
+  }
+  .mcd-envoyer:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--orange-fonce), 0 12px 20px rgba(150,62,22,.26); }
+  .mcd-envoyer:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--orange-fonce); }
+  .mcd-envoyer:disabled { opacity: .45; cursor: default; transform: none; }
+  .mcd-mention { text-align: center; font-size: 11.5px; color: var(--gris); padding: 6px 16px 14px; margin: 0; background: #fff; }
+  @media (max-width: 520px) { .mcd-chat { left: 12px; } .mcd-fenetre { width: calc(100vw - 24px); border-radius: 26px; } }
+  @media (prefers-reduced-motion: reduce) { .mcd-lanceur, .mcd-points i, .mcd-envoyer, .mcd-suggestions button, .mcd-chat { transition: none; animation: none; } }
+</style>
+<div class="mcd-chat" data-ouvert="false" id="mcdChat">
+  <div class="mcd-fenetre" role="dialog" aria-label="Assistant Marshall">
+    <div class="mcd-entete">
+      <span class="mcd-avatar"><img src="avatarchatbot.png" alt="Marshall"></span>
+      <div>
+        <h2>Marshall</h2>
+        <p>Une Question ? je suis la pour y répondre !</p>
+      </div>
+      <button class="mcd-fermer" id="mcdFermer" aria-label="Fermer la conversation">&times;</button>
+    </div>
+    <div class="mcd-fil" id="mcdFil" aria-live="polite"></div>
+    <div class="mcd-suggestions" id="mcdSuggestions">
+      <button type="button">Comment connecter mon Instagram ?</button>
+      <button type="button">C'est quoi Social Studio ?</button>
+      <button type="button">Comment prendre rendez-vous ?</button>
+    </div>
+    <div class="mcd-saisie">
+      <textarea id="mcdTexte" rows="1" placeholder="Écrivez votre question…" aria-label="Votre message"></textarea>
+      <button class="mcd-envoyer" id="mcdEnvoyer" aria-label="Envoyer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFF7E6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg></button>
+    </div>
+    <p class="mcd-mention">Assistant automatique. Pour un devis, prenez rendez-vous.</p>
+  </div>
+  <button class="mcd-lanceur" id="mcdLanceur" aria-label="Ouvrir l'assistant"><img src="avatarchatbot.png" alt=""></button>
+</div>
+<script>
+(function () {
+  const ENDPOINT = 'https://copain-api.vercel.app/api/chat';
+  const chat   = document.getElementById('mcdChat');
+  const fil    = document.getElementById('mcdFil');
+  const texte  = document.getElementById('mcdTexte');
+  const envoi  = document.getElementById('mcdEnvoyer');
+  const sugg   = document.getElementById('mcdSuggestions');
+  const historique = [];
+  let occupe = false;
+  const ACCUEIL = "Bonjour 👋 Je réponds à vos questions sur nos offres, Social Studio ou la prise de rendez-vous. Que puis-je pour vous ?";
+
+  function bulle(role, contenu) {
+    const el = document.createElement('div');
+    el.className = 'mcd-bulle ' + role;
+    el.textContent = contenu;
+    el.innerHTML = el.innerHTML.replace(/(\/[a-zA-Z0-9\-_]+\.html)/g, '<a href="$1">$1</a>');
+    fil.appendChild(el);
+    fil.scrollTop = fil.scrollHeight;
+    return el;
+  }
+  function ouvrir() { chat.dataset.ouvert = 'true'; if (!fil.children.length) bulle('assistant', ACCUEIL); texte.focus(); }
+  function fermer() { chat.dataset.ouvert = 'false'; }
+
+  async function envoyer(message) {
+    if (occupe || !message.trim()) return;
+    occupe = true; envoi.disabled = true; sugg.style.display = 'none';
+    bulle('visiteur', message);
+    historique.push({ role: 'user', content: message });
+    texte.value = ''; texte.style.height = 'auto';
+    const attente = bulle('assistant', '');
+    attente.innerHTML = '<span class="mcd-points"><i></i><i></i><i></i></span>';
+    try {
+      const r = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: historique }) });
+      const data = await r.json();
+      attente.remove();
+      if (!r.ok) { bulle('erreur', data.error || "L'assistant est momentanément indisponible."); return; }
+      bulle('assistant', data.reply);
+      historique.push({ role: 'assistant', content: data.reply });
+    } catch (e) {
+      attente.remove();
+      bulle('erreur', "Connexion impossible. Réessayez, ou écrivez-nous depuis la page Contact.");
+    } finally { occupe = false; envoi.disabled = false; texte.focus(); }
+  }
+
+  document.getElementById('mcdLanceur').addEventListener('click', () => chat.dataset.ouvert === 'true' ? fermer() : ouvrir());
+  document.getElementById('mcdFermer').addEventListener('click', fermer);
+  envoi.addEventListener('click', () => envoyer(texte.value));
+  texte.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer(texte.value); } });
+  texte.addEventListener('input', () => { texte.style.height = 'auto'; texte.style.height = Math.min(texte.scrollHeight, 90) + 'px'; });
+  sugg.addEventListener('click', (e) => { if (e.target.tagName === 'BUTTON') envoyer(e.target.textContent); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && chat.dataset.ouvert === 'true') fermer(); });
+
+  function reveler(){ chat.classList.add('mcd-chat-pret'); }
+  var precedent = window.mcdDoorsOpen;
+  window.mcdDoorsOpen = function(){ if (typeof precedent === 'function') precedent.apply(this, arguments); setTimeout(reveler, 400); };
+  setTimeout(reveler, 4000);
+})();
+</script>
+<!-- ===== Fin widget Le Copain ===== -->
 </body>
 </html>
