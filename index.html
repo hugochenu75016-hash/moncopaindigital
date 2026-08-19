@@ -785,7 +785,7 @@
 <body style="font-family: &quot;Permanent Marker&quot;">
 <!-- ===== Transition portes entre pages ===== -->
 <style id="door-tx-style">
-  #door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;}
+  #door-tx{position:fixed;inset:0;z-index:2147483647;pointer-events:none;overflow:hidden;}
   #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
     background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
     box-shadow:0 0 70px rgba(90,40,0,0.45);}
@@ -895,7 +895,14 @@
     // 1 s après l'ouverture des portes : le personnage tombe sur la planète
     setTimeout(function(){ if(window.__startFall) window.__startFall(); }, 1000);
   }
-  function tryOpen(){ if(modelReady && pageLoaded) doOpen(); }
+  var fontsReady=false;
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ fontsReady=true; tryOpen(); }); }
+  else { fontsReady=true; }
+  function tryOpen(){
+    if(!(modelReady && pageLoaded && fontsReady) || opened) return;
+    // on laisse deux frames au navigateur pour peindre la page derrière les portes
+    requestAnimationFrame(function(){ requestAnimationFrame(doOpen); });
+  }
   // Appelé quand le personnage 3D est prêt : n'ouvre que si toute la page est aussi chargée.
   window.mcdDoorsOpen=function(){ modelReady=true; tryOpen(); };
   window.addEventListener('load', function(){ pageLoaded=true; tryOpen(); });
@@ -3549,5 +3556,349 @@ start();
   }
 })();
 </script>
+<style>
+  /* ——— Marshall : habillage marque (Fredoka + orange bonbon) ——— */
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;900&family=Nunito:wght@400;600;700&display=swap');
+  .mcd-chat, .mcd-chat * { box-sizing: border-box; }
+
+  .mcd-chat {
+    --orange: #F3852B;
+    --orange-clair: #FF9C46;
+    --orange-fonce: #C7620E;
+    --encre: #3B2A1C;
+    --gris: #A08A76;
+    --creme: #FFF8EF;
+    --creme-2: #FFF1E2;
+    font-family: 'Nunito', system-ui, sans-serif;
+    position: fixed;
+    left: clamp(16px, 4vw, 48px);
+    top: calc(clamp(14px, 2.4vw, 26px) + 66px);
+    z-index: 9990;
+  }
+
+  /* Lanceur */
+  .mcd-lanceur {
+    width: 62px; height: 62px; padding: 0;
+    border: none; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(to bottom, #ffb066, #ef7d21);
+    cursor: pointer; font-size: 0;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 6px 0 #b8520f, 0 14px 24px rgba(150,62,22,.24);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .mcd-lanceur img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; transform: scale(1.55); transform-origin: 50% 8%; display: block; }
+  .mcd-lanceur:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 8px 0 #b8520f, 0 18px 28px rgba(150,62,22,.28); }
+  .mcd-lanceur:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 3px 0 #b8520f; }
+  .mcd-lanceur:focus-visible { outline: 3px solid var(--orange-fonce); outline-offset: 3px; }
+
+  /* Fenêtre */
+  .mcd-fenetre {
+    display: none;
+    position: absolute; left: 0; top: 78px;
+    width: 392px; max-width: calc(100vw - 32px);
+    height: 540px; max-height: calc(100vh - 190px);
+    background: var(--creme);
+    border-radius: 30px;
+    box-shadow: 0 24px 48px rgba(150,62,22,.26), inset 0 2px 0 rgba(255,255,255,.9);
+    overflow: hidden;
+    flex-direction: column;
+  }
+  .mcd-chat[data-ouvert="true"] .mcd-fenetre { display: flex; }
+
+  .mcd-entete {
+    background: linear-gradient(to bottom, var(--orange-clair), var(--orange));
+    box-shadow: 0 4px 0 var(--orange-fonce);
+    color: #FFF7DB;
+    padding: 18px 20px;
+    display: flex; align-items: center; gap: 13px;
+  }
+  .mcd-avatar {
+    width: 46px; height: 46px; flex: none; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(to bottom, #ffb066, #ef7d21);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.55), 0 3px 6px rgba(150,62,22,.28);
+  }
+  .mcd-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; transform: scale(1.55); transform-origin: 50% 8%; display: block; }
+  .mcd-entete h2 { margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 900; font-size: 19px; line-height: 1.1; color: #FFF7DB; text-shadow: 0 2px 0 rgba(150,70,0,.32); }
+  .mcd-entete p  { margin: 3px 0 0; font-size: 12.5px; font-weight: 600; color: #FFEFDA; }
+  .mcd-fermer {
+    margin-left: auto; width: 32px; height: 32px; flex: none;
+    background: rgba(255,255,255,.24); border: none; border-radius: 50%;
+    color: #FFF7DB; font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .mcd-fermer:hover { background: rgba(255,255,255,.4); }
+  .mcd-fermer:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  .mcd-fil {
+    flex: 1; overflow-y: auto;
+    padding: 20px 18px; display: flex; flex-direction: column; gap: 14px;
+    background: linear-gradient(180deg, var(--creme), var(--creme-2));
+  }
+
+  .mcd-bulle {
+    max-width: 80%;
+    padding: 12px 15px;
+    font-size: 14.5px; line-height: 1.5;
+    white-space: pre-wrap; word-wrap: break-word;
+  }
+  .mcd-bulle.assistant {
+    align-self: flex-start;
+    background: #fff; color: var(--encre);
+    border-radius: 20px 20px 20px 6px;
+    box-shadow: 0 3px 0 rgba(199,98,14,.16), 0 8px 18px rgba(150,62,22,.12);
+  }
+  .mcd-bulle.visiteur {
+    align-self: flex-end; font-weight: 600;
+    background: linear-gradient(to bottom, var(--orange-clair), var(--orange));
+    color: #FFF7DB;
+    border-radius: 20px 20px 6px 20px;
+    box-shadow: 0 3px 0 var(--orange-fonce);
+  }
+  .mcd-bulle.erreur { align-self: center; background: #FDECEC; color: #92312F; font-size: 13px; border-radius: 16px; }
+  .mcd-bulle a { color: var(--orange-fonce); }
+
+  /* Indicateur d'écriture */
+  .mcd-points { display: inline-flex; gap: 5px; align-items: center; height: 9px; }
+  .mcd-points i {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--orange);
+    animation: mcd-saut 1.2s infinite ease-in-out;
+  }
+  .mcd-points i:nth-child(2) { animation-delay: .15s; }
+  .mcd-points i:nth-child(3) { animation-delay: .3s; }
+  @keyframes mcd-saut { 0%,60%,100% { transform: translateY(0); opacity:.45 } 30% { transform: translateY(-5px); opacity:1 } }
+
+  /* Suggestions */
+  .mcd-suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 18px 14px; background: var(--creme-2); }
+  .mcd-suggestions button {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    background: #fff; border: none; color: var(--orange-fonce);
+    border-radius: 999px; padding: 8px 14px; font-size: 12.5px; cursor: pointer;
+    box-shadow: 0 3px 0 rgba(199,98,14,.2);
+    transition: transform .16s ease, background .16s ease;
+  }
+  .mcd-suggestions button:hover { background: #fff6ec; transform: translateY(-1px); }
+  .mcd-suggestions button:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(199,98,14,.2); }
+
+  /* Saisie */
+  .mcd-saisie { display: flex; gap: 10px; align-items: center; padding: 14px 16px 10px; background: #fff; box-shadow: 0 -3px 0 rgba(199,98,14,.1); }
+  .mcd-saisie textarea {
+    flex: 1; resize: none; border: none; border-radius: 24px;
+    background: #FFF3E6; box-shadow: inset 0 2px 4px rgba(199,98,14,.14);
+    padding: 13px 17px; font: inherit; font-size: 14.5px; max-height: 90px;
+    color: var(--encre);
+  }
+  .mcd-saisie textarea::placeholder { color: var(--gris); }
+  .mcd-saisie textarea:focus { outline: 2px solid var(--orange); outline-offset: 1px; }
+  .mcd-envoyer {
+    width: 50px; height: 50px; flex: none; padding: 0;
+    border: none; border-radius: 18px;
+    background: linear-gradient(to bottom, var(--orange-clair), var(--orange));
+    box-shadow: 0 4px 0 var(--orange-fonce), 0 8px 16px rgba(150,62,22,.22);
+    color: #FFF7E6; cursor: pointer;
+    display: grid; place-items: center;
+    transition: transform .16s ease, box-shadow .16s ease;
+  }
+  .mcd-envoyer:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--orange-fonce), 0 12px 20px rgba(150,62,22,.26); }
+  .mcd-envoyer:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--orange-fonce); }
+  .mcd-envoyer:disabled { opacity: .45; cursor: default; transform: none; }
+
+  .mcd-mention { text-align: center; font-size: 11.5px; color: var(--gris); padding: 6px 16px 14px; margin: 0; background: #fff; }
+
+  @media (max-width: 520px) {
+    .mcd-chat { left: 12px; }
+    .mcd-fenetre { width: calc(100vw - 24px); border-radius: 26px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mcd-lanceur, .mcd-points i, .mcd-envoyer, .mcd-suggestions button { transition: none; animation: none; }
+  }
+</style>
+
+<div class="mcd-chat" data-ouvert="false" id="mcdChat">
+  <div class="mcd-fenetre" role="dialog" aria-label="Assistant Marshall">
+    <div class="mcd-entete">
+      <span class="mcd-avatar"><img src="avatarchatbot.png" alt="Marshall"></span>
+      <div>
+        <h2>Marshall</h2>
+        <p>Une Question ? je suis la pour y répondre !</p>
+      </div>
+      <button class="mcd-fermer" id="mcdFermer" aria-label="Fermer la conversation">&times;</button>
+    </div>
+
+    <div class="mcd-fil" id="mcdFil" aria-live="polite"></div>
+
+    <div class="mcd-suggestions" id="mcdSuggestions">
+      <button type="button">Quelles sont vos offres ?</button>
+      <button type="button">C'est quoi Social Studio ?</button>
+      <button type="button">Comment prendre rendez-vous ?</button>
+    </div>
+
+    <div class="mcd-saisie">
+      <textarea id="mcdTexte" rows="1" placeholder="Écrivez votre question…" aria-label="Votre message"></textarea>
+      <button class="mcd-envoyer" id="mcdEnvoyer" aria-label="Envoyer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFF7E6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg></button>
+    </div>
+    <p class="mcd-mention">Assistant automatique. Pour un devis, prenez rendez-vous.</p>
+  </div>
+
+  <button class="mcd-lanceur" id="mcdLanceur" aria-label="Ouvrir l'assistant"><img src="avatarchatbot.png" alt=""></button>
+</div>
+
+<script>
+(function () {
+  // ⚠️ SEULE LIGNE À MODIFIER : l'adresse de ta fonction serverless
+  const ENDPOINT = 'https://copain-api.vercel.app/api/chat';
+
+  const chat   = document.getElementById('mcdChat');
+  const fil    = document.getElementById('mcdFil');
+  const texte  = document.getElementById('mcdTexte');
+  const envoi  = document.getElementById('mcdEnvoyer');
+  const sugg   = document.getElementById('mcdSuggestions');
+
+  const historique = [];
+  let occupe = false;
+
+  const ACCUEIL = "Bonjour 👋 Je réponds à vos questions sur nos offres, le Social Studio ou la prise de rendez-vous. Que puis-je pour vous ?";
+
+  function bulle(role, contenu) {
+    const el = document.createElement('div');
+    el.className = 'mcd-bulle ' + role;
+    // Transforme les liens internes en liens cliquables, sans injecter de HTML brut
+    el.textContent = contenu;
+    el.innerHTML = el.innerHTML.replace(
+      /(\/[a-zA-Z0-9\-_]+\.html)/g,
+      '<a href="$1">$1</a>'
+    );
+    fil.appendChild(el);
+    fil.scrollTop = fil.scrollHeight;
+    return el;
+  }
+
+  function ouvrir() {
+    chat.dataset.ouvert = 'true';
+    if (!fil.children.length) bulle('assistant', ACCUEIL);
+  }
+  function fermer() { chat.dataset.ouvert = 'false'; }
+
+  async function envoyer(message) {
+    if (occupe || !message.trim()) return;
+    occupe = true;
+    envoi.disabled = true;
+    sugg.style.display = 'none';
+
+    bulle('visiteur', message);
+    historique.push({ role: 'user', content: message });
+    texte.value = '';
+    texte.style.height = 'auto';
+
+    const attente = bulle('assistant', '');
+    attente.innerHTML = '<span class="mcd-points"><i></i><i></i><i></i></span>';
+
+    try {
+      const r = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: historique }),
+      });
+      const data = await r.json();
+      attente.remove();
+
+      if (!r.ok) {
+        bulle('erreur', data.error || "L'assistant est momentanément indisponible.");
+        return;
+      }
+      bulle('assistant', data.reply);
+      historique.push({ role: 'assistant', content: data.reply });
+    } catch (e) {
+      attente.remove();
+      bulle('erreur', "Connexion impossible. Réessayez, ou écrivez-nous depuis la page Contact.");
+    } finally {
+      occupe = false;
+      envoi.disabled = false;
+      texte.focus();
+    }
+  }
+
+  document.getElementById('mcdLanceur').addEventListener('click', () =>
+    chat.dataset.ouvert === 'true' ? fermer() : ouvrir()
+  );
+  document.getElementById('mcdFermer').addEventListener('click', fermer);
+  envoi.addEventListener('click', () => envoyer(texte.value));
+
+  texte.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer(texte.value); }
+  });
+  texte.addEventListener('input', () => {
+    texte.style.height = 'auto';
+    texte.style.height = Math.min(texte.scrollHeight, 90) + 'px';
+  });
+
+  sugg.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') envoyer(e.target.textContent);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && chat.dataset.ouvert === 'true') fermer();
+  });
+})();
+</script>
+
+
+<!-- ===== Marshall : reglages de position specifiques a la page d'accueil ===== -->
+<style id="mcd-chat-index">
+  /* Sur desktop, le bouton « Nous contacter » (#mcd-left) occupe deja le coin
+     haut-gauche : on descend le lanceur pour eviter le chevauchement. */
+  .mcd-chat { top: calc(clamp(20px, 3.5vh, 40px) + 76px) !important; z-index: 9990; }
+  /* Le logo geant descend sur petit ecran : on decale Marshall en consequence. */
+  @media (max-width: 1150px) {
+    .mcd-chat { top: calc(env(safe-area-inset-top, 0px) + 74px) !important;
+                left: clamp(12px, 3vw, 20px) !important; }
+  }
+  html[data-appweb] .mcd-chat {
+    top: calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
+  html[data-appweb] .mcd-lanceur { width: 54px; height: 54px; }
+  /* La fenetre ne doit pas passer sous la barre de navigation du bas. */
+  html[data-appweb] .mcd-fenetre {
+    max-height: calc(100vh - 21vw - 150px - env(safe-area-inset-bottom, 0px)); }
+  /* Marshall se cache pendant l'ouverture des portes, puis apparait en douceur. */
+  .mcd-chat { opacity: 0; transition: opacity .25s ease; }
+  .mcd-chat.mcd-chat-pret { opacity: 1; }
+  /* Et il s'efface quand le pied de page se deplie, comme la barre de navigation. */
+  .mcd-chat.mcd-chat-pret.mcd-chat-footer-off {
+    opacity: 0; pointer-events: none;
+    transform: translateY(-14px) scale(.94);
+    transition: opacity .24s ease, transform .32s cubic-bezier(.2,1,.3,1); }
+  @media (prefers-reduced-motion: reduce) { .mcd-chat { transition: none; } }
+</style>
+<script>
+(function(){
+  function reveler(){
+    var c = document.getElementById('mcdChat');
+    if (c) c.classList.add('mcd-chat-pret');
+  }
+  // On attend l'ouverture des portes ; filet de securite a 4 s si le hook n'existe pas.
+  var precedent = window.mcdDoorsOpen;
+  window.mcdDoorsOpen = function(){
+    if (typeof precedent === 'function') precedent.apply(this, arguments);
+    reveler();
+  };
+  setTimeout(reveler, 4000);
+
+  // Marshall suit le pied de page : il disparait quand la feuille se deplie.
+  function suivreFooter(){
+    var chat  = document.getElementById('mcdChat');
+    var sheet = document.getElementById('footer-sheet');
+    if (!chat || !sheet || !window.MutationObserver) return;
+    var sync = function(){
+      var ouvert = sheet.classList.contains('show');
+      chat.classList.toggle('mcd-chat-footer-off', ouvert);
+      // Si la conversation etait ouverte, on la referme proprement.
+      if (ouvert) chat.dataset.ouvert = 'false';
+    };
+    new MutationObserver(sync).observe(sheet, {attributes:true, attributeFilter:['class']});
+    sync();
+  }
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', suivreFooter);
+  else suivreFooter();
+})();
+</script>
+
 </body>
 </html>
