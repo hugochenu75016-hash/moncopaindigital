@@ -3456,7 +3456,7 @@ start();
 <script>
 (function(){
   function init(){
-    var els=document.querySelectorAll('#mcd-left .mcd-cta, #mcd-right .mcd-cta');
+    var els=document.querySelectorAll('#mcd-right .mcd-cta');
     if(!els.length) return;
     var PULL=0.30, MAX=18, RANGE=150;
     var items=[], raf=0, mx=0, my=0;
@@ -3844,7 +3844,9 @@ start();
 <style id="mcd-chat-index">
   /* Sur desktop, le bouton « Nous contacter » (#mcd-left) occupe deja le coin
      haut-gauche : on descend le lanceur pour eviter le chevauchement. */
-  .mcd-chat { top: calc(clamp(20px, 3.5vh, 40px) + 76px) !important; z-index: 9990; }
+  .mcd-chat { top: calc(clamp(20px, 3.5vh, 40px) + 76px) !important; z-index: 99990; }
+  /* Conversation ouverte : au-dessus de toute la page (soleil, nav, rails...) */
+  .mcd-chat[data-ouvert="true"] { z-index: 999999 !important; }
   /* Le logo geant descend sur petit ecran : on decale Marshall en consequence. */
   @media (max-width: 1150px) {
     .mcd-chat { top: calc(env(safe-area-inset-top, 0px) + 74px) !important;
