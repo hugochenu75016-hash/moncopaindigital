@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/favicons/favicon.ico" sizes="any">
+<title>Suppression des données · Mon Copain Digital</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Baloo+2:wght@700;800&display=swap">
+<style>
+  :root{ --bg:#6EC1F0; --cream:#fff8ef; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; min-height:100%; background:var(--bg); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+  body{ display:flex; align-items:center; justify-content:center; padding:24px; }
+  .card{ width:min(92vw,460px); background:var(--cream); color:#2a1500; border-radius:28px; padding:clamp(28px,4vw,42px);
+    box-shadow:0 26px 60px rgba(90,40,0,0.34); text-align:center; }
+  .logo{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:24px; color:#F3852B; margin:0 0 18px; }
+  .ic{ width:64px; height:64px; margin:0 auto 18px; border-radius:50%; background:linear-gradient(to bottom,#f8e7ac,#e4bf5a);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 10px 22px rgba(120,50,0,0.28); }
+  .ic svg{ width:32px; height:32px; color:#8a6a0c; }
+  h1{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:22px; margin:0 0 10px; color:#5a4400; }
+  p{ font-size:14.5px; line-height:1.6; color:#5a4400; margin:0 0 18px; }
+  .code{ display:inline-block; font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:#8a6a0c;
+    background:#fff6ea; border:1px solid rgba(120,60,0,0.18); border-radius:10px; padding:8px 14px; word-break:break-all; }
+  a.back{ display:inline-block; margin-top:20px; font-family:'Fredoka',sans-serif; font-weight:700; font-size:13px;
+    color:#F3852B; text-decoration:none; }
+  a.back:hover{ text-decoration:underline; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">Mon Copain Digital</div>
+    <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <h1>Vos données ont été supprimées</h1>
+    <p>Les jetons d'accès et informations de compte reliés à votre identifiant Facebook via <b>Studio Social</b> ont été effacés de nos serveurs.</p>
+    <div id="code-box" style="display:none;">
+      <p style="margin-bottom:8px;">Code de confirmation&nbsp;:</p>
+      <span class="code" id="code"></span>
+    </div>
+    <div><a class="back" href="/">Retour au site</a></div>
+  </div>
+  <script>
+    var code = new URLSearchParams(location.search).get('code');
+    if (code) {
+      document.getElementById('code').textContent = code;
+      document.getElementById('code-box').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
