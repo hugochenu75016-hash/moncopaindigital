@@ -486,6 +486,13 @@
   .hub-foot{ text-align:center; margin-top:34px; font-size:13.5px; color:#eaf6ff; }
   .hub-logout{ cursor:pointer; text-decoration:underline; font-weight:600; }
 
+  /* ===== Connexion aux réseaux (étape avant l'accueil) ===== */
+  #connect-gate{ display:none; position:relative; z-index:10; min-height:100vh; align-items:center; justify-content:center; padding:clamp(96px,14vh,140px) 20px 40px; }
+  #connect-gate.show{ display:flex; }
+  .gate-inner{ width:100%; max-width:780px; }
+  .gate-actions{ display:flex; align-items:center; justify-content:center; gap:14px; margin-top:26px; flex-wrap:wrap; }
+  .gate-actions .btn-pub{ flex:0 1 260px; }
+
   /* ===== Message Social ===== */
   #msgapp{ display:none; position:relative; z-index:10; min-height:100vh; }
   #msgapp.show{ display:grid; grid-template-columns:250px 1fr; }
@@ -507,6 +514,25 @@
   #reportsapp.show{ display:grid; grid-template-columns:250px 1fr; }
   #reports-side{ position:sticky; top:0; align-self:start; height:100vh; display:flex; flex-direction:column; padding:26px 18px; gap:6px; }
   @media(max-width:980px){ #reportsapp.show{ grid-template-columns:1fr; } #reports-side{ position:relative; height:auto; flex-direction:row; flex-wrap:wrap; align-items:center; } #reports-side .spacer{ display:none; } #reports-side .brand{ flex:1 0 100%; } }
+  .report-meta{ display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; font-size:13px; color:#7a5c08; margin:-10px 0 22px; }
+  .report-meta b{ color:#5a4400; }
+  .rcard-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .rchart{ display:flex; align-items:flex-end; gap:6px; height:170px; padding:6px 2px 0; overflow-x:auto; }
+  .rchart .rbar-wrap{ flex:1 0 22px; min-width:22px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:6px; }
+  .rchart .rbar{ width:100%; max-width:26px; background:linear-gradient(to top,#e2701a,#ffa640); border-radius:6px 6px 2px 2px; box-shadow:inset 0 1px 1px rgba(255,255,255,0.5); transition:transform .15s,filter .15s; }
+  .rchart .rbar:hover{ transform:scaleY(1.03); filter:brightness(1.07); }
+  .rchart .rbar-lbl{ font-size:10px; color:#8a6a0c; white-space:nowrap; transform:rotate(-42deg); transform-origin:top left; margin-top:8px; }
+  .rformat{ display:flex; flex-direction:column; gap:16px; }
+  .rf-row .rf-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+  .rf-row .rf-name{ font-family:'Fredoka',sans-serif; font-weight:700; color:#5a4400; font-size:14.5px; }
+  .rf-row .rf-count{ font-size:12px; color:#8a6a0c; }
+  .rf-row .rf-val{ margin-left:auto; font-family:'Fredoka',sans-serif; font-weight:700; color:#e2701a; font-size:13.5px; }
+  .rf-track{ height:10px; border-radius:999px; background:#f3ece2; overflow:hidden; }
+  .rf-fill{ height:100%; border-radius:999px; background:linear-gradient(to right,#ffa640,#e2701a); }
+  .item.rtop .rrank{ width:36px; height:36px; border-radius:50%; flex:0 0 auto; display:flex; align-items:center; justify-content:center; font-size:17px; background:#fff0dd; }
+  .rsort{ display:flex; gap:8px; flex-wrap:wrap; }
+  .rsort-chip{ cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; color:#6b5108; background:#fff6ea; border:1.5px solid rgba(120,60,0,0.16); border-radius:999px; padding:6px 13px; white-space:nowrap; }
+  .rsort-chip.on{ background:#8a6a0c; color:#fff; border-color:transparent; }
   .dele-toggle{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 20px; border-radius:18px; margin-bottom:22px;
     background:linear-gradient(to bottom,#f8e7ac 0%,#eecd73 55%,#e4bf5a 100%); color:#5a4400; }
   .dele-toggle .dt-txt{ font-size:13.5px; line-height:1.5; max-width:520px; }
@@ -563,7 +589,9 @@
   .th-compose{ display:flex; gap:10px; padding:14px; border-top:1px solid rgba(120,60,0,0.12); flex:0 0 auto; background:var(--cream); }
   .th-compose textarea{ flex:1; resize:none; height:44px; font-family:inherit; font-size:14px; color:#2a1500; padding:11px 14px; border-radius:12px; border:1px solid rgba(120,60,0,0.22); background:rgba(0,0,0,0.03); outline:none; }
   .th-send{ cursor:pointer; border:none; color:#fff; background:linear-gradient(to bottom,#ffa640,#e2701a); border-radius:12px; padding:0 18px; font-family:'Fredoka',sans-serif; font-weight:700; }
-  .conn-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px; }
+  .conn-grid{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; }
+  @media(max-width:860px){ .conn-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media(max-width:520px){ .conn-grid{ grid-template-columns:1fr; } }
   .conn-card{ background:#fff6ea; border:1px solid rgba(120,60,0,0.14); border-radius:20px; padding:24px 22px; display:flex; flex-direction:column; align-items:center; text-align:center; }
   .conn-ic{ width:62px; height:62px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; margin-bottom:14px; box-shadow:0 8px 18px rgba(120,50,0,0.24); }
   .conn-ic svg{ width:30px; height:30px; }
@@ -1006,6 +1034,36 @@
   </div>
 </section>
 
+<!-- ===== Connexion aux réseaux sociaux (avant le choix d'outil) ===== -->
+<section id="connect-gate">
+  <div class="gate-inner">
+    <div class="hub-head">
+      <h1 class="hub-title">Connectez vos réseaux</h1>
+      <p class="hub-sub">Reliez au moins un réseau social avant de choisir un outil.</p>
+    </div>
+    <div id="gate-info" style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;background:none;border:none;box-shadow:none;padding:0;margin:0 0 18px;color:#fff;">
+      <button type="button" id="gate-info-toggle" style="display:flex;align-items:center;gap:6px;cursor:pointer;border:none;background:none;padding:0;color:#000;font-family:'Fredoka',sans-serif;font-weight:600;font-size:11px;" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span id="gate-info-label" style="text-decoration:underline;opacity:.85;white-space:nowrap;">en voir +</span>
+      </button>
+      <div id="gate-info-body" style="display:none;background:#fff;color:#2a1500;border-radius:16px;padding:16px 18px;">Connectez votre compte <b>Instagram professionnel</b> en un clic grâce à la connexion sécurisée Meta (OAuth) — vos identifiants ne transitent jamais par nos serveurs. Votre Instagram doit être un compte <b>Professionnel (Business ou Créateur)</b> relié à une <b>Page Facebook</b>.
+        <a href="#" id="gate-ig-howto" style="color:#f3852b;text-decoration:underline;">Comment convertir mon compte ?</a>
+        <div id="gate-ig-howto-box" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,0.15);">
+          1. Dans l'app Instagram : Paramètres → Compte → passez en compte <b>Professionnel</b> (Créateur ou Entreprise).<br>
+          2. Toujours dans Paramètres → liez votre Instagram à une <b>Page Facebook</b> (créez-en une gratuitement si besoin).<br>
+          3. Revenez ici et cliquez sur « Connecter » à côté d'Instagram : une fenêtre Facebook s'ouvre pour autoriser l'accès.
+        </div>
+      </div>
+    </div>
+    <div class="conn-grid" id="gate-conn-grid"></div>
+    <div class="gate-actions">
+      <button class="btn-ghost" id="gate-skip">Passer pour l'instant</button>
+      <button class="btn-pub" id="gate-continue">Continuer →</button>
+    </div>
+    <div class="hub-foot"><span id="gate-me">—</span> · <span class="hub-logout" id="gate-logout">Déconnexion</span></div>
+  </div>
+</section>
+
 <!-- ===== Accueil (choix d'outil) ===== -->
 <section id="hub">
   <div class="hub-inner">
@@ -1244,7 +1302,6 @@
       <div class="conv-col">
         <div class="conv-tools">
           <label class="selall"><input type="checkbox" id="sel-all"> Tout sélectionner</label>
-          <button class="grp-btn" id="grp-toggle">Message groupé</button>
         </div>
         <div class="conv-filters">
           <span class="flt-lbl">Émis &lt;</span>
@@ -1252,10 +1309,6 @@
           <button class="flt-chip" data-flt="24">24 h</button>
           <button class="flt-chip" data-flt="48">48 h</button>
           <button class="flt-chip clear" data-flt="0">✕</button>
-        </div>
-        <div class="group-bar" id="group-bar" style="display:none;">
-          <textarea id="grp-text" placeholder="Message à envoyer aux conversations cochées…"></textarea>
-          <button class="th-send" id="grp-send">Envoyer à 0</button>
         </div>
         <div class="conv-list" id="conv-list"></div>
       </div>
@@ -1306,12 +1359,25 @@
         <button class="btn-ghost" id="reports-print">Imprimer / Exporter en PDF</button>
       </div>
     </div>
+    <div class="report-meta" id="report-meta" style="display:none;"></div>
     <div class="report-grid" id="report-grid">
       <div class="rstat"><div class="n">—</div><div class="l">Abonnés</div></div>
       <div class="rstat"><div class="n">—</div><div class="l">Publications</div></div>
       <div class="rstat"><div class="n">—</div><div class="l">Engagement moyen</div></div>
     </div>
-    <div class="card"><h2>Publications récentes</h2><p class="sub">Likes et commentaires de vos 12 derniers posts.</p><div class="list" id="report-posts"></div></div>
+    <div class="card" id="report-chart-card" style="display:none;"><h2>Engagement par publication</h2><p class="sub">Likes + commentaires de chaque publication analysée, de la plus ancienne à la plus récente.</p><div class="rchart" id="report-chart"></div></div>
+    <div class="card" id="report-format-card" style="display:none;"><h2>Répartition par format</h2><p class="sub">Nombre de publications et engagement moyen selon le type de contenu.</p><div class="rformat" id="report-format"></div></div>
+    <div class="card" id="report-top-card" style="display:none;"><h2>Meilleures publications</h2><p class="sub">Classées par taux d'engagement (likes + commentaires rapportés aux abonnés).</p><div class="list" id="report-top"></div></div>
+    <div class="card">
+      <div class="rcard-head">
+        <div><h2 style="margin-bottom:2px;">Toutes les publications</h2><p class="sub" style="margin:0;">Détail de chaque publication analysée.</p></div>
+        <div class="rsort" id="report-sort">
+          <span class="rsort-chip on" data-sort="recent">Plus récentes</span>
+          <span class="rsort-chip" data-sort="top">Meilleur engagement</span>
+        </div>
+      </div>
+      <div class="list" id="report-posts" style="margin-top:14px;"></div>
+    </div>
   </main>
 </div>
 
@@ -1446,8 +1512,21 @@
   $('#logout-btn').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
   document.addEventListener('click', function(e){
     if(e.target && e.target.id==='ig-howto'){ e.preventDefault(); var b=$('#ig-howto-box'); if(b) b.style.display = b.style.display==='none' ? 'block' : 'none'; }
+    if(e.target && e.target.id==='gate-ig-howto'){ e.preventDefault(); var gb=$('#gate-ig-howto-box'); if(gb) gb.style.display = gb.style.display==='none' ? 'block' : 'none'; }
+    var cb=e.target.closest('[data-conn]'); if(cb){ connectNetwork(cb.getAttribute('data-conn')); return; }
+    var db=e.target.closest('[data-disc]'); if(db){ disconnectNetwork(db.getAttribute('data-disc')); return; }
   });
   $('#conn-refresh').addEventListener('click', async function(){ this.textContent='Vérification…'; await loadConnections(); renderConnexions(); this.textContent='Vérifier'; toast(connCount()+'/'+NETS.length+' réseau(x) connecté(s)'); });
+  (function(){
+    var t=$('#gate-info-toggle'), b=$('#gate-info-body'), l=$('#gate-info-label');
+    if(!t) return;
+    t.addEventListener('click', function(){
+      var open = b.style.display==='none';
+      b.style.display = open ? '' : 'none';
+      l.textContent = open ? 'en voir −' : 'en voir +';
+      t.setAttribute('aria-expanded', open?'true':'false');
+    });
+  })();
   $('#hub-btn').addEventListener('click', function(){ showHub(); });
 
   /* ============ STORE ============ */
@@ -1510,21 +1589,24 @@
   }
   function connCount(){ return NETS.filter(function(n){ return connections[n.id].connected; }).length; }
   function updateConnBadge(){ var missing=NETS.length-connCount(); var b=$('#badge-conn'); if(b){ if(missing>0){ b.style.display='inline-flex'; b.textContent=missing; } else b.style.display='none'; } }
-  function renderConnexions(){
-    $('#conn-grid').innerHTML = NETS.map(function(n){
+  function connGridHtml(){
+    return NETS.map(function(n){
       var c=connections[n.id], ok=c.connected;
       return '<div class="conn-card"><div class="conn-ic" style="background:'+connBg(n.id)+'">'+n.icon+'</div>'+
         '<div class="conn-name">'+esc(n.name)+'</div>'+
-        '<div class="conn-acc">'+esc(ok?(c.account||'Compte reli\u00e9'):'Non reli\u00e9')+'</div>'+
-        '<div class="conn-status">'+(ok?'<span class="pill green">\u2713 Connect\u00e9</span>':'<span class="pill red">\u2715 Non connect\u00e9</span>')+'</div>'+
+        '<div class="conn-acc">'+esc(ok?(c.account||'Compte relié'):'Non relié')+'</div>'+
+        '<div class="conn-status">'+(ok?'<span class="pill green">✓ Connecté</span>':'<span class="pill red">✕ Non connecté</span>')+'</div>'+
         '<div class="conn-actions">'+
           (ok? '<button class="conn-btn ghost" data-disc="'+n.id+'">Déconnecter</button>'
              : '<button class="conn-btn" data-conn="'+n.id+'">Connecter</button>')+
         '</div></div>';
     }).join('');
-    $all('#conn-grid [data-conn]').forEach(function(b){ b.addEventListener('click', function(){ connectNetwork(b.getAttribute('data-conn')); }); });
-    $all('#conn-grid [data-disc]').forEach(function(b){ b.addEventListener('click', function(){ disconnectNetwork(b.getAttribute('data-disc')); }); });
+  }
+  function renderConnexions(){
+    var html=connGridHtml();
+    $all('.conn-grid').forEach(function(el){ el.innerHTML=html; });
     updateConnBadge();
+    var cont=$('#gate-continue'); if(cont) cont.textContent = connCount()>0 ? 'Continuer →' : 'Continuer sans connecter →';
   }
   async function connectNetwork(id){
     if(actingAs){ toast('Seul le client peut connecter ou reconnecter son propre compte.', true); return; }
@@ -1934,6 +2016,7 @@
     $('#me-role').textContent=me.role;
     $('#hub-name').textContent=me.nom;
     $('#hub-me').textContent=me.nom+' · '+me.role;
+    $('#gate-me').textContent=me.nom+' · '+me.role;
     await loadPosts();
     await loadConnections();
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
@@ -1945,10 +2028,15 @@
       if(cp==='ok'){ enterStudio(); toast('Compte relié avec succès ✓'); history.replaceState(null,'',location.pathname); return; }
       else if(cp==='error'){ enterStudio(); toast('Échec de la connexion au réseau.', true); history.replaceState(null,'',location.pathname); return; }
     }catch(e){}
-    showHub();
+    showConnectGate();
   }
-  function showHub(){ actingAs=null; actingName=''; $('#app').classList.remove('show'); $('#clientsapp').classList.remove('show'); $('#reportsapp').classList.remove('show'); $('#hub').classList.add('show'); }
-  function enterStudio(){ $('#hub').classList.remove('show'); $('#clientsapp').classList.remove('show'); $('#app').classList.add('show');
+  function showConnectGate(){
+    $('#hub').classList.remove('show'); $('#app').classList.remove('show'); $('#clientsapp').classList.remove('show'); $('#reportsapp').classList.remove('show'); $('#msgapp').classList.remove('show');
+    renderConnexions();
+    $('#connect-gate').classList.add('show');
+  }
+  function showHub(){ actingAs=null; actingName=''; $('#connect-gate').classList.remove('show'); $('#app').classList.remove('show'); $('#clientsapp').classList.remove('show'); $('#reportsapp').classList.remove('show'); $('#hub').classList.add('show'); }
+  function enterStudio(){ $('#connect-gate').classList.remove('show'); $('#hub').classList.remove('show'); $('#clientsapp').classList.remove('show'); $('#app').classList.add('show');
     var ab=$('#acting-banner');
     if(actingAs){ ab.style.display='flex'; $('#acting-name').textContent=actingName; loadPosts(); loadConnections().then(renderConnexions); }
     else { ab.style.display='none'; }
@@ -1962,6 +2050,9 @@
     else if(t==='reports') enterReports();
   }); });
   $('#hub-logout').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
+  $('#gate-logout').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
+  $('#gate-continue').addEventListener('click', function(){ showHub(); });
+  $('#gate-skip').addEventListener('click', function(){ showHub(); });
   $('#acting-exit').addEventListener('click', function(){ showHub(); });
 
   /* ============ GESTION CLIENTS (agence) ============ */
@@ -2023,24 +2114,125 @@
       var qs='?network=instagram'+(actingAs?('&on_behalf_of='+encodeURIComponent(actingAs)):'');
       var r=await fetch(SUPABASE_URL+'/functions/v1/social-insights'+qs, { headers:await authHeaders() });
       var d=await r.json();
-      if(!d || d.error || !d.account){ $('#report-posts').innerHTML='<div class="empty">'+esc((d&&(d.error||d.note))||'Fonction « social-insights » non déployée pour le moment.')+'</div>'; return; }
+      if(!d || d.error || !d.account){ reportEmpty((d&&(d.error||d.note))||'Fonction « social-insights » non déployée pour le moment.'); return; }
       renderReport(d);
-    }catch(e){ $('#report-posts').innerHTML='<div class="empty">Fonction « social-insights » non déployée pour le moment.</div>'; }
+    }catch(e){ reportEmpty('Fonction « social-insights » non déployée pour le moment.'); }
   }
+  function reportEmpty(msg){
+    lastReport=null;
+    $('#report-meta').style.display='none';
+    $('#report-chart-card').style.display='none';
+    $('#report-format-card').style.display='none';
+    $('#report-top-card').style.display='none';
+    $('#report-posts').innerHTML='<div class="empty">'+esc(msg)+'</div>';
+  }
+  var lastReport=null, reportSort='recent';
+  var WEEKDAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  function fmtPct(n){ return (Math.round(n*10)/10).toFixed(1)+'%'; }
+  function fmtDateShort(iso){ if(!iso) return ''; var d=new Date(iso); return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}); }
+  function daysAgoLabel(iso){
+    var ms=Date.now()-(+new Date(iso)); var d=Math.floor(ms/86400000);
+    if(d<=0) return 'aujourd’hui'; if(d===1) return 'hier'; return 'il y a '+d+' jours';
+  }
+  function formatLabel(mt){ return mt==='VIDEO'?'Vidéo':mt==='CAROUSEL_ALBUM'?'Carrousel':mt==='REELS'?'Reel':'Photo'; }
+  function statCard(n,l){ return '<div class="rstat"><div class="n">'+n+'</div><div class="l">'+esc(l)+'</div></div>'; }
+  function postThumb(mt){ return (mt==='VIDEO'||mt==='REELS')?'▶':'🖼'; }
+
   function renderReport(d){
-    var a=d.account||{}, posts=d.media||[];
-    var totalEng=0; posts.forEach(function(p){ totalEng += (p.like_count||0)+(p.comments_count||0); });
-    var avgEng = (posts.length && a.followers_count) ? ((totalEng/posts.length)/a.followers_count*100).toFixed(1)+'%' : '—';
+    lastReport = d;
+    var a=d.account||{}, posts=(d.media||[]).slice();
+    var followers=a.followers_count||0, n=posts.length;
+    var totalLikes=0, totalComments=0;
+    posts.forEach(function(p){
+      totalLikes += (p.like_count||0); totalComments += (p.comments_count||0);
+      p._eng = (p.like_count||0)+(p.comments_count||0);
+      p._rate = followers ? (p._eng/followers*100) : 0;
+    });
+    var totalEng=totalLikes+totalComments;
+    var avgEng = (n && followers) ? (totalEng/n/followers*100) : 0;
+    var byRate = posts.slice().sort(function(x,y){ return y._rate-x._rate; });
+    var best = byRate[0];
+    var chrono = posts.slice().sort(function(x,y){ return (+new Date(x.timestamp))-(+new Date(y.timestamp)); });
+    var gaps=[]; for(var i=1;i<chrono.length;i++){ gaps.push(((+new Date(chrono[i].timestamp))-(+new Date(chrono[i-1].timestamp)))/86400000); }
+    var avgGap = gaps.length ? (gaps.reduce(function(s,g){ return s+g; },0)/gaps.length) : null;
+    var lastPost = chrono[chrono.length-1];
+
+    var dayBuckets={};
+    posts.forEach(function(p){ var wd=new Date(p.timestamp).getDay(); if(!dayBuckets[wd]) dayBuckets[wd]={sum:0,n:0}; dayBuckets[wd].sum+=p._rate; dayBuckets[wd].n++; });
+    var bestDay=null, bestDayAvg=-1;
+    Object.keys(dayBuckets).forEach(function(k){ var b=dayBuckets[k], avg=b.sum/b.n; if(avg>bestDayAvg){ bestDayAvg=avg; bestDay=+k; } });
+
     $('#report-grid').innerHTML =
-      '<div class="rstat"><div class="n">'+(a.followers_count!=null?a.followers_count:'—')+'</div><div class="l">Abonnés</div></div>'+
-      '<div class="rstat"><div class="n">'+(a.media_count!=null?a.media_count:'—')+'</div><div class="l">Publications</div></div>'+
-      '<div class="rstat"><div class="n">'+avgEng+'</div><div class="l">Engagement moyen</div></div>';
+      statCard(a.followers_count!=null?a.followers_count:'—','Abonnés')+
+      statCard(a.media_count!=null?a.media_count:'—','Publications (total)')+
+      statCard(n||'—','Publications analysées')+
+      statCard(totalLikes,'Likes totaux')+
+      statCard(totalComments,'Commentaires totaux')+
+      statCard(n?fmtPct(avgEng):'—','Engagement moyen')+
+      statCard(best?fmtPct(best._rate):'—','Meilleur engagement')+
+      statCard(n?Math.round(totalLikes/n):'—','Moy. likes / publication')+
+      statCard(n?Math.round(totalComments/n):'—','Moy. commentaires / publication')+
+      statCard(bestDay!=null?WEEKDAYS[bestDay]:'—','Meilleur jour pour publier');
+
+    var meta=$('#report-meta');
+    if(n){
+      meta.style.display='flex';
+      meta.innerHTML = '<span>Dernière publication : <b>'+daysAgoLabel(lastPost.timestamp)+'</b></span>'+
+        (avgGap!=null ? '<span>Rythme moyen : <b>1 publication / '+(avgGap<1 ? Math.round(avgGap*24)+' h' : (Math.round(avgGap*10)/10)+' j')+'</b></span>' : '')+
+        '<span>Période analysée : <b>'+fmtDateShort(chrono[0].timestamp)+' → '+fmtDateShort(lastPost.timestamp)+'</b></span>';
+    } else meta.style.display='none';
+
+    var chartCard=$('#report-chart-card');
+    if(n){
+      chartCard.style.display='block';
+      var maxEng=Math.max.apply(null, chrono.map(function(p){ return p._eng; })) || 1;
+      $('#report-chart').innerHTML = chrono.map(function(p){
+        var h=Math.max(4, Math.round((p._eng/maxEng)*140));
+        return '<div class="rbar-wrap"><div class="rbar" style="height:'+h+'px" title="'+esc(fmtDate(p.timestamp))+' — '+(p.like_count||0)+' likes, '+(p.comments_count||0)+' commentaires"></div><div class="rbar-lbl">'+esc(fmtDateShort(p.timestamp))+'</div></div>';
+      }).join('');
+    } else chartCard.style.display='none';
+
+    var formatCard=$('#report-format-card');
+    var byFmt={};
+    posts.forEach(function(p){ var t=p.media_type||'IMAGE'; if(!byFmt[t]) byFmt[t]={count:0,sum:0}; byFmt[t].count++; byFmt[t].sum+=p._rate; });
+    var fmtKeys=Object.keys(byFmt);
+    if(fmtKeys.length){
+      formatCard.style.display='block';
+      var maxAvg=Math.max.apply(null, fmtKeys.map(function(k){ return byFmt[k].sum/byFmt[k].count; })) || 1;
+      $('#report-format').innerHTML = fmtKeys.map(function(k){
+        var b=byFmt[k], avg=b.sum/b.count, w=Math.max(6, Math.round(avg/maxAvg*100));
+        return '<div class="rf-row"><div class="rf-head"><span class="rf-name">'+esc(formatLabel(k))+'</span><span class="rf-count">'+b.count+' publication'+(b.count>1?'s':'')+'</span><span class="rf-val">'+fmtPct(avg)+'</span></div><div class="rf-track"><div class="rf-fill" style="width:'+w+'%"></div></div></div>';
+      }).join('');
+    } else formatCard.style.display='none';
+
+    var topCard=$('#report-top-card');
+    if(n){
+      topCard.style.display='block';
+      var medals=['🥇','🥈','🥉'];
+      $('#report-top').innerHTML = byRate.slice(0,3).map(function(p,i){
+        return '<div class="item rtop"><div class="rrank">'+(medals[i]||(i+1))+'</div>'+
+          '<div class="imain"><div class="it1">'+esc((p.caption||'').slice(0,60)||'(sans légende)')+'</div>'+
+          '<div class="it2">'+fmtDate(p.timestamp)+' · '+formatLabel(p.media_type)+' · ❤ '+(p.like_count||0)+' · 💬 '+(p.comments_count||0)+' · <b>'+fmtPct(p._rate)+'</b></div></div></div>';
+      }).join('');
+    } else topCard.style.display='none';
+
+    renderReportPosts();
+  }
+  function renderReportPosts(){
+    if(!lastReport) return;
+    var posts=(lastReport.media||[]).slice();
+    posts.sort(function(x,y){ return reportSort==='top' ? ((y._rate||0)-(x._rate||0)) : ((+new Date(y.timestamp))-(+new Date(x.timestamp))); });
     $('#report-posts').innerHTML = posts.length ? posts.map(function(p){
-      return '<div class="item"><div class="ithumb">'+(p.media_type==='VIDEO'?'▶':'🖼')+'</div>'+
+      return '<div class="item"><div class="ithumb">'+postThumb(p.media_type)+'</div>'+
         '<div class="imain"><div class="it1">'+esc((p.caption||'').slice(0,60)||'(sans légende)')+'</div>'+
-        '<div class="it2">'+fmtDate(p.timestamp)+' · ❤ '+(p.like_count||0)+' · 💬 '+(p.comments_count||0)+'</div></div></div>';
+        '<div class="it2">'+fmtDate(p.timestamp)+' · '+formatLabel(p.media_type)+' · ❤ '+(p.like_count||0)+' · 💬 '+(p.comments_count||0)+' · <b>'+fmtPct(p._rate||0)+'</b></div></div></div>';
     }).join('') : '<div class="empty">Aucune publication trouvée.</div>';
   }
+  $all('#report-sort .rsort-chip').forEach(function(c){ c.addEventListener('click', function(){
+    reportSort=c.getAttribute('data-sort');
+    $all('#report-sort .rsort-chip').forEach(function(x){ x.classList.toggle('on', x===c); });
+    renderReportPosts();
+  }); });
 
   /* ============ MESSAGE SOCIAL ============ */
   var msg = { net:null, convs:[], active:null, timer:null, selected:{} };
@@ -2057,34 +2249,17 @@
   $('#msg-logout-btn').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
 
   $all('#msg-side .mnav').forEach(function(n){ n.addEventListener('click', function(){ selectMsgNet(n.getAttribute('data-mnet')); }); });
-  $('#grp-toggle').addEventListener('click', function(){ var g=$('#group-bar'); var open=g.style.display==='none'; g.style.display=open?'flex':'none'; this.classList.toggle('on', open); });
   $('#sel-all').addEventListener('change', function(){ msg.selected={}; if(this.checked) msg.convs.forEach(function(c){ msg.selected[c.id]=true; }); renderConvList(); });
   function lastMineTs(c){ var t=0; (c.messages||[]).forEach(function(m){ if(m.from==='me' && m.ts){ var d=+new Date(m.ts); if(d>t) t=d; } }); return t; }
   $all('.flt-chip').forEach(function(chip){ chip.addEventListener('click', function(){
     var h=+chip.getAttribute('data-flt');
     $all('.flt-chip').forEach(function(c){ c.classList.toggle('on', c===chip && h>0); });
     msg.selected={};
-    if(h>0){ var cut=Date.now()-h*3600*1000; msg.convs.forEach(function(c){ var t=lastMineTs(c); if(t && t>=cut) msg.selected[c.id]=true; }); if(!Object.keys(msg.selected).length) toast('Aucune conversation avec un message émis < '+h+' h.'); else { $('#group-bar').style.display='flex'; $('#grp-toggle').classList.add('on'); } }
+    if(h>0){ var cut=Date.now()-h*3600*1000; msg.convs.forEach(function(c){ var t=lastMineTs(c); if(t && t>=cut) msg.selected[c.id]=true; }); if(!Object.keys(msg.selected).length) toast('Aucune conversation avec un message émis < '+h+' h.'); }
     renderConvList();
   }); });
-  $('#grp-send').addEventListener('click', async function(){
-    var ids=Object.keys(msg.selected); var text=$('#grp-text').value.trim();
-    if(!ids.length){ toast('Cochez au moins une conversation.', true); return; }
-    if(!text){ toast('Écrivez un message.', true); return; }
-    var btn=this; btn.disabled=true; var okN=0, failN=0;
-    for(var i=0;i<ids.length;i++){ var c=msg.convs.filter(function(x){return x.id===ids[i];})[0]; if(!c) continue;
-      btn.textContent='Envoi… '+(i+1)+'/'+ids.length;
-      try{ var r=await fetch(SUPABASE_URL+'/functions/v1/social-reply', { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:msg.net, to:c.to, conversation_id:c.id, text:text, on_behalf_of:actingAs||undefined }) });
-        var d=await r.json(); if(r.ok && d.ok!==false) okN++; else failN++; }catch(e){ failN++; }
-      if(msg.net==='x') await new Promise(function(res){ setTimeout(res, 1500); }); // évite le rate-limit X
-    }
-    btn.disabled=false; $('#grp-text').value=''; msg.selected={}; renderConvList();
-    toast('Message groupé : '+okN+' envoyé(s)'+(failN?', '+failN+' échec(s)':''));
-  });
-
   function selectMsgNet(net){
     msg.net=net; msg.active=null; msg.selected={};
-    var gb=$('#group-bar'); if(gb) gb.style.display='none'; var gt=$('#grp-toggle'); if(gt) gt.classList.remove('on'); var gx=$('#grp-text'); if(gx) gx.value='';
     $all('#msg-side .mnav').forEach(function(n){ n.classList.toggle('active', n.getAttribute('data-mnet')===net); });
     $('#msg-title').textContent='Messages · '+net.charAt(0).toUpperCase()+net.slice(1);
     $('#msg-sub').textContent='Discussions de ce réseau.';
