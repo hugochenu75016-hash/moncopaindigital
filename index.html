@@ -32,6 +32,8 @@
 </script>
 <!-- Mode application sur mobile (sans installation) -->
 <style id="mcd-appweb">
+html:not([data-appweb]) #mcd-bottom{ display:none !important; }
+
 @media (max-width: 820px) {
   html[data-appweb] { -webkit-text-size-adjust:100%; overscroll-behavior:none;
     overflow-x:hidden; max-width:100%; touch-action:pan-y pinch-zoom; }
@@ -320,7 +322,8 @@
 <style>
   html, body { margin: 0; padding: 0; height: 100%; background: #6EC1F0; overflow: hidden; }
   body { overflow-x: hidden; }
-  #wrap { position: fixed; inset: 0; overflow: hidden; background: #6EC1F0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  #wrap { position: fixed; inset: 0; overflow: hidden; background: #6EC1F0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    z-index: 550; transition: background 1.05s cubic-bezier(.16,1,.3,1); }
   #scene { display: block; width: 100%; height: 100%; touch-action: pan-y; position: relative; z-index: 2; }
 
   /* ===== Titre animé au-dessus de la planète ===== */
@@ -1104,7 +1107,6 @@
   }
 </style>
 <div id="wrap">
-  <canvas id="scene"></canvas>
   <div id="title" style="display:none"></div>
   <a id="top-logo" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Mon Copain Digital" style="position:fixed; top:-8px; left:0; right:0; z-index:40; display:block; text-align:center;">
     <canvas id="logo-px" width="1100" height="390" role="img" aria-label="Mon Copain Digital"></canvas>
@@ -1311,6 +1313,21 @@
   </div>
 
 </div>
+
+<!-- Le monde (planète) vit dans son propre calque fixe, indépendant de #wrap,
+     pour pouvoir rétrécir et se garer dans la section suivante au scroll. -->
+<div id="scene-fly">
+  <canvas id="scene"></canvas>
+</div>
+<style>
+  #scene-fly { position: fixed; inset: 0; z-index: 600; pointer-events: none; }
+  #scene-fly canvas {
+    display: block; width: 100%; height: 100%; touch-action: pan-y;
+    transform-origin: 50% 50%;
+    transition: transform 1.1s cubic-bezier(.16,1,.3,1);
+    will-change: transform;
+  }
+</style>
 <script>
 function start() {
   if (!window.THREE) { setTimeout(start, 30); return; }
@@ -1331,6 +1348,7 @@ function start() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 200);
     let camDist = 44;
+    let camDistTarget = 44;   // rapproche la caméra (planète + décor visuellement plus grands)
 
     scene.add(new THREE.AmbientLight(0xfff2e0, 0.85));
     const sun = new THREE.DirectionalLight(0xffe6c2, 1.25);
@@ -1529,7 +1547,7 @@ function start() {
       const a = posOnSphere(lat, lon, 1), b = posOnSphere(cityCenter.lat, cityCenter.lon, 1);
       return a.angleTo(b);
     };
-    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.2], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17]];
+    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.2], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17], [90, 0, 0.26]];
     const inMonument = (la, lo) => {
       const a = posOnSphere(la, lo, 1);
       return clearZones.some(z => a.angleTo(posOnSphere(z[0], z[1], 1)) < z[2]);
@@ -2165,6 +2183,54 @@ function start() {
           }
         });
         grp.add(model);
+
+        // ----- Pose debout : capturée AVANT toute animation. Le GLB ne contient
+        // qu'un clip (la boucle assise) ; couper cette action laisse voir la pose
+        // neutre du squelette, qui se trouve être une pose debout naturelle — pas
+        // besoin d'un second modèle pour le personnage « en grand sur la planète ». -----
+        const bones = [];
+        model.traverse(o => { if (o.isBone) bones.push(o); });
+        const snapshotBones = () => bones.map(b => ({ p: b.position.clone(), q: b.quaternion.clone() }));
+        const standSnap = snapshotBones();
+        // le rig est au repos en T-pose (bras à l'horizontale) ; on les rabaisse
+        // le long du corps pour une posture debout naturelle plutôt qu'un T-pose
+        // squelette Meshy : les os gauche/droite n'ont pas des axes locaux
+        // symétriques, chaque bras a donc été recalé empiriquement sur son propre axe
+        (function lowerArms(){
+          const DROP = Math.PI / 2 * 0.86;
+          bones.forEach((b, i) => {
+            if (b.name === 'RightArm') standSnap[i].q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -DROP));
+            if (b.name === 'LeftArm')  standSnap[i].q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), DROP));
+          });
+        })();
+        let sitSnap = null;
+        let poseAnim = null;
+        // blendBones accepte un instantané de départ déjà capturé (startSnap) : c'est
+        // indispensable pour __charStand(), qui doit figer la VRAIE pose assise avant
+        // d'arrêter le clip — stopper une AnimationAction three.js remet ses os à leur
+        // pose de repos de façon SYNCHRONE, donc capturer l'instantané après stop()
+        // donnait déjà la pose debout comme point de départ (aucune transition visible).
+        // blendBones accepte un instantané de départ déjà capturé (startSnap) : c'est
+        // indispensable pour __charStand(), qui doit figer la VRAIE pose assise avant
+        // d'arrêter le clip — stopper une AnimationAction three.js remet ses os à leur
+        // pose de repos de façon SYNCHRONE, donc capturer l'instantané après stop()
+        // donnait déjà la pose debout comme point de départ (aucune transition visible).
+        function blendBones(target, duration, onDone, startSnap){
+          if (poseAnim) cancelAnimationFrame(poseAnim);
+          const start = startSnap || snapshotBones();
+          const t0 = performance.now();
+          (function step(){
+            const t = Math.min(1, (performance.now() - t0) / (duration * 1000));
+            const e = 1 - Math.pow(1 - t, 3);   // ease-out cubic, cohérent avec la page
+            bones.forEach((b, i) => {
+              b.position.lerpVectors(start[i].p, target[i].p, e);
+              b.quaternion.slerpQuaternions(start[i].q, target[i].q, e);
+            });
+            if (t < 1) { poseAnim = requestAnimationFrame(step); }
+            else { poseAnim = null; if (onDone) onDone(); }
+          })();
+        }
+
         const CT = window.__chairT = { scale: 13.5, z: -1.0, y: 0, rotY: 0 };
         const apply = () => {
           grp.scale.setScalar(CT.scale);
@@ -2332,6 +2398,23 @@ function start() {
           window.__seat = seatGrp;
           window.__seatTune = (o) => { Object.assign(ST, o); applySeat(); };
           window.__chairShow = () => { seatGrp.visible = true; };
+          // rétrécit/regrossit le bureau+chaise en douceur (0 = caché, 1 = taille normale),
+          // pour disparaître/reparaître au même rythme que le reste de la transition
+          let seatAnim = null, seatFactor = 1;
+          window.__seatMorph = (target, duration) => {
+            if (seatAnim) cancelAnimationFrame(seatAnim);
+            const start = seatFactor;
+            const t0 = performance.now();
+            if (target > 0) seatGrp.visible = true;
+            (function step(){
+              const t = Math.min(1, (performance.now() - t0) / (duration * 1000));
+              const e = 1 - Math.pow(1 - t, 3);
+              seatFactor = start + (target - start) * e;
+              seatGrp.scale.setScalar(ST.scale * seatFactor);
+              if (t < 1) { seatAnim = requestAnimationFrame(step); }
+              else { seatAnim = null; if (target <= 0) seatGrp.visible = false; }
+            })();
+          };
           // repère de l'os Hips pour garder la chaise pile sous le bassin
           let hipsBone = null; model.traverse(o => { if (o.isSkinnedMesh){ o.skeleton.bones.forEach(b => { if (b.name === 'Hips') hipsBone = b; }); } });
           const _hp = new THREE.Vector3();
@@ -2414,6 +2497,9 @@ function start() {
             idle.reset(); idle.setLoop(THREE.LoopRepeat); idle.clampWhenFinished = false;
             idle.fadeIn(0.4).play();
             if (_sitAction) _sitAction.fadeOut(0.4);
+            // capture la pose assise une fois la boucle bien lancée, pour pouvoir y
+            // revenir en douceur si le personnage se relève puis se rassoit
+            if (!sitSnap) setTimeout(() => { sitSnap = snapshotBones(); }, 600);
           } else {
             phase = 'waitsitidle';   // garde la pose assise figée jusqu'au chargement
           }
@@ -2443,6 +2529,75 @@ function start() {
           else { phase = 'waitsitidle'; }          // on attend le clip (reste caché, pas de T-pose)
         };
 
+        // ----- Debout en grand sur la planète, sans bureau — appelé pendant la
+        // transition vers la section suivante. __charSit() fait l'inverse au retour. -----
+        var standingBig = false;
+        var SIT_CT  = { scale: 13.5, z: -1.0, y: 0,    rotY: 0 };
+        var STAND_CT = { scale: 13.5 * 3, z: 0.4, y: 0, rotY: 0 };   // personnage : 3x sa taille assise
+        var CAM_DIST_SIT = 44, CAM_DIST_STAND = 44;                  // planète remise à sa taille normale (x2 plus petite qu'avant)
+        // filet de sécurité : quelle que soit la fenêtre (fov/aspect), s'assure que
+        // sa tête reste sous le bord haut du cadre en réduisant l'échelle si besoin,
+        // plutôt que de se fier à une valeur fixe qui peut déborder selon l'écran
+        function fitStandScale(target){
+          const heightPerScale = 1 / (H * MARGIN);   // hauteur du modèle (repère monde) par unité de scale
+          const feetY = R + (target.y || 0);
+          const headNdcY = (s) => {
+            const p = new THREE.Vector3(0, feetY + heightPerScale * s, target.z || 0);
+            p.project(camera);
+            return p.y;
+          };
+          // grosse marge : pendant le blend, certains os (jambes) peuvent redresser
+          // plus vite que d'autres (bras/dos), rendant la silhouette transitoirement
+          // plus grande que la pose finale — il faut de la place pour ce dépassement
+          const MAX_NDC_Y = 0.32;
+          if (headNdcY(target.scale) <= MAX_NDC_Y) return target.scale;
+          // la borne basse doit être GARANTIE sûre, sinon la dichotomie ne peut
+          // jamais descendre en dessous (c'était le bug : scale*0.4 n'était pas
+          // toujours sous le seuil, donc la recherche retournait une valeur non filtrée)
+          let lo = 0.01, hi = target.scale;
+          for (let i = 0; i < 30; i++) {
+            const mid = (lo + hi) / 2;
+            if (headNdcY(mid) > MAX_NDC_Y) hi = mid; else lo = mid;
+          }
+          return lo;
+        }
+        window.__charStand = function(){
+          if (standingBig) return;
+          standingBig = true;
+          // la planète tourne en continu (autoSpin) : on la fige pendant qu'il est
+          // debout, et on compense la rotation déjà accumulée pour qu'il fasse
+          // toujours face à nous, quel que soit le moment où l'on scrolle
+          if (typeof autoSpin !== 'undefined') autoSpin = false;
+          STAND_CT.rotY = -world.rotation.y;
+          const sittingSnap = snapshotBones();   // la vraie pose assise, AVANT de couper le clip
+          window.__mixerActive = false;   // le mixer ne doit plus toucher aux os pendant le blend manuel
+          const idle = sitIdleClip ? mixer.clipAction(sitIdleClip) : null;
+          if (idle) idle.stop();
+          blendBones(standSnap, 0.85, undefined, sittingSnap);
+          camDistTarget = CAM_DIST_STAND;
+          if (window.__seatMorph) window.__seatMorph(0, 0.7);
+        };
+        // (le filet anti-rognage est réévalué à chaque frame dans __charTick tant
+        // qu'il est debout — ça couvre aussi bien le redimensionnement de fenêtre
+        // que le zoom de caméra progressif, pas besoin d'un listener resize séparé)
+        window.__charSit = function(){
+          if (!standingBig) return;
+          standingBig = false;
+          // la rotation de la planète étant restée figée pendant qu'il était debout,
+          // rotY=0 restaure exactement son orientation d'origine face au bureau
+          if (typeof autoSpin !== 'undefined') autoSpin = true;
+          camDistTarget = CAM_DIST_SIT;
+          if (window.__chairTune) window.__chairTune(SIT_CT);
+          if (window.__seatMorph) window.__seatMorph(1, 0.7);
+          blendBones(sitSnap || standSnap, 0.85, function(){
+            if (!sitIdleClip) return;
+            const idle = mixer.clipAction(sitIdleClip);
+            idle.reset(); idle.setLoop(THREE.LoopRepeat); idle.clampWhenFinished = false;
+            idle.fadeIn(0.3).play();
+            window.__mixerActive = true;   // le mixer reprend la main sur les os
+          });
+        };
+
         // tick appelé chaque frame par animate()
         window.__charTick = function(now){
           if (phase === 'waitsitidle'){
@@ -2450,6 +2605,12 @@ function start() {
           }
           if (phase === 'sitidle' || phase === 'waitsitidle'){ if (window.__seatFollow) window.__seatFollow(); }
           if (phase !== 'idle'){ pinHips(); }   // épingle le bassin au centre (anti-dérive)
+          // la caméra zoome sur plusieurs frames (camDist anime) : on réévalue le
+          // filet anti-rognage à chaque frame tant qu'il est debout, pas une seule
+          // fois, sinon il resterait calé sur le zoom d'avant le mouvement
+          if (standingBig && window.__chairTune) {
+            window.__chairTune(Object.assign({}, STAND_CT, { scale: fitStandScale(STAND_CT) }));
+          }
         };
 
         // modèle prêt : on ouvre les portes (et le perso est déjà assis)
@@ -2753,7 +2914,7 @@ function start() {
     const animate = () => {
       requestAnimationFrame(animate);
       var __now = performance.now();
-      if (window.__charMixer){ window.__charMixer.update(Math.min(0.05, (window.__lastT ? (__now - window.__lastT) : 16) / 1000)); }
+      if (window.__charMixer && window.__mixerActive !== false){ window.__charMixer.update(Math.min(0.05, (window.__lastT ? (__now - window.__lastT) : 16) / 1000)); }
       window.__lastT = __now;
       if (window.__charTick){ window.__charTick(__now); }
       if (autoSpin) tRotY += 0.0016;
@@ -2761,6 +2922,7 @@ function start() {
       rotX += (tRotX - rotX) * 0.08;
       world.rotation.y = rotY;
       world.rotation.x = rotX;
+      camDist += (camDistTarget - camDist) * 0.06;
       const VY = 10;
       camera.position.set(0, camDist * 0.42 + VY, camDist * 0.9);
       camera.lookAt(0, R * 0.32 + VY, 0);
@@ -2992,6 +3154,28 @@ start();
 </style>
 <div id="scroll-hint" aria-hidden="true">scroll for more <span class="sc-chev">▼</span></div>
 <!-- ===== Fin indice de défilement ===== -->
+
+<!-- ===== Section 2 : la planète rétrécit et vient se garer en bas, centrée ===== -->
+<style id="mcd-section2-style">
+  #mcd-section2 {
+    position: fixed; inset: 0; z-index: 500; pointer-events: none;
+    background: #6EC1F0;   /* même fond que l'écran principal */
+    opacity: 0; transition: opacity 1.1s cubic-bezier(.16,1,.3,1);
+  }
+  #mcd-section2.show { opacity: 1; pointer-events: auto; }
+  /* Emplacement d'arrivée de la planète : seule sa largeur sert de repère au JS
+     (dockPlanet() calcule la position pour qu'elle touche pile le bas de la page,
+     toujours centrée horizontalement). Rien n'est dessiné ici. */
+  #planet-dock {
+    position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+    width: min(96vw, 1800px); height: 1px; pointer-events: none;
+  }
+</style>
+<section id="mcd-section2" aria-hidden="true">
+  <div id="planet-dock" aria-hidden="true"></div>
+</section>
+<!-- ===== Fin section 2 ===== -->
+
 <!-- ===== Section pied de page (glisse depuis le bas) ===== -->
 <style>
   #footer-sheet{
@@ -3300,54 +3484,111 @@ start();
 <script>
 (function(){
   if (window.__fallScroll) return; window.__fallScroll = true;
-  // éléments qui tombent dans le vide (tout SAUF les boutons fixes : rail insta/linkedin/bulle + jour-nuit)
+  // éléments qui s'effacent en douceur au scroll et reviennent à la remontée.
+  // La navbar (#mcd-nav) et la bulle réseaux sociaux (#social-rail) restent
+  // toujours visibles et cliquables, à aucun moment de la page.
   var specs = [
-    { sel: '#confetti',  rot: 0,   dx: 0   },
-    { sel: '#side-decor',rot: 0,   dx: 0   },
-    { sel: '#title',     rot: -12, dx: -30 },
-    { sel: '#top-logo',  rot: -8,  dx: 0   },
-    { sel: '#liquid-sun',rot: 24,  dx: -40 },
-    { sel: '#mcd-right', rot: -16, dx: 70  },
-    { sel: '#mcd-left',  rot: 16,  dx: -70 },
-    { sel: '#mcd-pill',  rot: 0,   dx: 0   },
-    { sel: '#enter-wrap',rot: 8,   dx: 0   },
-    { sel: '#social-rail',rot: 12, dx: 46  },
-    { sel: '#scroll-hint',rot: 6,  dx: 30  },
-    { sel: '#scene',     rot: 5,   dx: 0   }
+    '#confetti', '#side-decor', '#title', '#top-logo',
+    '#liquid-sun', '#enter-wrap', '#scroll-hint'
   ];
-  var items = specs.map(function(s){
-    var el = document.querySelector(s.sel);
+  var EASE = 'cubic-bezier(.16,1,.3,1)';   // ease-out-expo : fluidité maximale
+  var items = specs.map(function(sel){
+    var el = document.querySelector(sel);
     if (el) {
-      el.style.willChange = 'transform, opacity';
-      el.style.transition = 'transform 1.15s cubic-bezier(.55,0,.9,.45), opacity .9s ease-in';
+      el.style.willChange = 'opacity';
+      el.style.transition = 'opacity 1.1s ' + EASE;
     }
-    return { el: el, rot: s.rot, dx: s.dx };
-  }).filter(function(o){ return o.el; });
+    return el;
+  }).filter(Boolean);
 
-  var state = 'hero';   // 'hero' | 'section2'
+  // trois écrans : hero -> section2 (la planète se gare en bas à droite) -> pied de page
+  var ORDER = ['hero', 'mid', 'footer'];
+  var state = 'hero';
   var locked = false;
   var footer = document.getElementById('footer-sheet');
+  var section2 = document.getElementById('mcd-section2');
+  var fly = document.getElementById('scene-fly');
+  var dock = document.getElementById('planet-dock');
+  var wrap = document.getElementById('wrap');
 
   function fall(){
-    var vh = window.innerHeight;
-    items.forEach(function(it, i){
-      it.el.style.transitionDelay = (i * 0.06) + 's';
-      it.el.style.transform = 'translate3d(' + it.dx + 'px,' + (vh * 1.7) + 'px,0) rotate(' + it.rot + 'deg)';
-      it.el.style.opacity = 0;
-      it.el.style.pointerEvents = 'none';
+    items.forEach(function(el, i){
+      el.style.transitionDelay = (i * 0.025) + 's';
+      el.style.opacity = 0;
+      el.style.pointerEvents = 'none';
     });
   }
   function rise(){
-    items.forEach(function(it, i){
-      it.el.style.transitionDelay = ((items.length - 1 - i) * 0.04) + 's';
-      it.el.style.transform = '';
-      it.el.style.opacity = '';
-      it.el.style.pointerEvents = '';
+    items.forEach(function(el, i){
+      el.style.transitionDelay = ((items.length - 1 - i) * 0.02) + 's';
+      el.style.opacity = '';
+      el.style.pointerEvents = '';
     });
   }
-  function toSection2(){ if (state !== 'hero' || locked) return; locked = true; state = 'section2'; fall(); if (footer) footer.classList.add('show'); setTimeout(function(){ locked = false; }, 1500); }
-  function toHero(){ if (state !== 'section2' || locked) return; locked = true; state = 'hero'; rise(); if (footer) footer.classList.remove('show'); setTimeout(function(){ locked = false; }, 1500); }
-  window.mcdToHero = toHero;
+
+  // rétrécit la planète (le canvas #scene dans son calque #scene-fly) et la gare
+  // sur #planet-dock, le repère invisible en bas à droite de la section 2
+  function dockPlanet(){
+    var canvas = fly && fly.firstElementChild;
+    if (!canvas || !dock) return;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    // #planet-dock ne sert plus qu'à donner la largeur cible : le monde plein écran
+    // n'est pas carré, donc caler son centre sur le centre du dock (comme avant)
+    // laissait un espace sous la planète. On calcule plutôt dy analytiquement pour
+    // que le bord bas du monde rétréci touche pile le bas de la page, en restant
+    // centré horizontalement (dx = 0, le canvas est déjà centré sur la largeur).
+    var scale = dock.getBoundingClientRect().width / vw;
+    var dx = 0;
+    var dy = (vh / 2) * (1 - scale);
+    canvas.style.transform = 'translate(' + dx + 'px,' + dy.toFixed(1) + 'px) scale(' + scale.toFixed(4) + ')';
+  }
+  function undockPlanet(){
+    var canvas = fly && fly.firstElementChild;
+    if (canvas) canvas.style.transform = '';
+  }
+
+  function applyState(){
+    // #wrap porte le ciel du hero en fond plein écran ; une fois parti, on l'efface
+    // (transparent) pour laisser voir la section 2 derrière — seules la navbar et
+    // la bulle réseaux sociaux, restées dans #wrap, restent visibles par-dessus.
+    if (wrap) wrap.style.background = (state === 'hero') ? '' : 'transparent';
+    if (state === 'hero') {
+      rise();
+      undockPlanet();
+      if (window.__charSit) window.__charSit();
+      if (section2) section2.classList.remove('show');
+      if (footer) footer.classList.remove('show');
+    } else if (state === 'mid') {
+      fall();
+      dockPlanet();
+      if (window.__charStand) window.__charStand();
+      if (section2) section2.classList.add('show');
+      if (footer) footer.classList.remove('show');
+    } else if (state === 'footer') {
+      fall();
+      dockPlanet();
+      if (window.__charStand) window.__charStand();
+      if (section2) section2.classList.add('show');
+      if (footer) footer.classList.add('show');
+    }
+  }
+
+  function step(dir){
+    if (locked) return;
+    var i = ORDER.indexOf(state) + dir;
+    if (i < 0 || i >= ORDER.length) return;
+    locked = true;
+    state = ORDER[i];
+    applyState();
+    setTimeout(function(){ locked = false; }, 1500);
+  }
+  function toSection2(){ step(1); }
+  function toHero(){ step(-1); }
+  window.mcdToHero = function(){
+    if (state === 'hero') return;
+    state = 'hero';
+    applyState();
+  };
 
   window.addEventListener('wheel', function(e){
     if (Math.abs(e.deltaY) < 8) return;
@@ -3368,6 +3609,8 @@ start();
     if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') toSection2();
     else if (e.key === 'ArrowUp' || e.key === 'PageUp') toHero();
   });
+
+  window.addEventListener('resize', function(){ if (state !== 'hero') dockPlanet(); });
 })();
 </script>
 
