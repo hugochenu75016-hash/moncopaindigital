@@ -1108,9 +1108,9 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
 </style>
 <div id="wrap">
   <div id="title" style="display:none"></div>
-  <a id="top-logo" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Mon Copain Digital" style="position:fixed; top:-8px; left:0; right:0; z-index:40; display:block; text-align:center;">
+  <div id="top-logo" aria-label="Mon Copain Digital" style="position:fixed; top:-8px; left:0; right:0; z-index:40; display:block; text-align:center; pointer-events:none;">
     <canvas id="logo-px" width="1100" height="390" role="img" aria-label="Mon Copain Digital"></canvas>
-  </a>
+  </div>
   <script>
   (function(){
     var cv=document.getElementById('logo-px'); if(!cv) return;
@@ -4230,9 +4230,11 @@ start();
   html[data-appweb] .mcd-chat {
     top: calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
   html[data-appweb] .mcd-lanceur { width: 38px; height: 38px; }   /* -30 % sur mobile */
-  /* La fenetre ne doit pas passer sous la barre de navigation du bas. */
+  /* MOBILE : la conversation reste ancrée sous le lanceur, mais ne remplit pas l'écran. */
   html[data-appweb] .mcd-fenetre {
-    max-height: calc(100vh - 21vw - 150px - env(safe-area-inset-bottom, 0px)); }
+    height: min(52vh, 420px);
+    max-height: min(52vh, calc(100vh - 21vw - 150px - env(safe-area-inset-bottom, 0px)));
+    border-radius: 26px; overflow: hidden; }
   /* Marshall se cache pendant l'ouverture des portes, puis apparait en douceur. */
   .mcd-chat { opacity: 0; transition: opacity .25s ease; }
   .mcd-chat.mcd-chat-pret { opacity: 1; }
