@@ -1233,24 +1233,6 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
     </div>
   </header>
 
-  <nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
-    <a class="accueil is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
-    <button type="button" class="qui" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-qui');" aria-label="Qui suis-je" aria-haspopup="true"><img src="boutonquisuisje.png" alt="" aria-hidden="true"></button>
-    <button type="button" class="offres" onclick="this.parentNode.classList.remove('pop-qui');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-open');" aria-label="Nos offres" aria-haspopup="true"><img src="boutonnosoffresmob.png" alt="" aria-hidden="true"></button>
-    <button type="button" class="bulle" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-qui');this.parentNode.classList.toggle('pop-bulle');" aria-label="Ma bulle" aria-haspopup="true"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></button>
-    <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"></path></svg>RDV</a>
-    <div id="mcd-bulle-pop" role="menu" aria-label="Ma bulle">
-      <a href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" role="menuitem"><img class="th" src="boutonespacelog-trim.png" alt="" aria-hidden="true"><span><b>Ma Bulle</b><em>Votre espace client</em></span><span class="chev">&#8250;</span></a>
-    </div>
-    <div id="mcd-qui-pop" role="menu" aria-label="Qui suis-je">
-      <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')" role="menuitem"><img class="th" src="boutonquisuisje.png" alt="" aria-hidden="true"><span><b>Qui suis-je</b><em>Mon parcours en trois minutes</em></span><span class="chev">&#8250;</span></a>
-      <a href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')" role="menuitem"><img class="th" src="boutonmessagerie.png" alt="" aria-hidden="true"><span><b>Nous contacter</b><em>Parlons de votre projet</em></span><span class="chev">&#8250;</span></a>
-    </div>
-    <div id="mcd-offres-pop" role="menu" aria-label="Nos offres">
-      <a href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')" role="menuitem"><img class="th" src="boutonnosoffresmob.png" alt="" aria-hidden="true"><span><b>Nos offres</b><em>Formules et tarifs</em></span><span class="chev">&#8250;</span></a>
-      <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><img class="th studio" src="boutonstudiosocialmob.png" alt="" aria-hidden="true"><span><b>Social Studio</b><em>Vos réseaux clé en main</em></span><span class="tag">Nouveau</span></a>
-    </div>
-  </nav>
 
   <script>
   (function(){
@@ -1369,7 +1351,12 @@ function start() {
 
     const world = new THREE.Group();
     scene.add(world);
-    world.scale.setScalar(0.92);   // réduit légèrement la planète + le personnage (ensemble, il reste assis)
+    const WORLD_S = 0.92;          // échelle de base : planète + personnage ensemble (il reste assis)
+    // En section 2, la planète rétrécit (worldK < 1) tandis que le personnage est
+    // agrandi d'autant (STAND_CT.scale / worldK) : lui garde sa taille à l'écran.
+    let worldK = 1, worldKTarget = 1;
+    world.scale.setScalar(WORLD_S);
+    window.__planetShrink = (k) => { worldKTarget = k; };
 
     const UP = new THREE.Vector3(0, 1, 0);
     const tmpQ = new THREE.Quaternion();
@@ -2199,7 +2186,13 @@ function start() {
         (function lowerArms(){
           const DROP = Math.PI / 2 * 0.86;
           bones.forEach((b, i) => {
-            if (b.name === 'RightArm') standSnap[i].q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -DROP));
+            if (b.name === 'RightArm'){
+              standSnap[i].q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -DROP));
+              // recalage du bras droit : l'axe local de cet os n'est pas le miroir du gauche,
+              // cette rotation place la main exactement en miroir de la main gauche
+              standSnap[i].q.multiply(new THREE.Quaternion().setFromAxisAngle(
+                new THREE.Vector3(0.933, -0.302, 0.198).normalize(), 1.484));
+            }
             if (b.name === 'LeftArm')  standSnap[i].q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), DROP));
           });
         })();
@@ -2234,9 +2227,9 @@ function start() {
         const CT = window.__chairT = { scale: 13.5, z: -1.0, y: 0, rotY: 0 };
         const apply = () => {
           grp.scale.setScalar(CT.scale);
-          dropGroup(grp, 90, 0, CT.rotY);
-          grp.position.z += CT.z;
-          grp.position.y += CT.y;
+          dropGroup(grp, CT.lat === undefined ? 90 : CT.lat, CT.lon || 0, CT.rotY);
+          if (CT.z) grp.translateZ(CT.z);
+          if (CT.y) grp.translateY(CT.y);
         };
         apply();
         window.__chairTune = (o) => { Object.assign(CT, o); apply(); };
@@ -2534,6 +2527,8 @@ function start() {
         var standingBig = false;
         var SIT_CT  = { scale: 13.5, z: -1.0, y: 0,    rotY: 0 };
         var STAND_CT = { scale: 13.5 * 3, z: 0.4, y: 0, rotY: 0 };   // personnage : 3x sa taille assise
+        var STAND_SHRINK = 0.65;   // réduction de 35 % du personnage debout (après le filet anti-rognage)
+        var PLANET_K_STAND = 0.62;   // planète rétrécie en section 2 (le perso est compensé)
         var CAM_DIST_SIT = 44, CAM_DIST_STAND = 44;                  // planète remise à sa taille normale (x2 plus petite qu'avant)
         // filet de sécurité : quelle que soit la fenêtre (fov/aspect), s'assure que
         // sa tête reste sous le bord haut du cadre en réduisant l'échelle si besoin,
@@ -2542,7 +2537,9 @@ function start() {
           const heightPerScale = 1 / (H * MARGIN);   // hauteur du modèle (repère monde) par unité de scale
           const feetY = R + (target.y || 0);
           const headNdcY = (s) => {
-            const p = new THREE.Vector3(0, feetY + heightPerScale * s, target.z || 0);
+            // en coordonnées monde : le groupe est mis à l'échelle par WORLD_S * worldK
+            const p = new THREE.Vector3(0, feetY + heightPerScale * s, target.z || 0)
+              .multiplyScalar(WORLD_S * worldK);
             p.project(camera);
             return p.y;
           };
@@ -2561,34 +2558,141 @@ function start() {
           }
           return lo;
         }
+        // ----- Section 2 : il reste assis sur la planète, la boucle « respiration »
+        // du GLB continue de tourner ; on ajoute seulement un regard qui se lève
+        // doucement vers le texte, en post-traitement des os après le mixer. -----
+        var LOOK = { head: 0.30, neck: 0.18, spine: 0.09, sway: 0.055, period: 7.5 };
+        window.__lookTune = (o) => { Object.assign(LOOK, o); };
+        var lookAmt = 0, lookTarget = 0;
+        const bIdx = {}; bones.forEach((b, i) => { bIdx[b.name] = i; });
+        const AXX = new THREE.Vector3(1, 0, 0), AXY = new THREE.Vector3(0, 1, 0), AXZ = new THREE.Vector3(0, 0, 1);
+        const _wq = new THREE.Quaternion();
+        function addRot(name, axis, ang){
+          const i = bIdx[name]; if (i === undefined || !ang) return;
+          bones[i].quaternion.multiply(_wq.setFromAxisAngle(axis, ang));
+        }
+        function lookPose(now){
+          if (window.__mixerActive === false) return;   // pose figée : pas de cumul de rotations
+          lookAmt += (lookTarget - lookAmt) * 0.05;             // fondu doux à l'aller comme au retour
+          if (lookAmt < 0.001) return;
+          const t = now / 1000 / LOOK.period * Math.PI * 2;
+          const drift = Math.sin(t) * LOOK.sway;                // léger va-et-vient du regard
+          addRot('Spine2', AXX, -LOOK.spine * lookAmt);
+          addRot('Neck',   AXX, -LOOK.neck * lookAmt);
+          addRot('Head',   AXX, -LOOK.head * lookAmt);
+          addRot('Head',   AXY,  drift * lookAmt);
+          addRot('Neck',   AXY,  drift * 0.5 * lookAmt);
+        }
+
+        // ================= Section 2 : 10 animations au choix =================
+        // Chaque preset reçoit le temps (s) et un contexte remis à zéro à chaque frame :
+        //   lat/lon  position sur la sphère (90 = pôle)      y/z  décalage local
+        //   yaw      orientation propre                       faceCam  reste face à nous
+        //   spin     vitesse de rotation de la planète        cam  distance caméra
+        //   tiltZ/tiltX  inclinaison de la planète            look  regard vers le texte (0..1)
+        var S2_DEF = { lat: 90, lon: 0, y: 0, z: 0, yaw: 0, faceCam: true,
+                       spin: 0, cam: 0, tiltZ: 0, tiltX: 0, look: 1 };
+        var S2 = Object.assign({}, S2_DEF);
+        const TAU2 = Math.PI * 2;
+        const S2_PRESETS = {
+          // 1 — Il reste assis, respire, la planète tourne à peine, le regard monte vers le texte.
+          'respire': (t, c) => { c.spin = SPIN_SLOW; },
+
+          // 2 — Orbite : il glisse lentement autour de la planète en restant tourné vers nous.
+          'orbite': (t, c) => { c.lat = 66; c.lon = (t * 11) % 360; c.spin = 0; },
+
+          // 3 — Lévitation : assis en suspension au-dessus du pôle, la planète tourne dessous.
+          'levite': (t, c) => {
+            c.y = 1.15 + Math.sin(t * TAU2 / 4.5) * 0.35;
+            c.yaw = Math.sin(t * TAU2 / 9) * 0.35;
+            c.spin = SPIN_SLOW * 2.2;
+          },
+
+          // 4 — La planète tourne franchement, lui reste immobile face à nous au sommet.
+          'contre-rotation': (t, c) => { c.spin = 0.0042; },
+
+          // 5 — Carrousel : il tourne AVEC la planète, s'éloigne de trois quarts puis revient.
+          'carrousel': (t, c) => { c.spin = 0.0022; c.faceCam = false; },
+
+          // 6 — Bercé : bascule d'épaules et de tête, comme s'il écoutait le texte.
+          'berce': (t, c) => {
+            c.spin = SPIN_SLOW * 0.5;
+            const s = Math.sin(t * TAU2 / 3.4);
+            addRot('Spine1', AXZ, s * 0.055);
+            addRot('Spine2', AXZ, s * 0.045);
+            addRot('Head',   AXZ, -s * 0.075);
+            addRot('Neck',   AXY, Math.sin(t * TAU2 / 5.1) * 0.10);
+          },
+
+          // 7 — Salut : toutes les 7 s il lève la main et fait trois signes.
+          'salut': (t, c) => {
+            c.spin = SPIN_SLOW;
+            const p = (t % 7) / 7;
+            if (p > 0.62) return;
+            const e = Math.sin(Math.min(1, p / 0.62) * Math.PI);          // montée / descente du bras
+            addRot('RightArm',     AXZ, -1.15 * e);
+            addRot('RightForeArm', AXZ, -0.55 * e);
+            addRot('RightForeArm', AXY, Math.sin(p * TAU2 * 3) * 0.45 * e);
+            addRot('Head', AXY, 0.10 * e);
+          },
+
+          // 8 — Respiration de caméra : lent va-et-vient de l'objectif, planète très lente.
+          'camera': (t, c) => {
+            c.spin = SPIN_SLOW * 0.7;
+            c.cam = CAM_DIST_STAND + Math.sin(t * TAU2 / 12) * 5.5;
+          },
+
+          // 9 — Il regarde autour de lui : la tête balaie lentement, la planète s'incline à peine.
+          'regarde-autour': (t, c) => {
+            c.spin = 0;
+            c.tiltZ = Math.sin(t * TAU2 / 14) * 0.05;
+            addRot('Head', AXY, Math.sin(t * TAU2 / 6.5) * 0.42);
+            addRot('Neck', AXY, Math.sin(t * TAU2 / 6.5) * 0.20);
+            addRot('Head', AXX, Math.sin(t * TAU2 / 4.2) * 0.10);
+          },
+
+          // 10 — Houle : la planète tangue doucement comme une bouée, il suit le mouvement.
+          'houle': (t, c) => {
+            c.spin = SPIN_SLOW * 0.4;
+            c.tiltZ = Math.sin(t * TAU2 / 6) * 0.075;
+            c.tiltX = Math.cos(t * TAU2 / 7.5) * 0.055;
+            c.faceCam = false;
+            addRot('Spine', AXZ, Math.sin(t * TAU2 / 6 + 0.6) * 0.05);
+          }
+        };
+        var s2Name = 'contre-rotation';
+        window.__s2Anim = (n) => { if (S2_PRESETS[n]) s2Name = n; return s2Name; };
+        window.__s2List = () => Object.keys(S2_PRESETS);
+
         window.__charStand = function(){
           if (standingBig) return;
           standingBig = true;
-          // la planète tourne en continu (autoSpin) : on la fige pendant qu'il est
-          // debout, et on compense la rotation déjà accumulée pour qu'il fasse
-          // toujours face à nous, quel que soit le moment où l'on scrolle
-          if (typeof autoSpin !== 'undefined') autoSpin = false;
-          STAND_CT.rotY = -world.rotation.y;
-          const sittingSnap = snapshotBones();   // la vraie pose assise, AVANT de couper le clip
-          window.__mixerActive = false;   // le mixer ne doit plus toucher aux os pendant le blend manuel
-          const idle = sitIdleClip ? mixer.clipAction(sitIdleClip) : null;
-          if (idle) idle.stop();
+          // Section 2 : il reste assis sur la planète. La boucle assise du GLB continue
+          // (respiration), la planète tourne très lentement et il garde la face vers nous,
+          // le regard levé vers le texte. Aucun blend de pose : la transition est fluide.
+          if (typeof autoSpin !== 'undefined') autoSpin = true;
+          spinRate = SPIN_SLOW;
+          lookTarget = 0;
+          // il quitte la pose assise pour se tenir droit, debout sur la planète
+          const sittingSnap = snapshotBones();   // vraie pose assise AVANT de couper le clip
+          window.__mixerActive = false;
+          const idleA = sitIdleClip ? mixer.clipAction(sitIdleClip) : null;
+          if (idleA) idleA.stop();
           blendBones(standSnap, 0.85, undefined, sittingSnap);
           camDistTarget = CAM_DIST_STAND;
-          if (window.__seatMorph) window.__seatMorph(0, 0.7);
+          if (window.__seatMorph) window.__seatMorph(0, 0.9);   // bureau + chaise s'effacent
+          window.__planetShrink(PLANET_K_STAND);
         };
-        // (le filet anti-rognage est réévalué à chaque frame dans __charTick tant
-        // qu'il est debout — ça couvre aussi bien le redimensionnement de fenêtre
-        // que le zoom de caméra progressif, pas besoin d'un listener resize séparé)
         window.__charSit = function(){
           if (!standingBig) return;
           standingBig = false;
-          // la rotation de la planète étant restée figée pendant qu'il était debout,
-          // rotY=0 restaure exactement son orientation d'origine face au bureau
+          lookTarget = 0;
+          spinRate = SPIN_BASE;
           if (typeof autoSpin !== 'undefined') autoSpin = true;
           camDistTarget = CAM_DIST_SIT;
+          window.__planetShrink(1);
           if (window.__chairTune) window.__chairTune(SIT_CT);
-          if (window.__seatMorph) window.__seatMorph(1, 0.7);
+          if (window.__seatMorph) window.__seatMorph(1, 0.9);
           blendBones(sitSnap || standSnap, 0.85, function(){
             if (!sitIdleClip) return;
             const idle = mixer.clipAction(sitIdleClip);
@@ -2605,11 +2709,13 @@ function start() {
           }
           if (phase === 'sitidle' || phase === 'waitsitidle'){ if (window.__seatFollow) window.__seatFollow(); }
           if (phase !== 'idle'){ pinHips(); }   // épingle le bassin au centre (anti-dérive)
-          // la caméra zoome sur plusieurs frames (camDist anime) : on réévalue le
-          // filet anti-rognage à chaque frame tant qu'il est debout, pas une seule
-          // fois, sinon il resterait calé sur le zoom d'avant le mouvement
+          lookPose(now);
+          // échelle : il grandit à l'écran en section 2 (la planète, elle, rétrécit),
+          // réévaluée à chaque frame car la caméra zoome sur plusieurs frames
           if (standingBig && window.__chairTune) {
-            window.__chairTune(Object.assign({}, STAND_CT, { scale: fitStandScale(STAND_CT) }));
+            const st = Object.assign({}, STAND_CT, { rotY: -world.rotation.y });
+            st.scale = fitStandScale(Object.assign({}, st, { scale: STAND_CT.scale / worldK })) * STAND_SHRINK;
+            window.__chairTune(st);
           }
         };
 
@@ -2901,6 +3007,9 @@ function start() {
     })();
 
     let rotY = 0.6, rotX = 0.0, tRotY = 0.6, tRotX = 0.0;   // vue de 3/4 (diagonale opposée) au lancement
+    let rotZ = 0.0, tRotZ = 0.0;   // réserve : inclinaison de la planète
+    const SPIN_BASE = 0.0016, SPIN_SLOW = 0.00045;   // rotation normale / très lente (section 2)
+    let spinRate = SPIN_BASE;
     let autoSpin = false;   // la planète ne tourne qu'une fois le perso installé (boucle assise)
 
     const resize = () => {
@@ -2917,9 +3026,13 @@ function start() {
       if (window.__charMixer && window.__mixerActive !== false){ window.__charMixer.update(Math.min(0.05, (window.__lastT ? (__now - window.__lastT) : 16) / 1000)); }
       window.__lastT = __now;
       if (window.__charTick){ window.__charTick(__now); }
-      if (autoSpin) tRotY += 0.0016;
+      if (autoSpin) tRotY += spinRate;
+      rotZ += (tRotZ - rotZ) * 0.08;
+      world.rotation.z = rotZ;
       rotY += (tRotY - rotY) * 0.08;
       rotX += (tRotX - rotX) * 0.08;
+      worldK += (worldKTarget - worldK) * 0.06;
+      world.scale.setScalar(WORLD_S * worldK);
       world.rotation.y = rotY;
       world.rotation.x = rotX;
       camDist += (camDistTarget - camDist) * 0.06;
@@ -3138,21 +3251,40 @@ start();
 <!-- ===== Indice de défilement (hero, bas droite) ===== -->
 <style>
   #scroll-hint{
-    position:fixed; right:clamp(18px,4vw,42px); bottom:clamp(16px,3.4vh,34px); z-index:30;
+    position:fixed; right:clamp(18px,4vw,42px); bottom:clamp(16px,3.4vh,34px); z-index:9000;
     display:flex; align-items:center; gap:10px; pointer-events:none;
     font-family:'Fredoka','Helvetica Neue',sans-serif; font-weight:600;
     font-size:13px; letter-spacing:.22em; text-transform:uppercase;
     color:rgba(255,255,255,0.55); text-shadow:0 1px 3px rgba(120,50,0,0.25);
     opacity:0; animation:scHintIn 1s ease 1.4s forwards;
   }
-  #scroll-hint .sc-chev{
-    display:inline-block; font-size:15px; line-height:1; color:rgba(255,255,255,0.55);
-    animation:scBounce 1.8s ease-in-out infinite;
+  #scroll-hint .sc-pill{
+    display:block; width:20px; height:32px; overflow:visible;
+    filter:drop-shadow(0 2px 4px rgba(120,50,0,0.28));
+  }
+  #scroll-hint .sc-pill .sc-outline{
+    fill:none; stroke:rgba(255,255,255,0.6); stroke-width:2.4;
+  }
+  #scroll-hint .sc-pill .sc-dot{
+    fill:#fff8ef;
+    transform-box:fill-box; transform-origin:50% 0%;
+    animation:scDotMove 1.9s cubic-bezier(.4,0,.2,1) infinite;
   }
   @keyframes scHintIn{ to{ opacity:1; } }
-  @keyframes scBounce{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(5px); } }
+  @keyframes scDotMove{
+    0%   { transform:translateY(0)    scale(0); opacity:0; }
+    14%  { transform:translateY(0)    scale(1); opacity:1; }
+    68%  { transform:translateY(14px) scale(1); opacity:1; }
+    86%  { transform:translateY(14px) scale(0); opacity:0; }
+    100% { transform:translateY(0)    scale(0); opacity:0; }
+  }
 </style>
-<div id="scroll-hint" aria-hidden="true">scroll for more <span class="sc-chev">▼</span></div>
+<div id="scroll-hint" aria-hidden="true">scroll for more
+  <svg class="sc-pill" viewBox="0 0 20 32" xmlns="http://www.w3.org/2000/svg">
+    <rect class="sc-outline" x="1.2" y="1.2" width="17.6" height="29.6" rx="8.8"/>
+    <circle class="sc-dot" cx="10" cy="9" r="2.6"/>
+  </svg>
+</div>
 <!-- ===== Fin indice de défilement ===== -->
 
 <!-- ===== Section 2 : la planète rétrécit et vient se garer en bas, centrée ===== -->
@@ -4097,7 +4229,7 @@ start();
   }
   html[data-appweb] .mcd-chat {
     top: calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
-  html[data-appweb] .mcd-lanceur { width: 54px; height: 54px; }
+  html[data-appweb] .mcd-lanceur { width: 38px; height: 38px; }   /* -30 % sur mobile */
   /* La fenetre ne doit pas passer sous la barre de navigation du bas. */
   html[data-appweb] .mcd-fenetre {
     max-height: calc(100vh - 21vw - 150px - env(safe-area-inset-bottom, 0px)); }
@@ -4144,6 +4276,26 @@ start();
   else suivreFooter();
 })();
 </script>
+
+<!-- Menu mobile (hors #wrap : indépendant des transitions hero / section 2) -->
+  <nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
+    <a class="accueil is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
+    <button type="button" class="qui" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-qui');" aria-label="Qui suis-je" aria-haspopup="true"><img src="boutonquisuisje.png" alt="" aria-hidden="true"></button>
+    <button type="button" class="offres" onclick="this.parentNode.classList.remove('pop-qui');this.parentNode.classList.remove('pop-bulle');this.parentNode.classList.toggle('pop-open');" aria-label="Nos offres" aria-haspopup="true"><img src="boutonnosoffresmob.png" alt="" aria-hidden="true"></button>
+    <button type="button" class="bulle" onclick="this.parentNode.classList.remove('pop-open');this.parentNode.classList.remove('pop-qui');this.parentNode.classList.toggle('pop-bulle');" aria-label="Ma bulle" aria-haspopup="true"><img src="boutonespacelog-trim.png" alt="" aria-hidden="true"></button>
+    <a class="rdv" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.6a1 1 0 0 1 1 1v1.2h8V3.6a1 1 0 0 1 2 0v1.2h1.2a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H4.8a2 2 0 0 1-2-2V6.8a2 2 0 0 1 2-2H6V3.6a1 1 0 0 1 1-1zM4.8 10.4V19h14.4v-8.6z"></path></svg>RDV</a>
+    <div id="mcd-bulle-pop" role="menu" aria-label="Ma bulle">
+      <a href="espace-compte.html" onclick="event.preventDefault();mcdGo('espace-compte.html')" role="menuitem"><img class="th" src="boutonespacelog-trim.png" alt="" aria-hidden="true"><span><b>Ma Bulle</b><em>Votre espace client</em></span><span class="chev">&#8250;</span></a>
+    </div>
+    <div id="mcd-qui-pop" role="menu" aria-label="Qui suis-je">
+      <a href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')" role="menuitem"><img class="th" src="boutonquisuisje.png" alt="" aria-hidden="true"><span><b>Qui suis-je</b><em>Mon parcours en trois minutes</em></span><span class="chev">&#8250;</span></a>
+      <a href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')" role="menuitem"><img class="th" src="boutonmessagerie.png" alt="" aria-hidden="true"><span><b>Nous contacter</b><em>Parlons de votre projet</em></span><span class="chev">&#8250;</span></a>
+    </div>
+    <div id="mcd-offres-pop" role="menu" aria-label="Nos offres">
+      <a href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')" role="menuitem"><img class="th" src="boutonnosoffresmob.png" alt="" aria-hidden="true"><span><b>Nos offres</b><em>Formules et tarifs</em></span><span class="chev">&#8250;</span></a>
+      <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><img class="th studio" src="boutonstudiosocialmob.png" alt="" aria-hidden="true"><span><b>Social Studio</b><em>Vos réseaux clé en main</em></span><span class="tag">Nouveau</span></a>
+    </div>
+  </nav>
 
 </body>
 </html>
