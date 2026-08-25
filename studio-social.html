@@ -219,8 +219,12 @@
 
   /* ===== Connexion ===== */
   #auth{ position:relative; z-index:10; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:clamp(96px,14vh,140px) 18px clamp(20px,5vh,60px); }
-  .auth-card{ width:min(92vw,420px); background:var(--cream); color:#2a1500; border-radius:28px; padding:clamp(26px,4vw,40px);
-    box-shadow:0 26px 60px rgba(90,40,0,0.34); border:1px solid rgba(255,255,255,0.7); position:relative; z-index:2; }
+  /* verre liquide, comme le menu du bas */
+  .auth-card{ width:min(92vw,420px); color:#2a1500; border-radius:28px; padding:clamp(26px,4vw,40px);
+    background:linear-gradient(to bottom, rgba(255,255,255,.72) 0%, rgba(255,255,255,.56) 100%);
+    backdrop-filter:blur(18px) saturate(.85); -webkit-backdrop-filter:blur(18px) saturate(.85);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(255,255,255,.18),
+      0 10px 26px rgba(16,54,84,.14); border:0; position:relative; z-index:2; }
   .auth-logo{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:26px; color:#F3852B; margin:0 0 2px; letter-spacing:-0.01em; }
   .auth-sub{ font-size:14px; color:#8a6a0c; margin:0 0 22px; font-weight:600; }
   .field{ margin-bottom:14px; }
@@ -248,6 +252,9 @@
   .auth-ok{ display:none; margin:0 0 14px; padding:11px 14px; border-radius:12px; font-size:13.5px; font-weight:600;
     background:rgba(60,180,90,0.14); border:1px solid rgba(60,150,90,0.45); color:#1f7a44; }
   #auth-tabs{ margin-bottom:18px; }
+  /* Écran de connexion : page verrouillée, seul le contenu de #auth peut défiler si besoin */
+  html.auth-lock, html.auth-lock body{ height:100%; overflow:hidden; overscroll-behavior:none; touch-action:none; }
+  html.auth-lock #auth{ height:100vh; height:100dvh; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:pan-y; overscroll-behavior:contain; }
 
   /* ===== App layout ===== */
   #app{ display:none; position:relative; z-index:10; min-height:100vh; }
@@ -621,11 +628,13 @@
     bottom:calc(22px + env(safe-area-inset-bottom, 0px));
     align-items:stretch; gap:2px; padding:7px; border:0;
     border-radius:26px;
-    background:linear-gradient(to bottom, rgba(255,255,255,.97) 0%, rgba(255,248,240,.95) 100%) !important;
-    backdrop-filter:blur(16px) saturate(1.35); -webkit-backdrop-filter:blur(16px) saturate(1.35);
-    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -5px 12px rgba(255,180,120,.16),
-      0 14px 30px rgba(150,62,22,.22) !important;
+    /* verre liquide : transparent, floué, un simple liseré de lumière (identique à index) */
+    background:linear-gradient(to bottom, rgba(255,255,255,.16) 0%, rgba(255,255,255,.06) 100%) !important;
+    backdrop-filter:blur(18px) saturate(1.6); -webkit-backdrop-filter:blur(18px) saturate(1.6);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55), inset 0 -1px 0 rgba(255,255,255,.18),
+      0 10px 26px rgba(16,54,84,.14) !important;
     transition:transform .32s cubic-bezier(.2,1,.3,1), opacity .24s ease; }
+  html[data-appweb] #mcd-bottom.mcd-footer-off,
   html[data-appweb] #mcd-bottom.mcd-hidden {
     transform:translateY(calc(100% + 24px)); opacity:0; pointer-events:none; }
   html[data-appweb] #mcd-bottom > a,
@@ -699,11 +708,12 @@
   html[data-appweb] .acct-sq, html[data-appweb] .acct-badge { display:none !important; }
   html[data-appweb] #mcd-bottom > a:active,
   html[data-appweb] #mcd-bottom > button:active { background:rgba(243,133,43,.14); color:#F3852B; }
+  /* page en cours : plus de pastille crème, juste un voile de verre très léger */
   html[data-appweb] #mcd-bottom > a.is-active {
     color:#F3852B; text-shadow:none;
-    background:linear-gradient(to bottom, #fff6ec 0%, #ffeede 100%);
-    box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95), inset 0 -4px 10px rgba(255,180,120,.32),
-      0 2px 6px rgba(150,62,22,.14); }
+    background:rgba(255,255,255,.14);
+    backdrop-filter:blur(6px) saturate(1.2); -webkit-backdrop-filter:blur(6px) saturate(1.2);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35); }
   html[data-appweb] #mcd-bottom > a.rdv,
   html[data-appweb] #mcd-bottom > a.rdv.is-active {
     position:relative; align-self:center; justify-self:center;
@@ -926,6 +936,22 @@
     });
   }
   addEventListener('DOMContentLoaded', autoHide);
+})();
+</script>
+<script>
+/* Verrou de défilement pendant l'écran de connexion */
+(function(){
+  function init(){
+    var auth = document.getElementById('auth'); if(!auth) return;
+    var root = document.documentElement;
+    function sync(){
+      var visible = getComputedStyle(auth).display !== 'none';
+      root.classList.toggle('auth-lock', visible);
+    }
+    if(window.MutationObserver) new MutationObserver(sync).observe(auth, {attributes:true, attributeFilter:['style','class']});
+    sync();
+  }
+  if(document.readyState === 'loading') addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
 
@@ -2380,7 +2406,7 @@
   .mcd-chat.mcd-chat-pret { opacity: 1; }
   body:has(#app.show, #msgapp.show, #clientsapp.show, #reportsapp.show) .mcd-chat { display:none; }
   html[data-appweb] .mcd-chat { top: calc(max(env(safe-area-inset-top, 0px), 34px) + 10px) !important; }
-  html[data-appweb] .mcd-lanceur { width: 54px; height: 54px; }
+  html[data-appweb] .mcd-lanceur { width: 38px; height: 38px; }   /* -30 % sur mobile, comme index */
   html[data-appweb] .mcd-fenetre { max-height: calc(100vh - 21vw - 150px - env(safe-area-inset-bottom, 0px)); }
   .mcd-lanceur {
     width: 62px; height: 62px; padding: 0;
