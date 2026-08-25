@@ -1457,12 +1457,20 @@
   var previewNet = 'instagram';
   var posts = [];              // tous les posts stockés
   var connections = { instagram:{connected:false,account:''}, x:{connected:false,account:''}, tiktok:{connected:false,account:''}, facebook:{connected:false,account:''} };
-  var CONN_FN_STATUS='social-status', CONN_FN_CONNECT='social-connect', CONN_LS='mcd_social_conns';
+  var CONN_FN_STATUS='social-status', CONN_FN_CONNECT='social-connect', CONN_LS_BASE='mcd_social_conns';
+  function CONN_LS_KEY(){ return CONN_LS_BASE+'_'+(effectiveUid()||'anon'); }
   var storeMode = 'unknown';   // 'db' | 'local'
   var actingAs = null, actingName = '';   // agence : id + nom du client actuellement gere
   function effectiveUid(){ return actingAs || (authUser && authUser.id); }
   function scopedAlone(){ return !me.isTeam || !!actingAs; }
-  var LS_KEY = 'mcd_social_posts';
+  var LS_KEY_BASE = 'mcd_social_posts';
+  function LS_KEY(){ return LS_KEY_BASE+'_'+(effectiveUid()||'anon'); }
+  function resetLocalState(){
+    try{ localStorage.removeItem(LS_KEY_BASE); localStorage.removeItem(CONN_LS_BASE); }catch(e){}  // anciennes clés globales
+    posts=[];
+    connections={ instagram:{connected:false,account:''}, x:{connected:false,account:''},
+                  tiktok:{connected:false,account:''}, facebook:{connected:false,account:''} };
+  }
 
   /* ===== Décor ===== */
   (function(){ var d=$('#decor'), specs=[[80,16,'anim-f2'],[42,74,'anim-f'],[88,66,'anim-f2'],[22,40,'anim-f2']];
@@ -1490,30 +1498,52 @@
       var res=await sb.auth.signInWithPassword({ email:email, password:pass });
       if(res.error){ showErr('Email ou mot de passe incorrect.'); return; }
       authUser=res.data.user;
-      if(!(await resolveAccount())){ showErr('Studio Social n’est pas encore ouvert au public.'); return; }
+      if(!(await resolveAccount())){ showErr('Accès refusé.'); return; }
       await startApp();
     }catch(e){ showErr('Erreur de connexion. Réessayez.'); }
     finally{ btn.disabled=false; btn.textContent='Se connecter'; }
   });
 
-  $('#signup-form').addEventListener('submit', function(ev){
+  $('#signup-form').addEventListener('submit', async function(ev){
     ev.preventDefault();
-    // Studio Social n'est pas encore ouvert au public : inscriptions désactivées pour le moment.
     $('#auth-ok').style.display='none';
-    showErr('Les inscriptions sont temporairement fermées. Studio Social n’est pas encore ouvert au public.');
+    var brand=$('#su-brand').value.trim(), email=$('#su-email').value.trim().toLowerCase();
+    var pass=$('#su-pass').value, pass2=$('#su-pass2').value;
+    if(!brand||!email||!pass){ showErr('Tous les champs sont requis.'); return; }
+    if(pass.length<8){ showErr('Le mot de passe doit faire 8 caractères minimum.'); return; }
+    if(pass!==pass2){ showErr('Les deux mots de passe ne correspondent pas.'); return; }
+    var btn=$('#signup-form .primary-btn'); btn.disabled=true; btn.textContent='Création…';
+    try{
+      var res=await sb.auth.signUp({ email:email, password:pass,
+        options:{ data:{ nom:brand, brand:brand, slug:slugify(brand) } } });
+      if(res.error){
+        showErr(/registered|exist/i.test(res.error.message||'') ? 'Un compte existe déjà avec cet email.' : 'Création impossible. Réessayez.');
+        return;
+      }
+      if(res.data && res.data.session){
+        authUser=res.data.session.user;
+        if(!(await resolveAccount())){ showErr('Compte créé, mais accès refusé.'); return; }
+        await startApp();
+        return;
+      }
+      $('#auth-err').style.display='none';
+      var ok=$('#auth-ok'); ok.textContent='Compte créé. Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.';
+      ok.style.display='block';
+      $('#signup-form').reset();
+    }catch(e){ showErr('Création impossible. Réessayez.'); }
+    finally{ btn.disabled=false; btn.textContent='Créer mon compte'; }
   });
 
   async function resolveAccount(){
     if(!authUser) return false;
     var email=String(authUser.email||'').toLowerCase();
+    var md=authUser.user_metadata||{};
     if(ADMIN_EMAILS.indexOf(email)!==-1){
-      me={ nom:(authUser.user_metadata&&authUser.user_metadata.nom)||'Hugo Chenu', role:'Administrateur', isTeam:true };
+      me={ nom:md.nom||'Hugo Chenu', role:'Administrateur', isTeam:true };
       return true;
     }
-    // Studio Social n'est pas encore ouvert au public : seul ADMIN_EMAILS passe pour le moment.
-    try{ await sb.auth.signOut(); }catch(e){}
-    authUser=null;
-    return false;
+    me={ nom:md.brand||md.nom||email.split('@')[0], role:'Client', isTeam:false };
+    return true;
   }
 
   $('#logout-btn').addEventListener('click', async function(){ try{ await sb.auth.signOut(); }catch(e){} location.reload(); });
@@ -1537,8 +1567,8 @@
   $('#hub-btn').addEventListener('click', function(){ showHub(); });
 
   /* ============ STORE ============ */
-  function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); }catch(e){ return []; } }
-  function saveLocal(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(posts)); }catch(e){} }
+  function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LS_KEY())||'[]'); }catch(e){ return []; } }
+  function saveLocal(){ try{ localStorage.setItem(LS_KEY(), JSON.stringify(posts)); }catch(e){} }
 
   async function loadPosts(){
     // tente la base ; sinon localStorage
@@ -1576,8 +1606,8 @@
   function newId(){ return 'p_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
   /* ============ CONNEXIONS ============ */
-  function loadConnsLocal(){ try{ var o=JSON.parse(localStorage.getItem(CONN_LS)||'null'); if(o) connections=Object.assign(connections,o); }catch(e){} }
-  function saveConns(){ try{ localStorage.setItem(CONN_LS, JSON.stringify(connections)); }catch(e){} updateConnBadge(); updateHandle(); }
+  function loadConnsLocal(){ try{ var o=JSON.parse(localStorage.getItem(CONN_LS_KEY())||'null'); if(o) connections=Object.assign(connections,o); }catch(e){} }
+  function saveConns(){ try{ localStorage.setItem(CONN_LS_KEY(), JSON.stringify(connections)); }catch(e){} updateConnBadge(); updateHandle(); }
   function updateHandle(){
     var ic=connections.instagram;
     BRAND = (me && me.nom) || BRAND;
@@ -1617,7 +1647,7 @@
   }
   async function connectNetwork(id){
     if(actingAs){ toast('Seul le client peut connecter ou reconnecter son propre compte.', true); return; }
-    if(id==='x' || id==='tiktok'){ await loadConnections(); renderConnexions(); toast(connections[id].connected ? (net(id).name+' est relié ✓') : (net(id).name+' : configuré côté serveur (secrets).')); return; }
+    if(id==='tiktok'){ await loadConnections(); renderConnexions(); toast(connections[id].connected ? (net(id).name+' est relié ✓') : (net(id).name+' : configuré côté serveur (secrets).')); return; }
     try{
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+CONN_FN_CONNECT, { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:id }) });
       if(r.status!==404){
@@ -1645,7 +1675,7 @@
         }
       }, 700);
     }
-    function disconnectNetwork(id){ if(actingAs){ toast('Seul le client peut déconnecter son propre compte.', true); return; } if(id==='x'||id==='tiktok'){ toast(net(id).name+' est g\u00e9r\u00e9 c\u00f4t\u00e9 serveur (secrets).'); return; } connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
+    function disconnectNetwork(id){ if(actingAs){ toast('Seul le client peut déconnecter son propre compte.', true); return; } if(id==='tiktok'){ toast(net(id).name+' est g\u00e9r\u00e9 c\u00f4t\u00e9 serveur (secrets).'); return; } connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
 
   /* ============ NAV ============ */
   $all('.nav-item').forEach(function(n){ n.addEventListener('click', function(){ switchView(n.getAttribute('data-view')); }); });
@@ -2024,6 +2054,7 @@
     $('#hub-name').textContent=me.nom;
     $('#hub-me').textContent=me.nom+' · '+me.role;
     $('#gate-me').textContent=me.nom+' · '+me.role;
+    resetLocalState();   // aucun état d'un compte précédent ne doit rester en mémoire
     await loadPosts();
     await loadConnections();
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
