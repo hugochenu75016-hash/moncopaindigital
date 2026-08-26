@@ -350,19 +350,76 @@
   .view{ display:none; }
   .view.active{ display:block; }
 
-  /* ===== Étape publication : une seule page, deux colonnes ===== */
-  #pub-step{ display:grid; grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr); gap:22px 26px; align-items:start; }
-  .pub-head{ grid-column:1/-1; display:flex; align-items:center; gap:14px; }
-  .pub-title{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:19px; color:#8a6a0c; }
-  #pub-step .pub-col{ display:flex; flex-direction:column; gap:16px; min-width:0; }
-  #pub-step .field{ margin:0; }
-  #pub-step textarea#cap{ min-height:clamp(140px,30vh,300px); }
-  #pub-step .net-row{ gap:8px; }
-  #pub-step .counters{ margin-top:8px; }
-  #pub-step #format-rows{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
-  #pub-step .fmt-row{ margin-bottom:0; gap:10px; }
-  #pub-step .act-row{ margin-top:2px; }
-  @media (max-width:1080px){ #pub-step{ grid-template-columns:1fr; } }
+  /* ===== Étape publication : panneau pro, trois colonnes, une seule page ===== */
+  body.no-scroll{ overflow:hidden; }
+  #pub-step{ display:grid; grid-template-columns:minmax(240px,282px) minmax(0,1fr) minmax(260px,308px); gap:12px;
+    box-sizing:border-box; padding-top:46px; height:calc(100dvh - 84px); align-items:stretch; }
+  .pub-card{ background:#fff; border-radius:20px; border:1px solid rgba(150,110,10,.16); box-shadow:0 14px 34px rgba(120,50,0,.14);
+    padding:16px; display:flex; flex-direction:column; gap:11px; min-height:0; min-width:0; overflow:hidden; }
+  #pub-dest, #pub-send{ overflow-y:auto; }
+  .pub-ch{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .pub-ch .lab{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:11.5px; letter-spacing:.07em; text-transform:uppercase; color:#8a6a0c; margin:0; }
+  .pub-badge{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:11.5px; color:#8a5a10; background:#fff0dd;
+    border:1px solid rgba(120,60,0,.16); border-radius:999px; padding:3px 10px; }
+  .lab{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:11.5px; letter-spacing:.07em; text-transform:uppercase; color:#8a6a0c; }
+  .pub-note{ margin-top:auto; font-size:12px; line-height:1.45; color:#a08a5e; }
+  .pub-tools{ display:flex; gap:6px; }
+  .pub-tools .tool{ cursor:pointer; width:30px; height:30px; border-radius:999px; border:1px solid rgba(120,60,0,.16);
+    background:#fff6ea; color:#8a5a10; font-family:'Fredoka',sans-serif; font-weight:700; font-size:14px; line-height:1; transition:background .16s; }
+  .pub-tools .tool:hover{ background:#ffe6c6; }
+  #pub-content textarea#cap{ flex:1 1 auto; min-height:120px; resize:none; }
+  .pub-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .pub-2 label{ display:block; font-family:'Fredoka',sans-serif; font-weight:600; font-size:11.5px; letter-spacing:.06em;
+    text-transform:uppercase; color:#8a6a0c; margin-bottom:6px; }
+  .emoji-pop{ display:none; flex-wrap:wrap; gap:4px; background:#fff6ea; border:1px solid rgba(120,60,0,.14); border-radius:14px; padding:8px; }
+  .emoji-pop.show{ display:flex; }
+  .emoji-pop button{ cursor:pointer; border:0; background:transparent; font-size:19px; line-height:1; padding:3px 5px; border-radius:9px; }
+  .emoji-pop button:hover{ background:#ffe6c6; }
+  .pub-thumb{ cursor:pointer; width:100%; aspect-ratio:1/1; max-height:190px; border-radius:16px; border:1px solid rgba(120,60,0,.14);
+    background:#fff6ea center/cover no-repeat; color:#a08a5e; font-family:'Fredoka',sans-serif; font-weight:600; font-size:12.5px;
+    display:flex; align-items:flex-end; justify-content:flex-start; padding:10px; transition:transform .16s, box-shadow .16s; overflow:hidden; }
+  .pub-thumb span{ background:rgba(255,255,255,.86); border-radius:999px; padding:4px 11px; }
+  .pub-thumb:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(120,50,0,.18); }
+  .quick-slots{ display:flex; flex-wrap:wrap; gap:7px; }
+  .quick-slots button{ cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:600; font-size:12.5px; color:#6b5108;
+    background:#fff6ea; border:1.5px solid rgba(120,60,0,.16); border-radius:999px; padding:6px 12px; }
+  .quick-slots button:hover{ background:#ffe6c6; }
+  .pub-check{ margin-top:auto; display:flex; flex-direction:column; gap:7px; background:#fff9f0; border:1px solid rgba(120,60,0,.12);
+    border-radius:16px; padding:12px 13px; }
+  .pub-check .ck{ display:flex; align-items:center; gap:9px; font-size:12.5px; font-weight:600; color:#6b5108; }
+  .pub-check .ck i{ width:17px; height:17px; flex:0 0 auto; border-radius:999px; display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-style:normal; color:#fff; background:#c9b28a; }
+  .pub-check .ck.ok i{ background:#3f9e4d; }
+  .pub-check .ck.no i{ background:#d0492c; }
+  .pub-check .ck.no{ color:#b0451f; }
+  #pub-send .act-row{ margin-top:12px; }
+  #pub-send .btn-pub{ min-width:0; }
+  .net-line{ display:flex; align-items:center; gap:9px; width:100%; cursor:pointer; user-select:none;
+    background:#fff6ea; border:1.5px solid rgba(120,60,0,.13); border-radius:15px; padding:8px 10px; transition:all .16s; }
+  .net-line .ni{ width:27px; height:27px; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#fff; flex:0 0 auto; }
+  .net-line .ni svg{ width:15px; height:15px; }
+  .net-line .nn{ flex:1 1 auto; min-width:0; }
+  .net-line .nn b{ display:block; font-family:'Fredoka',sans-serif; font-weight:600; font-size:13px; color:#5a4400; }
+  .net-line .nn small{ display:block; font-size:10.5px; color:#a08a5e; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .net-line .sw{ width:38px; height:22px; border-radius:999px; background:#e6ded2; position:relative; flex:0 0 auto; transition:background .18s; }
+  .net-line .sw i{ position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:999px; background:#fff;
+    box-shadow:0 2px 4px rgba(0,0,0,.18); transition:left .18s; }
+  .net-line.on{ background:#fff; border-color:#F3852B; box-shadow:0 6px 14px rgba(200,110,20,.13); }
+  .net-line.on .sw{ background:#F3852B; }
+  .net-line.on .sw i{ left:19px; }
+  .net-line.off .nn small{ color:#c9502f; }
+  #pub-step .net-row{ flex-direction:column; gap:7px; }
+  #pub-step #format-rows{ display:flex; flex-direction:column; gap:7px; }
+  #pub-step .fmt-row{ margin-bottom:0; gap:8px; flex-wrap:wrap; }
+  #pub-step .fmt-net{ width:auto; font-size:0; gap:0; }
+  #pub-step .fmt-net .ni{ width:22px; height:22px; }
+  #pub-step .fmt-net .ni svg{ width:12px; height:12px; }
+  #pub-step .fmt-chip{ font-size:12px; padding:5px 11px; }
+  #pub-step .cnt{ font-size:11.5px; padding:3px 9px; }
+  .pub-check .ck{ font-size:12px; }
+  .pub-thumb{ max-height:180px; }
+  .pub-note{ font-size:11.5px; }
+  @media (max-width:900px){ #pub-step{ grid-template-columns:1fr; height:auto; } }
   /* Cartes dorées */
   .card{ position:relative; border-radius:24px; padding:clamp(18px,2vw,26px);
     background:#ffffff;
@@ -1726,42 +1783,48 @@
           </div>
 
           <div id="pub-step" style="display:none;">
-            <div class="pub-head">
-              <button type="button" class="btn-ghost" id="pub-back">← Retour à l’édition</button>
-              <div class="pub-title">Publication</div>
-            </div>
-
-            <div class="pub-col">
-              <div class="field">
-                <label for="cap">Légende / texte</label>
-                <textarea id="cap" placeholder="Quoi de neuf ? Rédigez votre publication…"></textarea>
-                <div class="counters" id="counters"></div>
+            <section class="pub-card" id="pub-dest">
+              <div class="pub-ch"><span class="lab">Destinations</span><span class="pub-badge" id="pub-dest-count">0</span></div>
+              <div class="net-row" id="net-row"></div>
+              <div id="format-field" style="display:none;">
+                <div class="lab" style="margin-top:16px">Format par réseau</div>
+                <div id="format-rows"></div>
               </div>
-              <div class="field">
-                <label for="tags">Identifier (comptes / personnes)</label>
-                <input id="tags" placeholder="@compte, @partenaire, #hashtag…">
-              </div>
-            </div>
+              <div class="pub-note" id="pub-conn-note"></div>
+            </section>
 
-            <div class="pub-col">
-              <div class="field">
-                <label>Destinations &amp; formats</label>
-                <div class="net-row" id="net-row"></div>
-                <div id="format-field" style="display:none;"><div id="format-rows"></div></div>
-              </div>
-
-              <div class="field">
-                <label>Quand ?</label>
-                <div class="sched-toggle">
-                  <div class="seg on" data-sched="now">Maintenant</div>
-                  <div class="seg" data-sched="later">Programmer</div>
-                </div>
-                <div class="row2" id="sched-fields" style="display:none;">
-                  <div class="field" style="margin:0;"><label for="sc-date">Date</label><input id="sc-date" type="date"></div>
-                  <div class="field" style="margin:0;"><label for="sc-time">Heure</label><select id="sc-time"></select></div>
+            <section class="pub-card" id="pub-content">
+              <div class="pub-ch"><span class="lab">Contenu</span>
+                <div class="pub-tools">
+                  <button type="button" class="tool" data-ins="#" title="Hashtag">#</button>
+                  <button type="button" class="tool" data-ins="@" title="Mention">@</button>
+                  <button type="button" class="tool" id="tool-emoji" title="Émoji">☺</button>
+                  <button type="button" class="tool" id="tool-line" title="Séparateur de paragraphe">¶</button>
+                  <button type="button" class="tool" id="tool-clear" title="Effacer la légende">✕</button>
                 </div>
               </div>
+              <div class="emoji-pop" id="emoji-pop"></div>
+              <textarea id="cap" placeholder="Quoi de neuf ? Rédigez votre publication…"></textarea>
+              <div class="counters" id="counters"></div>
+              <div class="pub-2">
+                <div><label for="tags">Identifier / hashtags</label><input id="tags" placeholder="@compte, #hashtag…"></div>
+                <div><label for="first-comment">Premier commentaire</label><input id="first-comment" placeholder="Bloc de hashtags posté en commentaire…"></div>
+              </div>
+            </section>
 
+            <section class="pub-card" id="pub-send">
+              <div class="pub-ch"><span class="lab">Envoi</span><span class="pub-badge" id="pub-when">Maintenant</span></div>
+              <button type="button" class="pub-thumb" id="pub-thumb" title="Ouvrir l’aperçu"><span>Aperçu</span></button>
+              <div class="sched-toggle">
+                <div class="seg on" data-sched="now">Maintenant</div>
+                <div class="seg" data-sched="later">Programmer</div>
+              </div>
+              <div id="quick-slots" class="quick-slots" style="display:none;"></div>
+              <div class="row2" id="sched-fields" style="display:none;">
+                <div class="field" style="margin:0;"><label for="sc-date">Date</label><input id="sc-date" type="date"></div>
+                <div class="field" style="margin:0;"><label for="sc-time">Heure</label><select id="sc-time"></select></div>
+              </div>
+              <div class="pub-check" id="pub-check"></div>
               <div class="act-row">
                 <button class="btn-ghost" id="save-draft">Brouillon</button>
                 <button class="btn-pub" id="publish-btn">
@@ -1769,7 +1832,7 @@
                   <span id="publish-label">Publier</span>
                 </button>
               </div>
-            </div>
+            </section>
 
             <div style="display:none;">
               <div class="media-drop" id="media-drop"></div>
@@ -2141,10 +2204,20 @@
         '</div></div>';
     }).join('');
   }
+  /* Un réseau non connecté n'est jamais coché automatiquement */
+  function syncNetsWithConnections(){
+    var changed=false;
+    NETS.forEach(function(n){
+      var c=connections[n.id];
+      if(comp.nets[n.id] && !(c && c.connected)){ comp.nets[n.id]=false; changed=true; }
+    });
+    return changed;
+  }
   function renderConnexions(){
     var html=connGridHtml();
     $all('.conn-grid').forEach(function(el){ el.innerHTML=html; });
     updateConnBadge();
+    if(syncNetsWithConnections() && $('#net-row')){ renderNetChips(); renderFormats(); renderCounters(); renderPreview(); pubRefresh(); }
     var cont=$('#gate-continue'); if(cont) cont.textContent = connCount()>0 ? 'Continuer →' : 'Continuer sans connecter →';
   }
   async function connectNetwork(id){
@@ -2192,6 +2265,8 @@
     if(name==='composer' && connCount()===0){ toast('Reliez un réseau pour composer.', true); }
     $all('.nav-item').forEach(function(n){ n.classList.toggle('active', n.getAttribute('data-view')===name); });
     $all('.view').forEach(function(v){ v.classList.toggle('active', v.id==='view-'+name); });
+    var psx=$('#pub-step');
+    document.body.classList.toggle('no-scroll', name==='composer' && psx && psx.style.display==='grid');
     if(name==='connexions') renderConnexions();
     if(name==='calendar') renderCalendar();
     if(name==='history') renderHistory();
@@ -2200,17 +2275,22 @@
 
   /* ============ COMPOSER UI ============ */
   function renderNetChips(){
+    syncNetsWithConnections();
     $('#net-row').innerHTML = NETS.map(function(n){
-      var on=comp.nets[n.id];
-      return '<div class="net-chip '+(on?('on '+n.id):'')+'" data-net="'+n.id+'">'+
-        '<span class="ni">'+n.icon+'</span>'+esc(n.name)+
-        (on?'<svg class="net-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>':'')+
-      '</div>';
+      var on=comp.nets[n.id], c=connections[n.id]||{}, acc=c.account||'';
+      var sub = c.connected ? (acc?('@'+String(acc).replace(/^@/,'')):'compte connecté') : 'non connecté — voir Connexions';
+      return '<div class="net-line '+(on?'on ':'')+(c.connected?'':'off ')+n.id+'" data-net="'+n.id+'">'+
+        '<span class="ni" style="background:'+connBg(n.id)+'">'+n.icon+'</span>'+
+        '<span class="nn"><b>'+esc(n.name)+'</b><small>'+esc(sub)+'</small></span>'+
+        '<span class="sw"><i></i></span></div>';
     }).join('');
-    $all('#net-row .net-chip').forEach(function(el){ el.addEventListener('click', function(){
-      var id=el.getAttribute('data-net'); comp.nets[id]=!comp.nets[id];
-      renderNetChips(); renderFormats(); renderCounters(); renderPreviewTabs(); renderPreview();
+    $all('#net-row .net-line').forEach(function(el){ el.addEventListener('click', function(){
+      var id=el.getAttribute('data-net'), c=connections[id];
+      if(!comp.nets[id] && !(c && c.connected)){ toast('Connectez d’abord ce compte dans « Connexions ».', true); return; }
+      comp.nets[id]=!comp.nets[id];
+      renderNetChips(); renderFormats(); renderCounters(); renderPreviewTabs(); renderPreview(); pubRefresh();
     }); });
+    var dc=$('#pub-dest-count'); if(dc) dc.textContent=selectedNets().length+' / '+NETS.length;
   }
   function renderFormats(){
     var active=NETS.filter(function(n){ return comp.nets[n.id]; });
@@ -2221,7 +2301,7 @@
         '<span class="fmt-opts">'+opts.map(function(o){ return '<span class="fmt-chip '+(comp.formats[n.id]===o?'on':'')+'" data-fnet="'+n.id+'" data-fmt="'+o+'">'+esc(o)+'</span>'; }).join('')+'</span></div>';
     }).join('');
     $all('#format-rows .fmt-chip').forEach(function(el){ el.addEventListener('click', function(){
-      comp.formats[el.getAttribute('data-fnet')]=el.getAttribute('data-fmt'); renderFormats(); renderPreview();
+      comp.formats[el.getAttribute('data-fnet')]=el.getAttribute('data-fmt'); renderFormats(); renderPreview(); pubRefresh();
     }); });
   }
   function renderCounters(){
@@ -2233,8 +2313,83 @@
     if(comp.nets.x && hasLink) html += '<span class="cnt over" title="Un lien dans un tweet coûte ~0,20 $ au lieu de ~0,015 $">⚠️ Lien détecté — post X plus coûteux</span>';
     $('#counters').innerHTML = html;
   }
-  $('#cap').addEventListener('input', function(){ comp.caption=this.value; renderCounters(); renderPreview(); });
-  $('#tags').addEventListener('input', function(){ comp.tags=this.value; renderCounters(); renderPreview(); });
+  $('#cap').addEventListener('input', function(){ comp.caption=this.value; renderCounters(); renderPreview(); pubRefresh(); });
+  $('#tags').addEventListener('input', function(){ comp.tags=this.value; renderCounters(); renderPreview(); pubRefresh(); });
+
+  /* ===== Panneau publication : outils, créneaux, contrôle avant envoi ===== */
+  var PUB_EMOJI=['🚀','✨','🔥','👋','🎉','💛','🙌','👀','📌','✅','⭐','🎁','📅','💡','🍽️','☕','🥐','🍕','🛍️','📸'];
+  function pubInsert(txt){
+    var t=$('#cap'); if(!t) return;
+    var s=t.selectionStart==null?t.value.length:t.selectionStart, e=t.selectionEnd==null?s:t.selectionEnd;
+    t.value=t.value.slice(0,s)+txt+t.value.slice(e);
+    t.focus(); t.selectionStart=t.selectionEnd=s+txt.length;
+    comp.caption=t.value; renderCounters(); renderPreview(); pubRefresh();
+  }
+  function pubQuickSlots(){
+    var box=$('#quick-slots'); if(!box) return;
+    var now=new Date(), slots=[];
+    var soon=new Date(now.getTime()+2*3600000); soon.setMinutes(soon.getMinutes()>30?30:0, 0, 0);
+    slots.push(['Dans 2 h', soon]);
+    var tm=new Date(now); tm.setDate(tm.getDate()+1); tm.setHours(9,0,0,0); slots.push(['Demain 9:00', tm]);
+    var tv=new Date(now); tv.setDate(tv.getDate()+1); tv.setHours(18,30,0,0); slots.push(['Demain 18:30', tv]);
+    var sa=new Date(now); sa.setDate(sa.getDate()+((6-sa.getDay()+7)%7||7)); sa.setHours(11,0,0,0); slots.push(['Samedi 11:00', sa]);
+    box.innerHTML = slots.map(function(s,i){ return '<button type="button" data-slot="'+i+'">'+s[0]+'</button>'; }).join('');
+    $all('#quick-slots [data-slot]').forEach(function(b){ b.addEventListener('click', function(){
+      var d=slots[+b.getAttribute('data-slot')][1];
+      var p=function(n){ return ('0'+n).slice(-2); };
+      $('#sc-date').value = d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+      var hh=p(d.getHours()), mm=p(Math.round(d.getMinutes()/15)*15%60);
+      $('#sc-time').value = hh+':'+mm;
+      pubRefresh();
+    }); });
+  }
+  function pubRefresh(){
+    var step=$('#pub-step'); if(!step) return;
+    var sel=selectedNets(), cap=(comp.caption||'').trim();
+    var conn=sel.filter(function(id){ return connections[id] && connections[id].connected; });
+    var over=NETS.filter(function(n){ return comp.nets[n.id] && comp.caption.length>n.limit; }).map(function(n){ return n.name; });
+    var m=comp.media[0]||null;
+    var thumb=$('#pub-thumb');
+    if(thumb){
+      thumb.style.backgroundImage = m ? 'url('+m.url+')' : 'none';
+      thumb.querySelector('span').textContent = m ? 'Ouvrir l’aperçu' : 'Aucun visuel';
+    }
+    var badge=$('#pub-when');
+    if(badge) badge.textContent = comp.sched==='later'
+      ? (($('#sc-date')&&$('#sc-date').value) ? ($('#sc-date').value.split('-').reverse().join('/')+' · '+$('#sc-time').value) : 'Date à choisir')
+      : 'Maintenant';
+    var items=[
+      [sel.length>0, sel.length? sel.length+' réseau(x) sélectionné(s)' : 'Choisissez au moins un réseau'],
+      [conn.length===sel.length && sel.length>0, sel.length&&conn.length<sel.length ? (sel.length-conn.length)+' compte(s) non connecté(s)' : 'Comptes connectés'],
+      [!!m, m? 'Visuel prêt' : 'Aucun visuel exporté'],
+      [cap.length>0, cap.length? 'Légende rédigée ('+cap.length+' caractères)' : 'Légende vide'],
+      [over.length===0, over.length? 'Limite dépassée : '+over.join(', ') : 'Limites de caractères respectées'],
+      [comp.sched!=='later' || !!($('#sc-date')&&$('#sc-date').value), comp.sched==='later' ? 'Date et heure définies' : 'Envoi immédiat']
+    ];
+    var box=$('#pub-check');
+    if(box) box.innerHTML = items.map(function(it){
+      return '<div class="ck '+(it[0]?'ok':'no')+'"><i>'+(it[0]?'✓':'!')+'</i>'+esc(it[1])+'</div>';
+    }).join('');
+    var note=$('#pub-conn-note');
+    if(note) note.textContent = sel.length&&conn.length<sel.length
+      ? 'Un réseau non connecté sera enregistré mais pas publié.'
+      : 'Le format choisi ici détermine le recadrage envoyé à chaque réseau.';
+    var qs=$('#quick-slots'); if(qs) qs.style.display = comp.sched==='later' ? 'flex' : 'none';
+  }
+  (function(){
+    var em=$('#emoji-pop');
+    if(em) em.innerHTML = PUB_EMOJI.map(function(e){ return '<button type="button">'+e+'</button>'; }).join('');
+    $all('#emoji-pop button').forEach(function(b){ b.addEventListener('click', function(){ pubInsert(b.textContent); }); });
+    $all('#pub-content [data-ins]').forEach(function(b){ b.addEventListener('click', function(){ pubInsert(b.getAttribute('data-ins')); }); });
+    var te=$('#tool-emoji'); if(te) te.addEventListener('click', function(){ em.classList.toggle('show'); });
+    var tl=$('#tool-line'); if(tl) tl.addEventListener('click', function(){ pubInsert('\n\n···\n\n'); });
+    var tc=$('#tool-clear'); if(tc) tc.addEventListener('click', function(){
+      $('#cap').value=''; comp.caption=''; renderCounters(); renderPreview(); pubRefresh();
+    });
+    var th=$('#pub-thumb'); if(th) th.addEventListener('click', function(){ renderPreview(); pvxOpen(previewNet); });
+    ['#sc-date','#sc-time'].forEach(function(s){ var el=$(s); if(el) el.addEventListener('change', pubRefresh); });
+    pubQuickSlots();
+  })();
 
   var RATIOS=[['1:1','Carr\u00e9'],['4:5','Portrait'],['1.91:1','Paysage'],['9:16','Vertical'],['original','Original']];
   function ratioCss(r){ return ({'1:1':'1/1','4:5':'4/5','1.91:1':'1.91/1','9:16':'9/16','original':'1/1'})[r]||'1/1'; }
@@ -2289,6 +2444,7 @@
     $all('.seg').forEach(function(x){ x.classList.toggle('on', x===s); });
     $('#sched-fields').style.display = comp.sched==='later' ? 'grid' : 'none';
     $('#publish-label').textContent = comp.sched==='later' ? 'Programmer' : 'Publier';
+    pubRefresh();
   }); });
 
   /* ============ ÉDITEUR VISUEL ============ */
@@ -2990,18 +3146,24 @@
       edExportToMedia();
       $('#ed-shell-wrap').style.display='none';
       $('#pub-step').style.display='grid';
+      document.body.classList.add('no-scroll');
       $('#ed-flyout').classList.remove('show');
-      window.scrollTo({ top:0, behavior:'smooth' });
-    });
-    $('#pub-back').addEventListener('click', function(){
-      $('#pub-step').style.display='none';
-      $('#ed-shell-wrap').style.display='block';
+      renderPreviewTabs();
+      pubRefresh();
       window.scrollTo({ top:0, behavior:'smooth' });
     });
     ['#publish-btn','#save-draft'].forEach(function(sel){
       var b=document.querySelector(sel); if(b) b.addEventListener('click', function(){ edExportToMedia(); }, true);
     });
   })();
+
+  function pubBackToEditor(){
+    $('#pub-step').style.display='none';
+    document.body.classList.remove('no-scroll');
+    $('#ed-shell-wrap').style.display='block';
+    renderPreviewTabs();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
 
   /* --- export : aplatit la page en image --- */
   function edExportToMedia(){
@@ -3516,11 +3678,17 @@
   }
 
   /* ============ PREVIEWS ============ */  function renderPreviewTabs(){
-    // Un seul bouton œil : ouvre l'aperçu plein écran (réseaux + formats à l'intérieur).
-    $('#preview-tabs').innerHTML='<div class="ptab pvbtn" id="pv-open" title="Aperçu">'+
+    // Œil = aperçu plein écran ; flèche = retour à l'édition (uniquement à l'étape publication).
+    var ps=$('#pub-step'), inPub = ps && ps.style.display!=='none' && ps.style.display!=='';
+    $('#preview-tabs').innerHTML=
+      (inPub?'<div class="ptab pvbtn" id="pv-back" title="Retour à l’édition">'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+
+        '<path d="M19 12H5M11 18l-6-6 6-6"/></svg></div>':'')+
+      '<div class="ptab pvbtn" id="pv-open" title="Aperçu">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+
       '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div>';
     $('#pv-open').addEventListener('click', function(){ renderPreview(); pvxOpen(previewNet); });
+    if($('#pv-back')) $('#pv-back').addEventListener('click', pubBackToEditor);
   }
   function bg(id){ return id==='facebook'?'#1877F2':id==='instagram'?'#dc2743':'#0f0f0f'; }
   function connBg(id){ return id==='instagram'?'linear-gradient(45deg,#f09433,#dc2743,#bc1888)':bg(id); }
@@ -3619,6 +3787,7 @@
   function collectPost(status){
     return { id:comp.editingId||newId(), author_id:effectiveUid(), author_name:actingAs?(actingName+' (via '+me.nom+')'):me.nom,
       caption:comp.caption, tags:comp.tags, crop:comp.crop, formats:comp.formats, media:comp.media.slice(), nets:selectedNets(),
+      first_comment: (($('#first-comment')&&$('#first-comment').value)||'').trim() || null,
       status:status, scheduled_at:scheduledISO(), results:null,
       created_at: (comp.editingId && findPost(comp.editingId)) ? findPost(comp.editingId).created_at : new Date().toISOString() };
   }
@@ -3630,7 +3799,8 @@
     $('#cap').value=''; $('#tags').value=''; $('#sc-date').value='';
     $all('.seg').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-sched')==='now'); });
     $('#sched-fields').style.display='none'; $('#publish-label').textContent='Publier';
-    renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
+    var fc=$('#first-comment'); if(fc) fc.value='';
+    renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview(); pubRefresh();
   }
 
   $('#save-draft').addEventListener('click', async function(){
@@ -3755,7 +3925,7 @@
     (p.nets||[]).forEach(function(n){ comp.nets[n]=true; });
     $('#cap').value=comp.caption; $('#tags').value=comp.tags;
     switchView('composer');
-    renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
+    renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview(); pubRefresh();
     $all('.seg').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-sched')==='now'); });
     $('#sched-fields').style.display='none'; $('#publish-label').textContent='Publier';
     toast(duplicate?'Copié dans le composeur':'Brouillon chargé');
