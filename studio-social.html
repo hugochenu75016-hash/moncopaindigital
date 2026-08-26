@@ -2348,6 +2348,7 @@
     var sel=selectedNets(), cap=(comp.caption||'').trim();
     var conn=sel.filter(function(id){ return connections[id] && connections[id].connected; });
     var over=NETS.filter(function(n){ return comp.nets[n.id] && comp.caption.length>n.limit; }).map(function(n){ return n.name; });
+    var vertSel=sel.some(function(id){ return isVertical(id); });
     var m=comp.media[0]||null;
     var thumb=$('#pub-thumb');
     if(thumb){
@@ -2364,7 +2365,10 @@
       [!!m, m? 'Visuel prêt' : 'Aucun visuel exporté'],
       [cap.length>0, cap.length? 'Légende rédigée ('+cap.length+' caractères)' : 'Légende vide'],
       [over.length===0, over.length? 'Limite dépassée : '+over.join(', ') : 'Limites de caractères respectées'],
-      [comp.sched!=='later' || !!($('#sc-date')&&$('#sc-date').value), comp.sched==='later' ? 'Date et heure définies' : 'Envoi immédiat']
+      [comp.sched!=='later' || !!($('#sc-date')&&$('#sc-date').value), comp.sched==='later' ? 'Date et heure définies' : 'Envoi immédiat'],
+      [!vertSel || ed.fmt==='9:16', vertSel && ed.fmt!=='9:16'
+        ? 'Story / Réel : passez la page en 9:16 (1080×1920), sinon le réseau recadrera'
+        : (vertSel ? 'Visuel en 9:16 pour la story' : 'Format de page compatible')]
     ];
     var box=$('#pub-check');
     if(box) box.innerHTML = items.map(function(it){
@@ -3734,13 +3738,14 @@
   function mediaHtml(m){ if(!m) return ''; var st=cropStyle(); return m.type==='video'?('<video src="'+m.url+'" muted style="'+st+'"></video>'):('<img src="'+m.url+'" alt="" style="'+st+'">'); }
   function ratioNum(r){ return ({'1:1':1,'4:5':0.8,'1.91:1':1.91,'9:16':0.5625,'original':0})[r]||1; }
   // Recadre réellement une image (JPEG) selon le format + position, en restant dans les limites Instagram (0.8–1.91)
-  function cropImage(dataUrl, ratioStr, posPct){
+  function cropImage(dataUrl, ratioStr, posPct, clamp){
     return new Promise(function(resolve){
       var img=new Image();
       img.onload=function(){
         var natural=img.width/img.height;
         var target=ratioNum(ratioStr); if(!target) target=natural;
-        target=Math.max(0.8, Math.min(1.91, target));
+        if(clamp!==false) target=Math.max(0.8, Math.min(1.91, target));
+        if(Math.abs(natural-target)<0.01){ resolve(dataUrl); return; }   // déjà au bon format : on n'y touche pas
         var sw,sh,sx,sy;
         if(natural>target){ sh=img.height; sw=Math.round(sh*target); sy=0; sx=Math.round((img.width-sw)*0.5); }
         else { sw=img.width; sh=Math.round(sw/target); sx=0; sy=Math.round((img.height-sh)*((posPct==null?50:posPct)/100)); }
@@ -3858,7 +3863,17 @@
     if(!later && !connSel.length){ toast('Connectez au moins un réseau avant de publier.', true); showConnectGate(); return; }
 
     var btn=this; btn.disabled=true;
-    var mediaOut=[]; for(var mi=0; mi<comp.media.length; mi++){ var mm=comp.media[mi]; if(mm.type==='image'){ mediaOut.push({ type:'image', url:(await cropImage(mm.url, comp.crop.ratio, comp.crop.pos)), name:mm.name }); } else mediaOut.push(mm); }
+    // Une story / un réel doit rester en 9:16 : pas de recadrage aux limites du fil (0,8–1,91).
+    var vertOut = nets.some(function(id){ return isVertical(id); });
+    var fromStudio = function(m){ return String(m.name||'').indexOf('creation')===0; };
+    var mediaOut=[];
+    for(var mi=0; mi<comp.media.length; mi++){
+      var mm=comp.media[mi];
+      if(mm.type!=='image'){ mediaOut.push(mm); continue; }
+      if(fromStudio(mm)){ mediaOut.push(mm); continue; }   // export de l'éditeur : déjà à la bonne taille
+      var r = vertOut ? '9:16' : comp.crop.ratio;
+      mediaOut.push({ type:'image', url:(await cropImage(mm.url, r, comp.crop.pos, !vertOut)), name:mm.name });
+    }
     // Les réseaux (Instagram surtout) exigent une URL publique : on téléverse les images créées dans le studio.
     if(!later){
       $('#publish-label').textContent='Envoi du média…';
