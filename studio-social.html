@@ -2419,13 +2419,34 @@
   // média
   $('#media-drop').addEventListener('click', function(){ $('#media-input').click(); });
   $('#media-input').addEventListener('change', function(){ handleFiles(this.files); this.value=''; });
+  /* Réduit les images importées : évite des data URL de plusieurs Mo qui figent la page */
+  function edDownscale(url, max, cb){
+    var img=new Image();
+    img.onload=function(){
+      var w=img.naturalWidth, h=img.naturalHeight, s=Math.min(1, max/Math.max(w,h));
+      if(s>=1 && url.length<1200000){ cb(url); return; }
+      var cw=Math.round(w*s), ch=Math.round(h*s);
+      var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+      var g=cv.getContext('2d'); g.drawImage(img,0,0,cw,ch);
+      var out;
+      try{ out=cv.toDataURL('image/jpeg',0.9); }catch(e){ out=url; }
+      cb(out.length<url.length?out:url);
+    };
+    img.onerror=function(){ cb(url); };
+    img.src=url;
+  }
   function handleFiles(files){
     Array.prototype.forEach.call(files, function(f){
       var reader=new FileReader();
-      reader.onload=function(ev){ var url=ev.target.result; var isVid=(f.type.indexOf('video')===0);
-        comp.media.push({ type:(isVid?'video':'image'), url:url, name:f.name });
-        if(!isVid && typeof edAddImage==='function'){ edAddImage(url); if(ed.flyKind==='uploads') edFlyout('uploads'); }
-        renderThumbs(); renderPreview(); };
+      reader.onload=function(ev){
+        var raw=ev.target.result, isVid=(f.type.indexOf('video')===0);
+        var use=function(url){
+          comp.media.push({ type:(isVid?'video':'image'), url:url, name:f.name });
+          if(!isVid && typeof edAddImage==='function'){ edAddImage(url); if(ed.flyKind==='uploads') edFlyout('uploads'); }
+          renderThumbs(); renderPreview(); pubRefresh();
+        };
+        if(isVid) use(raw); else use(raw);
+      };
       reader.readAsDataURL(f);
     });
   }
@@ -2605,14 +2626,22 @@
   }
 
   /* --- historique --- */
+  /* Les images sont gardées hors de l'historique (un data URL peut peser plusieurs Mo) */
+  var ED_SRC={};
   function edSnap(){
-    var s=JSON.stringify({ fmt:ed.fmt, bg:ed.bg, layers:ed.layers.map(function(l){ var c={}; for(var k in l){ if(k!=='_img') c[k]=l[k]; } return c; }) });
-    ed.hist=ed.hist.slice(0,ed.hi+1); ed.hist.push(s); if(ed.hist.length>40) ed.hist.shift(); ed.hi=ed.hist.length-1;
+    var s=JSON.stringify({ fmt:ed.fmt, bg:ed.bg, layers:ed.layers.map(function(l){
+      var c={}; for(var k in l){ if(k==='_img') continue; if(k==='url' && l.type==='image') continue; c[k]=l[k]; }
+      return c;
+    }) });
+    ed.hist=ed.hist.slice(0,ed.hi+1); ed.hist.push(s); if(ed.hist.length>25) ed.hist.shift(); ed.hi=ed.hist.length-1;
   }
   function edRestore(i){
     if(i<0||i>=ed.hist.length) return;
     var o=JSON.parse(ed.hist[i]); ed.hi=i; ed.fmt=o.fmt; ed.bg=o.bg;
-    ed.layers=o.layers.map(function(l){ if(l.type==='image'){ var im=new Image(); im.src=l.url; l._img=im; } return l; });
+    ed.layers=o.layers.map(function(l){
+      if(l.type==='image'){ l.url=ED_SRC[l.id]||l.url; var im=new Image(); im.src=l.url; l._img=im; }
+      return l;
+    });
     ed.sel=null; edApplyFmt(); edRender();
   }
 
@@ -2889,6 +2918,7 @@
   function edAddImage(url){
     ed.seq++;
     var l={ id:'i'+ed.seq, type:'image', url:url, x:0, y:0, w:100, h:100, pos:50, zoom:100, rad:0, rot:0, op:100 };
+    ED_SRC[l.id]=url;
     edSaveUpload(url);
     ed.layers.unshift(l); ed.sel=l.id;
     var im=new Image(); im.src=url; l._img=im;
@@ -2917,9 +2947,15 @@
   var ED_UP_LS='mcd_ed_uploads';
   function edUploads(){ try{ return JSON.parse(localStorage.getItem(ED_UP_LS+'_'+(effectiveUid()||'anon'))||'[]'); }catch(e){ return []; } }
   function edSaveUpload(url){
+    if(String(url).length>2500000) return;   // trop lourde pour la bibliothèque locale : l'image reste en pleine qualité dans le projet
     var l=edUploads().filter(function(u){ return u!==url; });
-    l.unshift(url); l=l.slice(0,12);
-    try{ localStorage.setItem(ED_UP_LS+'_'+(effectiveUid()||'anon'), JSON.stringify(l)); }catch(e){}
+    l.unshift(url); l=l.slice(0,5);
+    var key=ED_UP_LS+'_'+(effectiveUid()||'anon');
+    while(l.length){
+      try{ localStorage.setItem(key, JSON.stringify(l)); return; }
+      catch(e){ l.pop(); }   // quota atteint : on garde moins d'images récentes
+    }
+    try{ localStorage.removeItem(key); }catch(e){}
   }
   function edRemoveUpload(url){
     var l=edUploads().filter(function(u){ return u!==url; });
