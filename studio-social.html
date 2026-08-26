@@ -3705,9 +3705,10 @@
       addEventListener('resize', pvxFit);
     }
     pvx.net=netId||pvx.net;
-    var cv=null; try{ cv=edBuildCanvas(); }catch(e){}
+    // Même source que la vignette de publication : l'export de l'éditeur passé dans comp.media
+    try{ if(ed.layers.length) edExportToMedia(); }catch(e){}
     var m=firstMedia();
-    pvx.media = cv ? cv.toDataURL('image/png') : (m?m.url:null);
+    pvx.media = m ? m.url : null;
     pvx.el.style.display='block';
     pvxRender();
     requestAnimationFrame(function(){ pvx.el.classList.add('on'); });
