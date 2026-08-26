@@ -2878,8 +2878,9 @@
     }
     if(!edClip) return;
     var c={}; for(var k2 in edClip) c[k2]=edClip[k2];
-    c.id='l'+Date.now()+Math.random().toString(36).slice(2,6);
+    c.id=(edClip.type||'l').charAt(0)+(++ed.seq);
     c.x=Math.min(92,(c.x||0)+3); c.y=Math.min(92,(c.y||0)+3);
+    if(c.type==='image'){ var im=new Image(); im.src=c.url; c._img=im; ED_SRC[c.id]=c.url; }
     ed.layers.push(c); ed.sel=c.id; edSnap(); edRender();
   }
 
@@ -3130,7 +3131,7 @@
       var l=ed.sel?edLayer(ed.sel):null; if(!l) return;
       ed.seq++; var c={}; for(var k in l){ if(k!=='_img') c[k]=l[k]; }
       c.id=l.type.charAt(0)+ed.seq; c.x=Math.min(90,(l.x||0)+5); c.y=Math.min(90,(l.y||0)+5);
-      if(c.type==='image'){ var im=new Image(); im.src=c.url; c._img=im; }
+      if(c.type==='image'){ var im=new Image(); im.src=c.url; c._img=im; ED_SRC[c.id]=c.url; }
       ed.layers.push(c); ed.sel=c.id; edSnap(); edRender();
     });
     $('#ed-front').addEventListener('click', function(){
