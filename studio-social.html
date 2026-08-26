@@ -474,7 +474,32 @@
   #hub{ display:none; position:relative; z-index:10; min-height:100vh; align-items:center; justify-content:center; padding:clamp(96px,14vh,140px) 20px 40px; }
   #hub.show{ display:flex; }
   .hub-inner{ width:100%; max-width:920px; }
-  .hub-head{ text-align:center; margin-bottom:38px; }
+  .hub-head{ text-align:center; margin-bottom:38px; position:relative; }
+  .hub-gear{ position:absolute; left:0; top:2px; width:46px; height:46px; border:0; cursor:pointer; border-radius:999px;
+    display:flex; align-items:center; justify-content:center; color:#fff;
+    background:linear-gradient(135deg,#ffa640,#e2701a);
+    box-shadow:0 6px 16px rgba(150,62,22,.32), inset 0 1.5px 1px rgba(255,255,255,.55);
+    transition:transform .18s ease, box-shadow .18s ease; }
+  .hub-gear svg{ width:24px; height:24px; }
+  .hub-gear:hover{ transform:rotate(35deg) scale(1.06); box-shadow:0 10px 22px rgba(150,62,22,.4), inset 0 1.5px 1px rgba(255,255,255,.6); }
+  .hub-gear:active{ transform:scale(.95); }
+  @media (max-width:820px){ .hub-gear{ width:40px; height:40px; } .hub-gear svg{ width:20px; height:20px; } }
+  /* Fiche « Autorisations agence » ouverte par l'engrenage */
+  .sheet-backdrop{ position:fixed; inset:0; z-index:120; display:none; align-items:center; justify-content:center; padding:20px;
+    background:rgba(30,60,90,.42); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  .sheet-backdrop.show{ display:flex; }
+  .sheet{ width:min(94vw,520px); max-height:86vh; overflow-y:auto; background:#fff; color:#2a1500;
+    border-radius:26px; padding:26px 26px 22px; box-shadow:0 26px 60px rgba(30,60,90,.34); }
+  .sheet h2{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:19px; margin:0 0 8px; color:#3a2a00; }
+  .sheet p.sheet-lead{ font-size:13.5px; line-height:1.6; color:#5c4a2e; margin:0 0 20px; }
+  .sheet-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; padding:13px 0; border-top:1px solid rgba(120,60,0,.1); }
+  .sheet-row:first-of-type{ border-top:0; }
+  .sheet-row .sr-t{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:14.5px; }
+  .sheet-row .sr-d{ font-size:12.5px; color:#7b6a52; margin-top:2px; }
+  .sheet-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
+  .sheet-btn{ cursor:pointer; border:0; font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; border-radius:999px; padding:11px 22px; }
+  .sheet-btn.ghost{ background:#fff6ea; color:#8a5a10; border:1.5px solid rgba(120,60,0,.16); }
+  .sheet-btn.primary{ background:linear-gradient(135deg,#ffa640,#e2701a); color:#fff; box-shadow:0 6px 16px rgba(150,62,22,.3); }
   .hub-title{ font-family:'Fredoka',sans-serif; font-weight:700; font-size:clamp(28px,4vw,40px); margin:0; color:#fff; text-shadow:0 2px 8px rgba(120,50,0,0.28); }
   .hub-sub{ font-size:16px; color:#eaf6ff; margin:8px 0 0; }
   .hub-cards{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
@@ -1096,11 +1121,38 @@
   </div>
 </section>
 
+<!-- ===== Fiche autorisations agence ===== -->
+<div class="sheet-backdrop" id="perm-sheet">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="perm-title">
+    <h2 id="perm-title">Autoriser l'agence à gérer votre compte.</h2>
+    <p class="sheet-lead">Si activé, l'équipe Mon Copain Digital peut composer, publier et répondre à vos messages en votre nom, uniquement à votre demande. Vous pouvez désactiver à tout moment.</p>
+    <div class="sheet-row">
+      <div><div class="sr-t">Composer</div><div class="sr-d">Créer et publier des posts pour vous.</div></div>
+      <label class="switch"><input type="checkbox" id="perm-compose"><span class="slider"></span></label>
+    </div>
+    <div class="sheet-row">
+      <div><div class="sr-t">Rapports</div><div class="sr-d">Consulter vos statistiques et performances.</div></div>
+      <label class="switch"><input type="checkbox" id="perm-reports"><span class="slider"></span></label>
+    </div>
+    <div class="sheet-row">
+      <div><div class="sr-t">Message Social</div><div class="sr-d">Lire et répondre à vos messages privés.</div></div>
+      <label class="switch"><input type="checkbox" id="perm-messages"><span class="slider"></span></label>
+    </div>
+    <div class="sheet-actions">
+      <button class="sheet-btn ghost" id="perm-close" type="button">Fermer</button>
+      <button class="sheet-btn primary" id="perm-save" type="button">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== Accueil (choix d'outil) ===== -->
 <section id="hub">
   <div class="hub-inner">
     <div class="hub-head">
       <h1 class="hub-title">Bonjour <span id="hub-name">👋</span></h1>
+      <button id="hub-gear" class="hub-gear" type="button" title="Gérer mes connexions" aria-label="Gérer mes connexions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
       <p class="hub-sub">Que voulez-vous faire aujourd'hui ?</p>
     </div>
     <div class="hub-cards">
@@ -2068,6 +2120,41 @@
     }catch(e){}
     showConnectGate();
   }
+  (function(){
+    var g=document.getElementById('hub-gear'), sh=document.getElementById('perm-sheet');
+    var boxes={ compose:document.getElementById('perm-compose'), reports:document.getElementById('perm-reports'), messages:document.getElementById('perm-messages') };
+    function open(){
+      sh.classList.add('show');
+      loadPerms();
+    }
+    function close(){ sh.classList.remove('show'); }
+    async function loadPerms(){
+      try{
+        var r=await fetch(SUPABASE_URL+'/functions/v1/agency-clients?self=1', { headers:await authHeaders() });
+        var d=await r.json()||{};
+        var p=d.agency_scopes||{};
+        boxes.compose.checked  = !!(p.compose  ?? d.agency_access);
+        boxes.reports.checked  = !!(p.reports  ?? d.agency_access);
+        boxes.messages.checked = !!(p.messages ?? d.agency_access);
+      }catch(e){}
+    }
+    async function save(){
+      var scopes={ compose:boxes.compose.checked, reports:boxes.reports.checked, messages:boxes.messages.checked };
+      var any = scopes.compose || scopes.reports || scopes.messages;
+      try{
+        await fetch(SUPABASE_URL+'/functions/v1/agency-clients', { method:'POST', headers:await authHeaders(),
+          body:JSON.stringify({ agency_access:any, agency_scopes:scopes }) });
+        var db=$('#dele-check'); if(db) db.checked=any;
+        toast(any ? 'Autorisations enregistrées.' : 'Accès agence désactivé.');
+        close();
+      }catch(e){ toast('Fonction « agency-clients » non déployée pour le moment.', true); }
+    }
+    if(g) g.addEventListener('click', open);
+    document.getElementById('perm-close').addEventListener('click', close);
+    document.getElementById('perm-save').addEventListener('click', save);
+    sh.addEventListener('click', function(e){ if(e.target===sh) close(); });
+    addEventListener('keydown', function(e){ if(e.key==='Escape' && sh.classList.contains('show')) close(); });
+  })();
   function showConnectGate(){
     $('#hub').classList.remove('show'); $('#app').classList.remove('show'); $('#clientsapp').classList.remove('show'); $('#reportsapp').classList.remove('show'); $('#msgapp').classList.remove('show');
     renderConnexions();
