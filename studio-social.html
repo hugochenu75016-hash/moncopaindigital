@@ -2675,6 +2675,7 @@
   }
   function edRender(){
     var page=$('#ed-page'); if(!page) return;
+    var _pw=page.getBoundingClientRect().width; if(_pw>0) ed._pxW=_pw;
     page.innerHTML = ed.layers.map(function(l){
       var s=edBoxStyle(l), sel=(l.id===ed.sel?'sel':'');
       if(l.type==='image'){
@@ -3218,7 +3219,8 @@
     var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
     var g=cv.getContext('2d');
     g.fillStyle=ed.bg||'#ffffff'; g.fillRect(0,0,W,H);
-    var pageEl=$('#ed-page'), pxW=pageEl?pageEl.getBoundingClientRect().width:520;
+    var pageEl=$('#ed-page'), _r=pageEl?pageEl.getBoundingClientRect().width:0;
+    var pxW=_r>0 ? _r : (ed._pxW>0 ? ed._pxW : 520);
 
     ed.layers.forEach(function(l){
       var bx=W*(l.x/100), by=H*(l.y/100), bw=W*(l.w/100), bh=H*((l.h||0)/100);
@@ -3253,17 +3255,20 @@
       }
       else if(l.type==='text'){
         var px=l.size*(W/pxW);
+        if(!isFinite(px) || px<=0) px=l.size*(W/1080)*2.08;
+        var lh=(+l.lh>0?+l.lh:1.2);
         g.font=(l.italic?'italic ':'')+(l.bold?'800 ':'500 ')+px+'px '+l.font+', sans-serif';
+        try{ g.letterSpacing=((+l.ls||0)*(W/pxW))+'px'; }catch(e){}
         g.fillStyle=l.color; g.textAlign=l.align==='center'?'center':(l.align==='right'?'right':'left'); g.textBaseline='top';
-        var startX=bx+(l.align==='center'?bw/2:(l.align==='right'?bw:0)), y=by;
+        var startX=bx+(l.align==='center'?bw/2:(l.align==='right'?bw:0)), y=by+(px*lh-px)/2;
         var txt=l.upper?String(l.text).toUpperCase():String(l.text);
         txt.split('\n').forEach(function(para){
           var words=para.split(' '), line='';
           words.forEach(function(w){
             var t=line?line+' '+w:w;
-            if(g.measureText(t).width>bw && line){ g.fillText(line,startX,y); y+=px*l.lh; line=w; } else line=t;
+            if(g.measureText(t).width>bw && line){ g.fillText(line,startX,y); y+=px*lh; line=w; } else line=t;
           });
-          g.fillText(line,startX,y); y+=px*l.lh;
+          g.fillText(line,startX,y); y+=px*lh;
         });
       }
       g.restore();
