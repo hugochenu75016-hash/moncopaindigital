@@ -649,40 +649,49 @@
   .ed-tb-note{ font-size:12px; color:#8a6a0c; font-family:'Fredoka',sans-serif; font-weight:600; }
   .ed-sel{ border:1.5px solid rgba(120,60,0,.16); border-radius:999px; padding:6px 12px; font:inherit; font-size:12.5px; background:#fff; color:#5a4400; }
 
-  .ed-page{ position:relative; height:min(66vh,540px); background:#fff; overflow:hidden;
-    border-radius:8px; box-shadow:0 14px 34px rgba(90,40,0,.2); aspect-ratio:1/1; }
+  /* La scène affiche le format réel (1080×1920 pour une story) réduit par transform :
+     tout ce qui est placé dedans est déjà en pixels de sortie. */
+  .ed-stage{ position:relative; overflow:hidden; background:#fff;
+    border-radius:8px; box-shadow:0 14px 34px rgba(90,40,0,.2); }
+  .ed-page{ position:absolute; left:0; top:0; transform-origin:top left; background:#fff; }
+  #ed-page .ed-guides .gv{ width:calc(1.5px * var(--ik,1)); }
+  #ed-page .ed-guides .gh{ height:calc(1.5px * var(--ik,1)); }
   .ed-layer{ position:absolute; cursor:grab; }
-  .ed-layer.sel{ outline:2px solid #F3852B; outline-offset:2px; }
+  .ed-layer.sel{ outline:calc(2px * var(--ik,1)) solid #F3852B; outline-offset:calc(2px * var(--ik,1)); }
   .ed-layer.img{ overflow:hidden; }
   .ed-layer.img img{ width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
-  .ed-layer.txt{ padding:2px 4px; white-space:pre-wrap; word-break:break-word; }
+  .ed-layer.txt{ padding:0; white-space:pre-wrap; overflow-wrap:break-word; }
   .ed-layer.txt[contenteditable="true"]{ cursor:text; outline:2px dashed #F3852B; }
   .ed-layer.shp, .ed-layer.ico{ display:flex; align-items:center; justify-content:center; }
   .ed-layer.ico svg{ width:100%; height:100%; }
-  .ed-h{ position:absolute; width:18px; height:18px; border-radius:5px; background:#fff; border:2.5px solid #F3852B;
+  .ed-h{ position:absolute; width:calc(18px * var(--ik,1)); height:calc(18px * var(--ik,1));
+    border-radius:calc(5px * var(--ik,1)); background:#fff; border:calc(2.5px * var(--ik,1)) solid #F3852B;
     box-shadow:0 2px 6px rgba(90,40,0,.25); z-index:9; }
-  .ed-h[data-c="nw"]{ left:-10px; top:-10px; cursor:nwse-resize; }
-  .ed-h[data-c="ne"]{ right:-10px; top:-10px; cursor:nesw-resize; }
-  .ed-h[data-c="sw"]{ left:-10px; bottom:-10px; cursor:nesw-resize; }
-  .ed-h[data-c="se"]{ right:-10px; bottom:-10px; cursor:nwse-resize; }
-  .ed-h[data-c="n"]{ left:50%; margin-left:-9px; top:-10px; cursor:ns-resize; }
-  .ed-h[data-c="s"]{ left:50%; margin-left:-9px; bottom:-10px; cursor:ns-resize; }
-  .ed-h[data-c="w"]{ left:-10px; top:50%; margin-top:-9px; cursor:ew-resize; }
-  .ed-h[data-c="e"]{ right:-10px; top:50%; margin-top:-9px; cursor:ew-resize; }
-  .ed-trash{ position:absolute; right:-8px; top:-38px; width:28px; height:28px; border-radius:999px; cursor:pointer;
+  .ed-h[data-c="nw"]{ left:calc(-10px * var(--ik,1)); top:calc(-10px * var(--ik,1)); cursor:nwse-resize; }
+  .ed-h[data-c="ne"]{ right:calc(-10px * var(--ik,1)); top:calc(-10px * var(--ik,1)); cursor:nesw-resize; }
+  .ed-h[data-c="sw"]{ left:calc(-10px * var(--ik,1)); bottom:calc(-10px * var(--ik,1)); cursor:nesw-resize; }
+  .ed-h[data-c="se"]{ right:calc(-10px * var(--ik,1)); bottom:calc(-10px * var(--ik,1)); cursor:nwse-resize; }
+  .ed-h[data-c="n"]{ left:50%; margin-left:calc(-9px * var(--ik,1)); top:calc(-10px * var(--ik,1)); cursor:ns-resize; }
+  .ed-h[data-c="s"]{ left:50%; margin-left:calc(-9px * var(--ik,1)); bottom:calc(-10px * var(--ik,1)); cursor:ns-resize; }
+  .ed-h[data-c="w"]{ left:calc(-10px * var(--ik,1)); top:50%; margin-top:calc(-9px * var(--ik,1)); cursor:ew-resize; }
+  .ed-h[data-c="e"]{ right:calc(-10px * var(--ik,1)); top:50%; margin-top:calc(-9px * var(--ik,1)); cursor:ew-resize; }
+  .ed-trash{ position:absolute; right:calc(-8px * var(--ik,1)); top:calc(-38px * var(--ik,1));
+    width:calc(28px * var(--ik,1)); height:calc(28px * var(--ik,1)); border-radius:999px; cursor:pointer;
     border:0; background:#F3852B; color:#fff; display:flex; align-items:center; justify-content:center; z-index:10;
     box-shadow:0 4px 12px rgba(150,62,22,.35); }
-  .ed-trash svg{ width:15px; height:15px; }
-  .ed-more{ position:absolute; right:-42px; top:-38px; width:28px; height:28px; border-radius:999px; cursor:pointer;
+  .ed-trash svg{ width:calc(15px * var(--ik,1)); height:calc(15px * var(--ik,1)); }
+  .ed-more{ position:absolute; right:calc(-42px * var(--ik,1)); top:calc(-38px * var(--ik,1));
+    width:calc(28px * var(--ik,1)); height:calc(28px * var(--ik,1)); border-radius:999px; cursor:pointer;
     border:0; background:#fff; color:#8a5a10; display:flex; align-items:center; justify-content:center; z-index:10;
     box-shadow:0 4px 12px rgba(30,60,90,.20); }
   .ed-more:hover{ background:#fff6ea; }
-  .ed-more svg{ width:18px; height:18px; }
-  .ed-lock{ position:absolute; right:26px; top:-38px; width:28px; height:28px; border-radius:999px; cursor:pointer;
+  .ed-more svg{ width:calc(18px * var(--ik,1)); height:calc(18px * var(--ik,1)); }
+  .ed-lock{ position:absolute; right:calc(26px * var(--ik,1)); top:calc(-38px * var(--ik,1));
+    width:calc(28px * var(--ik,1)); height:calc(28px * var(--ik,1)); border-radius:999px; cursor:pointer;
     border:0; background:#fff; color:#8a5a10; display:flex; align-items:center; justify-content:center; z-index:10;
     box-shadow:0 4px 12px rgba(90,40,0,.24); }
   .ed-lock.on{ background:#8a6a0c; color:#fff; }
-  .ed-lock svg{ width:15px; height:15px; }
+  .ed-lock svg{ width:calc(15px * var(--ik,1)); height:calc(15px * var(--ik,1)); }
   .ed-lockbtn{ width:100%; cursor:pointer; display:flex; align-items:center; gap:8px; border:1.5px solid rgba(120,60,0,.16);
     background:#fff; color:#5a4400; border-radius:12px; padding:9px 12px; font-family:'Fredoka',sans-serif; font-weight:600; font-size:12.5px; }
   .ed-lockbtn .lki{ display:flex; width:16px; height:16px; }
@@ -1686,7 +1695,7 @@
                 <span class="ed-tb-sep"></span>
                 <span class="ed-tb-note" id="ed-size-note">1080 × 1080 px</span>
               </div>
-              <div class="ed-page" id="ed-page"></div>
+              <div class="ed-stage" id="ed-stage"><div class="ed-page" id="ed-page"></div></div>
               <div class="ed-ctx" id="ed-ctx">
                 <button type="button" data-ctx="copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5.5A1.5 1.5 0 0 0 13.5 4H5.5A1.5 1.5 0 0 0 4 5.5v8A1.5 1.5 0 0 0 5.5 15"/></svg><span>Copier</span><em>Ctrl+C</em></button>
                 <button type="button" data-ctx="copystyle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="6" rx="2"/><path d="M17 6h2a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-7"/><rect x="9" y="13" width="6" height="8" rx="2"/></svg><span>Copier le style</span><em>Ctrl+Alt+C</em></button>
@@ -1721,7 +1730,7 @@
                   <option value="Verdana">Verdana</option>
                 </select>
                 <label class="cbl">Taille <span id="ed-t-sizev"></span></label>
-                <input type="range" id="ed-t-size" min="10" max="160" step="1">
+                <input type="range" id="ed-t-size" min="12" max="400" step="1">
                 <label class="cbl">Style</label>
                 <div class="ed-btns">
                   <button type="button" class="ed-sq" id="ed-t-bold" title="Gras"><b>B</b></button>
@@ -1736,7 +1745,7 @@
                   <button type="button" class="ed-sq" id="ed-t-right" title="Droite">➡</button>
                 </div>
                 <label class="cbl">Interlettrage <span id="ed-t-lsv"></span></label>
-                <input type="range" id="ed-t-ls" min="-4" max="20" step="0.5">
+                <input type="range" id="ed-t-ls" min="-20" max="60" step="0.5">
                 <label class="cbl">Interligne <span id="ed-t-lhv"></span></label>
                 <input type="range" id="ed-t-lh" min="0.9" max="2.2" step="0.05">
                 <label class="cbl">Couleur du texte</label>
@@ -1751,9 +1760,9 @@
                 <label class="cbl">Contour</label>
                 <div class="ed-swatches" id="ed-s-stroke"></div>
                 <label class="cbl">Épaisseur du contour <span id="ed-s-swv"></span></label>
-                <input type="range" id="ed-s-sw" min="0" max="24" step="1">
+                <input type="range" id="ed-s-sw" min="0" max="80" step="1">
                 <label class="cbl">Arrondi <span id="ed-s-radv"></span></label>
-                <input type="range" id="ed-s-rad" min="0" max="50" step="1">
+                <input type="range" id="ed-s-rad" min="0" max="200" step="1">
               </div>
 
               <div id="ed-panel-icon" style="display:none;">
@@ -1769,7 +1778,7 @@
                 <label class="cbl">Cadrage vertical</label>
                 <input type="range" id="ed-i-pos" min="0" max="100" step="1">
                 <label class="cbl">Arrondi <span id="ed-i-radv"></span></label>
-                <input type="range" id="ed-i-rad" min="0" max="50" step="1">
+                <input type="range" id="ed-i-rad" min="0" max="200" step="1">
               </div>
 
               <div id="ed-panel-common" style="display:none;">
@@ -2649,9 +2658,33 @@
     ed.sel=null; edApplyFmt(); edRender();
   }
 
+  /* Les tailles (texte, rayons, contours) sont désormais exprimées dans les pixels
+     du format. On convertit une fois les calques créés avant ce changement. */
+  function edMigrateUnits(W){
+    if(ed._dpx) return;
+    ed._dpx=true;
+    var f=W/((ed._pxW>0?ed._pxW:540));
+    if(!(f>0) || Math.abs(f-1)<0.02) return;
+    ed.layers.forEach(function(l){
+      if(l.type==='text'){ l.size=Math.round(l.size*f); l.ls=+( (l.ls||0)*f ).toFixed(1); }
+      if(l.rad) l.rad=Math.round(l.rad*f);
+      if(l.sw && l.type!=='icon') l.sw=+(l.sw*f).toFixed(1);
+      if(l.sw && l.type==='icon') l.sw=+(l.sw).toFixed(1);
+    });
+  }
   function edApplyFmt(){
     var p=$('#ed-page'); if(!p) return;
-    p.style.aspectRatio=edRatio()+' / 1';
+    var st=$('#ed-stage'), W=edW(), H=edH();
+    var wrap=st?st.parentNode:null;
+    var availH=Math.min(window.innerHeight*0.66, 540);
+    var availW=(wrap&&wrap.clientWidth)?wrap.clientWidth:520;
+    var k=Math.min(availH/H, availW/W); if(!(k>0)) k=0.5;
+    edMigrateUnits(W);
+    p.style.width=W+'px'; p.style.height=H+'px';
+    p.style.transform='scale('+k+')';
+    p.style.setProperty('--ik', (1/k));
+    if(st){ st.style.width=Math.round(W*k)+'px'; st.style.height=Math.round(H*k)+'px'; st.style.background=ed.bg; }
+    ed._k=k;
     p.style.background=ed.bg;
     var n=$('#ed-size-note'); if(n) n.textContent=edW()+' × '+edH()+' px';
     var f=$('#ed-format'); if(f) f.value=ed.fmt;
@@ -2675,7 +2708,7 @@
   }
   function edRender(){
     var page=$('#ed-page'); if(!page) return;
-    var _pw=page.getBoundingClientRect().width; if(_pw>0) ed._pxW=_pw;
+    var _pw=page.offsetWidth; if(_pw>0) ed._pxW=_pw;
     page.innerHTML = ed.layers.map(function(l){
       var s=edBoxStyle(l), sel=(l.id===ed.sel?'sel':'');
       if(l.type==='image'){
@@ -2917,8 +2950,8 @@
     ed.seq++;
     var p=preset||{};
     ed.layers.push({ id:'t'+ed.seq, type:'text', text:p.text||'Votre texte', x:10, y:12, w:70,
-      size:p.size||40, color:'#201e1d', font:p.font||'Fredoka', bold:p.bold!==false, italic:false, under:false,
-      upper:!!p.upper, align:'left', ls:p.ls||0, lh:1.2, bgc:'none', rot:0, op:100 });
+      size:Math.round((p.size||40)*(edW()/540)), color:'#201e1d', font:p.font||'Fredoka', bold:p.bold!==false, italic:false, under:false,
+      upper:!!p.upper, align:'left', ls:+((p.ls||0)*(edW()/540)).toFixed(1), lh:1.2, bgc:'none', rot:0, op:100 });
     ed.sel='t'+ed.seq; edSnap(); edRender();
   }
   function edAddImage(url){
@@ -2933,7 +2966,7 @@
   function edAddShape(shape){
     ed.seq++;
     ed.layers.push({ id:'s'+ed.seq, type:'shape', shape:shape, poly:(ED_POLY[shape]||null), x:28, y:28, w:44,
-      h:(shape==='line'?3:44), fill:'#F3852B', stroke:'none', sw:0, rad:12, rot:0, op:100 });
+      h:(shape==='line'?3:44), fill:'#F3852B', stroke:'none', sw:0, rad:Math.round(12*(edW()/540)), rot:0, op:100 });
     ed.sel='s'+ed.seq; edSnap(); edRender();
   }
   function edAddIcon(name){
@@ -3108,6 +3141,7 @@
   (function(){
     if(!document.getElementById('ed-page')) return;
     edApplyFmt(); edRender(); edSnap();
+    window.addEventListener('resize', function(){ edApplyFmt(); });
 
     $all('.ed-rail [data-fly]').forEach(function(b){ b.addEventListener('click', function(){
       var k=b.getAttribute('data-fly');
@@ -3263,12 +3297,14 @@
   }
   function edBuildCanvas(){
     if(!ed.layers.length) return null;
-    var W=edW(), H=edH(), K=W/1080;
+    var W=edW(), H=edH(), K=1;
     var cv=document.createElement('canvas'); cv.width=W; cv.height=H;
     var g=cv.getContext('2d');
     g.fillStyle=ed.bg||'#ffffff'; g.fillRect(0,0,W,H);
-    var pageEl=$('#ed-page'), _r=pageEl?pageEl.getBoundingClientRect().width:0;
-    var pxW=_r>0 ? _r : (ed._pxW>0 ? ed._pxW : 520);
+    /* offsetWidth = largeur de mise en page (non affectée par le scale) = W :
+       l'export est donc une copie au pixel de ce que montre l'éditeur. */
+    var pageEl=$('#ed-page'), _r=pageEl?pageEl.offsetWidth:0;
+    var pxW=_r>0 ? _r : W;
 
     ed.layers.forEach(function(l){
       var bx=W*(l.x/100), by=H*(l.y/100), bw=W*(l.w/100), bh=H*((l.h||0)/100);
