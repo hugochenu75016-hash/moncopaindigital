@@ -1360,6 +1360,19 @@ function start() {
     world.scale.setScalar(WORLD_S);
     window.__planetShrink = (k) => { worldKTarget = k; };
 
+    // ----- Tremblement puis chute de la plan&egrave;te (section 2) -----
+    let quakeAmp = 0, quakeTgt = 0, fallY = 0, fallV = 0, falling = false;
+    window.__planetQuake = (on) => { quakeTgt = on ? 1 : 0; };
+    window.__planetFall = () => { if (!falling){ falling = true; fallV = 0; } };
+    // d&eacute;calage de chute exprim&eacute; en unit&eacute;s LOCALES du monde : sert &agrave; compenser la
+    // position du personnage, qui reste accroch&eacute; &agrave; la lampe pendant que tout tombe
+    window.__planetFallLocal = () => -fallY / (WORLD_S * worldK);
+    window.__planetFalling = () => falling;
+    window.__planetReset = () => {
+      falling = false; fallY = 0; fallV = 0; quakeAmp = 0; quakeTgt = 0;
+      world.visible = true; world.position.set(0, 0, 0);
+    };
+
     const UP = new THREE.Vector3(0, 1, 0);
     const tmpQ = new THREE.Quaternion();
     const posOnSphere = (lat, lon, r) => {
@@ -2529,7 +2542,7 @@ function start() {
         var standingBig = false;
         var SIT_CT  = { scale: 13.5, z: -1.0, y: 0,    rotY: 0 };
         var STAND_CT = { scale: 13.5 * 3, z: 0.4, y: 0, rotY: 0 };   // personnage : 3x sa taille assise
-        var STAND_SHRINK = 0.65;   // réduction de 35 % du personnage debout (après le filet anti-rognage)
+        var STAND_SHRINK = 0.36;   // taille en section 2 : il passe sous la lampe, la cordelette est hors de portée sans sauter
         var PLANET_K_STAND = 0.62;   // planète rétrécie en section 2 (le perso est compensé)
         var CAM_DIST_SIT = 44, CAM_DIST_STAND = 44;                  // planète remise à sa taille normale (x2 plus petite qu'avant)
         // filet de sécurité : quelle que soit la fenêtre (fov/aspect), s'assure que
@@ -2585,6 +2598,116 @@ function start() {
           addRot('Head',   AXY,  drift * lookAmt);
           addRot('Neck',   AXY,  drift * 0.5 * lookAmt);
         }
+
+        // ----- Il saute pour attraper la cordelette de la lampe et reste suspendu
+        // dessus. Les os concern&eacute;s sont restaur&eacute;s &agrave; leur pose de base &agrave; chaque frame,
+        // donc le geste marche que le mixer tourne ou que la pose soit fig&eacute;e. -----
+        var HANG_BONES = ['RightShoulder','LeftShoulder','RightArm','LeftArm','RightForeArm','LeftForeArm',
+                          'Spine','Spine1','Spine2','Neck','Head','LeftUpLeg','RightUpLeg','LeftLeg','RightLeg'];
+        var JUMP_DUR = 950;
+        window.__charJumpDur = JUMP_DUR;
+        var hangBase = null, jumpT0 = 0, hangOn = false, hangY = 0, hangEst = 0;
+        function kf(p, keys){
+          if (p <= keys[0][0]) return keys[0][1];
+          for (var i = 1; i < keys.length; i++){
+            if (p <= keys[i][0]){
+              var a = keys[i-1], b = keys[i], u = (p - a[0]) / (b[0] - a[0]);
+              u = u * u * (3 - 2 * u);                 // lissage entre deux cl&eacute;s
+              return a[1] + (b[1] - a[1]) * u;
+            }
+          }
+          return keys[keys.length-1][1];
+        }
+        function hangRestore(){
+          if (!hangBase) return;
+          Object.keys(hangBase).forEach(function(n){ bones[bIdx[n]].quaternion.copy(hangBase[n]); });
+        }
+        // combien de pixels &agrave; l'&eacute;cran vaut une unit&eacute; monde en vertical (pour viser
+        // la cordelette exactement, quelle que soit la taille de la fen&ecirc;tre)
+        var _p1 = new THREE.Vector3(), _p2 = new THREE.Vector3();
+        function pxPerUnitY(){
+          var cv = document.querySelector('#scene-fly canvas'); if (!cv) return null;
+          var r = cv.getBoundingClientRect();
+          _p1.set(0, R, 0).multiplyScalar(WORLD_S * worldK).project(camera);
+          _p2.set(0, R + 1, 0).multiplyScalar(WORLD_S * worldK).project(camera);
+          var d = Math.abs(_p1.y - _p2.y) * 0.5 * r.height;
+          return d > 0.01 ? d : null;
+        }
+        window.__charHanging = function(){ return hangOn; };
+        window.__charJumpToRope = function(){
+          if (hangOn) return;
+          hangBase = {};
+          HANG_BONES.forEach(function(n){
+            var i = bIdx[n]; if (i !== undefined) hangBase[n] = bones[i].quaternion.clone();
+          });
+          hangOn = true; hangY = 0; hangEst = 0; jumpT0 = performance.now();
+          lookTarget = 0;
+        };
+        window.__charReleaseRope = function(){
+          if (!hangOn) return;
+          hangRestore(); hangBase = null; hangOn = false; jumpT0 = 0; hangY = 0; hangEst = 0;
+        };
+        function hangPose(now){
+          if (!hangOn || !hangBase) return;
+          hangRestore();
+          var p = jumpT0 ? Math.min(1, (now - jumpT0) / JUMP_DUR) : 1;
+          var target = window.__ropeAnchorY;         // hauteur &eacute;cran vis&eacute;e par ses mains
+          var ppu = pxPerUnitY();
+          if (target != null && ppu){
+            var h = window.__charHandScreen();
+            if (h){
+              var err = (h.y - target) / ppu;        // >0 : les mains sont trop bas
+              if (p < 1){ hangEst += (err - hangEst) * 0.35; }   // estimation du saut
+              else if (!(window.__planetFalling && window.__planetFalling())){
+                // recalage doux et born&eacute; ; pendant la chute la compensation de la
+                // plan&egrave;te suffit (sinon l'erreur s'accumule et il part vers le haut)
+                hangY += Math.max(-0.6, Math.min(0.6, err * 0.16));
+              }
+            }
+          }
+          if (p < 1){
+            // accroupi (&eacute;lan) -> d&eacute;tente -> l&eacute;ger d&eacute;passement -> il se pose sur la corde
+            hangY = kf(p, [[0,0],[0.16,-0.10],[0.62,1.07],[0.82,0.99],[1,1]]) * Math.max(0, hangEst);
+          }
+          hangY = Math.max(-2, Math.min(400, hangY));
+
+          var r = kf(p, [[0,0],[0.20,0.35],[0.60,1],[1,1]]);      // fondu vers la pose suspendue
+          var crouch = kf(p, [[0,0],[0.16,1],[0.42,0],[1,0]]);
+          var sw = Math.sin(now / 1000 * 1.15), sw2 = Math.sin(now / 1000 * 1.15 - 0.5);
+
+          addRot('RightShoulder', AXZ, -0.24 * r);
+          addRot('LeftShoulder',  AXZ,  0.24 * r);
+          addRot('RightArm',      AXZ, -2.55 * r);
+          addRot('LeftArm',       AXZ,  2.55 * r);
+          addRot('RightForeArm',  AXZ, -0.16 * r);
+          addRot('LeftForeArm',   AXZ,  0.16 * r);
+          addRot('Spine',         AXZ,  sw * 0.055 * r);
+          addRot('Spine1',        AXZ,  sw2 * 0.04 * r);
+          addRot('Spine2',        AXX, -0.05 * r);
+          addRot('Neck',          AXX,  0.06 * r);
+          addRot('Head',          AXX,  0.10 * r);
+          addRot('LeftUpLeg',     AXX, -0.5 * crouch);
+          addRot('RightUpLeg',    AXX, -0.5 * crouch);
+          addRot('LeftLeg',       AXX,  0.55 * crouch + 0.30 * r);
+          addRot('RightLeg',      AXX,  0.55 * crouch + 0.22 * r);
+          addRot('LeftUpLeg',     AXZ,  sw * 0.07 * r);
+          addRot('RightUpLeg',    AXZ,  sw2 * 0.07 * r);
+        }
+
+        // position &eacute;cran (px, rep&egrave;re fen&ecirc;tre) de ses mains : la cordelette DOM s'y
+        // accroche, donc elle suit vraiment ses mains quand il est suspendu.
+        var _hv = new THREE.Vector3();
+        window.__charHandScreen = function(){
+          var i = bIdx['RightHand']; if (i === undefined) i = bIdx['RightForeArm'];
+          if (i === undefined) return null;
+          var cv = document.querySelector('#scene-fly canvas');
+          if (!cv) return null;
+          bones[i].getWorldPosition(_hv);
+          _hv.project(camera);
+          var r = cv.getBoundingClientRect();
+          return { x: r.left + (_hv.x * 0.5 + 0.5) * r.width,
+                   y: r.top  + (-_hv.y * 0.5 + 0.5) * r.height };
+        };
 
         // ================= Section 2 : 10 animations au choix =================
         // Chaque preset reçoit le temps (s) et un contexte remis à zéro à chaque frame :
@@ -2687,6 +2810,7 @@ function start() {
         };
         window.__charSit = function(){
           if (!standingBig) return;
+          if (window.__charReleaseRope) window.__charReleaseRope();
           standingBig = false;
           lookTarget = 0;
           spinRate = SPIN_BASE;
@@ -2712,11 +2836,14 @@ function start() {
           if (phase === 'sitidle' || phase === 'waitsitidle'){ if (window.__seatFollow) window.__seatFollow(); }
           if (phase !== 'idle'){ pinHips(); }   // épingle le bassin au centre (anti-dérive)
           lookPose(now);
+          hangPose(now);
           // échelle : il grandit à l'écran en section 2 (la planète, elle, rétrécit),
           // réévaluée à chaque frame car la caméra zoome sur plusieurs frames
           if (standingBig && window.__chairTune) {
-            const st = Object.assign({}, STAND_CT, { rotY: -world.rotation.y });
+            var st = Object.assign({}, STAND_CT, { rotY: -world.rotation.y });
             st.scale = fitStandScale(Object.assign({}, st, { scale: STAND_CT.scale / worldK })) * STAND_SHRINK;
+            st.y = (STAND_CT.y || 0) + hangY +
+                   (window.__planetFallLocal ? window.__planetFallLocal() : 0);   // saut, suspension, plan&egrave;te qui tombe
             window.__chairTune(st);
           }
         };
@@ -3008,6 +3135,72 @@ function start() {
       });
     })();
 
+    // ===================== LAMPE ANNEAU (section 2) =====================
+    // Objet de SCÈNE (pas enfant de `world`) : la planète peut trembler et tomber,
+    // l'anneau reste accroché à son plafond. Le personnage s'y suspend : ses mains
+    // visent la génératrice basse du tore, projetée à l'écran (window.__ropeAnchorY).
+    var lampGrp = null, lampLightRing = null, lampLitMesh = null;
+    var GRIP = { tube: 0.055, drop: 1.9, scale: 2.5, rest: 20.0, start: 34.0 };
+    var lampY = GRIP.start, lampYT = GRIP.start, lampLit = 0, lampLitT = 0, lampSwing = 0;
+    var _lv1 = new THREE.Vector3();
+
+    function buildRingLamp(){
+      lampGrp = new THREE.Group();
+      lampGrp.visible = false;
+      lampGrp.scale.setScalar(GRIP.scale);
+      var shell = new THREE.MeshStandardMaterial({ color:0xfdf7ea, roughness:0.55, metalness:0.03 });
+      var glow  = new THREE.MeshStandardMaterial({ color:0xf3ecdc, roughness:0.8, metalness:0.05 });
+      var wire  = new THREE.MeshStandardMaterial({ color:0xe9e2d4, roughness:0.7, metalness:0.15 });
+      lampLitMesh = glow;
+
+      var ring = new THREE.Mesh(new THREE.TorusGeometry(1, GRIP.tube, 18, 120), shell);
+      ring.rotation.x = Math.PI/2; ring.castShadow = true;
+      ring.layers.enable(CHAIR_LAYER); lampGrp.add(ring);
+
+      var lit = new THREE.Mesh(new THREE.TorusGeometry(1 - GRIP.tube*0.9, GRIP.tube*0.42, 12, 120), glow);
+      lit.rotation.x = Math.PI/2; lit.layers.enable(CHAIR_LAYER); lampGrp.add(lit);
+
+      [90, 210, 330].forEach(function(deg){
+        var a = deg * Math.PI/180;
+        var p1 = new THREE.Vector3(Math.cos(a), 0, Math.sin(a));
+        var p2 = new THREE.Vector3(0, GRIP.drop, 0);
+        var dir = new THREE.Vector3().subVectors(p2, p1);
+        var c = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, dir.length(), 5), wire);
+        c.position.copy(p1).add(p2).multiplyScalar(0.5);
+        c.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dir.clone().normalize());
+        c.layers.enable(CHAIR_LAYER); lampGrp.add(c);
+      });
+
+      var rose = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.05, 28), shell);
+      rose.position.y = GRIP.drop; rose.layers.enable(CHAIR_LAYER); lampGrp.add(rose);
+
+      scene.add(lampGrp);
+    }
+    buildRingLamp();
+
+    window.__ringLamp = {
+      drop: function(){ if (!lampGrp) return; lampGrp.visible = true; lampY = GRIP.start; lampYT = GRIP.rest; },
+      light: function(){ lampLitT = 1; lampSwing = 1; },
+      reset: function(){ if (!lampGrp) return; lampGrp.visible = false; lampY = lampYT = GRIP.start; lampLit = lampLitT = 0; lampSwing = 0; window.__ropeAnchorY = null; },
+      tune: function(o){ Object.assign(GRIP, o); if (lampGrp) lampGrp.scale.setScalar(GRIP.scale); lampYT = lampGrp && lampGrp.visible ? GRIP.rest : GRIP.start; }
+    };
+
+    // appelé chaque frame AVANT le tick du personnage : il vise l'anneau de CETTE frame
+    function lampTick(now){
+      if (!lampGrp || !lampGrp.visible){ window.__ropeAnchorY = null; return; }
+      lampY += (lampYT - lampY) * 0.085;
+      lampSwing *= 0.985;
+      lampGrp.position.set(0, lampY, 0);
+      lampGrp.rotation.z = Math.sin(now / 210) * 0.035 * lampSwing;
+      lampLit += (lampLitT - lampLit) * 0.06;   // sert au timing de la séquence, pas à l'éclairage
+      // génératrice basse du tore -> pixels : cible des mains
+      var cv = document.querySelector('#scene-fly canvas') || canvas;
+      if (!cv) return;
+      var r = cv.getBoundingClientRect();
+      _lv1.set(0, lampY - GRIP.tube * GRIP.scale, 0).project(camera);
+      window.__ropeAnchorY = r.top + (-_lv1.y * 0.5 + 0.5) * r.height;
+    }
+
     let rotY = 0.6, rotX = 0.0, tRotY = 0.6, tRotX = 0.0;   // vue de 3/4 (diagonale opposée) au lancement
     let rotZ = 0.0, tRotZ = 0.0;   // réserve : inclinaison de la planète
     const SPIN_BASE = 0.0016, SPIN_SLOW = 0.00045;   // rotation normale / très lente (section 2)
@@ -3027,16 +3220,30 @@ function start() {
       var __now = performance.now();
       if (window.__charMixer && window.__mixerActive !== false){ window.__charMixer.update(Math.min(0.05, (window.__lastT ? (__now - window.__lastT) : 16) / 1000)); }
       window.__lastT = __now;
+      // tremblement / chute AVANT le tick du personnage : il s'accroche &agrave; la lampe
+      // et sa compensation doit utiliser la position de la plan&egrave;te de CETTE frame
+      quakeAmp += (quakeTgt - quakeAmp) * 0.12;
+      if (falling){
+        fallV += 0.62;
+        fallY -= fallV;
+        // on ne masque PAS le monde : le personnage en est un enfant. La plan&egrave;te
+        // sort simplement du cadre, puis la chute s'arr&ecirc;te.
+        if (fallY < -900){ fallY = -900; falling = false; }
+      }
+      var qs = __now / 1000;
+      world.position.x = quakeAmp > 0.002 ? Math.sin(qs * 47) * 0.7 * quakeAmp : 0;
+      world.position.y = fallY + (quakeAmp > 0.002 ? Math.sin(qs * 61) * 0.6 * quakeAmp : 0);
+      lampTick(__now);
       if (window.__charTick){ window.__charTick(__now); }
       if (autoSpin) tRotY += spinRate;
       rotZ += (tRotZ - rotZ) * 0.08;
-      world.rotation.z = rotZ;
       rotY += (tRotY - rotY) * 0.08;
       rotX += (tRotX - rotX) * 0.08;
       worldK += (worldKTarget - worldK) * 0.06;
       world.scale.setScalar(WORLD_S * worldK);
       world.rotation.y = rotY;
       world.rotation.x = rotX;
+      world.rotation.z = rotZ + (quakeAmp > 0.002 ? Math.sin(qs * 53) * 0.015 * quakeAmp : 0);
       camDist += (camDistTarget - camDist) * 0.06;
       const VY = 10;
       camera.position.set(0, camDist * 0.42 + VY, camDist * 0.9);
@@ -3307,7 +3514,66 @@ start();
 </style>
 <section id="mcd-section2" aria-hidden="true">
   <div id="planet-dock" aria-hidden="true"></div>
+
+  <!-- la lampe est un objet 3D (anneau) construit dans la scène three.js -->
+
+
+
 </section>
+<script id="mcd-lamp-js">
+/* Séquence de la section 2, pilotée sur l'apparition de .show :
+   descente de l'anneau -> tremblement -> il saute -> ses mains touchent l'anneau
+   -> allumage -> la planète se dérobe. La lampe elle-même vit dans la scène 3D
+   (window.__ringLamp), donc elle ne tombe pas avec la planète. */
+(function(){
+  var sec = document.getElementById('mcd-section2');
+  if (!sec) return;
+  var timers = [], shown = false, raf = 0, lit = false;
+  function clear(){ timers.forEach(clearTimeout); timers = []; }
+  function at(ms, fn){ timers.push(setTimeout(fn, ms)); }
+
+  function lightUp(){
+    if (lit) return; lit = true;
+    if (window.__ringLamp) window.__ringLamp.light();
+    if (window.__planetQuake) window.__planetQuake(false);
+    at(220, function(){ if (window.__planetFall) window.__planetFall(); });
+  }
+  function frame(){
+    raf = 0;
+    if (!sec.classList.contains('show')) return;
+    // allumage quand ses mains arrivent réellement sur l'anneau
+    if (!lit && window.__charHanging && window.__charHanging() &&
+        window.__charHandScreen && window.__ropeAnchorY != null){
+      var hd = window.__charHandScreen();
+      if (hd && Math.abs(hd.y - window.__ropeAnchorY) < 30) lightUp();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  function play(){
+    if (shown) return; shown = true; clear();
+    lit = false;
+    at(120, function(){
+      if (window.__ringLamp) window.__ringLamp.drop();
+      if (!raf) raf = requestAnimationFrame(frame);
+    });
+    at(350, function(){ if (window.__planetQuake) window.__planetQuake(true); });
+    at(1250, function(){ if (window.__charJumpToRope) window.__charJumpToRope(); });
+    at(3400, lightUp);            // filet de sécurité si le modèle 3D n'est pas prêt
+  }
+  function reset(){
+    shown = false; lit = false; clear();
+    if (raf){ cancelAnimationFrame(raf); raf = 0; }
+    if (window.__charReleaseRope) window.__charReleaseRope();
+    if (window.__planetReset) window.__planetReset();
+    if (window.__ringLamp) window.__ringLamp.reset();
+  }
+  new MutationObserver(function(){
+    if (sec.classList.contains('show')) play(); else reset();
+  }).observe(sec, { attributes:true, attributeFilter:['class'] });
+  if (sec.classList.contains('show')) play();
+})();
+</script>
+<!-- ===== Fin lampe suspendue ===== -->
 <!-- ===== Fin section 2 ===== -->
 
 <!-- ===== Section pied de page (glisse depuis le bas) ===== -->
