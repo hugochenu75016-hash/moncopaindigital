@@ -3431,8 +3431,13 @@ function start() {
         r.rotation.z = s * 0.62;
       });
       bx(PW + 0.36, 0.14, PD + 0.3, 0, 0.26 + PH + gab + 0.02, Z + PD / 2, trimD);
-      bx(0.9, 1.55, 0.1, 0, 0.26 + 0.78, Z + PD + 0.02, yellowM);      // porte
-      bx(0.09, 0.09, 0.06, 0.3, 0.26 + 0.78, Z + PD + 0.08, trimD);    // poignée
+      const doorPivot = new THREE.Group();                             // gond côté gauche
+      doorPivot.position.set(-0.45, 0.26, Z + PD + 0.02);
+      g.add(doorPivot);
+      bx(0.9, 1.55, 0.1, 0.45, 0.78, 0, yellowM, doorPivot);           // battant
+      bx(0.09, 0.09, 0.06, 0.75, 0.78, 0.06, trimD, doorPivot);        // poignée
+      bx(1.02, 1.68, 0.06, 0, 0.26 + 0.84, Z + PD - 0.04, trimD);      // embrasure sombre
+      g.userData.door = doorPivot;
       bx(PW + 0.7, 0.16, 0.5, 0, 0.08, Z + PD + 0.28, trimD);          // marche haute
       bx(PW + 1.0, 0.12, 0.34, 0, 0.02, Z + PD + 0.62, trimD);         // marche basse
       [-1, 1].forEach(s => {
@@ -3564,27 +3569,56 @@ function start() {
                scale: +cineBuild.getWorldScale(new THREE.Vector3()).x.toFixed(3),
                fov: +camera.fov.toFixed(1) };
     };
-    let cineChar = null, cineCharT0 = 0;
+    let cineChar = null, cineCharT0 = 0, cineCharUp = false, cineDoorT0 = 0;
+    // à 65 % de la séquence : il se lève, le bureau et la chaise s'effacent.
+    // En dessous de 65 % (on remonte), il se rassied et le bureau revient.
+    function cineCharPrep(){
+      if (cineCharUp) return;
+      cineCharUp = true;
+      if (window.__charStand) window.__charStand();
+      if (window.__planetShrink) window.__planetShrink(1);
+      if (window.__seatMorph) window.__seatMorph(0, 0.9);
+    }
+    function cineCharBack(){
+      if (!cineCharUp) return;
+      cineCharUp = false;
+      cineCharT0 = 0; cineDoorT0 = 0;
+      if (cineBuild && cineBuild.userData.door) cineBuild.userData.door.rotation.y = 0;
+      if (window.__charGrp) window.__charGrp.visible = true;
+      if (cineChar){                       // il retourne à sa place sur la planète
+        cineChar = null;
+        world.add(window.__charGrp);
+      }
+      if (window.__charSit) window.__charSit();
+      if (window.__planetShrink) window.__planetShrink(1);
+      if (window.__seatMorph) window.__seatMorph(1, 0.9);
+    }
     function cineCharOut(){
       const grp = window.__charGrp;
       if (!grp || cineChar || !cineBuild) return;
       cineChar = grp;
-      if (window.__charStand) window.__charStand();          // il se met debout
-      if (window.__planetShrink) window.__planetShrink(1);   // la planète garde sa taille
-      if (window.__seatMorph) window.__seatMorph(0, 0.6);    // bureau et chaise s'effacent
+      cineCharPrep();
       cineBuild.add(grp);                                    // il passe dans le repère de la maison
       grp.scale.setScalar(1.55);
       grp.rotation.set(0, 0, 0);
-      cineCharT0 = performance.now();
+      cineCharT0 = cineDoorT0 || performance.now();
     }
     function cineCharTick(now){
       if (!cineChar && CINE.phase === 9) cineCharOut();
-      if (!cineChar || !cineBuild) return;
+      if (!cineBuild) return;
+      const t = cineDoorT0 ? now - cineDoorT0 : -1;
+      const door = cineBuild.userData.door;
+      if (door){
+        const o = t < 0 ? 0 : Math.min(1, t / 900);
+        door.rotation.y = -1.95 * cineEase.out(o);      // le battant s'ouvre vers l'extérieur
+      }
+      if (!cineChar) return;
       const A = cineBuild.userData.doorAt, B = cineBuild.userData.doorFront;
       if (!A || !B) return;
-      const k = Math.min(1, (now - cineCharT0) / 1700);
+      const k = Math.max(0, Math.min(1, (t - 550) / 1700));
       cineChar.position.lerpVectors(A, B, cineEase.out(k));
       cineChar.position.y += Math.abs(Math.sin(now / 260)) * (1 - k) * 0.04;   // petits pas
+      cineChar.visible = t > 400;
     }
 
     function cineLock(on){      let el = document.getElementById('cine-lock');
@@ -3711,9 +3745,11 @@ function start() {
       pos.lerpVectors(cineP0, p1, e);
       look.lerpVectors(cineL0, wp, cineEase.smooth(e));
       fov = 34 - 3 * e; amp = 0.06 - 0.03 * e;
+      if (e >= 0.65) cineCharPrep(); else cineCharBack();
       if (e >= 0.999 && CINE.phase !== 9){
         CINE.phase = 9;   // plan d'arrivée : rien ne bouge plus
         CINE.holdAt = now;
+        cineDoorT0 = now;      // la porte s'ouvre dès l'arrivée du plan
         cineCharOut();
         cineLock(false);
       } else if (e < 0.999 && CINE.phase === 9){
@@ -4420,6 +4456,9 @@ start();
     if (!fsRaf) fsRaf = requestAnimationFrame(fsTick);
   }
   fsRender();
+  window.__fsDebug = function(){
+    return { gap: Math.round(fsGap / (window.innerHeight * 0.7) * 100), footer: Math.round(fsP * 100) };
+  };
   window.mcdToHero = function(){ fsSet(0); };
   window.mcdToFooter = function(){ fsSet(1); };
 
@@ -4978,6 +5017,28 @@ start();
   if (document.readyState === 'loading')
     document.addEventListener('DOMContentLoaded', suivreFooter);
   else suivreFooter();
+})();
+</script>
+
+<!-- ===== Mesure temporaire du scroll ===== -->
+<div id="scroll-hud" style="position:fixed;left:16px;bottom:16px;z-index:12000;padding:12px 16px;border-radius:20px;background:rgba(20,24,30,.82);backdrop-filter:blur(8px);box-shadow:0 8px 24px rgba(0,0,0,.28);font-family:'Fredoka',system-ui,sans-serif;color:#fff;font-size:13px;line-height:1.5;white-space:pre;">—</div>
+<script>
+(function(){
+  var el = document.getElementById('scroll-hud');
+  ['wheel','touchmove','touchstart','pointerdown','keydown'].forEach(function(ev){
+    el.addEventListener(ev, function(e){ e.stopPropagation(); }, true);
+  });
+  (function tick(){
+    requestAnimationFrame(tick);
+    var c = window.__cineDebug ? window.__cineDebug() : null;
+    var f = window.__fsDebug ? window.__fsDebug() : null;
+    if (!c && !f) return;
+    var seq = c ? Math.round(Math.min(100, c.t / 4200 * 100)) : 0;
+    el.textContent = 'séquence caméra  ' + seq + '%'
+      + '\npalier à vide    ' + (f ? f.gap : 0) + '%'
+      + '\npied de page     ' + (f ? f.footer : 0) + '%'
+      + (c ? '\nphase ' + c.phase : '');
+  })();
 })();
 </script>
 
