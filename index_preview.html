@@ -2915,7 +2915,7 @@ function start() {
           hangPose(now);
           // échelle : il grandit à l'écran en section 2 (la planète, elle, rétrécit),
           // réévaluée à chaque frame car la caméra zoome sur plusieurs frames
-          if (standingBig && window.__chairTune) {
+          if (standingBig && !window.__cineOwnsChar && window.__chairTune) {
             var st = Object.assign({}, STAND_CT, { rotY: -world.rotation.y });
             st.scale = fitStandScale(Object.assign({}, st, { scale: STAND_CT.scale / worldK })) * STAND_SHRINK;
             st.y = (STAND_CT.y || 0) + hangY +
@@ -3424,7 +3424,8 @@ function start() {
 
       // --- porche à pignon, porte jaune, marches ---
       const PW = 1.35, PD = 0.75, PH = 1.9;
-      bx(PW + 0.2, PH, PD, 0, 0.26 + PH / 2, Z + PD / 2, cream);
+      [-1, 1].forEach(s => bx(0.16, PH, PD, s * (PW / 2 + 0.1), 0.26 + PH / 2, Z + PD / 2, cream));
+      bx(PW + 0.36, 0.12, PD + 0.12, 0, 0.26 + PH + 0.06, Z + PD / 2, cream);
       const gab = 0.62;
       [-1, 1].forEach(s => {
         const r = bx(0.14, 1.05, PD + 0.3, s * (PW / 2 + 0.02), 0.26 + PH + gab / 2 - 0.05, Z + PD / 2, trimD);
@@ -3436,7 +3437,10 @@ function start() {
       g.add(doorPivot);
       bx(0.9, 1.55, 0.1, 0.45, 0.78, 0, yellowM, doorPivot);           // battant
       bx(0.09, 0.09, 0.06, 0.75, 0.78, 0.06, trimD, doorPivot);        // poignée
-      bx(1.02, 1.68, 0.06, 0, 0.26 + 0.84, Z + PD - 0.04, trimD);      // embrasure sombre
+      const hallM = new THREE.MeshBasicMaterial({ color: 0x2b2129 });
+      bx(1.02, 1.7, 0.12, 0, 0.26 + 0.85, Z + 0.07, hallM);             // ouverture sombre dans la façade
+      bx(1.2, 0.12, 0.16, 0, 0.26 + 1.74, Z + 0.1, trimD);              // linteau
+      [-1, 1].forEach(s => bx(0.11, 1.76, 0.16, s * 0.6, 0.26 + 0.88, Z + 0.1, trimD));
       g.userData.door = doorPivot;
       bx(PW + 0.7, 0.16, 0.5, 0, 0.08, Z + PD + 0.28, trimD);          // marche haute
       bx(PW + 1.0, 0.12, 0.34, 0, 0.02, Z + PD + 0.62, trimD);         // marche basse
@@ -3551,7 +3555,7 @@ function start() {
       g.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, face));
       g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
       g.userData.doorAt = new THREE.Vector3(0, 0.26, Z + PD * 0.4);
-      g.userData.doorFront = new THREE.Vector3(0.15, 0.1, Z + PD + 1.25);
+      g.userData.doorFront = new THREE.Vector3(0.12, 0.06, Z + PD + 2.05);
       cineWinA = new THREE.Object3D();
       cineWinA.position.set(0, 3.1, Z + 0.14);
       g.add(cineWinA);
@@ -3587,6 +3591,7 @@ function start() {
       if (window.__charGrp) window.__charGrp.visible = true;
       if (cineChar){                       // il retourne à sa place sur la planète
         cineChar = null;
+        window.__cineOwnsChar = false;
         world.add(window.__charGrp);
       }
       if (window.__charSit) window.__charSit();
@@ -3597,6 +3602,7 @@ function start() {
       const grp = window.__charGrp;
       if (!grp || cineChar || !cineBuild) return;
       cineChar = grp;
+      window.__cineOwnsChar = true;
       cineCharPrep();
       cineBuild.add(grp);                                    // il passe dans le repère de la maison
       grp.scale.setScalar(1.55);
