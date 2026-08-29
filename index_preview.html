@@ -1600,7 +1600,7 @@ function start() {
       const a = posOnSphere(lat, lon, 1), b = posOnSphere(cityCenter.lat, cityCenter.lon, 1);
       return a.angleTo(b);
     };
-    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.2], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17], [90, 0, 0.26], [42, 90, 0.13]];
+    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.27], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17], [90, 0, 0.26], [42, 90, 0.13]];
     const inMonument = (la, lo) => {
       const a = posOnSphere(la, lo, 1);
       return clearZones.some(z => a.angleTo(posOnSphere(z[0], z[1], 1)) < z[2]);
@@ -2154,6 +2154,9 @@ function start() {
       }
       g.scale.setScalar(0.7);
       dropGroup(g, 46, 62, 0.2);
+      // la planète est bombée : on enfonce le stade de la flèche de l'arc sous son
+      // rayon extérieur pour que tout le pourtour touche le sol au lieu de flotter
+      g.position.addScaledVector(g.position.clone().normalize(), -0.2);
     })();
 
     // --- Décor Coupe du Monde : drapeaux tricolores + ballon géant ---
@@ -3681,7 +3684,7 @@ start();
 <!-- ===== Fin widget Espace compte ===== -->
 <!-- ===== Soleil décoratif (à côté de l'horloge) ===== -->
 <style id="sun-widget-css">
-  #liquid-sun{position:fixed;left:clamp(16px,4vw,48px);top:clamp(150px,20vw,280px);z-index:9998;width:110px;height:110px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+  #liquid-sun{position:fixed;left:clamp(16px,4vw,48px);top:clamp(150px,20vw,280px);z-index:3;width:110px;height:110px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
   #liquid-sun svg{width:100%;height:100%;overflow:visible;position:absolute;inset:0;transition:transform .9s cubic-bezier(.22,.9,.28,1),opacity .7s ease;will-change:transform,opacity;}
   #liquid-sun .sun-face{opacity:1;transform:translateY(0) scale(1);}
   #liquid-sun .moon-face{filter:drop-shadow(0 6px 18px rgba(150,175,255,0.5));opacity:0;transform:translateY(90vh) scale(.6);}
@@ -3855,6 +3858,7 @@ start();
     background:transparent;
     pointer-events:none;
     overflow-y:auto; -webkit-overflow-scrolling:touch;
+    transform:translateY(100%); will-change:transform;
   }
   #footer-sheet.show{ pointer-events:auto; }
   /* fond orange uniquement quand la feuille est ouverte (sinon elle masquerait la page) */
@@ -4191,63 +4195,84 @@ start();
   }
 
   function applyState(){
-    // #wrap porte le ciel du hero en fond plein écran ; une fois parti, on l'efface
-    // (transparent) pour laisser voir la section 2 derrière — seules la navbar et
-    // la bulle réseaux sociaux, restées dans #wrap, restent visibles par-dessus.
     if (wrap) wrap.style.background = (state === 'hero') ? '' : 'transparent';
     if (state === 'hero') {
       rise();
       if (window.__charSit) window.__charSit();
-      if (footer) footer.classList.remove('show');
-    } else if (state === 'footer') {
+    } else {
       fall();
       if (window.__charStand) window.__charStand();
-      if (footer) footer.classList.add('show');
     }
   }
 
-  function step(dir){
-    if (locked) return;
-    var i = ORDER.indexOf(state) + dir;
-    if (i < 0 || i >= ORDER.length) return;
-    locked = true;
-    state = ORDER[i];
-    applyState();
-    setTimeout(function(){ locked = false; }, 1500);
-  }
   // le pied de page n'est accessible qu'une fois la séquence caméra arrivée au bout
   var t0Page = Date.now();
   function cineBusy(){
     if (!window.__cineDebug) return Date.now() - t0Page < 20000;   // filet si la 3D ne charge pas
-    var d = window.__cineDebug();
-    return d.phase !== 9;
+    return window.__cineDebug().phase !== 9;
   }
-  function toFooter(){ if (state === 'hero' && cineBusy()) return; step(1); }
-  function toHero(){ step(-1); }
-  window.mcdToHero = function(){
-    if (state === 'hero') return;
-    state = 'hero';
-    applyState();
-  };
+
+  // ----- Le pied de page monte à la main du geste (0 = caché, 1 = plein écran) -----
+  var fsP = 0, fsT = 0, fsRaf = 0, fsGap = 0;
+  function fsRender(){
+    if (!footer) return;
+    footer.style.transform = 'translateY(' + ((1 - fsP) * 100).toFixed(2) + '%)';
+    var open = fsP > 0.015;
+    footer.classList.toggle('show', open);
+    var next = open ? 'footer' : 'hero';
+    if (next !== state){ state = next; applyState(); }
+  }
+  function fsTick(){
+    fsP += (fsT - fsP) * 0.2;
+    if (Math.abs(fsT - fsP) < 0.0015){ fsP = fsT; fsRaf = 0; }
+    else fsRaf = requestAnimationFrame(fsTick);
+    fsRender();
+  }
+  function fsDrive(px){
+    if (!footer) return;
+    if (fsT <= 0){
+      if (px > 0 && cineBusy()) return;             // séquence caméra pas terminée
+      // palier à vide entre la fin de la séquence et le départ du pied de page
+      var GAP = window.innerHeight * 0.7;
+      fsGap = Math.max(0, Math.min(GAP, fsGap + px));
+      if (px > 0 && fsGap < GAP) return;
+      if (px < 0) return;
+      px = 0.001;
+    } else if (px < 0 && fsT + px / (window.innerHeight * 0.85) <= 0){
+      fsGap = window.innerHeight * 0.7;             // on ressort par le palier
+    }
+    var n = fsT + px / (window.innerHeight * 0.85);
+    fsT = Math.max(0, Math.min(1, n));
+    if (!fsRaf) fsRaf = requestAnimationFrame(fsTick);
+  }
+  function fsSet(v){
+    fsT = v;
+    if (!fsRaf) fsRaf = requestAnimationFrame(fsTick);
+  }
+  fsRender();
+  window.mcdToHero = function(){ fsSet(0); };
+  window.mcdToFooter = function(){ fsSet(1); };
 
   window.addEventListener('wheel', function(e){
-    if (Math.abs(e.deltaY) < 8) return;
-    if (e.deltaY > 0) toFooter(); else toHero();
+    if (Math.abs(e.deltaY) < 2) return;
+    fsDrive(e.deltaY);
   }, { passive: true });
 
   var ty0 = null;
   window.addEventListener('touchstart', function(e){ ty0 = e.touches[0].clientY; }, { passive: true });
   window.addEventListener('touchmove', function(e){
     if (ty0 == null) return;
-    var dy = ty0 - e.touches[0].clientY;
-    if (dy > 34) { toFooter(); ty0 = null; }
-    else if (dy < -34) { toHero(); ty0 = null; }
+    var y = e.touches[0].clientY;
+    fsDrive((ty0 - y) * 1.6);
+    ty0 = y;
   }, { passive: true });
   window.addEventListener('touchend', function(){ ty0 = null; }, { passive: true });
 
   window.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') toFooter();
-    else if (e.key === 'ArrowUp' || e.key === 'PageUp') toHero();
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') fsDrive(420);
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') fsDrive(-420);
+    else if (e.key === 'End') fsSet(1);
+    else if (e.key === 'Home') fsSet(0);
   });
 
 })();
