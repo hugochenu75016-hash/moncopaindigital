@@ -5132,28 +5132,6 @@ start();
 })();
 </script>
 
-<!-- ===== Mesure temporaire du scroll ===== -->
-<div id="scroll-hud" style="position:fixed;left:16px;bottom:96px;z-index:12000;padding:12px 16px;border-radius:20px;background:rgba(20,24,30,.82);backdrop-filter:blur(8px);box-shadow:0 8px 24px rgba(0,0,0,.28);font-family:'Fredoka',system-ui,sans-serif;color:#fff;font-size:13px;line-height:1.5;white-space:pre;">—</div>
-<script>
-(function(){
-  var el = document.getElementById('scroll-hud');
-  ['wheel','touchmove','touchstart','pointerdown','keydown'].forEach(function(ev){
-    el.addEventListener(ev, function(e){ e.stopPropagation(); }, true);
-  });
-  (function tick(){
-    requestAnimationFrame(tick);
-    var c = window.__cineDebug ? window.__cineDebug() : null;
-    var f = window.__fsDebug ? window.__fsDebug() : null;
-    if (!c && !f) return;
-    var seq = c ? Math.round(Math.min(100, c.t / 4200 * 100)) : 0;
-    el.textContent = 'séquence caméra  ' + seq + '%'
-      + '\npalier à vide    ' + (f ? f.gap : 0) + '%'
-      + '\npied de page     ' + (f ? f.footer : 0) + '%'
-      + (c ? '\nphase ' + c.phase : '');
-  })();
-})();
-</script>
-
 <!-- ===== Déclencheur de la séquence cinéma (après la révélation du titre) ===== -->
 <script>
 (function(){
