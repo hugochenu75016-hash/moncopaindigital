@@ -1565,17 +1565,10 @@ function start() {
     const roads = [
       [[60, -40], [45, -25], [30, -15], [18, -5], [8, 8], [5, 18]],
       [[55, 30], [42, 18], [30, 5], [22, -10], [16, -28], [12, -48]],
-      [[40, -60], [42, -30], [44, 0], [42, 30], [38, 60]],
-      [[70, 0], [50, 5], [30, 8], [12, 10], [5, 12]],
       [[25, -80], [28, -50], [30, -20], [33, 10], [35, 40], [34, 70]],
       [[18, -30], [12, -5], [10, 25], [14, 45]]
     ];
-    roads.forEach(r => buildPath(r, 0.42, roadMat, 0.03));
-
-    buildPath([[44, 152], [36, 150.5], [27, 149], [17, 148]], 0.9, roadMat, 0.045);
-    buildPath([[44, 152], [52, 150], [61, 149]], 0.46, roadMat, 0.04);
-    buildPath([[44, 152], [47, 161], [50, 170]], 0.46, roadMat, 0.04);
-    buildPath([[44, 152], [41, 143], [39, 134]], 0.46, roadMat, 0.04);
+    // routes/ponts en planches retirés de la planète
 
     const cityCenter = { lat: 50, lon: 5 };
     const angDist = (lat, lon) => {
@@ -3607,7 +3600,7 @@ function start() {
     };
     // ===== Tour du quartier : la caméra recule, la planète tourne d'un quart,
     // puis la caméra plonge sur le bâtiment suivant (même jardin, autres couleurs) =====
-    let cineCamLocal = null, cineStop = 0;
+    let cineCamLocal = null, cineStop = 0, cineRotBase = null;
     const cineStops = {};
     const CINE_PALS = [
       { wall: 0xf1e9d5, roof: 0xef5b28, sign: 'Mon Copain Digital' },
@@ -3639,6 +3632,7 @@ function start() {
       TOUR.look0.copy(cineWinA.getWorldPosition(new THREE.Vector3()));
       TOUR.center.copy(C);
       TOUR.wide.copy(C).addScaledVector(away, dist * 1.55).add(new THREE.Vector3(0, dist * 0.1, 0));
+      if (cineRotBase === null) cineRotBase = tRotY;   // orientation d'origine, pour le rembobinage
       TOUR.dRot = (dir < 0 ? 1 : -1) * Math.PI / 2;
       TOUR.nextWin = nb.userData.win; TOUR.nextBuild = nb;
       TOUR.on = true; TOUR.ph = 0; TOUR.t0 = performance.now();
@@ -3848,6 +3842,15 @@ function start() {
       pos.lerpVectors(cineP0, p1, e);
       look.lerpVectors(cineL0, wp, cineEase.smooth(e));
       fov = 34 - 3 * e; amp = 0.06 - 0.03 * e;
+      // on remonte : quel que soit le bâtiment visité, la planète reprend son
+      // orientation de départ et la caméra rembobine depuis la maison principale
+      if (e < 0.995 && cineStop !== 0 && cineStops[0]){
+        cineStop = 0;
+        cineBuild = cineStops[0];
+        cineWinA = cineStops[0].userData.win;
+        if (cineRotBase !== null) tRotY = cineRotBase;
+        return;
+      }
       if (e >= 0.65) cineCharPrep(); else cineCharBack();
       if (e >= 0.999 && CINE.phase !== 9){
         CINE.phase = 9;   // plan d'arrivée : rien ne bouge plus
@@ -5335,7 +5338,7 @@ start();
     M = M || document.getElementById('mcd-more');
     if (M){
       var om = seq >= 75 ? Math.min(1, (seq - 75) / 8) : 0;
-      if (gap > 0 || footer > 0) om = 0;   // dès qu'on scrolle vers le bas, elle s'efface
+      if (footer > 0) om = 0;   // elle reste pendant le palier, s'efface quand le pied de page monte
       M.style.opacity = om.toFixed(3);
       M.style.pointerEvents = om > 0.6 ? 'auto' : 'none';
     }
