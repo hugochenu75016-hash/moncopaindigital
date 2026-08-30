@@ -317,6 +317,7 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
   ]
 }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
@@ -979,6 +980,8 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
   #mcd-nav { position:absolute; top:clamp(16px,3vh,30px); left:0; right:0; padding:0 clamp(12px,3vw,40px);
     display:flex; align-items:center; justify-content:center; gap:14px 18px; flex-wrap:wrap; z-index:30; pointer-events:none; }
   #mcd-nav > * { pointer-events:auto; }
+  /* la barre de navigation reste au-dessus de tout (scène 3D, pied de page, rails) */
+  #mcd-nav { position:fixed; z-index:999998; }
   .mcd-glass { background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
     border-radius:999px;
     box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34),
@@ -1121,6 +1124,7 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
     var ORANGE=[243,133,43], WHITE=[255,255,255];
     var ORANGE_CSS='#F3852B', WHITE_CSS='#FFFFFF';
     var CX,CY,EDGE,grid,cols,rows,N=0,base=null,mouse=null,raf=0,painted=false;
+    var SX,SY,DL,revealing=false,cleared=false,st={p:0};   // révélation GSAP
 
     function build(){
       var off=document.createElement('canvas'); off.width=W; off.height=H;
@@ -1171,10 +1175,60 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
       }
       bc.putImageData(img,0,0);
       painted=false;
+
+      // points de départ de la révélation : éclats dispersés + balayage gauche→droite
+      SX=new Float32Array(N); SY=new Float32Array(N); DL=new Float32Array(N);
+      for(var i3=0;i3<N;i3++){
+        var a=Math.random()*Math.PI*2, rad=130+Math.random()*430;
+        SX[i3]=Math.cos(a)*rad;
+        SY[i3]=Math.sin(a)*rad*0.5-60;
+        DL[i3]=(CX[i3]/W)*0.42+Math.random()*0.13;
+      }
     }
+
+    var SPAN=0.58;
+    function drawReveal(p){
+      ctx.clearRect(0,0,W,H);
+      for(var i=0;i<N;i++){
+        var l=(p-DL[i])/SPAN;
+        if(l<=0) continue; if(l>1) l=1;
+        var e=1-Math.pow(1-l,3);
+        ctx.globalAlpha = l<0.3 ? l/0.3 : 1;
+        ctx.fillStyle = e<0.88 ? ORANGE_CSS : WHITE_CSS;
+        ctx.fillRect(CX[i]+SX[i]*(1-e), CY[i]+SY[i]*(1-e), DOT, DOT);
+      }
+      ctx.globalAlpha=1;
+    }
+
+    function revealDone(){
+      revealing=false; painted=false; window.__titleDone=true;
+      try{ window.dispatchEvent(new Event('mcd-title-done')); }catch(e){}
+    }
+
+    // Révélation du titre pilotée par GSAP (appelée à l'ouverture des portes)
+    window.__titleReveal=function(){
+      if(revealing||window.__titleDone) return;
+      if(!base){ setTimeout(window.__titleReveal,60); return; }
+      revealing=true; st.p=0; cleared=false;
+      if(window.gsap){
+        window.gsap.to(st,{p:1+SPAN,duration:2.1,ease:'power2.out',onComplete:revealDone});
+      } else {
+        var t0=performance.now();
+        (function fb(){
+          var k=Math.min(1,(performance.now()-t0)/2100);
+          st.p=(1+SPAN)*(1-Math.pow(1-k,2));
+          if(k<1) requestAnimationFrame(fb); else revealDone();
+        })();
+      }
+    };
 
     function frame(){
       if(!base){ raf=requestAnimationFrame(frame); return; }
+      if(revealing){ drawReveal(st.p); raf=requestAnimationFrame(frame); return; }
+      if(!window.__titleDone){
+        if(!cleared){ ctx.clearRect(0,0,W,H); cleared=true; }
+        raf=requestAnimationFrame(frame); return;
+      }
       var m=mouse;
       if(!painted || m || frame.was){
         ctx.clearRect(0,0,W,H); ctx.drawImage(base,0,0); painted=true;
@@ -1204,8 +1258,7 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
       mouse={ x:(e.clientX-r.left)/r.width*W, y:(e.clientY-r.top)/r.height*H };
     }, {passive:true});
 
-    function start(){ build(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame); }
-    if(document.fonts && document.fonts.load){
+    function start(){ build(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame); }    if(document.fonts && document.fonts.load){
       document.fonts.load("700 185px 'Fredoka'").then(start).catch(start);
     } else { start(); }
   })();
@@ -1216,24 +1269,6 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
 
   <!-- Confettis tricolores -->
   <div id="confetti"></div>
-  <header id="mcd-nav">
-    <div id="mcd-left">
-      <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
-    </div>
-
-    <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
-      <a class="mcd-link is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
-      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je ?</a>
-      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions</span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
-      <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
-      <div id="mcd-drop" class="mcd-glass">
-        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio<span class="mcd-badge-static">Nouveau</span></strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
-      </div>  </nav>
-
-    <div id="mcd-right">
-      <a class="mcd-cta" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
-    </div>
-  </header>
 
 
   <script>
@@ -1249,9 +1284,7 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   })();
   </script>
-  <div id="enter-wrap">
-    <button class="enter-btn" onclick="mcdGo('explorer.html')">Explorer</button>
-  </div>
+
 
   <!-- Écran de chargement retiré : ce sont les portes qui font le chargement -->
 
@@ -1532,24 +1565,17 @@ function start() {
     const roads = [
       [[60, -40], [45, -25], [30, -15], [18, -5], [8, 8], [5, 18]],
       [[55, 30], [42, 18], [30, 5], [22, -10], [16, -28], [12, -48]],
-      [[40, -60], [42, -30], [44, 0], [42, 30], [38, 60]],
-      [[70, 0], [50, 5], [30, 8], [12, 10], [5, 12]],
       [[25, -80], [28, -50], [30, -20], [33, 10], [35, 40], [34, 70]],
       [[18, -30], [12, -5], [10, 25], [14, 45]]
     ];
-    roads.forEach(r => buildPath(r, 0.42, roadMat, 0.03));
-
-    buildPath([[44, 152], [36, 150.5], [27, 149], [17, 148]], 0.9, roadMat, 0.045);
-    buildPath([[44, 152], [52, 150], [61, 149]], 0.46, roadMat, 0.04);
-    buildPath([[44, 152], [47, 161], [50, 170]], 0.46, roadMat, 0.04);
-    buildPath([[44, 152], [41, 143], [39, 134]], 0.46, roadMat, 0.04);
+    // routes/ponts en planches retirés de la planète
 
     const cityCenter = { lat: 50, lon: 5 };
     const angDist = (lat, lon) => {
       const a = posOnSphere(lat, lon, 1), b = posOnSphere(cityCenter.lat, cityCenter.lon, 1);
       return a.angleTo(b);
     };
-    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.2], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17], [90, 0, 0.26]];
+    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.27], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17], [90, 0, 0.26], [42, 90, 0.27], [42, 0, 0.27], [42, -90, 0.27], [42, 180, 0.27]];
     const inMonument = (la, lo) => {
       const a = posOnSphere(la, lo, 1);
       return clearZones.some(z => a.angleTo(posOnSphere(z[0], z[1], 1)) < z[2]);
@@ -1568,16 +1594,43 @@ function start() {
       const w = range(0.42, 0.85), dp = range(0.42, 0.85);
       const mat = facadeMats[(rnd() * facadeMats.length) | 0];
       const spin = range(0, Math.PI * 2);
-      placeBox(world, lat, lon, w, h, dp, mat, spin);
-      const roof = new THREE.Mesh(coneGeo, rnd() > 0.5 ? slateMat : roofMat);
       const p = posOnSphere(lat, lon, R);
       const n = p.clone().normalize();
-      const rh = Math.max(w, dp) * range(0.4, 0.7);
-      roof.scale.set(w * 1.02, rh, dp * 1.02);
-      roof.position.copy(p).addScaledVector(n, h + rh / 2);
+      // pièce posée sur le sol, à la manière de l'immeuble Mon Copain Digital :
+      // socle, corps texturé, corniche débordante, toit à quatre pans, cheminée
+      const put = (geo, matr, sw, sh, sd, lift, twist) => {
+        const m = new THREE.Mesh(geo, matr);
+        m.scale.set(sw, sh, sd);
+        m.position.copy(p).addScaledVector(n, lift + sh / 2);
+        orient(m, n, spin + (twist || 0));
+        m.castShadow = true; m.receiveShadow = true;
+        world.add(m);
+        return m;
+      };
+      const roofSlate = rnd() > 0.45;
+      put(boxGeo, roofSlate ? whiteMat : creamMat, w * 1.06, 0.05, dp * 1.06, 0);       // socle
+      placeBox(world, lat, lon, w, h, dp, mat, spin);                                    // corps
+      put(boxGeo, roofSlate ? slateMat : roofMat, w + 0.1, 0.055, dp + 0.1, h);          // corniche
+      const rh = Math.max(w, dp) * range(0.42, 0.66);
+      const roof = new THREE.Mesh(coneGeo, roofSlate ? slateMat : roofMat);
+      roof.scale.set(w * 1.16, rh, dp * 1.16);
+      roof.position.copy(p).addScaledVector(n, h + 0.055 + rh / 2);
       orient(roof, n, spin + Math.PI / 4);
-      roof.castShadow = true;
+      roof.castShadow = true; roof.receiveShadow = true;
       world.add(roof);
+      if (rnd() < 0.42){                                                                 // cheminée
+        const cw = Math.min(w, dp) * range(0.14, 0.2);
+        const ch2 = rh * range(0.55, 0.9);
+        const ck = new THREE.Mesh(boxGeo, rnd() > 0.5 ? whiteMat : roofMat);
+        ck.scale.set(cw, ch2, cw);
+        const off = new THREE.Vector3().crossVectors(n, new THREE.Vector3(0, 1, 0)).normalize();
+        if (!isFinite(off.x) || off.lengthSq() < 1e-6) off.set(1, 0, 0);
+        ck.position.copy(p).addScaledVector(n, h + rh * 0.55 + ch2 / 2)
+          .addScaledVector(off, Math.min(w, dp) * range(-0.24, 0.24));
+        orient(ck, n, spin);
+        ck.castShadow = true;
+        world.add(ck);
+      }
       placed++;
     }
 
@@ -2076,6 +2129,9 @@ function start() {
       }
       g.scale.setScalar(0.7);
       dropGroup(g, 46, 62, 0.2);
+      // la planète est bombée : on enfonce le stade de la flèche de l'arc sous son
+      // rayon extérieur pour que tout le pourtour touche le sol au lieu de flotter
+      g.position.addScaledVector(g.position.clone().normalize(), -0.2);
     })();
 
     // --- Décor Coupe du Monde : drapeaux tricolores + ballon géant ---
@@ -2249,6 +2305,7 @@ function start() {
         apply();
         window.__chairTune = (o) => { Object.assign(CT, o); apply(); };
         window.__chair = grp;
+        window.__charGrp = grp;   // référence stable du personnage
 
         // ===== Chaise sous le personnage (révélée au moment de l'assise) =====
         (function buildSeat(){
@@ -2500,8 +2557,7 @@ function start() {
           if (prevAction) _sitAction = prevAction;
           if (sitIdleClip){
             phase = 'sitidle';
-            if (typeof autoSpin !== 'undefined') autoSpin = true;   // la planète se remet à tourner
-            const idle = mixer.clipAction(sitIdleClip);
+              const idle = mixer.clipAction(sitIdleClip);
             idle.reset(); idle.setLoop(THREE.LoopRepeat); idle.clampWhenFinished = false;
             idle.fadeIn(0.4).play();
             if (_sitAction) _sitAction.fadeOut(0.4);
@@ -2532,7 +2588,6 @@ function start() {
           if (phase !== 'idle') return;
           grp.position.y = finalY;                 // directement en position assise
           if (window.__chairShow) window.__chairShow();   // chaise + bureau visibles
-          if (typeof autoSpin !== 'undefined') autoSpin = true;
           if (sitIdleClip){ grp.visible = true; startSitIdle(); }
           else { phase = 'waitsitidle'; }          // on attend le clip (reste caché, pas de T-pose)
         };
@@ -2633,6 +2688,46 @@ function start() {
           var d = Math.abs(_p1.y - _p2.y) * 0.5 * r.height;
           return d > 0.01 ? d : null;
         }
+        // ===== Marche procédurale : le GLB n'a qu'une boucle assise, le pas est calculé =====
+        var WALK_BONES = ['LeftUpLeg','RightUpLeg','LeftLeg','RightLeg','LeftFoot','RightFoot',
+                          'LeftArm','RightArm','LeftForeArm','RightForeArm','Spine','Spine1','Head'];
+        var walkBase = null, walkOn = false, walkT = 0, walkAmt = 0, walkLast = 0;
+        var WALK_HZ = 1.45;                       // pas par seconde
+        window.__charWalkHz = WALK_HZ;
+        window.__charWalk = function(on){
+          if (on && !walkOn){
+            walkBase = {};
+            WALK_BONES.forEach(function(n){ var i = bIdx[n]; if (i !== undefined) walkBase[n] = bones[i].quaternion.clone(); });
+            walkOn = true; walkT = 0; walkLast = performance.now();
+          } else if (!on){
+            walkOn = false;
+          }
+        };
+        window.__charWalkPhase = function(){ return walkT * WALK_HZ * Math.PI * 2; };
+        function walkPose(now){
+          if (!walkBase) return;
+          var dt = Math.min(0.05, (now - walkLast) / 1000); walkLast = now;
+          walkAmt += ((walkOn ? 1 : 0) - walkAmt) * 0.14;
+          Object.keys(walkBase).forEach(function(n){ bones[bIdx[n]].quaternion.copy(walkBase[n]); });
+          if (!walkOn && walkAmt < 0.01){ walkBase = null; walkAmt = 0; return; }
+          if (walkOn) walkT += dt;
+          var w = walkT * WALK_HZ * Math.PI * 2;
+          var s = Math.sin(w), a = walkAmt;
+          addRot('LeftUpLeg',   AXX, -0.58 * s * a);
+          addRot('RightUpLeg',  AXX,  0.58 * s * a);
+          addRot('LeftLeg',     AXX, (0.12 + 0.62 * Math.max(0, Math.sin(w - 1.15))) * a);
+          addRot('RightLeg',    AXX, (0.12 + 0.62 * Math.max(0, Math.sin(w + Math.PI - 1.15))) * a);
+          addRot('LeftFoot',    AXX,  0.22 * Math.sin(w + 0.7) * a);
+          addRot('RightFoot',   AXX,  0.22 * Math.sin(w + Math.PI + 0.7) * a);
+          addRot('LeftArm',     AXX,  0.14 * s * a);
+          addRot('RightArm',    AXX, -0.14 * s * a);
+          addRot('LeftForeArm', AXX,  (0.06 + 0.04 * s) * a);
+          addRot('RightForeArm',AXX,  (0.06 - 0.04 * s) * a);
+          addRot('Spine',       AXY, -0.07 * s * a);
+          addRot('Spine1',      AXY,  0.05 * s * a);
+          addRot('Head',        AXY,  0.03 * s * a);
+        }
+
         window.__charHanging = function(){ return hangOn; };
         window.__charJumpToRope = function(){
           if (hangOn) return;
@@ -2795,8 +2890,6 @@ function start() {
           // Section 2 : il reste assis sur la planète. La boucle assise du GLB continue
           // (respiration), la planète tourne très lentement et il garde la face vers nous,
           // le regard levé vers le texte. Aucun blend de pose : la transition est fluide.
-          if (typeof autoSpin !== 'undefined') autoSpin = true;
-          spinRate = SPIN_SLOW;
           lookTarget = 0;
           // il quitte la pose assise pour se tenir droit, debout sur la planète
           const sittingSnap = snapshotBones();   // vraie pose assise AVANT de couper le clip
@@ -2813,8 +2906,6 @@ function start() {
           if (window.__charReleaseRope) window.__charReleaseRope();
           standingBig = false;
           lookTarget = 0;
-          spinRate = SPIN_BASE;
-          if (typeof autoSpin !== 'undefined') autoSpin = true;
           camDistTarget = CAM_DIST_SIT;
           window.__planetShrink(1);
           if (window.__chairTune) window.__chairTune(SIT_CT);
@@ -2837,9 +2928,10 @@ function start() {
           if (phase !== 'idle'){ pinHips(); }   // épingle le bassin au centre (anti-dérive)
           lookPose(now);
           hangPose(now);
+          walkPose(now);
           // échelle : il grandit à l'écran en section 2 (la planète, elle, rétrécit),
           // réévaluée à chaque frame car la caméra zoome sur plusieurs frames
-          if (standingBig && window.__chairTune) {
+          if (standingBig && !window.__cineOwnsChar && window.__chairTune) {
             var st = Object.assign({}, STAND_CT, { rotY: -world.rotation.y });
             st.scale = fitStandScale(Object.assign({}, st, { scale: STAND_CT.scale / worldK })) * STAND_SHRINK;
             st.y = (STAND_CT.y || 0) + hangY +
@@ -3140,7 +3232,7 @@ function start() {
     // l'anneau reste accroché à son plafond. Le personnage s'y suspend : ses mains
     // visent la génératrice basse du tore, projetée à l'écran (window.__ropeAnchorY).
     var lampGrp = null, lampLightRing = null, lampLitMesh = null;
-    var GRIP = { tube: 0.055, drop: 1.9, scale: 2.5, rest: 20.0, start: 34.0 };
+    var GRIP = { tube: 0.055, drop: 1.9, scale: 2.5, rest: 20.0, start: 34.0, topPct: 0.20 };
     var lampY = GRIP.start, lampYT = GRIP.start, lampLit = 0, lampLitT = 0, lampSwing = 0;
     var _lv1 = new THREE.Vector3();
 
@@ -3176,18 +3268,46 @@ function start() {
 
       scene.add(lampGrp);
     }
-    buildRingLamp();
+    // buildRingLamp();  // désactivé
+
+    // hauteur d'anneau (unités de scène) telle que le plan du tore se retrouve à
+    // topPct de la hauteur de fenêtre, donc HAUT dans l'écran ; c'est ensuite le
+    // personnage qui monte jusqu'à lui (sa détente vise __ropeAnchorY).
+    var _lvA = new THREE.Vector3(), _lvB = new THREE.Vector3();
+    function solveRest(){
+      var cv = document.querySelector('#scene-fly canvas') || canvas;
+      if (!cv) return GRIP.rest;
+      var r = cv.getBoundingClientRect();
+      var want = window.innerHeight * GRIP.topPct;
+      var y = GRIP.rest;
+      for (var i = 0; i < 4; i++){
+        _lvA.set(0, y, 0).project(camera);
+        _lvB.set(0, y + 1, 0).project(camera);
+        var sy = r.top + (-_lvA.y * 0.5 + 0.5) * r.height;
+        var ppu = Math.abs(_lvA.y - _lvB.y) * 0.5 * r.height;
+        if (!(ppu > 0.01)) break;
+        y += (sy - want) / ppu;
+      }
+      return Math.max(4, Math.min(80, y));
+    }
 
     window.__ringLamp = {
-      drop: function(){ if (!lampGrp) return; lampGrp.visible = true; lampY = GRIP.start; lampYT = GRIP.rest; },
+      drop: function(){ if (!lampGrp) return; lampGrp.visible = true; lampSolve = true; jumpDone = false; GRIP.rest = solveRest(); lampY = GRIP.rest + 10; lampYT = GRIP.rest; },
+      grabbed: function(){ jumpDone = true; },
       light: function(){ lampLitT = 1; lampSwing = 1; },
-      reset: function(){ if (!lampGrp) return; lampGrp.visible = false; lampY = lampYT = GRIP.start; lampLit = lampLitT = 0; lampSwing = 0; window.__ropeAnchorY = null; },
+      reset: function(){ if (!lampGrp) return; lampGrp.visible = false; lampSolve = false; lampY = lampYT = GRIP.start; lampLit = lampLitT = 0; lampSwing = 0; window.__ropeAnchorY = null; },
       tune: function(o){ Object.assign(GRIP, o); if (lampGrp) lampGrp.scale.setScalar(GRIP.scale); lampYT = lampGrp && lampGrp.visible ? GRIP.rest : GRIP.start; }
     };
 
     // appelé chaque frame AVANT le tick du personnage : il vise l'anneau de CETTE frame
+    var lampSolve = false, jumpDone = false;
     function lampTick(now){
       if (!lampGrp || !lampGrp.visible){ window.__ropeAnchorY = null; return; }
+      // tant qu'il n'est pas suspendu, l'anneau se recale en haut de l'écran
+      if (lampSolve){
+        GRIP.rest = solveRest(); lampYT = GRIP.rest;
+        if (window.__charHanging && window.__charHanging() && jumpDone) lampSolve = false;
+      }
       lampY += (lampYT - lampY) * 0.085;
       lampSwing *= 0.985;
       lampGrp.position.set(0, lampY, 0);
@@ -3197,15 +3317,18 @@ function start() {
       var cv = document.querySelector('#scene-fly canvas') || canvas;
       if (!cv) return;
       var r = cv.getBoundingClientRect();
-      _lv1.set(0, lampY - GRIP.tube * GRIP.scale, 0).project(camera);
+      // ses mains agrippent l'anneau sur ses côtés (extrémités gauche/droite du tore),
+      // qui sont à la hauteur du CENTRE du tore, pas sous lui
+      _lv1.set(GRIP.scale, lampY, 0).project(camera);
       window.__ropeAnchorY = r.top + (-_lv1.y * 0.5 + 0.5) * r.height;
+      window.__ropeAnchorX = r.left + (_lv1.x * 0.5 + 0.5) * r.width;
     }
 
     let rotY = 0.6, rotX = 0.0, tRotY = 0.6, tRotX = 0.0;   // vue de 3/4 (diagonale opposée) au lancement
     let rotZ = 0.0, tRotZ = 0.0;   // réserve : inclinaison de la planète
-    const SPIN_BASE = 0.0016, SPIN_SLOW = 0.00045;   // rotation normale / très lente (section 2)
-    let spinRate = SPIN_BASE;
-    let autoSpin = false;   // la planète ne tourne qu'une fois le perso installé (boucle assise)
+    let spinRate = 0;       // la planète ne tourne pas
+    const SPIN_SLOW = 0;    // conservé à zéro : les presets d'animation y font référence
+    let autoSpin = false;
 
     const resize = () => {
       const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -3214,6 +3337,543 @@ function start() {
     };
     resize();
     window.addEventListener('resize', resize);
+
+    /* ===== SÉQUENCE CINÉMA : plongée sur la planète → fenêtre → bureau =====
+       Déclenchée par window.__cinePlay() après la révélation du titre.
+       La caméra descend sur la planète et s'arrête devant l'immeuble
+       « Mon Copain Digital ». Le plan est tenu jusqu'au premier scroll. */
+    const CINE = { on:false, t0:0, phase:-1, done:false, locked:false, scroll:0, target:0, touchY:null, holdAt:0, exitAt:0 };
+    const CINE_T = [4200];                     // fin de l'approche = fin de la séquence
+    const CINE_BS = 0.17;                      // échelle de l'immeuble (gabarit du village)
+    const CINE_FAR = 13 * CINE_BS, CINE_UP = 7.5 * CINE_BS;
+    let cineBuild = null, cineWinA = null;
+    let cineSash = [], cineHc = 0;
+
+    const cineSignTex = (txt) => {
+      const c = document.createElement('canvas'); c.width = 512; c.height = 128;
+      const x = c.getContext('2d');
+      x.fillStyle = '#fff6e6'; x.fillRect(0, 0, 512, 128);
+      x.fillStyle = '#F3852B';
+      x.font = "700 52px 'Fredoka','Baloo 2',sans-serif";
+      x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText(txt || 'Mon Copain Digital', 256, 66);
+      const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
+    };
+
+    function cineMakeBuilding(camLocal, opt){
+      const O = opt || {};
+      const g = new THREE.Group();
+      const plaster = new THREE.MeshStandardMaterial({ color: 0xefe2cc, roughness: 0.92 });
+      const orange  = new THREE.MeshStandardMaterial({ color: 0xe8762a, roughness: 0.7 });
+      const slate   = new THREE.MeshStandardMaterial({ color: 0x4d535d, roughness: 0.7 });
+      const frameM  = new THREE.MeshStandardMaterial({ color: 0x6b5a44, roughness: 0.55, metalness: 0.25 });
+      const glassM  = new THREE.MeshStandardMaterial({ color: 0xdff0ff, roughness: 0.12, metalness: 0.3, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+      const warm    = new THREE.MeshStandardMaterial({ color: 0xffd9a0, emissive: 0xffc074, emissiveIntensity: 1.15, roughness: 1 });
+      const dark    = new THREE.MeshStandardMaterial({ color: 0x7d8794, roughness: 0.4, metalness: 0.2 });
+      const bx = (w, h, d, x, y, z, m, par) => {
+        const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+        me.position.set(x, y, z); me.castShadow = true; me.receiveShadow = true;
+        (par || g).add(me); return me;
+      };
+      // ===== Maison à deux niveaux, toit orange à quatre pans, huisseries jaunes =====
+      const cream   = new THREE.MeshStandardMaterial({ color: O.wall != null ? O.wall : 0xf1e9d5, roughness: 0.94 });
+      const tile    = new THREE.MeshStandardMaterial({ color: O.roof != null ? O.roof : 0xef5b28, roughness: 0.72 });
+      const trimD   = new THREE.MeshStandardMaterial({ color: 0x5b525f, roughness: 0.78 });
+      const yellowM = new THREE.MeshStandardMaterial({ color: 0xf5c02c, roughness: 0.6 });
+      const paneM   = new THREE.MeshStandardMaterial({ color: 0x6ec9e8, roughness: 0.25, metalness: 0.15,
+                                                        emissive: 0x2f7d99, emissiveIntensity: 0.28 });
+      const potM    = new THREE.MeshStandardMaterial({ color: 0x8d5b3b, roughness: 0.9 });
+      const leafM   = new THREE.MeshStandardMaterial({ color: 0x3f8a3a, roughness: 1 });
+      const brickM  = new THREE.MeshStandardMaterial({ color: 0xc94a24, roughness: 0.8 });
+
+      const W1 = 4.4, D1 = 3.7, H1 = 2.5;        // rez-de-chaussée
+      const W2 = 3.1, D2 = 2.6, H2 = 2.2;        // étage en retrait
+      const Z = D1 / 2;
+      const hip = (halfW, halfD, hgt, y, mat) => {   // toit à quatre pans
+        const r = halfW * Math.SQRT2;
+        const m = new THREE.Mesh(new THREE.ConeGeometry(r, hgt, 4), mat);
+        m.rotation.y = Math.PI / 4;
+        m.scale.set(1, 1, halfD / halfW);
+        m.position.set(0, y + hgt / 2, 0);
+        m.castShadow = true; m.receiveShadow = true; g.add(m);
+        return m;
+      };
+
+      bx(W1 + 0.3, 0.26, D1 + 0.3, 0, 0.13, 0, trimD);                 // soubassement
+      bx(W1, H1, D1, 0, 0.26 + H1 / 2, 0, cream);                      // corps bas
+      bx(W1 + 0.42, 0.24, D1 + 0.42, 0, 0.26 + H1 + 0.12, 0, trimD);   // bandeau de rive
+      hip(W1 / 2 + 0.16, D1 / 2 + 0.16, 1.05, 0.26 + H1 + 0.24, tile); // toit du bas
+
+      const Y2 = 0.26 + H1 + 0.24;                                     // niveau de l'étage
+      bx(W2, H2, D2, 0, Y2 + H2 / 2, 0, cream);                        // corps haut
+      bx(W2 + 0.4, 0.22, D2 + 0.4, 0, Y2 + H2 + 0.11, 0, trimD);       // bandeau haut
+      hip(W2 / 2 + 0.16, D2 / 2 + 0.16, 1.15, Y2 + H2 + 0.22, tile);   // toit du haut
+
+      const YT = Y2 + H2 + 0.22;                                       // base du toit haut
+      bx(0.46, 1.15, 0.46, 0.15, YT + 0.95, -0.15, brickM);            // cheminée
+      bx(0.78, 0.3, 0.7, 0.15, YT + 1.62, -0.15, tile);                // couronnement
+
+      // --- fenêtre type : cadre jaune, carreaux cyan, appui et jardinière ---
+      const window2x2 = (x, y, z, w, hh, face) => {
+        const p = new THREE.Group();
+        p.position.set(x, y, z);
+        if (face === 'x') p.rotation.y = Math.PI / 2;
+        bx(w + 0.16, hh + 0.16, 0.1, 0, 0, 0, yellowM, p);
+        bx(w, hh, 0.06, 0, 0, 0.05, paneM, p);
+        bx(0.07, hh + 0.16, 0.09, 0, 0, 0.07, yellowM, p);
+        bx(w + 0.16, 0.07, 0.09, 0, 0, 0.07, yellowM, p);
+        bx(w + 0.34, 0.12, 0.28, 0, -hh / 2 - 0.14, 0.1, trimD, p);
+        [-1, 1].forEach(s => {
+          const pot = bx(0.15, 0.13, 0.13, s * w * 0.28, -hh / 2 - 0.03, 0.16, potM, p);
+          const lf = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.2, 5), leafM);
+          lf.position.set(s * w * 0.28, -hh / 2 + 0.12, 0.16); p.add(lf);
+        });
+        g.add(p);
+        return p;
+      };
+
+      // étage : deux fenêtres en façade + une sur chaque pignon
+      [-0.78, 0.78].forEach(x => window2x2(x, Y2 + H2 * 0.55, D2 / 2 + 0.06, 0.72, 0.78));
+      [-1, 1].forEach(s => window2x2(s * (W2 / 2 + 0.06), Y2 + H2 * 0.55, 0, 0.5, 1.0, 'x'));
+      // rez-de-chaussée : une fenêtre de chaque côté du porche + pignons
+      [-1.42, 1.42].forEach(x => window2x2(x, 0.26 + H1 * 0.52, Z + 0.06, 0.78, 0.8));
+      [-1, 1].forEach(s => window2x2(s * (W1 / 2 + 0.06), 0.26 + H1 * 0.52, -0.5, 0.5, 1.0, 'x'));
+
+      // --- porche à pignon, porte jaune, marches ---
+      const PW = 1.35, PD = 0.75, PH = 1.9;
+      [-1, 1].forEach(s => bx(0.16, PH, PD, s * (PW / 2 + 0.1), 0.26 + PH / 2, Z + PD / 2, cream));
+      bx(PW + 0.36, 0.12, PD + 0.12, 0, 0.26 + PH + 0.06, Z + PD / 2, cream);
+      const gab = 0.62;
+      [-1, 1].forEach(s => {
+        const r = bx(0.14, 1.05, PD + 0.3, s * (PW / 2 + 0.02), 0.26 + PH + gab / 2 - 0.05, Z + PD / 2, trimD);
+        r.rotation.z = s * 0.62;
+      });
+      bx(PW + 0.36, 0.14, PD + 0.3, 0, 0.26 + PH + gab + 0.02, Z + PD / 2, trimD);
+      // --- entrée : baie fermée par un battant qui remplit toute l'ouverture ---
+      const DW = 1.0, DH = 1.68, DY = 0.26 + DH / 2;   // largeur / hauteur de l'ouverture
+      const jamb = 0.13, DZ = Z + 0.06;
+      const hallM = new THREE.MeshBasicMaterial({ color: 0x2b2129 });
+      bx(DW, DH, 0.1, 0, DY, Z + 0.01, hallM);                          // fond de tableau
+      bx(DW, DH, 0.12, 0, DY, DZ, yellowM);                             // battant, pleine ouverture
+      bx(DW - 0.22, DH * 0.42, 0.03, 0, DY + DH * 0.22, DZ + 0.07, trimD);  // panneau haut
+      bx(DW - 0.22, DH * 0.30, 0.03, 0, DY - DH * 0.27, DZ + 0.07, trimD);  // panneau bas
+      bx(0.1, 0.1, 0.09, DW / 2 - 0.16, DY - 0.05, DZ + 0.09, trimD);   // poignée
+      // huisserie : deux montants, un linteau, un seuil — bord à bord avec le battant
+      [-1, 1].forEach(s => bx(jamb, DH + jamb * 2, 0.2, s * (DW / 2 + jamb / 2), DY, Z + 0.1, trimD));
+      bx(DW + jamb * 2, jamb, 0.2, 0, DY + DH / 2 + jamb / 2, Z + 0.1, trimD);
+      bx(DW + jamb * 2, 0.08, 0.26, 0, 0.26, Z + 0.12, trimD);
+      g.userData.door = null;
+      bx(PW + 0.7, 0.16, 0.5, 0, 0.08, Z + PD + 0.28, trimD);          // marche haute
+      bx(PW + 1.0, 0.12, 0.34, 0, 0.02, Z + PD + 0.62, trimD);         // marche basse
+      [-1, 1].forEach(s => {
+        const pot = bx(0.22, 0.24, 0.22, s * (PW / 2 + 0.12), 0.32, Z + PD + 0.18, potM);
+        const lf = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.34, 5), leafM);
+        lf.position.set(s * (PW / 2 + 0.12), 0.6, Z + PD + 0.18); g.add(lf);
+      });
+
+      // enseigne « Mon Copain Digital » au-dessus du porche
+      const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.22, 0.3),
+        new THREE.MeshStandardMaterial({ map: cineSignTex(O.sign), roughness: 0.85, emissive: 0xffffff, emissiveMap: cineSignTex(O.sign), emissiveIntensity: 0.3 }));
+      sign.position.set(0, 0.26 + PH + 0.3, Z + PD + 0.1); g.add(sign);
+
+      // lumière chaude devant la porte
+      const wl = new THREE.PointLight(0xffc074, 0.9, 4.2 * CINE_BS, 1.4);
+      wl.position.set(0, 0.26 + PH, Z + PD + 0.4); g.add(wl);
+
+      // ===== Jardin autour de la maison : pelouse, allée, haies, fleurs, rocking-chair =====
+      const grassM  = new THREE.MeshStandardMaterial({ color: 0x74b350, roughness: 1 });
+      const hedgeM  = new THREE.MeshStandardMaterial({ color: 0x4e8c3a, roughness: 1 });
+      const hedgeM2 = new THREE.MeshStandardMaterial({ color: 0x5da046, roughness: 1 });
+      const stoneM  = new THREE.MeshStandardMaterial({ color: 0xd9cdb6, roughness: 0.95 });
+      const woodM   = new THREE.MeshStandardMaterial({ color: 0xa9763f, roughness: 0.8 });
+      const woodM2  = new THREE.MeshStandardMaterial({ color: 0x8a6234, roughness: 0.82 });
+      const petalM  = [0xe8762a, 0xf3c14b, 0xe05a6d, 0xf4f1e6].map(c =>
+        new THREE.MeshStandardMaterial({ color: c, roughness: 0.85 }));
+
+      const lawn = new THREE.Mesh(new THREE.CircleGeometry(4.6, 40), grassM);
+      lawn.rotation.x = -Math.PI / 2; lawn.position.set(0, 0.015, 0.9);
+      lawn.receiveShadow = true; g.add(lawn);
+
+      // allée de dalles depuis la porte
+      for (let i = 0; i < 6; i++){
+        const s = bx(0.72 - i * 0.03, 0.05, 0.5, 0, 0.035, Z + 0.55 + i * 0.62, stoneM);
+        s.rotation.y = (i % 2 ? 0.06 : -0.06);
+      }
+
+      // haie basse en U autour du jardin, coupée devant l'allée
+      const hedge = (x, z, w, d) => {
+        const hh = 0.42 + rnd() * 0.12;
+        bx(w, hh, d, x, hh / 2, z, rnd() > 0.5 ? hedgeM : hedgeM2);
+      };
+      for (let x = -3.2; x <= 3.21; x += 0.8){
+        if (Math.abs(x) > 0.55) hedge(x, Z + 4.0, 0.78, 0.42);
+      }
+      for (let z = Z + 0.2; z <= Z + 4.01; z += 0.8){
+        hedge(-3.4, z, 0.42, 0.78); hedge(3.4, z, 0.42, 0.78);
+      }
+      // piliers de portail
+      [-0.95, 0.95].forEach(x => {
+        bx(0.3, 1.0, 0.3, x, 0.5, Z + 4.0, stoneM);
+        bx(0.42, 0.12, 0.42, x, 1.06, Z + 4.0, woodM2);
+      });
+
+      // massifs fleuris de part et d'autre de l'allée
+      [-1.5, 1.5].forEach(sx => {
+        for (let i = 0; i < 5; i++){
+          const r = 0.26 + rnd() * 0.16;
+          const bu = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), rnd() > 0.5 ? hedgeM : hedgeM2);
+          bu.position.set(sx + range(-0.5, 0.5), r * 0.8, Z + 0.9 + i * 0.62 + range(-0.2, 0.2));
+          // on laisse la place du rocking-chair libre : pas de buisson qui le traverse
+          if (Math.hypot(bu.position.x - 2.05, bu.position.z - (Z + 1.9)) < 1.15) continue;
+          bu.castShadow = true; bu.receiveShadow = true; g.add(bu);
+          const f = new THREE.Mesh(new THREE.IcosahedronGeometry(0.09, 0), petalM[(rnd() * petalM.length) | 0]);
+          f.position.copy(bu.position).y += r * 0.85;
+          g.add(f);
+        }
+      });
+
+      // deux arbustes ronds près de la façade
+      [[-2.3, Z + 0.5], [2.3, Z + 0.5]].forEach(([x, z]) => {
+        bx(0.16, 0.5, 0.16, x, 0.25, z, woodM2);
+        const cr = new THREE.Mesh(new THREE.IcosahedronGeometry(0.52, 0), hedgeM);
+        cr.position.set(x, 0.85, z); cr.castShadow = true; g.add(cr);
+      });
+
+      // ----- rocking-chair sur la pelouse, tourné vers l'allée -----
+      const rock = new THREE.Group();
+      const rockerGeo = new THREE.TorusGeometry(0.62, 0.045, 6, 16, Math.PI * 0.72);
+      [-0.32, 0.32].forEach(sx => {
+        const rk = new THREE.Mesh(rockerGeo, woodM2);
+        rk.rotation.z = -Math.PI / 2 - Math.PI * 0.36;
+        rk.rotation.y = Math.PI / 2;
+        rk.position.set(sx, 0.62, 0);
+        rk.castShadow = true; rock.add(rk);
+      });
+      const rbx = (w, h, d, x, y, z, m, rx) => {
+        const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m || woodM);
+        me.position.set(x, y, z); if (rx) me.rotation.x = rx;
+        me.castShadow = true; rock.add(me); return me;
+      };
+      [[-0.32, -0.28], [0.32, -0.28], [-0.32, 0.28], [0.32, 0.28]]
+        .forEach(([x, z]) => rbx(0.07, 0.34, 0.07, x, 0.22, z));
+      rbx(0.78, 0.07, 0.72, 0, 0.42, 0);                       // assise
+      rbx(0.78, 0.86, 0.07, 0, 0.83, -0.34, woodM, -0.16);     // dossier
+      [-0.36, 0.36].forEach(x => rbx(0.06, 0.05, 0.6, x, 0.66, 0.02));   // accoudoirs
+      [-0.36, 0.36].forEach(x => rbx(0.06, 0.26, 0.06, x, 0.55, 0.28));  // montants d'accoudoir
+      for (let i = -2; i <= 2; i++) rbx(0.05, 0.72, 0.05, i * 0.15, 0.86, -0.33, woodM2, -0.16);
+      rock.position.set(2.05, 0, Z + 1.9);
+      rock.rotation.y = -0.55;
+      g.add(rock);
+
+      // pose sur la planète, façade tournée vers la caméra de départ
+      const LAT = 42, LON = O.lon != null ? O.lon : 90;
+      const p = posOnSphere(LAT, LON, R);
+      const up = p.clone().normalize();
+      const face = camLocal.clone().sub(p);
+      face.addScaledVector(up, -face.dot(up));
+      if (face.lengthSq() < 1e-6) face.set(0, 0, 1);
+      face.normalize();
+      const right = new THREE.Vector3().crossVectors(up, face).normalize();
+      g.position.copy(p);
+      g.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(right, up, face));
+      g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+      g.userData.doorAt = new THREE.Vector3(0, 0.26, Z + PD * 0.4);
+      g.userData.doorFront = new THREE.Vector3(0.12, 0.06, Z + PD + 2.05);
+      const win = new THREE.Object3D();
+      win.position.set(0, 3.1, Z + 0.14);
+      g.add(win);
+      g.userData.win = win;
+      if (!cineWinA) cineWinA = win;
+      g.scale.setScalar(CINE_BS);   // même gabarit que les maisons du village
+      world.add(g);
+      return g;
+    }
+
+    window.__cineMeasure = () => {
+      if (!cineBuild || !cineWinA) return null;
+      const c = cineBuild.getWorldPosition(new THREE.Vector3());
+      const w = cineWinA.getWorldPosition(new THREE.Vector3());
+      return { toBase: +camera.position.distanceTo(c).toFixed(3),
+               toWin: +camera.position.distanceTo(w).toFixed(3),
+               scale: +cineBuild.getWorldScale(new THREE.Vector3()).x.toFixed(3),
+               fov: +camera.fov.toFixed(1) };
+    };
+    // ===== Tour du quartier : la caméra recule, la planète tourne d'un quart,
+    // puis la caméra plonge sur le bâtiment suivant (même jardin, autres couleurs) =====
+    let cineCamLocal = null, cineStop = 0, cineRotBase = null;
+    const cineStops = {};
+    const CINE_PALS = [
+      { wall: 0xf1e9d5, roof: 0xef5b28, sign: 'Mon Copain Digital' },
+      { wall: 0xe6eef0, roof: 0x3f9aa8, sign: 'Studio Social' },
+      { wall: 0xf3e6ea, roof: 0x9a5fa8, sign: 'Nos offres' },
+      { wall: 0xeef0dc, roof: 0x6f9a3f, sign: 'Rendez-vous' }
+    ];
+    const TOUR = { on: false, ph: 0, t0: 0, dRot: -Math.PI / 2,
+                   from: new THREE.Vector3(), wide: new THREE.Vector3(),
+                   center: new THREE.Vector3(), look0: new THREE.Vector3(),
+                   nextWin: null, nextBuild: null };
+    const TOUR_D = [1100, 1400, 1700];
+    // dir = +1 : quart de tour à droite (flèche droite) ; -1 : à gauche
+    window.__cineGo = function(dir){
+      if (!CINE.on || TOUR.on || CINE.phase !== 9 || !cineCamLocal) return false;
+      const n = cineStop + (dir < 0 ? -1 : 1);
+      const Y = new THREE.Vector3(0, 1, 0);
+      if (!cineStops[n]){
+        const cl = cineCamLocal.clone().applyAxisAngle(Y, n * Math.PI / 2);
+        const L = CINE_PALS.length, P = CINE_PALS[((n % L) + L) % L];
+        cineStops[n] = cineMakeBuilding(cl, { lon: 90 - 90 * n, wall: P.wall, roof: P.roof, sign: P.sign });
+      }
+      const nb = cineStops[n];
+      world.updateMatrixWorld(true);
+      const C = world.getWorldPosition(new THREE.Vector3());
+      const away = camera.position.clone().sub(C).normalize();
+      const dist = camera.position.distanceTo(C);
+      TOUR.from.copy(camera.position);
+      TOUR.look0.copy(cineWinA.getWorldPosition(new THREE.Vector3()));
+      TOUR.center.copy(C);
+      TOUR.wide.copy(C).addScaledVector(away, dist * 1.55).add(new THREE.Vector3(0, dist * 0.1, 0));
+      if (cineRotBase === null) cineRotBase = tRotY;   // orientation d'origine, pour le rembobinage
+      TOUR.dRot = (dir < 0 ? 1 : -1) * Math.PI / 2;
+      TOUR.nextWin = nb.userData.win; TOUR.nextBuild = nb;
+      TOUR.on = true; TOUR.ph = 0; TOUR.t0 = performance.now();
+      cineStop = n; cineLock(true);
+      return true;
+    };
+    window.__cineNext = function(){ return window.__cineGo(1); };
+    window.__cinePrev = function(){ return window.__cineGo(-1); };
+    function tourUpdate(now){
+      const t = now - TOUR.t0;
+      const pos = cvB.set(0, 0, 0), look = cvL.set(0, 0, 0);
+      if (TOUR.ph === 0){
+        const k = Math.min(1, t / TOUR_D[0]), e = cineEase.inOut(k);
+        pos.lerpVectors(TOUR.from, TOUR.wide, e);
+        look.lerpVectors(TOUR.look0, TOUR.center, e);
+        if (k >= 1){ TOUR.ph = 1; TOUR.t0 = now; tRotY += TOUR.dRot; }
+      } else if (TOUR.ph === 1){
+        pos.copy(TOUR.wide); look.copy(TOUR.center);
+        if (t >= TOUR_D[1]){ TOUR.ph = 2; TOUR.t0 = now; cineWinA = TOUR.nextWin; }
+      } else {
+        const k = Math.min(1, t / TOUR_D[2]), e = cineEase.inOut(k);
+        const wp = cineWinA.getWorldPosition(new THREE.Vector3());
+        const wq = cineWinA.getWorldQuaternion(new THREE.Quaternion());
+        const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(wq).normalize();
+        const upv = new THREE.Vector3(0, 1, 0).applyQuaternion(wq).normalize();
+        const p1 = wp.clone().addScaledVector(fwd, CINE_FAR).addScaledVector(upv, CINE_UP);
+        pos.lerpVectors(TOUR.wide, p1, e);
+        look.lerpVectors(TOUR.center, wp, cineEase.smooth(e));
+        if (k >= 1){ TOUR.on = false; cineBuild = TOUR.nextBuild; CINE.phase = 9; cineLock(false); }
+      }
+      camera.up.set(0, 1, 0);
+      camera.position.copy(pos);
+      camera.lookAt(look);
+      if (Math.abs(camera.fov - 32) > 0.01){ camera.fov = 32; camera.updateProjectionMatrix(); }
+    }
+    let cineChar = null, cineCharT0 = 0, cineCharUp = false, cineDoorT0 = 0, cineWalking = false;
+    // à 65 % de la séquence : il se lève, le bureau et la chaise s'effacent.
+    // En dessous de 65 % (on remonte), il se rassied et le bureau revient.
+    function cineCharPrep(){
+      if (cineCharUp) return;
+      cineCharUp = true;
+      if (window.__charStand) window.__charStand();
+      if (window.__planetShrink) window.__planetShrink(1);
+      if (window.__seatMorph) window.__seatMorph(0, 0.9);
+    }
+    function cineCharBack(){
+      if (!cineCharUp) return;
+      cineCharUp = false;
+      cineCharT0 = 0; cineDoorT0 = 0;
+      if (window.__charGrp) window.__charGrp.visible = true;
+      if (cineChar){                       // il retourne à sa place sur la planète
+        cineChar = null;
+        if (cineWalking && window.__charWalk){ cineWalking = false; window.__charWalk(false); }
+        window.__cineOwnsChar = false;
+        world.add(window.__charGrp);
+      }
+      if (window.__charSit) window.__charSit();
+      if (window.__planetShrink) window.__planetShrink(1);
+      if (window.__seatMorph) window.__seatMorph(1, 0.9);
+    }
+    // Le personnage ne sort plus de la maison : seule la porte s'ouvre.
+    function cineCharOut(){ }
+    function cineCharTick(now){
+      if (!cineBuild) return;
+      const t = cineDoorT0 ? now - cineDoorT0 : -1;
+      if (!cineChar) return;
+      const A = cineBuild.userData.doorAt, B = cineBuild.userData.doorFront;
+      if (!A || !B) return;
+      const WALK_MS = 2900, START = 600;
+      const raw = (t - START) / WALK_MS;
+      const k = Math.max(0, Math.min(1, raw));
+      // vitesse constante avec une courte mise en route et un arrêt en douceur
+      const ease = k < 0.12 ? (k * k) / 0.0288 * 0.12 : (k > 0.86 ? 1 - Math.pow((1 - k) / 0.14, 2) * 0.14 : k);
+      cineChar.position.lerpVectors(A, B, Math.max(0, Math.min(1, ease)));
+      if (window.__charWalk){
+        if (raw >= 0 && raw < 1 && !cineWalking){ cineWalking = true; window.__charWalk(true); }
+        else if (raw >= 1 && cineWalking){ cineWalking = false; window.__charWalk(false); }
+      }
+      // le corps monte et descend au rythme des appuis
+      const ph = window.__charWalkPhase ? window.__charWalkPhase() : 0;
+      cineChar.position.y += (cineWalking ? Math.abs(Math.sin(ph)) * 0.035 : 0);
+      cineChar.visible = t > 450;
+    }
+
+    function cineLock(on){      let el = document.getElementById('cine-lock');
+      if (!el){
+        el = document.createElement('div'); el.id = 'cine-lock';
+        el.style.cssText = 'position:fixed;inset:0;z-index:3200;background:transparent;';
+        document.body.appendChild(el);
+      }
+      el.style.display = on ? 'block' : 'none';
+      CINE.locked = on;
+    }
+    // Le travelling est piloté par le scroll : tant que la caméra n'est pas arrivée
+    // devant l'immeuble, la page ne défile pas et chaque geste avance la séquence.
+    const CINE_END = CINE_T[0];
+    const cineDrive = (d) => {
+      CINE.target = Math.max(0, Math.min(CINE_END, CINE.target + d));
+    };
+    const cineDelta = (e) => {
+      if (e.type === 'wheel') return e.deltaY * (e.deltaMode === 1 ? 90 : 5.5);
+      if (e.type === 'keydown'){
+        const k = e.key;
+        if (k === 'ArrowDown' || k === 'PageDown' || k === ' ' || k === 'Enter') return 600;
+        if (k === 'ArrowUp' || k === 'PageUp') return -600;
+        if (k === 'End') return CINE_END;
+        if (k === 'Home') return -CINE_END;
+        return 0;
+      }
+      if (e.type === 'touchmove' && e.touches && e.touches.length){
+        const y = e.touches[0].clientY;
+        const d = CINE.touchY != null ? (CINE.touchY - y) * 22 : 0;
+        CINE.touchY = y;
+        return d;
+      }
+      return 0;
+    };
+    const cineBlock = (e) => {
+      if (!CINE.on) return;
+      const d = cineDelta(e);
+      // séquence en cours : elle consomme le geste dans les deux sens.
+      // séquence arrivée au bout : la page défile normalement, et on ne rembobine
+      // que si on est revenu tout en haut et qu'on remonte encore.
+      // arrivé devant l'immeuble : on ne garde que le rembobinage, le geste vers le
+      // bas est laissé à la page (il n'y a plus que le pied de page derrière)
+      const fs = document.getElementById('footer-sheet');
+      const footerOpen = !!(fs && fs.classList.contains('show'));
+      const mine = CINE.phase === 9 ? (d < 0 && !footerOpen) : CINE.locked;
+      if (!mine) return;
+      e.preventDefault(); e.stopPropagation();
+      if (d) cineDrive(d);
+    };
+    ['wheel', 'touchmove', 'keydown'].forEach(ev => window.addEventListener(ev, cineBlock, { passive: false, capture: true }));
+    window.addEventListener('touchstart', (e) => { if (e.touches && e.touches.length) CINE.touchY = e.touches[0].clientY; }, { passive: true, capture: true });
+    window.addEventListener('touchend', () => { CINE.touchY = null; }, { passive: true, capture: true });
+
+    const cineEase = {
+      inOut: t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+      out:   t => 1 - Math.pow(1 - t, 3),
+      in:    t => t * t * t,
+      smooth: t => t * t * (3 - 2 * t)
+    };
+
+    const cineP0 = new THREE.Vector3(), cineL0 = new THREE.Vector3();
+    const cvA = new THREE.Vector3(), cvB = new THREE.Vector3(), cvL = new THREE.Vector3();
+
+    window.__cinePlay = function(){
+      if (CINE.on || CINE.done) return false;
+      tRotY = Math.round(rotY / (Math.PI * 2)) * Math.PI * 2;   // aligne la face du perso vers la caméra
+      const VY = 10;
+      cineP0.set(0, camDist * 0.42 + VY, camDist * 0.9);
+      cineL0.set(0, R * 0.32 + VY, 0);
+      const keep = world.rotation.y;
+      world.rotation.y = tRotY; world.updateMatrixWorld(true);
+      const camLocal = world.worldToLocal(cineP0.clone());
+      world.rotation.y = keep; world.updateMatrixWorld(true);
+      if (!cineBuild){ cineCamLocal = camLocal.clone(); cineBuild = cineMakeBuilding(camLocal); cineStops[0] = cineBuild; }
+      cineLock(true);
+      const lg = document.getElementById('top-logo');
+      if (lg){ lg.style.transition = 'opacity .9s ease'; lg.style.opacity = '0'; }
+      CINE.on = true; CINE.t0 = performance.now(); CINE.phase = 0;
+      CINE.scroll = 0; CINE.target = 0; CINE.touchY = null; CINE.holdAt = 0;
+      return true;
+    };
+
+    window.__cineStep = (ms) => {
+      if (!CINE.on) window.__cinePlay();
+      CINE.target = CINE.scroll = ms;
+      world.updateMatrixWorld(true);
+      cineUpdate(performance.now());
+      const d = window.__cineDebug();
+      d.win = cineWinA ? cineWinA.getWorldPosition(new THREE.Vector3()).toArray().map(n => +n.toFixed(2)) : null;
+      d.sash = cineSash.length ? +cineSash[0].rotation.y.toFixed(2) : null;
+      return d;
+    };
+
+    window.__cineDebug = () => ({ on: CINE.on, phase: CINE.phase, t: Math.round(CINE.scroll),
+      cam: camera.position.toArray().map(n => +n.toFixed(2)), fov: +camera.fov.toFixed(1) });
+
+    window.__cineExit = function(){
+      if (!CINE.on) return;
+      CINE.on = false; CINE.done = false;   // rejouable : la séquence n'est pas à usage unique
+      CINE.exitAt = performance.now();
+      cineLock(false);
+      if (cineBuild) cineBuild.visible = true;
+      camera.fov = 34; camera.updateProjectionMatrix();
+      camera.up.set(0, 1, 0);
+      const lg = document.getElementById('top-logo');
+      if (lg) lg.style.opacity = '1';
+    };
+
+    function cineUpdate(now){
+      world.updateMatrixWorld(true);
+      if (TOUR.on){ tourUpdate(now); return; }
+      CINE.scroll += (CINE.target - CINE.scroll) * 0.14;
+      if (Math.abs(CINE.target - CINE.scroll) < 0.5) CINE.scroll = CINE.target;
+      const t = CINE.scroll;
+      const wp = cineWinA.getWorldPosition(cvA.set(0, 0, 0));
+      const wq = cineWinA.getWorldQuaternion(new THREE.Quaternion());
+      const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(wq).normalize();
+      const upv = new THREE.Vector3(0, 1, 0).applyQuaternion(wq).normalize();
+      const pos = cvB.set(0, 0, 0), look = cvL.set(0, 0, 0);
+      let fov = 34, amp = 0.05;
+
+      const e = cineEase.inOut(Math.min(1, t / CINE_T[0]));
+      const p1 = wp.clone().addScaledVector(fwd, CINE_FAR).addScaledVector(upv, CINE_UP);
+      pos.lerpVectors(cineP0, p1, e);
+      look.lerpVectors(cineL0, wp, cineEase.smooth(e));
+      fov = 34 - 3 * e; amp = 0.06 - 0.03 * e;
+      // on remonte : quel que soit le bâtiment visité, la planète reprend son
+      // orientation de départ et la caméra rembobine depuis la maison principale
+      if (e < 0.995 && cineStop !== 0 && cineStops[0]){
+        cineStop = 0;
+        cineBuild = cineStops[0];
+        cineWinA = cineStops[0].userData.win;
+        if (cineRotBase !== null) tRotY = cineRotBase;
+        return;
+      }
+      if (e >= 0.65) cineCharPrep(); else cineCharBack();
+      if (e >= 0.999 && CINE.phase !== 9){
+        CINE.phase = 9;   // plan d'arrivée : rien ne bouge plus
+        CINE.holdAt = now;
+        cineDoorT0 = now;      // la porte s'ouvre dès l'arrivée du plan
+        cineCharOut();
+        cineLock(false);
+      } else if (e < 0.999 && CINE.phase === 9){
+        CINE.phase = 1; cineLock(true);
+      }
+
+      cineCharTick(now);
+
+      // caméra portée : micro-flottement + roulis, pour un rendu "tourné"
+      pos.x += Math.sin(now / 1700 + 0.4) * amp;
+      pos.y += Math.sin(now / 2300 + 1.7) * amp * 0.8;
+      pos.z += Math.sin(now / 1900 + 2.9) * amp * 0.6;
+      camera.up.set(Math.sin(now / 2600) * 0.035, 1, 0).normalize();
+      camera.position.copy(pos);
+      camera.lookAt(look);
+      if (Math.abs(camera.fov - fov) > 0.01){ camera.fov = fov; camera.updateProjectionMatrix(); }
+    }
+
 
     const animate = () => {
       requestAnimationFrame(animate);
@@ -3233,9 +3893,7 @@ function start() {
       var qs = __now / 1000;
       world.position.x = quakeAmp > 0.002 ? Math.sin(qs * 47) * 0.7 * quakeAmp : 0;
       world.position.y = fallY + (quakeAmp > 0.002 ? Math.sin(qs * 61) * 0.6 * quakeAmp : 0);
-      lampTick(__now);
       if (window.__charTick){ window.__charTick(__now); }
-      if (autoSpin) tRotY += spinRate;
       rotZ += (tRotZ - rotZ) * 0.08;
       rotY += (tRotY - rotY) * 0.08;
       rotX += (tRotX - rotX) * 0.08;
@@ -3246,8 +3904,12 @@ function start() {
       world.rotation.z = rotZ + (quakeAmp > 0.002 ? Math.sin(qs * 53) * 0.015 * quakeAmp : 0);
       camDist += (camDistTarget - camDist) * 0.06;
       const VY = 10;
-      camera.position.set(0, camDist * 0.42 + VY, camDist * 0.9);
-      camera.lookAt(0, R * 0.32 + VY, 0);
+      if (CINE.on){
+        cineUpdate(__now);
+      } else {
+        camera.position.set(0, camDist * 0.42 + VY, camDist * 0.9);
+        camera.lookAt(0, R * 0.32 + VY, 0);
+      }
       renderer.render(scene, camera);
     };
     animate();
@@ -3334,7 +3996,7 @@ start();
 <!-- ===== Fin widget Espace compte ===== -->
 <!-- ===== Soleil décoratif (à côté de l'horloge) ===== -->
 <style id="sun-widget-css">
-  #liquid-sun{position:fixed;left:clamp(16px,4vw,48px);top:clamp(150px,20vw,280px);z-index:9998;width:110px;height:110px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+  #liquid-sun{position:fixed;left:clamp(16px,4vw,48px);top:clamp(150px,20vw,280px);z-index:3;width:110px;height:110px;display:flex;align-items:center;justify-content:center;pointer-events:none;}
   #liquid-sun svg{width:100%;height:100%;overflow:visible;position:absolute;inset:0;transition:transform .9s cubic-bezier(.22,.9,.28,1),opacity .7s ease;will-change:transform,opacity;}
   #liquid-sun .sun-face{opacity:1;transform:translateY(0) scale(1);}
   #liquid-sun .moon-face{filter:drop-shadow(0 6px 18px rgba(150,175,255,0.5));opacity:0;transform:translateY(90vh) scale(.6);}
@@ -3496,86 +4158,6 @@ start();
 </div>
 <!-- ===== Fin indice de défilement ===== -->
 
-<!-- ===== Section 2 : la planète rétrécit et vient se garer en bas, centrée ===== -->
-<style id="mcd-section2-style">
-  #mcd-section2 {
-    position: fixed; inset: 0; z-index: 500; pointer-events: none;
-    background: #6EC1F0;   /* même fond que l'écran principal */
-    opacity: 0; transition: opacity 1.1s cubic-bezier(.16,1,.3,1);
-  }
-  #mcd-section2.show { opacity: 1; pointer-events: auto; }
-  /* Emplacement d'arrivée de la planète : seule sa largeur sert de repère au JS
-     (dockPlanet() calcule la position pour qu'elle touche pile le bas de la page,
-     toujours centrée horizontalement). Rien n'est dessiné ici. */
-  #planet-dock {
-    position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-    width: min(96vw, 1800px); height: 1px; pointer-events: none;
-  }
-</style>
-<section id="mcd-section2" aria-hidden="true">
-  <div id="planet-dock" aria-hidden="true"></div>
-
-  <!-- la lampe est un objet 3D (anneau) construit dans la scène three.js -->
-
-
-
-</section>
-<script id="mcd-lamp-js">
-/* Séquence de la section 2, pilotée sur l'apparition de .show :
-   descente de l'anneau -> tremblement -> il saute -> ses mains touchent l'anneau
-   -> allumage -> la planète se dérobe. La lampe elle-même vit dans la scène 3D
-   (window.__ringLamp), donc elle ne tombe pas avec la planète. */
-(function(){
-  var sec = document.getElementById('mcd-section2');
-  if (!sec) return;
-  var timers = [], shown = false, raf = 0, lit = false;
-  function clear(){ timers.forEach(clearTimeout); timers = []; }
-  function at(ms, fn){ timers.push(setTimeout(fn, ms)); }
-
-  function lightUp(){
-    if (lit) return; lit = true;
-    if (window.__ringLamp) window.__ringLamp.light();
-    if (window.__planetQuake) window.__planetQuake(false);
-    at(220, function(){ if (window.__planetFall) window.__planetFall(); });
-  }
-  function frame(){
-    raf = 0;
-    if (!sec.classList.contains('show')) return;
-    // allumage quand ses mains arrivent réellement sur l'anneau
-    if (!lit && window.__charHanging && window.__charHanging() &&
-        window.__charHandScreen && window.__ropeAnchorY != null){
-      var hd = window.__charHandScreen();
-      if (hd && Math.abs(hd.y - window.__ropeAnchorY) < 30) lightUp();
-    }
-    raf = requestAnimationFrame(frame);
-  }
-  function play(){
-    if (shown) return; shown = true; clear();
-    lit = false;
-    at(120, function(){
-      if (window.__ringLamp) window.__ringLamp.drop();
-      if (!raf) raf = requestAnimationFrame(frame);
-    });
-    at(350, function(){ if (window.__planetQuake) window.__planetQuake(true); });
-    at(1250, function(){ if (window.__charJumpToRope) window.__charJumpToRope(); });
-    at(3400, lightUp);            // filet de sécurité si le modèle 3D n'est pas prêt
-  }
-  function reset(){
-    shown = false; lit = false; clear();
-    if (raf){ cancelAnimationFrame(raf); raf = 0; }
-    if (window.__charReleaseRope) window.__charReleaseRope();
-    if (window.__planetReset) window.__planetReset();
-    if (window.__ringLamp) window.__ringLamp.reset();
-  }
-  new MutationObserver(function(){
-    if (sec.classList.contains('show')) play(); else reset();
-  }).observe(sec, { attributes:true, attributeFilter:['class'] });
-  if (sec.classList.contains('show')) play();
-})();
-</script>
-<!-- ===== Fin lampe suspendue ===== -->
-<!-- ===== Fin section 2 ===== -->
-
 <!-- ===== Section pied de page (glisse depuis le bas) ===== -->
 <style>
   #footer-sheet{
@@ -3588,6 +4170,7 @@ start();
     background:transparent;
     pointer-events:none;
     overflow-y:auto; -webkit-overflow-scrolling:touch;
+    transform:translateY(100%); will-change:transform;
   }
   #footer-sheet.show{ pointer-events:auto; }
   /* fond orange uniquement quand la feuille est ouverte (sinon elle masquerait la page) */
@@ -3901,14 +4484,11 @@ start();
     return el;
   }).filter(Boolean);
 
-  // trois écrans : hero -> section2 (la planète se gare en bas à droite) -> pied de page
-  var ORDER = ['hero', 'mid', 'footer'];
+  // deux écrans : hero (séquence caméra) -> pied de page
+  var ORDER = ['hero', 'footer'];
   var state = 'hero';
   var locked = false;
   var footer = document.getElementById('footer-sheet');
-  var section2 = document.getElementById('mcd-section2');
-  var fly = document.getElementById('scene-fly');
-  var dock = document.getElementById('planet-dock');
   var wrap = document.getElementById('wrap');
 
   function fall(){
@@ -3926,91 +4506,96 @@ start();
     });
   }
 
-  // rétrécit la planète (le canvas #scene dans son calque #scene-fly) et la gare
-  // sur #planet-dock, le repère invisible en bas à droite de la section 2
-  function dockPlanet(){
-    var canvas = fly && fly.firstElementChild;
-    if (!canvas || !dock) return;
-    var vw = window.innerWidth, vh = window.innerHeight;
-    // #planet-dock ne sert plus qu'à donner la largeur cible : le monde plein écran
-    // n'est pas carré, donc caler son centre sur le centre du dock (comme avant)
-    // laissait un espace sous la planète. On calcule plutôt dy analytiquement pour
-    // que le bord bas du monde rétréci touche pile le bas de la page, en restant
-    // centré horizontalement (dx = 0, le canvas est déjà centré sur la largeur).
-    var scale = dock.getBoundingClientRect().width / vw;
-    var dx = 0;
-    var dy = (vh / 2) * (1 - scale);
-    canvas.style.transform = 'translate(' + dx + 'px,' + dy.toFixed(1) + 'px) scale(' + scale.toFixed(4) + ')';
-  }
-  function undockPlanet(){
-    var canvas = fly && fly.firstElementChild;
-    if (canvas) canvas.style.transform = '';
-  }
-
   function applyState(){
-    // #wrap porte le ciel du hero en fond plein écran ; une fois parti, on l'efface
-    // (transparent) pour laisser voir la section 2 derrière — seules la navbar et
-    // la bulle réseaux sociaux, restées dans #wrap, restent visibles par-dessus.
     if (wrap) wrap.style.background = (state === 'hero') ? '' : 'transparent';
     if (state === 'hero') {
       rise();
-      undockPlanet();
       if (window.__charSit) window.__charSit();
-      if (section2) section2.classList.remove('show');
-      if (footer) footer.classList.remove('show');
-    } else if (state === 'mid') {
+    } else {
       fall();
-      dockPlanet();
       if (window.__charStand) window.__charStand();
-      if (section2) section2.classList.add('show');
-      if (footer) footer.classList.remove('show');
-    } else if (state === 'footer') {
-      fall();
-      dockPlanet();
-      if (window.__charStand) window.__charStand();
-      if (section2) section2.classList.add('show');
-      if (footer) footer.classList.add('show');
     }
   }
 
-  function step(dir){
-    if (locked) return;
-    var i = ORDER.indexOf(state) + dir;
-    if (i < 0 || i >= ORDER.length) return;
-    locked = true;
-    state = ORDER[i];
-    applyState();
-    setTimeout(function(){ locked = false; }, 1500);
+  // le pied de page n'est accessible qu'une fois la séquence caméra arrivée au bout
+  var t0Page = Date.now();
+  function cineBusy(){
+    if (!window.__cineDebug) return Date.now() - t0Page < 20000;   // filet si la 3D ne charge pas
+    return window.__cineDebug().phase !== 9;
   }
-  function toSection2(){ step(1); }
-  function toHero(){ step(-1); }
-  window.mcdToHero = function(){
-    if (state === 'hero') return;
-    state = 'hero';
-    applyState();
+
+  // ----- Le pied de page monte à la main du geste (0 = caché, 1 = plein écran) -----
+  var fsP = 0, fsT = 0, fsRaf = 0, fsGap = 0;
+  function fsRender(){
+    if (!footer) return;
+    footer.style.transform = 'translateY(' + ((1 - fsP) * 100).toFixed(2) + '%)';
+    var open = fsP > 0.015;
+    footer.classList.toggle('show', open);
+    var next = open ? 'footer' : 'hero';
+    if (next !== state){ state = next; applyState(); }
+  }
+  function fsTick(){
+    fsP += (fsT - fsP) * 0.2;
+    if (Math.abs(fsT - fsP) < 0.0015){ fsP = fsT; fsRaf = 0; }
+    else fsRaf = requestAnimationFrame(fsTick);
+    fsRender();
+  }
+  function fsDrive(px){
+    if (!footer) return;
+    if (fsT <= 0){
+      if (px > 0 && cineBusy()) return;             // séquence caméra pas terminée
+      // palier à vide entre la fin de la séquence et le départ du pied de page
+      var GAP = window.innerHeight * 0.7;
+      fsGap = Math.max(0, Math.min(GAP, fsGap + px));
+      if (px > 0 && fsGap < GAP) return;
+      if (px < 0) return;
+      px = 0.001;
+    } else if (px < 0 && fsT + px / (window.innerHeight * 0.85) <= 0){
+      fsGap = window.innerHeight * 0.7;             // on ressort par le palier
+    }
+    var n = fsT + px / (window.innerHeight * 0.85);
+    fsT = Math.max(0, Math.min(1, n));
+    if (!fsRaf) fsRaf = requestAnimationFrame(fsTick);
+  }
+  function fsSet(v){
+    fsT = v;
+    if (!fsRaf) fsRaf = requestAnimationFrame(fsTick);
+  }
+  fsRender();
+  // ouverture directe du pied de page (pilule « En savoir plus »)
+  window.__fsOpen = function(){
+    if (!footer) return;
+    fsGap = window.innerHeight * 0.7;   // le palier est considéré comme franchi
+    fsSet(1);
   };
+  window.__fsDebug = function(){
+    return { gap: Math.round(fsGap / (window.innerHeight * 0.7) * 100), footer: Math.round(fsP * 100) };
+  };
+  window.mcdToHero = function(){ fsSet(0); };
+  window.mcdToFooter = function(){ fsSet(1); };
 
   window.addEventListener('wheel', function(e){
-    if (Math.abs(e.deltaY) < 8) return;
-    if (e.deltaY > 0) toSection2(); else toHero();
+    if (Math.abs(e.deltaY) < 2) return;
+    fsDrive(e.deltaY);
   }, { passive: true });
 
   var ty0 = null;
   window.addEventListener('touchstart', function(e){ ty0 = e.touches[0].clientY; }, { passive: true });
   window.addEventListener('touchmove', function(e){
     if (ty0 == null) return;
-    var dy = ty0 - e.touches[0].clientY;
-    if (dy > 34) { toSection2(); ty0 = null; }
-    else if (dy < -34) { toHero(); ty0 = null; }
+    var y = e.touches[0].clientY;
+    fsDrive((ty0 - y) * 1.6);
+    ty0 = y;
   }, { passive: true });
   window.addEventListener('touchend', function(){ ty0 = null; }, { passive: true });
 
   window.addEventListener('keydown', function(e){
-    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') toSection2();
-    else if (e.key === 'ArrowUp' || e.key === 'PageUp') toHero();
+    if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') fsDrive(420);
+    else if (e.key === 'ArrowUp' || e.key === 'PageUp') fsDrive(-420);
+    else if (e.key === 'End') fsSet(1);
+    else if (e.key === 'Home') fsSet(0);
   });
 
-  window.addEventListener('resize', function(){ if (state !== 'hero') dockPlanet(); });
 })();
 </script>
 
@@ -4547,6 +5132,52 @@ start();
 })();
 </script>
 
+<!-- ===== Mesure temporaire du scroll ===== -->
+<div id="scroll-hud" style="position:fixed;left:16px;bottom:96px;z-index:12000;padding:12px 16px;border-radius:20px;background:rgba(20,24,30,.82);backdrop-filter:blur(8px);box-shadow:0 8px 24px rgba(0,0,0,.28);font-family:'Fredoka',system-ui,sans-serif;color:#fff;font-size:13px;line-height:1.5;white-space:pre;">—</div>
+<script>
+(function(){
+  var el = document.getElementById('scroll-hud');
+  ['wheel','touchmove','touchstart','pointerdown','keydown'].forEach(function(ev){
+    el.addEventListener(ev, function(e){ e.stopPropagation(); }, true);
+  });
+  (function tick(){
+    requestAnimationFrame(tick);
+    var c = window.__cineDebug ? window.__cineDebug() : null;
+    var f = window.__fsDebug ? window.__fsDebug() : null;
+    if (!c && !f) return;
+    var seq = c ? Math.round(Math.min(100, c.t / 4200 * 100)) : 0;
+    el.textContent = 'séquence caméra  ' + seq + '%'
+      + '\npalier à vide    ' + (f ? f.gap : 0) + '%'
+      + '\npied de page     ' + (f ? f.footer : 0) + '%'
+      + (c ? '\nphase ' + c.phase : '');
+  })();
+})();
+</script>
+
+<!-- ===== Déclencheur de la séquence cinéma (après la révélation du titre) ===== -->
+<script>
+(function(){
+  var lance = false;
+  function essayer(){
+    if (lance) return;
+    if (typeof window.__cinePlay === 'function'){
+      lance = window.__cinePlay() !== false;
+      if (lance) return;
+    }
+    setTimeout(essayer, 200);
+  }
+  // La séquence part quand la révélation GSAP du titre est terminée.
+  window.addEventListener('mcd-title-done', function(){ setTimeout(essayer, 900); });
+  var precedent = window.mcdDoorsOpen;
+  window.mcdDoorsOpen = function(){
+    if (typeof precedent === 'function') precedent.apply(this, arguments);
+    setTimeout(function(){ if (window.__titleReveal) window.__titleReveal(); }, 450);
+  };
+  setTimeout(function(){ if (window.__titleReveal) window.__titleReveal(); }, 9000);   // filet
+  setTimeout(essayer, 14000);
+})();
+</script>
+
 <!-- Menu mobile (hors #wrap : indépendant des transitions hero / section 2) -->
   <nav id="mcd-bottom" class="mcd-glass" aria-label="Navigation mobile">
     <a class="accueil is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')" aria-label="Accueil"><img src="boutonacceuilmob.png" alt="" aria-hidden="true"></a>
@@ -4566,6 +5197,174 @@ start();
       <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><img class="th studio" src="boutonstudiosocialmob.png" alt="" aria-hidden="true"><span><b>Social Studio</b><em>Vos réseaux clé en main</em></span><span class="tag">Nouveau</span></a>
     </div>
   </nav>
+
+  <header id="mcd-nav">
+    <div id="mcd-left">
+      <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
+    </div>
+
+    <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
+      <a class="mcd-link is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
+      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je ?</a>
+      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions</span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
+      <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
+      <div id="mcd-drop" class="mcd-glass">
+        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio<span class="mcd-badge-static">Nouveau</span></strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
+      </div>  </nav>
+
+    <div id="mcd-right">
+      <a class="mcd-cta" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
+    </div>
+  </header>
+
+
+<!-- ===== Flèches ballon gonflable (gauche / droite) ===== -->
+<style>
+  /* pilule « En savoir plus » — bas gauche, à partir de 75 % de la séquence */
+  #mcd-more{position:fixed;left:clamp(16px,3vw,44px);bottom:clamp(16px,3.5vh,40px);z-index:901;
+    display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border:0;
+    border-radius:999px;background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 60%,#ffeede 100%);
+    box-shadow:0 10px 26px rgba(120,60,10,.26);cursor:pointer;
+    font-family:'Fredoka','Baloo 2','Helvetica Neue',sans-serif;font-weight:700;
+    font-size:clamp(14px,1.15vw,17px);letter-spacing:.02em;color:#C25600;
+    opacity:0;pointer-events:none;transition:opacity .45s ease,transform .18s ease-out;}
+  #mcd-more:hover{transform:scale(1.06);}
+  #mcd-more:active{transform:scale(.98);}
+  #mcd-more:focus-visible{outline:2px solid #F3852B;outline-offset:3px;}
+  #mcd-more span.arw{font-size:1.05em;line-height:1;}
+  .mcd-balloon{position:fixed;top:50%;z-index:900;width:clamp(64px,8vw,124px);
+    transform:translateY(-50%);pointer-events:none;border:0;background:none;padding:0;
+    -webkit-tap-highlight-color:transparent;
+    filter:drop-shadow(0 14px 22px rgba(120,50,0,.32));opacity:0;transition:opacity .45s ease;}
+  .mcd-balloon.l{left:15vw;animation:mcdBobL 4.6s ease-in-out infinite;}
+  .mcd-balloon.r{right:14vw;animation:mcdBobR 4.6s ease-in-out infinite .6s;}
+  .mcd-balloon svg{display:block;width:100%;height:auto;transition:transform .18s ease-out;transform-origin:50% 50%;}
+  @keyframes mcdBobL{0%,100%{transform:translateY(-50%) rotate(-3deg)}50%{transform:translateY(calc(-50% - 14px)) rotate(2deg)}}
+  @keyframes mcdBobR{0%,100%{transform:translateY(-50%) rotate(3deg)}50%{transform:translateY(calc(-50% - 14px)) rotate(-2deg)}}
+  @media (prefers-reduced-motion:reduce){.mcd-balloon.l,.mcd-balloon.r{animation:none;}}
+  @media (max-width:820px){.mcd-balloon{display:none;}}
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="mcdBalFill" x1="0.15" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#ffb763"/>
+      <stop offset="0.42" stop-color="#ff8a1f"/>
+      <stop offset="0.78" stop-color="#f26c00"/>
+      <stop offset="1" stop-color="#c85200"/>
+    </linearGradient>
+    <radialGradient id="mcdBalSheen" cx="0.34" cy="0.28" r="0.55">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="mcdBalSoft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <linearGradient id="mcdBalCrease" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd3a0" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#ffd3a0" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="mcdBalShade" cx="0.72" cy="0.82" r="0.62">
+      <stop offset="0" stop-color="#a83f00" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#a83f00" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="mcdBalClip">
+      <path d="M100 12 C110 12 116 19 123 27 C133 38 143 47 156 58
+               C168 68 180 76 185 88 C191 101 184 113 170 114
+               C158 115 148 110 140 104 C137 102 135 103 135 107
+               L135 186 C135 197 137 206 135 213 C132 223 120 229 106 229
+               C92 229 76 227 70 219 C64 211 66 199 66 187
+               L66 107 C66 103 64 102 61 104 C53 110 43 115 31 114
+               C17 113 10 101 16 88 C21 76 33 68 45 58
+               C58 47 68 38 78 27 C85 19 90 12 100 12 Z"/>
+    </clipPath>
+    <symbol id="mcdArrowBalloon" viewBox="0 0 200 240">
+      <!-- silhouette gonflée, bords bombés et coins soudés -->
+      <path d="M100 12 C110 12 116 19 123 27 C133 38 143 47 156 58
+               C168 68 180 76 185 88 C191 101 184 113 170 114
+               C158 115 148 110 140 104 C137 102 135 103 135 107
+               L135 186 C135 197 137 206 135 213 C132 223 120 229 106 229
+               C92 229 76 227 70 219 C64 211 66 199 66 187
+               L66 107 C66 103 64 102 61 104 C53 110 43 115 31 114
+               C17 113 10 101 16 88 C21 76 33 68 45 58
+               C58 47 68 38 78 27 C85 19 90 12 100 12 Z"
+            fill="url(#mcdBalFill)"/>
+      <g clip-path="url(#mcdBalClip)">
+        <!-- ombre volumique bas-droite -->
+        <ellipse cx="150" cy="200" rx="90" ry="80" fill="url(#mcdBalShade)"/>
+        <!-- plis qui rayonnent depuis le centre du fût -->
+        <g stroke="url(#mcdBalCrease)" stroke-width="3" stroke-linecap="round" fill="none" opacity=".8">
+          <path d="M100 104 C88 84 76 70 58 56"/>
+          <path d="M100 104 C112 84 124 70 142 56"/>
+          <path d="M100 100 C96 78 96 60 100 40"/>
+          <path d="M100 108 C84 118 76 140 78 168"/>
+          <path d="M100 108 C116 118 124 140 122 168"/>
+          <path d="M100 112 C100 140 100 176 100 206"/>
+        </g>
+        <!-- bourrelets de soudure -->
+        <g stroke="#ffb877" stroke-width="4" stroke-linecap="round" fill="none" opacity=".55">
+          <path d="M74 222 C86 228 116 228 128 221"/>
+          <path d="M30 106 C42 112 54 110 62 104"/>
+          <path d="M170 106 C158 112 146 110 138 104"/>
+        </g>
+        <!-- reflets brillants -->
+        <ellipse cx="72" cy="52" rx="30" ry="20" transform="rotate(-32 72 52)"
+                 fill="#fff8ee" opacity=".72" filter="url(#mcdBalSoft)"/>
+        <ellipse cx="84" cy="160" rx="11" ry="46" fill="#fff3e2" opacity=".5" filter="url(#mcdBalSoft)"/>
+        <ellipse cx="124" cy="196" rx="16" ry="12" fill="#fff3e2" opacity=".35" filter="url(#mcdBalSoft)"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+<script>
+(function(){
+  // visibles de 80 % de la séquence caméra jusqu'à la fin du palier à vide
+  var L, R, M, mx = -9999, my = -9999;
+  window.addEventListener('pointermove', function(e){ mx = e.clientX; my = e.clientY; }, { passive: true });
+  window.addEventListener('pointerleave', function(){ mx = my = -9999; });
+  requestAnimationFrame(function tick(){
+    requestAnimationFrame(tick);
+    L = L || document.querySelector('.mcd-balloon.l');
+    R = R || document.querySelector('.mcd-balloon.r');
+    if (!L || !R) return;
+    var c = window.__cineDebug ? window.__cineDebug() : null;
+    var f = window.__fsDebug ? window.__fsDebug() : null;
+    var seq = c ? Math.min(100, c.t / 4200 * 100) : 0;
+    var footer = f ? f.footer : 0;
+    var gap = f ? f.gap : 0;
+    var o = 0;
+    if (seq >= 80) o = Math.min(1, (seq - 80) / 8);
+    if (footer > 0) o = 0;                        // le pied de page démarre : elles s'effacent
+    L.style.opacity = R.style.opacity = o.toFixed(3);
+    M = M || document.getElementById('mcd-more');
+    if (M){
+      var om = seq >= 75 ? Math.min(1, (seq - 75) / 8) : 0;
+      if (footer > 0) om = 0;   // elle reste pendant le palier, s'efface quand le pied de page monte
+      M.style.opacity = om.toFixed(3);
+      M.style.pointerEvents = om > 0.6 ? 'auto' : 'none';
+    }
+    L.style.pointerEvents = R.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
+    L.style.cursor = R.style.cursor = 'pointer';
+    // grossissement à l'approche du curseur
+    [L, R].forEach(function(el){
+      var r = el.getBoundingClientRect();
+      var dx = mx - (r.left + r.width / 2), dy = my - (r.top + r.height / 2);
+      var d = Math.hypot(dx, dy);
+      var NEAR = 90, FAR = 340;
+      var k = d <= NEAR ? 1 : d >= FAR ? 0 : (FAR - d) / (FAR - NEAR);
+      el.querySelector('svg').style.setProperty('--s', (1 + 0.42 * k * k).toFixed(3));
+    });
+  });
+})();
+</script>
+<button type="button" id="mcd-more" onclick="window.__fsOpen&&window.__fsOpen()">En savoir plus <span class="arw">&#8250;</span></button>
+<button type="button" class="mcd-balloon l" aria-label="Bâtiment précédent"
+        onclick="window.__cinePrev&&window.__cinePrev()">
+  <svg viewBox="0 0 200 240" style="transform:rotate(-90deg) scale(var(--s,1))"><use href="#mcdArrowBalloon"/></svg>
+</button>
+<button type="button" class="mcd-balloon r" aria-label="Bâtiment suivant"
+        onclick="window.__cineNext&&window.__cineNext()">
+  <svg viewBox="0 0 200 240" style="transform:rotate(90deg) scale(var(--s,1))"><use href="#mcdArrowBalloon"/></svg>
+</button>
 
 </body>
 </html>
