@@ -980,6 +980,8 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
   #mcd-nav { position:absolute; top:clamp(16px,3vh,30px); left:0; right:0; padding:0 clamp(12px,3vw,40px);
     display:flex; align-items:center; justify-content:center; gap:14px 18px; flex-wrap:wrap; z-index:30; pointer-events:none; }
   #mcd-nav > * { pointer-events:auto; }
+  /* la barre de navigation reste au-dessus de tout (scène 3D, pied de page, rails) */
+  #mcd-nav { position:fixed; z-index:999998; }
   .mcd-glass { background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 55%,#ffeede 100%);
     border-radius:999px;
     box-shadow:0 -6px 18px rgba(255,236,214,.55), 0 16px 28px rgba(150,62,22,.34),
@@ -1267,24 +1269,6 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
 
   <!-- Confettis tricolores -->
   <div id="confetti"></div>
-  <header id="mcd-nav">
-    <div id="mcd-left">
-      <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
-    </div>
-
-    <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
-      <a class="mcd-link is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
-      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je ?</a>
-      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions</span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
-      <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
-      <div id="mcd-drop" class="mcd-glass">
-        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio<span class="mcd-badge-static">Nouveau</span></strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
-      </div>  </nav>
-
-    <div id="mcd-right">
-      <a class="mcd-cta" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
-    </div>
-  </header>
 
 
   <script>
@@ -1300,9 +1284,7 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
     if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   })();
   </script>
-  <div id="enter-wrap">
-    <button class="enter-btn" onclick="mcdGo('explorer.html')">Explorer</button>
-  </div>
+
 
   <!-- Écran de chargement retiré : ce sont les portes qui font le chargement -->
 
@@ -1600,7 +1582,7 @@ function start() {
       const a = posOnSphere(lat, lon, 1), b = posOnSphere(cityCenter.lat, cityCenter.lon, 1);
       return a.angleTo(b);
     };
-    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.27], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17], [90, 0, 0.26], [42, 90, 0.13]];
+    const clearZones = [[44, -28, 0.17], [44, 152, 0.18], [46, -118, 0.2], [46, 62, 0.27], [50, 38, 0.16], [30, 30, 0.15], [28, -8, 0.15], [24, -46, 0.12], [16, 14, 0.17], [90, 0, 0.26], [42, 90, 0.27], [42, 0, 0.27], [42, -90, 0.27], [42, 180, 0.27]];
     const inMonument = (la, lo) => {
       const a = posOnSphere(la, lo, 1);
       return clearZones.some(z => a.angleTo(posOnSphere(z[0], z[1], 1)) < z[2]);
@@ -2713,6 +2695,46 @@ function start() {
           var d = Math.abs(_p1.y - _p2.y) * 0.5 * r.height;
           return d > 0.01 ? d : null;
         }
+        // ===== Marche procédurale : le GLB n'a qu'une boucle assise, le pas est calculé =====
+        var WALK_BONES = ['LeftUpLeg','RightUpLeg','LeftLeg','RightLeg','LeftFoot','RightFoot',
+                          'LeftArm','RightArm','LeftForeArm','RightForeArm','Spine','Spine1','Head'];
+        var walkBase = null, walkOn = false, walkT = 0, walkAmt = 0, walkLast = 0;
+        var WALK_HZ = 1.45;                       // pas par seconde
+        window.__charWalkHz = WALK_HZ;
+        window.__charWalk = function(on){
+          if (on && !walkOn){
+            walkBase = {};
+            WALK_BONES.forEach(function(n){ var i = bIdx[n]; if (i !== undefined) walkBase[n] = bones[i].quaternion.clone(); });
+            walkOn = true; walkT = 0; walkLast = performance.now();
+          } else if (!on){
+            walkOn = false;
+          }
+        };
+        window.__charWalkPhase = function(){ return walkT * WALK_HZ * Math.PI * 2; };
+        function walkPose(now){
+          if (!walkBase) return;
+          var dt = Math.min(0.05, (now - walkLast) / 1000); walkLast = now;
+          walkAmt += ((walkOn ? 1 : 0) - walkAmt) * 0.14;
+          Object.keys(walkBase).forEach(function(n){ bones[bIdx[n]].quaternion.copy(walkBase[n]); });
+          if (!walkOn && walkAmt < 0.01){ walkBase = null; walkAmt = 0; return; }
+          if (walkOn) walkT += dt;
+          var w = walkT * WALK_HZ * Math.PI * 2;
+          var s = Math.sin(w), a = walkAmt;
+          addRot('LeftUpLeg',   AXX, -0.58 * s * a);
+          addRot('RightUpLeg',  AXX,  0.58 * s * a);
+          addRot('LeftLeg',     AXX, (0.12 + 0.62 * Math.max(0, Math.sin(w - 1.15))) * a);
+          addRot('RightLeg',    AXX, (0.12 + 0.62 * Math.max(0, Math.sin(w + Math.PI - 1.15))) * a);
+          addRot('LeftFoot',    AXX,  0.22 * Math.sin(w + 0.7) * a);
+          addRot('RightFoot',   AXX,  0.22 * Math.sin(w + Math.PI + 0.7) * a);
+          addRot('LeftArm',     AXX,  0.14 * s * a);
+          addRot('RightArm',    AXX, -0.14 * s * a);
+          addRot('LeftForeArm', AXX,  (0.06 + 0.04 * s) * a);
+          addRot('RightForeArm',AXX,  (0.06 - 0.04 * s) * a);
+          addRot('Spine',       AXY, -0.07 * s * a);
+          addRot('Spine1',      AXY,  0.05 * s * a);
+          addRot('Head',        AXY,  0.03 * s * a);
+        }
+
         window.__charHanging = function(){ return hangOn; };
         window.__charJumpToRope = function(){
           if (hangOn) return;
@@ -2913,6 +2935,7 @@ function start() {
           if (phase !== 'idle'){ pinHips(); }   // épingle le bassin au centre (anti-dérive)
           lookPose(now);
           hangPose(now);
+          walkPose(now);
           // échelle : il grandit à l'écran en section 2 (la planète, elle, rétrécit),
           // réévaluée à chaque frame car la caméra zoome sur plusieurs frames
           if (standingBig && !window.__cineOwnsChar && window.__chairTune) {
@@ -3333,18 +3356,19 @@ function start() {
     let cineBuild = null, cineWinA = null;
     let cineSash = [], cineHc = 0;
 
-    const cineSignTex = () => {
+    const cineSignTex = (txt) => {
       const c = document.createElement('canvas'); c.width = 512; c.height = 128;
       const x = c.getContext('2d');
       x.fillStyle = '#fff6e6'; x.fillRect(0, 0, 512, 128);
       x.fillStyle = '#F3852B';
       x.font = "700 52px 'Fredoka','Baloo 2',sans-serif";
       x.textAlign = 'center'; x.textBaseline = 'middle';
-      x.fillText('Mon Copain Digital', 256, 66);
+      x.fillText(txt || 'Mon Copain Digital', 256, 66);
       const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t;
     };
 
-    function cineMakeBuilding(camLocal){
+    function cineMakeBuilding(camLocal, opt){
+      const O = opt || {};
       const g = new THREE.Group();
       const plaster = new THREE.MeshStandardMaterial({ color: 0xefe2cc, roughness: 0.92 });
       const orange  = new THREE.MeshStandardMaterial({ color: 0xe8762a, roughness: 0.7 });
@@ -3359,8 +3383,8 @@ function start() {
         (par || g).add(me); return me;
       };
       // ===== Maison à deux niveaux, toit orange à quatre pans, huisseries jaunes =====
-      const cream   = new THREE.MeshStandardMaterial({ color: 0xf1e9d5, roughness: 0.94 });
-      const tile    = new THREE.MeshStandardMaterial({ color: 0xef5b28, roughness: 0.72 });
+      const cream   = new THREE.MeshStandardMaterial({ color: O.wall != null ? O.wall : 0xf1e9d5, roughness: 0.94 });
+      const tile    = new THREE.MeshStandardMaterial({ color: O.roof != null ? O.roof : 0xef5b28, roughness: 0.72 });
       const trimD   = new THREE.MeshStandardMaterial({ color: 0x5b525f, roughness: 0.78 });
       const yellowM = new THREE.MeshStandardMaterial({ color: 0xf5c02c, roughness: 0.6 });
       const paneM   = new THREE.MeshStandardMaterial({ color: 0x6ec9e8, roughness: 0.25, metalness: 0.15,
@@ -3432,16 +3456,20 @@ function start() {
         r.rotation.z = s * 0.62;
       });
       bx(PW + 0.36, 0.14, PD + 0.3, 0, 0.26 + PH + gab + 0.02, Z + PD / 2, trimD);
-      const doorPivot = new THREE.Group();                             // gond côté gauche
-      doorPivot.position.set(-0.45, 0.26, Z + PD + 0.02);
-      g.add(doorPivot);
-      bx(0.9, 1.55, 0.1, 0.45, 0.78, 0, yellowM, doorPivot);           // battant
-      bx(0.09, 0.09, 0.06, 0.75, 0.78, 0.06, trimD, doorPivot);        // poignée
+      // --- entrée : baie fermée par un battant qui remplit toute l'ouverture ---
+      const DW = 1.0, DH = 1.68, DY = 0.26 + DH / 2;   // largeur / hauteur de l'ouverture
+      const jamb = 0.13, DZ = Z + 0.06;
       const hallM = new THREE.MeshBasicMaterial({ color: 0x2b2129 });
-      bx(1.02, 1.7, 0.12, 0, 0.26 + 0.85, Z + 0.07, hallM);             // ouverture sombre dans la façade
-      bx(1.2, 0.12, 0.16, 0, 0.26 + 1.74, Z + 0.1, trimD);              // linteau
-      [-1, 1].forEach(s => bx(0.11, 1.76, 0.16, s * 0.6, 0.26 + 0.88, Z + 0.1, trimD));
-      g.userData.door = doorPivot;
+      bx(DW, DH, 0.1, 0, DY, Z + 0.01, hallM);                          // fond de tableau
+      bx(DW, DH, 0.12, 0, DY, DZ, yellowM);                             // battant, pleine ouverture
+      bx(DW - 0.22, DH * 0.42, 0.03, 0, DY + DH * 0.22, DZ + 0.07, trimD);  // panneau haut
+      bx(DW - 0.22, DH * 0.30, 0.03, 0, DY - DH * 0.27, DZ + 0.07, trimD);  // panneau bas
+      bx(0.1, 0.1, 0.09, DW / 2 - 0.16, DY - 0.05, DZ + 0.09, trimD);   // poignée
+      // huisserie : deux montants, un linteau, un seuil — bord à bord avec le battant
+      [-1, 1].forEach(s => bx(jamb, DH + jamb * 2, 0.2, s * (DW / 2 + jamb / 2), DY, Z + 0.1, trimD));
+      bx(DW + jamb * 2, jamb, 0.2, 0, DY + DH / 2 + jamb / 2, Z + 0.1, trimD);
+      bx(DW + jamb * 2, 0.08, 0.26, 0, 0.26, Z + 0.12, trimD);
+      g.userData.door = null;
       bx(PW + 0.7, 0.16, 0.5, 0, 0.08, Z + PD + 0.28, trimD);          // marche haute
       bx(PW + 1.0, 0.12, 0.34, 0, 0.02, Z + PD + 0.62, trimD);         // marche basse
       [-1, 1].forEach(s => {
@@ -3452,7 +3480,7 @@ function start() {
 
       // enseigne « Mon Copain Digital » au-dessus du porche
       const sign = new THREE.Mesh(new THREE.PlaneGeometry(1.22, 0.3),
-        new THREE.MeshStandardMaterial({ map: cineSignTex(), roughness: 0.85, emissive: 0xffffff, emissiveMap: cineSignTex(), emissiveIntensity: 0.3 }));
+        new THREE.MeshStandardMaterial({ map: cineSignTex(O.sign), roughness: 0.85, emissive: 0xffffff, emissiveMap: cineSignTex(O.sign), emissiveIntensity: 0.3 }));
       sign.position.set(0, 0.26 + PH + 0.3, Z + PD + 0.1); g.add(sign);
 
       // lumière chaude devant la porte
@@ -3502,6 +3530,8 @@ function start() {
           const r = 0.26 + rnd() * 0.16;
           const bu = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), rnd() > 0.5 ? hedgeM : hedgeM2);
           bu.position.set(sx + range(-0.5, 0.5), r * 0.8, Z + 0.9 + i * 0.62 + range(-0.2, 0.2));
+          // on laisse la place du rocking-chair libre : pas de buisson qui le traverse
+          if (Math.hypot(bu.position.x - 2.05, bu.position.z - (Z + 1.9)) < 1.15) continue;
           bu.castShadow = true; bu.receiveShadow = true; g.add(bu);
           const f = new THREE.Mesh(new THREE.IcosahedronGeometry(0.09, 0), petalM[(rnd() * petalM.length) | 0]);
           f.position.copy(bu.position).y += r * 0.85;
@@ -3543,7 +3573,7 @@ function start() {
       g.add(rock);
 
       // pose sur la planète, façade tournée vers la caméra de départ
-      const LAT = 42, LON = 90;
+      const LAT = 42, LON = O.lon != null ? O.lon : 90;
       const p = posOnSphere(LAT, LON, R);
       const up = p.clone().normalize();
       const face = camLocal.clone().sub(p);
@@ -3556,9 +3586,11 @@ function start() {
       g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
       g.userData.doorAt = new THREE.Vector3(0, 0.26, Z + PD * 0.4);
       g.userData.doorFront = new THREE.Vector3(0.12, 0.06, Z + PD + 2.05);
-      cineWinA = new THREE.Object3D();
-      cineWinA.position.set(0, 3.1, Z + 0.14);
-      g.add(cineWinA);
+      const win = new THREE.Object3D();
+      win.position.set(0, 3.1, Z + 0.14);
+      g.add(win);
+      g.userData.win = win;
+      if (!cineWinA) cineWinA = win;
       g.scale.setScalar(CINE_BS);   // même gabarit que les maisons du village
       world.add(g);
       return g;
@@ -3573,7 +3605,76 @@ function start() {
                scale: +cineBuild.getWorldScale(new THREE.Vector3()).x.toFixed(3),
                fov: +camera.fov.toFixed(1) };
     };
-    let cineChar = null, cineCharT0 = 0, cineCharUp = false, cineDoorT0 = 0;
+    // ===== Tour du quartier : la caméra recule, la planète tourne d'un quart,
+    // puis la caméra plonge sur le bâtiment suivant (même jardin, autres couleurs) =====
+    let cineCamLocal = null, cineStop = 0;
+    const cineStops = {};
+    const CINE_PALS = [
+      { wall: 0xf1e9d5, roof: 0xef5b28, sign: 'Mon Copain Digital' },
+      { wall: 0xe6eef0, roof: 0x3f9aa8, sign: 'Studio Social' },
+      { wall: 0xf3e6ea, roof: 0x9a5fa8, sign: 'Nos offres' },
+      { wall: 0xeef0dc, roof: 0x6f9a3f, sign: 'Rendez-vous' }
+    ];
+    const TOUR = { on: false, ph: 0, t0: 0, dRot: -Math.PI / 2,
+                   from: new THREE.Vector3(), wide: new THREE.Vector3(),
+                   center: new THREE.Vector3(), look0: new THREE.Vector3(),
+                   nextWin: null, nextBuild: null };
+    const TOUR_D = [1100, 1400, 1700];
+    // dir = +1 : quart de tour à droite (flèche droite) ; -1 : à gauche
+    window.__cineGo = function(dir){
+      if (!CINE.on || TOUR.on || CINE.phase !== 9 || !cineCamLocal) return false;
+      const n = cineStop + (dir < 0 ? -1 : 1);
+      const Y = new THREE.Vector3(0, 1, 0);
+      if (!cineStops[n]){
+        const cl = cineCamLocal.clone().applyAxisAngle(Y, n * Math.PI / 2);
+        const L = CINE_PALS.length, P = CINE_PALS[((n % L) + L) % L];
+        cineStops[n] = cineMakeBuilding(cl, { lon: 90 - 90 * n, wall: P.wall, roof: P.roof, sign: P.sign });
+      }
+      const nb = cineStops[n];
+      world.updateMatrixWorld(true);
+      const C = world.getWorldPosition(new THREE.Vector3());
+      const away = camera.position.clone().sub(C).normalize();
+      const dist = camera.position.distanceTo(C);
+      TOUR.from.copy(camera.position);
+      TOUR.look0.copy(cineWinA.getWorldPosition(new THREE.Vector3()));
+      TOUR.center.copy(C);
+      TOUR.wide.copy(C).addScaledVector(away, dist * 1.55).add(new THREE.Vector3(0, dist * 0.1, 0));
+      TOUR.dRot = (dir < 0 ? 1 : -1) * Math.PI / 2;
+      TOUR.nextWin = nb.userData.win; TOUR.nextBuild = nb;
+      TOUR.on = true; TOUR.ph = 0; TOUR.t0 = performance.now();
+      cineStop = n; cineLock(true);
+      return true;
+    };
+    window.__cineNext = function(){ return window.__cineGo(1); };
+    window.__cinePrev = function(){ return window.__cineGo(-1); };
+    function tourUpdate(now){
+      const t = now - TOUR.t0;
+      const pos = cvB.set(0, 0, 0), look = cvL.set(0, 0, 0);
+      if (TOUR.ph === 0){
+        const k = Math.min(1, t / TOUR_D[0]), e = cineEase.inOut(k);
+        pos.lerpVectors(TOUR.from, TOUR.wide, e);
+        look.lerpVectors(TOUR.look0, TOUR.center, e);
+        if (k >= 1){ TOUR.ph = 1; TOUR.t0 = now; tRotY += TOUR.dRot; }
+      } else if (TOUR.ph === 1){
+        pos.copy(TOUR.wide); look.copy(TOUR.center);
+        if (t >= TOUR_D[1]){ TOUR.ph = 2; TOUR.t0 = now; cineWinA = TOUR.nextWin; }
+      } else {
+        const k = Math.min(1, t / TOUR_D[2]), e = cineEase.inOut(k);
+        const wp = cineWinA.getWorldPosition(new THREE.Vector3());
+        const wq = cineWinA.getWorldQuaternion(new THREE.Quaternion());
+        const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(wq).normalize();
+        const upv = new THREE.Vector3(0, 1, 0).applyQuaternion(wq).normalize();
+        const p1 = wp.clone().addScaledVector(fwd, CINE_FAR).addScaledVector(upv, CINE_UP);
+        pos.lerpVectors(TOUR.wide, p1, e);
+        look.lerpVectors(TOUR.center, wp, cineEase.smooth(e));
+        if (k >= 1){ TOUR.on = false; cineBuild = TOUR.nextBuild; CINE.phase = 9; cineLock(false); }
+      }
+      camera.up.set(0, 1, 0);
+      camera.position.copy(pos);
+      camera.lookAt(look);
+      if (Math.abs(camera.fov - 32) > 0.01){ camera.fov = 32; camera.updateProjectionMatrix(); }
+    }
+    let cineChar = null, cineCharT0 = 0, cineCharUp = false, cineDoorT0 = 0, cineWalking = false;
     // à 65 % de la séquence : il se lève, le bureau et la chaise s'effacent.
     // En dessous de 65 % (on remonte), il se rassied et le bureau revient.
     function cineCharPrep(){
@@ -3587,10 +3688,10 @@ function start() {
       if (!cineCharUp) return;
       cineCharUp = false;
       cineCharT0 = 0; cineDoorT0 = 0;
-      if (cineBuild && cineBuild.userData.door) cineBuild.userData.door.rotation.y = 0;
       if (window.__charGrp) window.__charGrp.visible = true;
       if (cineChar){                       // il retourne à sa place sur la planète
         cineChar = null;
+        if (cineWalking && window.__charWalk){ cineWalking = false; window.__charWalk(false); }
         window.__cineOwnsChar = false;
         world.add(window.__charGrp);
       }
@@ -3598,33 +3699,28 @@ function start() {
       if (window.__planetShrink) window.__planetShrink(1);
       if (window.__seatMorph) window.__seatMorph(1, 0.9);
     }
-    function cineCharOut(){
-      const grp = window.__charGrp;
-      if (!grp || cineChar || !cineBuild) return;
-      cineChar = grp;
-      window.__cineOwnsChar = true;
-      cineCharPrep();
-      cineBuild.add(grp);                                    // il passe dans le repère de la maison
-      grp.scale.setScalar(1.55);
-      grp.rotation.set(0, 0, 0);
-      cineCharT0 = cineDoorT0 || performance.now();
-    }
+    // Le personnage ne sort plus de la maison : seule la porte s'ouvre.
+    function cineCharOut(){ }
     function cineCharTick(now){
-      if (!cineChar && CINE.phase === 9) cineCharOut();
       if (!cineBuild) return;
       const t = cineDoorT0 ? now - cineDoorT0 : -1;
-      const door = cineBuild.userData.door;
-      if (door){
-        const o = t < 0 ? 0 : Math.min(1, t / 900);
-        door.rotation.y = -1.95 * cineEase.out(o);      // le battant s'ouvre vers l'extérieur
-      }
       if (!cineChar) return;
       const A = cineBuild.userData.doorAt, B = cineBuild.userData.doorFront;
       if (!A || !B) return;
-      const k = Math.max(0, Math.min(1, (t - 550) / 1700));
-      cineChar.position.lerpVectors(A, B, cineEase.out(k));
-      cineChar.position.y += Math.abs(Math.sin(now / 260)) * (1 - k) * 0.04;   // petits pas
-      cineChar.visible = t > 400;
+      const WALK_MS = 2900, START = 600;
+      const raw = (t - START) / WALK_MS;
+      const k = Math.max(0, Math.min(1, raw));
+      // vitesse constante avec une courte mise en route et un arrêt en douceur
+      const ease = k < 0.12 ? (k * k) / 0.0288 * 0.12 : (k > 0.86 ? 1 - Math.pow((1 - k) / 0.14, 2) * 0.14 : k);
+      cineChar.position.lerpVectors(A, B, Math.max(0, Math.min(1, ease)));
+      if (window.__charWalk){
+        if (raw >= 0 && raw < 1 && !cineWalking){ cineWalking = true; window.__charWalk(true); }
+        else if (raw >= 1 && cineWalking){ cineWalking = false; window.__charWalk(false); }
+      }
+      // le corps monte et descend au rythme des appuis
+      const ph = window.__charWalkPhase ? window.__charWalkPhase() : 0;
+      cineChar.position.y += (cineWalking ? Math.abs(Math.sin(ph)) * 0.035 : 0);
+      cineChar.visible = t > 450;
     }
 
     function cineLock(on){      let el = document.getElementById('cine-lock');
@@ -3699,7 +3795,7 @@ function start() {
       world.rotation.y = tRotY; world.updateMatrixWorld(true);
       const camLocal = world.worldToLocal(cineP0.clone());
       world.rotation.y = keep; world.updateMatrixWorld(true);
-      if (!cineBuild) cineBuild = cineMakeBuilding(camLocal);
+      if (!cineBuild){ cineCamLocal = camLocal.clone(); cineBuild = cineMakeBuilding(camLocal); cineStops[0] = cineBuild; }
       cineLock(true);
       const lg = document.getElementById('top-logo');
       if (lg){ lg.style.transition = 'opacity .9s ease'; lg.style.opacity = '0'; }
@@ -3736,6 +3832,7 @@ function start() {
 
     function cineUpdate(now){
       world.updateMatrixWorld(true);
+      if (TOUR.on){ tourUpdate(now); return; }
       CINE.scroll += (CINE.target - CINE.scroll) * 0.14;
       if (Math.abs(CINE.target - CINE.scroll) < 0.5) CINE.scroll = CINE.target;
       const t = CINE.scroll;
@@ -4462,6 +4559,12 @@ start();
     if (!fsRaf) fsRaf = requestAnimationFrame(fsTick);
   }
   fsRender();
+  // ouverture directe du pied de page (pilule « En savoir plus »)
+  window.__fsOpen = function(){
+    if (!footer) return;
+    fsGap = window.innerHeight * 0.7;   // le palier est considéré comme franchi
+    fsSet(1);
+  };
   window.__fsDebug = function(){
     return { gap: Math.round(fsGap / (window.innerHeight * 0.7) * 100), footer: Math.round(fsP * 100) };
   };
@@ -5027,7 +5130,7 @@ start();
 </script>
 
 <!-- ===== Mesure temporaire du scroll ===== -->
-<div id="scroll-hud" style="position:fixed;left:16px;bottom:16px;z-index:12000;padding:12px 16px;border-radius:20px;background:rgba(20,24,30,.82);backdrop-filter:blur(8px);box-shadow:0 8px 24px rgba(0,0,0,.28);font-family:'Fredoka',system-ui,sans-serif;color:#fff;font-size:13px;line-height:1.5;white-space:pre;">—</div>
+<div id="scroll-hud" style="position:fixed;left:16px;bottom:96px;z-index:12000;padding:12px 16px;border-radius:20px;background:rgba(20,24,30,.82);backdrop-filter:blur(8px);box-shadow:0 8px 24px rgba(0,0,0,.28);font-family:'Fredoka',system-ui,sans-serif;color:#fff;font-size:13px;line-height:1.5;white-space:pre;">—</div>
 <script>
 (function(){
   var el = document.getElementById('scroll-hud');
@@ -5091,6 +5194,174 @@ start();
       <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')" role="menuitem"><img class="th studio" src="boutonstudiosocialmob.png" alt="" aria-hidden="true"><span><b>Social Studio</b><em>Vos réseaux clé en main</em></span><span class="tag">Nouveau</span></a>
     </div>
   </nav>
+
+  <header id="mcd-nav">
+    <div id="mcd-left">
+      <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
+    </div>
+
+    <nav id="mcd-pill" class="mcd-glass" aria-label="Navigation principale">
+      <a class="mcd-link is-active" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
+      <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je ?</a>
+      <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false"><span id="mcd-sol-txt">Solutions</span> <span style="font-size:9px;opacity:.7">&#9660;</span></button>
+      <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
+      <div id="mcd-drop" class="mcd-glass">
+        <a href="studio-social.html" onclick="event.preventDefault();mcdGo('studio-social.html')"><strong>Social Studio<span class="mcd-badge-static">Nouveau</span></strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main <span style="font-size:13px">&#128273;</span></em></a>
+      </div>  </nav>
+
+    <div id="mcd-right">
+      <a class="mcd-cta" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
+    </div>
+  </header>
+
+
+<!-- ===== Flèches ballon gonflable (gauche / droite) ===== -->
+<style>
+  /* pilule « En savoir plus » — bas gauche, à partir de 75 % de la séquence */
+  #mcd-more{position:fixed;left:clamp(16px,3vw,44px);bottom:clamp(16px,3.5vh,40px);z-index:901;
+    display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border:0;
+    border-radius:999px;background:linear-gradient(to bottom,#ffffff 0%,#fff6ec 60%,#ffeede 100%);
+    box-shadow:0 10px 26px rgba(120,60,10,.26);cursor:pointer;
+    font-family:'Fredoka','Baloo 2','Helvetica Neue',sans-serif;font-weight:700;
+    font-size:clamp(14px,1.15vw,17px);letter-spacing:.02em;color:#C25600;
+    opacity:0;pointer-events:none;transition:opacity .45s ease,transform .18s ease-out;}
+  #mcd-more:hover{transform:scale(1.06);}
+  #mcd-more:active{transform:scale(.98);}
+  #mcd-more:focus-visible{outline:2px solid #F3852B;outline-offset:3px;}
+  #mcd-more span.arw{font-size:1.05em;line-height:1;}
+  .mcd-balloon{position:fixed;top:50%;z-index:900;width:clamp(64px,8vw,124px);
+    transform:translateY(-50%);pointer-events:none;border:0;background:none;padding:0;
+    -webkit-tap-highlight-color:transparent;
+    filter:drop-shadow(0 14px 22px rgba(120,50,0,.32));opacity:0;transition:opacity .45s ease;}
+  .mcd-balloon.l{left:15vw;animation:mcdBobL 4.6s ease-in-out infinite;}
+  .mcd-balloon.r{right:14vw;animation:mcdBobR 4.6s ease-in-out infinite .6s;}
+  .mcd-balloon svg{display:block;width:100%;height:auto;transition:transform .18s ease-out;transform-origin:50% 50%;}
+  @keyframes mcdBobL{0%,100%{transform:translateY(-50%) rotate(-3deg)}50%{transform:translateY(calc(-50% - 14px)) rotate(2deg)}}
+  @keyframes mcdBobR{0%,100%{transform:translateY(-50%) rotate(3deg)}50%{transform:translateY(calc(-50% - 14px)) rotate(-2deg)}}
+  @media (prefers-reduced-motion:reduce){.mcd-balloon.l,.mcd-balloon.r{animation:none;}}
+  @media (max-width:820px){.mcd-balloon{display:none;}}
+</style>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="mcdBalFill" x1="0.15" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#ffb763"/>
+      <stop offset="0.42" stop-color="#ff8a1f"/>
+      <stop offset="0.78" stop-color="#f26c00"/>
+      <stop offset="1" stop-color="#c85200"/>
+    </linearGradient>
+    <radialGradient id="mcdBalSheen" cx="0.34" cy="0.28" r="0.55">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="mcdBalSoft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5"/>
+    </filter>
+    <linearGradient id="mcdBalCrease" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffd3a0" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#ffd3a0" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="mcdBalShade" cx="0.72" cy="0.82" r="0.62">
+      <stop offset="0" stop-color="#a83f00" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#a83f00" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="mcdBalClip">
+      <path d="M100 12 C110 12 116 19 123 27 C133 38 143 47 156 58
+               C168 68 180 76 185 88 C191 101 184 113 170 114
+               C158 115 148 110 140 104 C137 102 135 103 135 107
+               L135 186 C135 197 137 206 135 213 C132 223 120 229 106 229
+               C92 229 76 227 70 219 C64 211 66 199 66 187
+               L66 107 C66 103 64 102 61 104 C53 110 43 115 31 114
+               C17 113 10 101 16 88 C21 76 33 68 45 58
+               C58 47 68 38 78 27 C85 19 90 12 100 12 Z"/>
+    </clipPath>
+    <symbol id="mcdArrowBalloon" viewBox="0 0 200 240">
+      <!-- silhouette gonflée, bords bombés et coins soudés -->
+      <path d="M100 12 C110 12 116 19 123 27 C133 38 143 47 156 58
+               C168 68 180 76 185 88 C191 101 184 113 170 114
+               C158 115 148 110 140 104 C137 102 135 103 135 107
+               L135 186 C135 197 137 206 135 213 C132 223 120 229 106 229
+               C92 229 76 227 70 219 C64 211 66 199 66 187
+               L66 107 C66 103 64 102 61 104 C53 110 43 115 31 114
+               C17 113 10 101 16 88 C21 76 33 68 45 58
+               C58 47 68 38 78 27 C85 19 90 12 100 12 Z"
+            fill="url(#mcdBalFill)"/>
+      <g clip-path="url(#mcdBalClip)">
+        <!-- ombre volumique bas-droite -->
+        <ellipse cx="150" cy="200" rx="90" ry="80" fill="url(#mcdBalShade)"/>
+        <!-- plis qui rayonnent depuis le centre du fût -->
+        <g stroke="url(#mcdBalCrease)" stroke-width="3" stroke-linecap="round" fill="none" opacity=".8">
+          <path d="M100 104 C88 84 76 70 58 56"/>
+          <path d="M100 104 C112 84 124 70 142 56"/>
+          <path d="M100 100 C96 78 96 60 100 40"/>
+          <path d="M100 108 C84 118 76 140 78 168"/>
+          <path d="M100 108 C116 118 124 140 122 168"/>
+          <path d="M100 112 C100 140 100 176 100 206"/>
+        </g>
+        <!-- bourrelets de soudure -->
+        <g stroke="#ffb877" stroke-width="4" stroke-linecap="round" fill="none" opacity=".55">
+          <path d="M74 222 C86 228 116 228 128 221"/>
+          <path d="M30 106 C42 112 54 110 62 104"/>
+          <path d="M170 106 C158 112 146 110 138 104"/>
+        </g>
+        <!-- reflets brillants -->
+        <ellipse cx="72" cy="52" rx="30" ry="20" transform="rotate(-32 72 52)"
+                 fill="#fff8ee" opacity=".72" filter="url(#mcdBalSoft)"/>
+        <ellipse cx="84" cy="160" rx="11" ry="46" fill="#fff3e2" opacity=".5" filter="url(#mcdBalSoft)"/>
+        <ellipse cx="124" cy="196" rx="16" ry="12" fill="#fff3e2" opacity=".35" filter="url(#mcdBalSoft)"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+<script>
+(function(){
+  // visibles de 80 % de la séquence caméra jusqu'à la fin du palier à vide
+  var L, R, M, mx = -9999, my = -9999;
+  window.addEventListener('pointermove', function(e){ mx = e.clientX; my = e.clientY; }, { passive: true });
+  window.addEventListener('pointerleave', function(){ mx = my = -9999; });
+  requestAnimationFrame(function tick(){
+    requestAnimationFrame(tick);
+    L = L || document.querySelector('.mcd-balloon.l');
+    R = R || document.querySelector('.mcd-balloon.r');
+    if (!L || !R) return;
+    var c = window.__cineDebug ? window.__cineDebug() : null;
+    var f = window.__fsDebug ? window.__fsDebug() : null;
+    var seq = c ? Math.min(100, c.t / 4200 * 100) : 0;
+    var footer = f ? f.footer : 0;
+    var gap = f ? f.gap : 0;
+    var o = 0;
+    if (seq >= 80) o = Math.min(1, (seq - 80) / 8);
+    if (footer > 0) o = 0;                        // le pied de page démarre : elles s'effacent
+    L.style.opacity = R.style.opacity = o.toFixed(3);
+    M = M || document.getElementById('mcd-more');
+    if (M){
+      var om = seq >= 75 ? Math.min(1, (seq - 75) / 8) : 0;
+      if (gap > 0 || footer > 0) om = 0;   // dès qu'on scrolle vers le bas, elle s'efface
+      M.style.opacity = om.toFixed(3);
+      M.style.pointerEvents = om > 0.6 ? 'auto' : 'none';
+    }
+    L.style.pointerEvents = R.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
+    L.style.cursor = R.style.cursor = 'pointer';
+    // grossissement à l'approche du curseur
+    [L, R].forEach(function(el){
+      var r = el.getBoundingClientRect();
+      var dx = mx - (r.left + r.width / 2), dy = my - (r.top + r.height / 2);
+      var d = Math.hypot(dx, dy);
+      var NEAR = 90, FAR = 340;
+      var k = d <= NEAR ? 1 : d >= FAR ? 0 : (FAR - d) / (FAR - NEAR);
+      el.querySelector('svg').style.setProperty('--s', (1 + 0.42 * k * k).toFixed(3));
+    });
+  });
+})();
+</script>
+<button type="button" id="mcd-more" onclick="window.__fsOpen&&window.__fsOpen()">En savoir plus <span class="arw">&#8250;</span></button>
+<button type="button" class="mcd-balloon l" aria-label="Bâtiment précédent"
+        onclick="window.__cinePrev&&window.__cinePrev()">
+  <svg viewBox="0 0 200 240" style="transform:rotate(-90deg) scale(var(--s,1))"><use href="#mcdArrowBalloon"/></svg>
+</button>
+<button type="button" class="mcd-balloon r" aria-label="Bâtiment suivant"
+        onclick="window.__cineNext&&window.__cineNext()">
+  <svg viewBox="0 0 200 240" style="transform:rotate(90deg) scale(var(--s,1))"><use href="#mcdArrowBalloon"/></svg>
+</button>
 
 </body>
 </html>
