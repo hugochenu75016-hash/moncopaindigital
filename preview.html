@@ -796,15 +796,20 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
 <!-- ===== Transition balayage SVG entre pages ===== -->
 <style id="door-tx-style">
   #door-tx{position:fixed;inset:0;z-index:2147483647;overflow:hidden;pointer-events:none;
-    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
+    background:#f26c00;
     opacity:0;visibility:hidden;}
   #door-tx.loading{opacity:1;visibility:visible;pointer-events:auto;}
   #door-tx.closing{pointer-events:auto;}
   #door-tx__shape{position:absolute;left:50%;top:50%;width:100vmax;height:100vmax;
     transform:translate(-50%,-50%);color:#fff;aspect-ratio:1;}
   #door-tx__shape path{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}
-  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,40vw,440px);height:auto;
-    opacity:0;filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));}
+  /* Le trait blanc inscrit le nom en passant : le mot est révélé par un volet
+     (clip-path) synchronisé sur le tracé, puis tout repart vers le haut. */
+  #door-tx .dt-word{position:absolute;left:0;right:0;top:50%;padding:0 6vw;
+    text-align:center;font-family:'Permanent Marker',cursive;color:#fff;
+    font-size:clamp(34px,7.6vw,104px);line-height:1.04;letter-spacing:.01em;
+    text-shadow:0 8px 24px rgba(90,40,0,.32);
+    clip-path:inset(0% 100% 0% 0%);}
   #door-tx .dt-spin{position:absolute;left:50%;top:calc(50% + clamp(96px,17vw,168px));
     transform:translate(-50%,-50%);width:clamp(46px,9.5vw,68px);height:clamp(46px,9.5vw,68px);
     color:#fff;opacity:0;transition:opacity .25s ease;
@@ -816,7 +821,7 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
   <svg id="door-tx__shape" viewBox="0 0 1080 1080" preserveAspectRatio="none" aria-hidden="true">
     <path d="M40,1040 C40,760 300,760 300,480 C300,200 560,200 560,480 C560,760 820,760 820,480 C820,200 1040,200 1040,60"/>
   </svg>
-  <img class="dt-logo" src="logomcd.png" alt="">
+  <div class="dt-word">Mon Copain Digital</div>
   <svg class="dt-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
     <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2">
       <animate id="mcdS1" fill="freeze" attributeName="x" begin="0;mcdS12.end" dur="0.2s" values="1;13"/>
@@ -845,7 +850,8 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
   if(!ov || !window.gsap) return;
   var gsap=window.gsap;
   var path=ov.querySelector('#door-tx__shape path');
-  var logo=ov.querySelector('.dt-logo');
+  var word=ov.querySelector('.dt-word');
+  var shape=ov.querySelector('#door-tx__shape');
   var spin=ov.querySelector('.dt-spin');
   var DUR=1000;
   var reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -864,9 +870,21 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
   var THICK='60%', THIN='3%';
 
   gsap.set(ov, { autoAlpha:1 });
-  gsap.set(path, { strokeDashoffset:0, strokeWidth:THIN });
-  gsap.set(logo, { xPercent:-50, yPercent:-50, scale:1, rotate:0, autoAlpha:1 });
-  var pulse = gsap.to(logo, { scale:1.05, duration:.8, ease:'sine.inOut', yoyo:true, repeat:-1 });
+  gsap.set(shape, { xPercent:-50, yPercent:-50 });
+  gsap.set(path, { strokeDashoffset:-len, strokeWidth:THIN });
+  gsap.set(word, { yPercent:-50, autoAlpha:1, clipPath:'inset(0% 100% 0% 0%)' });
+
+  // Écriture : le trait se dessine et découvre le nom au passage.
+  function writeIn(){
+    var tl=gsap.timeline();
+    tl.set(path, { strokeDashoffset:-len, strokeWidth:THIN })
+      .set(shape, { xPercent:-50, yPercent:-50 })
+      .set(word, { yPercent:-50, autoAlpha:1, clipPath:'inset(0% 100% 0% 0%)' })
+      .to(path, { strokeDashoffset:0, duration:dur(1.15), ease:'power1.inOut' }, 0)
+      .to(word, { clipPath:'inset(0% 0% 0% 0%)', duration:dur(.95), ease:'none' }, dur(.18));
+    return tl;
+  }
+  writeIn();
 
   function isInternal(a){
     if(!a) return false;
@@ -891,18 +909,16 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
 
   // Fermeture (trait qui se redessine + logo qui rentre en élastique) puis redirection.
   function playClose(cb){
-    pulse.pause();
     ov.classList.remove('opening');
     ov.classList.add('closing');
     var tl=gsap.timeline({ onComplete: cb });
     tl.set(path, { strokeDashoffset:-len, strokeWidth:THIN })
-      .set(logo, { scale:0, rotate:-64, autoAlpha:0 })
+      .set(shape, { xPercent:-50, yPercent:-50 })
+      .set(word, { yPercent:-50, autoAlpha:1, clipPath:'inset(0% 100% 0% 0%)' })
       .to(ov, { autoAlpha:1, duration:dur(.3), ease:'power1.out' }, 0)
-      .to(path, { strokeWidth:THICK, duration:dur(.3), ease:'power1.out' }, dur(.05))
-      .to(path, { strokeDashoffset:0, duration:dur(.55), ease:'circ.out' }, dur(.05))
-      .to(path, { strokeWidth:THIN, duration:dur(.3), ease:'power1.in' }, dur(.55))
-      .to(logo, { scale:1, rotate:0, autoAlpha:1, duration:dur(.5), ease:'elastic.out(1,0.72)' }, dur(.15))
-      .to(spin, { autoAlpha:.95, duration:dur(.2) }, dur(.4));
+      .to(path, { strokeDashoffset:0, duration:dur(.8), ease:'power2.inOut' }, dur(.05))
+      .to(word, { clipPath:'inset(0% 0% 0% 0%)', duration:dur(.6), ease:'none' }, dur(.22))
+      .to(spin, { autoAlpha:.95, duration:dur(.2) }, dur(.6));
   }
   function go(dest){
     if(ov.classList.contains('closing')) return;
@@ -916,17 +932,16 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
   // 3D soit prêt, puis window.mcdDoorsOpen() joue l'ouverture (trait qui s'efface,
   // logo qui sort en élastique, fond qui se dissipe).
   var opened=false, modelReady=false, pageLoaded=(document.readyState==='complete');
+  // Ouverture : le trait et le nom repartent vers le haut, l'écran se dissipe.
   function playOpen(){
     var tl=gsap.timeline();
     tl.to(spin, { autoAlpha:0, duration:dur(.2) }, 0)
-      .to(logo, { scale:0, rotate:64, autoAlpha:0, duration:dur(.6), ease:'elastic.in(1,0.72)' }, dur(.05))
-      .to(path, { strokeWidth:THICK, duration:dur(.3), ease:'power1.out' }, dur(.05))
-      .to(path, { strokeDashoffset:-len, duration:dur(.8), ease:'circ.inOut' }, dur(.35))
-      .to(ov, { autoAlpha:0, duration:dur(.5), ease:'power1.out' }, dur(.5));
+      .to(shape, { yPercent:-190, duration:dur(.9), ease:'power3.inOut' }, dur(.1))
+      .to(word, { yPercent:-190, duration:dur(.85), ease:'power3.inOut' }, dur(.14))
+      .to(ov, { autoAlpha:0, duration:dur(.5), ease:'power1.out' }, dur(.6));
   }
   function doOpen(){
     if(opened) return; opened=true;
-    pulse.pause();
     ov.classList.remove('loading');
     ov.classList.add('opening');
     playOpen();
@@ -951,12 +966,10 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
       opened=false;
       ov.classList.remove('closing','opening');
       ov.classList.add('loading');
-      gsap.killTweensOf([ov, path, logo, spin]);
+      gsap.killTweensOf([ov, shape, path, word, spin]);
       gsap.set(ov, { autoAlpha:1 });
-      gsap.set(path, { strokeDashoffset:0, strokeWidth:THIN });
-      gsap.set(logo, { scale:1, rotate:0, autoAlpha:1 });
       gsap.set(spin, { autoAlpha:.95 });
-      pulse.restart();
+      writeIn();
     }
   });
 })();
