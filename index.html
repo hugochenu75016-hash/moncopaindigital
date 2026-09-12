@@ -2354,7 +2354,7 @@ function start() {
           })();
         }
 
-        const CT = window.__chairT = { scale: 13.5, z: -1.0, y: 0, rotY: 0 };
+        const CT = window.__chairT = { scale: 10.5, z: -1.0, y: 1.25, rotY: 0 };
         const apply = () => {
           grp.scale.setScalar(CT.scale);
           dropGroup(grp, CT.lat === undefined ? 90 : CT.lat, CT.lon || 0, CT.rotY);
@@ -2663,14 +2663,15 @@ function start() {
           if (phase !== 'idle') return;
           grp.position.y = finalY;                 // directement en position assise
           if (window.__chairShow) window.__chairShow();   // chaise + bureau visibles
-          if (sitIdleClip){ grp.visible = true; startSitIdle(); }
-          else { phase = 'waitsitidle'; }          // on attend le clip (reste caché, pas de T-pose)
+          grp.visible = true;                      // visible même sans clip (pose du GLB)
+          if (sitIdleClip){ startSitIdle(); }
+          else { phase = 'waitsitidle'; }
         };
 
         // ----- Debout en grand sur la planète, sans bureau — appelé pendant la
         // transition vers la section suivante. __charSit() fait l'inverse au retour. -----
         var standingBig = false;
-        var SIT_CT  = { scale: 13.5, z: -1.0, y: 0,    rotY: 0 };
+        var SIT_CT  = { scale: 10.5, z: -1.0, y: 1.25,    rotY: 0 };
         var STAND_CT = { scale: 13.5 * 3, z: 0.4, y: 0, rotY: 0 };   // personnage : 3x sa taille assise
         var STAND_SHRINK = 0.36;   // taille en section 2 : il passe sous la lampe, la cordelette est hors de portée sans sauter
         var PLANET_K_STAND = 0.62;   // planète rétrécie en section 2 (le perso est compensé)
@@ -2994,6 +2995,43 @@ function start() {
           });
         };
 
+        // ----- Coucou du bras gauche (à l'ouverture des portes) -----
+        var WAVE = { lift: -1.45, out: 0.3, bend: -0.8, swing: 0.5, dur: 3.2, up: 0.55, down: 0.7, rate: 9 };
+        window.__waveTune = (o) => { Object.assign(WAVE, o); };
+        var waveT0 = 0, waveRest = null;
+        const WAVE_BONES = ['LeftArm', 'LeftForeArm', 'LeftHand'];
+        window.__charWave = function(){
+          if (waveT0) return;
+          waveRest = {};
+          WAVE_BONES.forEach(n => { const b = bones[bIdx[n]]; if (b) waveRest[n] = b.quaternion.clone(); });
+          waveT0 = performance.now();
+        };
+        const _wq2 = new THREE.Quaternion(), _wq3 = new THREE.Quaternion();
+        function restoreWave(){
+          if (!waveRest) return;
+          WAVE_BONES.forEach(n => { const b = bones[bIdx[n]]; if (b) b.quaternion.copy(waveRest[n]); });
+          waveRest = null; waveT0 = 0;
+        }
+        function wavePose(now){
+          if (!waveT0 || !waveRest) return;
+          const t = (now - waveT0) / 1000;
+          if (t > WAVE.dur){ restoreWave(); return; }
+          let k = t < WAVE.up ? t / WAVE.up : (t > WAVE.dur - WAVE.down ? (WAVE.dur - t) / WAVE.down : 1);
+          k = k < 0 ? 0 : k > 1 ? 1 : k;
+          const sw = Math.sin((t - WAVE.up) * WAVE.rate) * WAVE.swing * k;
+          const arm = bones[bIdx['LeftArm']];
+          if (arm) arm.quaternion.copy(waveRest['LeftArm'])
+            .multiply(_wq2.setFromAxisAngle(AXZ, WAVE.lift * k))
+            .multiply(_wq3.setFromAxisAngle(AXY, WAVE.out * k));
+          const fa = bones[bIdx['LeftForeArm']];
+          if (fa) fa.quaternion.copy(waveRest['LeftForeArm'])
+            .multiply(_wq2.setFromAxisAngle(AXZ, WAVE.bend * k))
+            .multiply(_wq3.setFromAxisAngle(AXX, sw));
+          const hd = bones[bIdx['LeftHand']];
+          if (hd) hd.quaternion.copy(waveRest['LeftHand'])
+            .multiply(_wq2.setFromAxisAngle(AXX, sw * 0.6));
+        }
+
         // tick appelé chaque frame par animate()
         window.__charTick = function(now){
           if (phase === 'waitsitidle'){
@@ -3002,6 +3040,7 @@ function start() {
           if (phase === 'sitidle' || phase === 'waitsitidle'){ if (window.__seatFollow) window.__seatFollow(); }
           if (phase !== 'idle'){ pinHips(); }   // épingle le bassin au centre (anti-dérive)
           lookPose(now);
+          wavePose(now);
           hangPose(now);
           walkPose(now);
           // échelle : il grandit à l'écran en section 2 (la planète, elle, rétrécit),
@@ -3012,6 +3051,9 @@ function start() {
             st.y = (STAND_CT.y || 0) + hangY +
                    (window.__planetFallLocal ? window.__planetFallLocal() : 0);   // saut, suspension, plan&egrave;te qui tombe
             window.__chairTune(st);
+          } else if (!window.__cineOwnsChar && window.__chairTune) {
+            // il garde la face vers nous même quand la planète tourne
+            window.__chairTune(Object.assign({}, SIT_CT, { rotY: -world.rotation.y }));
           }
         };
 
