@@ -9,10 +9,17 @@
 <meta name="theme-color" content="#6EC1F0">
 <script>
 (function(){
-  // Retour OAuth Meta dans la popup ouverte par connectNetwork() : social-connect/callback
-  // redirige ici avec ?connect=ok|error. On ferme la popup toute seule, sans rien afficher.
-  var connect = new URLSearchParams(location.search).get('connect');
+  // Retour OAuth dans la popup ouverte par connectNetwork().
+  // Le résultat est transmis à la page principale avant la fermeture de la popup,
+  // afin de ne pas masquer le détail d'une erreur renvoyée par la fonction Supabase.
+  var params = new URLSearchParams(location.search);
+  var connect = params.get('connect');
   if(connect && window.opener && window.opener !== window){
+    window.opener.postMessage({
+      type: 'mcd-social-connect-result',
+      ok: connect === 'ok',
+      message: params.get('msg') || ''
+    }, location.origin);
     window.close();
     return;
   }
@@ -2034,6 +2041,17 @@
   var previewNet = 'instagram';
   var posts = [];              // tous les posts stockés
   var connections = { instagram:{connected:false,account:''}, x:{connected:false,account:''}, tiktok:{connected:false,account:''}, facebook:{connected:false,account:''}, snapchat:{connected:false,account:''} };
+  var lastOAuthConnectResult = null;
+  window.addEventListener('message', function(event){
+    if(event.origin !== location.origin) return;
+    var result = event.data;
+    if(!result || result.type !== 'mcd-social-connect-result' || typeof result.ok !== 'boolean') return;
+    lastOAuthConnectResult = {
+      ok: result.ok,
+      message: String(result.message || ''),
+      at: Date.now()
+    };
+  });
   var CONN_FN_STATUS='social-status', CONN_FN_CONNECT='social-connect', CONN_LS_BASE='mcd_social_conns';
   function CONN_LS_KEY(){ return CONN_LS_BASE+'_'+(effectiveUid()||'anon'); }
   var storeMode = 'unknown';   // 'db' | 'local'
@@ -2240,7 +2258,7 @@
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+CONN_FN_CONNECT, { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:id }) });
       if(r.status!==404){
         var d=null; try{ d=await r.json(); }catch(e){}
-        if(d && d.url){ watchConnectPopup(window.open(d.url,'_blank','width=620,height=760'), id); return; }
+        if(d && d.url){ lastOAuthConnectResult=null; watchConnectPopup(window.open(d.url,'_blank','width=620,height=760'), id); return; }
       }
     }catch(e){}
     // Backend pas encore d\u00e9ploy\u00e9 : connexion locale de test pour utiliser l\u2019outil
@@ -2253,13 +2271,23 @@
   function watchConnectPopup(popup, id){
       if(!popup){ toast('La fenêtre de connexion a été bloquée par le navigateur. Autorisez les popups puis réessayez.', true); return; }
       var name=net(id).name;
+      var startedAt=Date.now();
       toast('Terminez la connexion '+name+' dans la fenêtre…');
       var t=setInterval(async function(){
         if(popup.closed){
           clearInterval(t);
+          var oauthResult = lastOAuthConnectResult && lastOAuthConnectResult.at >= startedAt ? lastOAuthConnectResult : null;
           await loadConnections(); renderConnexions();
           var ok = connections[id] && connections[id].connected;
-          toast(ok ? (name+' relié ✓') : ('Connexion '+name+' annulée ou incomplète.'), !ok);
+          if(oauthResult && !oauthResult.ok){
+            toast('Connexion '+name+' refusée : '+(oauthResult.message || 'erreur non détaillée par le service.'), true);
+          }else if(ok){
+            toast(name+' relié ✓');
+          }else if(oauthResult && oauthResult.ok){
+            toast('Connexion '+name+' validée, mais le compte n’a pas été enregistré. Vérifiez « social-status » et les journaux de « social-connect ».', true);
+          }else{
+            toast('Connexion '+name+' annulée ou incomplète.', true);
+          }
         }
       }, 700);
     }
