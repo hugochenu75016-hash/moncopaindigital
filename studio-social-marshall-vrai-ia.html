@@ -1336,6 +1336,8 @@
   .mv4-compose-context.show{display:flex}.mv4-compose-context b{color:#5a402d;font-weight:900}.mv4-compose-context svg{width:13px;height:13px;fill:none;stroke:#F3852B;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   @media(max-width:760px){.mv4-agentpickers{grid-template-columns:1fr}.mv4-agentbar-hint{display:none}.mv4-agentbar{padding:10px}.mv4-agentpicker{padding:7px 8px}}
 
+  .mv4-team-strip{align-self:center;max-width:94%;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:7px 9px;border-radius:12px;background:#f7fbff;border:1px solid rgba(66,133,244,.13);color:#58739a;font-size:9px;font-weight:800;box-shadow:0 2px 0 rgba(66,133,244,.04)}
+  .mv4-team-strip b{color:#34557f;font-weight:900}.mv4-team-dot{width:5px;height:5px;border-radius:50%;background:#6f9fe8}.mv4-team-strip .ok{color:#3d815a;background:#eaf8ef;border-radius:999px;padding:3px 6px}
   /* Réglages Studio + Marshall : panneau unique */
   .ed-tool-settings{position:relative;}
   .ed-tool-settings svg{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
@@ -3234,7 +3236,7 @@
             <div class="mv4-agentpickers">
               <label class="mv4-agentpicker">
                 <span class="mv4-agentpicker-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/><path d="M19 5l1 1 2-2"/></svg></span>
-                <span class="mv4-agentpicker-copy"><small>Agent</small><select id="marshall-agent-select" aria-label="Choisir l’agent"><option value="auto">Auto · meilleur expert</option><option value="marshall">Marshall · Directeur créatif</option><option value="story">Story Creative Director</option><option value="social">Directeur artistique social</option><option value="brand">Brand Strategist</option><option value="campaign">Campaign Strategist</option><option value="image">Image Art Director</option><option value="visual">Visual QA Expert</option><option value="testing">Creative Testing Expert</option><option value="audit">Senior Brand Auditor</option></select></span>
+                <span class="mv4-agentpicker-copy"><small>Agent</small><select id="marshall-agent-select" aria-label="Choisir l’agent"><option value="auto">Auto · Marshall choisit</option><option value="team">Équipe Marshall · multi-agents</option><option value="marshall">Marshall · Directeur créatif</option><option value="story">Story Creative Director</option><option value="social">Directeur artistique social</option><option value="brand">Brand Strategist</option><option value="campaign">Campaign Strategist</option><option value="image">Image Art Director</option><option value="visual">Visual QA Expert</option><option value="testing">Creative Testing Expert</option><option value="audit">Brand Auditor</option></select></span>
                 <span class="mv4-agentpicker-chevron"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span>
               </label>
               <label class="mv4-agentpicker">
@@ -3358,20 +3360,40 @@
 
 
 
+  /* ===== Marshall Marketing Brain : contexte commun ===== */
+  function marshallMarketingContext(goal,platform){
+    goal=String(goal||'Vente'); platform=String(platform||'Instagram');
+    var pm={
+      Instagram:'Instagram : hook visuel immédiat, lecture mobile, hiérarchie forte, format natif et CTA simple.',
+      TikTok:'TikTok : hook dès la première seconde, rythme, authenticité, preuve visuelle et langage naturel.',
+      Facebook:'Facebook : bénéfice clair, contexte suffisant, preuve crédible et CTA explicite.',
+      X:'X : angle net, formulation concise, idée mémorable et faible surcharge visuelle.',
+      Snapchat:'Snapchat : lecture instantanée, très peu de texte, verticalité, contraste fort et message direct.'
+    };
+    var gm={
+      Vente:'Objectif vente : montrer la valeur et le bénéfice principal puis proposer une action claire, sans inventer de prix ni de preuve.',
+      Engagement:'Objectif engagement : provoquer une réaction simple et naturelle, donner envie de répondre, enregistrer ou partager.',
+      Notoriété:'Objectif notoriété : renforcer les codes de marque, la mémorisation et une idée distinctive.',
+      'Lancement produit':'Objectif lancement : créer curiosité, clarté sur la nouveauté et progression vers le CTA.'
+    };
+    return ['Contexte marketing : '+platform+' · '+goal+'.',pm[platform]||pm.Instagram,gm[goal]||gm.Vente,'Une idée principale, peu de texte, hiérarchie nette, contraste suffisant et cohérence de marque.','Ne jamais inventer chiffres, résultats, témoignages, clients, prix, promotions ou caractéristiques absentes.'].join(' ');
+  }
+
   /* ===== Marshall Agent Menu : agent + mission choisis par l'utilisateur ===== */
   var marshallAgentMode={agent:'auto',mission:'auto'};
   function marshallAgentCatalog(){
     return {
       auto:null,
-      marshall:{name:'Marshall',role:'directeur créatif généraliste senior',focus:'branding, social media, direction artistique, stratégie et création de contenu'},
+      team:{name:'Équipe Marshall',role:'équipe multi-agents créative et stratégique',focus:'croiser branding, stratégie, direction créative, copywriting, design et contrôle qualité avant de produire'},
+      marshall:{name:'Marshall',role:'directeur créatif généraliste',focus:'branding, social media, direction artistique, stratégie et création de contenu'},
       story:{name:'Story Creative Director',role:'directeur créatif spécialisé en stories verticales',focus:'hook instantané, rythme vertical, lisibilité mobile, branding et CTA'},
-      social:{name:'Directeur artistique social',role:'directeur artistique social media senior',focus:'concept, hiérarchie, typographie, composition, branding, clarté et conversion'},
-      brand:{name:'Brand Strategist',role:'brand strategist senior',focus:'positionnement, personnalité, cible, promesse, différenciation, ton et cohérence de marque'},
-      campaign:{name:'Campaign Strategist',role:'stratège de campagne social media senior',focus:'architecture de campagne, séquençage, angles créatifs et progression vers le CTA'},
-      image:{name:'Image Art Director',role:'directeur artistique image et prompt engineer senior',focus:'composition, lumière, sujet, rendu premium, cohérence de marque et génération d’image'},
+      social:{name:'Directeur artistique social',role:'directeur artistique social media',focus:'concept, hiérarchie, typographie, composition, branding, clarté et conversion'},
+      brand:{name:'Brand Strategist',role:'brand strategist',focus:'positionnement, personnalité, cible, promesse, différenciation, ton et cohérence de marque'},
+      campaign:{name:'Campaign Strategist',role:'stratège de campagne social media',focus:'architecture de campagne, séquençage, angles créatifs et progression vers le CTA'},
+      image:{name:'Image Art Director',role:'directeur artistique image et prompt engineer',focus:'composition, lumière, sujet, rendu premium, cohérence de marque et génération d’image'},
       visual:{name:'Visual QA Expert',role:'expert en audit graphique et UX visuelle',focus:'lisibilité, contraste, hiérarchie, espacements, équilibre et corrections concrètes'},
       testing:{name:'Creative Testing Expert',role:'expert A/B testing créatif et performance social media',focus:'variantes réellement distinctes, angles, hooks, hypothèses créatives et comparabilité'},
-      audit:{name:'Senior Brand Auditor',role:'consultant senior en stratégie de marque et direction artistique',focus:'audit 360°, diagnostic, opportunités, risques, direction artistique et recommandations prioritaires'}
+      audit:{name:'Brand Auditor',role:'consultant en stratégie de marque et direction artistique',focus:'audit 360°, diagnostic, opportunités, risques, direction artistique et recommandations prioritaires'}
     };
   }
   function marshallMissionLabel(intent){
@@ -3384,6 +3406,7 @@
   }
   function marshallEffectiveProfile(intent){
     var cat=marshallAgentCatalog(), chosen=cat[marshallAgentMode.agent];
+    if(marshallAgentMode.agent==='team')return cat.team;
     return chosen||marshallSpecialistProfile(intent);
   }
   function marshallEffectiveIntent(prompt){
@@ -3405,27 +3428,103 @@
     var icon=document.createElement('span');icon.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg>';
     var txt=document.createElement('span');
     var who='Vous';try{who=(me&&me.nom)?String(me.nom).trim().split(/\s+/)[0]:'Vous';}catch(e){}
-    var prof=marshallEffectiveProfile(intent), mission=marshallMissionLabel(intent);
-    txt.appendChild(document.createTextNode(who+' a utilisé l’agent '));var a=document.createElement('strong');a.textContent=prof.name;txt.appendChild(a);txt.appendChild(document.createTextNode(' pour '));var b=document.createElement('strong');b.textContent=mission;txt.appendChild(b);
+    var prof=marshallEffectiveProfile(intent), mission=marshallMissionLabel(intent), useTeam=marshallShouldUseCrew(intent);
+    txt.appendChild(document.createTextNode(who+' a utilisé '+(useTeam?'l’équipe ':'l’agent ')));var a=document.createElement('strong');a.textContent=useTeam?'Marshall':prof.name;txt.appendChild(a);txt.appendChild(document.createTextNode(' pour '));var b=document.createElement('strong');b.textContent=mission;txt.appendChild(b);
     d.appendChild(icon);d.appendChild(txt);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+  }
+
+  /* ===== Marshall Crew : vraie orchestration multi-agents ===== */
+  var marshallLastCrew=null;
+  function marshallCrewCatalog(){
+    return {
+      brand:{name:'Brand Agent',role:'brand strategist',focus:'positionnement, cible, personnalité, promesse, différenciation et cohérence de marque'},
+      strategy:{name:'Strategy Agent',role:'stratège social media',focus:'objectif, plateforme, angle, funnel, message principal et CTA'},
+      creative:{name:'Creative Director',role:'directeur créatif',focus:'territoire créatif, concept, mémorisation, rythme et direction artistique'},
+      copy:{name:'Copywriter',role:'copywriter social media',focus:'hook, sous-texte, ton, clarté, bénéfice et CTA'},
+      visual:{name:'Visual Designer',role:'designer social media',focus:'composition, hiérarchie, typographie, palette, contraste, imagerie et lisibilité mobile'},
+      critic:{name:'Critic',role:'contrôleur qualité créatif',focus:'cohérence globale, respect du brief, risques, surcharge, promesses non prouvées et corrections prioritaires'}
+    };
+  }
+  function marshallCrewAgentsForIntent(intent){
+    if(intent==='image_generate'||intent==='image_analyze'||intent==='image_compose')return ['brand','creative','visual','critic'];
+    if(intent==='campaign')return ['brand','strategy','creative','copy','critic'];
+    if(intent==='variants')return ['strategy','creative','copy','critic'];
+    if(intent==='story'||intent==='canvas'||intent==='creative')return ['brand','strategy','creative','copy','visual','critic'];
+    if(intent==='vision')return ['visual','critic'];
+    if(intent==='brand'||intent==='business_audit')return ['brand','strategy','creative','critic'];
+    return ['strategy','copy','critic'];
+  }
+  function marshallShouldUseCrew(intent){
+    if(marshallAgentMode.agent==='team')return true;
+    if(marshallAgentMode.agent!=='auto')return false;
+    return ['image_generate','campaign','variants','story','canvas','creative','business_audit'].indexOf(intent)>=0;
+  }
+  async function marshallCrewRunAgent(id,prompt,intent,shared){
+    var a=marshallCrewCatalog()[id]; if(!a)return null;
+    var sys=[
+      'Tu es '+a.name+', '+a.role+', membre de l’équipe Marshall.',
+      'Ton domaine : '+a.focus+'.',
+      'Travaille uniquement sur ton domaine. Sois concret, exigeant et directement exploitable par les autres agents.',
+      'Ne donne pas de raisonnement privé étape par étape. Retourne seulement un diagnostic et des décisions utilisables.',
+      'N’invente jamais de fait, chiffre, client, prix, performance, témoignage ou caractéristique absente.',
+      marshallMarketingContext(marshallSetting('goal','Vente'),marshallSetting('platform','Instagram')),
+      marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),marshallCanvasArtDirectionContext(),
+      shared?('TRAVAIL DES AUTRES AGENTS : '+shared):'',
+      'Réponds UNIQUEMENT en JSON valide : {"agent":"'+a.name+'","summary":"...","decisions":["..."],"recommendations":["..."],"avoid":["..."]}'
+    ].filter(Boolean).join('\n');
+    try{
+      var r=await marshallRemoteJSON(sys,'Mission : '+marshallMissionLabel(intent)+'\nDemande : '+prompt);
+      if(!r||!r.summary)throw Error('sortie agent incomplète');
+      r.agent=r.agent||a.name;return r;
+    }catch(e){
+      console.warn('Marshall Crew '+id,e);
+      return {agent:a.name,summary:'Appliquer '+a.focus+' en restant fidèle au brief et aux informations disponibles.',decisions:[],recommendations:[],avoid:['inventer des informations','surcharger la création']};
+    }
+  }
+  function marshallCrewCompact(results){
+    try{return JSON.stringify(results.map(function(r){return {agent:r.agent,summary:r.summary,decisions:r.decisions,recommendations:r.recommendations,avoid:r.avoid};}));}catch(e){return '';}
+  }
+  async function marshallCrewRun(prompt,intent){
+    var ids=marshallCrewAgentsForIntent(intent), first=ids.filter(function(x){return x==='brand'||x==='strategy';}), middle=ids.filter(function(x){return x!=='brand'&&x!=='strategy'&&x!=='critic';}), results=[];
+    edAIStatus('Équipe Marshall : analyse du brief…');
+    if(first.length){results=results.concat(await Promise.all(first.map(function(id){return marshallCrewRunAgent(id,prompt,intent,'');})));}
+    var shared1=marshallCrewCompact(results);
+    if(middle.length){edAIStatus('Équipe Marshall : direction créative et contenu…');results=results.concat(await Promise.all(middle.map(function(id){return marshallCrewRunAgent(id,prompt,intent,shared1);})));}
+    if(ids.indexOf('critic')>=0){edAIStatus('Équipe Marshall : contrôle qualité…');var critic=await marshallCrewRunAgent('critic',prompt,intent,marshallCrewCompact(results));if(critic)results.push(critic);}
+    marshallLastCrew={intent:intent,mission:marshallMissionLabel(intent),agents:results,createdAt:Date.now()};
+    return marshallLastCrew;
+  }
+  function marshallCrewContext(){
+    if(!marshallLastCrew||!Array.isArray(marshallLastCrew.agents))return 'Aucune synthèse multi-agents disponible.';
+    try{return 'SYNTHÈSE DE L’ÉQUIPE MARSHALL À RESPECTER :\n'+JSON.stringify(marshallLastCrew.agents);}catch(e){return '';}
+  }
+  function marshallChatCrewStrip(crew){
+    var th=marshallChatThread();if(!th||!crew||!crew.agents)return null;
+    var d=document.createElement('div');d.className='mv4-team-strip';var b=document.createElement('b');b.textContent='Équipe Marshall';d.appendChild(b);
+    crew.agents.forEach(function(a,i){if(i){var dot=document.createElement('span');dot.className='mv4-team-dot';d.appendChild(dot);}var sp=document.createElement('span');sp.textContent=a.agent||'Agent';d.appendChild(sp);});
+    var ok=document.createElement('span');ok.className='ok';ok.textContent='synthèse prête';d.appendChild(ok);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+  }
+  async function marshallCrewFinalReply(prompt,intent,baseReply,ok){
+    var sys=['Tu es Marshall. Ton équipe multi-agents vient de travailler sur la demande.','Rédige la réponse finale en français, naturelle, courte et professionnelle.','Dis ce qui a réellement été fait et la logique retenue, sans inventer d’action ni exposer de raisonnement privé.',marshallBrandContext(),marshallAnalysisContext(),marshallCrewContext(),'Réponse : 2 à 4 phrases maximum.'].join('\n');
+    try{return await marshallRemoteReply([{role:'system',content:sys},{role:'user',content:'Demande : '+prompt+'\nRésultat technique : '+(ok?'succès':'échec')+'\nMessage de base : '+baseReply}]);}catch(e){return baseReply;}
   }
 
   /* ===== Marshall Expert Engine : un spécialiste IA selon chaque demande ===== */
   var marshallLastExpertAdvice=null;
   function marshallSpecialistProfile(intent){
     var map={
-      image_generate:{name:'Directeur artistique image',role:'directeur artistique senior et prompt engineer spécialisé en campagnes visuelles',focus:'composition, lumière, sujet, rendu premium, cohérence de marque et prompt image exploitable'},
-      image_analyze:{name:'Analyste visuel',role:'analyste visuel senior et directeur artistique',focus:'lecture de l’image, hiérarchie, composition, contraste, style, cohérence de marque et opportunités d’amélioration'},
-      image_compose:{name:'Designer de composition',role:'designer social media senior',focus:'mise en page autour de l’image, hiérarchie, respiration, lisibilité mobile et CTA'},
+      image_generate:{name:'Directeur artistique image',role:'directeur artistique et prompt engineer spécialisé en campagnes visuelles',focus:'composition, lumière, sujet, rendu premium, cohérence de marque et prompt image exploitable'},
+      image_analyze:{name:'Analyste visuel',role:'analyste visuel et directeur artistique',focus:'lecture de l’image, hiérarchie, composition, contraste, style, cohérence de marque et opportunités d’amélioration'},
+      image_compose:{name:'Designer de composition',role:'designer social media',focus:'mise en page autour de l’image, hiérarchie, respiration, lisibilité mobile et CTA'},
       story:{name:'Story Creative Director',role:'directeur créatif spécialisé en stories verticales',focus:'hook instantané, rythme vertical, séquençage, lisibilité mobile, branding et CTA'},
-      canvas:{name:'Directeur artistique social',role:'directeur artistique social media senior',focus:'concept, hiérarchie, typographie, composition, branding, clarté et conversion'},
-      campaign:{name:'Campaign Strategist',role:'stratège de campagne social media senior',focus:'architecture de campagne, séquençage, angles créatifs, cohérence des messages et progression vers le CTA'},
+      canvas:{name:'Directeur artistique social',role:'directeur artistique social media',focus:'concept, hiérarchie, typographie, composition, branding, clarté et conversion'},
+      campaign:{name:'Campaign Strategist',role:'stratège de campagne social media',focus:'architecture de campagne, séquençage, angles créatifs, cohérence des messages et progression vers le CTA'},
       variants:{name:'Creative Testing Expert',role:'expert A/B testing créatif et performance social media',focus:'variantes réellement distinctes, hypothèses créatives, angles, hooks et comparabilité'},
-      creative:{name:'Brand Creative Director',role:'directeur de création et brand designer senior',focus:'territoires créatifs distinctifs, identité, mémorisation, cohérence de marque et force conceptuelle'},
+      creative:{name:'Brand Creative Director',role:'directeur de création et brand designer',focus:'territoires créatifs distinctifs, identité, mémorisation, cohérence de marque et force conceptuelle'},
       vision:{name:'Visual QA Expert',role:'expert en audit graphique et UX visuelle',focus:'lisibilité, contraste, hiérarchie, espacements, équilibre, cohérence et corrections concrètes'},
-      brand:{name:'Brand Strategist',role:'brand strategist senior',focus:'positionnement, personnalité, cible, promesse, différenciation, ton et cohérence de marque'},
-      business_audit:{name:'Senior Brand Auditor',role:'consultant senior en stratégie de marque et direction artistique',focus:'audit 360°, diagnostic, opportunités, risques, direction artistique et recommandations prioritaires'},
-      general:{name:'Consultant créatif senior',role:'consultant créatif, branding et social media senior',focus:'réponse précise, utile, structurée et adaptée au contexte de la marque'}
+      brand:{name:'Brand Strategist',role:'brand strategist',focus:'positionnement, personnalité, cible, promesse, différenciation, ton et cohérence de marque'},
+      business_audit:{name:'Brand Auditor',role:'consultant en stratégie de marque et direction artistique',focus:'audit 360°, diagnostic, opportunités, risques, direction artistique et recommandations prioritaires'},
+      general:{name:'Marshall',role:'consultant créatif, branding et social media',focus:'réponse précise, utile, structurée et adaptée au contexte de la marque'}
     };
     return map[intent]||map.general;
   }
@@ -3471,7 +3570,7 @@
       'Rédige la réponse finale à l’utilisateur en français, naturelle, concise et professionnelle.',
       'La réponse doit refléter précisément ce qui a réellement été fait. Ne prétends jamais avoir réalisé une action qui a échoué.',
       'Évite les phrases génériques. Mentionne en une phrase la logique créative ou stratégique pertinente.',
-      marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),
+      marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
       'Réponse attendue : 2 à 4 phrases maximum, sans JSON.'
     ].join('\n');
     try{return await marshallRemoteReply([{role:'system',content:sys},{role:'user',content:'Demande : '+prompt+'\nRésultat technique : '+(ok?'succès':'échec')+'\nMessage de base : '+baseReply}]);}
@@ -3539,7 +3638,7 @@
   async function marshallDeepAnalysis(prompt,intent){
     edAIStatus('Marshall analyse l’entreprise, le branding et la direction artistique…');
     var sys=[
-      'Tu es Marshall, un directeur de marque senior, brand strategist, directeur artistique et stratège social media de très haut niveau.',
+      'Tu es Marshall, un directeur de marque, brand strategist, directeur artistique et stratège social media de très haut niveau.',
       'Avant toute création, tu réalises un audit 360° professionnel de la marque à partir UNIQUEMENT des informations fournies dans le profil, du brief et du canvas.',
       'Tu distingues les faits fournis des inférences. Tu n’inventes jamais un chiffre, un concurrent, un historique, une promesse, une clientèle ou une caractéristique absente.',
       'Analyse: entreprise/offre, positionnement, cible, personnalité, cohérence de marque, direction artistique, palette, typographie, composition, imagerie, stratégie de contenu, angle créatif, opportunités, risques et informations manquantes.',
@@ -3585,19 +3684,21 @@
     marshallChatBusy=true;if(b)b.disabled=true;
     marshallChatBubble('user',prompt);
     var intent=marshallEffectiveIntent(prompt), ok=true, reply='';
-    marshallChatAgentPill(intent);
+    if(intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')marshallChatAgentPill(intent);
     var typing=marshallChatTyping();
     try{
-      var strategicIntents=['image_generate','campaign','variants','story','canvas','creative','business_audit','general'];
+      var usingCrew=marshallShouldUseCrew(intent);
+      var strategicIntents=['image_generate','campaign','variants','story','canvas','creative','business_audit'];
       var needsStrategicAudit=strategicIntents.indexOf(intent)>=0;
       if(needsStrategicAudit){
         var audit=await marshallDeepAnalysis(prompt,intent);
         if(intent==='business_audit'){
+          if(usingCrew){var auditCrew=await marshallCrewRun(prompt,intent);marshallChatCrewStrip(auditCrew);marshallLastExpertAdvice=null;}
+          else{marshallLastExpertAdvice=marshallLocalExpertAdvice(prompt,intent);}
           if(typing&&typing.parentNode)typing.remove();
           marshallChatAnalysisCard(audit);
           reply='Analyse terminée. J’ai posé le diagnostic avant toute création. Les zones marquées comme manquantes sont celles qu’il vaut mieux renseigner dans Réglages pour rendre Marshall encore plus précis.';
-          marshallLastExpertAdvice=marshallLocalExpertAdvice(prompt,intent);
-          reply=await marshallExpertFinalReply(prompt,intent,reply,true);
+          reply=usingCrew?await marshallCrewFinalReply(prompt,intent,reply,true):await marshallExpertFinalReply(prompt,intent,reply,true);
           marshallChatBubble('assistant',reply);
           if(input){input.value='';input.style.height='auto';input.focus();}
           return;
@@ -3605,8 +3706,14 @@
       }else{
         marshallLastDeepAnalysis=null;
       }
-      if(intent!=='business_audit'){
+      if(usingCrew){
+        var crew=await marshallCrewRun(prompt,intent);
+        marshallChatCrewStrip(crew);
+        marshallLastExpertAdvice=null;
+      }else if(intent!=='business_audit' && (intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')){
         var expert=await marshallExpertConsult(prompt,intent);
+      }else if(intent==='general'){
+        marshallLastExpertAdvice=null;marshallLastCrew=null;
       }
       if(intent==='image_generate'){ok=!!(await marshallGenerateImageFromPrompt(prompt));reply=marshallActionReply(intent,ok);}
       else if(intent==='image_analyze'){ok=!!(await marshallImageAnalyze());reply=marshallActionReply(intent,ok);}
@@ -3625,18 +3732,20 @@
           'Réponds en français, de façon concrète, claire et utile.',
           'Tu aides à créer des contenus social media, concevoir des campagnes, améliorer un canvas et trouver des idées.',
           'Ne prétends jamais avoir modifié le canvas si aucune action n’a été exécutée.',
-          'Spécialiste actif : '+marshallEffectiveProfile(intent).name+' — '+marshallEffectiveProfile(intent).focus+'.',
+          (intent==='general'&&marshallAgentMode.agent==='auto'?'Mode actif : Marshall en conversation libre.':'Agent actif : '+marshallEffectiveProfile(intent).name+' — '+marshallEffectiveProfile(intent).focus+'.'),
           marshallMarketingContext(marshallSetting('goal','Vente'),marshallSetting('platform','Instagram')),
           marshallBrandContext(),
           marshallAnalysisContext(),
-          marshallExpertContext()
+          marshallExpertContext(),
+          marshallCrewContext()
         ].join('\n');
         var msgs=[{role:'system',content:sys}].concat(marshallChatHistory.slice(-8)).concat([{role:'user',content:prompt}]);
         reply=await marshallRemoteReply(msgs);
         marshallChatHistory.push({role:'user',content:prompt},{role:'assistant',content:reply});
         marshallChatHistory=marshallChatHistory.slice(-12);
       }
-      if(intent!=='general') reply=await marshallExpertFinalReply(prompt,intent,reply,ok);
+      if(usingCrew) reply=await marshallCrewFinalReply(prompt,intent,reply,ok);
+      else if(intent!=='general') reply=await marshallExpertFinalReply(prompt,intent,reply,ok);
       if(typing&&typing.parentNode)typing.remove();
       marshallChatBubble('assistant',reply);
       if(input){input.value='';input.style.height='auto';input.focus();}
@@ -3654,7 +3763,7 @@
   function edAIExtractJSON(t){t=String(t||'').trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();var a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)throw Error('JSON absent');return JSON.parse(t.slice(a,b+1));}
   function edAISystemPrompt(goal,platform){return ['Tu es Marshall, directeur créatif social media spécialisé en marketing moderne.','Tu modifies un canvas éditable, pas une image aplatie.','Objectif: '+goal+'. Plateforme: '+platform+'.',
       marshallMarketingContext(goal,platform),
-      marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),'Priorités: hook compris en 1 seconde, hiérarchie nette, peu de texte, CTA clair, lisibilité mobile, design actuel sans surcharge.','N’invente jamais prix, réduction, statistique ou caractéristique produit.','Réponds UNIQUEMENT en JSON: {"summary":"...","actions":[...]}.','Actions: set_text{id,text}; style_text{id,size,color,bold,upper,align,lh,ls}; move{id,x,y}; resize{id,w,h}; set_background{color}; add_text{text,x,y,w,size,color,bold,align}.','x,y,w,h sont 0-100. Utilise seulement les IDs présents. Maximum 12 actions.'].join('\\n');}
+      marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),'Priorités: hook compris en 1 seconde, hiérarchie nette, peu de texte, CTA clair, lisibilité mobile, design actuel sans surcharge.','N’invente jamais prix, réduction, statistique ou caractéristique produit.','Réponds UNIQUEMENT en JSON: {"summary":"...","actions":[...]}.','Actions: set_text{id,text}; style_text{id,size,color,bold,upper,align,lh,ls}; move{id,x,y}; resize{id,w,h}; set_background{color}; add_text{text,x,y,w,size,color,bold,align}.','x,y,w,h sont 0-100. Utilise seulement les IDs présents. Maximum 12 actions.'].join('\\n');}
   function edAILocal(prompt, goal, platform){
     var texts=ed.layers.filter(function(l){return l.type==='text';});
     var p=(prompt||'').toLowerCase();
@@ -3701,7 +3810,7 @@
     if(brand.tone)parts.push('Visual tone: '+brand.tone+'.');
     if(brand.primary)parts.push('Use '+brand.primary+' as a brand color when appropriate.');
     if(brand.accent)parts.push('Use '+brand.accent+' as an accent when appropriate.');
-    if(marshallLastDeepAnalysis)parts.push(marshallAnalysisContext()); if(marshallLastExpertAdvice)parts.push(marshallExpertContext()); parts.push('No logos or factual claims unless explicitly provided. Avoid rendering long text inside the image because editable text will be added separately on the canvas. High quality, clean composition, strong focal subject, mobile-friendly.');
+    if(marshallLastDeepAnalysis)parts.push(marshallAnalysisContext()); if(marshallLastExpertAdvice)parts.push(marshallExpertContext()); if(marshallLastCrew)parts.push(marshallCrewContext()); parts.push('No logos or factual claims unless explicitly provided. Avoid rendering long text inside the image because editable text will be added separately on the canvas. High quality, clean composition, strong focal subject, mobile-friendly.');
     return parts.filter(Boolean).join(' ');
   }
   async function marshallGenerateImageFromPrompt(prompt){
@@ -3837,7 +3946,7 @@
     var specs=null;
     try{
       var p=await marshallRemoteJSON([
-        'Tu es Marshall, stratège social media.',marshallMarketingContext(goal,platform),marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),marshallExpertContext(),
+        'Tu es Marshall, stratège social media.',marshallMarketingContext(goal,platform),marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
         'Crée une mini-campagne de 3 publications : teasing, annonce, conversion.',
         'Réponds UNIQUEMENT en JSON valide : {"posts":[{"name":"01 · Teasing","hook":"...","sub":"...","cta":"..."},{"name":"02 · Annonce","hook":"...","sub":"...","cta":"..."},{"name":"03 · Conversion","hook":"...","sub":"...","cta":"..."}]}',
         'N’invente aucune donnée commerciale absente.'
@@ -4046,6 +4155,7 @@
         marshallStyleContext(),
         marshallAnalysisContext(),
         marshallExpertContext(),
+        marshallCrewContext(),
         'Réponds UNIQUEMENT en JSON valide avec exactement ces clés : {"brandLabel":"...","hook":"...","sub":"...","cta":"...","background":"#RRGGBB","cardColor":"#RRGGBB","heroSize":48}.',
         'Le hook doit être très court, marketing et compréhensible. Il ne doit jamais recopier textuellement la demande de l’utilisateur. Si la demande décrit le métier de la marque (ex: branding moderne), utilise cette information pour créer un hook publicitaire plus intelligent.',
         'Le sous-texte doit être concis.',
@@ -4319,6 +4429,7 @@
         marshallStyleContext(),
         marshallAnalysisContext(),
         marshallExpertContext(),
+        marshallCrewContext(),
         'Crée exactement 3 concepts vraiment différents : UGC/native, premium/brand, direct-response.',
         'Réponds UNIQUEMENT en JSON valide : {"concepts":[{"id":"ugc","name":"...","desc":"...","hook":"...","sub":"...","cta":"...","style":"ugc"},{"id":"premium","name":"...","desc":"...","hook":"...","sub":"...","cta":"...","style":"premium"},{"id":"direct","name":"...","desc":"...","hook":"...","sub":"...","cta":"...","style":"direct"}]}',
         'N’invente jamais prix, remise, statistique ou témoignage.'
