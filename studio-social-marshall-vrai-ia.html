@@ -3571,19 +3571,20 @@
     if(card){card.x=6;card.y=6;card.w=88;card.h=88;card.fill=spec.cardColor||'#FFF8EF';card.rad=Math.round(28*(edW()/540));card.op=100;}
 
     // Brand marker
-    if(brand.name){
-      var brandLayer=marshallAddTextLayer(brand.name,10,10,52,14,primary,true,'left');
+    var brandLabel=(spec.brandLabel||brand.name||'').trim();
+    if(brandLabel){
+      var brandLayer=marshallAddTextLayer(brandLabel,10,10,60,14,spec.brandColor||primary,true,'left');
       if(brandLayer){brandLayer.upper=true;brandLayer.ls=1.2;}
     }
 
-    var hero=marshallAddTextLayer(spec.hook||'VOTRE MESSAGE\nCOMMENCE ICI',10,22,78,spec.heroSize||48,'#201E1D',true,'left');
+    var hero=marshallAddTextLayer(spec.hook||'VOTRE MESSAGE\nCOMMENCE ICI',10,spec.heroY||22,spec.heroW||78,spec.heroSize||48,spec.heroColor||'#201E1D',true,spec.heroAlign||'left');
     if(hero){hero.lh=.98;}
 
-    var sub=marshallAddTextLayer(spec.sub||'Un message simple, lisible et pensé pour le réseau social.',10,49,70,19,'#5D554F',false,'left');
+    var sub=marshallAddTextLayer(spec.sub||'Un message simple, lisible et pensé pour le réseau social.',10,spec.subY||49,spec.subW||70,19,spec.subColor||'#5D554F',false,spec.subAlign||'left');
     if(sub){sub.lh=1.18;}
 
     // CTA
-    var cta=marshallAddTextLayer(spec.cta||'DÉCOUVRIR →',10,78,42,17,accent,true,'left');
+    var cta=marshallAddTextLayer(spec.cta||'DÉCOUVRIR →',10,spec.ctaY||78,spec.ctaW||42,17,spec.ctaColor||accent,true,spec.ctaAlign||'left');
     if(cta){cta.upper=true;cta.ls=.4;}
 
     // Optional image already present in source state can be preserved if caller supplies it.
@@ -3595,17 +3596,85 @@
     }
     ed.sel=null;edApplyFmt();edSnap();edRender();
   }
+  function marshallCleanPromptText(prompt){
+    return String(prompt||'')
+      .replace(/^(salut|hello|bonjour)\s*/i,'')
+      .replace(/^(peux-tu|tu peux|merci de|stp|svp)\s*/i,'')
+      .replace(/^(crée|cree|fais|génère|genere|prépare|prepare|construis|fabrique)\s+(moi\s+)?/i,'')
+      .replace(/\b(un|une|des)\b/gi,' ')
+      .replace(/\b(post|publication|visuel|créa|crea|creation|story|stories|instagram|facebook|tiktok|tik tok|snapchat|x)\b/gi,' ')
+      .replace(/\s+/g,' ')
+      .trim();
+  }
+  function marshallToTitleCase(s){
+    return String(s||'').replace(/\s+/g,' ').trim().split(' ').filter(Boolean).map(function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}).join(' ');
+  }
+  function marshallWordWrap(text,max){
+    text=String(text||'').replace(/\s+/g,' ').trim();
+    if(!text)return '';
+    var words=text.split(' '), lines=[''];
+    words.forEach(function(w){
+      var current=lines[lines.length-1];
+      if((current+' '+w).trim().length<=max) lines[lines.length-1]=(current+' '+w).trim();
+      else if(lines.length<3) lines.push(w);
+      else lines[lines.length-1]+=' '+w;
+    });
+    return lines.join('\n').trim();
+  }
+  function marshallExtractBrandLabel(prompt){
+    var p=String(prompt||'').trim();
+    var m=p.match(/\bpour\s+(.+?)(?:$|\s+(?:avec|sans|en|sur|pour|afin|qui|et)\b)/i);
+    var raw=m&&m[1]?m[1]:'';
+    raw=raw.replace(/[.,!?]+$/,'').trim();
+    if(!raw || raw.length<2){
+      var c=marshallCleanPromptText(prompt);
+      if(c.split(' ').length<=4) raw=c;
+    }
+    if(!raw)return '';
+    return marshallToTitleCase(raw);
+  }
+  function marshallSpecLooksWeak(spec,prompt){
+    if(!spec || !spec.hook) return true;
+    var h=String(spec.hook||'').toLowerCase().trim();
+    var p=String(prompt||'').toLowerCase().trim();
+    if(h.length<6) return true;
+    if(/^(post|story|publication|visuel|créa|creation|instagram)/.test(h)) return true;
+    if(/cr(é|e)e moi|fais moi|g(é|e)n(è|e)re|prépare/.test(h)) return true;
+    if(p && h===p) return true;
+    if(/pour\s*$/.test(h)) return true;
+    return false;
+  }
   function marshallPostSpecFromPrompt(prompt,goal,platform){
-    var brand=marshallBrandGet(), p=String(prompt||'').trim();
-    var hook=p ? p.replace(/^(crée|cree|fais|génère|genere|prépare|prepare)\s+(moi\s+)?(un|une|des)?\s*/i,'').slice(0,72) : '';
-    if(!hook || hook.length<8) hook=brand.position||brand.offer||'Une idée qui mérite votre attention';
-    var sub=brand.offer||('Création '+platform+' pensée pour '+String(goal||'').toLowerCase()+'.');
+    var brand=marshallBrandGet(), p=String(prompt||'').trim(), low=p.toLowerCase();
+    var type=/\bstory\b|\bstories\b/.test(low)?'story':/\bcampagne\b/.test(low)?'campaign':'post';
+    var brandLabel=(brand.name||marshallExtractBrandLabel(p)||'').trim();
+    var subject=(brand.position||brand.offer||marshallCleanPromptText(p)||brandLabel||'Votre marque').trim();
+    var serviceLike=/(digital|marketing|studio|agence|communication|visibilit|r[ée]seaux|social|site|web|contenu)/i.test((brandLabel+' '+subject+' '+p));
+    var hook='';
+    var sub='';
+    var cta=goal==='Vente'?'DÉCOUVRIR →':goal==='Engagement'?'DIS-MOI CE QUE TU EN PENSES →':'EN SAVOIR PLUS →';
+    if(serviceLike){
+      hook = goal==='Engagement' ? 'FAIS BRILLER\nTA PRÉSENCE\nDIGITALE' : goal==='Notoriété' ? 'RENFORCE\nTA PRÉSENCE\nEN LIGNE' : 'BOOSTE\nTA PRÉSENCE\nDIGITALE';
+      sub = brand.offer ? brand.offer : ((brandLabel||'Cette marque')+' aide à gagner en visibilité grâce à une communication plus claire et plus moderne.');
+      cta = goal==='Engagement' ? 'PARLONS-EN →' : 'DÉCOUVRIR →';
+    }else if(brandLabel){
+      hook = type==='story' ? 'DÉCOUVRE\n'+marshallWordWrap(brandLabel.toUpperCase(),14) : marshallWordWrap(brandLabel.toUpperCase(),14);
+      sub = brand.offer || ('Création '+platform+' pensée pour '+String(goal||'').toLowerCase()+'.');
+    }else{
+      hook = type==='story' ? 'UNE STORY\nQUI ATTIRE\nL’ATTENTION' : 'UN VISUEL\nPLUS CLAIR\nET PLUS FORT';
+      sub = brand.offer || ('Création '+platform+' pensée pour '+String(goal||'').toLowerCase()+'.');
+    }
     return {
-      hook:hook,
-      sub:sub,
-      cta:goal==='Vente'?'DÉCOUVRIR →':goal==='Engagement'?'DIS-MOI CE QUE TU EN PENSES →':'EN SAVOIR PLUS →',
+      brandLabel: brandLabel || (brand.name||''),
+      hook: hook,
+      sub: sub,
+      cta: cta,
       background:'#FFFFFF',
-      cardColor:'#FFF8EF'
+      cardColor:'#FFF8EF',
+      heroSize: type==='story'?42:48,
+      heroW: type==='story'?62:78,
+      subW: type==='story'?54:70,
+      ctaY: type==='story'?80:78
     };
   }
   async function marshallCreateOnCanvas(prompt){
@@ -3618,15 +3687,16 @@
         'Prépare le contenu d’un visuel qui sera construit en calques éditables.',
         marshallMarketingContext(goal,platform),
         marshallBrandContext(),
-        'Réponds UNIQUEMENT en JSON valide avec exactement ces clés : {"hook":"...","sub":"...","cta":"...","background":"#RRGGBB","cardColor":"#RRGGBB","heroSize":48}.',
-        'Le hook doit être très court et lisible. Le sous-texte doit être concis.',
+        'Réponds UNIQUEMENT en JSON valide avec exactement ces clés : {"brandLabel":"...","hook":"...","sub":"...","cta":"...","background":"#RRGGBB","cardColor":"#RRGGBB","heroSize":48}.',
+        'Le hook doit être très court, marketing et compréhensible. Il ne doit jamais recopier textuellement la demande de l’utilisateur.',
+        'Le sous-texte doit être concis.',
         'N’invente jamais prix, promotion, statistique, témoignage ou caractéristique non fournie.'
       ].join('\n'),'Demande utilisateur : '+prompt);
     }catch(e){console.warn('Marshall remote canvas fallback',e);}
-    if(!spec)spec=marshallPostSpecFromPrompt(prompt,goal,platform);
+    if(marshallSpecLooksWeak(spec,prompt)) spec=marshallPostSpecFromPrompt(prompt,goal,platform);
     if(previousImage)spec.imageLayer=previousImage;
     marshallBuildEditablePost(spec);
-    edAIStatus('✓ Marshall a construit le visuel en calques éditables.');
+    edAIStatus('✓ Marshall a construit un visuel plus marketing en calques éditables.');
     return true;
   }
 
