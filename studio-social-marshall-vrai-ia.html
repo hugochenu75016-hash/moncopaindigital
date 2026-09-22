@@ -3574,7 +3574,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
   function marshallRenderGeneratedSet(){
     var box=$('#mcamp-results'); if(!box)return;
     box.innerHTML=marshallGeneratedSet.map(function(v,i){
-      return '<button class="mcamp-item" data-mset="'+i+'"><b>'+edEsc(v.name)+'</b><small>'+edEsc(v.desc||'Cliquer pour charger sur le canvas')+'</small></button>';
+      return '<button class="mcamp-item" data-mset="'+i+'"><b>'+esc(v.name)+'</b><small>'+esc(v.desc||'Cliquer pour charger sur le canvas')+'</small></button>';
     }).join('');
     box.classList.toggle('show',marshallGeneratedSet.length>0);
     $all('#mcamp-results [data-mset]').forEach(function(b){
@@ -4023,7 +4023,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
   function marshallRenderConcepts(){
     var box=$('#mcd-concepts'), build=$('#mcd-build'); if(!box)return;
     box.innerHTML=marshallConcepts.map(function(c,i){
-      return '<button class="mcd-concept'+(i===marshallConceptSelected?' on':'')+'" data-ci="'+i+'"><b>'+edEsc(c.name)+'</b><small>'+edEsc(c.desc)+'</small></button>';
+      return '<button class="mcd-concept'+(i===marshallConceptSelected?' on':'')+'" data-ci="'+i+'"><b>'+esc(c.name)+'</b><small>'+esc(c.desc)+'</small></button>';
     }).join('');
     box.classList.add('show'); if(build)build.classList.add('show');
     $all('#mcd-concepts .mcd-concept').forEach(function(btn){
