@@ -2465,6 +2465,7 @@
             toast('Connexion '+name+' refusée : '+(oauthResult.message || 'erreur non détaillée par le service.'), true);
           }else if(ok){
             toast(name+' relié ✓');
+            if(id==='instagram')marshallRefreshBrandIntelligence(true).catch(function(e){console.warn('Brand Intelligence Instagram refresh',e);});
           }else if(oauthResult && oauthResult.ok){
             toast('Connexion '+name+' validée, mais le compte n’a pas été enregistré. Vérifiez « social-status » et les journaux de « social-connect ».', true);
           }else{
@@ -3282,6 +3283,31 @@
       if(missionSel){missionSel.value=marshallAgentMode.mission||'auto';missionSel.addEventListener('change',function(){marshallAgentMode.mission=this.value||'auto';marshallAgentMenuRefresh();});}
       marshallAgentMenuRefresh();
     }
+    if(kind==='settings'){
+      title.textContent='Réglages';
+      var sbm=marshallBrandGet(), intel=marshallBrandIntelligenceGet();
+      body.innerHTML=`<div class="settings-v1">
+        <div class="set-intro"><span class="set-intro-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/></svg></span><div><b>Brand Intelligence</b><span>Marshall fusionne le profil, le site officiel et l’Instagram connecté de l’utilisateur actif.</span></div></div>
+        <div class="set-section"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><b>Création</b><span>Préférences</span></div><div class="set-grid">
+          <div class="set-field"><label>Objectif</label><select id="ai-goal"><option value="Vente">Vente</option><option value="Engagement">Engagement</option><option value="Notoriété">Notoriété</option><option value="Lancement produit">Lancement produit</option></select></div>
+          <div class="set-field"><label>Plateforme</label><select id="ai-platform"><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Facebook">Facebook</option><option value="X">X</option><option value="Snapchat">Snapchat</option></select></div>
+          <div class="set-field full"><label>Style créatif</label><select id="marshall-style"><option value="auto">Automatique</option><option value="modern">Moderne</option><option value="premium">Premium</option><option value="bold">Bold social media</option><option value="ugc">UGC / natif</option></select></div>
+        </div></div>
+        <div class="set-section" id="mbb-form"><div class="set-section-head"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/></svg><b>Profil de marque</b><span>Compte actif</span></div><div class="set-grid">
+          <div class="set-field"><label>Nom de marque</label><input id="mbb-name"></div><div class="set-field"><label>Secteur / activité</label><input id="mbb-sector"></div>
+          <div class="set-field full"><label>Site web officiel</label><input id="mbb-website" inputmode="url" placeholder="https://votresite.fr"></div>
+          <div class="set-field full"><label>Offre / services</label><textarea id="mbb-offer"></textarea></div><div class="set-field full"><label>Cible</label><textarea id="mbb-audience"></textarea></div>
+          <div class="set-field full"><label>Valeurs / personnalité</label><textarea id="mbb-values"></textarea></div><div class="set-field"><label>Ton</label><input id="mbb-tone"></div><div class="set-field"><label>Positionnement</label><input id="mbb-position"></div>
+          <div class="set-field full"><label>Direction artistique</label><textarea id="mbb-artdir"></textarea></div><div class="set-field full"><label>Références / concurrents</label><textarea id="mbb-references"></textarea></div><div class="set-field full"><label>À ne jamais utiliser / inventer</label><textarea id="mbb-forbidden"></textarea></div>
+          <div class="set-field full"><label>Couleurs déclarées</label><div class="set-colorrow"><div class="set-color"><input id="mbb-primary" type="color"><span>Principale</span></div><div class="set-color"><input id="mbb-accent" type="color"><span>Accent</span></div></div></div>
+        </div></div>
+        <div class="set-section"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M4 19h16M5 16V8M10 16V5M15 16v-6M20 16V3"/></svg><b>Analyse automatique</b><span>Site + Instagram</span></div><div class="set-state" id="mbb-intel-state"></div><div class="set-state" id="mbb-intel-sources"></div><div class="set-actions"><button type="button" class="set-save" id="mbb-analyze">Analyser ma marque</button></div></div>
+        <div class="set-actions"><button type="button" class="set-save" id="mbb-save">Enregistrer les réglages</button></div><div class="set-state" id="mbb-state"></div>
+      </div>`;
+      marshallSettingsLoadUI();marshallBrandLoadUI();marshallBrandIntelligenceRenderState();
+      var save=$('#mbb-save');if(save)save.addEventListener('click',function(){marshallSettingsSave();marshallBrandSave();marshallBrandIntelligenceRenderState();});
+      var analyze=$('#mbb-analyze');if(analyze)analyze.addEventListener('click',async function(){marshallSettingsSave();marshallBrandSave();analyze.disabled=true;analyze.textContent='Analyse en cours…';try{await marshallRefreshBrandIntelligence(true);marshallBrandIntelligenceRenderState();}catch(e){var st=$('#mbb-intel-state');if(st)st.textContent='Analyse impossible : '+(e&&e.message?e.message:'erreur inconnue');}finally{analyze.disabled=false;analyze.textContent='Analyser ma marque';}});
+    }
     if(kind==='uploads'){
       title.textContent='Importer';
       var ups=edUploads();
@@ -3346,7 +3372,9 @@
 
   /* ===== Marshall V4 : vrai assistant conversationnel + backend existant ===== */
   var MARSHALL_CHAT_ENDPOINT='https://copain-api.vercel.app/api/chat';
-  var MARSHALL_CREWAI_ENDPOINT='https://hugochenu75016-hash--marshall-crewai-web.modal.run/crew';
+  var MARSHALL_CREWAI_BASE='https://hugochenu75016-hash--marshall-crewai-web.modal.run';
+  var MARSHALL_CREWAI_ENDPOINT=MARSHALL_CREWAI_BASE+'/crew';
+  var MARSHALL_BRAND_INTEL_ENDPOINT=MARSHALL_CREWAI_BASE+'/brand-intelligence';
   var marshallChatHistory=[];
   var marshallChatBusy=false;
   var marshallPendingStoryConfirm=null;
@@ -3524,12 +3552,14 @@
     return ['image_generate','campaign','variants','story','canvas','creative','business_audit'].indexOf(intent)>=0;
   }
   async function marshallCrewAIRun(prompt,intent){
+    var brandIntel=await marshallEnsureBrandIntelligence(false);
     var payload={
       prompt:String(prompt||''),
       intent:String(intent||'general'),
       mission:marshallMissionLabel(intent),
       selected_agent:marshallAgentMode.agent||'auto',
       brand:marshallBrandGet(),
+      brand_intelligence:(brandIntel&&brandIntel.intelligence)||{},
       settings:marshallSettingsGet(),
       canvas:edAIContext(),
       image_description:(marshallImageKnowledge&&marshallImageKnowledge.description)||''
@@ -3558,7 +3588,7 @@
       'Ne donne pas de raisonnement privé étape par étape. Retourne seulement un diagnostic et des décisions utilisables.',
       'N’invente jamais de fait, chiffre, client, prix, performance, témoignage ou caractéristique absente.',
       marshallMarketingContext(marshallSetting('goal','Vente'),marshallSetting('platform','Instagram')),
-      marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),marshallCanvasArtDirectionContext(),
+      marshallBrandContext(),marshallBrandIntelligenceContext(),marshallStyleContext(),marshallAnalysisContext(),marshallCanvasArtDirectionContext(),
       shared?('TRAVAIL DES AUTRES AGENTS : '+shared):'',
       'Réponds UNIQUEMENT en JSON valide : {"agent":"'+a.name+'","summary":"...","decisions":["..."],"recommendations":["..."],"avoid":["..."]}'
     ].filter(Boolean).join('\n');
@@ -3647,6 +3677,7 @@
       'Tu ne fournis pas de raisonnement privé étape par étape. Tu donnes uniquement un diagnostic synthétique et des recommandations exploitables.',
       'Tu n’inventes aucun fait, chiffre, client, prix, performance, témoignage ou caractéristique absente.',
       marshallBrandContext(),
+      marshallBrandIntelligenceContext(),
       marshallStyleContext(),
       marshallAnalysisContext(),
       marshallCanvasArtDirectionContext(),
@@ -3744,7 +3775,7 @@
     edAIStatus('Marshall analyse l’entreprise, le branding et la direction artistique…');
     var sys=[
       'Tu es Marshall, un directeur de marque, brand strategist, directeur artistique et stratège social media de très haut niveau.',
-      'Avant toute création, tu réalises un audit 360° professionnel de la marque à partir UNIQUEMENT des informations fournies dans le profil, du brief et du canvas.',
+      'Avant toute création, tu réalises un audit 360° professionnel de la marque à partir du profil déclaré, de la Brand Intelligence multi-source (site + Instagram), du brief et du canvas.',
       'Tu distingues les faits fournis des inférences. Tu n’inventes jamais un chiffre, un concurrent, un historique, une promesse, une clientèle ou une caractéristique absente.',
       'Analyse: entreprise/offre, positionnement, cible, personnalité, cohérence de marque, direction artistique, palette, typographie, composition, imagerie, stratégie de contenu, angle créatif, opportunités, risques et informations manquantes.',
       'Ton diagnostic doit conduire à une décision créative précise pour la demande en cours.',
@@ -4471,6 +4502,7 @@
   var MARSHALL_SETTINGS_LEGACY='marshall_studio_settings_v1';
   var MARSHALL_BRAND_KEY='marshall_brand_brain_v2';
   var MARSHALL_BRAND_LEGACY='marshall_brand_brain_v1';
+  var MARSHALL_INTEL_KEY='marshall_brand_intelligence_v1';
   function marshallAccountId(){ return effectiveUid()||'anon'; }
   function marshallScopedKey(base){ return base+'_'+marshallAccountId(); }
   function marshallReadLocal(base){
@@ -4552,7 +4584,7 @@
     var f=$('#mbb-form'); if(f)f.classList.toggle('show');
   }
   function marshallBrandLoadUI(){
-    var b=marshallBrandGet(), map={name:'mbb-name',sector:'mbb-sector',primary:'mbb-primary',accent:'mbb-accent',offer:'mbb-offer',values:'mbb-values',artdir:'mbb-artdir',references:'mbb-references',audience:'mbb-audience',tone:'mbb-tone',position:'mbb-position',forbidden:'mbb-forbidden'};
+    var b=marshallBrandGet(), map={name:'mbb-name',sector:'mbb-sector',website:'mbb-website',primary:'mbb-primary',accent:'mbb-accent',offer:'mbb-offer',values:'mbb-values',artdir:'mbb-artdir',references:'mbb-references',audience:'mbb-audience',tone:'mbb-tone',position:'mbb-position',forbidden:'mbb-forbidden'};
     Object.keys(map).forEach(function(k){var el=$('#'+map[k]);if(el&&b[k])el.value=b[k];});
     var st=$('#mbb-state');if(st)st.textContent=b.name?'Profil actif : '+b.name:'Aucun profil de marque enregistré.';
   }
@@ -4560,6 +4592,7 @@
     var b={
       name:($('#mbb-name')||{}).value||'',
       sector:($('#mbb-sector')||{}).value||'',
+      website:($('#mbb-website')||{}).value||'',
       primary:($('#mbb-primary')||{}).value||'#6EC1F0',
       accent:($('#mbb-accent')||{}).value||'#F3852B',
       offer:($('#mbb-offer')||{}).value||'',
@@ -4581,6 +4614,7 @@
       'BRAND BRAIN — données fournies par la marque',
       'Nom: '+(b.name||'non renseigné'),
       'Secteur: '+(b.sector||'non renseigné'),
+      'Site officiel: '+(b.website||'non renseigné'),
       'Offre: '+(b.offer||'non renseignée'),
       'Cible: '+(b.audience||'non renseignée'),
       'Valeurs / personnalité: '+(b.values||'non renseignées'),
@@ -4593,6 +4627,14 @@
       'RÈGLE: ne jamais inventer une information de marque absente de ce profil ou du canvas.'
     ].join('\n');
   }
+
+  function marshallBrandIntelligenceGet(){return marshallReadLocal(MARSHALL_INTEL_KEY)||{};}
+  function marshallBrandIntelSignature(){var b=marshallBrandGet(),ig=(connections&&connections.instagram)||{};try{return JSON.stringify({uid:marshallAccountId(),brand:b,instagram:ig.connected?(ig.account||'connected'):'off'});}catch(e){return marshallAccountId();}}
+  function marshallBrandIntelligenceContext(){var x=marshallBrandIntelligenceGet();if(!x||!x.intelligence)return 'BRAND INTELLIGENCE multi-source : non disponible pour ce compte.';try{return 'BRAND INTELLIGENCE multi-source — utilisateur actif\n'+JSON.stringify(x.intelligence);}catch(e){return '';}}
+  function marshallBrandIntelligenceRenderState(){var x=marshallBrandIntelligenceGet(),st=$('#mbb-intel-state'),src=$('#mbb-intel-sources');if(st){if(x&&x.intelligence){var when=x.createdAt?new Date(x.createdAt).toLocaleString('fr-FR'):'';st.textContent=(x.intelligence.summary||'Analyse prête.')+(when?' · '+when:'');}else st.textContent='Aucune analyse multi-source disponible pour ce compte.';}if(src){var ss=(x&&x.sources)||{};src.textContent='Sources : Profil '+(ss.manual?'✓':'—')+' · Site '+(ss.website?'✓':'—')+' · Instagram '+(ss.instagram?'✓':'—');}}
+  async function marshallInstagramSource(){var ig=connections&&connections.instagram;if(!ig||!ig.connected||/\(test\)/i.test(ig.account||''))return null;var qs='?network=instagram'+(actingAs?('&on_behalf_of='+encodeURIComponent(actingAs)):'');var r=await fetch(SUPABASE_URL+'/functions/v1/social-insights'+qs,{headers:await authHeaders()});var d=null;try{d=await r.json();}catch(e){}if(!r.ok||!d||d.error||!d.account)return null;return {account:d.account||{},media:(d.media||[]).slice(0,50)};}
+  async function marshallRefreshBrandIntelligence(force){var b=marshallBrandGet(),cached=marshallBrandIntelligenceGet(),sig=marshallBrandIntelSignature(),age=cached&&cached.createdAt?(Date.now()-cached.createdAt):Infinity;if(!force&&cached&&cached.intelligence&&cached.signature===sig&&age<12*60*60*1000)return cached;edAIStatus('Marshall analyse le profil, le site et Instagram du compte actif…');var social=null;try{social=await marshallInstagramSource();}catch(e){console.warn('Marshall Instagram source',e);}var payload={user_scope:marshallAccountId(),manual_brand:b,website_url:b.website||'',social:social||{}};var r=await fetch(MARSHALL_BRAND_INTEL_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});var data=null;try{data=await r.json();}catch(e){}if(!r.ok||!data||data.ok!==true)throw Error((data&&data.error)||('Brand Intelligence HTTP '+r.status));data.signature=sig;data.createdAt=data.createdAt||Date.now();marshallWriteLocal(MARSHALL_INTEL_KEY,data);edAIStatus('✓ Brand Intelligence mise à jour pour ce compte.');return data;}
+  async function marshallEnsureBrandIntelligence(force){try{return await marshallRefreshBrandIntelligence(!!force);}catch(e){console.warn('Brand Intelligence unavailable',e);return marshallBrandIntelligenceGet();}}
 
   /* --- Direction créative : 3 concepts + construction non destructive --- */
   var marshallConcepts=[], marshallConceptSelected=0, marshallCreativeSnapshot=null;
@@ -5877,6 +5919,7 @@
     await marshallAccountPrefsLoad(); // réglages Marshall propres au compte connecté
     await loadPosts();
     await loadConnections();
+    marshallEnsureBrandIntelligence(false).catch(function(e){console.warn('Brand Intelligence startup',e);});
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
     updateBadges(); renderConnexions();
     var hcc=$('#hub-card-clients'); if(hcc) hcc.style.display = me.isTeam ? 'flex' : 'none';
