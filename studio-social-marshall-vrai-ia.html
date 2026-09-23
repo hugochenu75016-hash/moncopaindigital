@@ -674,6 +674,25 @@
   .ed-tb svg{ width:17px; height:17px; }
   .ed-tb-sep{ width:1px; height:20px; background:rgba(120,60,0,.14); }
   .ed-tb-note{ font-size:12px; color:#8a6a0c; font-family:'Fredoka',sans-serif; font-weight:600; }
+  .ed-multipage{ display:none; gap:12px; margin:-2px 0 14px; }
+  .ed-multipage.show{ display:block; }
+  .ed-pages-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
+  .ed-pages-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .ed-pageaction{ border:1px solid #eadfd3; background:#fff; color:#6F4D2B; border-radius:999px; padding:9px 12px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.05); font:800 12px/1 'Nunito',sans-serif; transition:.18s transform,.18s box-shadow,.18s border-color,.18s background; }
+  .ed-pageaction:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(0,0,0,.08); border-color:#F1C99A; background:#FFF9F1; }
+  .ed-pageaction.primary{ background:#FFF4E8; border-color:#F1C99A; color:#A56318; }
+  .ed-pageaction.danger{ color:#AF4B23; }
+  .ed-pages-strip{ display:flex; align-items:stretch; gap:8px; overflow:auto; padding-bottom:3px; }
+  .ed-pagechip{ border:1px solid #eadfd3; background:#fff; color:#6F4D2B; border-radius:16px; padding:10px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.05); font:800 12px/1.1 'Nunito',sans-serif; transition:.18s transform,.18s box-shadow,.18s border-color,.18s background; min-width:170px; }
+  .ed-pagechip:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(0,0,0,.08); }
+  .ed-pagechip.active{ background:#FFF4E8; border-color:#F3852B; color:#7A4B14; box-shadow:0 12px 28px rgba(243,133,43,.18); }
+  .ed-pagechip-index{ width:24px; height:24px; border-radius:999px; background:#F6EEE4; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:#9C6B2D; flex:0 0 24px; }
+  .ed-pagechip.active .ed-pagechip-index{ background:#F3852B; color:#fff; }
+  .ed-pagechip-copy{ display:flex; flex-direction:column; align-items:flex-start; min-width:0; }
+  .ed-pagechip-copy b{ font-size:12px; line-height:1.1; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ed-pagechip-copy small{ font-size:10px; color:#9C8770; line-height:1.1; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ed-pagecount{ font:800 12px/1 'Nunito',sans-serif; color:#9C8770; white-space:nowrap; }
+
   .ed-sel{ border:1.5px solid rgba(120,60,0,.16); border-radius:999px; padding:6px 12px; font:inherit; font-size:12.5px; background:#fff; color:#5a4400; }
 
   /* La scène affiche le format réel (1080×1920 pour une story) réduit par transform :
@@ -1327,6 +1346,20 @@
   .mv4-agentpicker select{width:100%;min-width:0;border:0;background:transparent;padding:0 22px 0 0;appearance:none;-webkit-appearance:none;outline:none;font:900 11.5px 'Nunito',sans-serif;color:#3d2d22;white-space:nowrap;text-overflow:ellipsis;cursor:pointer}
   .mv4-agentpicker-chevron{width:18px;height:18px;display:grid;place-items:center;color:#a47b5a;pointer-events:none}
   .mv4-agentpicker-chevron svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .mv4-agentpicker-agent{cursor:default;overflow:visible}
+  .mv4-agentpicker-agent #marshall-agent-select{position:absolute!important;opacity:0!important;pointer-events:none!important;width:1px!important;height:1px!important;clip:rect(0 0 0 0)!important}
+  .mv4-agent-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;border:0;background:transparent;padding:0;color:#3d2d22;font:900 11.5px 'Nunito',sans-serif;text-align:left;cursor:pointer}
+  .mv4-agent-trigger span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mv4-agent-menu{display:none;position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:120;background:#fff;border:1px solid #dedede;border-radius:14px;padding:6px;box-shadow:0 18px 45px rgba(0,0,0,.18);max-height:290px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+  .mv4-agent-menu.show{display:block}
+  .mv4-agent-option{display:flex;align-items:flex-start;gap:9px;width:100%;border:0;background:transparent;border-radius:10px;padding:9px 10px;color:#3b3b3b;text-align:left;cursor:pointer;font-family:'Nunito',sans-serif}
+  .mv4-agent-option:hover,.mv4-agent-option.active{background:#f3f3f3}
+  .mv4-agent-option .ao-dot{width:8px;height:8px;border-radius:50%;background:#d7d7d7;flex:0 0 8px;margin-top:5px}
+  .mv4-agent-option.active .ao-dot{background:#F3852B;box-shadow:0 0 0 3px rgba(243,133,43,.12)}
+  .mv4-agent-option .ao-copy{min-width:0;display:block}
+  .mv4-agent-option b{display:block;font-size:10.5px;line-height:1.25;color:#303030}
+  .mv4-agent-option small{display:block;margin-top:2px;font-size:8.8px;line-height:1.3;color:#8b8b8b;font-weight:700}
   .mv4-agentcontext{display:flex;align-items:center;gap:8px;margin-top:8px;padding:7px 9px;border-radius:11px;background:rgba(244,240,255,.72);border:1px solid rgba(108,90,244,.10);color:#695394;font-size:10px;font-weight:800;line-height:1.3}
   .mv4-agentcontext svg{width:14px;height:14px;flex:0 0 14px;fill:none;stroke:#7a61cf;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   .mv4-agent-pill{align-self:center;max-width:94%;display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(108,90,244,.14);background:linear-gradient(180deg,#f9f7ff,#f2edff);border-radius:999px;color:#7458b4;font-size:9.8px;line-height:1.2;font-weight:800;box-shadow:0 2px 0 rgba(108,90,244,.05);animation:mv4PillIn .22s ease both}
@@ -1967,6 +2000,7 @@
                 <span class="ed-tb-sep"></span>
                 <span class="ed-tb-note" id="ed-size-note">1080 × 1080 px</span>
               </div>
+              <div class="ed-multipage" id="ed-multipage"></div>
               <div class="ed-stage" id="ed-stage"><div class="ed-page" id="ed-page"></div></div>
               <div class="ed-ctx" id="ed-ctx">
                 <button type="button" data-ctx="copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5.5A1.5 1.5 0 0 0 13.5 4H5.5A1.5 1.5 0 0 0 4 5.5v8A1.5 1.5 0 0 0 5.5 15"/></svg><span>Copier</span><em>Ctrl+C</em></button>
@@ -2953,6 +2987,7 @@
       return l;
     });
     ed.sel=null; edApplyFmt(); edRender();
+    marshallCanvasPagesRender();
   }
 
   /* Les tailles (texte, rayons, contours) sont désormais exprimées dans les pixels
@@ -3351,18 +3386,22 @@
               <span class="mv4-agentbar-hint">Marshall IA peut choisir, déléguer et valider l’expert</span>
             </div>
             <div class="mv4-agentpickers">
-              <label class="mv4-agentpicker">
+              <div class="mv4-agentpicker mv4-agentpicker-agent" id="marshall-agent-picker">
                 <span class="mv4-agentpicker-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/><path d="M19 5l1 1 2-2"/></svg></span>
-                <span class="mv4-agentpicker-copy"><small>Agent</small><select id="marshall-agent-select" aria-label="Choisir l’agent"><option value="auto">Auto · Marshall choisit</option><option value="team">Équipe Marshall · CrewAI</option><option value="marshall">Marshall IA · Généraliste & superviseur</option><option value="story">Viral Story Agent</option><option value="social">Directeur artistique social</option><option value="brand">Brand Strategist</option><option value="campaign">Campaign Strategist</option><option value="image">Image Art Director</option><option value="visual">Visual QA Expert</option><option value="testing">Creative Testing Expert</option><option value="audit">Brand Auditor</option></select></span>
+                <span class="mv4-agentpicker-copy"><small>Agent</small>
+                  <select id="marshall-agent-select" aria-label="Choisir l’agent" tabindex="-1"><option value="auto">Auto · Marshall choisit</option><option value="team">Équipe Marshall · CrewAI</option><option value="marshall">Marshall IA · Généraliste & superviseur</option><option value="story">Viral Story Agent</option><option value="social">Directeur artistique social</option><option value="brand">Brand Strategist</option><option value="campaign">Campaign Strategist</option><option value="image">Image Art Director</option><option value="visual">Visual QA Expert</option><option value="testing">Creative Testing Expert</option><option value="audit">Brand Auditor</option></select>
+                  <button type="button" class="mv4-agent-trigger" id="marshall-agent-trigger" aria-haspopup="listbox" aria-expanded="false"><span id="marshall-agent-trigger-label">Marshall IA · Généraliste & superviseur</span></button>
+                </span>
                 <span class="mv4-agentpicker-chevron"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span>
-              </label>
+                <div class="mv4-agent-menu" id="marshall-agent-menu" role="listbox" aria-label="Liste des agents"></div>
+              </div>
               <label class="mv4-agentpicker">
                 <span class="mv4-agentpicker-icon"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M8 9h8M8 13h5"/><path d="m15 16 1.5 1.5L20 14"/></svg></span>
                 <span class="mv4-agentpicker-copy"><small>Mission</small><select id="marshall-mission-select" aria-label="Choisir la mission"><option value="auto">Conversation libre</option><option value="story">Créer une story virale</option><option value="canvas">Créer un post</option><option value="image_generate">Générer une image</option><option value="campaign">Créer une campagne</option><option value="creative">Créer 3 concepts</option><option value="variants">Créer 3 variantes</option><option value="image_analyze">Analyser une image</option><option value="image_compose">Créer autour d’une image</option><option value="vision">Corriger le canvas</option><option value="business_audit">Audit 360° entreprise</option><option value="brand">Conseil branding</option></select></span>
                 <span class="mv4-agentpicker-chevron"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span>
               </label>
             </div>
-            <div class="mv4-agentcontext" id="marshall-agent-context"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><span>Agent : Marshall · Conversation libre</span></div>
+            <div class="mv4-agentcontext" id="marshall-agent-context"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><span>Marshall IA · mode superviseur automatique</span></div>
           </div>
 
           <div class="mv4-thread" id="marshall-thread">
@@ -3403,8 +3442,9 @@
       marshallConversationRenderActive();
       marshallConversationRenderSidebar();
       var agentSel=$('#marshall-agent-select'), missionSel=$('#marshall-mission-select');
-      if(agentSel){agentSel.value=marshallAgentMode.agent||'marshall';agentSel.addEventListener('change',function(){marshallAgentMode.agent=this.value||'marshall';marshallSupervisorState={agent:marshallAgentMode.agent,route:null,validation:null};marshallAgentPreferenceSave();marshallConversationUpdateMode();marshallAgentMenuRefresh();});}
-      if(missionSel){missionSel.value=marshallAgentMode.mission||'auto';missionSel.addEventListener('change',function(){marshallAgentMode.mission=this.value||'auto';marshallAgentPreferenceSave();marshallConversationUpdateMode();marshallAgentMenuRefresh();});}
+      if(agentSel){agentSel.value=marshallAgentMode.agent||'marshall';agentSel.addEventListener('change',function(){marshallAgentMode.agent=this.value||'marshall';marshallAgentManual=true;marshallSupervisorState={agent:marshallAgentMode.agent,route:null,validation:null};marshallAgentPreferenceSave();marshallConversationUpdateMode();marshallAgentMenuRefresh();});}
+      if(missionSel){missionSel.value=marshallAgentMode.mission||'auto';missionSel.addEventListener('change',function(){marshallAgentMode.mission=this.value||'auto';marshallConversationClearPending();marshallAgentPreferenceSave();marshallConversationUpdateMode();marshallAgentMenuRefresh();});}
+      marshallAgentPickerInit();
       marshallAgentMenuRefresh();
       var mem=$('#marshall-memory-state'); if(mem){
         try{var bi=marshallBrandIntelligenceGet();mem.innerHTML='<i></i> '+(bi&&bi.intelligence?'BRAND ACTIF':'PRÊT');}catch(e){}
@@ -3551,7 +3591,7 @@
   }
   function marshallConversationMake(){
     var st=marshallConversationLoad(), pref=marshallAgentPreferenceLoad(), now=Date.now();
-    var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',messages:[],draft:'',scrollTop:0};
+    var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',manualAgent:false,pendingIntent:'',pendingPrompt:'',messages:[],draft:'',scrollTop:0};
     st.conversations.unshift(c);st.activeId=c.id;marshallConversationSave();return c;
   }
   function marshallConversationCurrent(create){
@@ -3566,6 +3606,7 @@
   function marshallConversationEnsureActive(){
     var c=marshallConversationCurrent(true), pref=marshallAgentPreferenceLoad();
     marshallAgentMode.agent=String(c.agent||pref.agent||'marshall');
+    marshallAgentManual=!!c.manualAgent;
     marshallSupervisorState={agent:marshallAgentMode.agent,route:null,validation:null};
     marshallAgentMode.mission=String(c.mission||pref.mission||'auto');
     marshallChatHistory=marshallConversationHistoryFrom(c);
@@ -3590,10 +3631,10 @@
     c.messages=c.messages||[];c.messages.push({role:String(role||'assistant'),text:t,at:Date.now()});
     if(c.messages.length>80)c.messages=c.messages.slice(-80);
     if(role==='user'&&(!c.title||c.title==='Nouvelle conversation'))c.title=marshallConversationTitle(t);
-    c.updatedAt=Date.now();c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.draft='';marshallConversationSave();marshallConversationRenderSidebar();
+    c.updatedAt=Date.now();c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;c.draft='';marshallConversationSave();marshallConversationRenderSidebar();
   }
   function marshallConversationUpdateMode(){
-    var c=marshallConversationCurrent(true);c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.updatedAt=Date.now();marshallConversationSave();marshallConversationRenderSidebar();
+    var c=marshallConversationCurrent(true);c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;c.updatedAt=Date.now();marshallConversationSave();marshallConversationRenderSidebar();
   }
   function marshallConversationDraft(value){
     clearTimeout(marshallDraftTimer);marshallDraftTimer=setTimeout(function(){var c=marshallConversationCurrent(true);c.draft=String(value||'');c.updatedAt=Date.now();marshallConversationSave();},180);
@@ -3601,7 +3642,7 @@
   function marshallConversationSnapshot(){
     var c=marshallConversationCurrent(false);if(!c)return;
     var p=$('#ai-prompt'),th=marshallChatThread();if(p)c.draft=String(p.value||'');if(th)c.scrollTop=Number(th.scrollTop||0);
-    c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';marshallConversationSave();
+    c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;marshallConversationSave();
   }
   function marshallWelcomeMarkup(){return '<div class="mv4-welcome-screen" id="marshall-welcome-screen"><div class="mv4-welcome-mark"><img src="avatarchatbot.png" alt=""></div><h3>Que veux-tu créer aujourd’hui ?</h3><p>Marshall IA peut répondre normalement, choisir l’agent le plus adapté, puis vérifier sa réponse avant de te la présenter.</p><div class="mv4-starters"><button type="button" data-marshall-prompt="Crée-moi une story virale pour mon entreprise en utilisant mon branding, mon site et mon Instagram."><span>Story virale</span><small>3 écrans + vidéo IA</small></button><button type="button" data-marshall-prompt="Crée un post Instagram premium cohérent avec ma marque et mon offre principale."><span>Créer un post</span><small>Concept + copy + visuel</small></button><button type="button" data-marshall-prompt="Analyse ma marque avec mon site et mon Instagram puis donne-moi les priorités créatives."><span>Analyser ma marque</span><small>Brand Intelligence</small></button><button type="button" data-marshall-prompt="Propose-moi 3 concepts créatifs vraiment différents pour ma prochaine campagne."><span>Explorer des idées</span><small>3 directions créatives</small></button></div></div>';}
   function marshallBindStarterPrompts(){var th=marshallChatThread();if(!th)return;$all('[data-marshall-prompt]',th).forEach(function(btn){btn.addEventListener('click',function(){var p=$('#ai-prompt');if(!p)return;p.value=this.getAttribute('data-marshall-prompt')||'';p.dispatchEvent(new Event('input'));p.focus();});});}
@@ -3627,12 +3668,12 @@
   }
   function marshallConversationSelect(id){
     marshallConversationSnapshot();var st=marshallConversationLoad();var c=st.conversations.find(function(x){return x.id===id;});if(!c)return;st.activeId=id;marshallConversationSave();
-    var pref=marshallAgentPreferenceLoad();marshallAgentMode.agent=c.agent||pref.agent||'marshall';marshallAgentMode.mission=c.mission||pref.mission||'auto';marshallChatHistory=marshallConversationHistoryFrom(c);
+    var pref=marshallAgentPreferenceLoad();marshallAgentMode.agent=c.agent||pref.agent||'marshall';marshallAgentMode.mission=c.mission||pref.mission||'auto';marshallAgentManual=!!c.manualAgent;marshallChatHistory=marshallConversationHistoryFrom(c);
     marshallConversationRenderActive();marshallConversationRenderSidebar();var a=$('#marshall-agent-select'),m=$('#marshall-mission-select');if(a)a.value=marshallAgentMode.agent;if(m)m.value=marshallAgentMode.mission;marshallAgentMenuRefresh();var p=$('#ai-prompt');if(p)p.focus();
   }
   function marshallConversationNew(){
-    marshallConversationSnapshot();var st=marshallConversationLoad(),pref=marshallAgentPreferenceLoad(),now=Date.now();var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',messages:[],draft:'',scrollTop:0};
-    st.conversations.unshift(c);st.activeId=c.id;marshallConversationSave();marshallAgentMode.agent=c.agent;marshallAgentMode.mission=c.mission;marshallSupervisorState={agent:c.agent||'marshall',route:null,validation:null};marshallChatHistory=[];marshallConversationRenderActive();marshallConversationRenderSidebar();var a=$('#marshall-agent-select'),m=$('#marshall-mission-select');if(a)a.value=c.agent;if(m)m.value=c.mission;marshallAgentMenuRefresh();var p=$('#ai-prompt');if(p){p.value='';p.style.height='auto';p.focus();}
+    marshallConversationSnapshot();var st=marshallConversationLoad(),pref=marshallAgentPreferenceLoad(),now=Date.now();var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',manualAgent:false,pendingIntent:'',pendingPrompt:'',messages:[],draft:'',scrollTop:0};
+    st.conversations.unshift(c);st.activeId=c.id;marshallConversationSave();marshallAgentMode.agent=c.agent;marshallAgentMode.mission=c.mission;marshallAgentManual=false;marshallSupervisorState={agent:c.agent||'marshall',route:null,validation:null};marshallChatHistory=[];marshallConversationRenderActive();marshallConversationRenderSidebar();var a=$('#marshall-agent-select'),m=$('#marshall-mission-select');if(a)a.value=c.agent;if(m)m.value=c.mission;marshallAgentMenuRefresh();var p=$('#ai-prompt');if(p){p.value='';p.style.height='auto';p.focus();}
   }
   function marshallChatBubble(role,text,extra){
     var th=marshallChatThread(); if(!th)return null;
@@ -3679,8 +3720,134 @@
     });
     return box;
   }
+
+  function marshallStudioKnowledgeContext(){
+    var runtime=[];
+    try{
+      runtime.push('Utilisateur actif : '+((me&&me.nom)||'compte connecté')+'.');
+      runtime.push('Plateforme de création réglée sur '+marshallSetting('platform','Instagram')+' ; objectif '+marshallSetting('goal','Vente')+'.');
+      runtime.push('Canvas actuel : '+ed.fmt+', '+((ed.layers||[]).length)+' calque(s).');
+      var connected=Object.keys(connections||{}).filter(function(k){return connections[k]&&connections[k].connected;});
+      runtime.push('Réseaux connectés actuellement : '+(connected.length?connected.join(', '):'aucun détecté dans l’état courant')+'.');
+    }catch(e){}
+    return [
+      'SOURCE DE VÉRITÉ — SOCIAL STUDIO (version actuelle de l’application).',
+      'Tu t’appelles Marshall. Ne te présente jamais comme “Copain”, “le Copain” ou un autre assistant. “Mon Copain Digital” est la marque/équipe qui édite Social Studio, pas ton nom.',
+      'Social Studio est l’outil social media de Mon Copain Digital. Son accueil propose Studio Social, Message Social, Gestion clients pour l’équipe autorisée, et Rapports.',
+      'Dans Studio Social, les vues principales sont Composer, Calendrier, Historique et Brouillons. Le Composer permet de préparer légende, hashtags, médias, recadrage, aperçu par réseau, format et publication immédiate ou programmée.',
+      'Les réseaux gérés dans l’interface sont Instagram, Facebook, X, TikTok et Snapchat. Les formats disponibles dépendent du réseau : posts, stories, reels, vidéos ou snaps.',
+      'Connexions sert à relier les comptes sociaux. Les fonctions serveur utilisées sont social-status, social-connect et social-publish. Ne dis jamais qu’un compte est connecté si l’état courant ne le confirme pas.',
+      'Rapports exploite social-insights, principalement pour Instagram : compte, publications, likes, commentaires, engagement, cadence, meilleurs jours, meilleurs contenus et performances par format.',
+      'Message Social utilise social-messages et social-reply pour lire et répondre quand le backend et les autorisations du compte le permettent.',
+      'Gestion clients permet à l’équipe autorisée d’agir pour un client avec des droits séparés composer / rapports / messages. Ne prétends jamais avoir accès à un client sans autorisation.',
+      'L’éditeur visuel fonctionne avec des calques éditables : textes, formes, images, uploads, positionnement, taille, couleurs, typographie, recadrage, formats sociaux et aperçu.',
+      'Marshall est intégré à l’éditeur. Il possède un historique de conversations par compte, un mode agent, des missions, un cache local du chat, et peut travailler avec le canvas courant.',
+      'Marshall IA est le généraliste/superviseur par défaut. Il répond normalement aux questions, choisit un spécialiste si nécessaire, puis contrôle la réponse finale. Un agent spécialisé n’est “choisi manuellement” que si l’utilisateur a réellement cliqué sur un autre agent.',
+      'Agents disponibles : Équipe Marshall/CrewAI, Viral Story Agent, Directeur artistique social, Brand Strategist, Campaign Strategist, Image Art Director, Visual QA Expert, Creative Testing Expert et Brand Auditor.',
+      'Missions disponibles : conversation libre, créer une story virale, créer un post, générer une image, créer une campagne, créer 3 concepts, créer 3 variantes, analyser une image, créer autour d’une image, corriger le canvas, audit 360° entreprise et conseil branding.',
+      'Brand Intelligence fusionne les informations manuelles de marque, le site web officiel et les données Instagram disponibles pour le compte actif. Elle est propre à l’utilisateur/au client actif.',
+      'La génération d’image utilise Qwen-Image via le backend Marshall. Les images générées sont ajoutées au canvas comme calques image.',
+      'La Story virale est une vraie séquence verticale 9:16 de 3 écrans (hook, valeur, CTA). CrewAI/Story Architect peut produire le blueprint, Qwen génère les visuels, Wan 2.2 anime les scènes et MoneyPrinterTurbo réalise le montage vidéo lorsque le mode vidéo est actif.',
+      'CrewAI sert aux tâches stratégiques/multi-agents. Marshall ne doit pas invoquer plusieurs agents pour une simple question si cela n’apporte rien.',
+      'Règle de comportement : distingue toujours ce que l’application SAIT, ce qu’elle PEUT FAIRE, ce qui a été réellement exécuté, et ce qui nécessite une connexion, une autorisation ou un backend disponible.',
+      'Pour une question “comment faire dans Social Studio ?”, réponds avec les noms exacts des écrans/boutons connus ci-dessus et des étapes courtes. Si une fonction n’existe pas dans cette source de vérité, dis que tu ne peux pas confirmer qu’elle existe.',
+      'Si une demande de création est incomplète, pose UNE question utile puis conserve la mission en attente pour interpréter la réponse suivante comme une précision.',
+      runtime.join(' ')
+    ].join('\n');
+  }
+  function marshallCoreSystemContext(){
+    return [
+      'IDENTITÉ PRIORITAIRE : tu es Marshall, l’assistant IA officiel intégré à Social Studio.',
+      'Tu réponds en français par défaut, naturellement, comme un assistant généraliste compétent.',
+      'Quand un autre message système exige un JSON strict, respecte ce format strict sans ajouter de texte.',
+      marshallStudioKnowledgeContext()
+    ].join('\n');
+  }
+  function marshallAgentPickerSync(){
+    var select=$('#marshall-agent-select'),label=$('#marshall-agent-trigger-label'),menu=$('#marshall-agent-menu');
+    if(!select)return;
+    var opt=select.options[select.selectedIndex];
+    if(label)label.textContent=opt?opt.textContent:'Marshall IA · Généraliste & superviseur';
+    if(menu)$all('.mv4-agent-option',menu).forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-agent')===select.value);btn.setAttribute('aria-selected',btn.getAttribute('data-agent')===select.value?'true':'false');});
+  }
+  function marshallAgentPickerInit(){
+    var picker=$('#marshall-agent-picker'),select=$('#marshall-agent-select'),trigger=$('#marshall-agent-trigger'),menu=$('#marshall-agent-menu'),fly=$('#ed-flyout');
+    if(!picker||!select||!trigger||!menu)return;
+    var desc={
+      auto:'Marshall choisit automatiquement le meilleur mode.',
+      team:'Plusieurs spécialistes CrewAI travaillent ensemble.',
+      marshall:'Assistant généraliste, routeur et contrôle qualité.',
+      story:'Stories verticales, hook, rythme, rétention et CTA.',
+      social:'Posts, composition, hiérarchie et conversion.',
+      brand:'Positionnement, ton, cible et cohérence de marque.',
+      campaign:'Architecture de campagne et séquençage.',
+      image:'Direction artistique et génération d’images.',
+      visual:'Analyse du canvas, contraste, lisibilité et corrections.',
+      testing:'Variantes créatives et A/B testing.',
+      audit:'Audit 360° de marque et priorités.'
+    };
+    menu.innerHTML='';
+    Array.from(select.options).forEach(function(o){
+      var btn=document.createElement('button');btn.type='button';btn.className='mv4-agent-option';btn.setAttribute('data-agent',o.value);btn.setAttribute('role','option');
+      var dot=document.createElement('span');dot.className='ao-dot';
+      var cp=document.createElement('span');cp.className='ao-copy';
+      var b=document.createElement('b');b.textContent=o.textContent;
+      var sm=document.createElement('small');sm.textContent=desc[o.value]||'Agent spécialisé Marshall.';
+      cp.appendChild(b);cp.appendChild(sm);btn.appendChild(dot);btn.appendChild(cp);
+      btn.addEventListener('click',function(e){
+        e.preventDefault();e.stopPropagation();
+        select.value=o.value;
+        select.dispatchEvent(new Event('change',{bubbles:true}));
+        menu.classList.remove('show');trigger.setAttribute('aria-expanded','false');
+        marshallAgentPickerSync();
+      });
+      menu.appendChild(btn);
+    });
+    function close(){menu.classList.remove('show');trigger.setAttribute('aria-expanded','false');}
+    trigger.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();
+      var open=!menu.classList.contains('show');menu.classList.toggle('show',open);trigger.setAttribute('aria-expanded',open?'true':'false');
+      if(open){marshallAgentPickerSync();requestAnimationFrame(function(){var a=menu.querySelector('.mv4-agent-option.active');if(a)a.scrollIntoView({block:'nearest'});});}
+    });
+    trigger.addEventListener('keydown',function(e){
+      if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){e.preventDefault();if(!menu.classList.contains('show'))trigger.click();}
+      if(e.key==='Escape'){close();trigger.focus();}
+    });
+    menu.addEventListener('wheel',function(e){e.stopPropagation();},{passive:true});
+    if(fly)fly.addEventListener('pointerdown',function(e){if(!picker.contains(e.target))close();});
+    marshallAgentPickerSync();
+  }
+  function marshallConversationPending(){
+    var c=marshallConversationCurrent(false);if(!c||!c.pendingIntent)return null;
+    return {intent:String(c.pendingIntent||''),prompt:String(c.pendingPrompt||'')};
+  }
+  function marshallConversationSetPending(intent,prompt){
+    var c=marshallConversationCurrent(true);c.pendingIntent=String(intent||'');c.pendingPrompt=String(prompt||'');c.updatedAt=Date.now();marshallConversationSave();
+  }
+  function marshallConversationClearPending(){
+    var c=marshallConversationCurrent(false);if(!c)return;c.pendingIntent='';c.pendingPrompt='';marshallConversationSave();
+  }
+  function marshallNeedsBriefClarification(prompt,intent){
+    if(intent!=='canvas')return false;
+    var t=String(prompt||'').toLowerCase()
+      .replace(/[’']/g,"'")
+      .replace(/\b(j'aimerais|je voudrais|je veux|peux tu|peux-tu|est ce que tu peux|est-ce que tu peux|tu peux|merci|svp|stp)\b/g,' ')
+      .replace(/\b(creer|créer|cree|crée|faire|generer|générer|produire|construire)\b/g,' ')
+      .replace(/\b(un|une|le|la|des|mon|ma|mes)\b/g,' ')
+      .replace(/\b(post|publication|visuel|contenu)\b/g,' ')
+      .replace(/\b(c'est possible|possible|s'il te plait|s'il te plaît)\b/g,' ')
+      .replace(/[?!.,:;]+/g,' ')
+      .replace(/\s+/g,' ').trim();
+    return t.length<4;
+  }
+  function marshallClarificationQuestion(intent){
+    if(intent==='canvas')return 'Oui. Quel est le sujet du post ? Tu peux répondre simplement par le thème, par exemple « démarches administratives ».';
+    return 'Donne-moi juste la précision principale dont tu veux parler.';
+  }
+
   async function marshallRemoteReply(messages){
-    var r=await fetch(MARSHALL_CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:messages})});
+    var enriched=[{role:'system',content:marshallCoreSystemContext()}].concat(Array.isArray(messages)?messages:[]);
+    var r=await fetch(MARSHALL_CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:enriched})});
     var data=null; try{data=await r.json();}catch(e){}
     if(!r.ok)throw Error((data&&data.error)||('Marshall HTTP '+r.status));
     if(!data||typeof data.reply!=='string')throw Error('Réponse Marshall invalide');
@@ -3714,6 +3881,7 @@
 
   /* ===== Marshall Agent Menu : agent + mission choisis par l'utilisateur ===== */
   var marshallAgentMode={agent:'marshall',mission:'auto'};
+  var marshallAgentManual=false;
   function marshallAgentCatalog(){
     return {
       auto:null,
@@ -3757,8 +3925,8 @@
   }
   async function marshallSupervisorRoute(prompt,intent){
     var selected=marshallAgentMode.agent||'marshall';
-    if(selected!=='marshall'){
-      var manual={agent:selected,mode:'manual',confidence:1,reason:'Agent choisi manuellement par l’utilisateur.'};
+    if(selected!=='marshall' || marshallAgentManual){
+      var manual={agent:selected,mode:'manual',confidence:1,reason:'Agent réellement choisi par l’utilisateur dans le sélecteur.'};
       marshallSupervisorState={agent:selected,route:manual,validation:null};
       return manual;
     }
@@ -3770,6 +3938,8 @@
       'Agents autorisés : marshall, team, story, social, brand, campaign, image, visual, testing, audit.',
       'team est réservé aux demandes réellement transversales nécessitant plusieurs expertises.',
       'story = stories verticales; social = création de posts/composition; brand = stratégie de marque; campaign = campagnes; image = génération image; visual = analyse/correction visuelle; testing = variantes/A-B test; audit = audit 360°.',
+      'Marshall IA est le choix par défaut de l’interface : cela ne signifie PAS que l’utilisateur l’a sélectionné manuellement.',
+      marshallStudioKnowledgeContext(),
       'Ne donne aucun raisonnement détaillé. Réponds UNIQUEMENT en JSON valide : {"agent":"...","confidence":0.0,"reason":"une phrase courte"}'
     ].join('\n');
     try{
@@ -3791,7 +3961,9 @@
       'Tu es Marshall IA, superviseur et contrôleur qualité final.',
       'Tu vérifies deux choses : 1) l’agent utilisé est adapté à la demande; 2) la réponse finale répond bien à la demande et ne prétend pas qu’une action a réussi si le résultat technique indique un échec.',
       'Tu peux améliorer légèrement la réponse pour la rendre plus claire, mais tu ne dois ajouter aucun fait, chiffre, action ou résultat non fourni.',
-      'Si l’utilisateur a choisi manuellement un agent différent de celui que tu recommanderais, respecte son choix et indique seulement recommended_agent.',
+      'Un choix est manuel UNIQUEMENT si le champ ORIGINE DU CHOIX indique MANUEL. Marshall IA affiché par défaut n’est pas un choix manuel.',
+      'Si ORIGINE DU CHOIX=MANUEL et que l’utilisateur a choisi un agent différent de celui que tu recommanderais, respecte son choix et indique seulement recommended_agent.',
+      marshallStudioKnowledgeContext(),
       'Agents autorisés : marshall, team, story, social, brand, campaign, image, visual, testing, audit.',
       'Ne fournis aucun raisonnement détaillé. Réponds UNIQUEMENT en JSON valide : {"approved":true,"agent_fit":true,"recommended_agent":"...","confidence":0.0,"note":"une phrase courte","reply":"réponse finale à montrer"}'
     ].join('\n');
@@ -3799,7 +3971,9 @@
       'Demande utilisateur : '+prompt,
       'Intent : '+intent,
       'Agent utilisé : '+active+' ('+(profile&&profile.name?profile.name:active)+')',
-      'Agent choisi dans l’interface : '+(marshallAgentMode.agent||'marshall'),
+      'Agent affiché dans l’interface : '+(marshallAgentMode.agent||'marshall'),
+      'ORIGINE DU CHOIX : '+(marshallAgentManual?'MANUEL':'DÉFAUT/SUPERVISEUR AUTOMATIQUE'),
+      'Route superviseur : '+JSON.stringify((marshallSupervisorState&&marshallSupervisorState.route)||{}),
       'Résultat technique : '+(ok?'succès':'échec'),
       'Réponse à vérifier : '+String(reply||'')
     ].join('\n');
@@ -3815,6 +3989,16 @@
         if(typeof v.reply==='string'&&v.reply.trim())fallback.reply=v.reply.trim();
       }
     }catch(e){console.warn('Marshall supervisor validation fallback',e);}
+    var route=(marshallSupervisorState&&marshallSupervisorState.route)||{};
+    if(!marshallAgentManual && route.mode==='supervisor'){
+      if(fallback.recommended_agent===active){
+        fallback.agent_fit=true;
+        fallback.confidence=Math.max(fallback.confidence,Number(route.confidence)||.75);
+      }
+      if(/choisi.*manuellement|sélection.*manuellement|utilisateur.*choisi/i.test(fallback.note||'')){
+        fallback.note='Agent sélectionné automatiquement par Marshall IA pour cette demande.';
+      }
+    }
     marshallSupervisorState.validation=fallback;
     return fallback;
   }
@@ -3867,6 +4051,7 @@
     if(ctx){var span=ctx.querySelector('span');if(span){if(marshallAgentMode.agent==='marshall')span.textContent='Marshall IA · conversation normale · délégation et validation automatiques · '+mission+(intent==='story'?' · canvas Story 1080×1920':'');else span.textContent=(marshallAgentMode.agent==='auto'?'Agent automatique':'Agent : '+prof.name)+' · '+mission+(intent==='story'?' · canvas Story 1080×1920':'');}}
     if(comp){var sp=comp.querySelector('span');var active=marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto';comp.classList.toggle('show',active);if(sp){sp.textContent='';if(active){var b=document.createElement('b');b.textContent=prof.name;sp.appendChild(b);sp.appendChild(document.createTextNode(' · '+mission));}}}
     if(input)input.placeholder=marshallMissionPlaceholder(intent);
+    marshallAgentPickerSync();
     marshallSyncCanvasToMission(intent);
   }
   function marshallChatAgentPill(intent){
@@ -4069,7 +4254,12 @@
       marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
       'Réponse attendue : 2 à 4 phrases maximum, sans JSON.'
     ].join('\n');
-    try{return await marshallRemoteReply([{role:'system',content:sys},{role:'user',content:'Demande : '+prompt+'\nRésultat technique : '+(ok?'succès':'échec')+'\nMessage de base : '+baseReply}]);}
+    try{
+      var out=await marshallRemoteReply([{role:'system',content:sys},{role:'user',content:'Demande : '+prompt+'\nRésultat technique : '+(ok?'succès':'échec')+'\nMessage de base : '+baseReply}]);
+      var actionDone=ok&&['image_generate','story','campaign','variants','canvas','image_analyze','image_compose','vision','creative'].indexOf(intent)>=0;
+      if(actionDone && /(quel sujet|quel thème|quel theme|souhaites[- ]?tu|veux[- ]?tu que|on peut le faire|pour créer un post|pour creer un post)/i.test(String(out||'')))return baseReply;
+      return out||baseReply;
+    }
     catch(e){console.warn('Marshall final reply fallback',e);return baseReply;}
   }
 
@@ -4178,8 +4368,27 @@
     var prompt=String(forcePrompt!=null?forcePrompt:((input&&input.value)||'')).trim();
     opts=opts||{};
     if(!prompt){marshallChatBubble('assistant','Écris ce que tu veux créer, par exemple : « Crée une story Instagram pour présenter mon service ».');if(input)input.focus();return;}
-    var intent=marshallEffectiveIntent(prompt);
-    if(marshallNeedsStoryConfirmation(prompt,intent,opts)){
+    var intent=marshallEffectiveIntent(prompt), workPrompt=prompt, pending=marshallConversationPending();
+    if(pending && marshallAgentMode.mission==='auto'){
+      if(/^(non|annule|annuler|laisse|pas maintenant|stop)\b/i.test(prompt)){
+        marshallConversationClearPending();marshallChatBubble('user',prompt);marshallChatBubble('assistant','D’accord, j’annule cette création. Dis-moi simplement ce que tu veux faire ensuite.');if(input){input.value='';input.style.height='auto';input.focus();}return;
+      }
+      if(intent==='general'){
+        intent=pending.intent;
+        workPrompt=(pending.prompt?pending.prompt+'\n':'')+'Précision utilisateur : '+prompt;
+        marshallConversationClearPending();
+      }
+    }
+    if(marshallNeedsBriefClarification(prompt,intent) && !pending){
+      marshallChatBubble('user',prompt);
+      marshallConversationSetPending(intent,prompt);
+      if(marshallAgentMode.agent==='marshall'||marshallAgentMode.agent==='auto')await marshallSupervisorRoute(workPrompt,intent);
+      if(intent!=='general')marshallChatAgentPill(intent);
+      marshallChatBubble('assistant',marshallClarificationQuestion(intent));
+      if(input){input.value='';input.style.height='auto';input.focus();}
+      return;
+    }
+    if(marshallNeedsStoryConfirmation(workPrompt,intent,opts)){
       marshallChatBubble('user',prompt);
       marshallChatStoryConfirmation(prompt,intent);
       if(input){input.value='';input.style.height='auto';input.focus();}
@@ -4188,7 +4397,7 @@
     marshallChatBusy=true;if(b)b.disabled=true;
     if(!opts.skipUserEcho) marshallChatBubble('user',prompt);
     var ok=true, reply='';
-    if(marshallAgentMode.agent==='marshall'||marshallAgentMode.agent==='auto')await marshallSupervisorRoute(prompt,intent);else marshallSupervisorState={agent:marshallAgentMode.agent,route:{agent:marshallAgentMode.agent,mode:'manual',confidence:1,reason:'Agent choisi manuellement.'},validation:null};
+    if(marshallAgentMode.agent==='marshall'||marshallAgentMode.agent==='auto')await marshallSupervisorRoute(workPrompt,intent);else marshallSupervisorState={agent:marshallAgentMode.agent,route:{agent:marshallAgentMode.agent,mode:'manual',confidence:1,reason:'Agent choisi manuellement.'},validation:null};
     marshallSyncCanvasToMission(intent);
     if(intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')marshallChatAgentPill(intent);
     var typing=marshallChatTyping();
@@ -4197,15 +4406,15 @@
       var strategicIntents=['image_generate','campaign','variants','story','canvas','creative','business_audit'];
       var needsStrategicAudit=strategicIntents.indexOf(intent)>=0;
       if(needsStrategicAudit){
-        var audit=await marshallDeepAnalysis(prompt,intent);
+        var audit=await marshallDeepAnalysis(workPrompt,intent);
         if(intent==='business_audit'){
-          if(usingCrew){var auditCrew=await marshallCrewRun(prompt,intent);marshallChatCrewStrip(auditCrew);marshallLastExpertAdvice=null;}
+          if(usingCrew){var auditCrew=await marshallCrewRun(workPrompt,intent);marshallChatCrewStrip(auditCrew);marshallLastExpertAdvice=null;}
           else{marshallLastExpertAdvice=marshallLocalExpertAdvice(prompt,intent);}
           if(typing&&typing.parentNode)typing.remove();
           marshallChatAnalysisCard(audit);
           reply='Analyse terminée. J’ai posé le diagnostic avant toute création. Les zones marquées comme manquantes sont celles qu’il vaut mieux renseigner dans Réglages pour rendre Marshall encore plus précis.';
-          reply=usingCrew?await marshallCrewFinalReply(prompt,intent,reply,true):await marshallExpertFinalReply(prompt,intent,reply,true);
-          var auditValidation=await marshallSupervisorValidate(prompt,intent,reply,true);reply=auditValidation.reply||reply;
+          reply=usingCrew?await marshallCrewFinalReply(workPrompt,intent,reply,true):await marshallExpertFinalReply(workPrompt,intent,reply,true);
+          var auditValidation=await marshallSupervisorValidate(workPrompt,intent,reply,true);reply=auditValidation.reply||reply;
           marshallChatBubble('assistant',reply);marshallChatSupervisorValidation(auditValidation,intent);
           if(input){input.value='';input.style.height='auto';input.focus();}
           return;
@@ -4214,22 +4423,22 @@
         marshallLastDeepAnalysis=null;
       }
       if(usingCrew){
-        var crew=await marshallCrewRun(prompt,intent);
+        var crew=await marshallCrewRun(workPrompt,intent);
         marshallChatCrewStrip(crew);
         marshallLastExpertAdvice=null;
       }else if(intent!=='business_audit' && (intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')){
-        var expert=await marshallExpertConsult(prompt,intent);
+        var expert=await marshallExpertConsult(workPrompt,intent);
       }else if(intent==='general'){
         marshallLastExpertAdvice=null;marshallLastCrew=null;
       }
-      if(intent==='image_generate'){ok=!!(await marshallGenerateImageFromPrompt(prompt));reply=marshallActionReply(intent,ok);}
+      if(intent==='image_generate'){ok=!!(await marshallGenerateImageFromPrompt(workPrompt));reply=marshallActionReply(intent,ok);}
       else if(intent==='image_analyze'){ok=!!(await marshallImageAnalyze());reply=marshallActionReply(intent,ok);}
       else if(intent==='image_compose'){await marshallComposeAroundImage();reply=marshallActionReply(intent,true);}
-      else if(intent==='campaign'){await marshallBuildCampaign(prompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='campaign'){await marshallBuildCampaign(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='variants'){await marshallGenerateVariants();reply=marshallActionReply(intent,true);}
-      else if(intent==='story'){await marshallCreateStory(prompt);reply=marshallActionReply(intent,true);}
-      else if(intent==='canvas'){await marshallCreateOnCanvas(prompt);reply=marshallActionReply(intent,true);}
-      else if(intent==='creative'){await marshallCreativeGenerate(prompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='story'){await marshallCreateStory(workPrompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='canvas'){await marshallCreateOnCanvas(workPrompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='creative'){await marshallCreativeGenerate(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='vision'){await marshallVisionAnalyze(/corrige|répare|repare|améliore|ameliore|optimise/i.test(prompt));reply=marshallActionReply(intent,true);}
       else if(intent==='brand'){
         reply='Ouvre l’outil « Réglages » dans le menu de gauche : tous les réglages de création et la mémoire de marque sont regroupés au même endroit.';
@@ -4240,6 +4449,7 @@
           'Réponds en français, de façon concrète, claire et utile.',
           'Tu aides aussi à créer des contenus social media, concevoir des campagnes, améliorer un canvas et trouver des idées.',
           'Ne prétends jamais avoir modifié le canvas si aucune action n’a été exécutée.',
+          marshallStudioKnowledgeContext(),
           (marshallAgentMode.agent==='marshall'&&marshallActiveAgentKey(intent)==='marshall'?'Mode actif : Marshall IA en conversation générale.':'Agent actif : '+marshallEffectiveProfile(intent).name+' — '+marshallEffectiveProfile(intent).focus+'.'),
           marshallMarketingContext(marshallSetting('goal','Vente'),marshallSetting('platform','Instagram')),
           marshallBrandContext(),
@@ -4247,14 +4457,14 @@
           marshallExpertContext(),
           marshallCrewContext()
         ].join('\n');
-        var msgs=[{role:'system',content:sys}].concat(marshallChatHistory.slice(-8)).concat([{role:'user',content:prompt}]);
+        var msgs=[{role:'system',content:sys}].concat(marshallChatHistory.slice(-8)).concat([{role:'user',content:workPrompt}]);
         reply=await marshallRemoteReply(msgs);
         marshallChatHistory.push({role:'user',content:prompt},{role:'assistant',content:reply});
         marshallChatHistory=marshallChatHistory.slice(-12);
       }
-      if(usingCrew) reply=await marshallCrewFinalReply(prompt,intent,reply,ok);
-      else if(intent!=='general') reply=await marshallExpertFinalReply(prompt,intent,reply,ok);
-      var validation=await marshallSupervisorValidate(prompt,intent,reply,ok);reply=validation.reply||reply;
+      if(usingCrew) reply=await marshallCrewFinalReply(workPrompt,intent,reply,ok);
+      else if(intent!=='general') reply=await marshallExpertFinalReply(workPrompt,intent,reply,ok);
+      var validation=await marshallSupervisorValidate(workPrompt,intent,reply,ok);reply=validation.reply||reply;
       if(intent==='general'&&marshallChatHistory.length&&marshallChatHistory[marshallChatHistory.length-1].role==='assistant')marshallChatHistory[marshallChatHistory.length-1].content=reply;
       if(typing&&typing.parentNode)typing.remove();
       marshallChatBubble('assistant',reply);marshallChatSupervisorValidation(validation,intent);
@@ -4348,6 +4558,7 @@
       var l=edLayer(ed.sel);
       if(l){l.x=0;l.y=0;l.w=100;l.h=100;l.rad=0;l.zoom=100;ed.layers=ed.layers.filter(function(x){return x!==l;});ed.layers.unshift(l);ed.sel=l.id;edSnap();edRender();}
       if(box)box.textContent='✓ Image générée par Qwen-Image et ajoutée au canvas. Elle reste un calque image indépendant.';
+      marshallCanvasPagesClear();
       edAIStatus('✓ Image Qwen-Image ajoutée au canvas. Tu peux maintenant la déplacer, la recadrer ou créer le post autour.');
       return l;
     }catch(e){
@@ -4408,11 +4619,156 @@
     var texts=ed.layers.filter(function(x){return x.type==='text';});
     texts.forEach(function(t,i){t.x=9;t.w=i===0?43:40;if(i===0)t.y=20;else if(i===1)t.y=51;});
     ed.sel=null;edSnap();edRender();
+    marshallCanvasPagesClear();
     edAIStatus('✓ Marshall a construit le post autour du sujet. L’image et tous les textes restent éditables.');
   }
 
   /* --- Marshall Campaign Builder + variantes éditables --- */
   var marshallGeneratedSet=[];
+
+  var marshallCanvasPages=[];
+  var marshallCanvasPageIndex=0;
+
+  function marshallCanvasDefaultName(kind,index){
+    index=Number(index)||0;
+    if(kind==='story')return 'Story '+(index+1);
+    if(kind==='campaign')return 'Post '+(index+1);
+    if(kind==='variant')return 'Variante '+(index+1);
+    return 'Canvas '+(index+1);
+  }
+  function marshallCanvasDefaultDesc(kind,index){
+    index=Number(index)||0;
+    if(kind==='story')return 'Écran '+(index+1);
+    if(kind==='campaign')return 'Publication '+(index+1);
+    if(kind==='variant')return 'Déclinaison '+(index+1);
+    return 'Canvas éditable';
+  }
+  function marshallCanvasSnapshot(){
+    return {fmt:ed.fmt,bg:ed.bg,layers:marshallClone(ed.layers)};
+  }
+  function marshallCanvasBlankPage(kind,name){
+    var fmt=(kind==='story')?'9:16':(ed.fmt||'1:1');
+    return {name:name||marshallCanvasDefaultName(kind||'post',marshallCanvasPages.length),desc:'Canvas vierge',kind:kind||'post',fmt:fmt,bg:'#FFFFFF',layers:[]};
+  }
+  function marshallCanvasRestore(page){
+    if(!page)return;
+    ed.fmt=page.fmt||'1:1';ed.bg=page.bg||'#FFFFFF';ed.layers=marshallClone(page.layers||[]);ed.sel=null;
+    ed.layers.forEach(function(l){if(l.type==='image'&&l.url){ED_SRC[l.id]=l.url;var im=new Image();im.src=l.url;l._img=im;}});
+    edApplyFmt();edSnap();edRender();
+  }
+  function marshallCanvasPagesEnsureCurrent(){
+    if(marshallCanvasPages.length)return;
+    marshallCanvasPages=[{name:'Canvas 1',desc:'Canvas éditable',kind:(ed.fmt==='9:16'?'story':'post'),fmt:ed.fmt,bg:ed.bg,layers:marshallClone(ed.layers)}];
+    marshallCanvasPageIndex=0;
+  }
+  function marshallCanvasPagesSaveCurrent(){
+    if(!marshallCanvasPages.length||!marshallCanvasPages[marshallCanvasPageIndex])return;
+    marshallCanvasPages[marshallCanvasPageIndex].fmt=ed.fmt;
+    marshallCanvasPages[marshallCanvasPageIndex].bg=ed.bg;
+    marshallCanvasPages[marshallCanvasPageIndex].layers=marshallClone(ed.layers);
+  }
+  function marshallCanvasPageLabel(page,i){
+    return {name:page.name||marshallCanvasDefaultName(page.kind||'post',i),desc:page.desc||marshallCanvasDefaultDesc(page.kind||'post',i)};
+  }
+  function marshallCanvasPagesRender(){
+    var box=$('#ed-multipage'); if(!box)return;
+    marshallCanvasPagesEnsureCurrent();
+    if(!marshallCanvasPages.length){ box.innerHTML=''; box.classList.remove('show'); return; }
+    box.classList.add('show');
+    var chips=marshallCanvasPages.map(function(page,i){
+      var meta=marshallCanvasPageLabel(page,i);
+      return '<button type="button" class="ed-pagechip'+(i===marshallCanvasPageIndex?' active':'')+'" data-page="'+i+'" role="tab" aria-selected="'+(i===marshallCanvasPageIndex?'true':'false')+'"><span class="ed-pagechip-index">'+(i+1)+'</span><span class="ed-pagechip-copy"><b>'+esc(meta.name)+'</b><small>'+esc(meta.desc)+'</small></span></button>';
+    }).join('');
+    box.innerHTML=''+
+      '<div class="ed-pages-top">'+
+        '<div class="ed-pages-actions">'+
+          '<button type="button" class="ed-pageaction primary" data-page-action="new">+ Nouveau canvas</button>'+
+          '<button type="button" class="ed-pageaction" data-page-action="rename">Renommer</button>'+
+          '<button type="button" class="ed-pageaction" data-page-action="duplicate">Dupliquer</button>'+
+          '<button type="button" class="ed-pageaction danger" data-page-action="delete">Supprimer</button>'+
+        '</div>'+
+        '<span class="ed-pagecount">'+marshallCanvasPages.length+' canvas</span>'+
+      '</div>'+
+      '<div class="ed-pages-strip" role="tablist" aria-label="Canvases Marshall">'+chips+'</div>';
+    $all('[data-page]',box).forEach(function(btn){btn.addEventListener('click',function(){marshallCanvasPageOpen(Number(btn.getAttribute('data-page')));});});
+    $all('[data-page-action]',box).forEach(function(btn){btn.addEventListener('click',function(){marshallCanvasHandleAction(btn.getAttribute('data-page-action'));});});
+  }
+  function marshallCanvasPageOpen(index){
+    index=Number(index);
+    if(index<0||index>=marshallCanvasPages.length)return;
+    marshallCanvasPagesSaveCurrent();
+    marshallCanvasPageIndex=index;
+    marshallCanvasRestore(marshallCanvasPages[index]);
+    marshallCanvasPagesRender();
+    edAIStatus('✓ '+marshallCanvasPageLabel(marshallCanvasPages[index],index).name+' chargé.');
+  }
+  function marshallCanvasPagesSetFromGenerated(kind){
+    marshallCanvasPages=marshallGeneratedSet.map(function(v,i){
+      return {name:v.name||marshallCanvasDefaultName(kind||'post',i),desc:v.desc||marshallCanvasDefaultDesc(kind||'post',i),kind:kind||'post',fmt:v.fmt,bg:v.bg,layers:marshallClone(v.layers||[])};
+    });
+    marshallCanvasPageIndex=0;
+    marshallCanvasPagesRender();
+    if(marshallCanvasPages[0])marshallCanvasRestore(marshallCanvasPages[0]);
+  }
+  function marshallCanvasPagesClear(){
+    marshallCanvasPages=[]; marshallCanvasPageIndex=0; marshallCanvasPagesRender();
+  }
+  function marshallCanvasAddNew(){
+    marshallCanvasPagesEnsureCurrent();
+    marshallCanvasPagesSaveCurrent();
+    var current=marshallCanvasPages[marshallCanvasPageIndex]||{};
+    var page=marshallCanvasBlankPage(current.kind||'post',marshallCanvasDefaultName(current.kind||'post',marshallCanvasPages.length));
+    marshallCanvasPages.splice(marshallCanvasPageIndex+1,0,page);
+    marshallCanvasPageOpen(marshallCanvasPageIndex+1);
+    edAIStatus('✓ Nouveau canvas ajouté.');
+  }
+  function marshallCanvasRenameCurrent(){
+    marshallCanvasPagesEnsureCurrent();
+    var current=marshallCanvasPages[marshallCanvasPageIndex]; if(!current)return;
+    var meta=marshallCanvasPageLabel(current,marshallCanvasPageIndex);
+    var name=window.prompt('Renommer ce canvas', meta.name);
+    if(name===null)return;
+    name=String(name).trim();
+    if(!name)return;
+    current.name=name;
+    marshallCanvasPagesRender();
+    edAIStatus('✓ Canvas renommé.');
+  }
+  function marshallCanvasDuplicateCurrent(){
+    marshallCanvasPagesEnsureCurrent();
+    marshallCanvasPagesSaveCurrent();
+    var current=marshallCanvasPages[marshallCanvasPageIndex]; if(!current)return;
+    var copy={name:(current.name||marshallCanvasDefaultName(current.kind||'post',marshallCanvasPageIndex))+' (copie)',desc:current.desc||marshallCanvasDefaultDesc(current.kind||'post',marshallCanvasPageIndex),kind:current.kind||'post',fmt:current.fmt||ed.fmt,bg:current.bg||ed.bg,layers:marshallClone(current.layers||[])};
+    marshallCanvasPages.splice(marshallCanvasPageIndex+1,0,copy);
+    marshallCanvasPageOpen(marshallCanvasPageIndex+1);
+    edAIStatus('✓ Canvas dupliqué.');
+  }
+  function marshallCanvasDeleteCurrent(){
+    marshallCanvasPagesEnsureCurrent();
+    if(!marshallCanvasPages.length)return;
+    var current=marshallCanvasPages[marshallCanvasPageIndex];
+    var meta=marshallCanvasPageLabel(current,marshallCanvasPageIndex);
+    if(!window.confirm('Supprimer « '+meta.name+' » ?'))return;
+    if(marshallCanvasPages.length===1){
+      marshallCanvasPages=[marshallCanvasBlankPage(current.kind||'post','Canvas 1')];
+      marshallCanvasPageIndex=0;
+      marshallCanvasRestore(marshallCanvasPages[0]);
+      marshallCanvasPagesRender();
+      edAIStatus('✓ Le canvas a été réinitialisé.');
+      return;
+    }
+    marshallCanvasPages.splice(marshallCanvasPageIndex,1);
+    if(marshallCanvasPageIndex>=marshallCanvasPages.length)marshallCanvasPageIndex=marshallCanvasPages.length-1;
+    marshallCanvasRestore(marshallCanvasPages[marshallCanvasPageIndex]);
+    marshallCanvasPagesRender();
+    edAIStatus('✓ Canvas supprimé.');
+  }
+  function marshallCanvasHandleAction(action){
+    if(action==='new')return marshallCanvasAddNew();
+    if(action==='rename')return marshallCanvasRenameCurrent();
+    if(action==='duplicate')return marshallCanvasDuplicateCurrent();
+    if(action==='delete')return marshallCanvasDeleteCurrent();
+  }
 
   function marshallSaveCurrentAsVariant(name,desc){
     marshallGeneratedSet.push({name:name,desc:desc,fmt:ed.fmt,bg:ed.bg,layers:marshallClone(ed.layers)});
@@ -4425,7 +4781,8 @@
     box.classList.toggle('show',marshallGeneratedSet.length>0);
     $all('#mcamp-results [data-mset]').forEach(function(b){
       b.addEventListener('click',function(){
-        var v=marshallGeneratedSet[Number(b.getAttribute('data-mset'))]; if(!v)return;
+        var idx=Number(b.getAttribute('data-mset')), v=marshallGeneratedSet[idx]; if(!v)return;
+        if(marshallCanvasPages.length===marshallGeneratedSet.length){ marshallCanvasPageOpen(idx); return; }
         ed.fmt=v.fmt;ed.bg=v.bg;ed.layers=marshallClone(v.layers);ed.sel=null;
         ed.layers.forEach(function(l){if(l.type==='image'&&l.url){ED_SRC[l.id]=l.url;var im=new Image();im.src=l.url;l._img=im;}});
         edApplyFmt();edSnap();edRender();
@@ -4454,7 +4811,7 @@
       marshallSaveCurrentAsVariant(name,'Variante '+(i+1)+' · calques éditables');
     });
     ed.fmt=base.fmt;ed.bg=base.bg;ed.layers=marshallClone(base.layers);ed.sel=null;edApplyFmt();edSnap();edRender();
-    marshallRenderGeneratedSet();edAIStatus('✓ Marshall a préparé 3 variantes. Clique sur l’une pour l’éditer.');
+    marshallRenderGeneratedSet();marshallCanvasPagesSetFromGenerated('variant');edAIStatus('✓ Marshall a préparé 3 variantes dans 3 canvas. Clique sur un canvas pour l’éditer.');
   }
 
   async function marshallBuildCampaign(promptOverride){
@@ -4479,8 +4836,8 @@
     var image=(ed.layers||[]).find(function(l){return l.type==='image';});
     specs.forEach(function(sp,i){sp.background='#FFFFFF';sp.cardColor=i===0?'#F4F1FF':i===1?'#FFF8EF':'#EEF8FF';if(image)sp.imageLayer=image;marshallBuildEditablePost(sp);marshallSaveCurrentAsVariant(sp.name||('Publication '+(i+1)),'Étape de campagne · prête à personnaliser');});
     marshallRenderGeneratedSet();
-    var first=marshallGeneratedSet[0];if(first){ed.fmt=first.fmt;ed.bg=first.bg;ed.layers=marshallClone(first.layers);ed.sel=null;edApplyFmt();edSnap();edRender();}
-    edAIStatus('✓ Mini campagne créée : 3 publications éditables.');
+    marshallCanvasPagesSetFromGenerated('campaign');
+    edAIStatus('✓ Mini campagne créée : 3 publications dans 3 canvas éditables.');
     return true;
   }
 
@@ -4658,8 +5015,8 @@
       marshallSaveCurrentAsVariant('Story 0'+(i+1)+' · '+(i===0?'Hook':i===1?'Valeur':'CTA'),'Écran '+(i+1)+'/3 · '+(frame.role||'story')+' · layout '+(frame.layout||'auto')+' · image et textes éditables');
     }
     marshallRenderGeneratedSet();
-    var first=marshallGeneratedSet[0];if(first){ed.fmt=first.fmt;ed.bg=first.bg;ed.layers=marshallClone(first.layers);ed.layers.forEach(function(l){if(l.type==='image'&&l.url){ED_SRC[l.id]=l.url;var im=new Image();im.src=l.url;l._img=im;}});ed.sel=null;edApplyFmt();edSnap();edRender();}
-    edAIStatus('✓ Story virale éditable prête : 3 écrans distincts, format 9:16.');
+    marshallCanvasPagesSetFromGenerated('story');
+    edAIStatus('✓ Story virale éditable prête : 3 écrans distincts dans 3 canvas, format 9:16.');
     if(marshallSetting('storyRender','video')!=='static'){
       try{await marshallCreateStoryVideo(prompt,plan,storyFrameImages);}catch(e){console.error('Marshall video story',e);edAIStatus('❌ Version vidéo : '+(e&&e.message?e.message:'échec'));if(marshallSetting('storyRender','video')==='video')marshallChatBubble('error','La story éditable est prête, mais la version vidéo open-source a échoué : '+(e&&e.message?e.message:'erreur inconnue')+'.');}
     }
@@ -5241,8 +5598,10 @@
     if(applyFix){
       var n=mvAutoFix(a), after=mvCanvasAudit();
       if(rep) rep.textContent=mvReportText(after)+'\n\n✓ '+n+' correction(s) appliquée(s). Les éléments restent éditables.';
+      marshallCanvasPagesSaveCurrent();
       edAIStatus('Analyse visuelle a corrigé '+n+' point(s) du canvas.');
     }else{
+      marshallCanvasPagesSaveCurrent();
       edAIStatus('Analyse visuelle a terminé l’audit du canvas.');
     }
   }
