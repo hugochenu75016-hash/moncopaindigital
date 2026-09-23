@@ -1334,6 +1334,16 @@
   @keyframes mv4PillIn{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
   .mv4-compose-context{display:none;align-items:center;gap:6px;margin:0 13px -2px;padding:6px 10px;border-radius:10px 10px 0 0;background:#fff7ef;border:1px solid rgba(199,98,14,.10);border-bottom:0;color:#8e694a;font-size:9.5px;font-weight:800}
   .mv4-compose-context.show{display:flex}.mv4-compose-context b{color:#5a402d;font-weight:900}.mv4-compose-context svg{width:13px;height:13px;fill:none;stroke:#F3852B;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .mv4-confirm{align-self:flex-start;max-width:94%;background:linear-gradient(180deg,#fff,#fff9f2);border:1px solid rgba(199,98,14,.16);border-radius:18px;padding:12px 13px;box-shadow:0 4px 14px rgba(105,64,28,.08)}
+  .mv4-confirm strong{display:block;font:900 12.5px 'Fredoka',sans-serif;color:#3f2d20;margin-bottom:4px}
+  .mv4-confirm p{margin:0;color:#765c47;font-size:11.2px;line-height:1.45}
+  .mv4-confirm-agent{display:inline-flex;align-items:center;gap:6px;margin-top:7px;background:#F5EEFF;color:#6E4FC2;border:1px solid rgba(107,76,192,.12);border-radius:999px;padding:5px 8px;font-size:9.5px;font-weight:900}
+  .mv4-confirm-actions{display:flex;gap:8px;margin-top:10px}
+  .mv4-confirm-btn{border:0;border-radius:11px;padding:9px 12px;font:900 10.5px 'Nunito',sans-serif;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,opacity .16s ease}
+  .mv4-confirm-btn:disabled{opacity:.55;cursor:default;transform:none;box-shadow:none}
+  .mv4-confirm-btn.yes{background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;box-shadow:0 3px 0 #C7620E}
+  .mv4-confirm-btn.no{background:#fff;border:1px solid #E8DACB;color:#6E533D}
+  .mv4-confirm-btn:not(:disabled):hover{transform:translateY(-1px)}
   @media(max-width:760px){.mv4-agentpickers{grid-template-columns:1fr}.mv4-agentbar-hint{display:none}.mv4-agentbar{padding:10px}.mv4-agentpicker{padding:7px 8px}}
 
   .mv4-team-strip{align-self:center;max-width:94%;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:7px 9px;border-radius:12px;background:#f7fbff;border:1px solid rgba(66,133,244,.13);color:#58739a;font-size:9px;font-weight:800;box-shadow:0 2px 0 rgba(66,133,244,.04)}
@@ -3338,6 +3348,7 @@
   var MARSHALL_CHAT_ENDPOINT='https://copain-api.vercel.app/api/chat';
   var marshallChatHistory=[];
   var marshallChatBusy=false;
+  var marshallPendingStoryConfirm=null;
   function marshallChatThread(){return $('#marshall-thread');}
   function marshallChatBubble(role,text,extra){
     var th=marshallChatThread(); if(!th)return null;
@@ -3345,6 +3356,42 @@
   }
   function marshallChatTyping(){
     var th=marshallChatThread(); if(!th)return null; var d=document.createElement('div'); d.className='mv4-msg assistant'; d.innerHTML='<span class="mv4-typing"><i></i><i></i><i></i></span>'; th.appendChild(d); th.scrollTop=th.scrollHeight; return d;
+  }
+  function marshallNeedsStoryConfirmation(prompt,intent,opts){
+    if(opts&&opts.skipConfirm)return false;
+    if(intent!=='story')return false;
+    return /viral(?:e|es)?/i.test(String(prompt||''));
+  }
+  function marshallChatStoryConfirmation(prompt,intent){
+    var th=marshallChatThread(); if(!th)return null;
+    if(marshallPendingStoryConfirm&&marshallPendingStoryConfirm.box&&marshallPendingStoryConfirm.box.parentNode){
+      marshallPendingStoryConfirm.box.remove();
+    }
+    var prof=marshallEffectiveProfile(intent), useTeam=marshallShouldUseCrew(intent);
+    var box=document.createElement('div'); box.className='mv4-confirm';
+    var title=document.createElement('strong'); title.textContent='Confirmer la création de la story virale ?';
+    var text=document.createElement('p'); text.textContent='Je vais lancer '+(useTeam?'l’équipe Marshall':'l’agent sélectionné')+' pour construire une story verticale 9:16 avec hook, valeur et CTA.';
+    var chip=document.createElement('div'); chip.className='mv4-confirm-agent'; chip.textContent=(useTeam?'Équipe utilisée : Marshall':'Agent utilisé : '+prof.name);
+    var actions=document.createElement('div'); actions.className='mv4-confirm-actions';
+    var yes=document.createElement('button'); yes.type='button'; yes.className='mv4-confirm-btn yes'; yes.textContent='Oui, lancer';
+    var no=document.createElement('button'); no.type='button'; no.className='mv4-confirm-btn no'; no.textContent='Non';
+    actions.appendChild(yes); actions.appendChild(no);
+    box.appendChild(title); box.appendChild(text); box.appendChild(chip); box.appendChild(actions);
+    th.appendChild(box); th.scrollTop=th.scrollHeight;
+    marshallPendingStoryConfirm={prompt:prompt,intent:intent,box:box};
+    yes.addEventListener('click', async function(){
+      yes.disabled=true; no.disabled=true;
+      marshallPendingStoryConfirm=null;
+      await marshallChatSubmit(prompt,{skipConfirm:true,skipUserEcho:true});
+      if(box.parentNode)box.remove();
+    });
+    no.addEventListener('click', function(){
+      yes.disabled=true; no.disabled=true;
+      marshallPendingStoryConfirm=null;
+      if(box.parentNode)box.remove();
+      marshallChatBubble('assistant','D’accord, je ne lance pas la story virale. Tu peux modifier ta demande, changer d’agent, ou cliquer sur Oui plus tard.');
+    });
+    return box;
   }
   async function marshallRemoteReply(messages){
     var r=await fetch(MARSHALL_CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:messages})});
@@ -3692,14 +3739,22 @@
     if(p)p.value=map[action]||current;
     await marshallChatSubmit();
   }
-  async function marshallChatSubmit(forcePrompt){
+  async function marshallChatSubmit(forcePrompt,opts){
     if(marshallChatBusy)return;
     var input=$('#ai-prompt'), b=$('#ai-run');
     var prompt=String(forcePrompt!=null?forcePrompt:((input&&input.value)||'')).trim();
+    opts=opts||{};
     if(!prompt){marshallChatBubble('assistant','Écris ce que tu veux créer, par exemple : « Crée une story Instagram pour présenter mon service ».');if(input)input.focus();return;}
+    var intent=marshallEffectiveIntent(prompt);
+    if(marshallNeedsStoryConfirmation(prompt,intent,opts)){
+      marshallChatBubble('user',prompt);
+      marshallChatStoryConfirmation(prompt,intent);
+      if(input){input.value='';input.style.height='auto';input.focus();}
+      return;
+    }
     marshallChatBusy=true;if(b)b.disabled=true;
-    marshallChatBubble('user',prompt);
-    var intent=marshallEffectiveIntent(prompt), ok=true, reply='';
+    if(!opts.skipUserEcho) marshallChatBubble('user',prompt);
+    var ok=true, reply='';
     marshallSyncCanvasToMission(intent);
     if(intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')marshallChatAgentPill(intent);
     var typing=marshallChatTyping();
