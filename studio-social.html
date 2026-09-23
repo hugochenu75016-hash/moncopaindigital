@@ -674,6 +674,25 @@
   .ed-tb svg{ width:17px; height:17px; }
   .ed-tb-sep{ width:1px; height:20px; background:rgba(120,60,0,.14); }
   .ed-tb-note{ font-size:12px; color:#8a6a0c; font-family:'Fredoka',sans-serif; font-weight:600; }
+  .ed-multipage{ display:none; gap:12px; margin:-2px 0 14px; }
+  .ed-multipage.show{ display:block; }
+  .ed-pages-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
+  .ed-pages-actions{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .ed-pageaction{ border:1px solid #eadfd3; background:#fff; color:#6F4D2B; border-radius:999px; padding:9px 12px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.05); font:800 12px/1 'Nunito',sans-serif; transition:.18s transform,.18s box-shadow,.18s border-color,.18s background; }
+  .ed-pageaction:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(0,0,0,.08); border-color:#F1C99A; background:#FFF9F1; }
+  .ed-pageaction.primary{ background:#FFF4E8; border-color:#F1C99A; color:#A56318; }
+  .ed-pageaction.danger{ color:#AF4B23; }
+  .ed-pages-strip{ display:flex; align-items:stretch; gap:8px; overflow:auto; padding-bottom:3px; }
+  .ed-pagechip{ border:1px solid #eadfd3; background:#fff; color:#6F4D2B; border-radius:16px; padding:10px 12px; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,.05); font:800 12px/1.1 'Nunito',sans-serif; transition:.18s transform,.18s box-shadow,.18s border-color,.18s background; min-width:170px; }
+  .ed-pagechip:hover{ transform:translateY(-1px); box-shadow:0 12px 26px rgba(0,0,0,.08); }
+  .ed-pagechip.active{ background:#FFF4E8; border-color:#F3852B; color:#7A4B14; box-shadow:0 12px 28px rgba(243,133,43,.18); }
+  .ed-pagechip-index{ width:24px; height:24px; border-radius:999px; background:#F6EEE4; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:900; color:#9C6B2D; flex:0 0 24px; }
+  .ed-pagechip.active .ed-pagechip-index{ background:#F3852B; color:#fff; }
+  .ed-pagechip-copy{ display:flex; flex-direction:column; align-items:flex-start; min-width:0; }
+  .ed-pagechip-copy b{ font-size:12px; line-height:1.1; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ed-pagechip-copy small{ font-size:10px; color:#9C8770; line-height:1.1; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ed-pagecount{ font:800 12px/1 'Nunito',sans-serif; color:#9C8770; white-space:nowrap; }
+
   .ed-sel{ border:1.5px solid rgba(120,60,0,.16); border-radius:999px; padding:6px 12px; font:inherit; font-size:12.5px; background:#fff; color:#5a4400; }
 
   /* La scène affiche le format réel (1080×1920 pour une story) réduit par transform :
@@ -1247,6 +1266,10 @@
   .mv4-audit{align-self:stretch;background:linear-gradient(145deg,#fff,#fff7ee);border:1px solid rgba(243,133,43,.22);border-radius:18px;padding:13px 14px;box-shadow:0 5px 16px rgba(110,67,24,.08);color:#483425}
   .mv4-audit-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}.mv4-audit-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,#FFF0D9,#FFD7A5);color:#D76510;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}.mv4-audit-icon svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}.mv4-audit-title{min-width:0}.mv4-audit-title b{display:block;font:900 14px 'Fredoka',sans-serif}.mv4-audit-title span{display:block;font-size:10px;color:#9B8068;font-weight:800;margin-top:2px}.mv4-audit-badge{margin-left:auto;background:#F0E9FF;color:#6B4CC0;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:900;white-space:nowrap}
   .mv4-audit-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.mv4-audit-box{background:#fff;border:1px solid rgba(199,98,14,.10);border-radius:12px;padding:9px 10px;min-width:0}.mv4-audit-box.full{grid-column:1/-1}.mv4-audit-box strong{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#B06C32;margin-bottom:4px}.mv4-audit-box span{display:block;font-size:11px;line-height:1.4;color:#5B4635;white-space:pre-wrap;overflow-wrap:anywhere}.mv4-audit-list{margin:0;padding-left:15px;font-size:10.5px;line-height:1.45;color:#6B5440}.mv4-audit-note{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(199,98,14,.16);font-size:9.5px;line-height:1.4;color:#9B8068}
+  .mv4-expert{align-self:stretch;display:flex;gap:10px;align-items:flex-start;background:linear-gradient(145deg,#F7F4FF,#FFF);border:1px solid rgba(107,76,192,.18);border-radius:15px;padding:10px 11px;color:#49396E;box-shadow:0 3px 10px rgba(73,57,110,.06)}
+  .mv4-expert-icon{width:34px;height:34px;flex:0 0 34px;border-radius:11px;display:grid;place-items:center;background:#EDE7FF;color:#6B4CC0}.mv4-expert-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .mv4-expert-copy{min-width:0;flex:1}.mv4-expert-copy b{display:block;font:900 12px 'Fredoka',sans-serif;color:#4F3B87}.mv4-expert-copy span{display:block;margin-top:2px;font-size:10.5px;line-height:1.4;color:#725E9F}.mv4-expert-tag{display:inline-flex!important;width:auto;margin-top:5px!important;background:#fff;border:1px solid rgba(107,76,192,.12);border-radius:999px;padding:4px 7px;font-size:9px!important;font-weight:900;color:#6B4CC0!important}
+  .mv4-supervisor-check{align-self:stretch;display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:9px;padding:9px 10px;border-radius:13px;background:#f7faf8;border:1px solid #dfe9e2;color:#3d5545;font-size:10.5px;line-height:1.35}.mv4-supervisor-check.warn{background:#fff8ed;border-color:#f0dfc2;color:#775725}.mv4-supervisor-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#e6f4ea;color:#2e7d4f;font-weight:1000;font-size:14px}.mv4-supervisor-check.warn .mv4-supervisor-icon{background:#fff0cf;color:#ad6c12}.mv4-supervisor-copy{min-width:0}.mv4-supervisor-copy b{display:block;font-size:10.5px;color:#33463a}.mv4-supervisor-copy span{display:block;margin-top:2px;color:#6f7d74;overflow-wrap:anywhere}.mv4-supervisor-check em{font-style:normal;font-size:9px;font-weight:900;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:999px;padding:4px 6px;color:#6a766d}
   .mv4-typing{display:inline-flex;gap:5px;align-items:center;height:12px}.mv4-typing i{width:7px;height:7px;border-radius:50%;background:#F3852B;animation:mv4dot 1s infinite ease-in-out}.mv4-typing i:nth-child(2){animation-delay:.14s}.mv4-typing i:nth-child(3){animation-delay:.28s}@keyframes mv4dot{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-4px);opacity:1}}
   .mv4-hero{background:#fff;border:1px solid rgba(199,98,14,.12);border-radius:18px;padding:13px 14px;box-shadow:0 3px 0 rgba(199,98,14,.08)}
   .mv4-kicker{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:900;color:#6B5AF4;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
@@ -1306,6 +1329,59 @@
   .mcd-concepts-preview,.mcd-concepts-validate{border:0;border-radius:11px;padding:9px 11px;font:900 10.5px 'Nunito',sans-serif;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}.mcd-concepts-preview{background:#fff;border:1px solid #E7D8CA;color:#70533B}.mcd-concepts-preview:hover{transform:translateY(-1px);box-shadow:0 5px 12px rgba(98,62,28,.08)}.mcd-concepts-validate{background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;box-shadow:0 3px 0 #C7620E}.mcd-concepts-validate:hover{transform:translateY(-2px);box-shadow:0 5px 0 #C7620E,0 8px 16px rgba(199,98,14,.15)}.mcd-concepts-validate:active{transform:translateY(1px);box-shadow:0 2px 0 #C7620E}
   @media(max-width:760px){.mcd-concept-detail.show{grid-template-columns:1fr}.mcd-concept-detail .wide{grid-column:auto}.mcd-concepts-actionbar{flex-wrap:wrap}.mcd-concepts-selected{flex-basis:100%}}
 
+  /* Marshall · barre Agent / Mission */
+  .mv4-agentbar{flex:0 0 auto;padding:12px 14px 11px;background:linear-gradient(180deg,#fffaf4,#fff6eb);border-bottom:1px solid rgba(199,98,14,.12);box-shadow:0 5px 18px rgba(105,64,28,.05);position:relative;z-index:6}
+  .mv4-agentbar-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .mv4-agentbar-title{display:flex;align-items:center;gap:8px;font:900 11px 'Nunito',sans-serif;color:#6d523d;letter-spacing:.035em;text-transform:uppercase}
+  .mv4-agentbar-title svg{width:16px;height:16px;fill:none;stroke:#F3852B;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .mv4-agentbar-hint{font-size:9.5px;font-weight:800;color:#aa8c73;background:#fff;padding:5px 8px;border-radius:999px;border:1px solid rgba(199,98,14,.10)}
+  .mv4-agentpickers{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mv4-agentpicker{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr) 18px;align-items:center;gap:8px;background:#fff;border:1px solid #eadbcf;border-radius:14px;padding:8px 9px;box-shadow:0 2px 0 rgba(199,98,14,.07);transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;min-width:0}
+  .mv4-agentpicker:hover{border-color:#f2b47e;box-shadow:0 6px 16px rgba(111,68,29,.08);transform:translateY(-1px)}
+  .mv4-agentpicker:focus-within{border-color:#F3852B;box-shadow:0 0 0 3px rgba(243,133,43,.11)}
+  .mv4-agentpicker-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#FFF0DE;color:#D96B16}
+  .mv4-agentpicker-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .mv4-agentpicker-copy{min-width:0;display:flex;flex-direction:column;gap:2px}
+  .mv4-agentpicker-copy small{font-size:8.5px;font-weight:900;color:#b18462;letter-spacing:.06em;text-transform:uppercase}
+  .mv4-agentpicker select{width:100%;min-width:0;border:0;background:transparent;padding:0 22px 0 0;appearance:none;-webkit-appearance:none;outline:none;font:900 11.5px 'Nunito',sans-serif;color:#3d2d22;white-space:nowrap;text-overflow:ellipsis;cursor:pointer}
+  .mv4-agentpicker-chevron{width:18px;height:18px;display:grid;place-items:center;color:#a47b5a;pointer-events:none}
+  .mv4-agentpicker-chevron svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .mv4-agentpicker-agent{cursor:default;overflow:visible}
+  .mv4-agentpicker-agent #marshall-agent-select{position:absolute!important;opacity:0!important;pointer-events:none!important;width:1px!important;height:1px!important;clip:rect(0 0 0 0)!important}
+  .mv4-agent-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;border:0;background:transparent;padding:0;color:#3d2d22;font:900 11.5px 'Nunito',sans-serif;text-align:left;cursor:pointer}
+  .mv4-agent-trigger span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mv4-agent-menu{display:none;position:absolute;left:0;right:0;top:calc(100% + 7px);z-index:120;background:#fff;border:1px solid #dedede;border-radius:14px;padding:6px;box-shadow:0 18px 45px rgba(0,0,0,.18);max-height:290px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+  .mv4-agent-menu.show{display:block}
+  .mv4-agent-option{display:flex;align-items:flex-start;gap:9px;width:100%;border:0;background:transparent;border-radius:10px;padding:9px 10px;color:#3b3b3b;text-align:left;cursor:pointer;font-family:'Nunito',sans-serif}
+  .mv4-agent-option:hover,.mv4-agent-option.active{background:#f3f3f3}
+  .mv4-agent-option .ao-dot{width:8px;height:8px;border-radius:50%;background:#d7d7d7;flex:0 0 8px;margin-top:5px}
+  .mv4-agent-option.active .ao-dot{background:#F3852B;box-shadow:0 0 0 3px rgba(243,133,43,.12)}
+  .mv4-agent-option .ao-copy{min-width:0;display:block}
+  .mv4-agent-option b{display:block;font-size:10.5px;line-height:1.25;color:#303030}
+  .mv4-agent-option small{display:block;margin-top:2px;font-size:8.8px;line-height:1.3;color:#8b8b8b;font-weight:700}
+  .mv4-agentcontext{display:flex;align-items:center;gap:8px;margin-top:8px;padding:7px 9px;border-radius:11px;background:rgba(244,240,255,.72);border:1px solid rgba(108,90,244,.10);color:#695394;font-size:10px;font-weight:800;line-height:1.3}
+  .mv4-agentcontext svg{width:14px;height:14px;flex:0 0 14px;fill:none;stroke:#7a61cf;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .mv4-agent-pill{align-self:center;max-width:94%;display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid rgba(108,90,244,.14);background:linear-gradient(180deg,#f9f7ff,#f2edff);border-radius:999px;color:#7458b4;font-size:9.8px;line-height:1.2;font-weight:800;box-shadow:0 2px 0 rgba(108,90,244,.05);animation:mv4PillIn .22s ease both}
+  .mv4-agent-pill svg{width:14px;height:14px;flex:0 0 14px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .mv4-agent-pill strong{font-weight:900;color:#5e429f}
+  @keyframes mv4PillIn{from{opacity:0;transform:translateY(4px) scale(.98)}to{opacity:1;transform:none}}
+  .mv4-compose-context{display:none;align-items:center;gap:6px;margin:0 13px -2px;padding:6px 10px;border-radius:10px 10px 0 0;background:#fff7ef;border:1px solid rgba(199,98,14,.10);border-bottom:0;color:#8e694a;font-size:9.5px;font-weight:800}
+  .mv4-compose-context.show{display:flex}.mv4-compose-context b{color:#5a402d;font-weight:900}.mv4-compose-context svg{width:13px;height:13px;fill:none;stroke:#F3852B;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .mv4-confirm{align-self:flex-start;max-width:94%;background:linear-gradient(180deg,#fff,#fff9f2);border:1px solid rgba(199,98,14,.16);border-radius:18px;padding:12px 13px;box-shadow:0 4px 14px rgba(105,64,28,.08)}
+  .mv4-confirm strong{display:block;font:900 12.5px 'Fredoka',sans-serif;color:#3f2d20;margin-bottom:4px}
+  .mv4-confirm p{margin:0;color:#765c47;font-size:11.2px;line-height:1.45}
+  .mv4-confirm-agent{display:inline-flex;align-items:center;gap:6px;margin-top:7px;background:#F5EEFF;color:#6E4FC2;border:1px solid rgba(107,76,192,.12);border-radius:999px;padding:5px 8px;font-size:9.5px;font-weight:900}
+  .mv4-confirm-actions{display:flex;gap:8px;margin-top:10px}
+  .mv4-confirm-btn{border:0;border-radius:11px;padding:9px 12px;font:900 10.5px 'Nunito',sans-serif;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,opacity .16s ease}
+  .mv4-confirm-btn:disabled{opacity:.55;cursor:default;transform:none;box-shadow:none}
+  .mv4-confirm-btn.yes{background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;box-shadow:0 3px 0 #C7620E}
+  .mv4-confirm-btn.no{background:#fff;border:1px solid #E8DACB;color:#6E533D}
+  .mv4-confirm-btn:not(:disabled):hover{transform:translateY(-1px)}
+  @media(max-width:760px){.mv4-agentpickers{grid-template-columns:1fr}.mv4-agentbar-hint{display:none}.mv4-agentbar{padding:10px}.mv4-agentpicker{padding:7px 8px}}
+
+  .mv4-team-strip{align-self:center;max-width:94%;display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:7px 9px;border-radius:12px;background:#f7fbff;border:1px solid rgba(66,133,244,.13);color:#58739a;font-size:9px;font-weight:800;box-shadow:0 2px 0 rgba(66,133,244,.04)}
+  .mv4-team-strip b{color:#34557f;font-weight:900}.mv4-team-dot{width:5px;height:5px;border-radius:50%;background:#6f9fe8}.mv4-team-strip .ok{color:#3d815a;background:#eaf8ef;border-radius:999px;padding:3px 6px}
   /* Réglages Studio + Marshall : panneau unique */
   .ed-tool-settings{position:relative;}
   .ed-tool-settings svg{transition:transform .35s cubic-bezier(.2,.8,.2,1)}
@@ -1327,6 +1403,87 @@
   .set-save{flex:1;border:0;border-radius:13px;padding:12px 14px;background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;font:900 12px 'Nunito',sans-serif;cursor:pointer;box-shadow:0 4px 0 #C7620E;transition:transform .18s ease,box-shadow .18s ease}.set-save:hover{transform:translateY(-2px);box-shadow:0 6px 0 #C7620E,0 10px 18px rgba(199,98,14,.15)}.set-save:active{transform:translateY(1px);box-shadow:0 2px 0 #C7620E}
   .set-state{font-size:10.5px;line-height:1.4;color:#7C654F;background:#fff6ea;border-radius:10px;padding:8px 9px;margin-top:8px}
   @media(max-width:760px){.ed-flyout.settings-mode{width:min(460px,calc(100vw - 112px));max-height:82vh}.settings-v1{height:calc(82vh - 58px)}.set-grid{grid-template-columns:1fr}.set-grid .full{grid-column:1}}
+</style>
+
+
+<style id="marshall-chatgpt-ui-2026">
+  /* Marshall — interface conversationnelle inspirée des assistants modernes. */
+  .ed-flyout.marshall-mode{width:min(620px,calc(100vw - 120px))!important;max-height:92vh!important;border:1px solid #dedede!important;border-radius:22px!important;background:#fff!important;box-shadow:0 26px 80px rgba(0,0,0,.20)!important;overflow:hidden!important}
+  .ed-flyout.marshall-mode .ed-fly-head{min-height:46px!important;padding:8px 12px!important;background:#fff!important;color:#202123!important;border:0!important;border-bottom:1px solid #ececec!important;box-shadow:none!important}
+  .ed-flyout.marshall-mode .ed-fly-head strong,.ed-flyout.marshall-mode #ed-fly-title{font:700 13px/1.2 'Nunito',system-ui,sans-serif!important;color:#303030!important}
+  .ed-flyout.marshall-mode .ed-fly-x{width:31px!important;height:31px!important;background:transparent!important;color:#6b6b6b!important;border-radius:9px!important;box-shadow:none!important}
+  .ed-flyout.marshall-mode .ed-fly-x:hover{background:#f3f3f3!important;color:#111!important}
+  .ed-flyout.marshall-mode .ed-fly-body{background:#fff!important}
+  .marshall-v4{height:min(820px,calc(92vh - 47px))!important;background:#fff!important;color:#1f1f1f!important;font-family:'Nunito',system-ui,sans-serif!important}
+
+  .mv4-top{min-height:58px!important;padding:10px 14px!important;background:#fff!important;border-bottom:0!important;box-shadow:none!important;display:flex!important;align-items:center!important;justify-content:space-between!important}
+  .mv4-brandlock{display:flex;align-items:center;gap:10px;min-width:0}
+  .mv4-avatar{width:36px!important;height:36px!important;flex-basis:36px!important;box-shadow:none!important;background:#f1f1f1!important;border:1px solid #e8e8e8!important}
+  .mv4-ident strong{font:800 14px/1.05 'Nunito',sans-serif!important;color:#202123!important}.mv4-ident span{font:600 10.5px/1.2 'Nunito',sans-serif!important;color:#8b8b8b!important;margin-top:3px!important}
+  .mv4-top-actions{margin-left:auto;display:flex;align-items:center;gap:6px}.mv4-live{margin:0!important;padding:5px 8px!important;border:0!important;background:#f5f5f5!important;color:#696969!important;border-radius:999px!important;font-size:9px!important;letter-spacing:.025em!important}.mv4-live i{width:6px!important;height:6px!important;background:#19a974!important;box-shadow:none!important;animation:none!important}
+  .mv4-iconbtn{width:32px;height:32px;display:grid;place-items:center;border:0;background:transparent;color:#5f5f5f;border-radius:9px;cursor:pointer;transition:.15s}.mv4-iconbtn:hover{background:#f1f1f1;color:#111}.mv4-iconbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  .mv4-agentbar{padding:0 14px 10px!important;background:#fff!important;border-bottom:1px solid #efefef!important;box-shadow:none!important;z-index:4!important}.mv4-agentbar-head{display:none!important}.mv4-agentpickers{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:7px!important}.mv4-agentpicker{grid-template-columns:26px minmax(0,1fr) 14px!important;gap:7px!important;padding:6px 8px!important;min-height:42px!important;background:#f7f7f7!important;border:1px solid #e9e9e9!important;border-radius:11px!important;box-shadow:none!important}.mv4-agentpicker:hover{transform:none!important;border-color:#d9d9d9!important;background:#f3f3f3!important;box-shadow:none!important}.mv4-agentpicker:focus-within{border-color:#bdbdbd!important;box-shadow:0 0 0 2px rgba(0,0,0,.05)!important}.mv4-agentpicker-icon{width:26px!important;height:26px!important;border-radius:8px!important;background:#fff!important;color:#6f6f6f!important;border:1px solid #e7e7e7!important}.mv4-agentpicker-icon svg{width:14px!important;height:14px!important}.mv4-agentpicker-copy small{font-size:7.5px!important;color:#9c9c9c!important;letter-spacing:.05em!important}.mv4-agentpicker select{font:700 10.5px 'Nunito',sans-serif!important;color:#2f2f2f!important}.mv4-agentpicker-chevron{color:#969696!important}.mv4-agentcontext{margin-top:6px!important;padding:5px 8px!important;border:0!important;background:transparent!important;color:#8b8b8b!important;font-size:9px!important;font-weight:600!important}.mv4-agentcontext svg{width:12px!important;height:12px!important;stroke:#9b9b9b!important}
+
+  .mv4-thread{padding:20px 18px 18px!important;gap:18px!important;background:#fff!important;scroll-behavior:smooth!important}.mv4-thread::-webkit-scrollbar{width:8px}.mv4-thread::-webkit-scrollbar-thumb{background:#ddd;border-radius:999px;border:2px solid #fff}
+  .mv4-welcome-screen{margin:auto;width:min(100%,510px);padding:12px 4px 28px;text-align:center;animation:mv4Welcome .22s ease both}.mv4-welcome-mark{width:56px;height:56px;margin:0 auto 16px;border-radius:17px;overflow:hidden;background:#f4f4f4;border:1px solid #e8e8e8}.mv4-welcome-mark img{width:100%;height:100%;object-fit:cover;object-position:50% 10%;transform:scale(1.48);transform-origin:50% 9%}.mv4-welcome-screen h3{margin:0;color:#202123;font:800 22px/1.15 'Fredoka','Nunito',sans-serif;letter-spacing:-.02em}.mv4-welcome-screen p{max-width:420px;margin:8px auto 22px;color:#777;font-size:11.5px;line-height:1.5;font-weight:600}.mv4-starters{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left}.mv4-starters button{appearance:none;min-height:64px;padding:11px 12px;background:#fff;border:1px solid #e5e5e5;border-radius:14px;color:#333;text-align:left;cursor:pointer;transition:.15s;box-shadow:0 1px 1px rgba(0,0,0,.02)}.mv4-starters button:hover{background:#f8f8f8;border-color:#d7d7d7;transform:translateY(-1px)}.mv4-starters span{display:block;font-size:11.5px;font-weight:800;color:#2d2d2d}.mv4-starters small{display:block;margin-top:4px;font-size:9.5px;line-height:1.3;color:#8f8f8f;font-weight:600}@keyframes mv4Welcome{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  .mv4-msg{max-width:88%!important;padding:0!important;border-radius:0!important;font-size:12.5px!important;line-height:1.58!important;box-shadow:none!important;white-space:pre-wrap!important;color:#2d2d2d!important;position:relative!important}.mv4-msg.assistant{align-self:flex-start!important;width:100%!important;max-width:100%!important;background:transparent!important;border:0!important;padding-left:42px!important;padding-right:8px!important}.mv4-msg.assistant::before{content:'M';position:absolute;left:0;top:0;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:#202123;color:#fff;font:800 11px 'Nunito',sans-serif}.mv4-msg.user{align-self:flex-end!important;background:#f2f2f2!important;color:#252525!important;font-weight:600!important;border-radius:18px!important;padding:10px 13px!important;box-shadow:none!important}.mv4-msg.error{align-self:center!important;max-width:92%!important;background:#fff4f2!important;border:1px solid #f2d4d0!important;color:#9a3d34!important;border-radius:12px!important;padding:9px 11px!important;font-size:11px!important}.mv4-typing i{background:#777!important;width:5px!important;height:5px!important}
+  .mv4-agent-pill,.mv4-team-strip{align-self:flex-start!important;margin-left:42px!important;max-width:calc(100% - 42px)!important;background:#f7f7f7!important;border:1px solid #e7e7e7!important;color:#727272!important;box-shadow:none!important}.mv4-agent-pill strong,.mv4-team-strip b{color:#444!important}
+
+  .marshall-v4 .ai-status,.marshall-v4 #mimg-report,.marshall-v4 #mv-report,.marshall-v4 #mcamp-results,.marshall-v4 #mcd-concepts{margin-left:18px!important;margin-right:18px!important}
+  .marshall-v4 .ai-status{border-radius:10px!important;background:#f6f6f6!important;color:#656565!important;border:1px solid #e8e8e8!important}
+
+  .mv4-compose-dock{flex:0 0 auto;padding:4px 14px 10px;background:linear-gradient(180deg,rgba(255,255,255,.65),#fff 22%);position:relative;z-index:8}.mv4-compose-context{margin:0 10px -1px!important;padding:6px 10px!important;border:1px solid #e6e6e6!important;border-bottom:0!important;background:#f8f8f8!important;color:#777!important;border-radius:11px 11px 0 0!important}.mv4-compose-context svg{stroke:#666!important}.mv4-compose{padding:7px 7px 7px 9px!important;gap:6px!important;background:#fff!important;border:1px solid #dcdcdc!important;border-radius:20px!important;box-shadow:0 6px 22px rgba(0,0,0,.07)!important;align-items:flex-end!important}.mv4-compose:focus-within{border-color:#c8c8c8!important;box-shadow:0 7px 26px rgba(0,0,0,.09)!important}.mv4-compose-tool{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;border:0;background:transparent;color:#6e6e6e;border-radius:10px;cursor:pointer;margin-bottom:1px}.mv4-compose-tool:hover{background:#f2f2f2;color:#222}.mv4-compose-tool svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.mv4-compose textarea{min-height:42px!important;max-height:150px!important;padding:10px 5px 8px!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:#222!important;font:600 12.5px/1.45 'Nunito',sans-serif!important}.mv4-compose textarea::placeholder{color:#9a9a9a!important}.mv4-send{width:38px!important;height:38px!important;flex-basis:38px!important;margin-bottom:0!important;border-radius:12px!important;background:#202123!important;color:#fff!important;box-shadow:none!important}.mv4-send:hover{transform:none!important;background:#000!important;box-shadow:none!important}.mv4-send:active{transform:scale(.96)!important;box-shadow:none!important}.mv4-send svg{width:19px!important;height:19px!important;stroke-width:2.1!important}.mv4-disclaimer{text-align:center;padding:7px 8px 0;color:#aaa;font-size:8.8px;line-height:1.3;font-weight:600}
+
+  .mv4-audit,.mv4-expert,.mv4-confirm{border-color:#e5e5e5!important;box-shadow:none!important;background:#fafafa!important;color:#333!important}.mv4-audit-icon,.mv4-expert-icon{background:#efefef!important;color:#555!important}.mv4-confirm-btn.yes,.mcd-concepts-validate{background:#202123!important;box-shadow:none!important}.mv4-confirm-btn.yes:hover,.mcd-concepts-validate:hover{box-shadow:none!important}
+
+  @media(max-width:760px){.ed-flyout.marshall-mode{width:calc(100vw - 20px)!important;max-height:calc(100vh - 20px)!important;border-radius:18px!important}.marshall-v4{height:calc(100vh - 68px)!important}.mv4-agentpickers{grid-template-columns:1fr 1fr!important}.mv4-thread{padding:16px 12px!important}.mv4-starters{grid-template-columns:1fr!important}.mv4-welcome-screen{padding-top:6px}.mv4-compose-dock{padding-left:10px;padding-right:10px}.mv4-agentbar{padding-left:10px!important;padding-right:10px!important}.mv4-agentpicker-icon{display:none!important}.mv4-agentpicker{grid-template-columns:minmax(0,1fr) 14px!important}}
+</style>
+
+<style id="marshall-history-ui-2026">
+  /* Marshall v4.2 — conversations persistantes, historique et réduction. */
+  .ed-fly-actions{display:flex;align-items:center;gap:4px;margin-left:auto}
+  .ed-fly-min{display:none;cursor:pointer;border:0;background:transparent;color:#6b6b6b;width:31px;height:31px;border-radius:9px;font:700 20px/1 system-ui,sans-serif;place-items:center;padding:0}
+  .ed-flyout.marshall-mode .ed-fly-min{display:grid}
+  .ed-flyout.marshall-mode .ed-fly-min:hover{background:#f3f3f3;color:#111}
+  .ed-flyout.marshall-mode{width:min(860px,calc(100vw - 120px))!important}
+  .ed-flyout.marshall-mode.minimized{width:220px!important;max-height:48px!important;height:48px!important;border-radius:14px!important;overflow:hidden!important}
+  .ed-flyout.marshall-mode.minimized .ed-fly-head{height:48px!important;min-height:48px!important;border-bottom:0!important}
+  .ed-flyout.marshall-mode.minimized .ed-fly-body{display:none!important}
+  .ed-flyout.marshall-mode.minimized #ed-fly-min{transform:rotate(180deg)}
+
+  .marshall-v4{display:grid!important;grid-template-columns:205px minmax(0,1fr)!important;flex-direction:unset!important}
+  .mv4-main{min-width:0;min-height:0;height:100%;display:flex;flex-direction:column;background:#fff;border-left:1px solid #ececec}
+  .mv4-sidebar{min-width:0;min-height:0;display:flex;flex-direction:column;background:#f7f7f7;padding:10px 8px 9px;color:#333;overflow:hidden}
+  .mv4-sidebar-brand{display:flex;align-items:center;gap:8px;padding:4px 7px 10px;font:800 12px/1.2 'Nunito',system-ui,sans-serif;color:#292929}
+  .mv4-sidebar-brand .dot{width:23px;height:23px;border-radius:8px;display:grid;place-items:center;background:#202123;color:#fff;font-size:10px;font-weight:900;flex:0 0 23px}
+  .mv4-newchat-side{display:flex;align-items:center;gap:9px;width:100%;border:1px solid #e3e3e3;background:#fff;color:#292929;border-radius:10px;padding:9px 10px;font:800 10.5px 'Nunito',sans-serif;cursor:pointer;text-align:left;transition:.15s}
+  .mv4-newchat-side:hover{background:#f2f2f2;border-color:#d8d8d8}
+  .mv4-newchat-side svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 16px}
+  .mv4-history-label{padding:15px 8px 7px;color:#919191;font-size:9px;font-weight:900;letter-spacing:.07em;text-transform:uppercase}
+  .mv4-history-list{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:2px;padding-right:2px;scrollbar-width:thin}
+  .mv4-history-item{display:grid;grid-template-columns:20px minmax(0,1fr);gap:7px;align-items:center;width:100%;border:0;background:transparent;color:#494949;border-radius:9px;padding:8px 7px;cursor:pointer;text-align:left;transition:.14s}
+  .mv4-history-item:hover{background:#ededed}.mv4-history-item.active{background:#e8e8e8;color:#202123}
+  .mv4-history-icon{width:20px;height:20px;display:grid;place-items:center;color:#777}.mv4-history-icon svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .mv4-history-copy{min-width:0}.mv4-history-copy b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10.5px;line-height:1.25;font-weight:800;color:inherit}.mv4-history-copy small{display:block;margin-top:2px;font-size:8.5px;color:#9a9a9a;font-weight:700}
+  .mv4-history-empty{padding:10px 8px;color:#aaa;font-size:9.5px;line-height:1.4}
+  .mv4-sidebar-foot{margin-top:auto;padding:8px 7px 2px;color:#9a9a9a;font-size:8.5px;line-height:1.35}
+
+  .mv4-agentpicker select{pointer-events:auto!important;cursor:pointer!important}
+  .mv4-agentpicker{cursor:pointer!important}
+  .mv4-agentpicker-copy{pointer-events:none}
+  .mv4-agentpicker-copy select{pointer-events:auto!important}
+
+  @media(max-width:760px){
+    .ed-flyout.marshall-mode{width:calc(100vw - 20px)!important}
+    .marshall-v4{grid-template-columns:132px minmax(0,1fr)!important}
+    .mv4-sidebar{padding:8px 6px}.mv4-sidebar-brand{padding-left:5px}.mv4-sidebar-brand span:last-child{font-size:10.5px}
+    .mv4-newchat-side{padding:8px 7px;font-size:9.5px}.mv4-history-item{padding:7px 5px;grid-template-columns:16px minmax(0,1fr);gap:5px}.mv4-history-icon{width:16px}.mv4-history-copy b{font-size:9.5px}.mv4-history-copy small{display:none}
+  }
+  @media(max-width:520px){
+    .marshall-v4{grid-template-columns:1fr!important}.mv4-sidebar{display:none}.mv4-main{border-left:0}
+  }
 </style>
 
 </head>
@@ -1821,7 +1978,7 @@
             </div>
 
             <div class="ed-flyout" id="ed-flyout">
-              <div class="ed-fly-head"><span id="ed-fly-title">Éléments</span><button type="button" class="ed-fly-x" id="ed-fly-x">×</button></div>
+              <div class="ed-fly-head"><span id="ed-fly-title">Éléments</span><span class="ed-fly-actions"><button type="button" class="ed-fly-min" id="ed-fly-min" aria-label="Réduire Marshall" title="Réduire Marshall">−</button><button type="button" class="ed-fly-x" id="ed-fly-x" aria-label="Fermer le panneau">×</button></span></div>
               <div class="ed-fly-body" id="ed-fly-body"></div>
             </div>
 
@@ -1843,6 +2000,7 @@
                 <span class="ed-tb-sep"></span>
                 <span class="ed-tb-note" id="ed-size-note">1080 × 1080 px</span>
               </div>
+              <div class="ed-multipage" id="ed-multipage"></div>
               <div class="ed-stage" id="ed-stage"><div class="ed-page" id="ed-page"></div></div>
               <div class="ed-ctx" id="ed-ctx">
                 <button type="button" data-ctx="copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 5.5A1.5 1.5 0 0 0 13.5 4H5.5A1.5 1.5 0 0 0 4 5.5v8A1.5 1.5 0 0 0 5.5 15"/></svg><span>Copier</span><em>Ctrl+C</em></button>
@@ -2423,6 +2581,7 @@
             toast('Connexion '+name+' refusée : '+(oauthResult.message || 'erreur non détaillée par le service.'), true);
           }else if(ok){
             toast(name+' relié ✓');
+            if(id==='instagram')marshallRefreshBrandIntelligence(true).catch(function(e){console.warn('Brand Intelligence Instagram refresh',e);});
           }else if(oauthResult && oauthResult.ok){
             toast('Connexion '+name+' validée, mais le compte n’a pas été enregistré. Vérifiez « social-status » et les journaux de « social-connect ».', true);
           }else{
@@ -2828,6 +2987,7 @@
       return l;
     });
     ed.sel=null; edApplyFmt(); edRender();
+    marshallCanvasPagesRender();
   }
 
   /* Les tailles (texte, rayons, contours) sont désormais exprimées dans les pixels
@@ -3174,139 +3334,151 @@
   }
 
   function edFlyClose(){
-    var f=$('#ed-flyout'); if(f){ f.classList.remove('show'); f.classList.remove('marshall-mode'); f.classList.remove('settings-mode'); }
+    try{ if(ed.flyKind==='ai') marshallConversationSnapshot(); }catch(e){}
+    var f=$('#ed-flyout'); if(f){ f.classList.remove('show'); f.classList.remove('marshall-mode'); f.classList.remove('settings-mode'); f.classList.remove('minimized'); }
     ed.flyKind=null;
     $all('.ed-rail .ed-tool').forEach(function(x){ x.classList.remove('on'); });
   }
+  function edFlyMinimize(){
+    var f=$('#ed-flyout'); if(!f||ed.flyKind!=='ai')return;
+    try{marshallConversationSnapshot();}catch(e){}
+    f.classList.toggle('minimized');
+    var b=$('#ed-fly-min'); if(b)b.setAttribute('aria-label',f.classList.contains('minimized')?'Restaurer Marshall':'Réduire Marshall');
+  }
 
   function edFlyout(kind){
+    try{ if(ed.flyKind==='ai' && kind!=='ai') marshallConversationSnapshot(); }catch(e){}
     ed.flyKind=kind;
     var fly=$('#ed-flyout'), body=$('#ed-fly-body'), title=$('#ed-fly-title');
+    if(kind!=='ai')fly.classList.remove('minimized');
     fly.classList.toggle('marshall-mode', kind==='ai');
     fly.classList.toggle('settings-mode', kind==='settings');
     $all('.ed-rail .ed-tool').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-fly')===kind); });
     fly.classList.add('show');
-    if(kind==='ai'){
+    if(kind==='ai'){ fly.classList.remove('minimized');
       title.textContent='Marshall';
       body.innerHTML=`
         <div class="marshall-v4">
+          <aside class="mv4-sidebar" aria-label="Historique Marshall">
+            <div class="mv4-sidebar-brand"><span class="dot">M</span><span>Marshall</span></div>
+            <button class="mv4-newchat-side" id="marshall-new-chat-side" type="button"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Nouveau chat</span></button>
+            <div class="mv4-history-label">Récents</div>
+            <div class="mv4-history-list" id="marshall-recent-list"></div>
+            <div class="mv4-sidebar-foot">Les conversations sont gardées sur cet appareil pour ton compte actif.</div>
+          </aside>
+          <div class="mv4-main">
           <div class="mv4-top">
-            <span class="mv4-avatar"><img src="avatarchatbot.png" alt="Marshall"></span>
-            <div class="mv4-ident"><strong>Marshall</strong><span>Ton assistant créatif IA</span></div>
-            <span class="mv4-live"><i></i> CONNECTÉ</span>
+            <div class="mv4-brandlock">
+              <span class="mv4-avatar"><img src="avatarchatbot.png" alt="Marshall"></span>
+              <div class="mv4-ident"><strong>Marshall</strong><span>IA générale · superviseur d’agents</span></div>
+            </div>
+            <div class="mv4-top-actions">
+              <span class="mv4-live" id="marshall-memory-state"><i></i> PRÊT</span>
+              <button class="mv4-iconbtn" id="marshall-new-chat" type="button" aria-label="Nouvelle conversation" title="Nouvelle conversation">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
           </div>
+
+          <div class="mv4-agentbar">
+            <div class="mv4-agentbar-head">
+              <div class="mv4-agentbar-title"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg>Mode agent</div>
+              <span class="mv4-agentbar-hint">Marshall IA peut choisir, déléguer et valider l’expert</span>
+            </div>
+            <div class="mv4-agentpickers">
+              <div class="mv4-agentpicker mv4-agentpicker-agent" id="marshall-agent-picker">
+                <span class="mv4-agentpicker-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/><path d="M19 5l1 1 2-2"/></svg></span>
+                <span class="mv4-agentpicker-copy"><small>Agent</small>
+                  <select id="marshall-agent-select" aria-label="Choisir l’agent" tabindex="-1"><option value="auto">Auto · Marshall choisit</option><option value="team">Équipe Marshall · CrewAI</option><option value="marshall">Marshall IA · Généraliste & superviseur</option><option value="story">Viral Story Agent</option><option value="social">Directeur artistique social</option><option value="brand">Brand Strategist</option><option value="campaign">Campaign Strategist</option><option value="image">Image Art Director</option><option value="visual">Visual QA Expert</option><option value="testing">Creative Testing Expert</option><option value="audit">Brand Auditor</option></select>
+                  <button type="button" class="mv4-agent-trigger" id="marshall-agent-trigger" aria-haspopup="listbox" aria-expanded="false"><span id="marshall-agent-trigger-label">Marshall IA · Généraliste & superviseur</span></button>
+                </span>
+                <span class="mv4-agentpicker-chevron"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span>
+                <div class="mv4-agent-menu" id="marshall-agent-menu" role="listbox" aria-label="Liste des agents"></div>
+              </div>
+              <label class="mv4-agentpicker">
+                <span class="mv4-agentpicker-icon"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5z"/><path d="M8 9h8M8 13h5"/><path d="m15 16 1.5 1.5L20 14"/></svg></span>
+                <span class="mv4-agentpicker-copy"><small>Mission</small><select id="marshall-mission-select" aria-label="Choisir la mission"><option value="auto">Conversation libre</option><option value="story">Créer une story virale</option><option value="canvas">Créer un post</option><option value="image_generate">Générer une image</option><option value="campaign">Créer une campagne</option><option value="creative">Créer 3 concepts</option><option value="variants">Créer 3 variantes</option><option value="image_analyze">Analyser une image</option><option value="image_compose">Créer autour d’une image</option><option value="vision">Corriger le canvas</option><option value="business_audit">Audit 360° entreprise</option><option value="brand">Conseil branding</option></select></span>
+                <span class="mv4-agentpicker-chevron"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span>
+              </label>
+            </div>
+            <div class="mv4-agentcontext" id="marshall-agent-context"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><span>Marshall IA · mode superviseur automatique</span></div>
+          </div>
+
           <div class="mv4-thread" id="marshall-thread">
-            <div class="mv4-msg assistant">
-Je suis Marshall 👋
-
-Explique-moi ce que tu veux créer et je peux : générer une image, construire un post, créer une story, lancer une mini-campagne, corriger ton canvas ou travailler à partir d’une image existante.
-            </div>
-            <div class="mv4-hero">
-              <span class="mv4-kicker">🚀 Marshall IA</span>
-              <h3>Un vrai menu créatif, plus clair et plus détaillé</h3>
-              <p>Choisis une fonction ci-dessous ou écris directement un brief complet. Plus tu décris la marque, le style, la cible et l’objectif, plus Marshall sera pertinent.</p>
-              <div class="mv4-quick">
-                <button class="mv4-chip hot" data-seed="Génère une image publicitaire premium pour "><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="m7 15 3-3 2.5 2.5L15 12l2 3"/><path d="M16.5 6.5v4M14.5 8.5h4"/></svg>Image IA</button>
-                <button class="mv4-chip" data-seed="Crée un post Instagram moderne pour "><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Post</button>
-                <button class="mv4-chip" data-seed="Crée une story Instagram pour "><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M9 7h6M9 17h4"/></svg>Story</button>
-                <button class="mv4-chip" data-seed="Crée une mini campagne pour "><svg viewBox="0 0 24 24"><path d="M14 4c3 0 5 1 6 2-1 5-4 8-9 9l-3-3c1-5 3-8 6-8Z"/><path d="M8 12 4 13l-1 4 4-1M12 16l-1 4 4-1 1-4"/><circle cx="15.5" cy="8.5" r="1.5"/></svg>Campagne</button>
-                <button class="mv4-chip" data-run="Analyse et corrige mon canvas"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><path d="m7.5 7.5 2 2M14.5 14.5l2 2M16.5 7.5l-2 2M9.5 14.5l-2 2"/><circle cx="12" cy="12" r="3"/></svg>Corriger</button>
+            <div class="mv4-welcome-screen" id="marshall-welcome-screen">
+              <div class="mv4-welcome-mark"><img src="avatarchatbot.png" alt=""></div>
+              <h3>Que veux-tu créer aujourd’hui ?</h3>
+              <p>Marshall IA peut répondre normalement, choisir l’agent le plus adapté, puis vérifier sa réponse avant de te la présenter.</p>
+              <div class="mv4-starters">
+                <button type="button" data-marshall-prompt="Crée-moi une story virale pour mon entreprise en utilisant mon branding, mon site et mon Instagram."><span>Story virale</span><small>3 écrans + vidéo IA</small></button>
+                <button type="button" data-marshall-prompt="Crée un post Instagram premium cohérent avec ma marque et mon offre principale."><span>Créer un post</span><small>Concept + copy + visuel</small></button>
+                <button type="button" data-marshall-prompt="Analyse ma marque avec mon site et mon Instagram puis donne-moi les priorités créatives."><span>Analyser ma marque</span><small>Brand Intelligence</small></button>
+                <button type="button" data-marshall-prompt="Propose-moi 3 concepts créatifs vraiment différents pour ma prochaine campagne."><span>Explorer des idées</span><small>3 directions créatives</small></button>
               </div>
-            </div>
-
-            <div class="mv4-section">
-              <div class="mv4-sectiontitle">Fonctions Marshall <small>clique pour préparer la demande</small></div>
-              <div class="mv4-cardgrid">
-                <button class="mv4-card" data-seed="Génère une image publicitaire haut de gamme pour "><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="3"/><path d="m6.5 16 4-4 3 3 2.5-2.5 2 2.5"/><path class="mv4-spark" d="M16.5 5.5v4M14.5 7.5h4"/></svg></span><b>Générer une image</b></div><span class="mv4-desc">Produit, publicité, miniature, illustration ou visuel premium.</span></button>
-                <button class="mv4-card" data-seed="Crée un post Instagram professionnel pour "><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><b>Créer un post</b></div><span class="mv4-desc">Marshall structure le visuel en calques éditables sur le canvas.</span></button>
-                <button class="mv4-card" data-seed="Crée une story Instagram pour "><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M9 7h6M9 17h4"/><circle cx="12" cy="12" r="2.5"/></svg></span><b>Créer une story</b></div><span class="mv4-desc">Format vertical pensé pour Instagram Story et contenu rapide à lire.</span></button>
-                <button class="mv4-card" data-seed="Crée une mini campagne social media pour "><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><path d="M14 4c3 0 5 1 6 2-1 5-4 8-9 9l-3-3c1-5 3-8 6-8Z"/><path d="M8 12 4 13l-1 4 4-1M12 16l-1 4 4-1 1-4"/><circle cx="15.5" cy="8.5" r="1.5"/></svg></span><b>Mini campagne</b></div><span class="mv4-desc">Plusieurs variantes cohérentes pour teasing, annonce ou lancement.</span></button>
-                <button class="mv4-card" id="mimg-analyze"><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/><path d="M8.5 11h5M11 8.5v5"/></svg></span><b>Comprendre l’image</b></div><span class="mv4-desc">Marshall analyse l’image déjà présente pour t’aider à créer autour.</span></button>
-                <button class="mv4-card" id="mimg-compose"><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/><path d="M14 7h6M17 4v6M4 17h6M7 14v6"/></svg></span><b>Créer autour d’une image</b></div><span class="mv4-desc">Il garde l’image et reconstruit un visuel plus complet autour.</span></button>
-                <button class="mv4-card" id="mcamp-variants"><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="7" height="14" rx="2"/><rect x="14" y="5" width="7" height="14" rx="2"/><path class="mv4-spark" d="M12 3v4M10 5h4"/></svg></span><b>Créer 3 variantes</b></div><span class="mv4-desc">Teste rapidement plusieurs versions d’un même concept.</span></button>
-                <button class="mv4-card" data-run="Analyse et corrige mon canvas"><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="4"/><path d="m10.5 12 1 1 2-2"/></svg></span><b>Corriger le canvas</b></div><span class="mv4-desc">Marshall analyse la composition actuelle et propose une version plus claire.</span></button>
-              </div>
-            </div>
-
-            <div class="mv4-section">
-              <div class="mv4-sectiontitle">Direction créative <small>outils avancés de création</small></div>
-              <div class="mv4-cardgrid">
-                <button class="mv4-card" data-run="Fais une analyse 360° complète de mon entreprise, de son branding et de sa direction artistique avant de me conseiller."><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><path d="M4 19V9l8-5 8 5v10"/><path d="M7 19h10M9 19v-5h6v5"/><path class="mv4-spark" d="M17 4l.8 1.8L20 6.6l-2.2.8L17 9.2l-.8-1.8L14 6.6l2.2-.8L17 4Z"/></svg></span><b>Audit 360° entreprise</b></div><span class="mv4-desc">Positionnement, cible, image de marque, direction artistique, contenu, opportunités et risques.</span></button>
-                <button class="mv4-card" id="mcd-generate"><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M22 12h-3M12 22v-3M2 12h3"/></svg></span><b>3 concepts créatifs</b></div><span class="mv4-desc">Marshall propose trois directions différentes avant de construire le visuel.</span></button>
-                <button class="mv4-card" id="mcd-build"><div class="mv4-cardtop"><span class="mv4-iconbox"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg></span><b>Construire le concept</b></div><span class="mv4-desc">Transforme le concept sélectionné en éléments éditables sur le canvas.</span></button>
-              </div>
-            </div>
             </div>
           </div>
+
           <div class="ai-status" id="ai-status"></div>
           <div id="mimg-report"></div><div id="mcamp-results"></div><div id="mv-report"></div><div id="mcd-concepts"></div>
-          <div class="mv4-compose">
-            <textarea id="ai-prompt" rows="1" placeholder="Écris ta demande à Marshall…"></textarea>
-            <button id="ai-run" class="mv4-send" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="m3 11 17-8-7 18-2.5-7.5L3 11Z"/><path d="M10.5 13.5 20 3"/></svg></button>
+          <div class="mv4-compose-dock">
+            <div class="mv4-compose-context" id="marshall-compose-context"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/></svg><span></span></div>
+            <div class="mv4-compose">
+              <button class="mv4-compose-tool" id="marshall-settings-shortcut" type="button" aria-label="Réglages de marque" title="Brand Intelligence et réglages">
+                <svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg>
+              </button>
+              <textarea id="ai-prompt" rows="1" placeholder="Demande quelque chose à Marshall"></textarea>
+              <button id="ai-run" class="mv4-send" aria-label="Envoyer"><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="m6.5 10.5 5.5-5.5 5.5 5.5"/></svg></button>
+            </div>
+            <div class="mv4-disclaimer">Marshall IA vérifie le choix de l’agent et la réponse. Vérifie quand même les informations importantes.</div>
+          </div>
           </div>
         </div>`
-
-      $all('#ed-fly-body [data-seed]').forEach(function(b){b.addEventListener('click',function(){var p=$('#ai-prompt');if(p){p.value=b.getAttribute('data-seed')||'';p.focus();p.setSelectionRange(p.value.length,p.value.length);}});});
-      $all('#ed-fly-body [data-run]').forEach(function(b){b.addEventListener('click',function(){var p=$('#ai-prompt');if(p)p.value=b.getAttribute('data-run')||'';marshallChatSubmit();});});
+      marshallConversationEnsureActive();
       var run=$('#ai-run'); if(run)run.addEventListener('click',function(){marshallChatSubmit();});
       var prompt=$('#ai-prompt'); if(prompt){
         prompt.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();marshallChatSubmit();}});
-        prompt.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px';});
+        prompt.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';marshallConversationDraft(this.value);});
       }
-      var ma=$('#mimg-analyze'); if(ma)ma.addEventListener('click',function(){marshallChatAction('analyse_image');});
-      var mc=$('#mimg-compose'); if(mc)mc.addEventListener('click',function(){marshallChatAction('compose_image');});
-      var mv=$('#mcamp-variants'); if(mv)mv.addEventListener('click',function(){marshallChatAction('variants');});
-      var cg=$('#mcd-generate'); if(cg)cg.addEventListener('click',function(){marshallChatAction('creative');});
-      var cb=$('#mcd-build'); if(cb)cb.addEventListener('click',function(){ if(!marshallConcepts.length){marshallChatBubble('assistant','Commence par générer 3 concepts créatifs, puis sélectionne celui que tu veux valider.');return;} var c=marshallConcepts[marshallConceptSelected]; marshallCreativeApply();marshallChatBubble('assistant','✓ Concept validé : « '+((c&&c.name)||'Concept')+' ». Je l’ai construit sur le canvas en éléments éditables.');});
+      marshallConversationRenderActive();
+      marshallConversationRenderSidebar();
+      var agentSel=$('#marshall-agent-select'), missionSel=$('#marshall-mission-select');
+      if(agentSel){agentSel.value=marshallAgentMode.agent||'marshall';agentSel.addEventListener('change',function(){marshallAgentMode.agent=this.value||'marshall';marshallAgentManual=true;marshallSupervisorState={agent:marshallAgentMode.agent,route:null,validation:null};marshallAgentPreferenceSave();marshallConversationUpdateMode();marshallAgentMenuRefresh();});}
+      if(missionSel){missionSel.value=marshallAgentMode.mission||'auto';missionSel.addEventListener('change',function(){marshallAgentMode.mission=this.value||'auto';marshallConversationClearPending();marshallAgentPreferenceSave();marshallConversationUpdateMode();marshallAgentMenuRefresh();});}
+      marshallAgentPickerInit();
+      marshallAgentMenuRefresh();
+      var mem=$('#marshall-memory-state'); if(mem){
+        try{var bi=marshallBrandIntelligenceGet();mem.innerHTML='<i></i> '+(bi&&bi.intelligence?'BRAND ACTIF':'PRÊT');}catch(e){}
+      }
+      marshallBindStarterPrompts();
+      var newChat=$('#marshall-new-chat');if(newChat)newChat.addEventListener('click',marshallConversationNew);
+      var newChatSide=$('#marshall-new-chat-side');if(newChatSide)newChatSide.addEventListener('click',marshallConversationNew);
+      var settingsShortcut=$('#marshall-settings-shortcut');if(settingsShortcut)settingsShortcut.addEventListener('click',function(){marshallConversationSnapshot();edFlyout('settings');});
     }
     if(kind==='settings'){
       title.textContent='Réglages';
-      body.innerHTML=`
-        <div class="settings-v1">
-          <div class="set-intro">
-            <span class="set-intro-icon"><svg viewBox="0 0 24 24"><path d="M12 3.2a2.2 2.2 0 0 1 2.1 1.5l.3.9a7 7 0 0 1 1.5.9l.9-.2a2.2 2.2 0 0 1 2.5 1.1l.4.7a2.2 2.2 0 0 1-.4 2.7l-.7.7c.1.5.1 1 0 1.5l.7.7a2.2 2.2 0 0 1 .4 2.7l-.4.7a2.2 2.2 0 0 1-2.5 1.1l-.9-.2a7 7 0 0 1-1.5.9l-.3.9a2.2 2.2 0 0 1-2.1 1.5h-.8a2.2 2.2 0 0 1-2.1-1.5l-.3-.9a7 7 0 0 1-1.5-.9l-.9.2a2.2 2.2 0 0 1-2.5-1.1l-.4-.7a2.2 2.2 0 0 1 .4-2.7l.7-.7a6.2 6.2 0 0 1 0-1.5l-.7-.7a2.2 2.2 0 0 1-.4-2.7l.4-.7a2.2 2.2 0 0 1 2.5-1.1l.9.2a7 7 0 0 1 1.5-.9l.3-.9a2.2 2.2 0 0 1 2.1-1.5z"/><circle cx="12" cy="12" r="2.7"/></svg></span>
-            <div><b>Tous les réglages au même endroit</b><span>Création, plateforme et mémoire de marque sont maintenant regroupées ici. Marshall reste consacré à la création.</span></div>
-          </div>
-
-          <section class="set-section">
-            <div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M4 5h16M7 12h10M9 19h6"/><circle cx="8" cy="5" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg><b>Création par défaut</b><span>Marshall</span></div>
-            <div class="set-grid">
-              <div class="set-field"><label>Objectif principal</label><select id="ai-goal"><option>Vente</option><option>Engagement</option><option>Notoriété</option><option>Lancement produit</option></select></div>
-              <div class="set-field"><label>Plateforme</label><select id="ai-platform"><option>Instagram</option><option>TikTok</option><option>Facebook</option><option>X</option><option>Snapchat</option></select></div>
-              <div class="set-field full"><label>Style créatif préféré</label><select id="marshall-style"><option value="auto">Automatique selon le brief</option><option value="modern">Moderne / Branding</option><option value="premium">Premium / Minimal</option><option value="bold">Bold / Social media</option><option value="ugc">UGC / Native</option></select></div>
-            </div>
-          </section>
-
-          <section class="set-section">
-            <div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M4 20V8l8-5 8 5v12"/><path d="M8 20v-6h8v6M9 9h6"/></svg><b>Mémoire de marque</b><span>Brand Brain</span></div>
-            <div class="set-grid">
-              <div class="set-field"><label>Nom de la marque</label><input id="mbb-name" placeholder="Mon Copain Digital"></div>
-              <div class="set-field"><label>Ton de voix</label><select id="mbb-tone"><option>Direct et moderne</option><option>Premium</option><option>Gen Z</option><option>Professionnel</option><option>Amical</option><option>Minimaliste</option></select></div>
-              <div class="set-field full"><label>Secteur / activité</label><input id="mbb-sector" placeholder="Ex. branding, restauration, mode, SaaS..."></div>
-              <div class="set-field full"><label>Produit / service</label><textarea id="mbb-offer" placeholder="Ce que la marque propose"></textarea></div>
-              <div class="set-field full"><label>Valeurs / personnalité</label><textarea id="mbb-values" placeholder="Ex. moderne, rassurant, audacieux, accessible..."></textarea></div>
-              <div class="set-field full"><label>Direction artistique actuelle</label><textarea id="mbb-artdir" placeholder="Style visuel, typographies, photographie, formes, ambiance..."></textarea></div>
-              <div class="set-field full"><label>Références / concurrents</label><textarea id="mbb-references" placeholder="Marques de référence, concurrents ou styles à éviter"></textarea></div>
-              <div class="set-field full"><label>Cible</label><textarea id="mbb-audience" placeholder="À qui Marshall doit parler"></textarea></div>
-              <div class="set-field full"><label>Positionnement / promesse</label><textarea id="mbb-position" placeholder="Ce qui rend la marque différente"></textarea></div>
-              <div class="set-field full"><label>À ne jamais dire</label><textarea id="mbb-forbidden" placeholder="Mots, promesses ou sujets interdits"></textarea></div>
-              <div class="set-field full"><label>Couleurs de marque</label><div class="set-colorrow"><div class="set-color"><input id="mbb-primary" type="color" value="#6EC1F0"><span>Principale</span></div><div class="set-color"><input id="mbb-accent" type="color" value="#F3852B"><span>Accent</span></div></div></div>
-            </div>
-            <div class="set-state" id="mbb-state">Aucun profil de marque enregistré.</div>
-          </section>
-
-          <div class="set-actions"><button class="set-save" id="marshall-settings-save">Enregistrer tous les réglages</button></div>
-        </div>`;
-      marshallSettingsLoadUI();
-      marshallBrandLoadUI();
-      var ss=$('#marshall-settings-save'); if(ss)ss.addEventListener('click',function(){
-        marshallSettingsSave();
-        marshallBrandSave();
-        var st=$('#mbb-state'), cfg=marshallSettingsGet();
-        var accountName=actingAs?actingName:((me&&me.nom)||'ce compte');
-        if(st)st.textContent='Enregistrés pour '+accountName+' · '+cfg.platform+' · '+cfg.goal;
-        try{toast('Réglages Marshall enregistrés pour ce compte ✓');}catch(e){}
-      });
+      var sbm=marshallBrandGet(), intel=marshallBrandIntelligenceGet();
+      body.innerHTML=`<div class="settings-v1">
+        <div class="set-intro"><span class="set-intro-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/></svg></span><div><b>Brand Intelligence</b><span>Marshall fusionne le profil, le site officiel et l’Instagram connecté de l’utilisateur actif.</span></div></div>
+        <div class="set-section"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><b>Création</b><span>Préférences</span></div><div class="set-grid">
+          <div class="set-field"><label>Objectif</label><select id="ai-goal"><option value="Vente">Vente</option><option value="Engagement">Engagement</option><option value="Notoriété">Notoriété</option><option value="Lancement produit">Lancement produit</option></select></div>
+          <div class="set-field"><label>Plateforme</label><select id="ai-platform"><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Facebook">Facebook</option><option value="X">X</option><option value="Snapchat">Snapchat</option></select></div>
+          <div class="set-field full"><label>Style créatif</label><select id="marshall-style"><option value="auto">Automatique</option><option value="modern">Moderne</option><option value="premium">Premium</option><option value="bold">Bold social media</option><option value="ugc">UGC / natif</option></select></div>
+          <div class="set-field full"><label>Rendu des stories virales</label><select id="marshall-story-render"><option value="video">Vidéo IA · Wan 2.2 + MoneyPrinterTurbo</option><option value="auto">Automatique · vidéo si disponible</option><option value="static">Story statique éditable uniquement</option></select></div>
+        </div></div>
+        <div class="set-section" id="mbb-form"><div class="set-section-head"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/></svg><b>Profil de marque</b><span>Compte actif</span></div><div class="set-grid">
+          <div class="set-field"><label>Nom de marque</label><input id="mbb-name"></div><div class="set-field"><label>Secteur / activité</label><input id="mbb-sector"></div>
+          <div class="set-field full"><label>Site web officiel</label><input id="mbb-website" inputmode="url" placeholder="https://votresite.fr"></div>
+          <div class="set-field full"><label>Offre / services</label><textarea id="mbb-offer"></textarea></div><div class="set-field full"><label>Cible</label><textarea id="mbb-audience"></textarea></div>
+          <div class="set-field full"><label>Valeurs / personnalité</label><textarea id="mbb-values"></textarea></div><div class="set-field"><label>Ton</label><input id="mbb-tone"></div><div class="set-field"><label>Positionnement</label><input id="mbb-position"></div>
+          <div class="set-field full"><label>Direction artistique</label><textarea id="mbb-artdir"></textarea></div><div class="set-field full"><label>Références / concurrents</label><textarea id="mbb-references"></textarea></div><div class="set-field full"><label>À ne jamais utiliser / inventer</label><textarea id="mbb-forbidden"></textarea></div>
+          <div class="set-field full"><label>Couleurs déclarées</label><div class="set-colorrow"><div class="set-color"><input id="mbb-primary" type="color"><span>Principale</span></div><div class="set-color"><input id="mbb-accent" type="color"><span>Accent</span></div></div></div>
+        </div></div>
+        <div class="set-section"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M4 19h16M5 16V8M10 16V5M15 16v-6M20 16V3"/></svg><b>Analyse automatique</b><span>Site + Instagram</span></div><div class="set-state" id="mbb-intel-state"></div><div class="set-state" id="mbb-intel-sources"></div><div class="set-actions"><button type="button" class="set-save" id="mbb-analyze">Analyser ma marque</button></div></div>
+        <div class="set-actions"><button type="button" class="set-save" id="mbb-save">Enregistrer les réglages</button></div><div class="set-state" id="mbb-state"></div>
+      </div>`;
+      marshallSettingsLoadUI();marshallBrandLoadUI();marshallBrandIntelligenceRenderState();
+      var save=$('#mbb-save');if(save)save.addEventListener('click',function(){marshallSettingsSave();marshallBrandSave();marshallBrandIntelligenceRenderState();});
+      var analyze=$('#mbb-analyze');if(analyze)analyze.addEventListener('click',async function(){marshallSettingsSave();marshallBrandSave();analyze.disabled=true;analyze.textContent='Analyse en cours…';try{await marshallRefreshBrandIntelligence(true);marshallBrandIntelligenceRenderState();}catch(e){var st=$('#mbb-intel-state');if(st)st.textContent='Analyse impossible : '+(e&&e.message?e.message:'erreur inconnue');}finally{analyze.disabled=false;analyze.textContent='Analyser ma marque';}});
     }
     if(kind==='uploads'){
       title.textContent='Importer';
@@ -3372,18 +3544,310 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
 
   /* ===== Marshall V4 : vrai assistant conversationnel + backend existant ===== */
   var MARSHALL_CHAT_ENDPOINT='https://copain-api.vercel.app/api/chat';
+  var MARSHALL_CREWAI_BASE='https://hugochenu75016-hash--marshall-crewai-web.modal.run';
+  var MARSHALL_CREWAI_ENDPOINT=MARSHALL_CREWAI_BASE+'/crew';
+  var MARSHALL_BRAND_INTEL_ENDPOINT=MARSHALL_CREWAI_BASE+'/brand-intelligence';
+  var MARSHALL_VIDEO_ENDPOINT=MARSHALL_CREWAI_BASE+'/video/story';
+  var MARSHALL_VIDEO_STATUS_BASE=MARSHALL_CREWAI_BASE+'/video/status/';
   var marshallChatHistory=[];
   var marshallChatBusy=false;
+  var marshallPendingStoryConfirm=null;
+  var MARSHALL_CONVERSATIONS_BASE='marshall_conversations_v1';
+  var MARSHALL_AGENT_PREF_BASE='marshall_agent_pref_v1';
+  var marshallConversationState=null;
+  var marshallConversationAccount='';
+  var marshallConversationRendering=false;
+  var marshallDraftTimer=null;
   function marshallChatThread(){return $('#marshall-thread');}
+  function marshallConversationAccountId(){try{return effectiveUid()||'anon';}catch(e){return 'anon';}}
+  function marshallConversationKey(){return MARSHALL_CONVERSATIONS_BASE+'_'+marshallConversationAccountId();}
+  function marshallAgentPreferenceKey(){return MARSHALL_AGENT_PREF_BASE+'_'+marshallConversationAccountId();}
+  function marshallAgentPreferenceLoad(){
+    try{
+      var x=JSON.parse(localStorage.getItem(marshallAgentPreferenceKey())||'null')||{};
+      return {agent:String(x.agent||'marshall'),mission:String(x.mission||'auto')};
+    }catch(e){return {agent:'marshall',mission:'auto'};}
+  }
+  function marshallAgentPreferenceSave(){
+    try{localStorage.setItem(marshallAgentPreferenceKey(),JSON.stringify({agent:marshallAgentMode.agent||'marshall',mission:marshallAgentMode.mission||'auto'}));}catch(e){}
+  }
+  function marshallConversationLoad(force){
+    var account=marshallConversationAccountId();
+    if(!force&&marshallConversationState&&marshallConversationAccount===account)return marshallConversationState;
+    var raw=null;try{raw=JSON.parse(localStorage.getItem(MARSHALL_CONVERSATIONS_BASE+'_'+account)||'null');}catch(e){}
+    if(!raw||!Array.isArray(raw.conversations))raw={activeId:null,conversations:[]};
+    raw.conversations=raw.conversations.filter(function(c){return c&&c.id;}).slice(0,30);
+    marshallConversationAccount=account;marshallConversationState=raw;return raw;
+  }
+  function marshallConversationSave(){
+    var st=marshallConversationLoad();
+    st.conversations.sort(function(a,b){return Number(b.updatedAt||0)-Number(a.updatedAt||0);});
+    if(st.conversations.length>30)st.conversations=st.conversations.slice(0,30);
+    try{localStorage.setItem(marshallConversationKey(),JSON.stringify(st));}catch(e){
+      st.conversations=st.conversations.slice(0,12);
+      st.conversations.forEach(function(c){if(Array.isArray(c.messages)&&c.messages.length>36)c.messages=c.messages.slice(-36);});
+      try{localStorage.setItem(marshallConversationKey(),JSON.stringify(st));}catch(_e){}
+    }
+  }
+  function marshallConversationMake(){
+    var st=marshallConversationLoad(), pref=marshallAgentPreferenceLoad(), now=Date.now();
+    var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',manualAgent:false,pendingIntent:'',pendingPrompt:'',messages:[],draft:'',scrollTop:0};
+    st.conversations.unshift(c);st.activeId=c.id;marshallConversationSave();return c;
+  }
+  function marshallConversationCurrent(create){
+    var st=marshallConversationLoad();
+    var c=st.conversations.find(function(x){return x.id===st.activeId;});
+    if(!c&&create!==false)c=marshallConversationMake();
+    return c||null;
+  }
+  function marshallConversationHistoryFrom(c){
+    return ((c&&c.messages)||[]).filter(function(m){return m.role==='user'||m.role==='assistant';}).map(function(m){return {role:m.role,content:String(m.text||'')};}).slice(-12);
+  }
+  function marshallConversationEnsureActive(){
+    var c=marshallConversationCurrent(true), pref=marshallAgentPreferenceLoad();
+    marshallAgentMode.agent=String(c.agent||pref.agent||'marshall');
+    marshallAgentManual=!!c.manualAgent;
+    marshallSupervisorState={agent:marshallAgentMode.agent,route:null,validation:null};
+    marshallAgentMode.mission=String(c.mission||pref.mission||'auto');
+    marshallChatHistory=marshallConversationHistoryFrom(c);
+    return c;
+  }
+  function marshallConversationTitle(text){
+    var t=String(text||'').replace(/\s+/g,' ').trim();
+    if(!t)return 'Nouvelle conversation';
+    return t.length>42?t.slice(0,42).trim()+'…':t;
+  }
+  function marshallConversationTime(ts){
+    var d=new Date(Number(ts||Date.now())),now=new Date(),diff=now-d;
+    if(diff<60000)return 'Maintenant';
+    if(d.toDateString()===now.toDateString())return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    var y=new Date(now);y.setDate(now.getDate()-1);if(d.toDateString()===y.toDateString())return 'Hier';
+    return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
+  }
+  function marshallConversationAppend(role,text){
+    if(marshallConversationRendering)return;
+    var c=marshallConversationCurrent(true), t=String(text||'');
+    if(!t)return;
+    c.messages=c.messages||[];c.messages.push({role:String(role||'assistant'),text:t,at:Date.now()});
+    if(c.messages.length>80)c.messages=c.messages.slice(-80);
+    if(role==='user'&&(!c.title||c.title==='Nouvelle conversation'))c.title=marshallConversationTitle(t);
+    c.updatedAt=Date.now();c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;c.draft='';marshallConversationSave();marshallConversationRenderSidebar();
+  }
+  function marshallConversationUpdateMode(){
+    var c=marshallConversationCurrent(true);c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;c.updatedAt=Date.now();marshallConversationSave();marshallConversationRenderSidebar();
+  }
+  function marshallConversationDraft(value){
+    clearTimeout(marshallDraftTimer);marshallDraftTimer=setTimeout(function(){var c=marshallConversationCurrent(true);c.draft=String(value||'');c.updatedAt=Date.now();marshallConversationSave();},180);
+  }
+  function marshallConversationSnapshot(){
+    var c=marshallConversationCurrent(false);if(!c)return;
+    var p=$('#ai-prompt'),th=marshallChatThread();if(p)c.draft=String(p.value||'');if(th)c.scrollTop=Number(th.scrollTop||0);
+    c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;marshallConversationSave();
+  }
+  function marshallWelcomeMarkup(){return '<div class="mv4-welcome-screen" id="marshall-welcome-screen"><div class="mv4-welcome-mark"><img src="avatarchatbot.png" alt=""></div><h3>Que veux-tu créer aujourd’hui ?</h3><p>Marshall IA peut répondre normalement, choisir l’agent le plus adapté, puis vérifier sa réponse avant de te la présenter.</p><div class="mv4-starters"><button type="button" data-marshall-prompt="Crée-moi une story virale pour mon entreprise en utilisant mon branding, mon site et mon Instagram."><span>Story virale</span><small>3 écrans + vidéo IA</small></button><button type="button" data-marshall-prompt="Crée un post Instagram premium cohérent avec ma marque et mon offre principale."><span>Créer un post</span><small>Concept + copy + visuel</small></button><button type="button" data-marshall-prompt="Analyse ma marque avec mon site et mon Instagram puis donne-moi les priorités créatives."><span>Analyser ma marque</span><small>Brand Intelligence</small></button><button type="button" data-marshall-prompt="Propose-moi 3 concepts créatifs vraiment différents pour ma prochaine campagne."><span>Explorer des idées</span><small>3 directions créatives</small></button></div></div>';}
+  function marshallBindStarterPrompts(){var th=marshallChatThread();if(!th)return;$all('[data-marshall-prompt]',th).forEach(function(btn){btn.addEventListener('click',function(){var p=$('#ai-prompt');if(!p)return;p.value=this.getAttribute('data-marshall-prompt')||'';p.dispatchEvent(new Event('input'));p.focus();});});}
+  function marshallResetThreadUI(){var th=marshallChatThread();if(!th)return;th.innerHTML=marshallWelcomeMarkup();marshallBindStarterPrompts();th.scrollTop=0;}
+  function marshallConversationRenderActive(){
+    var th=marshallChatThread();if(!th)return;var c=marshallConversationEnsureActive();marshallConversationRendering=true;th.innerHTML='';
+    if(!c.messages||!c.messages.length){th.innerHTML=marshallWelcomeMarkup();}
+    else c.messages.forEach(function(m){var d=document.createElement('div');d.className='mv4-msg '+(m.role||'assistant');d.textContent=String(m.text||'');th.appendChild(d);});
+    marshallConversationRendering=false;marshallBindStarterPrompts();
+    var p=$('#ai-prompt');if(p){p.value=String(c.draft||'');p.style.height='auto';p.style.height=Math.min(p.scrollHeight,120)+'px';}
+    requestAnimationFrame(function(){th.scrollTop=(c.scrollTop>0?c.scrollTop:th.scrollHeight);});
+  }
+  function marshallConversationRenderSidebar(){
+    var list=$('#marshall-recent-list');if(!list)return;var st=marshallConversationLoad();list.innerHTML='';
+    var convs=st.conversations.slice().sort(function(a,b){return Number(b.updatedAt||0)-Number(a.updatedAt||0);});
+    if(!convs.length){var empty=document.createElement('div');empty.className='mv4-history-empty';empty.textContent='Tes conversations apparaîtront ici.';list.appendChild(empty);return;}
+    convs.forEach(function(c){
+      var btn=document.createElement('button');btn.type='button';btn.className='mv4-history-item'+(c.id===st.activeId?' active':'');btn.setAttribute('data-conversation-id',c.id);
+      var ic=document.createElement('span');ic.className='mv4-history-icon';ic.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 5h14v12H8l-3 3V5Z"/></svg>';
+      var cp=document.createElement('span');cp.className='mv4-history-copy';var b=document.createElement('b');b.textContent=c.title||'Nouvelle conversation';var sm=document.createElement('small');sm.textContent=marshallConversationTime(c.updatedAt);cp.appendChild(b);cp.appendChild(sm);btn.appendChild(ic);btn.appendChild(cp);
+      btn.addEventListener('click',function(){marshallConversationSelect(c.id);});list.appendChild(btn);
+    });
+  }
+  function marshallConversationSelect(id){
+    marshallConversationSnapshot();var st=marshallConversationLoad();var c=st.conversations.find(function(x){return x.id===id;});if(!c)return;st.activeId=id;marshallConversationSave();
+    var pref=marshallAgentPreferenceLoad();marshallAgentMode.agent=c.agent||pref.agent||'marshall';marshallAgentMode.mission=c.mission||pref.mission||'auto';marshallAgentManual=!!c.manualAgent;marshallChatHistory=marshallConversationHistoryFrom(c);
+    marshallConversationRenderActive();marshallConversationRenderSidebar();var a=$('#marshall-agent-select'),m=$('#marshall-mission-select');if(a)a.value=marshallAgentMode.agent;if(m)m.value=marshallAgentMode.mission;marshallAgentMenuRefresh();var p=$('#ai-prompt');if(p)p.focus();
+  }
+  function marshallConversationNew(){
+    marshallConversationSnapshot();var st=marshallConversationLoad(),pref=marshallAgentPreferenceLoad(),now=Date.now();var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',manualAgent:false,pendingIntent:'',pendingPrompt:'',messages:[],draft:'',scrollTop:0};
+    st.conversations.unshift(c);st.activeId=c.id;marshallConversationSave();marshallAgentMode.agent=c.agent;marshallAgentMode.mission=c.mission;marshallAgentManual=false;marshallSupervisorState={agent:c.agent||'marshall',route:null,validation:null};marshallChatHistory=[];marshallConversationRenderActive();marshallConversationRenderSidebar();var a=$('#marshall-agent-select'),m=$('#marshall-mission-select');if(a)a.value=c.agent;if(m)m.value=c.mission;marshallAgentMenuRefresh();var p=$('#ai-prompt');if(p){p.value='';p.style.height='auto';p.focus();}
+  }
   function marshallChatBubble(role,text,extra){
     var th=marshallChatThread(); if(!th)return null;
-    var d=document.createElement('div'); d.className='mv4-msg '+(role||'assistant')+(extra?' '+extra:''); d.textContent=String(text||''); th.appendChild(d); th.scrollTop=th.scrollHeight; return d;
+    var welcome=$('#marshall-welcome-screen');if(welcome&&welcome.parentNode)welcome.remove();
+    var d=document.createElement('div'); d.className='mv4-msg '+(role||'assistant')+(extra?' '+extra:''); d.textContent=String(text||''); th.appendChild(d); th.scrollTop=th.scrollHeight;marshallConversationAppend(role,text);return d;
   }
   function marshallChatTyping(){
     var th=marshallChatThread(); if(!th)return null; var d=document.createElement('div'); d.className='mv4-msg assistant'; d.innerHTML='<span class="mv4-typing"><i></i><i></i><i></i></span>'; th.appendChild(d); th.scrollTop=th.scrollHeight; return d;
   }
+
+  function marshallNeedsStoryConfirmation(prompt,intent,opts){
+    if(opts&&opts.skipConfirm)return false;
+    if(intent!=='story')return false;
+    return /viral(?:e|es)?/i.test(String(prompt||''));
+  }
+  function marshallChatStoryConfirmation(prompt,intent){
+    var th=marshallChatThread(); if(!th)return null;
+    if(marshallPendingStoryConfirm&&marshallPendingStoryConfirm.box&&marshallPendingStoryConfirm.box.parentNode){
+      marshallPendingStoryConfirm.box.remove();
+    }
+    var prof=marshallEffectiveProfile(intent), useTeam=marshallShouldUseCrew(intent);
+    var box=document.createElement('div'); box.className='mv4-confirm';
+    var title=document.createElement('strong'); title.textContent='Confirmer la création de la story virale ?';
+    var text=document.createElement('p'); var sr=marshallSetting('storyRender','video'); text.textContent='Je vais lancer '+(useTeam?'l’équipe Marshall':'l’agent sélectionné')+' pour construire une story verticale 9:16 avec hook, valeur et CTA'+(sr==='static'?'.':' puis générer sa version vidéo open-source avec Wan 2.2 + MoneyPrinterTurbo.');
+    var chip=document.createElement('div'); chip.className='mv4-confirm-agent'; chip.textContent=(useTeam?'CrewAI · Équipe Marshall':'Agent utilisé : '+prof.name);
+    var actions=document.createElement('div'); actions.className='mv4-confirm-actions';
+    var yes=document.createElement('button'); yes.type='button'; yes.className='mv4-confirm-btn yes'; yes.textContent='Oui, lancer';
+    var no=document.createElement('button'); no.type='button'; no.className='mv4-confirm-btn no'; no.textContent='Non';
+    actions.appendChild(yes); actions.appendChild(no);
+    box.appendChild(title); box.appendChild(text); box.appendChild(chip); box.appendChild(actions);
+    th.appendChild(box); th.scrollTop=th.scrollHeight;
+    marshallPendingStoryConfirm={prompt:prompt,intent:intent,box:box};
+    yes.addEventListener('click', async function(){
+      yes.disabled=true; no.disabled=true;
+      marshallPendingStoryConfirm=null;
+      await marshallChatSubmit(prompt,{skipConfirm:true,skipUserEcho:true});
+      if(box.parentNode)box.remove();
+    });
+    no.addEventListener('click', function(){
+      yes.disabled=true; no.disabled=true;
+      marshallPendingStoryConfirm=null;
+      if(box.parentNode)box.remove();
+      marshallChatBubble('assistant','D’accord, je ne lance pas la story virale. Tu peux modifier ta demande, changer d’agent, ou cliquer sur Oui plus tard.');
+    });
+    return box;
+  }
+
+  function marshallStudioKnowledgeContext(){
+    var runtime=[];
+    try{
+      runtime.push('Utilisateur actif : '+((me&&me.nom)||'compte connecté')+'.');
+      runtime.push('Plateforme de création réglée sur '+marshallSetting('platform','Instagram')+' ; objectif '+marshallSetting('goal','Vente')+'.');
+      runtime.push('Canvas actuel : '+ed.fmt+', '+((ed.layers||[]).length)+' calque(s).');
+      var connected=Object.keys(connections||{}).filter(function(k){return connections[k]&&connections[k].connected;});
+      runtime.push('Réseaux connectés actuellement : '+(connected.length?connected.join(', '):'aucun détecté dans l’état courant')+'.');
+    }catch(e){}
+    return [
+      'SOURCE DE VÉRITÉ — SOCIAL STUDIO (version actuelle de l’application).',
+      'Tu t’appelles Marshall. Ne te présente jamais comme “Copain”, “le Copain” ou un autre assistant. “Mon Copain Digital” est la marque/équipe qui édite Social Studio, pas ton nom.',
+      'Social Studio est l’outil social media de Mon Copain Digital. Son accueil propose Studio Social, Message Social, Gestion clients pour l’équipe autorisée, et Rapports.',
+      'Dans Studio Social, les vues principales sont Composer, Calendrier, Historique et Brouillons. Le Composer permet de préparer légende, hashtags, médias, recadrage, aperçu par réseau, format et publication immédiate ou programmée.',
+      'Les réseaux gérés dans l’interface sont Instagram, Facebook, X, TikTok et Snapchat. Les formats disponibles dépendent du réseau : posts, stories, reels, vidéos ou snaps.',
+      'Connexions sert à relier les comptes sociaux. Les fonctions serveur utilisées sont social-status, social-connect et social-publish. Ne dis jamais qu’un compte est connecté si l’état courant ne le confirme pas.',
+      'Rapports exploite social-insights, principalement pour Instagram : compte, publications, likes, commentaires, engagement, cadence, meilleurs jours, meilleurs contenus et performances par format.',
+      'Message Social utilise social-messages et social-reply pour lire et répondre quand le backend et les autorisations du compte le permettent.',
+      'Gestion clients permet à l’équipe autorisée d’agir pour un client avec des droits séparés composer / rapports / messages. Ne prétends jamais avoir accès à un client sans autorisation.',
+      'L’éditeur visuel fonctionne avec des calques éditables : textes, formes, images, uploads, positionnement, taille, couleurs, typographie, recadrage, formats sociaux et aperçu.',
+      'Marshall est intégré à l’éditeur. Il possède un historique de conversations par compte, un mode agent, des missions, un cache local du chat, et peut travailler avec le canvas courant.',
+      'Marshall IA est le généraliste/superviseur par défaut. Il répond normalement aux questions, choisit un spécialiste si nécessaire, puis contrôle la réponse finale. Un agent spécialisé n’est “choisi manuellement” que si l’utilisateur a réellement cliqué sur un autre agent.',
+      'Agents disponibles : Équipe Marshall/CrewAI, Viral Story Agent, Directeur artistique social, Brand Strategist, Campaign Strategist, Image Art Director, Visual QA Expert, Creative Testing Expert et Brand Auditor.',
+      'Missions disponibles : conversation libre, créer une story virale, créer un post, générer une image, créer une campagne, créer 3 concepts, créer 3 variantes, analyser une image, créer autour d’une image, corriger le canvas, audit 360° entreprise et conseil branding.',
+      'Brand Intelligence fusionne les informations manuelles de marque, le site web officiel et les données Instagram disponibles pour le compte actif. Elle est propre à l’utilisateur/au client actif.',
+      'La génération d’image utilise Qwen-Image via le backend Marshall. Les images générées sont ajoutées au canvas comme calques image.',
+      'La Story virale est une vraie séquence verticale 9:16 de 3 écrans (hook, valeur, CTA). CrewAI/Story Architect peut produire le blueprint, Qwen génère les visuels, Wan 2.2 anime les scènes et MoneyPrinterTurbo réalise le montage vidéo lorsque le mode vidéo est actif.',
+      'CrewAI sert aux tâches stratégiques/multi-agents. Marshall ne doit pas invoquer plusieurs agents pour une simple question si cela n’apporte rien.',
+      'Règle de comportement : distingue toujours ce que l’application SAIT, ce qu’elle PEUT FAIRE, ce qui a été réellement exécuté, et ce qui nécessite une connexion, une autorisation ou un backend disponible.',
+      'Pour une question “comment faire dans Social Studio ?”, réponds avec les noms exacts des écrans/boutons connus ci-dessus et des étapes courtes. Si une fonction n’existe pas dans cette source de vérité, dis que tu ne peux pas confirmer qu’elle existe.',
+      'Si une demande de création est incomplète, pose UNE question utile puis conserve la mission en attente pour interpréter la réponse suivante comme une précision.',
+      runtime.join(' ')
+    ].join('\n');
+  }
+  function marshallCoreSystemContext(){
+    return [
+      'IDENTITÉ PRIORITAIRE : tu es Marshall, l’assistant IA officiel intégré à Social Studio.',
+      'Tu réponds en français par défaut, naturellement, comme un assistant généraliste compétent.',
+      'Quand un autre message système exige un JSON strict, respecte ce format strict sans ajouter de texte.',
+      marshallStudioKnowledgeContext()
+    ].join('\n');
+  }
+  function marshallAgentPickerSync(){
+    var select=$('#marshall-agent-select'),label=$('#marshall-agent-trigger-label'),menu=$('#marshall-agent-menu');
+    if(!select)return;
+    var opt=select.options[select.selectedIndex];
+    if(label)label.textContent=opt?opt.textContent:'Marshall IA · Généraliste & superviseur';
+    if(menu)$all('.mv4-agent-option',menu).forEach(function(btn){btn.classList.toggle('active',btn.getAttribute('data-agent')===select.value);btn.setAttribute('aria-selected',btn.getAttribute('data-agent')===select.value?'true':'false');});
+  }
+  function marshallAgentPickerInit(){
+    var picker=$('#marshall-agent-picker'),select=$('#marshall-agent-select'),trigger=$('#marshall-agent-trigger'),menu=$('#marshall-agent-menu'),fly=$('#ed-flyout');
+    if(!picker||!select||!trigger||!menu)return;
+    var desc={
+      auto:'Marshall choisit automatiquement le meilleur mode.',
+      team:'Plusieurs spécialistes CrewAI travaillent ensemble.',
+      marshall:'Assistant généraliste, routeur et contrôle qualité.',
+      story:'Stories verticales, hook, rythme, rétention et CTA.',
+      social:'Posts, composition, hiérarchie et conversion.',
+      brand:'Positionnement, ton, cible et cohérence de marque.',
+      campaign:'Architecture de campagne et séquençage.',
+      image:'Direction artistique et génération d’images.',
+      visual:'Analyse du canvas, contraste, lisibilité et corrections.',
+      testing:'Variantes créatives et A/B testing.',
+      audit:'Audit 360° de marque et priorités.'
+    };
+    menu.innerHTML='';
+    Array.from(select.options).forEach(function(o){
+      var btn=document.createElement('button');btn.type='button';btn.className='mv4-agent-option';btn.setAttribute('data-agent',o.value);btn.setAttribute('role','option');
+      var dot=document.createElement('span');dot.className='ao-dot';
+      var cp=document.createElement('span');cp.className='ao-copy';
+      var b=document.createElement('b');b.textContent=o.textContent;
+      var sm=document.createElement('small');sm.textContent=desc[o.value]||'Agent spécialisé Marshall.';
+      cp.appendChild(b);cp.appendChild(sm);btn.appendChild(dot);btn.appendChild(cp);
+      btn.addEventListener('click',function(e){
+        e.preventDefault();e.stopPropagation();
+        select.value=o.value;
+        select.dispatchEvent(new Event('change',{bubbles:true}));
+        menu.classList.remove('show');trigger.setAttribute('aria-expanded','false');
+        marshallAgentPickerSync();
+      });
+      menu.appendChild(btn);
+    });
+    function close(){menu.classList.remove('show');trigger.setAttribute('aria-expanded','false');}
+    trigger.addEventListener('click',function(e){
+      e.preventDefault();e.stopPropagation();
+      var open=!menu.classList.contains('show');menu.classList.toggle('show',open);trigger.setAttribute('aria-expanded',open?'true':'false');
+      if(open){marshallAgentPickerSync();requestAnimationFrame(function(){var a=menu.querySelector('.mv4-agent-option.active');if(a)a.scrollIntoView({block:'nearest'});});}
+    });
+    trigger.addEventListener('keydown',function(e){
+      if(e.key==='ArrowDown'||e.key==='Enter'||e.key===' '){e.preventDefault();if(!menu.classList.contains('show'))trigger.click();}
+      if(e.key==='Escape'){close();trigger.focus();}
+    });
+    menu.addEventListener('wheel',function(e){e.stopPropagation();},{passive:true});
+    if(fly)fly.addEventListener('pointerdown',function(e){if(!picker.contains(e.target))close();});
+    marshallAgentPickerSync();
+  }
+  function marshallConversationPending(){
+    var c=marshallConversationCurrent(false);if(!c||!c.pendingIntent)return null;
+    return {intent:String(c.pendingIntent||''),prompt:String(c.pendingPrompt||'')};
+  }
+  function marshallConversationSetPending(intent,prompt){
+    var c=marshallConversationCurrent(true);c.pendingIntent=String(intent||'');c.pendingPrompt=String(prompt||'');c.updatedAt=Date.now();marshallConversationSave();
+  }
+  function marshallConversationClearPending(){
+    var c=marshallConversationCurrent(false);if(!c)return;c.pendingIntent='';c.pendingPrompt='';marshallConversationSave();
+  }
+  function marshallNeedsBriefClarification(prompt,intent){
+    if(intent!=='canvas')return false;
+    var t=String(prompt||'').toLowerCase()
+      .replace(/[’']/g,"'")
+      .replace(/\b(j'aimerais|je voudrais|je veux|peux tu|peux-tu|est ce que tu peux|est-ce que tu peux|tu peux|merci|svp|stp)\b/g,' ')
+      .replace(/\b(creer|créer|cree|crée|faire|generer|générer|produire|construire)\b/g,' ')
+      .replace(/\b(un|une|le|la|des|mon|ma|mes)\b/g,' ')
+      .replace(/\b(post|publication|visuel|contenu)\b/g,' ')
+      .replace(/\b(c'est possible|possible|s'il te plait|s'il te plaît)\b/g,' ')
+      .replace(/[?!.,:;]+/g,' ')
+      .replace(/\s+/g,' ').trim();
+    return t.length<4;
+  }
+  function marshallClarificationQuestion(intent){
+    if(intent==='canvas')return 'Oui. Quel est le sujet du post ? Tu peux répondre simplement par le thème, par exemple « démarches administratives ».';
+    return 'Donne-moi juste la précision principale dont tu veux parler.';
+  }
+
   async function marshallRemoteReply(messages){
-    var r=await fetch(MARSHALL_CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:messages})});
+    var enriched=[{role:'system',content:marshallCoreSystemContext()}].concat(Array.isArray(messages)?messages:[]);
+    var r=await fetch(MARSHALL_CHAT_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:enriched})});
     var data=null; try{data=await r.json();}catch(e){}
     if(!r.ok)throw Error((data&&data.error)||('Marshall HTTP '+r.status));
     if(!data||typeof data.reply!=='string')throw Error('Réponse Marshall invalide');
@@ -3392,6 +3856,411 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
   async function marshallRemoteJSON(system,user){
     var raw=await marshallRemoteReply([{role:'system',content:system},{role:'user',content:user}]);
     return edAIExtractJSON(raw);
+  }
+
+
+
+  /* ===== Marshall Marketing Brain : contexte commun ===== */
+  function marshallMarketingContext(goal,platform){
+    goal=String(goal||'Vente'); platform=String(platform||'Instagram');
+    var pm={
+      Instagram:'Instagram : hook visuel immédiat, lecture mobile, hiérarchie forte, format natif et CTA simple.',
+      TikTok:'TikTok : hook dès la première seconde, rythme, authenticité, preuve visuelle et langage naturel.',
+      Facebook:'Facebook : bénéfice clair, contexte suffisant, preuve crédible et CTA explicite.',
+      X:'X : angle net, formulation concise, idée mémorable et faible surcharge visuelle.',
+      Snapchat:'Snapchat : lecture instantanée, très peu de texte, verticalité, contraste fort et message direct.'
+    };
+    var gm={
+      Vente:'Objectif vente : montrer la valeur et le bénéfice principal puis proposer une action claire, sans inventer de prix ni de preuve.',
+      Engagement:'Objectif engagement : provoquer une réaction simple et naturelle, donner envie de répondre, enregistrer ou partager.',
+      Notoriété:'Objectif notoriété : renforcer les codes de marque, la mémorisation et une idée distinctive.',
+      'Lancement produit':'Objectif lancement : créer curiosité, clarté sur la nouveauté et progression vers le CTA.'
+    };
+    return ['Contexte marketing : '+platform+' · '+goal+'.',pm[platform]||pm.Instagram,gm[goal]||gm.Vente,'Une idée principale, peu de texte, hiérarchie nette, contraste suffisant et cohérence de marque.','Ne jamais inventer chiffres, résultats, témoignages, clients, prix, promotions ou caractéristiques absentes.'].join(' ');
+  }
+
+  /* ===== Marshall Agent Menu : agent + mission choisis par l'utilisateur ===== */
+  var marshallAgentMode={agent:'marshall',mission:'auto'};
+  var marshallAgentManual=false;
+  function marshallAgentCatalog(){
+    return {
+      auto:null,
+      team:{name:'Équipe Marshall',role:'équipe multi-agents créative et stratégique',focus:'croiser branding, stratégie, direction créative, copywriting, design et contrôle qualité avant de produire'},
+      marshall:{name:'Marshall IA',role:'assistant IA généraliste et superviseur multi-agents',focus:'conversation générale, compréhension de la demande, sélection du bon spécialiste, synthèse et validation de la réponse finale'},
+      story:{name:'Viral Story Agent',role:'créateur de stories verticales orientées rétention',focus:'arrêt du scroll, hook en moins d’une seconde, narration en 3 écrans, visuels générés selon la marque, lisibilité mobile et CTA'},
+      social:{name:'Directeur artistique social',role:'directeur artistique social media',focus:'concept, hiérarchie, typographie, composition, branding, clarté et conversion'},
+      brand:{name:'Brand Strategist',role:'brand strategist',focus:'positionnement, personnalité, cible, promesse, différenciation, ton et cohérence de marque'},
+      campaign:{name:'Campaign Strategist',role:'stratège de campagne social media',focus:'architecture de campagne, séquençage, angles créatifs et progression vers le CTA'},
+      image:{name:'Image Art Director',role:'directeur artistique image et prompt engineer',focus:'composition, lumière, sujet, rendu premium, cohérence de marque et génération d’image'},
+      visual:{name:'Visual QA Expert',role:'expert en audit graphique et UX visuelle',focus:'lisibilité, contraste, hiérarchie, espacements, équilibre et corrections concrètes'},
+      testing:{name:'Creative Testing Expert',role:'expert A/B testing créatif et performance social media',focus:'variantes réellement distinctes, angles, hooks, hypothèses créatives et comparabilité'},
+      audit:{name:'Brand Auditor',role:'consultant en stratégie de marque et direction artistique',focus:'audit 360°, diagnostic, opportunités, risques, direction artistique et recommandations prioritaires'}
+    };
+  }
+  function marshallMissionLabel(intent){
+    var m={general:'Conversation libre',story:'Créer une story virale',canvas:'Créer un post',image_generate:'Générer une image',campaign:'Créer une campagne',creative:'Créer 3 concepts',variants:'Créer 3 variantes',image_analyze:'Analyser une image',image_compose:'Créer autour d’une image',vision:'Corriger le canvas',business_audit:'Audit 360° entreprise',brand:'Conseil branding'};
+    return m[intent]||'Répondre à la demande';
+  }
+  function marshallMissionPlaceholder(intent){
+    var m={story:'Décris la story virale, l’offre ou l’idée…',canvas:'Décris le post que tu veux créer…',image_generate:'Décris précisément l’image à générer…',campaign:'Décris la campagne, l’offre et l’objectif…',creative:'Décris la marque ou l’idée à explorer…',variants:'Décris le concept à décliner…',image_analyze:'Ajoute une image puis demande ce que tu veux analyser…',image_compose:'Explique ce que tu veux construire autour de l’image…',vision:'Explique ce que tu veux améliorer sur le canvas…',business_audit:'Décris l’entreprise ou lance l’audit avec les réglages enregistrés…',brand:'Pose ta question de branding…',general:'Écris ta demande à Marshall…'};
+    return m[intent]||m.general;
+  }
+  var marshallSupervisorState={agent:'marshall',route:null,validation:null};
+  function marshallSupervisorAgentForIntent(intent){
+    var map={
+      general:'marshall',story:'story',canvas:'social',image_generate:'image',image_analyze:'visual',image_compose:'social',
+      campaign:'campaign',creative:'social',variants:'testing',vision:'visual',business_audit:'audit',brand:'brand'
+    };
+    return map[intent]||'marshall';
+  }
+  function marshallSupervisorAllowedAgent(key){
+    return ['marshall','team','story','social','brand','campaign','image','visual','testing','audit'].indexOf(String(key||''))>=0;
+  }
+  function marshallActiveAgentKey(intent){
+    if(marshallAgentMode.agent==='marshall'){
+      var k=marshallSupervisorState&&marshallSupervisorState.agent;
+      return marshallSupervisorAllowedAgent(k)?k:marshallSupervisorAgentForIntent(intent);
+    }
+    return marshallAgentMode.agent||'marshall';
+  }
+  async function marshallSupervisorRoute(prompt,intent){
+    var selected=marshallAgentMode.agent||'marshall';
+    if(selected!=='marshall' || marshallAgentManual){
+      var manual={agent:selected,mode:'manual',confidence:1,reason:'Agent réellement choisi par l’utilisateur dans le sélecteur.'};
+      marshallSupervisorState={agent:selected,route:manual,validation:null};
+      return manual;
+    }
+    var fallback=marshallSupervisorAgentForIntent(intent);
+    var result={agent:fallback,mode:'supervisor',confidence:.72,reason:(fallback==='marshall'?'Conversation générale : Marshall IA répond directement.':'Marshall IA délègue à l’expert correspondant à la mission détectée.')};
+    var sys=[
+      'Tu es Marshall IA, le superviseur d’un système multi-agents.',
+      'Analyse la demande utilisateur et choisis l’agent le plus pertinent. Pour une question générale ou conversationnelle, choisis marshall.',
+      'Agents autorisés : marshall, team, story, social, brand, campaign, image, visual, testing, audit.',
+      'team est réservé aux demandes réellement transversales nécessitant plusieurs expertises.',
+      'story = stories verticales; social = création de posts/composition; brand = stratégie de marque; campaign = campagnes; image = génération image; visual = analyse/correction visuelle; testing = variantes/A-B test; audit = audit 360°.',
+      'Marshall IA est le choix par défaut de l’interface : cela ne signifie PAS que l’utilisateur l’a sélectionné manuellement.',
+      marshallStudioKnowledgeContext(),
+      'Ne donne aucun raisonnement détaillé. Réponds UNIQUEMENT en JSON valide : {"agent":"...","confidence":0.0,"reason":"une phrase courte"}'
+    ].join('\n');
+    try{
+      var routed=await marshallRemoteJSON(sys,'Demande : '+prompt+'\nIntent détecté localement : '+intent+'\nMission choisie : '+marshallMissionLabel(intent));
+      var key=String((routed&&routed.agent)||'').toLowerCase();
+      if(marshallSupervisorAllowedAgent(key)){
+        result.agent=key;
+        result.confidence=Math.max(0,Math.min(1,Number(routed.confidence)||result.confidence));
+        result.reason=String(routed.reason||result.reason).slice(0,180);
+      }
+    }catch(e){console.warn('Marshall supervisor routing fallback',e);}
+    marshallSupervisorState={agent:result.agent,route:result,validation:null};
+    return result;
+  }
+  async function marshallSupervisorValidate(prompt,intent,reply,ok){
+    var active=marshallActiveAgentKey(intent), cat=marshallAgentCatalog(), profile=cat[active]||marshallSpecialistProfile(intent);
+    var fallback={approved:true,agent_fit:true,agent:active,recommended_agent:active,confidence:.75,note:'Réponse vérifiée par Marshall IA.',reply:String(reply||'')};
+    var sys=[
+      'Tu es Marshall IA, superviseur et contrôleur qualité final.',
+      'Tu vérifies deux choses : 1) l’agent utilisé est adapté à la demande; 2) la réponse finale répond bien à la demande et ne prétend pas qu’une action a réussi si le résultat technique indique un échec.',
+      'Tu peux améliorer légèrement la réponse pour la rendre plus claire, mais tu ne dois ajouter aucun fait, chiffre, action ou résultat non fourni.',
+      'Un choix est manuel UNIQUEMENT si le champ ORIGINE DU CHOIX indique MANUEL. Marshall IA affiché par défaut n’est pas un choix manuel.',
+      'Si ORIGINE DU CHOIX=MANUEL et que l’utilisateur a choisi un agent différent de celui que tu recommanderais, respecte son choix et indique seulement recommended_agent.',
+      marshallStudioKnowledgeContext(),
+      'Agents autorisés : marshall, team, story, social, brand, campaign, image, visual, testing, audit.',
+      'Ne fournis aucun raisonnement détaillé. Réponds UNIQUEMENT en JSON valide : {"approved":true,"agent_fit":true,"recommended_agent":"...","confidence":0.0,"note":"une phrase courte","reply":"réponse finale à montrer"}'
+    ].join('\n');
+    var user=[
+      'Demande utilisateur : '+prompt,
+      'Intent : '+intent,
+      'Agent utilisé : '+active+' ('+(profile&&profile.name?profile.name:active)+')',
+      'Agent affiché dans l’interface : '+(marshallAgentMode.agent||'marshall'),
+      'ORIGINE DU CHOIX : '+(marshallAgentManual?'MANUEL':'DÉFAUT/SUPERVISEUR AUTOMATIQUE'),
+      'Route superviseur : '+JSON.stringify((marshallSupervisorState&&marshallSupervisorState.route)||{}),
+      'Résultat technique : '+(ok?'succès':'échec'),
+      'Réponse à vérifier : '+String(reply||'')
+    ].join('\n');
+    try{
+      var v=await marshallRemoteJSON(sys,user);
+      if(v&&typeof v==='object'){
+        fallback.approved=v.approved!==false;
+        fallback.agent_fit=v.agent_fit!==false;
+        var rec=String(v.recommended_agent||active).toLowerCase();
+        fallback.recommended_agent=marshallSupervisorAllowedAgent(rec)?rec:active;
+        fallback.confidence=Math.max(0,Math.min(1,Number(v.confidence)||fallback.confidence));
+        fallback.note=String(v.note||fallback.note).slice(0,220);
+        if(typeof v.reply==='string'&&v.reply.trim())fallback.reply=v.reply.trim();
+      }
+    }catch(e){console.warn('Marshall supervisor validation fallback',e);}
+    var route=(marshallSupervisorState&&marshallSupervisorState.route)||{};
+    if(!marshallAgentManual && route.mode==='supervisor'){
+      if(fallback.recommended_agent===active){
+        fallback.agent_fit=true;
+        fallback.confidence=Math.max(fallback.confidence,Number(route.confidence)||.75);
+      }
+      if(/choisi.*manuellement|sélection.*manuellement|utilisateur.*choisi/i.test(fallback.note||'')){
+        fallback.note='Agent sélectionné automatiquement par Marshall IA pour cette demande.';
+      }
+    }
+    marshallSupervisorState.validation=fallback;
+    return fallback;
+  }
+  function marshallChatSupervisorValidation(v,intent){
+    var th=marshallChatThread();if(!th||!v)return null;
+    var cat=marshallAgentCatalog(), used=marshallActiveAgentKey(intent), up=cat[used]||marshallSpecialistProfile(intent), rec=cat[v.recommended_agent]||marshallSpecialistProfile(intent);
+    var d=document.createElement('div');d.className='mv4-supervisor-check '+(v.approved?'ok':'warn');
+    var ic=document.createElement('span');ic.className='mv4-supervisor-icon';ic.innerHTML=v.approved?'✓':'!';
+    var cp=document.createElement('div');cp.className='mv4-supervisor-copy';
+    var b=document.createElement('b');b.textContent='Marshall IA · vérification '+(v.approved?'validée':'à revoir');
+    var sp=document.createElement('span');
+    var txt='Agent utilisé : '+((up&&up.name)||used)+'. '+String(v.note||'').trim();
+    if(v.recommended_agent&&v.recommended_agent!==used)txt+=' Recommandé : '+((rec&&rec.name)||v.recommended_agent)+'.';
+    sp.textContent=txt;
+    var badge=document.createElement('em');badge.textContent=Math.round((Number(v.confidence)||0)*100)+'%';
+    cp.appendChild(b);cp.appendChild(sp);d.appendChild(ic);d.appendChild(cp);d.appendChild(badge);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+  }
+  function marshallEffectiveProfile(intent){
+    var cat=marshallAgentCatalog();
+    if(marshallAgentMode.agent==='marshall'){
+      var delegated=marshallActiveAgentKey(intent);
+      return cat[delegated]||cat.marshall||marshallSpecialistProfile(intent);
+    }
+    var chosen=cat[marshallAgentMode.agent];
+    if(marshallAgentMode.agent==='team')return cat.team;
+    return chosen||marshallSpecialistProfile(intent);
+  }
+  function marshallEffectiveIntent(prompt){
+    return marshallAgentMode.mission&&marshallAgentMode.mission!=='auto' ? marshallAgentMode.mission : marshallIntent(prompt);
+  }
+  function marshallSyncCanvasToMission(intent){
+    if(typeof ed==='undefined') return;
+    if(intent==='story'){
+      if(ed.fmt!=='9:16'){
+        ed.fmt='9:16';
+        if(typeof edApplyFmt==='function') edApplyFmt();
+        if(typeof edRender==='function') edRender();
+        if(typeof edSnap==='function') edSnap();
+      }else if(typeof edApplyFmt==='function'){
+        edApplyFmt();
+      }
+    }
+  }
+  function marshallAgentMenuRefresh(){
+    var a=$('#marshall-agent-select'), m=$('#marshall-mission-select'), ctx=$('#marshall-agent-context'), comp=$('#marshall-compose-context'), input=$('#ai-prompt');
+    if(a&&a.value!==marshallAgentMode.agent)a.value=marshallAgentMode.agent||'auto';
+    if(m&&m.value!==marshallAgentMode.mission)m.value=marshallAgentMode.mission||'auto';
+    var intent=(marshallAgentMode.mission&&marshallAgentMode.mission!=='auto')?marshallAgentMode.mission:'general';
+    var prof=(marshallAgentMode.agent==='marshall'?(marshallAgentCatalog().marshall||marshallEffectiveProfile(intent)):marshallEffectiveProfile(intent)), mission=marshallAgentMode.mission==='auto'?'Conversation libre':marshallMissionLabel(intent);
+    if(ctx){var span=ctx.querySelector('span');if(span){if(marshallAgentMode.agent==='marshall')span.textContent='Marshall IA · conversation normale · délégation et validation automatiques · '+mission+(intent==='story'?' · canvas Story 1080×1920':'');else span.textContent=(marshallAgentMode.agent==='auto'?'Agent automatique':'Agent : '+prof.name)+' · '+mission+(intent==='story'?' · canvas Story 1080×1920':'');}}
+    if(comp){var sp=comp.querySelector('span');var active=marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto';comp.classList.toggle('show',active);if(sp){sp.textContent='';if(active){var b=document.createElement('b');b.textContent=prof.name;sp.appendChild(b);sp.appendChild(document.createTextNode(' · '+mission));}}}
+    if(input)input.placeholder=marshallMissionPlaceholder(intent);
+    marshallAgentPickerSync();
+    marshallSyncCanvasToMission(intent);
+  }
+  function marshallChatAgentPill(intent){
+    var th=marshallChatThread();if(!th)return null;
+    var d=document.createElement('div');d.className='mv4-agent-pill';
+    var icon=document.createElement('span');icon.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg>';
+    var txt=document.createElement('span');
+    var who='Vous';try{who=(me&&me.nom)?String(me.nom).trim().split(/\s+/)[0]:'Vous';}catch(e){}
+    var prof=marshallEffectiveProfile(intent), mission=marshallMissionLabel(intent), useTeam=marshallShouldUseCrew(intent);
+    if(marshallAgentMode.agent==='marshall'){txt.appendChild(document.createTextNode('Marshall IA a sélectionné '+(useTeam?'l’équipe ':'l’agent ')));}else{txt.appendChild(document.createTextNode(who+' a utilisé '+(useTeam?'l’équipe ':'l’agent ')));}
+    var a=document.createElement('strong');a.textContent=useTeam?'Marshall · CrewAI':prof.name;txt.appendChild(a);txt.appendChild(document.createTextNode(' pour '));var b=document.createElement('strong');b.textContent=mission;txt.appendChild(b);
+    d.appendChild(icon);d.appendChild(txt);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+  }
+
+  /* ===== Marshall Crew : vraie orchestration multi-agents ===== */
+  var marshallLastCrew=null;
+  function marshallCrewCatalog(){
+    return {
+      brand:{name:'Brand Agent',role:'brand strategist',focus:'positionnement, cible, personnalité, promesse, différenciation et cohérence de marque'},
+      strategy:{name:'Strategy Agent',role:'stratège social media',focus:'objectif, plateforme, angle, funnel, message principal et CTA'},
+      trend:{name:'Hook & Retention Agent',role:'spécialiste des hooks et de la rétention social media',focus:'curiosité, pattern interrupt, rythme, tension narrative, lisibilité instantanée et envie de voir l’écran suivant'},
+      creative:{name:'Creative Director',role:'directeur créatif',focus:'territoire créatif, concept, mémorisation, rythme et direction artistique'},
+      copy:{name:'Copywriter',role:'copywriter social media',focus:'hook, sous-texte, ton, clarté, bénéfice et CTA'},
+      visual:{name:'Visual Designer',role:'designer social media',focus:'composition, hiérarchie, typographie, palette, contraste, imagerie et lisibilité mobile'},
+      critic:{name:'Critic',role:'contrôleur qualité créatif',focus:'cohérence globale, respect du brief, risques, surcharge, promesses non prouvées et corrections prioritaires'}
+    };
+  }
+  function marshallCrewAgentsForIntent(intent){
+    if(intent==='image_generate'||intent==='image_analyze'||intent==='image_compose')return ['brand','creative','visual','critic'];
+    if(intent==='campaign')return ['brand','strategy','creative','copy','critic'];
+    if(intent==='variants')return ['strategy','creative','copy','critic'];
+    if(intent==='story')return ['brand','strategy','trend','creative','copy','visual','critic'];
+    if(intent==='canvas'||intent==='creative')return ['brand','strategy','creative','copy','visual','critic'];
+    if(intent==='vision')return ['visual','critic'];
+    if(intent==='brand'||intent==='business_audit')return ['brand','strategy','creative','critic'];
+    return ['strategy','copy','critic'];
+  }
+  function marshallShouldUseCrew(intent){
+    var active=marshallActiveAgentKey(intent);
+    if(active==='team')return true;
+    if(marshallAgentMode.agent==='marshall')return false;
+    if(marshallAgentMode.agent!=='auto')return false;
+    return ['image_generate','campaign','variants','story','canvas','creative','business_audit'].indexOf(intent)>=0;
+  }
+  async function marshallCrewAIRun(prompt,intent){
+    var brandIntel=await marshallEnsureBrandIntelligence(false);
+    var payload={
+      prompt:String(prompt||''),
+      intent:String(intent||'general'),
+      mission:marshallMissionLabel(intent),
+      selected_agent:marshallActiveAgentKey(intent)||marshallAgentMode.agent||'auto',
+      brand:marshallBrandGet(),
+      brand_intelligence:(brandIntel&&brandIntel.intelligence)||{},
+      settings:marshallSettingsGet(),
+      canvas:edAIContext(),
+      image_description:(marshallImageKnowledge&&marshallImageKnowledge.description)||''
+    };
+    var r=await fetch(MARSHALL_CREWAI_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    var data=null;try{data=await r.json();}catch(e){}
+    if(!r.ok||!data||data.ok!==true)throw Error((data&&data.error)||('CrewAI HTTP '+r.status));
+    if(!Array.isArray(data.agents)||!data.agents.length)throw Error('CrewAI n’a renvoyé aucun agent');
+    data.engine='CrewAI';
+    data.intent=data.intent||intent;
+    data.mission=data.mission||marshallMissionLabel(intent);
+    data.createdAt=data.createdAt||Date.now();
+    return data;
+  }
+
+  async function marshallCrewRunAgent(id,prompt,intent,shared){
+    var a=marshallCrewCatalog()[id]; if(!a)return null;
+    var sys=[
+      'Tu es '+a.name+', '+a.role+', membre de l’équipe Marshall.',
+      'Ton domaine : '+a.focus+'.',
+      'Travaille uniquement sur ton domaine. Sois concret, exigeant et directement exploitable par les autres agents.',
+      'Ne donne pas de raisonnement privé étape par étape. Retourne seulement un diagnostic et des décisions utilisables.',
+      'N’invente jamais de fait, chiffre, client, prix, performance, témoignage ou caractéristique absente.',
+      marshallMarketingContext(marshallSetting('goal','Vente'),marshallSetting('platform','Instagram')),
+      marshallBrandContext(),marshallBrandIntelligenceContext(),marshallStyleContext(),marshallAnalysisContext(),marshallCanvasArtDirectionContext(),
+      shared?('TRAVAIL DES AUTRES AGENTS : '+shared):'',
+      'Réponds UNIQUEMENT en JSON valide : {"agent":"'+a.name+'","summary":"...","decisions":["..."],"recommendations":["..."],"avoid":["..."]}'
+    ].filter(Boolean).join('\n');
+    try{
+      var r=await marshallRemoteJSON(sys,'Mission : '+marshallMissionLabel(intent)+'\nDemande : '+prompt);
+      if(!r||!r.summary)throw Error('sortie agent incomplète');
+      r.agent=r.agent||a.name;return r;
+    }catch(e){
+      console.warn('Marshall Crew '+id,e);
+      return {agent:a.name,summary:'Appliquer '+a.focus+' en restant fidèle au brief et aux informations disponibles.',decisions:[],recommendations:[],avoid:['inventer des informations','surcharger la création']};
+    }
+  }
+  function marshallCrewCompact(results){
+    try{return JSON.stringify(results.map(function(r){return {agent:r.agent,summary:r.summary,decisions:r.decisions,recommendations:r.recommendations,avoid:r.avoid};}));}catch(e){return '';}
+  }
+  async function marshallCrewRun(prompt,intent){
+    edAIStatus('CrewAI · orchestration de l’équipe Marshall…');
+    try{
+      var crewai=await marshallCrewAIRun(prompt,intent);
+      marshallLastCrew=crewai;
+      edAIStatus('✓ CrewAI · '+crewai.agents.length+' agents ont terminé la mission.');
+      return marshallLastCrew;
+    }catch(e){
+      console.warn('CrewAI backend indisponible',e);
+      if(marshallAgentMode.agent==='team' || intent==='story'){
+        var crewErr=(e&&e.message)?e.message:'erreur inconnue';
+        edAIStatus('❌ CrewAI a échoué : '+crewErr);
+        throw Error('CrewAI a échoué : '+crewErr);
+      }
+      edAIStatus('CrewAI indisponible · fallback multi-agents local…');
+    }
+
+    var ids=marshallCrewAgentsForIntent(intent), first=ids.filter(function(x){return x==='brand'||x==='strategy';}), middle=ids.filter(function(x){return x!=='brand'&&x!=='strategy'&&x!=='critic';}), results=[];
+    if(first.length){results=results.concat(await Promise.all(first.map(function(id){return marshallCrewRunAgent(id,prompt,intent,'');})));}
+    var shared1=marshallCrewCompact(results);
+    if(middle.length){results=results.concat(await Promise.all(middle.map(function(id){return marshallCrewRunAgent(id,prompt,intent,shared1);})));}
+    if(ids.indexOf('critic')>=0){var critic=await marshallCrewRunAgent('critic',prompt,intent,marshallCrewCompact(results));if(critic)results.push(critic);}
+    marshallLastCrew={engine:'browser-fallback',intent:intent,mission:marshallMissionLabel(intent),agents:results,createdAt:Date.now()};
+    return marshallLastCrew;
+  }
+  function marshallCrewContext(){
+    if(!marshallLastCrew||!Array.isArray(marshallLastCrew.agents))return 'Aucune synthèse multi-agents disponible.';
+    try{return 'MOTEUR MULTI-AGENTS : '+(marshallLastCrew.engine||'Marshall')+'\nSYNTHÈSE DE L’ÉQUIPE MARSHALL À RESPECTER :\n'+JSON.stringify(marshallLastCrew.agents)+(marshallLastCrew.final?'\nSYNTHÈSE FINALE CREWAI : '+marshallLastCrew.final:'');}catch(e){return '';}
+  }
+  function marshallChatCrewStrip(crew){
+    var th=marshallChatThread();if(!th||!crew||!crew.agents)return null;
+    var d=document.createElement('div');d.className='mv4-team-strip';var b=document.createElement('b');b.textContent=crew.engine==='CrewAI'?'CrewAI · Équipe Marshall':'Équipe Marshall';d.appendChild(b);
+    crew.agents.forEach(function(a,i){if(i){var dot=document.createElement('span');dot.className='mv4-team-dot';d.appendChild(dot);}var sp=document.createElement('span');sp.textContent=a.agent||'Agent';d.appendChild(sp);});
+    var ok=document.createElement('span');ok.className='ok';ok.textContent='synthèse prête';d.appendChild(ok);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+  }
+  async function marshallCrewFinalReply(prompt,intent,baseReply,ok){
+    var sys=['Tu es Marshall. Ton équipe multi-agents vient de travailler sur la demande.','Rédige la réponse finale en français, naturelle, courte et professionnelle.','Dis ce qui a réellement été fait et la logique retenue, sans inventer d’action ni exposer de raisonnement privé.',marshallBrandContext(),marshallAnalysisContext(),marshallCrewContext(),'Réponse : 2 à 4 phrases maximum.'].join('\n');
+    try{return await marshallRemoteReply([{role:'system',content:sys},{role:'user',content:'Demande : '+prompt+'\nRésultat technique : '+(ok?'succès':'échec')+'\nMessage de base : '+baseReply}]);}catch(e){return baseReply;}
+  }
+
+  /* ===== Marshall Expert Engine : un spécialiste IA selon chaque demande ===== */
+  var marshallLastExpertAdvice=null;
+  function marshallSpecialistProfile(intent){
+    var map={
+      image_generate:{name:'Directeur artistique image',role:'directeur artistique et prompt engineer spécialisé en campagnes visuelles',focus:'composition, lumière, sujet, rendu premium, cohérence de marque et prompt image exploitable'},
+      image_analyze:{name:'Analyste visuel',role:'analyste visuel et directeur artistique',focus:'lecture de l’image, hiérarchie, composition, contraste, style, cohérence de marque et opportunités d’amélioration'},
+      image_compose:{name:'Designer de composition',role:'designer social media',focus:'mise en page autour de l’image, hiérarchie, respiration, lisibilité mobile et CTA'},
+      story:{name:'Viral Story Agent',role:'créateur de stories verticales orientées rétention',focus:'arrêt du scroll, hook en moins d’une seconde, narration en 3 écrans, visuels générés selon la marque, lisibilité mobile et CTA'},
+      canvas:{name:'Directeur artistique social',role:'directeur artistique social media',focus:'concept, hiérarchie, typographie, composition, branding, clarté et conversion'},
+      campaign:{name:'Campaign Strategist',role:'stratège de campagne social media',focus:'architecture de campagne, séquençage, angles créatifs, cohérence des messages et progression vers le CTA'},
+      variants:{name:'Creative Testing Expert',role:'expert A/B testing créatif et performance social media',focus:'variantes réellement distinctes, hypothèses créatives, angles, hooks et comparabilité'},
+      creative:{name:'Brand Creative Director',role:'directeur de création et brand designer',focus:'territoires créatifs distinctifs, identité, mémorisation, cohérence de marque et force conceptuelle'},
+      vision:{name:'Visual QA Expert',role:'expert en audit graphique et UX visuelle',focus:'lisibilité, contraste, hiérarchie, espacements, équilibre, cohérence et corrections concrètes'},
+      brand:{name:'Brand Strategist',role:'brand strategist',focus:'positionnement, personnalité, cible, promesse, différenciation, ton et cohérence de marque'},
+      business_audit:{name:'Brand Auditor',role:'consultant en stratégie de marque et direction artistique',focus:'audit 360°, diagnostic, opportunités, risques, direction artistique et recommandations prioritaires'},
+      general:{name:'Marshall',role:'consultant créatif, branding et social media',focus:'réponse précise, utile, structurée et adaptée au contexte de la marque'}
+    };
+    return map[intent]||map.general;
+  }
+  function marshallLocalExpertAdvice(prompt,intent){
+    var p=marshallEffectiveProfile(intent);
+    return {expert:p.name,diagnosis:'La demande doit être traitée avec une logique de '+p.focus+'.',priority:'Rester fidèle au brief, à la marque et au canvas sans inventer d’informations.',creative_direction:(marshallLastDeepAnalysis&&marshallLastDeepAnalysis.creative_decision)||'Privilégier une direction claire, contemporaine et immédiatement lisible.',copy_direction:'Message court, bénéfice ou idée principale immédiatement compréhensible, CTA cohérent.',visual_direction:'Hiérarchie forte, composition respirante, contraste net et cohérence avec les couleurs de marque.',avoid:['recopier la demande comme titre','surcharger le visuel','inventer des preuves ou des chiffres']};
+  }
+  async function marshallExpertConsult(prompt,intent){
+    var p=marshallEffectiveProfile(intent);
+    edAIStatus('Marshall consulte son expert « '+p.name+' »…');
+    var sys=[
+      'Tu es le spécialiste interne de Marshall : '+p.role+'.',
+      'Ton rôle est de préparer une recommandation professionnelle AVANT la réponse finale ou la création.',
+      'Domaine prioritaire : '+p.focus+'.',
+      'Tu ne fournis pas de raisonnement privé étape par étape. Tu donnes uniquement un diagnostic synthétique et des recommandations exploitables.',
+      'Tu n’inventes aucun fait, chiffre, client, prix, performance, témoignage ou caractéristique absente.',
+      marshallBrandContext(),
+      marshallBrandIntelligenceContext(),
+      marshallStyleContext(),
+      marshallAnalysisContext(),
+      marshallCanvasArtDirectionContext(),
+      'Réponds UNIQUEMENT en JSON valide : {"expert":"...","diagnosis":"...","priority":"...","creative_direction":"...","copy_direction":"...","visual_direction":"...","avoid":["..."]}'
+    ].join('\n');
+    try{
+      var a=await marshallRemoteJSON(sys,'Demande utilisateur : '+prompt+'\nIntent détecté : '+intent);
+      if(!a||!a.diagnosis||!a.creative_direction)throw Error('avis expert incomplet');
+      a.expert=a.expert||p.name;marshallLastExpertAdvice=a;return a;
+    }catch(e){console.warn('Marshall specialist fallback',e);marshallLastExpertAdvice=marshallLocalExpertAdvice(prompt,intent);return marshallLastExpertAdvice;}
+  }
+  function marshallExpertContext(){
+    if(!marshallLastExpertAdvice)return 'Aucun avis expert spécialisé disponible.';
+    try{return 'AVIS DU SPÉCIALISTE IA À RESPECTER:\n'+JSON.stringify(marshallLastExpertAdvice);}catch(e){return '';}
+  }
+  function marshallChatExpertCard(a,intent){
+    var th=marshallChatThread();if(!th||!a)return null;
+    var d=document.createElement('div');d.className='mv4-expert';
+    var ic=document.createElement('span');ic.className='mv4-expert-icon';ic.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg>';
+    var c=document.createElement('div');c.className='mv4-expert-copy';var b=document.createElement('b');b.textContent=a.expert||marshallEffectiveProfile(intent).name;var sp=document.createElement('span');sp.textContent=a.priority||a.diagnosis||'Analyse spécialisée prête.';var tag=document.createElement('span');tag.className='mv4-expert-tag';tag.textContent='Expert IA consulté';c.appendChild(b);c.appendChild(sp);c.appendChild(tag);d.appendChild(ic);d.appendChild(c);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+  }
+  async function marshallExpertFinalReply(prompt,intent,baseReply,ok){
+    var p=marshallEffectiveProfile(intent);
+    var sys=[
+      'Tu es Marshall, assisté par un '+p.role+'.',
+      'Rédige la réponse finale à l’utilisateur en français, naturelle, concise et professionnelle.',
+      'La réponse doit refléter précisément ce qui a réellement été fait. Ne prétends jamais avoir réalisé une action qui a échoué.',
+      'Évite les phrases génériques. Mentionne en une phrase la logique créative ou stratégique pertinente.',
+      marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
+      'Réponse attendue : 2 à 4 phrases maximum, sans JSON.'
+    ].join('\n');
+    try{
+      var out=await marshallRemoteReply([{role:'system',content:sys},{role:'user',content:'Demande : '+prompt+'\nRésultat technique : '+(ok?'succès':'échec')+'\nMessage de base : '+baseReply}]);
+      var actionDone=ok&&['image_generate','story','campaign','variants','canvas','image_analyze','image_compose','vision','creative'].indexOf(intent)>=0;
+      if(actionDone && /(quel sujet|quel thème|quel theme|souhaites[- ]?tu|veux[- ]?tu que|on peut le faire|pour créer un post|pour creer un post)/i.test(String(out||'')))return baseReply;
+      return out||baseReply;
+    }
+    catch(e){console.warn('Marshall final reply fallback',e);return baseReply;}
   }
 
   /* ===== Marshall Strategic Intelligence : audit 360° avant création ===== */
@@ -3455,8 +4324,8 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
   async function marshallDeepAnalysis(prompt,intent){
     edAIStatus('Marshall analyse l’entreprise, le branding et la direction artistique…');
     var sys=[
-      'Tu es Marshall, un directeur de marque senior, brand strategist, directeur artistique et stratège social media de très haut niveau.',
-      'Avant toute création, tu réalises un audit 360° professionnel de la marque à partir UNIQUEMENT des informations fournies dans le profil, du brief et du canvas.',
+      'Tu es Marshall, un directeur de marque, brand strategist, directeur artistique et stratège social media de très haut niveau.',
+      'Avant toute création, tu réalises un audit 360° professionnel de la marque à partir du profil déclaré, de la Brand Intelligence multi-source (site + Instagram), du brief et du canvas.',
       'Tu distingues les faits fournis des inférences. Tu n’inventes jamais un chiffre, un concurrent, un historique, une promesse, une clientèle ou une caractéristique absente.',
       'Analyse: entreprise/offre, positionnement, cible, personnalité, cohérence de marque, direction artistique, palette, typographie, composition, imagerie, stratégie de contenu, angle créatif, opportunités, risques et informations manquantes.',
       'Ton diagnostic doit conduire à une décision créative précise pour la demande en cours.',
@@ -3476,7 +4345,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
   function marshallActionReply(intent,ok){
     if(!ok)return "Je n’ai pas réussi cette action. Réessaie dans quelques secondes.";
     if(intent==='image_generate')return 'C’est fait ✨ J’ai généré l’image et je l’ai ajoutée au canvas comme calque éditable.';
-    if(intent==='story')return 'C’est fait. J’ai construit la story sur le canvas vertical avec des éléments éditables.';
+    if(intent==='story')return 'C’est fait. J’ai créé une séquence Story en 3 écrans : hook, valeur et CTA, avec des visuels générés selon la marque et l’image de référence disponible.';
     if(intent==='campaign')return 'La mini-campagne est prête. Tu peux ouvrir les variantes proposées et modifier chaque création.';
     if(intent==='variants')return 'J’ai préparé 3 variantes éditables. Choisis celle que tu veux continuer.';
     if(intent==='canvas')return 'Le visuel est prêt sur le canvas. Tous les textes et éléments restent modifiables.';
@@ -3493,60 +4362,112 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     if(p)p.value=map[action]||current;
     await marshallChatSubmit();
   }
-  async function marshallChatSubmit(forcePrompt){
+  async function marshallChatSubmit(forcePrompt,opts){
     if(marshallChatBusy)return;
     var input=$('#ai-prompt'), b=$('#ai-run');
     var prompt=String(forcePrompt!=null?forcePrompt:((input&&input.value)||'')).trim();
+    opts=opts||{};
     if(!prompt){marshallChatBubble('assistant','Écris ce que tu veux créer, par exemple : « Crée une story Instagram pour présenter mon service ».');if(input)input.focus();return;}
+    var intent=marshallEffectiveIntent(prompt), workPrompt=prompt, pending=marshallConversationPending();
+    if(pending && marshallAgentMode.mission==='auto'){
+      if(/^(non|annule|annuler|laisse|pas maintenant|stop)\b/i.test(prompt)){
+        marshallConversationClearPending();marshallChatBubble('user',prompt);marshallChatBubble('assistant','D’accord, j’annule cette création. Dis-moi simplement ce que tu veux faire ensuite.');if(input){input.value='';input.style.height='auto';input.focus();}return;
+      }
+      if(intent==='general'){
+        intent=pending.intent;
+        workPrompt=(pending.prompt?pending.prompt+'\n':'')+'Précision utilisateur : '+prompt;
+        marshallConversationClearPending();
+      }
+    }
+    if(marshallNeedsBriefClarification(prompt,intent) && !pending){
+      marshallChatBubble('user',prompt);
+      marshallConversationSetPending(intent,prompt);
+      if(marshallAgentMode.agent==='marshall'||marshallAgentMode.agent==='auto')await marshallSupervisorRoute(workPrompt,intent);
+      if(intent!=='general')marshallChatAgentPill(intent);
+      marshallChatBubble('assistant',marshallClarificationQuestion(intent));
+      if(input){input.value='';input.style.height='auto';input.focus();}
+      return;
+    }
+    if(marshallNeedsStoryConfirmation(workPrompt,intent,opts)){
+      marshallChatBubble('user',prompt);
+      marshallChatStoryConfirmation(prompt,intent);
+      if(input){input.value='';input.style.height='auto';input.focus();}
+      return;
+    }
     marshallChatBusy=true;if(b)b.disabled=true;
-    marshallChatBubble('user',prompt);
+    if(!opts.skipUserEcho) marshallChatBubble('user',prompt);
+    var ok=true, reply='';
+    if(marshallAgentMode.agent==='marshall'||marshallAgentMode.agent==='auto')await marshallSupervisorRoute(workPrompt,intent);else marshallSupervisorState={agent:marshallAgentMode.agent,route:{agent:marshallAgentMode.agent,mode:'manual',confidence:1,reason:'Agent choisi manuellement.'},validation:null};
+    marshallSyncCanvasToMission(intent);
+    if(intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')marshallChatAgentPill(intent);
     var typing=marshallChatTyping();
     try{
-      var intent=marshallIntent(prompt), ok=true, reply='';
-      var strategicIntents=['image_generate','campaign','variants','story','canvas','creative','business_audit','general'];
+      var usingCrew=marshallShouldUseCrew(intent);
+      var strategicIntents=['image_generate','campaign','variants','story','canvas','creative','business_audit'];
       var needsStrategicAudit=strategicIntents.indexOf(intent)>=0;
       if(needsStrategicAudit){
-        var audit=await marshallDeepAnalysis(prompt,intent);
-        if(typing&&typing.parentNode)typing.remove();
-        marshallChatAnalysisCard(audit);
+        var audit=await marshallDeepAnalysis(workPrompt,intent);
         if(intent==='business_audit'){
+          if(usingCrew){var auditCrew=await marshallCrewRun(workPrompt,intent);marshallChatCrewStrip(auditCrew);marshallLastExpertAdvice=null;}
+          else{marshallLastExpertAdvice=marshallLocalExpertAdvice(prompt,intent);}
+          if(typing&&typing.parentNode)typing.remove();
+          marshallChatAnalysisCard(audit);
           reply='Analyse terminée. J’ai posé le diagnostic avant toute création. Les zones marquées comme manquantes sont celles qu’il vaut mieux renseigner dans Réglages pour rendre Marshall encore plus précis.';
-          marshallChatBubble('assistant',reply);
+          reply=usingCrew?await marshallCrewFinalReply(workPrompt,intent,reply,true):await marshallExpertFinalReply(workPrompt,intent,reply,true);
+          var auditValidation=await marshallSupervisorValidate(workPrompt,intent,reply,true);reply=auditValidation.reply||reply;
+          marshallChatBubble('assistant',reply);marshallChatSupervisorValidation(auditValidation,intent);
           if(input){input.value='';input.style.height='auto';input.focus();}
           return;
         }
-        typing=marshallChatTyping();
       }else{
         marshallLastDeepAnalysis=null;
       }
-      if(intent==='image_generate'){ok=!!(await marshallGenerateImageFromPrompt(prompt));reply=marshallActionReply(intent,ok);}
+      if(usingCrew){
+        var crew=await marshallCrewRun(workPrompt,intent);
+        marshallChatCrewStrip(crew);
+        marshallLastExpertAdvice=null;
+      }else if(intent!=='business_audit' && (intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')){
+        var expert=await marshallExpertConsult(workPrompt,intent);
+      }else if(intent==='general'){
+        marshallLastExpertAdvice=null;marshallLastCrew=null;
+      }
+      if(intent==='image_generate'){ok=!!(await marshallGenerateImageFromPrompt(workPrompt));reply=marshallActionReply(intent,ok);}
       else if(intent==='image_analyze'){ok=!!(await marshallImageAnalyze());reply=marshallActionReply(intent,ok);}
       else if(intent==='image_compose'){await marshallComposeAroundImage();reply=marshallActionReply(intent,true);}
-      else if(intent==='campaign'){await marshallBuildCampaign(prompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='campaign'){await marshallBuildCampaign(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='variants'){await marshallGenerateVariants();reply=marshallActionReply(intent,true);}
-      else if(intent==='story'){await marshallCreateStory(prompt);reply=marshallActionReply(intent,true);}
-      else if(intent==='canvas'){await marshallCreateOnCanvas(prompt);reply=marshallActionReply(intent,true);}
-      else if(intent==='creative'){await marshallCreativeGenerate(prompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='story'){await marshallCreateStory(workPrompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='canvas'){await marshallCreateOnCanvas(workPrompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='creative'){await marshallCreativeGenerate(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='vision'){await marshallVisionAnalyze(/corrige|répare|repare|améliore|ameliore|optimise/i.test(prompt));reply=marshallActionReply(intent,true);}
       else if(intent==='brand'){
         reply='Ouvre l’outil « Réglages » dans le menu de gauche : tous les réglages de création et la mémoire de marque sont regroupés au même endroit.';
       } else {
         var sys=[
-          'Tu es Marshall, l’assistant créatif IA de Social Studio de Mon Copain Digital.',
+          'Tu es Marshall IA, l’assistant IA généraliste et superviseur de Social Studio de Mon Copain Digital.',
+          'Tu peux répondre normalement à toute question utile dans le contexte du studio, et tu délègues aux agents spécialisés seulement quand cela apporte une vraie valeur.',
           'Réponds en français, de façon concrète, claire et utile.',
-          'Tu aides à créer des contenus social media, concevoir des campagnes, améliorer un canvas et trouver des idées.',
+          'Tu aides aussi à créer des contenus social media, concevoir des campagnes, améliorer un canvas et trouver des idées.',
           'Ne prétends jamais avoir modifié le canvas si aucune action n’a été exécutée.',
+          marshallStudioKnowledgeContext(),
+          (marshallAgentMode.agent==='marshall'&&marshallActiveAgentKey(intent)==='marshall'?'Mode actif : Marshall IA en conversation générale.':'Agent actif : '+marshallEffectiveProfile(intent).name+' — '+marshallEffectiveProfile(intent).focus+'.'),
           marshallMarketingContext(marshallSetting('goal','Vente'),marshallSetting('platform','Instagram')),
           marshallBrandContext(),
-          marshallAnalysisContext()
+          marshallAnalysisContext(),
+          marshallExpertContext(),
+          marshallCrewContext()
         ].join('\n');
-        var msgs=[{role:'system',content:sys}].concat(marshallChatHistory.slice(-8)).concat([{role:'user',content:prompt}]);
+        var msgs=[{role:'system',content:sys}].concat(marshallChatHistory.slice(-8)).concat([{role:'user',content:workPrompt}]);
         reply=await marshallRemoteReply(msgs);
         marshallChatHistory.push({role:'user',content:prompt},{role:'assistant',content:reply});
         marshallChatHistory=marshallChatHistory.slice(-12);
       }
+      if(usingCrew) reply=await marshallCrewFinalReply(workPrompt,intent,reply,ok);
+      else if(intent!=='general') reply=await marshallExpertFinalReply(workPrompt,intent,reply,ok);
+      var validation=await marshallSupervisorValidate(workPrompt,intent,reply,ok);reply=validation.reply||reply;
+      if(intent==='general'&&marshallChatHistory.length&&marshallChatHistory[marshallChatHistory.length-1].role==='assistant')marshallChatHistory[marshallChatHistory.length-1].content=reply;
       if(typing&&typing.parentNode)typing.remove();
-      marshallChatBubble('assistant',reply);
+      marshallChatBubble('assistant',reply);marshallChatSupervisorValidation(validation,intent);
       if(input){input.value='';input.style.height='auto';input.focus();}
     }catch(e){
       console.error('Marshall V4',e);if(typing&&typing.parentNode)typing.remove();
@@ -3562,7 +4483,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
   function edAIExtractJSON(t){t=String(t||'').trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();var a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)throw Error('JSON absent');return JSON.parse(t.slice(a,b+1));}
   function edAISystemPrompt(goal,platform){return ['Tu es Marshall, directeur créatif social media spécialisé en marketing moderne.','Tu modifies un canvas éditable, pas une image aplatie.','Objectif: '+goal+'. Plateforme: '+platform+'.',
       marshallMarketingContext(goal,platform),
-      marshallBrandContext(),marshallAnalysisContext(),'Priorités: hook compris en 1 seconde, hiérarchie nette, peu de texte, CTA clair, lisibilité mobile, design actuel sans surcharge.','N’invente jamais prix, réduction, statistique ou caractéristique produit.','Réponds UNIQUEMENT en JSON: {"summary":"...","actions":[...]}.','Actions: set_text{id,text}; style_text{id,size,color,bold,upper,align,lh,ls}; move{id,x,y}; resize{id,w,h}; set_background{color}; add_text{text,x,y,w,size,color,bold,align}.','x,y,w,h sont 0-100. Utilise seulement les IDs présents. Maximum 12 actions.'].join('\\n');}
+      marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),'Priorités: hook compris en 1 seconde, hiérarchie nette, peu de texte, CTA clair, lisibilité mobile, design actuel sans surcharge.','N’invente jamais prix, réduction, statistique ou caractéristique produit.','Réponds UNIQUEMENT en JSON: {"summary":"...","actions":[...]}.','Actions: set_text{id,text}; style_text{id,size,color,bold,upper,align,lh,ls}; move{id,x,y}; resize{id,w,h}; set_background{color}; add_text{text,x,y,w,size,color,bold,align}.','x,y,w,h sont 0-100. Utilise seulement les IDs présents. Maximum 12 actions.'].join('\\n');}
   function edAILocal(prompt, goal, platform){
     var texts=ed.layers.filter(function(l){return l.type==='text';});
     var p=(prompt||'').toLowerCase();
@@ -3609,8 +4530,18 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     if(brand.tone)parts.push('Visual tone: '+brand.tone+'.');
     if(brand.primary)parts.push('Use '+brand.primary+' as a brand color when appropriate.');
     if(brand.accent)parts.push('Use '+brand.accent+' as an accent when appropriate.');
-    if(marshallLastDeepAnalysis)parts.push(marshallAnalysisContext()); parts.push('No logos or factual claims unless explicitly provided. Avoid rendering long text inside the image because editable text will be added separately on the canvas. High quality, clean composition, strong focal subject, mobile-friendly.');
+    if(marshallLastDeepAnalysis)parts.push(marshallAnalysisContext()); if(marshallLastExpertAdvice)parts.push(marshallExpertContext()); if(marshallLastCrew)parts.push(marshallCrewContext()); parts.push('No logos or factual claims unless explicitly provided. Avoid rendering long text inside the image because editable text will be added separately on the canvas. High quality, clean composition, strong focal subject, mobile-friendly.');
     return parts.filter(Boolean).join(' ');
+  }
+  async function marshallGenerateImageAsset(prompt,dimensions){
+    prompt=String(prompt||'').trim();
+    if(!prompt)return null;
+    var d=dimensions||marshallImageDimensions();
+    var res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,width:d.width,height:d.height})});
+    if(!res.ok)throw Error('API image HTTP '+res.status);
+    var out=await res.json();
+    if(!out||out.success!==true||!out.image)throw Error((out&&out.error)||'Image absente dans la réponse');
+    return 'data:'+(out.mime||'image/webp')+';base64,'+out.image;
   }
   async function marshallGenerateImageFromPrompt(prompt){
     if(marshallImageGenerating)return;
@@ -3622,15 +4553,12 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     if(box){box.textContent='Marshall lance Qwen-Image sur le GPU… Le premier démarrage peut prendre plus de temps.';box.classList.add('show');}
     edAIStatus('🎨 Qwen-Image génère '+d.width+'×'+d.height+'…');
     try{
-      var res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:marshallImagePrompt(prompt),width:d.width,height:d.height})});
-      if(!res.ok)throw Error('API image HTTP '+res.status);
-      var out=await res.json();
-      if(!out||out.success!==true||!out.image)throw Error((out&&out.error)||'Image absente dans la réponse');
-      var mime=out.mime||'image/webp', url='data:'+mime+';base64,'+out.image;
+      var url=await marshallGenerateImageAsset(marshallImagePrompt(prompt),d);
       edAddImage(url);
       var l=edLayer(ed.sel);
       if(l){l.x=0;l.y=0;l.w=100;l.h=100;l.rad=0;l.zoom=100;ed.layers=ed.layers.filter(function(x){return x!==l;});ed.layers.unshift(l);ed.sel=l.id;edSnap();edRender();}
       if(box)box.textContent='✓ Image générée par Qwen-Image et ajoutée au canvas. Elle reste un calque image indépendant.';
+      marshallCanvasPagesClear();
       edAIStatus('✓ Image Qwen-Image ajoutée au canvas. Tu peux maintenant la déplacer, la recadrer ou créer le post autour.');
       return l;
     }catch(e){
@@ -3691,11 +4619,156 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     var texts=ed.layers.filter(function(x){return x.type==='text';});
     texts.forEach(function(t,i){t.x=9;t.w=i===0?43:40;if(i===0)t.y=20;else if(i===1)t.y=51;});
     ed.sel=null;edSnap();edRender();
+    marshallCanvasPagesClear();
     edAIStatus('✓ Marshall a construit le post autour du sujet. L’image et tous les textes restent éditables.');
   }
 
   /* --- Marshall Campaign Builder + variantes éditables --- */
   var marshallGeneratedSet=[];
+
+  var marshallCanvasPages=[];
+  var marshallCanvasPageIndex=0;
+
+  function marshallCanvasDefaultName(kind,index){
+    index=Number(index)||0;
+    if(kind==='story')return 'Story '+(index+1);
+    if(kind==='campaign')return 'Post '+(index+1);
+    if(kind==='variant')return 'Variante '+(index+1);
+    return 'Canvas '+(index+1);
+  }
+  function marshallCanvasDefaultDesc(kind,index){
+    index=Number(index)||0;
+    if(kind==='story')return 'Écran '+(index+1);
+    if(kind==='campaign')return 'Publication '+(index+1);
+    if(kind==='variant')return 'Déclinaison '+(index+1);
+    return 'Canvas éditable';
+  }
+  function marshallCanvasSnapshot(){
+    return {fmt:ed.fmt,bg:ed.bg,layers:marshallClone(ed.layers)};
+  }
+  function marshallCanvasBlankPage(kind,name){
+    var fmt=(kind==='story')?'9:16':(ed.fmt||'1:1');
+    return {name:name||marshallCanvasDefaultName(kind||'post',marshallCanvasPages.length),desc:'Canvas vierge',kind:kind||'post',fmt:fmt,bg:'#FFFFFF',layers:[]};
+  }
+  function marshallCanvasRestore(page){
+    if(!page)return;
+    ed.fmt=page.fmt||'1:1';ed.bg=page.bg||'#FFFFFF';ed.layers=marshallClone(page.layers||[]);ed.sel=null;
+    ed.layers.forEach(function(l){if(l.type==='image'&&l.url){ED_SRC[l.id]=l.url;var im=new Image();im.src=l.url;l._img=im;}});
+    edApplyFmt();edSnap();edRender();
+  }
+  function marshallCanvasPagesEnsureCurrent(){
+    if(marshallCanvasPages.length)return;
+    marshallCanvasPages=[{name:'Canvas 1',desc:'Canvas éditable',kind:(ed.fmt==='9:16'?'story':'post'),fmt:ed.fmt,bg:ed.bg,layers:marshallClone(ed.layers)}];
+    marshallCanvasPageIndex=0;
+  }
+  function marshallCanvasPagesSaveCurrent(){
+    if(!marshallCanvasPages.length||!marshallCanvasPages[marshallCanvasPageIndex])return;
+    marshallCanvasPages[marshallCanvasPageIndex].fmt=ed.fmt;
+    marshallCanvasPages[marshallCanvasPageIndex].bg=ed.bg;
+    marshallCanvasPages[marshallCanvasPageIndex].layers=marshallClone(ed.layers);
+  }
+  function marshallCanvasPageLabel(page,i){
+    return {name:page.name||marshallCanvasDefaultName(page.kind||'post',i),desc:page.desc||marshallCanvasDefaultDesc(page.kind||'post',i)};
+  }
+  function marshallCanvasPagesRender(){
+    var box=$('#ed-multipage'); if(!box)return;
+    marshallCanvasPagesEnsureCurrent();
+    if(!marshallCanvasPages.length){ box.innerHTML=''; box.classList.remove('show'); return; }
+    box.classList.add('show');
+    var chips=marshallCanvasPages.map(function(page,i){
+      var meta=marshallCanvasPageLabel(page,i);
+      return '<button type="button" class="ed-pagechip'+(i===marshallCanvasPageIndex?' active':'')+'" data-page="'+i+'" role="tab" aria-selected="'+(i===marshallCanvasPageIndex?'true':'false')+'"><span class="ed-pagechip-index">'+(i+1)+'</span><span class="ed-pagechip-copy"><b>'+esc(meta.name)+'</b><small>'+esc(meta.desc)+'</small></span></button>';
+    }).join('');
+    box.innerHTML=''+
+      '<div class="ed-pages-top">'+
+        '<div class="ed-pages-actions">'+
+          '<button type="button" class="ed-pageaction primary" data-page-action="new">+ Nouveau canvas</button>'+
+          '<button type="button" class="ed-pageaction" data-page-action="rename">Renommer</button>'+
+          '<button type="button" class="ed-pageaction" data-page-action="duplicate">Dupliquer</button>'+
+          '<button type="button" class="ed-pageaction danger" data-page-action="delete">Supprimer</button>'+
+        '</div>'+
+        '<span class="ed-pagecount">'+marshallCanvasPages.length+' canvas</span>'+
+      '</div>'+
+      '<div class="ed-pages-strip" role="tablist" aria-label="Canvases Marshall">'+chips+'</div>';
+    $all('[data-page]',box).forEach(function(btn){btn.addEventListener('click',function(){marshallCanvasPageOpen(Number(btn.getAttribute('data-page')));});});
+    $all('[data-page-action]',box).forEach(function(btn){btn.addEventListener('click',function(){marshallCanvasHandleAction(btn.getAttribute('data-page-action'));});});
+  }
+  function marshallCanvasPageOpen(index){
+    index=Number(index);
+    if(index<0||index>=marshallCanvasPages.length)return;
+    marshallCanvasPagesSaveCurrent();
+    marshallCanvasPageIndex=index;
+    marshallCanvasRestore(marshallCanvasPages[index]);
+    marshallCanvasPagesRender();
+    edAIStatus('✓ '+marshallCanvasPageLabel(marshallCanvasPages[index],index).name+' chargé.');
+  }
+  function marshallCanvasPagesSetFromGenerated(kind){
+    marshallCanvasPages=marshallGeneratedSet.map(function(v,i){
+      return {name:v.name||marshallCanvasDefaultName(kind||'post',i),desc:v.desc||marshallCanvasDefaultDesc(kind||'post',i),kind:kind||'post',fmt:v.fmt,bg:v.bg,layers:marshallClone(v.layers||[])};
+    });
+    marshallCanvasPageIndex=0;
+    marshallCanvasPagesRender();
+    if(marshallCanvasPages[0])marshallCanvasRestore(marshallCanvasPages[0]);
+  }
+  function marshallCanvasPagesClear(){
+    marshallCanvasPages=[]; marshallCanvasPageIndex=0; marshallCanvasPagesRender();
+  }
+  function marshallCanvasAddNew(){
+    marshallCanvasPagesEnsureCurrent();
+    marshallCanvasPagesSaveCurrent();
+    var current=marshallCanvasPages[marshallCanvasPageIndex]||{};
+    var page=marshallCanvasBlankPage(current.kind||'post',marshallCanvasDefaultName(current.kind||'post',marshallCanvasPages.length));
+    marshallCanvasPages.splice(marshallCanvasPageIndex+1,0,page);
+    marshallCanvasPageOpen(marshallCanvasPageIndex+1);
+    edAIStatus('✓ Nouveau canvas ajouté.');
+  }
+  function marshallCanvasRenameCurrent(){
+    marshallCanvasPagesEnsureCurrent();
+    var current=marshallCanvasPages[marshallCanvasPageIndex]; if(!current)return;
+    var meta=marshallCanvasPageLabel(current,marshallCanvasPageIndex);
+    var name=window.prompt('Renommer ce canvas', meta.name);
+    if(name===null)return;
+    name=String(name).trim();
+    if(!name)return;
+    current.name=name;
+    marshallCanvasPagesRender();
+    edAIStatus('✓ Canvas renommé.');
+  }
+  function marshallCanvasDuplicateCurrent(){
+    marshallCanvasPagesEnsureCurrent();
+    marshallCanvasPagesSaveCurrent();
+    var current=marshallCanvasPages[marshallCanvasPageIndex]; if(!current)return;
+    var copy={name:(current.name||marshallCanvasDefaultName(current.kind||'post',marshallCanvasPageIndex))+' (copie)',desc:current.desc||marshallCanvasDefaultDesc(current.kind||'post',marshallCanvasPageIndex),kind:current.kind||'post',fmt:current.fmt||ed.fmt,bg:current.bg||ed.bg,layers:marshallClone(current.layers||[])};
+    marshallCanvasPages.splice(marshallCanvasPageIndex+1,0,copy);
+    marshallCanvasPageOpen(marshallCanvasPageIndex+1);
+    edAIStatus('✓ Canvas dupliqué.');
+  }
+  function marshallCanvasDeleteCurrent(){
+    marshallCanvasPagesEnsureCurrent();
+    if(!marshallCanvasPages.length)return;
+    var current=marshallCanvasPages[marshallCanvasPageIndex];
+    var meta=marshallCanvasPageLabel(current,marshallCanvasPageIndex);
+    if(!window.confirm('Supprimer « '+meta.name+' » ?'))return;
+    if(marshallCanvasPages.length===1){
+      marshallCanvasPages=[marshallCanvasBlankPage(current.kind||'post','Canvas 1')];
+      marshallCanvasPageIndex=0;
+      marshallCanvasRestore(marshallCanvasPages[0]);
+      marshallCanvasPagesRender();
+      edAIStatus('✓ Le canvas a été réinitialisé.');
+      return;
+    }
+    marshallCanvasPages.splice(marshallCanvasPageIndex,1);
+    if(marshallCanvasPageIndex>=marshallCanvasPages.length)marshallCanvasPageIndex=marshallCanvasPages.length-1;
+    marshallCanvasRestore(marshallCanvasPages[marshallCanvasPageIndex]);
+    marshallCanvasPagesRender();
+    edAIStatus('✓ Canvas supprimé.');
+  }
+  function marshallCanvasHandleAction(action){
+    if(action==='new')return marshallCanvasAddNew();
+    if(action==='rename')return marshallCanvasRenameCurrent();
+    if(action==='duplicate')return marshallCanvasDuplicateCurrent();
+    if(action==='delete')return marshallCanvasDeleteCurrent();
+  }
 
   function marshallSaveCurrentAsVariant(name,desc){
     marshallGeneratedSet.push({name:name,desc:desc,fmt:ed.fmt,bg:ed.bg,layers:marshallClone(ed.layers)});
@@ -3708,8 +4781,11 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     box.classList.toggle('show',marshallGeneratedSet.length>0);
     $all('#mcamp-results [data-mset]').forEach(function(b){
       b.addEventListener('click',function(){
-        var v=marshallGeneratedSet[Number(b.getAttribute('data-mset'))]; if(!v)return;
-        ed.fmt=v.fmt;ed.bg=v.bg;ed.layers=marshallClone(v.layers);ed.sel=null;edApplyFmt();edSnap();edRender();
+        var idx=Number(b.getAttribute('data-mset')), v=marshallGeneratedSet[idx]; if(!v)return;
+        if(marshallCanvasPages.length===marshallGeneratedSet.length){ marshallCanvasPageOpen(idx); return; }
+        ed.fmt=v.fmt;ed.bg=v.bg;ed.layers=marshallClone(v.layers);ed.sel=null;
+        ed.layers.forEach(function(l){if(l.type==='image'&&l.url){ED_SRC[l.id]=l.url;var im=new Image();im.src=l.url;l._img=im;}});
+        edApplyFmt();edSnap();edRender();
         edAIStatus('✓ « '+v.name+' » chargé sur le canvas. Tout est éditable.');
       });
     });
@@ -3735,7 +4811,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
       marshallSaveCurrentAsVariant(name,'Variante '+(i+1)+' · calques éditables');
     });
     ed.fmt=base.fmt;ed.bg=base.bg;ed.layers=marshallClone(base.layers);ed.sel=null;edApplyFmt();edSnap();edRender();
-    marshallRenderGeneratedSet();edAIStatus('✓ Marshall a préparé 3 variantes. Clique sur l’une pour l’éditer.');
+    marshallRenderGeneratedSet();marshallCanvasPagesSetFromGenerated('variant');edAIStatus('✓ Marshall a préparé 3 variantes dans 3 canvas. Clique sur un canvas pour l’éditer.');
   }
 
   async function marshallBuildCampaign(promptOverride){
@@ -3745,7 +4821,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     var specs=null;
     try{
       var p=await marshallRemoteJSON([
-        'Tu es Marshall, stratège social media.',marshallMarketingContext(goal,platform),marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),
+        'Tu es Marshall, stratège social media.',marshallMarketingContext(goal,platform),marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
         'Crée une mini-campagne de 3 publications : teasing, annonce, conversion.',
         'Réponds UNIQUEMENT en JSON valide : {"posts":[{"name":"01 · Teasing","hook":"...","sub":"...","cta":"..."},{"name":"02 · Annonce","hook":"...","sub":"...","cta":"..."},{"name":"03 · Conversion","hook":"...","sub":"...","cta":"..."}]}',
         'N’invente aucune donnée commerciale absente.'
@@ -3760,24 +4836,191 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     var image=(ed.layers||[]).find(function(l){return l.type==='image';});
     specs.forEach(function(sp,i){sp.background='#FFFFFF';sp.cardColor=i===0?'#F4F1FF':i===1?'#FFF8EF':'#EEF8FF';if(image)sp.imageLayer=image;marshallBuildEditablePost(sp);marshallSaveCurrentAsVariant(sp.name||('Publication '+(i+1)),'Étape de campagne · prête à personnaliser');});
     marshallRenderGeneratedSet();
-    var first=marshallGeneratedSet[0];if(first){ed.fmt=first.fmt;ed.bg=first.bg;ed.layers=marshallClone(first.layers);ed.sel=null;edApplyFmt();edSnap();edRender();}
-    edAIStatus('✓ Mini campagne créée : 3 publications éditables.');
+    marshallCanvasPagesSetFromGenerated('campaign');
+    edAIStatus('✓ Mini campagne créée : 3 publications dans 3 canvas éditables.');
     return true;
   }
 
-  async function marshallCreateStory(prompt){
-    // Use an existing vertical format if available; otherwise keep editor format and build vertically-aware composition.
-    var oldFmt=ed.fmt;
-    var verticalKey=null;
+  function marshallStoryFallbackPlan(prompt,referenceDescription){
+    var b=marshallBrandGet(), brand=b.name||'La marque', subject=b.position||b.offer||marshallCleanPromptText(prompt)||'cette nouveauté';
+    return {concept:'Story 3 écrans · hook → valeur → action',visual_direction:'Visuels verticaux modernes, cohérents avec la marque, forts en contraste et pensés mobile.',frames:[
+      {role:'hook',hook:'ATTENDS.\nREGARDE ÇA.',sub:String(subject).slice(0,90),cta:'SUITE →',visual_prompt:'Bold vertical campaign visual, immediate pattern interrupt, one strong focal subject, modern editorial social media art direction, no text in image.'},
+      {role:'value',hook:'POURQUOI ÇA\nCHANGE TOUT',sub:(b.offer||'Une proposition pensée pour être comprise immédiatement.').slice(0,105),cta:'ENCORE 1 ÉCRAN →',visual_prompt:'Premium vertical branded editorial scene showing the value or transformation behind '+subject+', modern social media campaign, strong depth, no text in image.'},
+      {role:'cta',hook:'PRÊT À PASSER\nÀ LA SUITE ?',sub:(brand+' · '+(b.position||b.offer||'Découvre la suite.')).slice(0,105),cta:'DÉCOUVRIR →',visual_prompt:'High-end vertical campaign closing visual for '+brand+', confident branded atmosphere, clear focal zone for CTA overlay, no text in image.'}
+    ],reference_note:referenceDescription||''};
+  }
+  function marshallNormalizeStoryPlan(plan){
+    if(!plan||!Array.isArray(plan.frames)||plan.frames.length<3)return null;
+    var allowed=['big_type','split','editorial','full_bleed','card','diagonal'];
+    var defaults=['big_type','split','editorial'];
+    var used={};
+    plan.frames=plan.frames.slice(0,3).map(function(f,i){
+      f=f||{};
+      var layout=String(f.layout||'').toLowerCase();
+      if(allowed.indexOf(layout)<0||used[layout])layout=defaults[i]||allowed[i];
+      used[layout]=true;
+      return {
+        role:f.role||(i===0?'hook':i===1?'value':'cta'),
+        hook:String(f.hook||'').slice(0,90),
+        sub:String(f.sub||'').slice(0,180),
+        cta:String(f.cta||'').slice(0,50),
+        visual_prompt:String(f.visual_prompt||''),
+        layout:layout
+      };
+    });
+    plan.concept=String(plan.concept||'Story 3 écrans');
+    plan.visual_direction=String(plan.visual_direction||'Direction verticale cohérente avec la marque.');
+    plan.campaign_style=String(plan.campaign_style||'editorial');
+    return plan;
+  }
+  async function marshallViralStoryPlan(prompt,referenceDescription){
+    var goal=marshallSetting('goal','Vente'), platform=marshallSetting('platform','Instagram'), b=marshallBrandGet();
+    // Quand CrewAI vient de travailler, son Story Architect est la source de vérité.
+    if(marshallLastCrew&&marshallLastCrew.engine==='CrewAI'){
+      var crewPlan=marshallNormalizeStoryPlan(marshallLastCrew.story_plan);
+      if(crewPlan){
+        crewPlan.source='CrewAI · Story Architect';
+        return crewPlan;
+      }
+      if(marshallAgentMode.agent==='team')throw Error('CrewAI a répondu mais aucun blueprint Story valide n’a été renvoyé par Story Architect.');
+    }
     try{
-      if(typeof ED_FORMATS!=='undefined') verticalKey=Object.keys(ED_FORMATS).find(function(k){var f=ED_FORMATS[k];return f&&f.h>f.w*1.4;});
-    }catch(e){}
-    if(verticalKey)ed.fmt=verticalKey;
-    await marshallCreateOnCanvas(prompt);
-    var texts=ed.layers.filter(function(l){return l.type==='text';});
-    texts.forEach(function(t,i){ if(i===0){t.y=18;t.w=78;} else if(i===1){t.y=48;t.w=68;} });
+      var plan=await marshallRemoteJSON([
+        'Tu es le Viral Story Agent de Marshall.',
+        'Ta spécialité est de créer une séquence Instagram Story en 3 écrans réellement différente d’un post statique.',
+        'Objectif : maximiser les chances d’arrêter le scroll, maintenir la curiosité jusqu’au dernier écran et conduire vers un CTA clair. Ne promets jamais la viralité.',
+        marshallMarketingContext(goal,platform),marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),marshallCrewContext(),
+        referenceDescription?('IMAGE DE RÉFÉRENCE DE L’ENTREPRISE — description visuelle : '+referenceDescription):'Aucune image de référence disponible.',
+        'Chaque écran doit avoir un rôle distinct : 1=HOOK/PATTERN INTERRUPT, 2=VALEUR/PREUVE OU TRANSFORMATION, 3=CTA/CONCLUSION.',
+        'Les trois images doivent être visuellement reliées mais pas identiques. Les prompts image doivent reprendre les codes de la marque et, si une image de référence existe, ses caractéristiques visuelles sans inventer de logo ou de texte.',
+        'Choisis aussi un layout différent par écran parmi big_type, split, editorial, full_bleed, card, diagonal.',
+        'Le texte visible doit être très court : hook <= 7 mots, sub <= 18 mots, CTA <= 5 mots.',
+        'Réponds UNIQUEMENT en JSON valide : {"concept":"...","visual_direction":"...","campaign_style":"editorial","frames":[{"role":"hook","hook":"...","sub":"...","cta":"...","visual_prompt":"...","layout":"big_type"},{"role":"value","hook":"...","sub":"...","cta":"...","visual_prompt":"...","layout":"split"},{"role":"cta","hook":"...","sub":"...","cta":"...","visual_prompt":"...","layout":"editorial"}]}'
+      ].join('\n'),'Demande : '+prompt);
+      var normalized=marshallNormalizeStoryPlan(plan);
+      if(normalized)return normalized;
+    }catch(e){console.warn('Viral Story plan fallback',e);}
+    return marshallNormalizeStoryPlan(marshallStoryFallbackPlan(prompt,referenceDescription));
+  }
+  function marshallCloneImageLayerForStory(source,x,y,w,h){
+    if(!source)return null;
+    var img=marshallClone(source);img.id='i'+(++ed.seq);img.x=x;img.y=y;img.w=w;img.h=h;img.rad=Math.round(18*(edW()/540));img.rot=0;img.op=100;
+    if(img.url){ED_SRC[img.id]=img.url;var im=new Image();im.src=img.url;img._img=im;}
+    ed.layers.push(img);return img;
+  }
+  function marshallBuildViralStoryFrame(frame,index,generatedUrl,referenceImage){
+    var brand=marshallBrandGet(), primary=brand.primary||'#6EC1F0', accent=brand.accent||'#F3852B';
+    var layout=String(frame.layout||['big_type','split','editorial'][index]||'big_type');
+    marshallClearCanvas();ed.fmt='9:16';ed.bg=index===0?'#161616':(index===1?primary:'#201E1D');
+    if(generatedUrl){
+      edAddImage(generatedUrl);var bg=edLayer(ed.sel);if(bg){bg.x=0;bg.y=0;bg.w=100;bg.h=100;bg.rad=0;bg.zoom=layout==='split'?105:112;bg.op=100;ed.layers=ed.layers.filter(function(x){return x!==bg;});ed.layers.unshift(bg);}
+      edAddShape('rect');var shade=edLayer(ed.sel);if(shade){shade.x=0;shade.y=0;shade.w=100;shade.h=100;shade.fill='#15110F';shade.rad=0;shade.op=layout==='full_bleed'?25:(index===1?28:38);}
+    }else if(referenceImage){
+      marshallCloneImageLayerForStory(referenceImage,0,0,100,100);var refBg=ed.layers[ed.layers.length-1];ed.layers.pop();ed.layers.unshift(refBg);refBg.rad=0;refBg.zoom=118;refBg.op=92;
+      edAddShape('rect');var shade2=edLayer(ed.sel);if(shade2){shade2.x=0;shade2.y=0;shade2.w=100;shade2.h=100;shade2.fill='#17120F';shade2.rad=0;shade2.op=42;}
+    }else{
+      edAddShape('rect');var panel=edLayer(ed.sel);if(panel){panel.x=5;panel.y=5;panel.w=90;panel.h=90;panel.fill=index===0?'#28212F':(index===1?primary:'#2C211B');panel.rad=Math.round(32*(edW()/540));panel.op=100;}
+    }
+    for(var i=0;i<3;i++){edAddShape('rect');var bar=edLayer(ed.sel);if(bar){bar.x=6+i*30;bar.y=4;bar.w=27;bar.h=.7;bar.fill=i<=index?'#FFFFFF':'#BFAFA2';bar.rad=10;bar.op=i<=index?100:45;}}
+
+    var hx=7,hy=index===0?24:20,hw=84,hs=index===0?54:48,ha='left';
+    var sx=7,sy=index===0?60:58,sw=73,ss=18,sa='left';
+    var cx=7,cy=84,cw=42,ctax=10,ctay=85.2,ctaw=36,ctaa='left';
+
+    if(layout==='split'){
+      edAddShape('rect');var splitPanel=edLayer(ed.sel);if(splitPanel){splitPanel.x=0;splitPanel.y=53;splitPanel.w=100;splitPanel.h=47;splitPanel.fill='#15110F';splitPanel.rad=0;splitPanel.op=70;}
+      hx=7;hy=59;hw=84;hs=34;sx=7;sy=74;sw=79;ss=14;cx=56;cy=88;cw=37;ctax=59;ctay=89.1;ctaw=30;
+    }else if(layout==='editorial'){
+      edAddShape('rect');var rule=edLayer(ed.sel);if(rule){rule.x=7;rule.y=20;rule.w=18;rule.h=.8;rule.fill=accent;rule.rad=5;rule.op=100;}
+      hx=7;hy=25;hw=72;hs=43;sx=18;sy=61;sw=68;ss=16;cx=7;cy=87;cw=38;ctax=10;ctay=88.2;ctaw=32;
+    }else if(layout==='full_bleed'){
+      hx=10;hy=34;hw=80;hs=48;ha='center';sx=15;sy=60;sw=70;ss=16;sa='center';cx=29;cy=84;cw=42;ctax=32;ctay=85.2;ctaw=36;ctaa='center';
+    }else if(layout==='card'){
+      edAddShape('rect');var card=edLayer(ed.sel);if(card){card.x=6;card.y=45;card.w=88;card.h=43;card.fill='#15110F';card.rad=Math.round(28*(edW()/540));card.op=72;}
+      hx=10;hy=50;hw=78;hs=34;sx=10;sy=68;sw=72;ss=14;cx=10;cy=80;cw=40;ctax=13;ctay=81.2;ctaw=34;
+    }else if(layout==='diagonal'){
+      edAddShape('rect');var diag=edLayer(ed.sel);if(diag){diag.x=-8;diag.y=54;diag.w=116;diag.h=18;diag.fill=accent;diag.rad=0;diag.op=86;diag.rot=-7;}
+      hx=7;hy=22;hw=82;hs=42;sx=12;sy=69;sw=76;ss=15;cx=52;cy=85;cw=40;ctax=55;ctay=86.2;ctaw=34;
+    }
+
+    var stage=marshallAddTextLayer(index===0?'HOOK':index===1?'VALEUR':'ACTION',7,8,30,12,'#FFFFFF',true,'left');if(stage){stage.upper=true;stage.ls=1.3;stage.op=82;}
+    if(brand.name){var bl=marshallAddTextLayer(brand.name,7,12,70,13,'#FFFFFF',true,'left');if(bl){bl.upper=true;bl.ls=.8;}}
+    var hero=marshallAddTextLayer(frame.hook||'',hx,hy,hw,hs,'#FFFFFF',true,ha);if(hero){hero.lh=.92;hero.ls=-.5;}
+    var sub=marshallAddTextLayer(frame.sub||'',sx,sy,sw,ss,'#FFFFFF',false,sa);if(sub){sub.lh=1.18;sub.op=94;}
+    if(referenceImage&&generatedUrl){marshallCloneImageLayerForStory(referenceImage,66,66,27,18);}
+    edAddShape('rect');var ctaBg=edLayer(ed.sel);if(ctaBg){ctaBg.x=cx;ctaBg.y=cy;ctaBg.w=cw;ctaBg.h=6;ctaBg.fill=accent;ctaBg.rad=999;ctaBg.op=100;}
+    var cta=marshallAddTextLayer(frame.cta||'VOIR LA SUITE →',ctax,ctay,ctaw,14,'#FFFFFF',true,ctaa);if(cta){cta.upper=true;cta.ls=.3;}
     ed.sel=null;edApplyFmt();edSnap();edRender();
-    edAIStatus('✓ Story construite sur le canvas vertical. Tous les éléments restent éditables.');
+  }
+  function marshallVideoResultCard(videoUrl,engine){
+    var th=marshallChatThread();if(!th||!videoUrl)return null;
+    var box=document.createElement('div');box.className='mv4-msg assistant';box.style.maxWidth='520px';box.style.padding='10px';
+    var title=document.createElement('div');title.style.cssText='font-weight:800;margin:2px 4px 9px';title.textContent='Story vidéo prête · '+(engine||'Open-source');
+    var vid=document.createElement('video');vid.controls=true;vid.playsInline=true;vid.preload='metadata';vid.src=videoUrl;vid.style.cssText='display:block;width:100%;max-height:520px;border-radius:16px;background:#111;';
+    var link=document.createElement('a');link.href=videoUrl;link.target='_blank';link.rel='noopener';link.textContent='Ouvrir la vidéo';link.style.cssText='display:inline-block;margin:9px 4px 2px;font-weight:700;color:#F3852B;';
+    box.appendChild(title);box.appendChild(vid);box.appendChild(link);th.appendChild(box);th.scrollTop=th.scrollHeight;return box;
+  }
+  async function marshallPollStoryVideo(taskId,engine){
+    var started=Date.now(),maxMs=12*60*1000;
+    while(Date.now()-started<maxMs){
+      await new Promise(function(resolve){setTimeout(resolve,3500);});
+      var r=await fetch(MARSHALL_VIDEO_STATUS_BASE+encodeURIComponent(taskId),{method:'GET'}),data=null;try{data=await r.json();}catch(e){}
+      if(!r.ok||!data)throw Error((data&&data.error)||('Statut vidéo HTTP '+r.status));
+      if(data.failed)throw Error(data.error||'La génération vidéo a échoué');
+      if(data.done&&data.video_url){marshallVideoResultCard(data.video_url,engine);edAIStatus('✓ Story vidéo prête · Wan 2.2 + MoneyPrinterTurbo.');return data;}
+      var p=data.progress!=null?(' · '+data.progress+'%'):'';edAIStatus('Vidéo open-source en cours'+p+'…');
+    }
+    throw Error('La génération vidéo prend trop de temps. Le rendu peut continuer côté serveur.');
+  }
+  async function marshallCreateStoryVideo(prompt,plan,frameImages){
+    var mode=marshallSetting('storyRender','video');if(mode==='static')return null;
+    if(!frameImages||!frameImages.length)return null;
+    edAIStatus('Wan 2.2 · animation des scènes puis montage MoneyPrinterTurbo…');
+    var r=await fetch(MARSHALL_VIDEO_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:String(prompt||''),story_plan:plan,frame_images:frameImages,animate:true,brand_intelligence:(marshallBrandIntelligenceGet()||{}).intelligence||{}})});
+    var data=null;try{data=await r.json();}catch(e){}
+    if(!r.ok||!data||data.ok!==true){
+      var err=(data&&data.error)||('Vidéo HTTP '+r.status);
+      if(mode==='video')throw Error(err);
+      console.warn('Story video optional',err);edAIStatus('✓ Story éditable prête · moteur vidéo indisponible : '+err);return null;
+    }
+    edAIStatus('MoneyPrinterTurbo · montage et sous-titres…');
+    return marshallPollStoryVideo(data.task_id,data.engine||'Wan2.2 + MoneyPrinterTurbo');
+  }
+  async function marshallCreateStory(prompt){
+    // A story is no longer a resized post: it has its own 3-screen narrative + generated visuals.
+    var referenceImage=(ed.layers||[]).find(function(l){return l.type==='image';});
+    var referenceClone=referenceImage?marshallClone(referenceImage):null, referenceDescription='';
+    if(referenceImage){
+      try{var info=marshallImageKnowledge&&marshallImageKnowledge.id===referenceImage.id?marshallImageKnowledge:await marshallImageAnalyze();referenceDescription=info&&info.description?info.description:'';}catch(e){console.warn('Story reference analysis',e);}
+    }
+    var plan=await marshallViralStoryPlan(prompt,referenceDescription);
+    marshallGeneratedSet=[];ed.fmt='9:16';edApplyFmt();
+    var dims={width:768,height:1360}, storyFrameImages=[];
+    for(var i=0;i<3;i++){
+      var frame=plan.frames[i]||{}, imageUrl=null;
+      edAIStatus((plan.source&&plan.source.indexOf('CrewAI')===0?'CrewAI · Story Architect':'Viral Story Agent')+' · écran '+(i+1)+'/3 : génération du visuel…');
+      try{
+        var imgPrompt=[
+          frame.visual_prompt||'',
+          'Vertical 9:16 social story image. No text, no typography, no captions, no logos.',
+          'Brand direction: '+(plan.visual_direction||''),
+          'Campaign style: '+(plan.campaign_style||'editorial')+'. Layout intent: '+(frame.layout||'editorial')+'.',
+          marshallBrandContext(),
+          referenceDescription?('Reference company visual description: '+referenceDescription):'',
+          'Create a distinct image for story frame '+(i+1)+' of 3 while keeping the same campaign art direction.'
+        ].filter(Boolean).join(' ');
+        imageUrl=await marshallGenerateImageAsset(imgPrompt,dims);if(imageUrl)storyFrameImages.push(imageUrl);
+      }catch(e){console.warn('Story image '+(i+1),e);}
+      marshallBuildViralStoryFrame(frame,i,imageUrl,referenceClone);
+      marshallSaveCurrentAsVariant('Story 0'+(i+1)+' · '+(i===0?'Hook':i===1?'Valeur':'CTA'),'Écran '+(i+1)+'/3 · '+(frame.role||'story')+' · layout '+(frame.layout||'auto')+' · image et textes éditables');
+    }
+    marshallRenderGeneratedSet();
+    marshallCanvasPagesSetFromGenerated('story');
+    edAIStatus('✓ Story virale éditable prête : 3 écrans distincts dans 3 canvas, format 9:16.');
+    if(marshallSetting('storyRender','video')!=='static'){
+      try{await marshallCreateStoryVideo(prompt,plan,storyFrameImages);}catch(e){console.error('Marshall video story',e);edAIStatus('❌ Version vidéo : '+(e&&e.message?e.message:'échec'));if(marshallSetting('storyRender','video')==='video')marshallChatBubble('error','La story éditable est prête, mais la version vidéo open-source a échoué : '+(e&&e.message?e.message:'erreur inconnue')+'.');}
+    }
+    return true;
   }
 
   /* --- Marshall Canvas Builder : crée le post directement en calques éditables --- */
@@ -3953,6 +5196,8 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
         marshallBrandContext(),
         marshallStyleContext(),
         marshallAnalysisContext(),
+        marshallExpertContext(),
+        marshallCrewContext(),
         'Réponds UNIQUEMENT en JSON valide avec exactement ces clés : {"brandLabel":"...","hook":"...","sub":"...","cta":"...","background":"#RRGGBB","cardColor":"#RRGGBB","heroSize":48}.',
         'Le hook doit être très court, marketing et compréhensible. Il ne doit jamais recopier textuellement la demande de l’utilisateur. Si la demande décrit le métier de la marque (ex: branding moderne), utilise cette information pour créer un hook publicitaire plus intelligent.',
         'Le sous-texte doit être concis.',
@@ -4016,6 +5261,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
   var MARSHALL_SETTINGS_LEGACY='marshall_studio_settings_v1';
   var MARSHALL_BRAND_KEY='marshall_brand_brain_v2';
   var MARSHALL_BRAND_LEGACY='marshall_brand_brain_v1';
+  var MARSHALL_INTEL_KEY='marshall_brand_intelligence_v1';
   function marshallAccountId(){ return effectiveUid()||'anon'; }
   function marshallScopedKey(base){ return base+'_'+marshallAccountId(); }
   function marshallReadLocal(base){
@@ -4062,19 +5308,19 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     }catch(e){console.warn('Marshall account prefs sync',e);return false;}
   }
   function marshallSettingsGet(){
-    var d={goal:'Vente',platform:'Instagram',style:'auto'};
+    var d={goal:'Vente',platform:'Instagram',style:'auto',storyRender:'video'};
     marshallMigrateLegacy();
     var x=marshallReadLocal(MARSHALL_SETTINGS_KEY)||{};
     return Object.assign(d,x);
   }
   function marshallSetting(key,fallback){var x=marshallSettingsGet();return x[key]!=null?x[key]:fallback;}
   function marshallSettingsLoadUI(){
-    var x=marshallSettingsGet(), g=$('#ai-goal'), p=$('#ai-platform'), st=$('#marshall-style');
-    if(g)g.value=x.goal||'Vente'; if(p)p.value=x.platform||'Instagram'; if(st)st.value=x.style||'auto';
+    var x=marshallSettingsGet(), g=$('#ai-goal'), p=$('#ai-platform'), st=$('#marshall-style'), sr=$('#marshall-story-render');
+    if(g)g.value=x.goal||'Vente'; if(p)p.value=x.platform||'Instagram'; if(st)st.value=x.style||'auto'; if(sr)sr.value=x.storyRender||'video';
   }
   function marshallSettingsSave(){
     var old=marshallSettingsGet();
-    var x={goal:(($('#ai-goal')||{}).value||old.goal||'Vente'),platform:(($('#ai-platform')||{}).value||old.platform||'Instagram'),style:(($('#marshall-style')||{}).value||old.style||'auto')};
+    var x={goal:(($('#ai-goal')||{}).value||old.goal||'Vente'),platform:(($('#ai-platform')||{}).value||old.platform||'Instagram'),style:(($('#marshall-style')||{}).value||old.style||'auto'),storyRender:(($('#marshall-story-render')||{}).value||old.storyRender||'video')};
     marshallWriteLocal(MARSHALL_SETTINGS_KEY,x);
     marshallPersistAccountPrefs();
     return x;
@@ -4097,7 +5343,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     var f=$('#mbb-form'); if(f)f.classList.toggle('show');
   }
   function marshallBrandLoadUI(){
-    var b=marshallBrandGet(), map={name:'mbb-name',sector:'mbb-sector',primary:'mbb-primary',accent:'mbb-accent',offer:'mbb-offer',values:'mbb-values',artdir:'mbb-artdir',references:'mbb-references',audience:'mbb-audience',tone:'mbb-tone',position:'mbb-position',forbidden:'mbb-forbidden'};
+    var b=marshallBrandGet(), map={name:'mbb-name',sector:'mbb-sector',website:'mbb-website',primary:'mbb-primary',accent:'mbb-accent',offer:'mbb-offer',values:'mbb-values',artdir:'mbb-artdir',references:'mbb-references',audience:'mbb-audience',tone:'mbb-tone',position:'mbb-position',forbidden:'mbb-forbidden'};
     Object.keys(map).forEach(function(k){var el=$('#'+map[k]);if(el&&b[k])el.value=b[k];});
     var st=$('#mbb-state');if(st)st.textContent=b.name?'Profil actif : '+b.name:'Aucun profil de marque enregistré.';
   }
@@ -4105,6 +5351,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     var b={
       name:($('#mbb-name')||{}).value||'',
       sector:($('#mbb-sector')||{}).value||'',
+      website:($('#mbb-website')||{}).value||'',
       primary:($('#mbb-primary')||{}).value||'#6EC1F0',
       accent:($('#mbb-accent')||{}).value||'#F3852B',
       offer:($('#mbb-offer')||{}).value||'',
@@ -4126,6 +5373,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
       'BRAND BRAIN — données fournies par la marque',
       'Nom: '+(b.name||'non renseigné'),
       'Secteur: '+(b.sector||'non renseigné'),
+      'Site officiel: '+(b.website||'non renseigné'),
       'Offre: '+(b.offer||'non renseignée'),
       'Cible: '+(b.audience||'non renseignée'),
       'Valeurs / personnalité: '+(b.values||'non renseignées'),
@@ -4138,6 +5386,14 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
       'RÈGLE: ne jamais inventer une information de marque absente de ce profil ou du canvas.'
     ].join('\n');
   }
+
+  function marshallBrandIntelligenceGet(){return marshallReadLocal(MARSHALL_INTEL_KEY)||{};}
+  function marshallBrandIntelSignature(){var b=marshallBrandGet(),ig=(connections&&connections.instagram)||{};try{return JSON.stringify({uid:marshallAccountId(),brand:b,instagram:ig.connected?(ig.account||'connected'):'off'});}catch(e){return marshallAccountId();}}
+  function marshallBrandIntelligenceContext(){var x=marshallBrandIntelligenceGet();if(!x||!x.intelligence)return 'BRAND INTELLIGENCE multi-source : non disponible pour ce compte.';try{return 'BRAND INTELLIGENCE multi-source — utilisateur actif\n'+JSON.stringify(x.intelligence);}catch(e){return '';}}
+  function marshallBrandIntelligenceRenderState(){var x=marshallBrandIntelligenceGet(),st=$('#mbb-intel-state'),src=$('#mbb-intel-sources');if(st){if(x&&x.intelligence){var when=x.createdAt?new Date(x.createdAt).toLocaleString('fr-FR'):'';st.textContent=(x.intelligence.summary||'Analyse prête.')+(when?' · '+when:'');}else st.textContent='Aucune analyse multi-source disponible pour ce compte.';}if(src){var ss=(x&&x.sources)||{};src.textContent='Sources : Profil '+(ss.manual?'✓':'—')+' · Site '+(ss.website?'✓':'—')+' · Instagram '+(ss.instagram?'✓':'—');}}
+  async function marshallInstagramSource(){var ig=connections&&connections.instagram;if(!ig||!ig.connected||/\(test\)/i.test(ig.account||''))return null;var qs='?network=instagram'+(actingAs?('&on_behalf_of='+encodeURIComponent(actingAs)):'');var r=await fetch(SUPABASE_URL+'/functions/v1/social-insights'+qs,{headers:await authHeaders()});var d=null;try{d=await r.json();}catch(e){}if(!r.ok||!d||d.error||!d.account)return null;return {account:d.account||{},media:(d.media||[]).slice(0,50)};}
+  async function marshallRefreshBrandIntelligence(force){var b=marshallBrandGet(),cached=marshallBrandIntelligenceGet(),sig=marshallBrandIntelSignature(),age=cached&&cached.createdAt?(Date.now()-cached.createdAt):Infinity;if(!force&&cached&&cached.intelligence&&cached.signature===sig&&age<12*60*60*1000)return cached;edAIStatus('Marshall analyse le profil, le site et Instagram du compte actif…');var social=null;try{social=await marshallInstagramSource();}catch(e){console.warn('Marshall Instagram source',e);}var payload={user_scope:marshallAccountId(),manual_brand:b,website_url:b.website||'',social:social||{}};var r=await fetch(MARSHALL_BRAND_INTEL_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});var data=null;try{data=await r.json();}catch(e){}if(!r.ok||!data||data.ok!==true)throw Error((data&&data.error)||('Brand Intelligence HTTP '+r.status));data.signature=sig;data.createdAt=data.createdAt||Date.now();marshallWriteLocal(MARSHALL_INTEL_KEY,data);edAIStatus('✓ Brand Intelligence mise à jour pour ce compte.');return data;}
+  async function marshallEnsureBrandIntelligence(force){try{return await marshallRefreshBrandIntelligence(!!force);}catch(e){console.warn('Brand Intelligence unavailable',e);return marshallBrandIntelligenceGet();}}
 
   /* --- Direction créative : 3 concepts + construction non destructive --- */
   var marshallConcepts=[], marshallConceptSelected=0, marshallCreativeSnapshot=null;
@@ -4225,6 +5481,8 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
         marshallBrandContext(),
         marshallStyleContext(),
         marshallAnalysisContext(),
+        marshallExpertContext(),
+        marshallCrewContext(),
         'Crée exactement 3 concepts vraiment différents : UGC/native, premium/brand, direct-response.',
         'Réponds UNIQUEMENT en JSON valide : {"concepts":[{"id":"ugc","name":"...","desc":"...","hook":"...","sub":"...","cta":"...","style":"ugc"},{"id":"premium","name":"...","desc":"...","hook":"...","sub":"...","cta":"...","style":"premium"},{"id":"direct","name":"...","desc":"...","hook":"...","sub":"...","cta":"...","style":"direct"}]}',
         'N’invente jamais prix, remise, statistique ou témoignage.'
@@ -4340,8 +5598,10 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     if(applyFix){
       var n=mvAutoFix(a), after=mvCanvasAudit();
       if(rep) rep.textContent=mvReportText(after)+'\n\n✓ '+n+' correction(s) appliquée(s). Les éléments restent éditables.';
+      marshallCanvasPagesSaveCurrent();
       edAIStatus('Analyse visuelle a corrigé '+n+' point(s) du canvas.');
     }else{
+      marshallCanvasPagesSaveCurrent();
       edAIStatus('Analyse visuelle a terminé l’audit du canvas.');
     }
   }
@@ -4421,9 +5681,10 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
 
     $all('.ed-rail [data-fly]').forEach(function(b){ b.addEventListener('click', function(){
       var k=b.getAttribute('data-fly');
-      if(ed.flyKind===k && $('#ed-flyout').classList.contains('show')){ edFlyClose(); return; }
+      if(ed.flyKind===k && $('#ed-flyout').classList.contains('show')){ if(k==='ai'&&$('#ed-flyout').classList.contains('minimized')){$('#ed-flyout').classList.remove('minimized');return;} edFlyClose(); return; }
       edFlyout(k); }); });
     $('#ed-fly-x').addEventListener('click', edFlyClose);
+    var flyMin=$('#ed-fly-min'); if(flyMin)flyMin.addEventListener('click', edFlyMinimize);
 
     $all('#ed-ctx [data-ctx]').forEach(function(b){ b.addEventListener('click', function(){
       var a=b.getAttribute('data-ctx'); edCtxClose();
@@ -5420,6 +6681,7 @@ Explique-moi ce que tu veux créer et je peux : générer une image, construire 
     await marshallAccountPrefsLoad(); // réglages Marshall propres au compte connecté
     await loadPosts();
     await loadConnections();
+    marshallEnsureBrandIntelligence(false).catch(function(e){console.warn('Brand Intelligence startup',e);});
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
     updateBadges(); renderConnexions();
     var hcc=$('#hub-card-clients'); if(hcc) hcc.style.display = me.isTeam ? 'flex' : 'none';
