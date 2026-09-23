@@ -3246,7 +3246,7 @@
             <div class="mv4-agentpickers">
               <label class="mv4-agentpicker">
                 <span class="mv4-agentpicker-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/><path d="M19 5l1 1 2-2"/></svg></span>
-                <span class="mv4-agentpicker-copy"><small>Agent</small><select id="marshall-agent-select" aria-label="Choisir l’agent"><option value="auto">Auto · Marshall choisit</option><option value="team">Équipe Marshall · multi-agents</option><option value="marshall">Marshall · Directeur créatif</option><option value="story">Viral Story Agent</option><option value="social">Directeur artistique social</option><option value="brand">Brand Strategist</option><option value="campaign">Campaign Strategist</option><option value="image">Image Art Director</option><option value="visual">Visual QA Expert</option><option value="testing">Creative Testing Expert</option><option value="audit">Brand Auditor</option></select></span>
+                <span class="mv4-agentpicker-copy"><small>Agent</small><select id="marshall-agent-select" aria-label="Choisir l’agent"><option value="auto">Auto · Marshall choisit</option><option value="team">Équipe Marshall · CrewAI</option><option value="marshall">Marshall · Directeur créatif</option><option value="story">Viral Story Agent</option><option value="social">Directeur artistique social</option><option value="brand">Brand Strategist</option><option value="campaign">Campaign Strategist</option><option value="image">Image Art Director</option><option value="visual">Visual QA Expert</option><option value="testing">Creative Testing Expert</option><option value="audit">Brand Auditor</option></select></span>
                 <span class="mv4-agentpicker-chevron"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></span>
               </label>
               <label class="mv4-agentpicker">
@@ -3346,6 +3346,7 @@
 
   /* ===== Marshall V4 : vrai assistant conversationnel + backend existant ===== */
   var MARSHALL_CHAT_ENDPOINT='https://copain-api.vercel.app/api/chat';
+  var MARSHALL_CREWAI_ENDPOINT='https://hugochenu75016-hash--marshall-crewai-web.modal.run/crew';
   var marshallChatHistory=[];
   var marshallChatBusy=false;
   var marshallPendingStoryConfirm=null;
@@ -3522,6 +3523,32 @@
     if(marshallAgentMode.agent!=='auto')return false;
     return ['image_generate','campaign','variants','story','canvas','creative','business_audit'].indexOf(intent)>=0;
   }
+  async function marshallCrewAIRun(prompt,intent){
+    var payload={
+      prompt:String(prompt||''),
+      intent:String(intent||'general'),
+      mission:marshallMissionLabel(intent),
+      selected_agent:marshallAgentMode.agent||'auto',
+      brand:marshallBrandGet(),
+      settings:marshallSettingsGet(),
+      canvas:edAIContext(),
+      image_description:(marshallImageKnowledge&&marshallImageKnowledge.description)||''
+    };
+    var r=await fetch(MARSHALL_CREWAI_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    var data=null;try{data=await r.json();}catch(e){}
+    if(!r.ok||!data||data.ok!==true)throw Error((data&&data.error)||('CrewAI HTTP '+r.status));
+    if(!Array.isArray(data.agents)||!data.agents.length)throw Error('CrewAI n’a renvoyé aucun agent');
+    data.engine='CrewAI';
+    data.intent=data.intent||intent;
+    data.mission=data.mission||marshallMissionLabel(intent);
+    data.createdAt=data.createdAt||Date.now();
+    return data;
+  }
+
   async function marshallCrewRunAgent(id,prompt,intent,shared){
     var a=marshallCrewCatalog()[id]; if(!a)return null;
     var sys=[
@@ -3548,22 +3575,32 @@
     try{return JSON.stringify(results.map(function(r){return {agent:r.agent,summary:r.summary,decisions:r.decisions,recommendations:r.recommendations,avoid:r.avoid};}));}catch(e){return '';}
   }
   async function marshallCrewRun(prompt,intent){
+    edAIStatus('CrewAI · orchestration de l’équipe Marshall…');
+    try{
+      var crewai=await marshallCrewAIRun(prompt,intent);
+      marshallLastCrew=crewai;
+      edAIStatus('✓ CrewAI · '+crewai.agents.length+' agents ont terminé la mission.');
+      return marshallLastCrew;
+    }catch(e){
+      console.warn('CrewAI backend indisponible, fallback navigateur',e);
+      edAIStatus('CrewAI indisponible · fallback multi-agents local…');
+    }
+
     var ids=marshallCrewAgentsForIntent(intent), first=ids.filter(function(x){return x==='brand'||x==='strategy';}), middle=ids.filter(function(x){return x!=='brand'&&x!=='strategy'&&x!=='critic';}), results=[];
-    edAIStatus('Équipe Marshall : analyse du brief…');
     if(first.length){results=results.concat(await Promise.all(first.map(function(id){return marshallCrewRunAgent(id,prompt,intent,'');})));}
     var shared1=marshallCrewCompact(results);
-    if(middle.length){edAIStatus('Équipe Marshall : direction créative et contenu…');results=results.concat(await Promise.all(middle.map(function(id){return marshallCrewRunAgent(id,prompt,intent,shared1);})));}
-    if(ids.indexOf('critic')>=0){edAIStatus('Équipe Marshall : contrôle qualité…');var critic=await marshallCrewRunAgent('critic',prompt,intent,marshallCrewCompact(results));if(critic)results.push(critic);}
-    marshallLastCrew={intent:intent,mission:marshallMissionLabel(intent),agents:results,createdAt:Date.now()};
+    if(middle.length){results=results.concat(await Promise.all(middle.map(function(id){return marshallCrewRunAgent(id,prompt,intent,shared1);})));}
+    if(ids.indexOf('critic')>=0){var critic=await marshallCrewRunAgent('critic',prompt,intent,marshallCrewCompact(results));if(critic)results.push(critic);}
+    marshallLastCrew={engine:'browser-fallback',intent:intent,mission:marshallMissionLabel(intent),agents:results,createdAt:Date.now()};
     return marshallLastCrew;
   }
   function marshallCrewContext(){
     if(!marshallLastCrew||!Array.isArray(marshallLastCrew.agents))return 'Aucune synthèse multi-agents disponible.';
-    try{return 'SYNTHÈSE DE L’ÉQUIPE MARSHALL À RESPECTER :\n'+JSON.stringify(marshallLastCrew.agents);}catch(e){return '';}
+    try{return 'MOTEUR MULTI-AGENTS : '+(marshallLastCrew.engine||'Marshall')+'\nSYNTHÈSE DE L’ÉQUIPE MARSHALL À RESPECTER :\n'+JSON.stringify(marshallLastCrew.agents)+(marshallLastCrew.final?'\nSYNTHÈSE FINALE CREWAI : '+marshallLastCrew.final:'');}catch(e){return '';}
   }
   function marshallChatCrewStrip(crew){
     var th=marshallChatThread();if(!th||!crew||!crew.agents)return null;
-    var d=document.createElement('div');d.className='mv4-team-strip';var b=document.createElement('b');b.textContent='Équipe Marshall';d.appendChild(b);
+    var d=document.createElement('div');d.className='mv4-team-strip';var b=document.createElement('b');b.textContent=crew.engine==='CrewAI'?'CrewAI · Équipe Marshall':'Équipe Marshall';d.appendChild(b);
     crew.agents.forEach(function(a,i){if(i){var dot=document.createElement('span');dot.className='mv4-team-dot';d.appendChild(dot);}var sp=document.createElement('span');sp.textContent=a.agent||'Agent';d.appendChild(sp);});
     var ok=document.createElement('span');ok.className='ok';ok.textContent='synthèse prête';d.appendChild(ok);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
   }
