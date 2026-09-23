@@ -3372,7 +3372,7 @@
     var box=document.createElement('div'); box.className='mv4-confirm';
     var title=document.createElement('strong'); title.textContent='Confirmer la création de la story virale ?';
     var text=document.createElement('p'); text.textContent='Je vais lancer '+(useTeam?'l’équipe Marshall':'l’agent sélectionné')+' pour construire une story verticale 9:16 avec hook, valeur et CTA.';
-    var chip=document.createElement('div'); chip.className='mv4-confirm-agent'; chip.textContent=(useTeam?'Équipe utilisée : Marshall':'Agent utilisé : '+prof.name);
+    var chip=document.createElement('div'); chip.className='mv4-confirm-agent'; chip.textContent=(useTeam?'CrewAI · Équipe Marshall':'Agent utilisé : '+prof.name);
     var actions=document.createElement('div'); actions.className='mv4-confirm-actions';
     var yes=document.createElement('button'); yes.type='button'; yes.className='mv4-confirm-btn yes'; yes.textContent='Oui, lancer';
     var no=document.createElement('button'); no.type='button'; no.className='mv4-confirm-btn no'; no.textContent='Non';
@@ -3582,7 +3582,11 @@
       edAIStatus('✓ CrewAI · '+crewai.agents.length+' agents ont terminé la mission.');
       return marshallLastCrew;
     }catch(e){
-      console.warn('CrewAI backend indisponible, fallback navigateur',e);
+      console.warn('CrewAI backend indisponible',e);
+      if(marshallAgentMode.agent==='team'){
+        edAIStatus('❌ CrewAI n’a pas répondu · aucune création locale lancée.');
+        throw Error('CrewAI n’a pas répondu : '+(e&&e.message?e.message:'erreur inconnue'));
+      }
       edAIStatus('CrewAI indisponible · fallback multi-agents local…');
     }
 
@@ -4091,8 +4095,41 @@
       {role:'cta',hook:'PRÊT À PASSER\nÀ LA SUITE ?',sub:(brand+' · '+(b.position||b.offer||'Découvre la suite.')).slice(0,105),cta:'DÉCOUVRIR →',visual_prompt:'High-end vertical campaign closing visual for '+brand+', confident branded atmosphere, clear focal zone for CTA overlay, no text in image.'}
     ],reference_note:referenceDescription||''};
   }
+  function marshallNormalizeStoryPlan(plan){
+    if(!plan||!Array.isArray(plan.frames)||plan.frames.length<3)return null;
+    var allowed=['big_type','split','editorial','full_bleed','card','diagonal'];
+    var defaults=['big_type','split','editorial'];
+    var used={};
+    plan.frames=plan.frames.slice(0,3).map(function(f,i){
+      f=f||{};
+      var layout=String(f.layout||'').toLowerCase();
+      if(allowed.indexOf(layout)<0||used[layout])layout=defaults[i]||allowed[i];
+      used[layout]=true;
+      return {
+        role:f.role||(i===0?'hook':i===1?'value':'cta'),
+        hook:String(f.hook||'').slice(0,90),
+        sub:String(f.sub||'').slice(0,180),
+        cta:String(f.cta||'').slice(0,50),
+        visual_prompt:String(f.visual_prompt||''),
+        layout:layout
+      };
+    });
+    plan.concept=String(plan.concept||'Story 3 écrans');
+    plan.visual_direction=String(plan.visual_direction||'Direction verticale cohérente avec la marque.');
+    plan.campaign_style=String(plan.campaign_style||'editorial');
+    return plan;
+  }
   async function marshallViralStoryPlan(prompt,referenceDescription){
     var goal=marshallSetting('goal','Vente'), platform=marshallSetting('platform','Instagram'), b=marshallBrandGet();
+    // Quand CrewAI vient de travailler, son Story Architect est la source de vérité.
+    if(marshallLastCrew&&marshallLastCrew.engine==='CrewAI'){
+      var crewPlan=marshallNormalizeStoryPlan(marshallLastCrew.story_plan);
+      if(crewPlan){
+        crewPlan.source='CrewAI · Story Architect';
+        return crewPlan;
+      }
+      if(marshallAgentMode.agent==='team')throw Error('CrewAI a répondu mais aucun blueprint Story valide n’a été renvoyé par Story Architect.');
+    }
     try{
       var plan=await marshallRemoteJSON([
         'Tu es le Viral Story Agent de Marshall.',
@@ -4102,12 +4139,14 @@
         referenceDescription?('IMAGE DE RÉFÉRENCE DE L’ENTREPRISE — description visuelle : '+referenceDescription):'Aucune image de référence disponible.',
         'Chaque écran doit avoir un rôle distinct : 1=HOOK/PATTERN INTERRUPT, 2=VALEUR/PREUVE OU TRANSFORMATION, 3=CTA/CONCLUSION.',
         'Les trois images doivent être visuellement reliées mais pas identiques. Les prompts image doivent reprendre les codes de la marque et, si une image de référence existe, ses caractéristiques visuelles sans inventer de logo ou de texte.',
+        'Choisis aussi un layout différent par écran parmi big_type, split, editorial, full_bleed, card, diagonal.',
         'Le texte visible doit être très court : hook <= 7 mots, sub <= 18 mots, CTA <= 5 mots.',
-        'Réponds UNIQUEMENT en JSON valide : {"concept":"...","visual_direction":"...","frames":[{"role":"hook","hook":"...","sub":"...","cta":"...","visual_prompt":"..."},{"role":"value","hook":"...","sub":"...","cta":"...","visual_prompt":"..."},{"role":"cta","hook":"...","sub":"...","cta":"...","visual_prompt":"..."}]}'
+        'Réponds UNIQUEMENT en JSON valide : {"concept":"...","visual_direction":"...","campaign_style":"editorial","frames":[{"role":"hook","hook":"...","sub":"...","cta":"...","visual_prompt":"...","layout":"big_type"},{"role":"value","hook":"...","sub":"...","cta":"...","visual_prompt":"...","layout":"split"},{"role":"cta","hook":"...","sub":"...","cta":"...","visual_prompt":"...","layout":"editorial"}]}'
       ].join('\n'),'Demande : '+prompt);
-      if(plan&&Array.isArray(plan.frames)&&plan.frames.length>=3)return plan;
+      var normalized=marshallNormalizeStoryPlan(plan);
+      if(normalized)return normalized;
     }catch(e){console.warn('Viral Story plan fallback',e);}
-    return marshallStoryFallbackPlan(prompt,referenceDescription);
+    return marshallNormalizeStoryPlan(marshallStoryFallbackPlan(prompt,referenceDescription));
   }
   function marshallCloneImageLayerForStory(source,x,y,w,h){
     if(!source)return null;
@@ -4117,26 +4156,46 @@
   }
   function marshallBuildViralStoryFrame(frame,index,generatedUrl,referenceImage){
     var brand=marshallBrandGet(), primary=brand.primary||'#6EC1F0', accent=brand.accent||'#F3852B';
+    var layout=String(frame.layout||['big_type','split','editorial'][index]||'big_type');
     marshallClearCanvas();ed.fmt='9:16';ed.bg=index===0?'#161616':(index===1?primary:'#201E1D');
     if(generatedUrl){
-      edAddImage(generatedUrl);var bg=edLayer(ed.sel);if(bg){bg.x=0;bg.y=0;bg.w=100;bg.h=100;bg.rad=0;bg.zoom=112;bg.op=100;ed.layers=ed.layers.filter(function(x){return x!==bg;});ed.layers.unshift(bg);}
-      edAddShape('rect');var shade=edLayer(ed.sel);if(shade){shade.x=0;shade.y=0;shade.w=100;shade.h=100;shade.fill='#15110F';shade.rad=0;shade.op=index===1?28:38;}
+      edAddImage(generatedUrl);var bg=edLayer(ed.sel);if(bg){bg.x=0;bg.y=0;bg.w=100;bg.h=100;bg.rad=0;bg.zoom=layout==='split'?105:112;bg.op=100;ed.layers=ed.layers.filter(function(x){return x!==bg;});ed.layers.unshift(bg);}
+      edAddShape('rect');var shade=edLayer(ed.sel);if(shade){shade.x=0;shade.y=0;shade.w=100;shade.h=100;shade.fill='#15110F';shade.rad=0;shade.op=layout==='full_bleed'?25:(index===1?28:38);}
     }else if(referenceImage){
       marshallCloneImageLayerForStory(referenceImage,0,0,100,100);var refBg=ed.layers[ed.layers.length-1];ed.layers.pop();ed.layers.unshift(refBg);refBg.rad=0;refBg.zoom=118;refBg.op=92;
       edAddShape('rect');var shade2=edLayer(ed.sel);if(shade2){shade2.x=0;shade2.y=0;shade2.w=100;shade2.h=100;shade2.fill='#17120F';shade2.rad=0;shade2.op=42;}
     }else{
       edAddShape('rect');var panel=edLayer(ed.sel);if(panel){panel.x=5;panel.y=5;panel.w=90;panel.h=90;panel.fill=index===0?'#28212F':(index===1?primary:'#2C211B');panel.rad=Math.round(32*(edW()/540));panel.op=100;}
     }
-    // Story progress bars — native cue distinct from a feed post.
     for(var i=0;i<3;i++){edAddShape('rect');var bar=edLayer(ed.sel);if(bar){bar.x=6+i*30;bar.y=4;bar.w=27;bar.h=.7;bar.fill=i<=index?'#FFFFFF':'#BFAFA2';bar.rad=10;bar.op=i<=index?100:45;}}
+
+    var hx=7,hy=index===0?24:20,hw=84,hs=index===0?54:48,ha='left';
+    var sx=7,sy=index===0?60:58,sw=73,ss=18,sa='left';
+    var cx=7,cy=84,cw=42,ctax=10,ctay=85.2,ctaw=36,ctaa='left';
+
+    if(layout==='split'){
+      edAddShape('rect');var splitPanel=edLayer(ed.sel);if(splitPanel){splitPanel.x=0;splitPanel.y=53;splitPanel.w=100;splitPanel.h=47;splitPanel.fill='#15110F';splitPanel.rad=0;splitPanel.op=70;}
+      hx=7;hy=59;hw=84;hs=34;sx=7;sy=74;sw=79;ss=14;cx=56;cy=88;cw=37;ctax=59;ctay=89.1;ctaw=30;
+    }else if(layout==='editorial'){
+      edAddShape('rect');var rule=edLayer(ed.sel);if(rule){rule.x=7;rule.y=20;rule.w=18;rule.h=.8;rule.fill=accent;rule.rad=5;rule.op=100;}
+      hx=7;hy=25;hw=72;hs=43;sx=18;sy=61;sw=68;ss=16;cx=7;cy=87;cw=38;ctax=10;ctay=88.2;ctaw=32;
+    }else if(layout==='full_bleed'){
+      hx=10;hy=34;hw=80;hs=48;ha='center';sx=15;sy=60;sw=70;ss=16;sa='center';cx=29;cy=84;cw=42;ctax=32;ctay=85.2;ctaw=36;ctaa='center';
+    }else if(layout==='card'){
+      edAddShape('rect');var card=edLayer(ed.sel);if(card){card.x=6;card.y=45;card.w=88;card.h=43;card.fill='#15110F';card.rad=Math.round(28*(edW()/540));card.op=72;}
+      hx=10;hy=50;hw=78;hs=34;sx=10;sy=68;sw=72;ss=14;cx=10;cy=80;cw=40;ctax=13;ctay=81.2;ctaw=34;
+    }else if(layout==='diagonal'){
+      edAddShape('rect');var diag=edLayer(ed.sel);if(diag){diag.x=-8;diag.y=54;diag.w=116;diag.h=18;diag.fill=accent;diag.rad=0;diag.op=86;diag.rot=-7;}
+      hx=7;hy=22;hw=82;hs=42;sx=12;sy=69;sw=76;ss=15;cx=52;cy=85;cw=40;ctax=55;ctay=86.2;ctaw=34;
+    }
+
     var stage=marshallAddTextLayer(index===0?'HOOK':index===1?'VALEUR':'ACTION',7,8,30,12,'#FFFFFF',true,'left');if(stage){stage.upper=true;stage.ls=1.3;stage.op=82;}
     if(brand.name){var bl=marshallAddTextLayer(brand.name,7,12,70,13,'#FFFFFF',true,'left');if(bl){bl.upper=true;bl.ls=.8;}}
-    var hero=marshallAddTextLayer(frame.hook||'',7,index===0?24:20,84,index===0?54:48,'#FFFFFF',true,'left');if(hero){hero.lh=.92;hero.ls=-.5;}
-    var sub=marshallAddTextLayer(frame.sub||'',7,index===0?60:58,73,18,'#FFFFFF',false,'left');if(sub){sub.lh=1.18;sub.op=94;}
-    // Keep the exact company/reference image as a real editable brand asset when available.
+    var hero=marshallAddTextLayer(frame.hook||'',hx,hy,hw,hs,'#FFFFFF',true,ha);if(hero){hero.lh=.92;hero.ls=-.5;}
+    var sub=marshallAddTextLayer(frame.sub||'',sx,sy,sw,ss,'#FFFFFF',false,sa);if(sub){sub.lh=1.18;sub.op=94;}
     if(referenceImage&&generatedUrl){marshallCloneImageLayerForStory(referenceImage,66,66,27,18);}
-    edAddShape('rect');var ctaBg=edLayer(ed.sel);if(ctaBg){ctaBg.x=7;ctaBg.y=84;ctaBg.w=42;ctaBg.h=6;ctaBg.fill=accent;ctaBg.rad=999;ctaBg.op=100;}
-    var cta=marshallAddTextLayer(frame.cta||'VOIR LA SUITE →',10,85.2,36,14,'#FFFFFF',true,'left');if(cta){cta.upper=true;cta.ls=.3;}
+    edAddShape('rect');var ctaBg=edLayer(ed.sel);if(ctaBg){ctaBg.x=cx;ctaBg.y=cy;ctaBg.w=cw;ctaBg.h=6;ctaBg.fill=accent;ctaBg.rad=999;ctaBg.op=100;}
+    var cta=marshallAddTextLayer(frame.cta||'VOIR LA SUITE →',ctax,ctay,ctaw,14,'#FFFFFF',true,ctaa);if(cta){cta.upper=true;cta.ls=.3;}
     ed.sel=null;edApplyFmt();edSnap();edRender();
   }
   async function marshallCreateStory(prompt){
@@ -4151,12 +4210,13 @@
     var dims={width:768,height:1360};
     for(var i=0;i<3;i++){
       var frame=plan.frames[i]||{}, imageUrl=null;
-      edAIStatus('Viral Story Agent · écran '+(i+1)+'/3 : génération du visuel…');
+      edAIStatus((plan.source&&plan.source.indexOf('CrewAI')===0?'CrewAI · Story Architect':'Viral Story Agent')+' · écran '+(i+1)+'/3 : génération du visuel…');
       try{
         var imgPrompt=[
           frame.visual_prompt||'',
           'Vertical 9:16 social story image. No text, no typography, no captions, no logos.',
           'Brand direction: '+(plan.visual_direction||''),
+          'Campaign style: '+(plan.campaign_style||'editorial')+'. Layout intent: '+(frame.layout||'editorial')+'.',
           marshallBrandContext(),
           referenceDescription?('Reference company visual description: '+referenceDescription):'',
           'Create a distinct image for story frame '+(i+1)+' of 3 while keeping the same campaign art direction.'
@@ -4164,7 +4224,7 @@
         imageUrl=await marshallGenerateImageAsset(imgPrompt,dims);
       }catch(e){console.warn('Story image '+(i+1),e);}
       marshallBuildViralStoryFrame(frame,i,imageUrl,referenceClone);
-      marshallSaveCurrentAsVariant('Story 0'+(i+1)+' · '+(i===0?'Hook':i===1?'Valeur':'CTA'),'Écran '+(i+1)+'/3 · '+(frame.role||'story')+' · image et textes éditables');
+      marshallSaveCurrentAsVariant('Story 0'+(i+1)+' · '+(i===0?'Hook':i===1?'Valeur':'CTA'),'Écran '+(i+1)+'/3 · '+(frame.role||'story')+' · layout '+(frame.layout||'auto')+' · image et textes éditables');
     }
     marshallRenderGeneratedSet();
     var first=marshallGeneratedSet[0];if(first){ed.fmt=first.fmt;ed.bg=first.bg;ed.layers=marshallClone(first.layers);ed.layers.forEach(function(l){if(l.type==='image'&&l.url){ED_SRC[l.id]=l.url;var im=new Image();im.src=l.url;l._img=im;}});ed.sel=null;edApplyFmt();edSnap();edRender();}
