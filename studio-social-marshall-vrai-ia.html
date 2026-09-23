@@ -3583,9 +3583,10 @@
       return marshallLastCrew;
     }catch(e){
       console.warn('CrewAI backend indisponible',e);
-      if(marshallAgentMode.agent==='team'){
-        edAIStatus('❌ CrewAI n’a pas répondu · aucune création locale lancée.');
-        throw Error('CrewAI n’a pas répondu : '+(e&&e.message?e.message:'erreur inconnue'));
+      if(marshallAgentMode.agent==='team' || intent==='story'){
+        var crewErr=(e&&e.message)?e.message:'erreur inconnue';
+        edAIStatus('❌ CrewAI a échoué : '+crewErr);
+        throw Error('CrewAI a échoué : '+crewErr);
       }
       edAIStatus('CrewAI indisponible · fallback multi-agents local…');
     }
