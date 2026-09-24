@@ -3585,13 +3585,16 @@
     if(st.conversations.length>30)st.conversations=st.conversations.slice(0,30);
     try{localStorage.setItem(marshallConversationKey(),JSON.stringify(st));}catch(e){
       st.conversations=st.conversations.slice(0,12);
-      st.conversations.forEach(function(c){if(Array.isArray(c.messages)&&c.messages.length>36)c.messages=c.messages.slice(-36);});
+      st.conversations.forEach(function(c){
+        if(Array.isArray(c.messages)&&c.messages.length>36)c.messages=c.messages.slice(-36);
+        if(Array.isArray(c.artifacts)&&c.artifacts.length>18)c.artifacts=c.artifacts.slice(-18);
+      });
       try{localStorage.setItem(marshallConversationKey(),JSON.stringify(st));}catch(_e){}
     }
   }
   function marshallConversationMake(){
     var st=marshallConversationLoad(), pref=marshallAgentPreferenceLoad(), now=Date.now();
-    var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',manualAgent:false,pendingIntent:'',pendingPrompt:'',messages:[],draft:'',scrollTop:0};
+    var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',manualAgent:false,pendingIntent:'',pendingPrompt:'',messages:[],artifacts:[],canvasPages:null,canvasPageIndex:0,generatedSet:[],concepts:[],conceptIndex:0,draft:'',scrollTop:0};
     st.conversations.unshift(c);st.activeId=c.id;marshallConversationSave();return c;
   }
   function marshallConversationCurrent(create){
@@ -3603,6 +3606,72 @@
   function marshallConversationHistoryFrom(c){
     return ((c&&c.messages)||[]).filter(function(m){return m.role==='user'||m.role==='assistant';}).map(function(m){return {role:m.role,content:String(m.text||'')};}).slice(-12);
   }
+  function marshallSerializableClone(value){
+    try{return JSON.parse(JSON.stringify(value,function(k,v){if(k==='_img')return undefined;return v;}));}catch(e){return null;}
+  }
+  function marshallConversationCaptureCanvas(c){
+    if(!c||typeof marshallCanvasPages==='undefined'||typeof ed==='undefined')return;
+    try{
+      if(typeof marshallCanvasPagesEnsureCurrent==='function')marshallCanvasPagesEnsureCurrent();
+      if(typeof marshallCanvasPagesSaveCurrent==='function')marshallCanvasPagesSaveCurrent();
+      c.canvasPages=marshallSerializableClone(marshallCanvasPages||[])||[];
+      c.canvasPageIndex=Math.max(0,Math.min(Number(marshallCanvasPageIndex)||0,Math.max(0,c.canvasPages.length-1)));
+      if(typeof marshallGeneratedSet!=='undefined')c.generatedSet=marshallSerializableClone(marshallGeneratedSet||[])||[];
+      if(typeof marshallConcepts!=='undefined'){
+        c.concepts=marshallSerializableClone(marshallConcepts||[])||[];
+        c.conceptIndex=Number(marshallConceptSelected)||0;
+      }
+    }catch(e){console.warn('Marshall canvas persistence capture',e);}
+  }
+  function marshallConversationRestoreCanvas(c){
+    if(!c||!Array.isArray(c.canvasPages)||!c.canvasPages.length||typeof marshallCanvasPages==='undefined')return false;
+    try{
+      marshallCanvasPages=marshallSerializableClone(c.canvasPages)||[];
+      marshallCanvasPageIndex=Math.max(0,Math.min(Number(c.canvasPageIndex)||0,marshallCanvasPages.length-1));
+      if(typeof marshallGeneratedSet!=='undefined')marshallGeneratedSet=marshallSerializableClone(c.generatedSet||[])||[];
+      if(typeof marshallConcepts!=='undefined'){
+        marshallConcepts=marshallSerializableClone(c.concepts||[])||[];
+        marshallConceptSelected=Math.max(0,Math.min(Number(c.conceptIndex)||0,Math.max(0,marshallConcepts.length-1)));
+      }
+      if(typeof marshallCanvasRestore==='function')marshallCanvasRestore(marshallCanvasPages[marshallCanvasPageIndex]);
+      if(typeof marshallCanvasPagesRender==='function')marshallCanvasPagesRender();
+      if(typeof marshallRenderGeneratedSet==='function')marshallRenderGeneratedSet();
+      if(typeof marshallRenderConcepts==='function'&&marshallConcepts&&marshallConcepts.length)marshallRenderConcepts();
+      return true;
+    }catch(e){console.warn('Marshall canvas persistence restore',e);return false;}
+  }
+  function marshallCanvasPersistConversation(){
+    var c=marshallConversationCurrent(false);if(!c)return;
+    marshallConversationCaptureCanvas(c);c.updatedAt=Date.now();marshallConversationSave();marshallConversationRenderSidebar();
+  }
+  function marshallConversationAppendArtifact(type,data){
+    if(marshallConversationRendering)return;
+    var c=marshallConversationCurrent(true);if(!c)return;
+    c.artifacts=Array.isArray(c.artifacts)?c.artifacts:[];
+    var clean=marshallSerializableClone(data);if(clean==null)return;
+    c.artifacts.push({type:String(type||'card'),data:clean,at:Date.now()});
+    if(c.artifacts.length>40)c.artifacts=c.artifacts.slice(-40);
+    c.updatedAt=Date.now();marshallConversationCaptureCanvas(c);marshallConversationSave();marshallConversationRenderSidebar();
+  }
+  function marshallConversationRenderArtifact(a){
+    if(!a||!a.type)return;
+    var d=a.data||{};
+    if(a.type==='analysis'){
+      marshallLastDeepAnalysis=d;marshallChatAnalysisCard(d,true);return;
+    }
+    if(a.type==='expert'){
+      var advice=d.advice||d;marshallLastExpertAdvice=advice;marshallChatExpertCard(advice,d.intent||'general',true);return;
+    }
+    if(a.type==='crew'){
+      marshallLastCrew=d;marshallChatCrewStrip(d,true);return;
+    }
+    if(a.type==='supervisor'){
+      var v=d.validation||d;if(marshallSupervisorState)marshallSupervisorState.validation=v;marshallChatSupervisorValidation(v,d.intent||'general',true);return;
+    }
+    if(a.type==='video'){
+      marshallVideoResultCard(d.url||'',d.engine||'Open-source',true);return;
+    }
+  }
   function marshallConversationEnsureActive(){
     var c=marshallConversationCurrent(true), pref=marshallAgentPreferenceLoad();
     marshallAgentMode.agent=String(c.agent||pref.agent||'marshall');
@@ -3610,6 +3679,7 @@
     marshallSupervisorState={agent:marshallAgentMode.agent,route:null,validation:null};
     marshallAgentMode.mission=String(c.mission||pref.mission||'auto');
     marshallChatHistory=marshallConversationHistoryFrom(c);
+    marshallConversationRestoreCanvas(c);
     return c;
   }
   function marshallConversationTitle(text){
@@ -3642,15 +3712,25 @@
   function marshallConversationSnapshot(){
     var c=marshallConversationCurrent(false);if(!c)return;
     var p=$('#ai-prompt'),th=marshallChatThread();if(p)c.draft=String(p.value||'');if(th)c.scrollTop=Number(th.scrollTop||0);
-    c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;marshallConversationSave();
+    c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;marshallConversationCaptureCanvas(c);marshallConversationSave();
   }
+  window.addEventListener('beforeunload',function(){try{marshallConversationSnapshot();}catch(e){}});
   function marshallWelcomeMarkup(){return '<div class="mv4-welcome-screen" id="marshall-welcome-screen"><div class="mv4-welcome-mark"><img src="avatarchatbot.png" alt=""></div><h3>Que veux-tu créer aujourd’hui ?</h3><p>Marshall IA peut répondre normalement, choisir l’agent le plus adapté, puis vérifier sa réponse avant de te la présenter.</p><div class="mv4-starters"><button type="button" data-marshall-prompt="Crée-moi une story virale pour mon entreprise en utilisant mon branding, mon site et mon Instagram."><span>Story virale</span><small>3 écrans + vidéo IA</small></button><button type="button" data-marshall-prompt="Crée un post Instagram premium cohérent avec ma marque et mon offre principale."><span>Créer un post</span><small>Concept + copy + visuel</small></button><button type="button" data-marshall-prompt="Analyse ma marque avec mon site et mon Instagram puis donne-moi les priorités créatives."><span>Analyser ma marque</span><small>Brand Intelligence</small></button><button type="button" data-marshall-prompt="Propose-moi 3 concepts créatifs vraiment différents pour ma prochaine campagne."><span>Explorer des idées</span><small>3 directions créatives</small></button></div></div>';}
   function marshallBindStarterPrompts(){var th=marshallChatThread();if(!th)return;$all('[data-marshall-prompt]',th).forEach(function(btn){btn.addEventListener('click',function(){var p=$('#ai-prompt');if(!p)return;p.value=this.getAttribute('data-marshall-prompt')||'';p.dispatchEvent(new Event('input'));p.focus();});});}
   function marshallResetThreadUI(){var th=marshallChatThread();if(!th)return;th.innerHTML=marshallWelcomeMarkup();marshallBindStarterPrompts();th.scrollTop=0;}
   function marshallConversationRenderActive(){
     var th=marshallChatThread();if(!th)return;var c=marshallConversationEnsureActive();marshallConversationRendering=true;th.innerHTML='';
-    if(!c.messages||!c.messages.length){th.innerHTML=marshallWelcomeMarkup();}
-    else c.messages.forEach(function(m){var d=document.createElement('div');d.className='mv4-msg '+(m.role||'assistant');d.textContent=String(m.text||'');th.appendChild(d);});
+    var messages=Array.isArray(c.messages)?c.messages:[], artifacts=Array.isArray(c.artifacts)?c.artifacts:[];
+    var timeline=[];
+    messages.forEach(function(m,i){timeline.push({kind:'message',at:Number(m.at)||0,order:i,item:m});});
+    artifacts.forEach(function(a,i){timeline.push({kind:'artifact',at:Number(a.at)||0,order:10000+i,item:a});});
+    timeline.sort(function(a,b){return a.at===b.at?a.order-b.order:a.at-b.at;});
+    if(!timeline.length){th.innerHTML=marshallWelcomeMarkup();}
+    else timeline.forEach(function(x){
+      if(x.kind==='message'){
+        var m=x.item,d=document.createElement('div');d.className='mv4-msg '+(m.role||'assistant');d.textContent=String(m.text||'');th.appendChild(d);
+      }else marshallConversationRenderArtifact(x.item);
+    });
     marshallConversationRendering=false;marshallBindStarterPrompts();
     var p=$('#ai-prompt');if(p){p.value=String(c.draft||'');p.style.height='auto';p.style.height=Math.min(p.scrollHeight,120)+'px';}
     requestAnimationFrame(function(){th.scrollTop=(c.scrollTop>0?c.scrollTop:th.scrollHeight);});
@@ -3672,8 +3752,8 @@
     marshallConversationRenderActive();marshallConversationRenderSidebar();var a=$('#marshall-agent-select'),m=$('#marshall-mission-select');if(a)a.value=marshallAgentMode.agent;if(m)m.value=marshallAgentMode.mission;marshallAgentMenuRefresh();var p=$('#ai-prompt');if(p)p.focus();
   }
   function marshallConversationNew(){
-    marshallConversationSnapshot();var st=marshallConversationLoad(),pref=marshallAgentPreferenceLoad(),now=Date.now();var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',manualAgent:false,pendingIntent:'',pendingPrompt:'',messages:[],draft:'',scrollTop:0};
-    st.conversations.unshift(c);st.activeId=c.id;marshallConversationSave();marshallAgentMode.agent=c.agent;marshallAgentMode.mission=c.mission;marshallAgentManual=false;marshallSupervisorState={agent:c.agent||'marshall',route:null,validation:null};marshallChatHistory=[];marshallConversationRenderActive();marshallConversationRenderSidebar();var a=$('#marshall-agent-select'),m=$('#marshall-mission-select');if(a)a.value=c.agent;if(m)m.value=c.mission;marshallAgentMenuRefresh();var p=$('#ai-prompt');if(p){p.value='';p.style.height='auto';p.focus();}
+    marshallConversationSnapshot();var st=marshallConversationLoad(),pref=marshallAgentPreferenceLoad(),now=Date.now();var c={id:'mc_'+now.toString(36)+'_'+Math.random().toString(36).slice(2,7),title:'Nouvelle conversation',createdAt:now,updatedAt:now,agent:pref.agent||'marshall',mission:pref.mission||'auto',manualAgent:false,pendingIntent:'',pendingPrompt:'',messages:[],artifacts:[],canvasPages:null,canvasPageIndex:0,generatedSet:[],concepts:[],conceptIndex:0,draft:'',scrollTop:0};
+    marshallConversationCaptureCanvas(c);st.conversations.unshift(c);st.activeId=c.id;marshallConversationSave();marshallAgentMode.agent=c.agent;marshallAgentMode.mission=c.mission;marshallAgentManual=false;marshallSupervisorState={agent:c.agent||'marshall',route:null,validation:null};marshallChatHistory=[];marshallConversationRenderActive();marshallConversationRenderSidebar();var a=$('#marshall-agent-select'),m=$('#marshall-mission-select');if(a)a.value=c.agent;if(m)m.value=c.mission;marshallAgentMenuRefresh();var p=$('#ai-prompt');if(p){p.value='';p.style.height='auto';p.focus();}
   }
   function marshallChatBubble(role,text,extra){
     var th=marshallChatThread(); if(!th)return null;
@@ -3954,13 +4034,53 @@
     marshallSupervisorState={agent:result.agent,route:result,validation:null};
     return result;
   }
+  var marshallLastCreationQA=null;
+  function marshallCreationQualityAudit(intent){
+    var supported=['canvas','story','campaign','variants','image_compose'];
+    if(supported.indexOf(intent)<0||typeof mvCanvasAudit!=='function'){marshallLastCreationQA=null;return null;}
+    try{
+      var multi=typeof marshallCanvasPages!=='undefined'&&marshallCanvasPages&&marshallCanvasPages.length>1;
+      if(multi){
+        marshallCanvasPagesSaveCurrent();
+        var activeIndex=marshallCanvasPageIndex, original={fmt:ed.fmt,bg:ed.bg,layers:marshallClone(ed.layers),sel:ed.sel}, pageAudits=[];
+        marshallCanvasPages.forEach(function(page,i){
+          ed.fmt=page.fmt||'1:1';ed.bg=page.bg||'#FFFFFF';ed.layers=marshallClone(page.layers||[]);ed.sel=null;
+          var a=mvCanvasAudit(), meta=marshallCanvasPageLabel(page,i);
+          pageAudits.push({index:i,name:meta.name,score:Number(a.score)||0,counts:a.counts||{},findings:(a.findings||[]).slice(0,8).map(function(f){return {severity:f.sev||'',kind:f.kind||'',message:f.msg||''};})});
+        });
+        ed.fmt=original.fmt;ed.bg=original.bg;ed.layers=original.layers;ed.sel=original.sel;edApplyFmt();edRender();
+        marshallCanvasPageIndex=Math.max(0,Math.min(activeIndex,marshallCanvasPages.length-1));
+        var scores=pageAudits.map(function(p){return p.score;}), avg=scores.length?Math.round(scores.reduce(function(a,b){return a+b;},0)/scores.length):0;
+        marshallLastCreationQA={intent:intent,scope:pageAudits.length+' canvases',score:avg,minScore:scores.length?Math.min.apply(Math,scores):avg,pages:pageAudits,checkedAt:Date.now()};
+        marshallCanvasPersistConversation();
+        edAIStatus('Marshall IA · contrôle qualité '+pageAudits.length+' canvases : '+avg+'/100 · minimum '+marshallLastCreationQA.minScore+'/100.');
+        return marshallLastCreationQA;
+      }
+      var a=mvCanvasAudit();
+      marshallLastCreationQA={intent:intent,scope:'canvas actif',score:Number(a.score)||0,counts:a.counts||{},findings:(a.findings||[]).slice(0,8).map(function(f){return {severity:f.sev||'',kind:f.kind||'',message:f.msg||''};}),checkedAt:Date.now()};
+      if(typeof marshallCanvasPagesSaveCurrent==='function')marshallCanvasPagesSaveCurrent();
+      marshallCanvasPersistConversation();
+      edAIStatus('Marshall IA · contrôle qualité du canvas : '+marshallLastCreationQA.score+'/100.');
+      return marshallLastCreationQA;
+    }catch(e){console.warn('Marshall creation QA',e);marshallLastCreationQA=null;return null;}
+  }
+  function marshallCreationQualityContext(){
+    if(!marshallLastCreationQA)return 'Aucun contrôle structurel post-création disponible.';
+    try{return 'CONTRÔLE STRUCTUREL POST-CRÉATION — '+marshallLastCreationQA.scope+'\n'+JSON.stringify(marshallLastCreationQA);}catch(e){return '';}
+  }
+
   async function marshallSupervisorValidate(prompt,intent,reply,ok){
     var active=marshallActiveAgentKey(intent), cat=marshallAgentCatalog(), profile=cat[active]||marshallSpecialistProfile(intent);
     var fallback={approved:true,agent_fit:true,agent:active,recommended_agent:active,confidence:.75,note:'Réponse vérifiée par Marshall IA.',reply:String(reply||'')};
     var sys=[
       'Tu es Marshall IA, superviseur et contrôleur qualité final.',
-      'Tu vérifies deux choses : 1) l’agent utilisé est adapté à la demande; 2) la réponse finale répond bien à la demande et ne prétend pas qu’une action a réussi si le résultat technique indique un échec.',
+      'Tu vérifies quatre choses : 1) l’agent utilisé est adapté à la demande; 2) la création respecte l’audit 360° et la décision du spécialiste; 3) le contrôle structurel du canvas ne révèle pas de problème majeur ignoré; 4) la réponse finale répond bien à la demande et ne prétend pas qu’une action a réussi si le résultat technique indique un échec.',
       'Tu peux améliorer légèrement la réponse pour la rendre plus claire, mais tu ne dois ajouter aucun fait, chiffre, action ou résultat non fourni.',
+      marshallBrandIntelligenceContext(),
+      marshallAnalysisContext(),
+      marshallExpertContext(),
+      marshallCrewContext(),
+      marshallCreationQualityContext(),
       'Un choix est manuel UNIQUEMENT si le champ ORIGINE DU CHOIX indique MANUEL. Marshall IA affiché par défaut n’est pas un choix manuel.',
       'Si ORIGINE DU CHOIX=MANUEL et que l’utilisateur a choisi un agent différent de celui que tu recommanderais, respecte son choix et indique seulement recommended_agent.',
       marshallStudioKnowledgeContext(),
@@ -3975,6 +4095,7 @@
       'ORIGINE DU CHOIX : '+(marshallAgentManual?'MANUEL':'DÉFAUT/SUPERVISEUR AUTOMATIQUE'),
       'Route superviseur : '+JSON.stringify((marshallSupervisorState&&marshallSupervisorState.route)||{}),
       'Résultat technique : '+(ok?'succès':'échec'),
+      'Contrôle post-création : '+marshallCreationQualityContext(),
       'Réponse à vérifier : '+String(reply||'')
     ].join('\n');
     try{
@@ -4002,7 +4123,7 @@
     marshallSupervisorState.validation=fallback;
     return fallback;
   }
-  function marshallChatSupervisorValidation(v,intent){
+  function marshallChatSupervisorValidation(v,intent,skipPersist){
     var th=marshallChatThread();if(!th||!v)return null;
     var cat=marshallAgentCatalog(), used=marshallActiveAgentKey(intent), up=cat[used]||marshallSpecialistProfile(intent), rec=cat[v.recommended_agent]||marshallSpecialistProfile(intent);
     var d=document.createElement('div');d.className='mv4-supervisor-check '+(v.approved?'ok':'warn');
@@ -4014,7 +4135,9 @@
     if(v.recommended_agent&&v.recommended_agent!==used)txt+=' Recommandé : '+((rec&&rec.name)||v.recommended_agent)+'.';
     sp.textContent=txt;
     var badge=document.createElement('em');badge.textContent=Math.round((Number(v.confidence)||0)*100)+'%';
-    cp.appendChild(b);cp.appendChild(sp);d.appendChild(ic);d.appendChild(cp);d.appendChild(badge);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+    cp.appendChild(b);cp.appendChild(sp);d.appendChild(ic);d.appendChild(cp);d.appendChild(badge);th.appendChild(d);th.scrollTop=th.scrollHeight;
+    if(!skipPersist)marshallConversationAppendArtifact('supervisor',{validation:v,intent:intent});
+    return d;
   }
   function marshallEffectiveProfile(intent){
     var cat=marshallAgentCatalog();
@@ -4178,14 +4301,16 @@
     if(!marshallLastCrew||!Array.isArray(marshallLastCrew.agents))return 'Aucune synthèse multi-agents disponible.';
     try{return 'MOTEUR MULTI-AGENTS : '+(marshallLastCrew.engine||'Marshall')+'\nSYNTHÈSE DE L’ÉQUIPE MARSHALL À RESPECTER :\n'+JSON.stringify(marshallLastCrew.agents)+(marshallLastCrew.final?'\nSYNTHÈSE FINALE CREWAI : '+marshallLastCrew.final:'');}catch(e){return '';}
   }
-  function marshallChatCrewStrip(crew){
+  function marshallChatCrewStrip(crew,skipPersist){
     var th=marshallChatThread();if(!th||!crew||!crew.agents)return null;
     var d=document.createElement('div');d.className='mv4-team-strip';var b=document.createElement('b');b.textContent=crew.engine==='CrewAI'?'CrewAI · Équipe Marshall':'Équipe Marshall';d.appendChild(b);
     crew.agents.forEach(function(a,i){if(i){var dot=document.createElement('span');dot.className='mv4-team-dot';d.appendChild(dot);}var sp=document.createElement('span');sp.textContent=a.agent||'Agent';d.appendChild(sp);});
-    var ok=document.createElement('span');ok.className='ok';ok.textContent='synthèse prête';d.appendChild(ok);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+    var ok=document.createElement('span');ok.className='ok';ok.textContent='synthèse prête';d.appendChild(ok);th.appendChild(d);th.scrollTop=th.scrollHeight;
+    if(!skipPersist)marshallConversationAppendArtifact('crew',crew);
+    return d;
   }
   async function marshallCrewFinalReply(prompt,intent,baseReply,ok){
-    var sys=['Tu es Marshall. Ton équipe multi-agents vient de travailler sur la demande.','Rédige la réponse finale en français, naturelle, courte et professionnelle.','Dis ce qui a réellement été fait et la logique retenue, sans inventer d’action ni exposer de raisonnement privé.',marshallBrandContext(),marshallAnalysisContext(),marshallCrewContext(),'Réponse : 2 à 4 phrases maximum.'].join('\n');
+    var sys=['Tu es Marshall. Ton équipe multi-agents vient de travailler sur la demande.','Rédige la réponse finale en français, naturelle, courte et professionnelle.','Dis ce qui a réellement été fait et la logique retenue, sans inventer d’action ni exposer de raisonnement privé.',marshallBrandContext(),marshallBrandIntelligenceContext(),marshallAnalysisContext(),marshallCrewContext(),marshallExpertContext(),marshallCreationQualityContext(),'Réponse : 2 à 4 phrases maximum.'].join('\n');
     try{return await marshallRemoteReply([{role:'system',content:sys},{role:'user',content:'Demande : '+prompt+'\nRésultat technique : '+(ok?'succès':'échec')+'\nMessage de base : '+baseReply}]);}catch(e){return baseReply;}
   }
 
@@ -4214,35 +4339,42 @@
   }
   async function marshallExpertConsult(prompt,intent){
     var p=marshallEffectiveProfile(intent);
-    edAIStatus('Marshall consulte son expert « '+p.name+' »…');
+    edAIStatus('Marshall fait vérifier le diagnostic par « '+p.name+' »…');
     var sys=[
       'Tu es le spécialiste interne de Marshall : '+p.role+'.',
-      'Ton rôle est de préparer une recommandation professionnelle AVANT la réponse finale ou la création.',
+      'Tu interviens APRÈS l’audit stratégique 360° et AVANT la création.',
+      'Ton rôle est de vérifier le diagnostic, détecter les incohérences, corriger les recommandations trop génériques et transformer l’analyse en une décision créative directement exécutable.',
       'Domaine prioritaire : '+p.focus+'.',
+      'Si une conclusion de l’audit n’est pas soutenue par le profil, la Brand Intelligence, le brief ou le canvas, signale-la et corrige-la. Ne transforme jamais une hypothèse en fait.',
       'Tu ne fournis pas de raisonnement privé étape par étape. Tu donnes uniquement un diagnostic synthétique et des recommandations exploitables.',
       'Tu n’inventes aucun fait, chiffre, client, prix, performance, témoignage ou caractéristique absente.',
       marshallBrandContext(),
       marshallBrandIntelligenceContext(),
       marshallStyleContext(),
       marshallAnalysisContext(),
+      marshallCrewContext(),
       marshallCanvasArtDirectionContext(),
-      'Réponds UNIQUEMENT en JSON valide : {"expert":"...","diagnosis":"...","priority":"...","creative_direction":"...","copy_direction":"...","visual_direction":"...","avoid":["..."]}'
+      'Réponds UNIQUEMENT en JSON valide : {"expert":"...","audit_validated":true,"diagnosis":"...","corrections":["..."],"priority":"...","creative_direction":"...","copy_direction":"...","visual_direction":"...","avoid":["..."]}'
     ].join('\n');
     try{
       var a=await marshallRemoteJSON(sys,'Demande utilisateur : '+prompt+'\nIntent détecté : '+intent);
       if(!a||!a.diagnosis||!a.creative_direction)throw Error('avis expert incomplet');
-      a.expert=a.expert||p.name;marshallLastExpertAdvice=a;return a;
-    }catch(e){console.warn('Marshall specialist fallback',e);marshallLastExpertAdvice=marshallLocalExpertAdvice(prompt,intent);return marshallLastExpertAdvice;}
+      a.expert=a.expert||p.name;
+      if(typeof a.audit_validated!=='boolean')a.audit_validated=true;
+      marshallLastExpertAdvice=a;return a;
+    }catch(e){console.warn('Marshall specialist fallback',e);marshallLastExpertAdvice=marshallLocalExpertAdvice(prompt,intent);marshallLastExpertAdvice.audit_validated=true;return marshallLastExpertAdvice;}
   }
   function marshallExpertContext(){
     if(!marshallLastExpertAdvice)return 'Aucun avis expert spécialisé disponible.';
     try{return 'AVIS DU SPÉCIALISTE IA À RESPECTER:\n'+JSON.stringify(marshallLastExpertAdvice);}catch(e){return '';}
   }
-  function marshallChatExpertCard(a,intent){
+  function marshallChatExpertCard(a,intent,skipPersist){
     var th=marshallChatThread();if(!th||!a)return null;
     var d=document.createElement('div');d.className='mv4-expert';
     var ic=document.createElement('span');ic.className='mv4-expert-icon';ic.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z"/></svg>';
-    var c=document.createElement('div');c.className='mv4-expert-copy';var b=document.createElement('b');b.textContent=a.expert||marshallEffectiveProfile(intent).name;var sp=document.createElement('span');sp.textContent=a.priority||a.diagnosis||'Analyse spécialisée prête.';var tag=document.createElement('span');tag.className='mv4-expert-tag';tag.textContent='Expert IA consulté';c.appendChild(b);c.appendChild(sp);c.appendChild(tag);d.appendChild(ic);d.appendChild(c);th.appendChild(d);th.scrollTop=th.scrollHeight;return d;
+    var c=document.createElement('div');c.className='mv4-expert-copy';var b=document.createElement('b');b.textContent=a.expert||marshallEffectiveProfile(intent).name;var sp=document.createElement('span');sp.textContent=a.priority||a.diagnosis||'Analyse spécialisée prête.';var tag=document.createElement('span');tag.className='mv4-expert-tag';tag.textContent='Expert IA consulté';c.appendChild(b);c.appendChild(sp);c.appendChild(tag);d.appendChild(ic);d.appendChild(c);th.appendChild(d);th.scrollTop=th.scrollHeight;
+    if(!skipPersist)marshallConversationAppendArtifact('expert',{advice:a,intent:intent});
+    return d;
   }
   async function marshallExpertFinalReply(prompt,intent,baseReply,ok){
     var p=marshallEffectiveProfile(intent);
@@ -4251,7 +4383,7 @@
       'Rédige la réponse finale à l’utilisateur en français, naturelle, concise et professionnelle.',
       'La réponse doit refléter précisément ce qui a réellement été fait. Ne prétends jamais avoir réalisé une action qui a échoué.',
       'Évite les phrases génériques. Mentionne en une phrase la logique créative ou stratégique pertinente.',
-      marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
+      marshallBrandContext(),marshallBrandIntelligenceContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),marshallCreationQualityContext(),
       'Réponse attendue : 2 à 4 phrases maximum, sans JSON.'
     ].join('\n');
     try{
@@ -4307,7 +4439,7 @@
     if(v&&typeof v==='object')return Object.keys(v).map(function(k){return String(v[k]||'');}).filter(Boolean).join(' · ');
     return String(v||'');
   }
-  function marshallChatAnalysisCard(a){
+  function marshallChatAnalysisCard(a,skipPersist){
     var th=marshallChatThread(); if(!th||!a)return null;
     var card=document.createElement('div');card.className='mv4-audit';
     var head=document.createElement('div');head.className='mv4-audit-head';
@@ -4319,20 +4451,25 @@
     box('Lecture de l’entreprise',a.company_read,true);box('Positionnement',a.positioning,false);box('Cible',a.audience,false);box('Personnalité de marque',a.personality,false);box('Direction artistique',a.art_direction&&a.art_direction.diagnosis,false);box('Palette',a.art_direction&&a.art_direction.palette,false);box('Typographie',a.art_direction&&a.art_direction.typography,false);box('Composition',a.art_direction&&a.art_direction.composition,false);box('Angle de contenu',a.content_strategy&&a.content_strategy.angle,false);box('Décision créative',a.creative_decision,true);box('Opportunités',a.opportunities,true);box('Risques / vigilance',a.risks,true);
     card.appendChild(grid);
     var note=document.createElement('div');note.className='mv4-audit-note';var miss=(a.missing_info||[]);note.textContent=(a.source_note||'Analyse interne Marshall.')+(miss.length?' · Informations manquantes : '+miss.join(', ')+'.':'');card.appendChild(note);
-    th.appendChild(card);th.scrollTop=th.scrollHeight;return card;
+    th.appendChild(card);th.scrollTop=th.scrollHeight;if(!skipPersist)marshallConversationAppendArtifact('analysis',a);return card;
   }
   async function marshallDeepAnalysis(prompt,intent){
+    edAIStatus('Brand Intelligence · préparation du contexte marque…');
+    try{await marshallEnsureBrandIntelligence(false);}catch(e){console.warn('Brand Intelligence pré-analyse',e);}
     edAIStatus('Marshall analyse l’entreprise, le branding et la direction artistique…');
     var sys=[
       'Tu es Marshall, un directeur de marque, brand strategist, directeur artistique et stratège social media de très haut niveau.',
       'Avant toute création, tu réalises un audit 360° professionnel de la marque à partir du profil déclaré, de la Brand Intelligence multi-source (site + Instagram), du brief et du canvas.',
+      'La Brand Intelligence ci-dessous est une source de contexte prioritaire. Distingue explicitement les faits disponibles, les observations et les inférences. Ne transforme jamais une inférence en fait.',
       'Tu distingues les faits fournis des inférences. Tu n’inventes jamais un chiffre, un concurrent, un historique, une promesse, une clientèle ou une caractéristique absente.',
       'Analyse: entreprise/offre, positionnement, cible, personnalité, cohérence de marque, direction artistique, palette, typographie, composition, imagerie, stratégie de contenu, angle créatif, opportunités, risques et informations manquantes.',
-      'Ton diagnostic doit conduire à une décision créative précise pour la demande en cours.',
+      'Ton diagnostic doit conduire à UNE décision créative précise et exploitable pour la demande en cours.',
       marshallBrandContext(),
+      marshallBrandIntelligenceContext(),
       marshallStyleContext(),
       marshallCanvasArtDirectionContext(),
       'Objectif: '+marshallSetting('goal','Vente')+'. Plateforme: '+marshallSetting('platform','Instagram')+'. Intent: '+intent+'.',
+      'Dans source_note, résume quelles sources ont réellement servi (profil, site, Instagram, canvas) et signale celles qui manquent.',
       'Réponds UNIQUEMENT en JSON valide avec cette structure exacte:',
       '{"company_read":"...","positioning":"...","audience":"...","personality":["..."],"art_direction":{"diagnosis":"...","palette":"...","typography":"...","composition":"...","imagery":"..."},"content_strategy":{"angle":"...","message":"...","cta":"..."},"strengths":["..."],"opportunities":["..."],"risks":["..."],"missing_info":["..."],"creative_decision":"...","confidence":"faible|moyenne|bonne","source_note":"..."}'
     ].join('\n');
@@ -4346,8 +4483,8 @@
     if(!ok)return "Je n’ai pas réussi cette action. Réessaie dans quelques secondes.";
     if(intent==='image_generate')return 'C’est fait ✨ J’ai généré l’image et je l’ai ajoutée au canvas comme calque éditable.';
     if(intent==='story')return 'C’est fait. J’ai créé une séquence Story en 3 écrans : hook, valeur et CTA, avec des visuels générés selon la marque et l’image de référence disponible.';
-    if(intent==='campaign')return 'La mini-campagne est prête. Tu peux ouvrir les variantes proposées et modifier chaque création.';
-    if(intent==='variants')return 'J’ai préparé 3 variantes éditables. Choisis celle que tu veux continuer.';
+    if(intent==='campaign')return 'La mini-campagne est prête : 3 publications, 3 canvases et 3 visuels Qwen distincts, tous éditables.';
+    if(intent==='variants')return 'J’ai préparé 3 variantes IA réellement distinctes, chacune avec sa propre hypothèse créative et son canvas éditable.';
     if(intent==='canvas')return 'Le visuel est prêt sur le canvas. Tous les textes et éléments restent modifiables.';
     if(intent==='image_analyze')return 'J’ai analysé l’image présente sur le canvas.';
     if(intent==='image_compose')return 'J’ai reconstruit la composition autour de ton image en gardant les éléments éditables.';
@@ -4403,16 +4540,17 @@
     var typing=marshallChatTyping();
     try{
       var usingCrew=marshallShouldUseCrew(intent);
-      var strategicIntents=['image_generate','campaign','variants','story','canvas','creative','business_audit'];
+      var strategicIntents=['image_generate','image_compose','campaign','variants','story','canvas','creative','business_audit'];
       var needsStrategicAudit=strategicIntents.indexOf(intent)>=0;
       if(needsStrategicAudit){
         var audit=await marshallDeepAnalysis(workPrompt,intent);
         if(intent==='business_audit'){
-          if(usingCrew){var auditCrew=await marshallCrewRun(workPrompt,intent);marshallChatCrewStrip(auditCrew);marshallLastExpertAdvice=null;}
-          else{marshallLastExpertAdvice=marshallLocalExpertAdvice(prompt,intent);}
+          if(usingCrew){var auditCrew=await marshallCrewRun(workPrompt,intent);marshallChatCrewStrip(auditCrew);}
+          var auditExpert=await marshallExpertConsult(workPrompt,intent);
+          marshallChatExpertCard(auditExpert,intent);
           if(typing&&typing.parentNode)typing.remove();
           marshallChatAnalysisCard(audit);
-          reply='Analyse terminée. J’ai posé le diagnostic avant toute création. Les zones marquées comme manquantes sont celles qu’il vaut mieux renseigner dans Réglages pour rendre Marshall encore plus précis.';
+          reply='Analyse terminée. La Brand Intelligence, l’audit 360° et la vérification spécialiste ont été croisés. Les zones marquées comme manquantes sont celles qu’il vaut mieux renseigner dans Réglages pour rendre Marshall encore plus précis.';
           reply=usingCrew?await marshallCrewFinalReply(workPrompt,intent,reply,true):await marshallExpertFinalReply(workPrompt,intent,reply,true);
           var auditValidation=await marshallSupervisorValidate(workPrompt,intent,reply,true);reply=auditValidation.reply||reply;
           marshallChatBubble('assistant',reply);marshallChatSupervisorValidation(auditValidation,intent);
@@ -4425,9 +4563,10 @@
       if(usingCrew){
         var crew=await marshallCrewRun(workPrompt,intent);
         marshallChatCrewStrip(crew);
-        marshallLastExpertAdvice=null;
-      }else if(intent!=='business_audit' && (intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')){
+      }
+      if(intent!=='business_audit' && (needsStrategicAudit || (!usingCrew && (intent!=='general'||marshallAgentMode.agent!=='auto'||marshallAgentMode.mission!=='auto')))){
         var expert=await marshallExpertConsult(workPrompt,intent);
+        if(needsStrategicAudit)marshallChatExpertCard(expert,intent);
       }else if(intent==='general'){
         marshallLastExpertAdvice=null;marshallLastCrew=null;
       }
@@ -4435,7 +4574,7 @@
       else if(intent==='image_analyze'){ok=!!(await marshallImageAnalyze());reply=marshallActionReply(intent,ok);}
       else if(intent==='image_compose'){await marshallComposeAroundImage();reply=marshallActionReply(intent,true);}
       else if(intent==='campaign'){await marshallBuildCampaign(workPrompt);reply=marshallActionReply(intent,true);}
-      else if(intent==='variants'){await marshallGenerateVariants();reply=marshallActionReply(intent,true);}
+      else if(intent==='variants'){await marshallGenerateVariants(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='story'){await marshallCreateStory(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='canvas'){await marshallCreateOnCanvas(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='creative'){await marshallCreativeGenerate(workPrompt);reply=marshallActionReply(intent,true);}
@@ -4462,6 +4601,7 @@
         marshallChatHistory.push({role:'user',content:prompt},{role:'assistant',content:reply});
         marshallChatHistory=marshallChatHistory.slice(-12);
       }
+      if(ok)marshallCreationQualityAudit(intent);
       if(usingCrew) reply=await marshallCrewFinalReply(workPrompt,intent,reply,ok);
       else if(intent!=='general') reply=await marshallExpertFinalReply(workPrompt,intent,reply,ok);
       var validation=await marshallSupervisorValidate(workPrompt,intent,reply,ok);reply=validation.reply||reply;
@@ -4483,7 +4623,7 @@
   function edAIExtractJSON(t){t=String(t||'').trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim();var a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<a)throw Error('JSON absent');return JSON.parse(t.slice(a,b+1));}
   function edAISystemPrompt(goal,platform){return ['Tu es Marshall, directeur créatif social media spécialisé en marketing moderne.','Tu modifies un canvas éditable, pas une image aplatie.','Objectif: '+goal+'. Plateforme: '+platform+'.',
       marshallMarketingContext(goal,platform),
-      marshallBrandContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),'Priorités: hook compris en 1 seconde, hiérarchie nette, peu de texte, CTA clair, lisibilité mobile, design actuel sans surcharge.','N’invente jamais prix, réduction, statistique ou caractéristique produit.','Réponds UNIQUEMENT en JSON: {"summary":"...","actions":[...]}.','Actions: set_text{id,text}; style_text{id,size,color,bold,upper,align,lh,ls}; move{id,x,y}; resize{id,w,h}; set_background{color}; add_text{text,x,y,w,size,color,bold,align}.','x,y,w,h sont 0-100. Utilise seulement les IDs présents. Maximum 12 actions.'].join('\\n');}
+      marshallBrandContext(),marshallBrandIntelligenceContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),'Priorités: hook compris en 1 seconde, hiérarchie nette, peu de texte, CTA clair, lisibilité mobile, design actuel sans surcharge.','N’invente jamais prix, réduction, statistique ou caractéristique produit.','Réponds UNIQUEMENT en JSON: {"summary":"...","actions":[...]}.','Actions: set_text{id,text}; style_text{id,size,color,bold,upper,align,lh,ls}; move{id,x,y}; resize{id,w,h}; set_background{color}; add_text{text,x,y,w,size,color,bold,align}.','x,y,w,h sont 0-100. Utilise seulement les IDs présents. Maximum 12 actions.'].join('\\n');}
   function edAILocal(prompt, goal, platform){
     var texts=ed.layers.filter(function(l){return l.type==='text';});
     var p=(prompt||'').toLowerCase();
@@ -4530,6 +4670,7 @@
     if(brand.tone)parts.push('Visual tone: '+brand.tone+'.');
     if(brand.primary)parts.push('Use '+brand.primary+' as a brand color when appropriate.');
     if(brand.accent)parts.push('Use '+brand.accent+' as an accent when appropriate.');
+    parts.push(marshallBrandIntelligenceContext());
     if(marshallLastDeepAnalysis)parts.push(marshallAnalysisContext()); if(marshallLastExpertAdvice)parts.push(marshallExpertContext()); if(marshallLastCrew)parts.push(marshallCrewContext()); parts.push('No logos or factual claims unless explicitly provided. Avoid rendering long text inside the image because editable text will be added separately on the canvas. High quality, clean composition, strong focal subject, mobile-friendly.');
     return parts.filter(Boolean).join(' ');
   }
@@ -4558,8 +4699,8 @@
       var l=edLayer(ed.sel);
       if(l){l.x=0;l.y=0;l.w=100;l.h=100;l.rad=0;l.zoom=100;ed.layers=ed.layers.filter(function(x){return x!==l;});ed.layers.unshift(l);ed.sel=l.id;edSnap();edRender();}
       if(box)box.textContent='✓ Image générée par Qwen-Image et ajoutée au canvas. Elle reste un calque image indépendant.';
-      marshallCanvasPagesClear();
-      edAIStatus('✓ Image Qwen-Image ajoutée au canvas. Tu peux maintenant la déplacer, la recadrer ou créer le post autour.');
+      marshallCanvasPagesEnsureCurrent();marshallCanvasPagesSaveCurrent();marshallCanvasPagesRender();marshallCanvasPersistConversation();
+      edAIStatus('✓ Image Qwen-Image ajoutée au canvas actif sans supprimer les autres canvases. Tu peux maintenant la déplacer, la recadrer ou créer le post autour.');
       return l;
     }catch(e){
       console.error('Marshall Qwen-Image',e);
@@ -4619,8 +4760,8 @@
     var texts=ed.layers.filter(function(x){return x.type==='text';});
     texts.forEach(function(t,i){t.x=9;t.w=i===0?43:40;if(i===0)t.y=20;else if(i===1)t.y=51;});
     ed.sel=null;edSnap();edRender();
-    marshallCanvasPagesClear();
-    edAIStatus('✓ Marshall a construit le post autour du sujet. L’image et tous les textes restent éditables.');
+    marshallCanvasPagesEnsureCurrent();marshallCanvasPagesSaveCurrent();marshallCanvasPagesRender();marshallCanvasPersistConversation();
+    edAIStatus('✓ Marshall a construit le post autour du sujet sans supprimer les autres canvases. L’image et tous les textes restent éditables.');
   }
 
   /* --- Marshall Campaign Builder + variantes éditables --- */
@@ -4699,7 +4840,7 @@
     marshallCanvasPagesSaveCurrent();
     marshallCanvasPageIndex=index;
     marshallCanvasRestore(marshallCanvasPages[index]);
-    marshallCanvasPagesRender();
+    marshallCanvasPagesRender();marshallCanvasPersistConversation();
     edAIStatus('✓ '+marshallCanvasPageLabel(marshallCanvasPages[index],index).name+' chargé.');
   }
   function marshallCanvasPagesSetFromGenerated(kind){
@@ -4709,6 +4850,7 @@
     marshallCanvasPageIndex=0;
     marshallCanvasPagesRender();
     if(marshallCanvasPages[0])marshallCanvasRestore(marshallCanvasPages[0]);
+    marshallCanvasPersistConversation();
   }
   function marshallCanvasPagesClear(){
     marshallCanvasPages=[]; marshallCanvasPageIndex=0; marshallCanvasPagesRender();
@@ -4719,7 +4861,7 @@
     var current=marshallCanvasPages[marshallCanvasPageIndex]||{};
     var page=marshallCanvasBlankPage(current.kind||'post',marshallCanvasDefaultName(current.kind||'post',marshallCanvasPages.length));
     marshallCanvasPages.splice(marshallCanvasPageIndex+1,0,page);
-    marshallCanvasPageOpen(marshallCanvasPageIndex+1);
+    marshallCanvasPageOpen(marshallCanvasPageIndex+1);marshallCanvasPersistConversation();
     edAIStatus('✓ Nouveau canvas ajouté.');
   }
   function marshallCanvasRenameCurrent(){
@@ -4731,7 +4873,7 @@
     name=String(name).trim();
     if(!name)return;
     current.name=name;
-    marshallCanvasPagesRender();
+    marshallCanvasPagesRender();marshallCanvasPersistConversation();
     edAIStatus('✓ Canvas renommé.');
   }
   function marshallCanvasDuplicateCurrent(){
@@ -4740,7 +4882,7 @@
     var current=marshallCanvasPages[marshallCanvasPageIndex]; if(!current)return;
     var copy={name:(current.name||marshallCanvasDefaultName(current.kind||'post',marshallCanvasPageIndex))+' (copie)',desc:current.desc||marshallCanvasDefaultDesc(current.kind||'post',marshallCanvasPageIndex),kind:current.kind||'post',fmt:current.fmt||ed.fmt,bg:current.bg||ed.bg,layers:marshallClone(current.layers||[])};
     marshallCanvasPages.splice(marshallCanvasPageIndex+1,0,copy);
-    marshallCanvasPageOpen(marshallCanvasPageIndex+1);
+    marshallCanvasPageOpen(marshallCanvasPageIndex+1);marshallCanvasPersistConversation();
     edAIStatus('✓ Canvas dupliqué.');
   }
   function marshallCanvasDeleteCurrent(){
@@ -4753,14 +4895,14 @@
       marshallCanvasPages=[marshallCanvasBlankPage(current.kind||'post','Canvas 1')];
       marshallCanvasPageIndex=0;
       marshallCanvasRestore(marshallCanvasPages[0]);
-      marshallCanvasPagesRender();
+      marshallCanvasPagesRender();marshallCanvasPersistConversation();
       edAIStatus('✓ Le canvas a été réinitialisé.');
       return;
     }
     marshallCanvasPages.splice(marshallCanvasPageIndex,1);
     if(marshallCanvasPageIndex>=marshallCanvasPages.length)marshallCanvasPageIndex=marshallCanvasPages.length-1;
     marshallCanvasRestore(marshallCanvasPages[marshallCanvasPageIndex]);
-    marshallCanvasPagesRender();
+    marshallCanvasPagesRender();marshallCanvasPersistConversation();
     edAIStatus('✓ Canvas supprimé.');
   }
   function marshallCanvasHandleAction(action){
@@ -4790,54 +4932,100 @@
       });
     });
   }
-  async function marshallGenerateVariants(){
-    var base=marshallClone({fmt:ed.fmt,bg:ed.bg,layers:ed.layers}), texts=base.layers.filter(function(l){return l.type==='text';});
-    var hero=texts.slice().sort(function(a,b){return (b.size||0)-(a.size||0);})[0];
-    if(!hero){await marshallCreateOnCanvas(($('#ai-prompt')||{}).value||'Crée un post.');base=marshallClone({fmt:ed.fmt,bg:ed.bg,layers:ed.layers});texts=base.layers.filter(function(l){return l.type==='text';});hero=texts[0];}
+  async function marshallGenerateVariants(promptOverride){
+    var prompt=String(promptOverride!=null?promptOverride:(($('#ai-prompt')||{}).value||'Décline le concept actuel en 3 variantes réellement différentes.'));
+    var goal=marshallSetting('goal','Vente'), platform=marshallSetting('platform','Instagram');
+    var base={fmt:ed.fmt,bg:ed.bg,layers:marshallClone(ed.layers)}, sourceImage=(ed.layers||[]).find(function(l){return l.type==='image';});
+    var plan=null;
+    edAIStatus('Creative Testing Expert · création de 3 hypothèses IA distinctes…');
+    try{
+      plan=await marshallRemoteJSON([
+        'Tu es le Creative Testing Expert de Marshall.',
+        'Crée exactement 3 variantes publicitaires réellement différentes. Elles ne doivent pas être de simples changements de couleur ou de taille.',
+        'Chaque variante doit tester une hypothèse marketing distincte : angle, hook, structure du message et direction artistique.',
+        marshallMarketingContext(goal,platform),
+        marshallBrandContext(),marshallBrandIntelligenceContext(),marshallStyleContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),marshallCanvasArtDirectionContext(),
+        'Réponds UNIQUEMENT en JSON valide : {"variants":[{"name":"...","hypothesis":"...","hook":"...","sub":"...","cta":"...","style":"native|benefit|premium","art_direction":"...","background":"#RRGGBB","cardColor":"#RRGGBB","heroSize":48,"heroAlign":"left|center"},{...},{...}]}',
+        'Les 3 hypotheses, hooks et directions artistiques doivent être nettement différents. N’invente ni preuve, ni chiffre, ni promotion.'
+      ].join('\n'),'Demande : '+prompt+'\nCanvas de départ : '+JSON.stringify(edAIContext()));
+    }catch(e){console.warn('Marshall variants AI fallback',e);}
+    var variants=plan&&Array.isArray(plan.variants)?plan.variants.slice(0,3):[];
+    if(variants.length<3){
+      var hero=(base.layers||[]).filter(function(l){return l.type==='text';}).sort(function(a,b){return (b.size||0)-(a.size||0);})[0], subject=(hero&&hero.text)||marshallBrandGet().offer||'Votre proposition';
+      variants=[
+        {name:'01 · Bénéfice direct',hypothesis:'Le bénéfice compris immédiatement augmente la clarté.',hook:String(subject).slice(0,70),sub:'Explique en une phrase la valeur principale sans détour.',cta:'DÉCOUVRIR →',style:'benefit',art_direction:'Hiérarchie très directe, contraste fort, lecture instantanée.',background:'#FFFFFF',cardColor:'#FFF3E5',heroSize:50,heroAlign:'left'},
+        {name:'02 · Native / conversation',hypothesis:'Un angle plus humain et natif réduit la sensation publicitaire.',hook:'POV : '+String(subject).replace(/[.!?]+$/,'').slice(0,62),sub:'Formulation plus conversationnelle et proche des usages du feed.',cta:'VOIR COMMENT →',style:'native',art_direction:'Composition plus spontanée, asymétrique et sociale.',background:(marshallBrandGet().primary||'#6EC1F0'),cardColor:'#FFFFFF',heroSize:46,heroAlign:'left'},
+        {name:'03 · Premium / marque',hypothesis:'Une présentation plus statutaire renforce la perception de valeur.',hook:String(subject).slice(0,70),sub:'Moins de bruit, plus de respiration et de présence de marque.',cta:'EN SAVOIR PLUS →',style:'premium',art_direction:'Minimalisme premium, centrage, respiration et accents de marque.',background:'#FFF8EF',cardColor:'#FFFFFF',heroSize:44,heroAlign:'center'}
+      ];
+    }
     marshallGeneratedSet=[];
-    var brand=marshallBrandGet(), accent=brand.accent||'#F3852B', primary=brand.primary||'#6EC1F0';
-    var hooks=[
-      hero?hero.text:'Une idée qui mérite votre attention',
-      'POV : '+(hero?hero.text:'vous découvrez quelque chose de nouveau'),
-      'Et si '+String(hero?hero.text:'on faisait autrement').replace(/[.!?]+$/,'').toLowerCase()+' ?'
-    ];
-    ['Clair & direct','UGC / Native','Premium'].forEach(function(name,i){
-      ed.fmt=base.fmt;ed.bg=i===1?primary:(i===2?'#FFF8EF':base.bg);ed.layers=marshallClone(base.layers);
-      var hs=ed.layers.filter(function(l){return l.type==='text';}).sort(function(a,b){return (b.size||0)-(a.size||0);})[0];
-      if(hs){hs.text=hooks[i];hs.bold=true;hs.size=i===2?44:50;hs.align=i===2?'center':'left';hs.x=i===2?14:9;hs.w=i===2?72:82;}
-      var ctas=ed.layers.filter(function(l){return l.type==='text'&&/→|découvrir|savoir|voir|profiter/i.test(l.text||'');});
-      ctas.forEach(function(c){c.color=accent;});
+    variants.forEach(function(v,i){
+      var sp={
+        brandLabel:marshallBrandGet().name||'',hook:v.hook||'UNE IDÉE FORTE',sub:v.sub||'',cta:v.cta||'DÉCOUVRIR →',
+        background:/^#[0-9a-f]{6}$/i.test(v.background||'')?v.background:'#FFFFFF',
+        cardColor:/^#[0-9a-f]{6}$/i.test(v.cardColor||'')?v.cardColor:'#FFF8EF',
+        heroSize:Number(v.heroSize)||48,heroAlign:v.heroAlign==='center'?'center':'left'
+      };
+      if(sourceImage)sp.imageLayer=marshallClone(sourceImage);
+      ed.fmt=base.fmt;marshallBuildEditablePost(sp);
+      if(v.style==='premium'){
+        var ht=ed.layers.filter(function(l){return l.type==='text';}).sort(function(a,b){return (b.size||0)-(a.size||0);})[0];if(ht){ht.align='center';ht.x=14;ht.w=72;ht.ls=.7;}
+      }
+      if(v.style==='native'){
+        var texts=ed.layers.filter(function(l){return l.type==='text';});texts.forEach(function(t){t.upper=false;});
+      }
       ed.sel=null;edSnap();edRender();
-      marshallSaveCurrentAsVariant(name,'Variante '+(i+1)+' · calques éditables');
+      marshallSaveCurrentAsVariant(v.name||('Variante '+(i+1)),'Hypothèse : '+String(v.hypothesis||v.art_direction||'test créatif distinct').slice(0,150));
     });
-    ed.fmt=base.fmt;ed.bg=base.bg;ed.layers=marshallClone(base.layers);ed.sel=null;edApplyFmt();edSnap();edRender();
-    marshallRenderGeneratedSet();marshallCanvasPagesSetFromGenerated('variant');edAIStatus('✓ Marshall a préparé 3 variantes dans 3 canvas. Clique sur un canvas pour l’éditer.');
+    marshallCanvasPagesSetFromGenerated('variant');
+    edAIStatus('✓ 3 variantes IA distinctes sont prêtes dans 3 canvases, chacune avec sa propre hypothèse créative.');
+    return true;
   }
 
   async function marshallBuildCampaign(promptOverride){
     var prompt=String(promptOverride!=null?promptOverride:(($('#ai-prompt')||{}).value||'Lancement de notre produit'));
-    var goal=marshallSetting('goal','Vente'), platform=marshallSetting('platform','Instagram');
+    var goal=marshallSetting('goal','Vente'), platform=marshallSetting('platform','Instagram'), baseFmt=ed.fmt;
     marshallGeneratedSet=[];
     var specs=null;
     try{
       var p=await marshallRemoteJSON([
-        'Tu es Marshall, stratège social media.',marshallMarketingContext(goal,platform),marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
-        'Crée une mini-campagne de 3 publications : teasing, annonce, conversion.',
-        'Réponds UNIQUEMENT en JSON valide : {"posts":[{"name":"01 · Teasing","hook":"...","sub":"...","cta":"..."},{"name":"02 · Annonce","hook":"...","sub":"...","cta":"..."},{"name":"03 · Conversion","hook":"...","sub":"...","cta":"..."}]}',
-        'N’invente aucune donnée commerciale absente.'
+        'Tu es Marshall, Campaign Strategist et directeur créatif social media.',marshallMarketingContext(goal,platform),marshallBrandContext(),marshallBrandIntelligenceContext(),marshallStyleContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
+        'Crée une mini-campagne cohérente de 3 publications : 1 teasing, 2 annonce, 3 conversion.',
+        'Chaque publication doit avoir un angle et un visuel distinct tout en appartenant à la même campagne.',
+        'Réponds UNIQUEMENT en JSON valide : {"posts":[{"name":"01 · Teasing","hook":"...","sub":"...","cta":"...","art_direction":"...","visual_prompt":"..."},{"name":"02 · Annonce","hook":"...","sub":"...","cta":"...","art_direction":"...","visual_prompt":"..."},{"name":"03 · Conversion","hook":"...","sub":"...","cta":"...","art_direction":"...","visual_prompt":"..."}]}',
+        'visual_prompt décrit uniquement une image sans texte, sans logo inventé et sans claim. N’invente aucune donnée commerciale absente.'
       ].join('\n'),'Demande : '+prompt);
       if(p&&Array.isArray(p.posts)&&p.posts.length>=3)specs=p.posts.slice(0,3);
     }catch(e){console.warn('Marshall campaign remote fallback',e);}
     if(!specs)specs=[
-      {name:'01 · Teasing',hook:'QUELQUE CHOSE ARRIVE.',sub:'Une nouveauté pensée pour attirer l’attention.',cta:'BIENTÔT →'},
-      {name:'02 · Annonce',hook:prompt.replace(/^(crée|cree|fais|prépare|prepare)\s*/i,'').slice(0,70)||'C’EST OFFICIEL.',sub:'Présente clairement la nouveauté et son bénéfice principal.',cta:'DÉCOUVRIR →'},
-      {name:'03 · Conversion',hook:'POURQUOI ÇA CHANGE TOUT.',sub:'Mets en avant le bénéfice principal sans promesse inventée.',cta:'VOIR LA SUITE →'}
+      {name:'01 · Teasing',hook:'QUELQUE CHOSE ARRIVE.',sub:'Une nouveauté pensée pour attirer l’attention.',cta:'BIENTÔT →',art_direction:'Mystère, détail serré, tension visuelle.',visual_prompt:'Editorial teaser image with one intriguing partial subject, dramatic crop, strong negative space, premium social campaign, no text.'},
+      {name:'02 · Annonce',hook:prompt.replace(/^(crée|cree|fais|prépare|prepare)\s*/i,'').slice(0,70)||'C’EST OFFICIEL.',sub:'Présente clairement la nouveauté et son bénéfice principal.',cta:'DÉCOUVRIR →',art_direction:'Révélation claire du sujet principal.',visual_prompt:'Hero reveal image for a social launch campaign, clear central subject, premium lighting, confident composition, no text.'},
+      {name:'03 · Conversion',hook:'POURQUOI ÇA CHANGE TOUT.',sub:'Mets en avant le bénéfice principal sans promesse inventée.',cta:'VOIR LA SUITE →',art_direction:'Preuve visuelle et espace clair pour le CTA.',visual_prompt:'Conversion-focused campaign image showing the value or use context visually, strong focal point, clean premium composition, no text.'}
     ];
-    var image=(ed.layers||[]).find(function(l){return l.type==='image';});
-    specs.forEach(function(sp,i){sp.background='#FFFFFF';sp.cardColor=i===0?'#F4F1FF':i===1?'#FFF8EF':'#EEF8FF';if(image)sp.imageLayer=image;marshallBuildEditablePost(sp);marshallSaveCurrentAsVariant(sp.name||('Publication '+(i+1)),'Étape de campagne · prête à personnaliser');});
-    marshallRenderGeneratedSet();
+    var dims=marshallImageDimensions();
+    for(var i=0;i<3;i++){
+      var sp=specs[i]||{}, imageUrl=null;
+      edAIStatus('Campagne · '+(i+1)+'/3 · Qwen-Image génère un visuel unique…');
+      try{
+        var imagePrompt=[
+          sp.visual_prompt||'',
+          'This is campaign post '+(i+1)+' of 3. The image must be visually distinct from the other campaign posts while keeping one coherent brand art direction.',
+          'Art direction: '+(sp.art_direction||''),
+          marshallBrandContext(),marshallBrandIntelligenceContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
+          'No text, no typography, no invented logo, no statistics or factual claims inside the image. Mobile-first social media composition.'
+        ].filter(Boolean).join(' ');
+        imageUrl=await marshallGenerateImageAsset(imagePrompt,dims);
+      }catch(e){console.warn('Campaign Qwen image '+(i+1),e);}
+      sp.background='#FFFFFF';sp.cardColor=i===0?'#F4F1FF':i===1?'#FFF8EF':'#EEF8FF';ed.fmt=baseFmt;
+      marshallBuildEditablePost(sp);
+      if(imageUrl){
+        edAddImage(imageUrl);var img=edLayer(ed.sel);if(img){img.x=57;img.y=52;img.w=34;img.h=36;img.rad=Math.round(18*(edW()/540));img.zoom=100;}
+      }
+      ed.sel=null;edSnap();edRender();
+      marshallSaveCurrentAsVariant(sp.name||('Publication '+(i+1)),String(sp.art_direction||'Visuel Qwen distinct · prêt à personnaliser'));
+    }
     marshallCanvasPagesSetFromGenerated('campaign');
-    edAIStatus('✓ Mini campagne créée : 3 publications dans 3 canvas éditables.');
+    edAIStatus('✓ Mini-campagne créée : 3 publications, 3 canvases et 3 visuels Qwen distincts.');
     return true;
   }
 
@@ -4889,7 +5077,7 @@
         'Tu es le Viral Story Agent de Marshall.',
         'Ta spécialité est de créer une séquence Instagram Story en 3 écrans réellement différente d’un post statique.',
         'Objectif : maximiser les chances d’arrêter le scroll, maintenir la curiosité jusqu’au dernier écran et conduire vers un CTA clair. Ne promets jamais la viralité.',
-        marshallMarketingContext(goal,platform),marshallBrandContext(),marshallStyleContext(),marshallAnalysisContext(),marshallCrewContext(),
+        marshallMarketingContext(goal,platform),marshallBrandContext(),marshallBrandIntelligenceContext(),marshallStyleContext(),marshallAnalysisContext(),marshallExpertContext(),marshallCrewContext(),
         referenceDescription?('IMAGE DE RÉFÉRENCE DE L’ENTREPRISE — description visuelle : '+referenceDescription):'Aucune image de référence disponible.',
         'Chaque écran doit avoir un rôle distinct : 1=HOOK/PATTERN INTERRUPT, 2=VALEUR/PREUVE OU TRANSFORMATION, 3=CTA/CONCLUSION.',
         'Les trois images doivent être visuellement reliées mais pas identiques. Les prompts image doivent reprendre les codes de la marque et, si une image de référence existe, ses caractéristiques visuelles sans inventer de logo ou de texte.',
@@ -4952,13 +5140,15 @@
     var cta=marshallAddTextLayer(frame.cta||'VOIR LA SUITE →',ctax,ctay,ctaw,14,'#FFFFFF',true,ctaa);if(cta){cta.upper=true;cta.ls=.3;}
     ed.sel=null;edApplyFmt();edSnap();edRender();
   }
-  function marshallVideoResultCard(videoUrl,engine){
+  function marshallVideoResultCard(videoUrl,engine,skipPersist){
     var th=marshallChatThread();if(!th||!videoUrl)return null;
     var box=document.createElement('div');box.className='mv4-msg assistant';box.style.maxWidth='520px';box.style.padding='10px';
     var title=document.createElement('div');title.style.cssText='font-weight:800;margin:2px 4px 9px';title.textContent='Story vidéo prête · '+(engine||'Open-source');
     var vid=document.createElement('video');vid.controls=true;vid.playsInline=true;vid.preload='metadata';vid.src=videoUrl;vid.style.cssText='display:block;width:100%;max-height:520px;border-radius:16px;background:#111;';
     var link=document.createElement('a');link.href=videoUrl;link.target='_blank';link.rel='noopener';link.textContent='Ouvrir la vidéo';link.style.cssText='display:inline-block;margin:9px 4px 2px;font-weight:700;color:#F3852B;';
-    box.appendChild(title);box.appendChild(vid);box.appendChild(link);th.appendChild(box);th.scrollTop=th.scrollHeight;return box;
+    box.appendChild(title);box.appendChild(vid);box.appendChild(link);th.appendChild(box);th.scrollTop=th.scrollHeight;
+    if(!skipPersist)marshallConversationAppendArtifact('video',{url:videoUrl,engine:engine||'Open-source'});
+    return box;
   }
   async function marshallPollStoryVideo(taskId,engine){
     var started=Date.now(),maxMs=12*60*1000;
@@ -5194,6 +5384,7 @@
         'Prépare le contenu d’un visuel qui sera construit en calques éditables.',
         marshallMarketingContext(goal,platform),
         marshallBrandContext(),
+        marshallBrandIntelligenceContext(),
         marshallStyleContext(),
         marshallAnalysisContext(),
         marshallExpertContext(),
@@ -5207,6 +5398,7 @@
     if(marshallSpecLooksWeak(spec,prompt)) spec=marshallPostSpecFromPrompt(prompt,goal,platform);
     if(previousImage)spec.imageLayer=previousImage;
     marshallBuildEditablePost(spec);
+    marshallCanvasPagesEnsureCurrent();marshallCanvasPagesSaveCurrent();marshallCanvasPagesRender();marshallCanvasPersistConversation();
     edAIStatus('✓ Marshall a construit un visuel plus marketing en calques éditables.');
     return true;
   }
@@ -5479,6 +5671,7 @@
         'Tu es Marshall, directeur créatif spécialisé en publicité social media.',
         marshallMarketingContext(goal,platform),
         marshallBrandContext(),
+        marshallBrandIntelligenceContext(),
         marshallStyleContext(),
         marshallAnalysisContext(),
         marshallExpertContext(),
@@ -5524,6 +5717,7 @@
     if(c.style==='direct'){ ed.bg='#FFF3E5'; hero.upper=true; hero.ls=.5; }
     if(c.style==='ugc'){ ed.bg=primary; hero.upper=false; }
     ed.sel=null; edSnap(); edRender();
+    marshallCanvasPagesEnsureCurrent();marshallCanvasPagesSaveCurrent();marshallCanvasPagesRender();marshallCanvasPersistConversation();
     edAIStatus('✓ Marshall a construit « '+c.name+' ». Les calques restent éditables.');
   }
 
@@ -5598,10 +5792,10 @@
     if(applyFix){
       var n=mvAutoFix(a), after=mvCanvasAudit();
       if(rep) rep.textContent=mvReportText(after)+'\n\n✓ '+n+' correction(s) appliquée(s). Les éléments restent éditables.';
-      marshallCanvasPagesSaveCurrent();
+      marshallCanvasPagesSaveCurrent();marshallCanvasPersistConversation();
       edAIStatus('Analyse visuelle a corrigé '+n+' point(s) du canvas.');
     }else{
-      marshallCanvasPagesSaveCurrent();
+      marshallCanvasPagesSaveCurrent();marshallCanvasPersistConversation();
       edAIStatus('Analyse visuelle a terminé l’audit du canvas.');
     }
   }
