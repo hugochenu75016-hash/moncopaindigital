@@ -565,7 +565,28 @@
     box-shadow:0 18px 40px rgba(30,60,90,.28); }
   .hdr-menu.show{ display:block; }
   /* Partager doit toujours passer devant le rail Agents IA. */
-  #menu-share{ z-index:7000!important; }
+  #menu-share{
+    z-index:7000!important;
+    background:linear-gradient(135deg,#ff9a2f,#e56b13)!important;
+    border:1px solid rgba(255,255,255,.22)!important;
+    box-shadow:0 20px 46px rgba(145,65,8,.34)!important;
+  }
+  #menu-share button{
+    color:#fff!important;
+  }
+  #menu-share button svg{
+    color:#fff!important;
+  }
+  #menu-share button em,
+  #menu-share .hdr-lab{
+    color:rgba(255,255,255,.82)!important;
+  }
+  #menu-share button:hover{
+    background:rgba(255,255,255,.16)!important;
+  }
+  #menu-share .ed-ctx-sep{
+    background:rgba(255,255,255,.24)!important;
+  }
   .hdr-menu button{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; border:0; background:transparent; cursor:pointer;
     font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#3a3330; padding:9px 12px; border-radius:10px; }
   .hdr-menu button svg{ width:19px; height:19px; flex:0 0 19px; color:#4a423e; }
@@ -1851,6 +1872,26 @@ html:has(#view-composer.active),body:has(#view-composer.active){height:100%;over
 #app #side .fan-wrap .nav-item.active{background:#fff!important;color:#d95e00!important;box-shadow:0 4px 12px rgba(110,42,0,.18)!important}
 #app #side .fan-wrap .nav-item>span:not(.badge){position:static!important;opacity:1!important;transform:none!important;background:none!important;box-shadow:none!important;padding:0!important;color:inherit!important;font-size:12px!important;pointer-events:none}
 #app #side .fan-wrap .nav-item svg{width:16px!important;height:16px!important}
+#app #side .fan-wrap .nav-item[data-view="calendar"]{position:relative!important;overflow:visible!important}
+#app #side .fan-wrap .nav-item[data-view="calendar"] #badge-sched{
+  position:absolute!important;
+  top:-9px!important;
+  right:-9px!important;
+  z-index:20!important;
+  min-width:20px!important;
+  height:20px!important;
+  padding:0 6px!important;
+  display:none;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:999px!important;
+  background:#ff2f2f!important;
+  color:#fff!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  line-height:20px!important;
+  box-shadow:0 3px 9px rgba(180,0,0,.35),0 0 0 2px #fff!important;
+}
 #app .fan-toggle,#app #fan-toggle,#app .fan-fab{display:none!important}
 .hdr-actions{top:17px!important;right:20px!important;gap:8px!important}.hdr-actions button{height:36px!important;padding:8px 12px!important;font-size:12px!important}
 /* Editor tools / canvas workspace. */
@@ -9495,11 +9536,26 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   /* ============ BADGES ============ */
   function updateBadges(){
     var d=posts.filter(function(p){ return p.status==='draft'; }).length;
-    var s=posts.filter(function(p){ return p.status==='scheduled'; }).length;
+    /* Badge Calendrier = uniquement les publications programmées qui attendent encore une validation. */
+    var s=posts.filter(function(p){
+      return p && p.status==='scheduled' && !calendarPostApproved(p);
+    }).length;
     var bd=$('#badge-drafts'), bs=$('#badge-sched');
-    if(d>0){ bd.style.display='inline-flex'; bd.textContent=d; } else bd.style.display='none';
+    if(d>0){ bd.style.display='inline-flex'; bd.textContent=d; } else if(bd){ bd.style.display='none'; }
     var hd=$('#hdr-drafts'); if(hd){ if(d>0){ hd.style.display='inline-block'; hd.textContent=d; } else hd.style.display='none'; }
-    if(s>0){ bs.style.display='inline-flex'; bs.textContent=s; } else bs.style.display='none';
+    if(bs){
+      if(s>0){
+        bs.style.display='inline-flex';
+        bs.textContent=String(s);
+        bs.setAttribute('aria-label',s+' publication'+(s>1?'s':'')+' à valider');
+        bs.setAttribute('title',s+' publication'+(s>1?'s':'')+' à valider');
+      }else{
+        bs.style.display='none';
+        bs.textContent='0';
+        bs.removeAttribute('aria-label');
+        bs.removeAttribute('title');
+      }
+    }
   }
 
   // créneaux horaires
