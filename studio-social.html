@@ -1718,6 +1718,8 @@
 /* Studio / Graphite. Interface only: never restyle the editable artwork. */
 :root{--bg:#f7f7f5;--cream:#262626;--studio-paper:#fff;--studio-ink:#252525;--studio-muted:#70706b;--studio-line:#e6e6e2;--studio-accent:#b85225;--studio-font:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 html body{background:var(--bg)!important;color:var(--studio-ink);font-family:var(--studio-font);-webkit-font-smoothing:antialiased}
+body:not(:has(#app.show,#msgapp.show,#clientsapp.show,#reportsapp.show)){background:#6EC1F0!important}
+#auth,#connect-gate,#hub{background:#6EC1F0!important}
 #decor,.cloud{display:none!important}
 body :is(button,input,select,textarea){font-family:var(--studio-font)!important;letter-spacing:normal}
 :is(#side,.hdr-actions,.ed-rail,.ed-agent-rail,.ed-toolbar,.ed-panel,.ed-flyout,.madock,.auth-card,.hub-inner,.card,.sheet,#site-footer) :is(h1,h2,h3,b,strong,span,small,p,label,a,summary){font-family:var(--studio-font)!important;text-shadow:none!important}
@@ -1736,15 +1738,43 @@ body :is(.btn-ghost,.hdr-ico,.ed-tb,.ed-pageaction,.ai-action):hover{background:
 #site-footer{background:#eeeee9!important;box-shadow:none!important;border-top:1px solid #deded8!important;color:#52524b!important}#site-footer :is(a,h3){color:#52524b!important}#site-footer .sf-brand span{background:none!important;-webkit-text-fill-color:#252525!important;color:#252525!important;font-size:32px!important}#site-footer .dot{background:#aaa!important}
 /* Persistent navigation: one quiet top bar, no floating radial menu. */
 #app.show:before{content:"";position:fixed;inset:0 0 auto;height:72px;background:#fff;border-bottom:1px solid var(--studio-line);z-index:61;pointer-events:none}
-#mcd-pill{background:#fff!important;border:1px solid #e6e6e2!important;border-radius:12px!important;box-shadow:none!important;backdrop-filter:none!important}
-#mcd-pill .mcd-link{font-family:var(--studio-font)!important;color:#555!important;text-shadow:none!important;font-weight:500!important;letter-spacing:0!important}
-#mcd-pill .mcd-link.is-active{background:#f1f1ed!important;color:#252525!important;box-shadow:none!important}
+#mcd-pill{background:linear-gradient(180deg,rgba(150,222,250,.94),rgba(113,196,233,.9))!important;border:1px solid rgba(255,255,255,.45)!important;border-radius:999px!important;box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75),0 14px 28px rgba(40,110,145,.18)!important;backdrop-filter:blur(14px) saturate(1.3)!important}
+#mcd-pill .mcd-link{font-family:'Fredoka',sans-serif!important;color:#fff!important;text-shadow:0 2px 3px rgba(40,100,125,.35)!important;font-weight:700!important;letter-spacing:.02em!important}
+#mcd-pill .mcd-link.is-active{background:linear-gradient(180deg,#fff,#fff6ec 55%,#ffeede)!important;color:#F3852B!important;text-shadow:none!important;box-shadow:inset 0 1.5px 1px rgba(255,255,255,.95),0 4px 10px rgba(100,80,60,.12)!important}
 #auth-tabs .seg{background:#f5f5f2!important;color:#666!important;border:1px solid #e6e6e2!important;box-shadow:none!important;border-radius:8px!important}
 #auth-tabs .seg.on{background:#252525!important;color:#fff!important}
 #auth-hint{color:#777!important}
 .hdr-actions .preview-tabs{position:static!important;gap:8px;align-items:center}
 .hdr-actions .ptab.pvbtn{width:36px;height:36px;border:1px solid #e6e6e2!important;border-radius:8px;background:#fff!important;color:#000!important;box-shadow:none!important}
 .hdr-actions .ptab.pvbtn:hover{background:#f1f1ed!important;color:#000!important}
+#mcd-social #hub-gear{position:static;flex:0 0 40px;width:40px;height:40px;border:0!important;border-radius:999px!important;color:#fff!important;background:linear-gradient(135deg,#ffa640,#e2701a)!important;box-shadow:0 6px 16px rgba(150,62,22,.32),inset 0 1.5px 1px rgba(255,255,255,.55)!important}
+#mcd-social #hub-gear[hidden]{display:none!important}
+#agency-panel{position:fixed;inset:0;z-index:20000;background:#0005;display:flex;align-items:center;justify-content:center;padding:20px}
+#agency-panel[hidden],#agency-publish-box[hidden],#agency-manage[hidden],#agency-request[hidden]{display:none!important}
+.agency-panel-inner{background:#fff;color:#252525;border-radius:18px;padding:24px;width:560px;max-width:100%;max-height:85vh;overflow:auto;font-family:var(--studio-font)}
+.agency-panel-inner button,#agency-publish-box button{padding:10px 14px;border:1px solid #ddd;border-radius:8px;background:#f7f7f5;color:#252525;cursor:pointer;margin:4px}
+.agency-account{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid #eee}.agency-account small{display:block;color:#666;margin-top:4px}.agency-account input{width:18px;height:18px}
+#agency-publish-box{margin:12px 0;padding:18px;border:1px solid #ecc4a1;border-radius:12px;background:#fff7ef}#agency-results{font-size:13px}
+#acct-pop{background:#fff!important;border:1px solid #e6e6e2!important;border-radius:14px!important;box-shadow:0 12px 40px #00000018!important;color:#252525!important;font-family:var(--studio-font);max-width:calc(100vw - 32px)}
+#acct-pop .ap-title{color:#252525!important;text-shadow:none!important;font-family:var(--studio-font)!important}
+#acct-pop .ap-txt{color:#70706b!important;overflow-wrap:anywhere}
+#acct-pop .ap-ic{width:48px;height:48px;border-radius:50%;background:#f1f1ed!important;color:#252525;box-shadow:none!important;overflow:hidden}
+#acct-pop .ap-ic img{object-fit:cover}
+#acct-pop [hidden]{display:none!important}
+#acct-pop .ap-btn{font-family:var(--studio-font)!important;border:1px solid #e6e6e2!important;border-radius:8px!important;box-shadow:none!important;transform:none!important;text-shadow:none!important;background:#f7f7f5!important;color:#252525!important}
+#studio-profile{position:relative}
+#studio-profile-toggle{width:36px;padding:4px!important;display:flex;align-items:center;justify-content:center;border:1px solid #e6e6e2;border-radius:50%;background:#fff;color:#252525;cursor:pointer}
+#studio-profile-toggle img{width:28px;height:28px;object-fit:contain}
+#studio-profile-card{position:absolute;top:46px;right:0;width:280px;max-width:calc(100vw - 24px);padding:20px;background:#fff;border:1px solid #e6e6e2;border-radius:14px;box-shadow:0 12px 40px #00000018;color:#252525;font-family:var(--studio-font);z-index:10001;overflow-wrap:anywhere}
+#studio-profile-card[hidden]{display:none}
+#studio-profile-photo{width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:12px}
+#studio-profile-photo[hidden]{display:none}
+#studio-profile-photo-initial{width:56px;height:56px;border-radius:50%;background:#f1f1ed;display:grid;place-items:center;font-size:22px;margin-bottom:12px}
+#studio-profile-photo-initial[hidden]{display:none}
+#studio-profile-card strong{display:block;font-size:16px;margin:0 0 6px}
+#studio-profile-card p{font-size:12px;color:#70706b;margin:6px 0 12px}
+#studio-profile-card a{display:block;padding:10px 0;color:#252525;font-size:13px;text-decoration:none;border-top:1px solid #eee}
+#studio-profile-card button{width:100%;margin-top:8px;border:1px solid #e6e6e2;border-radius:8px;background:#f7f7f5;cursor:pointer;color:#252525}
 #app #side{z-index:62!important}
 #app #side .brand{top:16px!important;left:20px!important;gap:10px!important}
 #app #side .brand .bt{display:block!important;font-size:15px!important;line-height:1.3!important;color:#252525!important}
@@ -1758,7 +1788,7 @@ body :is(.btn-ghost,.hdr-ico,.ed-tb,.ed-pageaction,.ai-action):hover{background:
 #app .fan-toggle,#app #fan-toggle,#app .fan-fab{display:none!important}
 .hdr-actions{top:17px!important;right:20px!important;gap:8px!important}.hdr-actions button{height:36px!important;padding:8px 12px!important;font-size:12px!important}
 /* Editor tools / canvas workspace. */
-#app .ed-stagewrap{padding-top:82px!important;padding-left:88px!important;padding-right:208px!important}
+#app .ed-stagewrap{padding-top:82px!important;padding-left:88px!important;padding-right:208px!important;background:#FFC58F!important;min-height:calc(100vh - 72px)}
 html body .ed-rail{left:0;top:72px;bottom:0;transform:none;width:80px;padding:14px 9px;gap:4px;background:#fff;border-right:1px solid var(--studio-line);overflow:auto;scrollbar-width:thin}
 html body .ed-tool{min-height:54px;flex-shrink:0;padding:9px 4px;border:0;background:transparent;color:#62625c;border-radius:8px;font:500 10px/1.3 var(--studio-font)!important;box-shadow:none;gap:6px;transform:none}
 html body .ed-tool svg{width:19px;height:19px;stroke-width:1.6}
@@ -1766,7 +1796,7 @@ html body .ed-tool:hover{background:#f3f3ef;color:#222;transform:none}
 html body .ed-tool.on{background:#efefeb;color:#202020}
 html body .ed-tool-ai{background:#f8eee7;color:#a94d28;border:0;box-shadow:none}
 html body .ed-tool-pub{background:#252525;color:#fff;box-shadow:none}
-html body .ed-agent-rail{right:0;top:72px;bottom:0;width:192px;max-height:none;padding:20px 10px;background:#fff;border:0;border-left:1px solid var(--studio-line);border-radius:0;box-shadow:none;backdrop-filter:none;gap:3px}
+html body .ed-agent-rail{right:0;top:72px;bottom:0;width:192px;max-height:none;padding:20px 10px;background:#fff;border:0;border-left:1px solid rgba(0,0,0,.08);border-radius:0;box-shadow:none;backdrop-filter:none;gap:3px}
 html body .ed-agent-rail-title{padding:0 10px 14px;text-align:left;font:600 10px/1.4 var(--studio-font)!important;letter-spacing:.08em;color:#8b8b83}
 html body .ed-agent-tool{min-height:49px;padding:9px 8px;grid-template-columns:26px minmax(0,1fr);gap:9px;border:0;border-radius:8px;background:transparent;box-shadow:none;color:#565650;transform:none}
 html body .ed-agent-tool:hover{background:#f5f5f1;box-shadow:none;transform:none}
@@ -1993,12 +2023,13 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
 
 <div id="acct-pop" role="dialog" aria-label="Votre Bulle">
   <div class="ap-head">
-    <span class="ap-ic"><img src="boutonespacelog-trim.png" alt="Votre Bulle"></span>
-    <span class="ap-title">Votre Bulle</span>
+    <span class="ap-ic"><img id="acct-profile-photo" alt="Photo de profil" hidden><span id="acct-profile-initial">●</span></span>
+    <span class="ap-title" id="acct-profile-name">Ma bulle</span>
   </div>
-  <p class="ap-txt">Voulez-vous ouvrir votre espace personnel&nbsp;?</p>
+  <p class="ap-txt" id="acct-profile-email"></p>
+  <p class="ap-txt" id="acct-profile-role">Connectez-vous pour retrouver votre profil.</p>
   <div class="ap-actions">
-    <a class="ap-btn open" href="espace-compte.html">Ouvrir votre Bulle</a>
+    <a class="ap-btn open" href="espace-compte.html">Ouvrir ma bulle ↗</a>
     <button class="ap-btn close" type="button" id="acct-close">Fermer</button>
   </div>
 </div>
@@ -2007,7 +2038,8 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   var btn=document.getElementById('acct-btn'), pop=document.getElementById('acct-pop');
   if(!btn||!pop) return;
   var open=false;
-  function set(v){ open=v; pop.classList.toggle('show',open); }
+  function set(v){ open=v; pop.classList.toggle('show',open);btn.setAttribute('aria-expanded',String(open));if(open)document.dispatchEvent(new Event('studio-profile-open')); }
+  btn.setAttribute('aria-controls','acct-pop');btn.setAttribute('aria-expanded','false');
   btn.addEventListener('click',function(e){ e.stopPropagation(); set(!open); });
   document.getElementById('acct-close').addEventListener('click',function(e){ e.stopPropagation(); set(false); });
   document.addEventListener('click',function(e){ if(open && !pop.contains(e.target) && !btn.contains(e.target)) set(false); });
@@ -2126,9 +2158,30 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
 </section>
 
 <!-- ===== Fiche autorisations agence ===== -->
+<div id="agency-panel" hidden>
+  <section class="agency-panel-inner" role="dialog" aria-modal="true" aria-labelledby="agency-panel-title">
+    <button type="button" id="agency-panel-close" style="float:right" aria-label="Fermer la gestion des comptes">Fermer</button>
+    <h2 id="agency-panel-title">Mes comptes agence</h2>
+    <p id="agency-panel-state" role="status"></p>
+    <div><button type="button" data-agency-network="instagram">Instagram / Facebook</button><button type="button" data-agency-network="x">X</button><button type="button" data-agency-network="snapchat">Snapchat</button></div>
+    <p style="font-size:12px;color:#666">TikTok n’est pas encore disponible. Les publications groupées sont immédiates, avec un seul média par publication.</p>
+    <button type="button" id="agency-import">Importer mes connexions existantes</button><button type="button" id="agency-accounts-refresh">Actualiser</button>
+    <div id="agency-accounts"></div>
+    <p>Cochez les comptes destinataires, puis retrouvez le bouton de publication groupée à l’étape « Publier » du Studio.</p>
+  </section>
+</div>
 <div class="sheet-backdrop" id="perm-sheet">
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="perm-title">
-    <h2 id="perm-title">Autoriser l'agence à gérer votre compte.</h2>
+    <h2 id="perm-title">Réglages</h2>
+    <section aria-labelledby="agency-upgrade-title" style="padding:16px;margin:16px 0 24px;border:1px solid #f3d4b8;border-radius:12px;background:#fff7ef;">
+      <h3 id="agency-upgrade-title" style="margin:0 0 8px;font-size:17px;color:#252525;">Passer en agence</h3>
+      <p style="margin:0 0 10px;font-size:13px;line-height:1.5;color:#62625d;">Gérez plusieurs comptes de réseaux sociaux et publiez sur les comptes sélectionnés en un clic.</p>
+      <p style="margin:0;font-size:12px;line-height:1.5;color:#8a542d;">Accès soumis à validation par Mon Copain Digital. Chaque réseau nécessite également l’accord du propriétaire du compte.</p>
+      <p id="agency-access-state" role="status">Vérification de votre accès…</p>
+      <button type="button" class="sheet-btn primary" id="agency-request" disabled>Demander le mode agence</button>
+      <button type="button" class="sheet-btn primary" id="agency-manage" hidden>Gérer mes comptes</button>
+    </section>
+    <h3 style="font-size:16px;margin:0 0 8px;">Déléguer mon compte à Mon Copain Digital</h3>
     <p class="sheet-lead">Si activé, l'équipe Mon Copain Digital peut composer, publier et répondre à vos messages en votre nom, uniquement à votre demande. Vous pouvez désactiver à tout moment.</p>
     <div class="sheet-row">
       <div><div class="sr-t">Composer</div><div class="sr-d">Créer et publier des posts pour vous.</div></div>
@@ -2266,6 +2319,18 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     <section class="view active" id="view-composer">
       <div class="topbar">
         <div class="hdr-actions">
+          <div id="studio-profile">
+            <button type="button" id="studio-profile-toggle" aria-label="Mon profil" aria-expanded="false" aria-controls="studio-profile-card" title="Mon espace compte"><img id="studio-profile-logo" src="boutonespacelog-trim.png" alt=""><span id="studio-profile-initial" hidden>●</span></button>
+            <section id="studio-profile-card" aria-label="Mon profil" hidden>
+              <img id="studio-profile-photo" alt="Photo de profil" hidden>
+              <span id="studio-profile-photo-initial" aria-hidden="true">●</span>
+              <strong id="studio-profile-name">Mon compte</strong>
+              <p id="studio-profile-email"></p>
+              <p id="studio-profile-role"></p>
+              <a href="espace-compte.html">Ouvrir ma bulle ↗</a>
+              <button type="button" id="studio-profile-logout">Se déconnecter</button>
+            </section>
+          </div>
           <div class="preview-tabs" id="preview-tabs"></div>
           <button class="btn-ghost hdr-ico" id="hdr-share" title="Partager" aria-label="Partager"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.6l6.8-4M8.6 13.4l6.8 4"/></svg><span>Partager</span></button>
           <button class="btn-ghost hdr-ico" id="hdr-dl" title="Télécharger" aria-label="Télécharger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12L12 17M12 17L17 12M12 17L12 4"/><path d="M6 20H18"/></svg></button>
@@ -2459,6 +2524,14 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
               <div class="pub-note" id="pub-conn-note"></div>
             </section>
 
+            <section id="agency-publish-box" hidden>
+              <h3>Publication agence</h3><p id="agency-target-summary"></p>
+              <button type="button" id="agency-open-from-publish">Modifier les comptes</button>
+              <button type="button" id="agency-publish">Publier sur les comptes sélectionnés</button>
+              <button type="button" id="agency-new-batch">Nouvelle tentative distincte</button>
+              <p>Utilise la légende et le média ci-dessous. Publication immédiate uniquement. Une tentative répétée avec le même contenu ne republie pas les comptes déjà traités.</p>
+              <div id="agency-results" role="status" aria-live="polite"></div>
+            </section>
             <section class="pub-card" id="pub-content">
               <div class="pub-ch"><span class="lab">Contenu</span>
                 <div class="pub-tools">
@@ -2777,6 +2850,53 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     }catch(e){ showErr('Création impossible. Réessayez.'); }
     finally{ btn.disabled=false; btn.textContent='Créer mon compte'; }
   });
+
+  var studioProfileData=null,studioProfileUid=null,studioProfileRequest=0;
+  async function studioProfileLoad(){
+    var uid=authUser&&authUser.id,request=++studioProfileRequest;
+    if(uid!==studioProfileUid){studioProfileData=null;studioProfileUid=uid;studioProfileSync();}
+    if(!uid)return;
+    try{
+      var result=await sb.from('profiles').select('nom,avatar').eq('id',uid).maybeSingle();
+      if(request!==studioProfileRequest||!authUser||authUser.id!==uid)return;
+      if(result.error)return;
+      studioProfileData=result.data||null;studioProfileSync();
+    }catch(e){/* Keep the existing identity if the profile service is unavailable. */}
+  }
+  function studioProfileSync(){
+    var md=authUser&&authUser.user_metadata||{};
+    var profile=studioProfileUid===(authUser&&authUser.id)?studioProfileData:null;
+    var name=profile&&profile.nom||me.nom||md.nom||md.brand||'Mon compte';
+    var photo=$('#studio-profile-photo'),avatar=profile&&profile.avatar||'';
+    if(typeof avatar!=='string'||!(/^(https:\/\/|data:image\/(jpeg|png|webp);base64,)/i.test(avatar)))avatar='';
+    photo.hidden=!avatar;
+    $('#studio-profile-photo-initial').hidden=!!avatar;
+    $('#studio-profile-photo-initial').textContent=name.trim().slice(0,1).toUpperCase();
+    if(avatar){if(photo.getAttribute('src')!==avatar)photo.src=avatar;}else photo.removeAttribute('src');
+    $('#studio-profile-name').textContent=name;
+    $('#studio-profile-email').textContent=authUser&&authUser.email||'';
+    $('#studio-profile-role').textContent=authUser?(me.role||'Compte connecté'):'Non connecté';
+    $('#studio-profile-initial').textContent=name.trim().slice(0,1).toUpperCase();
+    $('#acct-profile-name').textContent=authUser?name:'Ma bulle';
+    $('#acct-profile-email').textContent=authUser&&authUser.email||'';
+    $('#acct-profile-role').textContent=authUser?(me.role||'Compte connecté'):'Connectez-vous pour retrouver votre profil.';
+    var accountPhoto=$('#acct-profile-photo');accountPhoto.hidden=!avatar;
+    $('#acct-profile-initial').hidden=!!avatar;$('#acct-profile-initial').textContent=authUser?name.trim().slice(0,1).toUpperCase():'●';
+    if(avatar){if(accountPhoto.getAttribute('src')!==avatar)accountPhoto.src=avatar;}else accountPhoto.removeAttribute('src');
+  }
+  (function(){
+    var root=$('#studio-profile'),btn=$('#studio-profile-toggle'),card=$('#studio-profile-card'),logo=$('#studio-profile-logo');
+    function close(){card.hidden=true;btn.setAttribute('aria-expanded','false');}
+    btn.addEventListener('click',function(){studioProfileSync();card.hidden=!card.hidden;btn.setAttribute('aria-expanded',String(!card.hidden));if(!card.hidden)studioProfileLoad();});
+    $('#studio-profile-photo').addEventListener('error',function(){this.hidden=true;$('#studio-profile-photo-initial').hidden=false;});
+    $('#acct-profile-photo').addEventListener('error',function(){this.hidden=true;$('#acct-profile-initial').hidden=false;});
+    document.addEventListener('studio-profile-open',function(){studioProfileSync();studioProfileLoad();});
+    document.addEventListener('click',function(e){if(!root.contains(e.target))close();});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!card.hidden){close();btn.focus();}});
+    function fallback(){logo.hidden=true;$('#studio-profile-initial').hidden=false;}
+    logo.addEventListener('error',fallback);if(logo.complete&&!logo.naturalWidth)fallback();
+    $('#studio-profile-logout').addEventListener('click',function(){close();$('#logout-btn').click();});
+  })();
 
   async function resolveAccount(){
     if(!authUser) return false;
@@ -8654,8 +8774,107 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   // créneaux horaires
   (function(){ var sel=$('#sc-time'), out=''; for(var h=0;h<24;h++){ for(var mn=0;mn<60;mn+=15){ var hh=('0'+h).slice(-2), mm=('0'+mn).slice(-2); out+='<option value="'+hh+':'+mm+'"'+((hh==='09'&&mm==='00')?' selected':'')+'>'+hh+':'+mm+'</option>'; } } sel.innerHTML=out; })();
 
+  /* Agency mode: access is granted only by the server, never by local state. */
+  var agencyState={access:null,accounts:[],selected:[],busy:false,results:{},batch:null};
+  async function agencyApi(body){
+    var response=await fetch(SUPABASE_URL+'/functions/v1/agency-social',{method:'POST',headers:await authHeaders(),body:JSON.stringify(body)});
+    var data=await response.json().catch(function(){return {};});
+    if(!response.ok)throw Error(data.error||'Service agence indisponible.');return data;
+  }
+  function agencyStatusLabel(status){return status==='enabled'?'🟢 Mode agence autorisé':status==='pending'?'🟠 Demande en attente':status==='disabled'?'🔴 Accès désactivé':'🔴 Mode agence non activé';}
+  async function agencyRefresh(){
+    var label=$('#agency-access-state'),request=$('#agency-request'),manage=$('#agency-manage');
+    label.textContent='Vérification de votre accès…';request.disabled=true;manage.hidden=true;
+    try{
+      var d=await agencyApi({action:'access'});agencyState.access=d.access;
+      var status=d.access&&d.access.status;label.textContent=agencyStatusLabel(status);
+      request.hidden=status==='enabled';request.disabled=!!status;
+      request.textContent=status==='pending'?'Demande envoyée':status==='disabled'?'Contactez Mon Copain Digital':'Demander le mode agence';
+      manage.hidden=status!=='enabled';
+      if(status!=='enabled'){agencyState.accounts=[];agencyState.selected=[];agencyRenderPublication();}
+    }catch(e){label.textContent=e.message;request.disabled=true;}
+  }
+  async function agencyManage(){
+    $('#agency-panel').hidden=false;$('#agency-panel-state').textContent='Chargement…';
+    try{
+      var d=await agencyApi({action:'accounts'});agencyState.accounts=d.accounts||[];
+      agencyState.selected=agencyState.selected.filter(function(id){return agencyState.accounts.some(function(a){return a.id===id;});});
+      agencyRenderAccounts();$('#agency-panel-state').textContent=agencyState.accounts.length+' compte(s) relié(s). Seuls les comptes autorisés lors de la connexion sont ajoutés.';
+    }catch(e){agencyState.accounts=[];agencyState.selected=[];agencyRenderAccounts();$('#agency-panel-state').textContent=e.message;}
+    agencyRenderPublication();
+  }
+  function agencyRenderAccounts(){
+    $('#agency-accounts').innerHTML=agencyState.accounts.map(function(a){
+      var expired=a.expires_at&&Date.parse(a.expires_at)<Date.now();
+      return '<label class="agency-account"><input type="checkbox" data-agency-account="'+esc(a.id)+'" '+(agencyState.selected.indexOf(a.id)>=0?'checked ':'')+(expired?'disabled ':'')+'><span><b>'+esc(a.account_name||a.account_id)+'</b><small>'+esc(a.network)+' · '+(expired?'🔴 À reconnecter':'🟢 Connexion enregistrée')+'</small></span></label>';
+    }).join('')||'<p>Aucun compte ajouté. Connectez un réseau ou importez vos connexions individuelles.</p>';
+    $all('[data-agency-account]').forEach(function(input){input.addEventListener('change',function(){
+      var id=this.getAttribute('data-agency-account');agencyState.selected=agencyState.selected.filter(function(x){return x!==id;});
+      if(this.checked)agencyState.selected.push(id);agencyState.batch=null;agencyRenderPublication();
+    });});
+  }
+  function agencyRenderPublication(){
+    var selected=agencyState.accounts.filter(function(a){return agencyState.selected.indexOf(a.id)>=0;});
+    $('#agency-publish-box').hidden=!selected.length;
+    $('#agency-target-summary').textContent=selected.map(function(a){return a.account_name+' ('+a.network+')';}).join(', ');
+    $('#agency-publish').disabled=agencyState.busy;
+    $('#agency-publish').textContent=agencyState.busy?'Publication en cours…':'Publier sur '+selected.length+' compte(s)';
+    $('#agency-results').innerHTML=selected.map(function(a){var r=agencyState.results[a.id];return r?'<p><b>'+esc(a.account_name)+'</b> — '+esc(r)+'</p>':'';}).join('');
+  }
+  async function agencyPublish(){
+    if(agencyState.busy)return;
+    var targets=agencyState.accounts.filter(function(a){return agencyState.selected.indexOf(a.id)>=0;});if(!targets.length)return;
+    if(!confirm('Publier maintenant sur ces comptes ?\n\n'+targets.map(function(a){return a.account_name+' ('+a.network+')';}).join('\n')))return;
+    var caption=($('#cap').value||'')+($('#tags').value?'\n\n'+$('#tags').value:'');
+    var media=comp.media&&comp.media[0]?{url:comp.media[0].url,type:comp.media[0].type}:null;
+    if(comp.media&&comp.media.length>1){toast('Le mode agence accepte un seul média par publication pour le moment.',true);return;}
+    var payload=JSON.stringify({caption:caption,media:media,formats:comp.formats,targets:targets.map(function(a){return a.id;})});
+    if(!agencyState.batch||agencyState.batch.payload!==payload){
+      var digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(payload))),function(x){return x.toString(16).padStart(2,'0');}).join('');
+      var batchKey='mcd_agency_batch_'+authUser.id+'_'+digest,batchId;
+      try{batchId=localStorage.getItem(batchKey);}catch(e){}
+      if(!batchId){batchId=crypto.randomUUID();try{localStorage.setItem(batchKey,batchId);}catch(e){}}
+      agencyState.batch={id:batchId,payload:payload,storageKey:batchKey};
+    }
+    agencyState.busy=true;agencyRenderPublication();
+    try{
+      for(var i=0;i<targets.length;i++){
+        var a=targets[i];agencyState.results[a.id]='Envoi en cours…';agencyRenderPublication();
+        try{
+          var result=await agencyApi({action:'publish',request_id:agencyState.batch.id,account_id:a.id,caption:caption,media:media,format:comp.formats[a.network]==='Reel'?'Reel':comp.formats[a.network]==='Story'?'Story':'Post'});
+          agencyState.results[a.id]=result.ok?'✓ Publié':(result.error||'Résultat à vérifier sur le réseau.');
+        }catch(e){agencyState.results[a.id]=e.message+' Vérifiez le compte avant de recommencer.';}
+        agencyRenderPublication();
+      }
+    }finally{agencyState.busy=false;agencyRenderPublication();}
+  }
+  (function(){
+    $('#agency-request').addEventListener('click',async function(){this.disabled=true;try{await agencyApi({action:'request'});await agencyRefresh();}catch(e){$('#agency-access-state').textContent=e.message;this.disabled=false;}});
+    $('#agency-manage').addEventListener('click',agencyManage);
+    $('#agency-panel-close').addEventListener('click',function(){$('#agency-panel').hidden=true;$('#agency-manage').focus();});
+    $('#agency-accounts-refresh').addEventListener('click',agencyManage);
+    $('#agency-import').addEventListener('click',async function(){this.disabled=true;try{await agencyApi({action:'import'});await agencyManage();}catch(e){$('#agency-panel-state').textContent=e.message;}finally{this.disabled=false;}});
+    $all('[data-agency-network]').forEach(function(btn){btn.addEventListener('click',async function(){this.disabled=true;try{
+      var r=await agencyApi({action:'connect',network:this.getAttribute('data-agency-network')});var u=new URL(r.url);
+      if(!['www.facebook.com','api.twitter.com','accounts.snapchat.com'].includes(u.hostname)||u.protocol!=='https:')throw Error('Adresse de connexion invalide.');
+      location.href=u.href;
+    }catch(e){$('#agency-panel-state').textContent=e.message;this.disabled=false;}});});
+    $('#agency-publish').addEventListener('click',agencyPublish);
+    $('#agency-new-batch').addEventListener('click',function(){
+      if(agencyState.busy||!agencyState.batch)return;
+      if(!confirm('Créer une nouvelle tentative ? Les comptes déjà publiés pourront recevoir un doublon. Vérifiez d’abord les résultats sur chaque réseau.'))return;
+      try{localStorage.removeItem(agencyState.batch.storageKey);}catch(e){}
+      agencyState.batch=null;agencyState.results={};agencyRenderPublication();
+    });
+    $('#agency-open-from-publish').addEventListener('click',agencyManage);
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')$('#agency-panel').hidden=true;});
+  })();
+
+
   /* ============ START ============ */
   async function startApp(){
+    studioProfileSync();
+    studioProfileLoad();
     if(window.mcdDoorsOpen) window.mcdDoorsOpen();
     $('#auth').style.display='none';
     $('#me-name').textContent=me.nom;
@@ -8673,7 +8892,9 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     var hcc=$('#hub-card-clients'); if(hcc) hcc.style.display = me.isTeam ? 'flex' : 'none';
     var dt=$('#dele-toggle'); if(dt) dt.style.display = me.isTeam ? 'none' : 'flex';
     if(!me.isTeam) loadDelegation();
-    try{ var cp=new URLSearchParams(location.search).get('connect');
+    try{ var agencyReturn=new URLSearchParams(location.search).get('agency_connect');
+      if(agencyReturn){showHub();agencyRefresh();agencyManage();toast(agencyReturn==='ok'?'Comptes agence reliés.':'Connexion agence non terminée. Réessayez.',agencyReturn!=='ok');history.replaceState(null,'',location.pathname);return;}
+      var cp=new URLSearchParams(location.search).get('connect');
       if(cp==='ok'){ enterStudio(); toast('Compte relié avec succès ✓'); history.replaceState(null,'',location.pathname); return; }
       else if(cp==='error'){ enterStudio(); toast('Échec de la connexion au réseau.', true); history.replaceState(null,'',location.pathname); return; }
     }catch(e){}
@@ -8681,9 +8902,19 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   }
   (function(){
     var g=document.getElementById('hub-gear'), sh=document.getElementById('perm-sheet');
+    if(g){
+      var social=document.getElementById('mcd-social'),hub=document.getElementById('hub');
+      if(social&&hub){
+        social.insertBefore(g,social.firstChild);
+        var syncGear=function(){g.hidden=getComputedStyle(hub).display==='none';};
+        new MutationObserver(syncGear).observe(hub,{attributes:true,attributeFilter:['style','class']});
+        syncGear();
+      }
+    }
     var boxes={ compose:document.getElementById('perm-compose'), reports:document.getElementById('perm-reports'), messages:document.getElementById('perm-messages') };
     function open(){
       sh.classList.add('show');
+      agencyRefresh();
       loadPerms();
     }
     function close(){ sh.classList.remove('show'); }
