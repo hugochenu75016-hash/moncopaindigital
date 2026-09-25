@@ -5066,23 +5066,33 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   function marshallConversationClearPending(){
     var c=marshallConversationCurrent(false);if(!c)return;c.pendingIntent='';c.pendingPrompt='';marshallConversationSave();
   }
-  function marshallNeedsBriefClarification(prompt,intent){
-    if(intent!=='canvas')return false;
-    var b=marshallBrandGet();if(b.website||b.offer||b.name)return false;
-    var t=String(prompt||'').toLowerCase()
-      .replace(/[’']/g,"'")
-      .replace(/\b(j'aimerais|je voudrais|je veux|peux tu|peux-tu|est ce que tu peux|est-ce que tu peux|tu peux|merci|svp|stp)\b/g,' ')
-      .replace(/\b(creer|créer|cree|crée|faire|generer|générer|produire|construire)\b/g,' ')
-      .replace(/\b(un|une|le|la|des|mon|ma|mes)\b/g,' ')
-      .replace(/\b(post|publication|visuel|contenu)\b/g,' ')
-      .replace(/\b(c'est possible|possible|s'il te plait|s'il te plaît)\b/g,' ')
-      .replace(/[?!.,:;]+/g,' ')
-      .replace(/\s+/g,' ').trim();
-    return t.length<4;
+  function marshallBriefMissing(prompt,intent){
+    var raw=String(prompt||''), low=raw.toLowerCase(), missing=[];
+    if(intent==='canvas'){
+      var b=marshallBrandGet();if(b.website||b.offer||b.name)return missing;
+      var canvasText=low.replace(/[’']/g,"'").replace(/\b(j'aimerais|je voudrais|je veux|peux tu|peux-tu|est ce que tu peux|est-ce que tu peux|tu peux|merci|svp|stp)\b/g,' ').replace(/\b(creer|créer|cree|crée|faire|generer|générer|produire|construire)\b/g,' ').replace(/\b(un|une|le|la|des|mon|ma|mes)\b/g,' ').replace(/\b(post|publication|visuel|contenu)\b/g,' ').replace(/\b(c'est possible|possible|s'il te plait|s'il te plaît)\b/g,' ').replace(/[?!.,:;]+/g,' ').replace(/\s+/g,' ').trim();
+      if(canvasText.length<4)missing.push('subject');return missing;
+    }
+    if(intent!=='story'&&intent!=='monthly_story')return missing;
+    var clean=low.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/precision utilisateur\s*:/g,' ').replace(/\b\d{1,2}\s*[\/.-]\s*\d{1,2}(?:\s*[\/.-]\s*\d{2,4})?\b/g,' ').replace(/\b\d{1,2}\s*(?:h|:)\s*\d{0,2}\b/g,' ').replace(/\b(?:aujourd'hui|demain|apres-demain|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\b/g,' ').replace(/\b(?:j'aimerais|j aimerais|je voudrais|je veux|peux tu|est ce que tu peux|tu peux|merci|svp|stp|creer|cree|faire|fais|fasses|generer|produire|preparer|programmer|planifier|publier|publication|pour chaque jour|chaque jour|par jour|quotidienne?s?|mois prochain|ce mois|du mois|story|stories|instagram|facebook|tiktok|reseaux?|prochain|suivant|mois|jour|que|le|la|les|un|une|des|de|du|a|au|aux|pour|sur|mon|ma|mes|notre|nos|moi|me|tu)\b/g,' ').replace(/\b1\b/g,' ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
+    if(clean.length<3)missing.push('subject');
+    var wantsSchedule=/publi|programm|planifi|\b(?:le|pour)\s*\d{1,2}\s*[\/.-]\s*\d{1,2}/i.test(raw);
+    if(wantsSchedule&&intent==='story'){
+      var hasDate=/\b\d{1,2}\s*[\/.-]\s*\d{1,2}(?:\s*[\/.-]\s*\d{2,4})?\b|\b(?:aujourd'hui|demain|après-demain|apres-demain)\b/i.test(raw);
+      var hasTime=/\b\d{1,2}\s*(?:h|:)\s*\d{0,2}\b|\b(?:matin|midi|soir)\b/i.test(raw);
+      if(!hasDate)missing.push('date');if(!hasTime)missing.push('time');
+    }
+    return missing;
   }
-  function marshallClarificationQuestion(intent){
+  function marshallNeedsBriefClarification(prompt,intent){return marshallBriefMissing(prompt,intent).length>0;}
+  function marshallClarificationQuestion(intent,prompt){
+    var missing=marshallBriefMissing(prompt,intent), asks=[];
+    if(!missing.length)return 'J’ai maintenant les informations nécessaires. Je lance la création.';
+    if(missing.indexOf('subject')>=0)asks.push(intent==='monthly_story'?'le thème ou le fil rouge du mois':'le sujet précis, l’offre ou le message à présenter');
+    if(missing.indexOf('date')>=0)asks.push('la date de publication');
+    if(missing.indexOf('time')>=0)asks.push('l’heure souhaitée');
     if(intent==='canvas')return 'Oui. Quel est le sujet du post ? Tu peux répondre simplement par le thème, par exemple « démarches administratives ».';
-    return 'Donne-moi juste la précision principale dont tu veux parler.';
+    return 'Oui. Avant de créer, il me manque '+asks.join(asks.length>1?', et ':': ') +'. Réponds simplement avec ces éléments : je conserverai ta demande et j’examinerai ta réponse avant de continuer.';
   }
 
   async function marshallRemoteReply(messages){
@@ -5679,14 +5689,15 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
         intent=pending.intent;
         workPrompt=(pending.prompt?pending.prompt+'\n':'')+'Précision utilisateur : '+prompt;
         marshallConversationClearPending();
+        pending=null;
       }
     }
-    if(marshallNeedsBriefClarification(prompt,intent) && !pending){
+    if(marshallNeedsBriefClarification(workPrompt,intent)){
       marshallChatBubble('user',prompt);
-      marshallConversationSetPending(intent,prompt);
+      marshallConversationSetPending(intent,workPrompt);
       if(marshallAgentMode.agent==='marshall'||marshallAgentMode.agent==='auto')await marshallSupervisorRoute(workPrompt,intent);
       if(intent!=='general')marshallChatAgentPill(intent);
-      marshallChatBubble('assistant',marshallClarificationQuestion(intent));
+      marshallChatBubble('assistant',marshallClarificationQuestion(intent,workPrompt));
       if(input){input.value='';input.style.height='auto';input.focus();}
       return;
     }
