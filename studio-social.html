@@ -1932,6 +1932,11 @@ html body :is(.net-chip,.fmt-chip,.tab-btn,.pill,.cal-nav button,.btn-sm){backgr
 html body :is(.net-chip.on,.fmt-chip.active,.tab-btn.active){background:#eeeeE8!important;color:#292924!important;border-color:#cfcfc4!important}
 html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,label,p,button,h2,h3,small){font-family:var(--studio-font)!important}
 </style>
+
+<style id="mcd-hide-agent-mission-bar">
+/* Barre Agent + Mission masquée : le routage reste actif en arrière-plan. */
+.mv4-agentbar{display:none!important;}
+</style>
 </head>
 <body>
 <div id="door-tx" class="loading" aria-hidden="true">
@@ -2002,6 +2007,9 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   }
   function tryOpen(){ if(appReady && pageLoaded && fontsReady) doOpen(); }
   window.mcdDoorsOpen=function(){ appReady=true; tryOpen(); };
+  /* Preview helper: permet d'ouvrir les portes même si l'initialisation de l'app/auth
+     n'a pas encore appelé mcdDoorsOpen(). Utilisé uniquement par cette build preview. */
+  window.mcdDoorsForceOpen=function(){ appReady=true; pageLoaded=true; fontsReady=true; doOpen(); };
   window.addEventListener('load', function(){ pageLoaded=true; tryOpen(); });
   if(document.fonts){ document.fonts.ready.then(function(){ fontsReady=true; tryOpen(); }); }
   window.addEventListener('pageshow', function(ev){
@@ -2010,6 +2018,24 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
       ov.querySelectorAll('.door,.dt-logo').forEach(function(d){ d.style.animation='none'; void d.offsetWidth; d.style.animation=''; });
     }
   });
+})();
+</script>
+<script id="mcd-preview-auto-open-doors">
+(function(){
+  /* Build de preview : les portes doivent toujours s'ouvrir, même sans session Supabase
+     ou si le démarrage complet de Studio Social n'est pas terminé. */
+  function openDoors(){
+    if(typeof window.mcdDoorsForceOpen==='function') window.mcdDoorsForceOpen();
+    else if(typeof window.mcdDoorsOpen==='function') window.mcdDoorsOpen();
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){ setTimeout(openDoors,180); },{once:true});
+  }else{
+    setTimeout(openDoors,180);
+  }
+  window.addEventListener('load',function(){ setTimeout(openDoors,80); },{once:true});
+  /* filet de sécurité pour la preview si une ressource externe tarde à répondre */
+  setTimeout(openDoors,1200);
 })();
 </script>
 <div id="decor"></div>
@@ -2684,7 +2710,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
         <div class="calv-summary"><div class="calv-thumb" id="calv-thumb">Aperçu</div><div class="calv-copy"><b id="calv-caption">—</b><span id="calv-time">—</span></div></div>
         <p class="calv-label">Réseaux et formats de publication</p>
         <div class="calv-networks" id="calv-networks"></div>
-        <p class="calv-note" id="calv-note">Le point reste rouge tant que la publication n’est pas validée. Après validation, il devient vert et l’envoi pourra démarrer automatiquement à l’heure programmée.</p>
+        <p class="calv-note" id="calv-note">Le point reste rouge tant que la publication n’est pas validée. Après validation, le serveur Supabase prend le relais : l’envoi peut partir à l’heure programmée même si Studio Social, le navigateur ou le PC sont fermés.</p>
         <div class="calv-actions"><button type="button" id="calv-edit">Modifier le contenu</button><button type="button" class="calv-revoke" id="calv-revoke" hidden>Remettre à valider</button><button type="button" class="calv-approve" id="calv-approve">Accepter la validation et activer l’auto-publication</button></div>
       </section>
     </div>
@@ -2812,7 +2838,8 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   'use strict';
   var SUPABASE_URL = 'https://nlesboqlnnpnmwlpvhif.supabase.co';
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXNib3Fsbm5wbm13bHB2aGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTE3NzEsImV4cCI6MjA5ODY4Nzc3MX0.vwu9FGgl4cXZ8KExSeL3IrgWjxIbhvDYKeSWP9sb7X8';
-  var PUBLISH_FN = 'social-publish';   // fonction Supabase/Cloudflare à déployer
+  var PUBLISH_FN = 'social-publish';   // publication à la demande
+  var SCHEDULER_FN = 'social-scheduler'; // publication planifiée côté serveur (Supabase Cron)
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   var ADMIN_EMAILS = ['hugo.chenu@moncopaindigital.fr'];
 
@@ -3045,10 +3072,18 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   }
   async function persist(p){
     if(storeMode==='db'){
-      try{ var r=await sb.from('social_posts').upsert(toRow(p)).select().single(); if(!r.error && r.data){ Object.assign(p, fromRow(r.data)); } return; }
-      catch(e){}
+      try{ var r=await sb.from('social_posts').upsert(toRow(p)).select().single(); if(!r.error && r.data){ Object.assign(p, fromRow(r.data)); return true; } }
+      catch(e){ console.warn('Persist social_posts',e); }
     }
     saveLocal();
+    return false;
+  }
+  async function persistScheduledServer(p){
+    if(storeMode!=='db') throw Error('La base Supabase social_posts est indisponible : la programmation serveur ne peut pas être garantie.');
+    var r=await sb.from('social_posts').upsert(toRow(p)).select().single();
+    if(r.error||!r.data) throw Error((r.error&&r.error.message)||'Impossible d’enregistrer la publication planifiée dans Supabase.');
+    Object.assign(p,fromRow(r.data));
+    return true;
   }
   async function removePost(id){
     posts=posts.filter(function(p){ return p.id!==id; });
@@ -4994,7 +5029,9 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
       'La Story virale est une vraie séquence verticale 9:16 de 3 écrans (hook, valeur, CTA). CrewAI/Story Architect peut produire le blueprint, Qwen génère les visuels, Wan 2.2 anime les scènes et MoneyPrinterTurbo réalise le montage vidéo lorsque le mode vidéo est actif.',
       'CrewAI sert aux tâches stratégiques/multi-agents. Marshall ne doit pas invoquer plusieurs agents pour une simple question si cela n’apporte rien.',
       'Règle de comportement : distingue toujours ce que l’application SAIT, ce qu’elle PEUT FAIRE, ce qui a été réellement exécuté, et ce qui nécessite une connexion, une autorisation ou un backend disponible.',
+      'La publication planifiée validée est exécutée côté serveur par social-scheduler + Supabase Cron. Elle continue même si Studio Social, le navigateur ou le PC sont fermés. Le navigateur ne sert qu’à afficher et synchroniser l’état du calendrier.',
       'Pour une question “comment faire dans Social Studio ?”, réponds avec les noms exacts des écrans/boutons connus ci-dessus et des étapes courtes. Si une fonction n’existe pas dans cette source de vérité, dis que tu ne peux pas confirmer qu’elle existe.',
+      'Marshall peut programmer directement dans Calendrier la Story de 3 visuels créée dans la conversation active lorsqu’un jour et une heure sont fournis. Il doit exécuter cette action localement au lieu de répondre qu’il faut passer manuellement par Brouillons.',
       'Si une demande de création est incomplète, pose UNE question utile puis conserve la mission en attente pour interpréter la réponse suivante comme une précision.',
       runtime.join(' ')
     ].join('\n');
@@ -5678,12 +5715,157 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     if(p)p.value=map[action]||current;
     await marshallChatSubmit();
   }
+  /* ===== Marshall → Calendrier : programmer directement la création Story active ===== */
+  function marshallScheduleNormalizeText(value){
+    return String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[’']/g,"'");
+  }
+  function marshallCurrentStoryContext(){
+    var c=marshallConversationCurrent(false), pages=null, plan=null;
+    try{
+      if(Array.isArray(marshallCanvasPages)&&marshallCanvasPages.length&&marshallCanvasPages.some(function(p){return p&&p.kind==='story';})){
+        if(typeof marshallCanvasPagesSaveCurrent==='function')marshallCanvasPagesSaveCurrent();
+        pages=marshallSerializableClone(marshallCanvasPages)||[];
+        plan=marshallSerializableClone(marshallLastStoryPlan)||null;
+      }
+    }catch(e){}
+    if((!pages||!pages.length)&&c&&Array.isArray(c.canvasPages)&&c.canvasPages.some(function(p){return p&&p.kind==='story';})){
+      pages=marshallSerializableClone(c.canvasPages)||[];
+      plan=marshallSerializableClone(c.storyPlan)||plan;
+    }
+    pages=(pages||[]).filter(function(p){return p&&p.kind==='story';}).slice(0,3);
+    if(!plan&&c&&c.storyPlan)plan=marshallSerializableClone(c.storyPlan)||c.storyPlan;
+    return {conversation:c,pages:pages,plan:plan};
+  }
+  function marshallHasSchedulableStory(){
+    var ctx=marshallCurrentStoryContext();return !!(ctx.pages&&ctx.pages.length>=1);
+  }
+  function marshallLooksLikeStoryScheduleRequest(prompt){
+    if(!marshallHasSchedulableStory())return false;
+    var t=marshallScheduleNormalizeText(prompt);
+    var action=/\b(programme|programmer|planifie|planifier|planifies|poste|poster|publie|publier|publies|mets|mettre|ajoute|ajouter|cale|caler|schedule)\b/.test(t);
+    var target=/\b(story|stories|visuel|visuels|creation|crea|la|les|ca|celle-ci|cette)\b/.test(t)||/calendrier/.test(t);
+    return action&&target;
+  }
+  function marshallScheduleRecentUserText(){
+    var c=marshallConversationCurrent(false), msgs=(c&&Array.isArray(c.messages)?c.messages:[]), out=[];
+    for(var i=msgs.length-1;i>=0&&out.length<8;i--){if(msgs[i]&&msgs[i].role==='user'&&msgs[i].text)out.push(String(msgs[i].text));}
+    return out.join('\n');
+  }
+  function marshallScheduleExtractTime(text){
+    var t=marshallScheduleNormalizeText(text),m=t.match(/\b([01]?\d|2[0-3])\s*(?:h|:)\s*([0-5]\d)?\b/);
+    if(m)return {hour:Number(m[1]),minute:m[2]?Number(m[2]):0,explicit:true};
+    if(/\bmidi\b/.test(t))return {hour:12,minute:0,explicit:true};
+    if(/\bminuit\b/.test(t))return {hour:0,minute:0,explicit:true};
+    return null;
+  }
+  function marshallScheduleExtractDate(text,time){
+    var t=marshallScheduleNormalizeText(text),now=new Date(),d=null,m;
+    m=t.match(/\b(\d{1,2})\s*[\/.\-]\s*(\d{1,2})(?:\s*[\/.\-]\s*(\d{2,4}))?\b/);
+    if(m){
+      var day=Number(m[1]),month=Number(m[2])-1,year=m[3]?Number(m[3]):now.getFullYear();if(year<100)year+=2000;
+      d=new Date(year,month,day);
+      if(!m[3]&&d.getTime()<new Date(now.getFullYear(),now.getMonth(),now.getDate()).getTime())d.setFullYear(d.getFullYear()+1);
+    }
+    if(!d){
+      var months=['janvier','fevrier','mars','avril','mai','juin','juillet','aout','septembre','octobre','novembre','decembre'];
+      for(var mi=0;mi<months.length&&!d;mi++){
+        var mm=t.match(new RegExp('\\b(\\d{1,2})\\s+'+months[mi]+'(?:\\s+(20\\d{2}))?\\b'));
+        if(mm){var yy=mm[2]?Number(mm[2]):now.getFullYear();d=new Date(yy,mi,Number(mm[1]));if(!mm[2]&&d<new Date(now.getFullYear(),now.getMonth(),now.getDate()))d.setFullYear(d.getFullYear()+1);}
+      }
+    }
+    if(!d){
+      var add=/\bapres-demain\b/.test(t)?2:/\bdemain\b/.test(t)?1:/\baujourd'hui\b/.test(t)?0:null;
+      if(add!=null){d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+add);}
+    }
+    if(!d){
+      var names=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'],wanted=-1;
+      for(var wi=0;wi<names.length;wi++){if(new RegExp('\\b'+names[wi]+'\\b').test(t)){wanted=wi;break;}}
+      if(wanted>=0){
+        var delta=(wanted-now.getDay()+7)%7;
+        d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+delta);
+        var hh=time?time.hour:23, mn=time?time.minute:59, candidate=new Date(d.getFullYear(),d.getMonth(),d.getDate(),hh,mn,0,0);
+        if(delta===0&&candidate.getTime()<=now.getTime())d.setDate(d.getDate()+7);
+      }
+    }
+    return d;
+  }
+  function marshallStoryScheduleParse(prompt){
+    var recent=marshallScheduleRecentUserText(),time=marshallScheduleExtractTime(prompt)||marshallScheduleExtractTime(recent),date=marshallScheduleExtractDate(prompt,time);
+    if(!date&&recent)date=marshallScheduleExtractDate(recent,time);
+    var missing=[];if(!date)missing.push('date');if(!time)missing.push('time');
+    if(missing.length)return {missing:missing,date:date,time:time};
+    var target=new Date(date.getFullYear(),date.getMonth(),date.getDate(),time.hour,time.minute,0,0);
+    if(target.getTime()<=Date.now()+30000)return {missing:['future'],date:date,time:time,target:target};
+    return {missing:[],date:date,time:time,target:target};
+  }
+  function marshallStoryScheduleQuestion(spec){
+    var miss=(spec&&spec.missing)||[];
+    if(miss.indexOf('future')>=0)return 'Cette heure est déjà passée. Donne-moi une nouvelle date ou heure et je place directement les 3 visuels dans le calendrier.';
+    if(miss.indexOf('date')>=0&&miss.indexOf('time')>=0)return 'Oui. Pour quel jour et à quelle heure veux-tu que je mette les 3 visuels dans le calendrier ?';
+    if(miss.indexOf('date')>=0)return 'À quelle date veux-tu que je mette les 3 visuels dans le calendrier ?';
+    return 'À quelle heure veux-tu que je programme les 3 visuels ?';
+  }
+  function marshallScheduleScaledPng(canvas){
+    if(!canvas)return '';
+    var maxW=540,scale=Math.min(1,maxW/(canvas.width||maxW));
+    if(scale>=.999)return canvas.toDataURL('image/png');
+    var c=document.createElement('canvas');c.width=Math.max(1,Math.round(canvas.width*scale));c.height=Math.max(1,Math.round(canvas.height*scale));
+    var x=c.getContext('2d');x.drawImage(canvas,0,0,c.width,c.height);return c.toDataURL('image/png');
+  }
+  async function marshallScheduleCurrentStory(prompt){
+    var ctx=marshallCurrentStoryContext(),spec=marshallStoryScheduleParse(prompt);
+    if(!ctx.pages.length)return {ok:false,message:'Je n’ai pas de Story active à programmer dans cette conversation.'};
+    if(spec.missing.length)return {ok:false,pending:true,message:marshallStoryScheduleQuestion(spec)};
+    var c=ctx.conversation;
+    if((!Array.isArray(marshallCanvasPages)||!marshallCanvasPages.length||!marshallCanvasPages.some(function(p){return p&&p.kind==='story';}))&&c){marshallConversationRestoreCanvas(c);}
+    if(typeof marshallCanvasPagesSaveCurrent==='function')marshallCanvasPagesSaveCurrent();
+    var storyPages=(marshallCanvasPages||[]).filter(function(p){return p&&p.kind==='story';}).slice(0,3);
+    if(!storyPages.length)storyPages=ctx.pages.slice(0,3);
+    if(storyPages!==marshallCanvasPages){marshallCanvasPages=marshallSerializableClone(storyPages)||storyPages;marshallCanvasPageIndex=0;if(marshallCanvasPages[0])marshallCanvasRestore(marshallCanvasPages[0]);}
+    edAIStatus('Marshall · préparation des visuels pour le calendrier…');
+    var frames=await marshallTimelineStaticCanvases(),media=[];
+    for(var i=0;i<frames.length;i++){
+      var dataUrl=marshallScheduleScaledPng(frames[i].canvas),url=dataUrl;
+      if(dataUrl&&storeMode==='db'){var uploaded=await uploadMedia(dataUrl);if(uploaded)url=uploaded;}
+      if(url)media.push({type:'image',url:url,name:'story-'+(i+1)+'.png'});
+    }
+    if(!media.length)throw Error('Impossible de préparer les visuels de la Story pour le calendrier.');
+    var plan=ctx.plan||marshallLastStoryPlan||{},pf=Array.isArray(plan.frames)?plan.frames:[],caption=pf.map(function(f){return [String(f&&f.hook||'').trim(),String(f&&f.sub||'').trim()].filter(Boolean).join(' — ');}).filter(Boolean).join('\n');
+    if(!caption)caption='Story créée avec Marshall';
+    var convId=(c&&c.id)||'active',scheduleKey='marshall-story-'+convId,existing=posts.find(function(p){return p&&p.results&&p.results.marshall_story_schedule_key===scheduleKey&&p.status==='scheduled';});
+    var targetNets=['instagram','facebook'].filter(function(id){return connections[id]&&connections[id].connected;});if(!targetNets.length)targetNets=['instagram'];
+    var post={id:existing?existing.id:newId(),author_id:effectiveUid(),author_name:actingAs?(actingName+' (via '+me.nom+')'):me.nom,caption:caption,tags:'#Story',crop:{ratio:'9:16',pos:50},formats:{instagram:'Story',x:'Post',tiktok:'Vidéo',facebook:'Story',snapchat:'Snap'},media:media,nets:targetNets,first_comment:null,status:'scheduled',scheduled_at:spec.target.toISOString(),results:{marshall_story:true,marshall_story_schedule_key:scheduleKey,story_canvases:marshallSerializableClone(storyPages)||storyPages,story_plan:marshallSerializableClone(plan)||plan,approval:{approved:false,auto_publish:false,approved_at:null},scheduler:{mode:'server',state:'waiting_validation',queued_at:new Date().toISOString()}},created_at:existing?existing.created_at:new Date().toISOString()};
+    upsertLocalList(post);await persistScheduledServer(post);
+    calRef=new Date(spec.target.getFullYear(),spec.target.getMonth(),1);renderCalendar();updateBadges();
+    marshallConversationClearPending();
+    var when=spec.target.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' à '+spec.target.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    edAIStatus('✓ Les '+media.length+' visuels de la Story sont dans le calendrier · '+when+'.');
+    return {ok:true,message:'C’est fait. J’ai inséré les **'+media.length+' visuels de ta Story** dans le calendrier pour **'+when+'**. Ils sont regroupés dans la même publication Story et restent modifiables. Ouvre « Calendrier » pour les valider : après validation, le serveur pourra les publier à l’heure même si Studio Social est fermé.'};
+  }
+  async function marshallHandleStoryScheduleTurn(prompt,pending){
+    var combined=pending&&pending.intent==='story_schedule'&&pending.prompt?(pending.prompt+'\nPrécision utilisateur : '+prompt):prompt;
+    var result=await marshallScheduleCurrentStory(combined);
+    if(result.pending)marshallConversationSetPending('story_schedule',combined);else marshallConversationClearPending();
+    return result;
+  }
+
   async function marshallChatSubmit(forcePrompt,opts){
     if(marshallChatBusy||marshallAgentDockBusy)return;
     var input=$('#ai-prompt'), b=$('#ai-run');
     var prompt=String(forcePrompt!=null?forcePrompt:((input&&input.value)||'')).trim();
     opts=opts||{};
     if(!prompt){marshallChatBubble('assistant','Écris ce que tu veux créer, par exemple : « Crée une story Instagram pour présenter mon service ».');if(input)input.focus();return;}
+    var earlyPending=marshallConversationPending();
+    if((earlyPending&&earlyPending.intent==='story_schedule')||marshallLooksLikeStoryScheduleRequest(prompt)){
+      marshallChatBubble('user',prompt);
+      try{
+        var scheduled=await marshallHandleStoryScheduleTurn(prompt,earlyPending);
+        marshallChatBubble('assistant',scheduled.message);
+        marshallChatHistory.push({role:'user',content:prompt},{role:'assistant',content:scheduled.message});marshallChatHistory=marshallChatHistory.slice(-12);
+      }catch(scheduleErr){console.error('Marshall calendrier Story',scheduleErr);marshallChatBubble('error','Je n’ai pas pu ajouter la Story au calendrier : '+(scheduleErr&&scheduleErr.message?scheduleErr.message:'erreur inconnue')+'.');}
+      if(input){input.value='';input.style.height='auto';input.focus();}
+      return;
+    }
     marshallCaptureWebsite(prompt);
     var intent=marshallEffectiveIntent(prompt), workPrompt=prompt, pending=marshallConversationPending();
     if(pending && marshallAgentMode.mission==='auto'){
@@ -7389,9 +7571,9 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
         var canvas=edBuildCanvas(), dataUrl=canvas?canvas.toDataURL('image/png'):'', mediaUrl=dataUrl;
         if(dataUrl&&storeMode==='db'){var uploaded=await uploadMedia(dataUrl);if(uploaded)mediaUrl=uploaded;}
         var existing=posts.find(function(p){return p.results&&p.results.monthly_story_key===storyKey;});
-        var post={id:existing?existing.id:newId(),author_id:effectiveUid(),author_name:actingAs?(actingName+' (via '+me.nom+')'):me.nom,caption:item.hook+(item.sub?' — '+item.sub:''),tags:'#Story',crop:{ratio:'9:16',pos:50},formats:{instagram:'Story',x:'Post',tiktok:'Vidéo',facebook:'Story',snapchat:'Snap'},media:mediaUrl?[{type:'image',url:mediaUrl,name:'story-'+dateKey+'.png'}]:[],nets:targetNets.slice(),first_comment:null,status:'scheduled',scheduled_at:iso,results:{monthly_story:true,monthly_story_key:storyKey,story_canvas:page,theme:item.theme,agents:(crew.agents||[]).map(function(a){return a.agent;}),approval:{approved:false,auto_publish:false,approved_at:null}},created_at:existing?existing.created_at:new Date().toISOString()};
+        var post={id:existing?existing.id:newId(),author_id:effectiveUid(),author_name:actingAs?(actingName+' (via '+me.nom+')'):me.nom,caption:item.hook+(item.sub?' — '+item.sub:''),tags:'#Story',crop:{ratio:'9:16',pos:50},formats:{instagram:'Story',x:'Post',tiktok:'Vidéo',facebook:'Story',snapchat:'Snap'},media:mediaUrl?[{type:'image',url:mediaUrl,name:'story-'+dateKey+'.png'}]:[],nets:targetNets.slice(),first_comment:null,status:'scheduled',scheduled_at:iso,results:{monthly_story:true,monthly_story_key:storyKey,story_canvas:page,theme:item.theme,agents:(crew.agents||[]).map(function(a){return a.agent;}),approval:{approved:false,auto_publish:false,approved_at:null},scheduler:{mode:'server',state:'waiting_validation',queued_at:new Date().toISOString()}},created_at:existing?existing.created_at:new Date().toISOString()};
         if(existing)updated++;else created++;
-        upsertLocalList(post);await persist(post);
+        upsertLocalList(post);await persistScheduledServer(post);
         if(i%4===3)await new Promise(function(resolve){setTimeout(resolve,0);});
       }
       marshallCanvasPages=pages;marshallCanvasPageIndex=0;marshallGeneratedSet=pages.map(function(p){return {name:p.name,desc:p.desc,fmt:p.fmt,bg:p.bg,motion:marshallClone(p.motion),layers:marshallClone(p.layers)};});
@@ -8973,23 +9155,25 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
       var r = vertOut ? '9:16' : comp.crop.ratio;
       mediaOut.push({ type:'image', url:(await cropImage(mm.url, r, comp.crop.pos, !vertOut)), name:mm.name });
     }
-    // Les réseaux (Instagram surtout) exigent une URL publique : on téléverse les images créées dans le studio.
-    if(!later){
-      $('#publish-label').textContent='Envoi du média…';
-      for(var ui=0; ui<mediaOut.length; ui++){
-        if(String(mediaOut[ui].url||'').indexOf('data:')===0){
-          var pub=await uploadMedia(mediaOut[ui].url);
-          if(!pub){ toast('Envoi de l’image impossible : '+(window.__mcdUpErr||'stockage indisponible'), true);
-            $('#publish-label').textContent='Publier'; btn.disabled=false; return; }
-          mediaOut[ui].url=pub;
-        }
+    // Une publication programmée doit être 100 % autonome : tous les médias sont téléversés AVANT l’enregistrement.
+    // Ainsi le serveur peut publier même si le navigateur et le PC sont ensuite fermés.
+    $('#publish-label').textContent=later?'Préparation serveur…':'Envoi du média…';
+    for(var ui=0; ui<mediaOut.length; ui++){
+      if(String(mediaOut[ui].url||'').indexOf('data:')===0){
+        var pub=await uploadMedia(mediaOut[ui].url);
+        if(!pub){ toast('Envoi de l’image impossible : '+(window.__mcdUpErr||'stockage indisponible'), true);
+          $('#publish-label').textContent=later?'Programmer':'Publier'; btn.disabled=false; return; }
+        mediaOut[ui].url=pub;
       }
     }
     var p=collectPost(later?'scheduled':'publishing'); p.nets = later ? nets : connSel; p.media=mediaOut;
-    if(later){p.results=Object.assign({},p.results||{}, {approval:{approved:false,auto_publish:false,approved_at:null}});}
-    upsertLocalList(p); await persist(p);
-
-    if(later){ toast('Publication programmée 📅'); updateBadges(); renderCalendar(); resetComposer(); btn.disabled=false; return; }
+    if(later){p.results=Object.assign({},p.results||{}, {approval:{approved:false,auto_publish:false,approved_at:null},scheduler:{mode:'server',state:'waiting_validation',queued_at:new Date().toISOString()}});}
+    upsertLocalList(p);
+    if(later){
+      try{await persistScheduledServer(p);}catch(schedulePersistErr){posts=posts.filter(function(x){return x.id!==p.id;});toast(schedulePersistErr.message||'Programmation serveur impossible.',true);$('#publish-label').textContent='Programmer';btn.disabled=false;return;}
+      toast('Publication enregistrée sur le serveur 📅'); updateBadges(); renderCalendar(); resetComposer(); btn.disabled=false; return;
+    }
+    await persist(p);
 
     $('#publish-label').textContent='Publication…';
     var res=await callPublish(p);
@@ -9078,7 +9262,11 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     (p.nets||[]).forEach(function(n){ comp.nets[n]=true; });
     $('#cap').value=comp.caption; $('#tags').value=comp.tags;
     switchView('composer');
-    if(p.results&&p.results.story_canvas){
+    if(p.results&&Array.isArray(p.results.story_canvases)&&p.results.story_canvases.length){
+      marshallCanvasPages=marshallClone(p.results.story_canvases);marshallCanvasPageIndex=0;
+      if(p.results.story_plan)marshallLastStoryPlan=marshallClone(p.results.story_plan);
+      marshallCanvasRestore(marshallCanvasPages[0]);marshallCanvasPagesRender();marshallCanvasPersistConversation();
+    }else if(p.results&&p.results.story_canvas){
       var storyPage=marshallClone(p.results.story_canvas);marshallCanvasPages=[storyPage];marshallCanvasPageIndex=0;marshallCanvasRestore(storyPage);marshallCanvasPagesRender();marshallCanvasPersistConversation();
     }
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview(); pubRefresh();
@@ -9116,9 +9304,11 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     var selected=[],formats=Object.assign({},p.formats||{});
     $all('[data-calv-net]',$('#calv-networks')).forEach(function(input){if(input.checked){var id=input.getAttribute('data-calv-net'),sel=$('[data-calv-format="'+id+'"]');selected.push(id);if(sel)formats[id]=sel.value;}});
     if(approved&&!selected.length){toast('Choisissez au moins un réseau avant de valider.',true);return;}
+    if(approved&&storeMode!=='db'){toast('Supabase est indisponible : impossible d’activer une publication autonome serveur.',true);return;}
     p.nets=selected;p.formats=formats;p.results=Object.assign({},p.results||{});p.results.approval={approved:!!approved,auto_publish:!!approved,approved_at:approved?new Date().toISOString():null,approved_by:approved?((me&&me.nom)||'Utilisateur'):null,networks:selected.slice(),formats:Object.assign({},formats)};
-    await persist(p);renderCalendar();updateBadges();calendarValidationClose();
-    if(approved){var waiting=selected.filter(function(id){return !(connections[id]&&connections[id].connected);});toast(waiting.length?'Validation acceptée ✓ · en attente de connexion : '+waiting.map(function(id){return net(id).name;}).join(', '):'Validation acceptée ✓ · publication automatique activée');calendarAutoPublishDue();}
+    p.results.scheduler=Object.assign({},p.results.scheduler||{},{mode:'server',state:approved?'queued':'blocked',updated_at:new Date().toISOString()});
+    if(approved)await persistScheduledServer(p);else await persist(p);renderCalendar();updateBadges();calendarValidationClose();
+    if(approved){var waiting=selected.filter(function(id){return !(connections[id]&&connections[id].connected);});toast(waiting.length?'Validation acceptée ✓ · le serveur attendra la connexion : '+waiting.map(function(id){return net(id).name;}).join(', '):'Validation acceptée ✓ · publication serveur activée, même Studio Social fermé');calendarAutoPublishDue();}
     else toast('Validation retirée · publication automatique bloquée');
   }
   $('#calv-close').addEventListener('click',calendarValidationClose);
@@ -9151,19 +9341,16 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     $all('[data-cal-first]',grid).forEach(function(b){ b.addEventListener('click', function(){var id=b.getAttribute('data-cal-first');if(id)calendarValidationOpen(id);else toast('Aucune publication n’est encore prévue pour cette date.',true);}); });
   }
 
+  // Le navigateur ne publie plus les tâches planifiées : il ne fait qu’actualiser l’état.
+  // La publication réelle est assurée côté serveur par social-scheduler + Supabase Cron.
   async function calendarAutoPublishDue(){
     if(calendarAutoBusy||!authUser)return;calendarAutoBusy=true;
     try{
-      var now=Date.now(),scope=effectiveUid(),due=posts.filter(function(p){var a=calendarApproval(p);return p.status==='scheduled'&&p.scheduled_at&&new Date(p.scheduled_at).getTime()<=now&&p.author_id===scope&&a&&a.approved===true&&a.auto_publish===true;});
-      for(var i=0;i<due.length;i++){
-        var p=due[i],selected=(p.nets||[]).slice(),allConnected=selected.length&&selected.every(function(id){return connections[id]&&connections[id].connected;});
-        if(!allConnected)continue;
-        p.status='publishing';await persist(p);renderCalendar();
-        var approval=calendarApproval(p),res=await callPublish(p),kept=Object.assign({},p.results||{});p.status=res.ok?'published':(res.notConfigured?'pending_config':'failed');p.results=kept;p.results.approval=approval;p.results.publication_results=res.results||null;p.results.auto_publish_attempted_at=new Date().toISOString();
-        await persist(p);
+      if(storeMode==='db'){
+        await loadPosts();
+        renderCalendar();renderHistory();renderDrafts();updateBadges();
       }
-      renderCalendar();renderHistory();updateBadges();
-    }catch(e){console.warn('Publication automatique calendrier',e);}finally{calendarAutoBusy=false;}
+    }catch(e){console.warn('Synchronisation calendrier serveur',e);}finally{calendarAutoBusy=false;}
   }
   function calendarAutoPublishStart(){if(calendarAutoTimer)clearInterval(calendarAutoTimer);calendarAutoPublishDue();calendarAutoTimer=setInterval(calendarAutoPublishDue,30000);}
 
