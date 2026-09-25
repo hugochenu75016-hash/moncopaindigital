@@ -3290,7 +3290,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
       var d=slots[+b.getAttribute('data-slot')][1];
       var p=function(n){ return ('0'+n).slice(-2); };
       $('#sc-date').value = d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
-      var hh=p(d.getHours()), mm=p(Math.round(d.getMinutes()/15)*15%60);
+      var hh=p(d.getHours()), mm=p(d.getMinutes());
       $('#sc-time').value = hh+':'+mm;
       pubRefresh();
     }); });
@@ -9365,7 +9365,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   }
 
   // créneaux horaires
-  (function(){ var sel=$('#sc-time'), out=''; for(var h=0;h<24;h++){ for(var mn=0;mn<60;mn+=15){ var hh=('0'+h).slice(-2), mm=('0'+mn).slice(-2); out+='<option value="'+hh+':'+mm+'"'+((hh==='09'&&mm==='00')?' selected':'')+'>'+hh+':'+mm+'</option>'; } } sel.innerHTML=out; })();
+  (function(){ var sel=$('#sc-time'), out=''; for(var h=0;h<24;h++){ for(var mn=0;mn<60;mn+=1){ var hh=('0'+h).slice(-2), mm=('0'+mn).slice(-2); out+='<option value="'+hh+':'+mm+'"'+((hh==='09'&&mm==='00')?' selected':'')+'>'+hh+':'+mm+'</option>'; } } sel.innerHTML=out; })();
 
   /* Agency mode: access is granted only by the server, never by local state. */
   var agencyState={access:null,accounts:[],selected:[],busy:false,results:{},batch:null};
