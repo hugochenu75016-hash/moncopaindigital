@@ -4340,6 +4340,11 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
       marshallVideoResultCard(d.url||'',d.engine||'Open-source',true);return;
     }
     if(a.type==='generated_set'){
+      /* Les anciennes Story enregistrées sous forme de cartes sont rejouées comme un vrai message Marshall. */
+      if(d.kind==='story'){
+        marshallChatBubble('assistant',marshallStoryConversationReply(marshallLastStoryPlan));
+        return;
+      }
       marshallChatGeneratedSetCard(d,true);return;
     }
   }
@@ -5751,7 +5756,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
       else if(intent==='image_compose'){await marshallComposeAroundImage();reply=marshallActionReply(intent,true);}
       else if(intent==='campaign'){await marshallBuildCampaign(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='variants'){await marshallGenerateVariants(workPrompt);reply=marshallActionReply(intent,true);}
-      else if(intent==='story'){await marshallCreateStory(workPrompt);reply=marshallActionReply(intent,true);}
+      else if(intent==='story'){await marshallCreateStory(workPrompt);reply=marshallStoryConversationReply(marshallLastStoryPlan);}
       else if(intent==='monthly_story'){var monthly=await marshallCreateMonthlyStories(workPrompt);reply=marshallMonthlyStoryReply(monthly);}
       else if(intent==='canvas'){await marshallCreateOnCanvas(workPrompt);reply=marshallActionReply(intent,true);}
       else if(intent==='creative'){await marshallCreativeGenerate(workPrompt);reply=marshallActionReply(intent,true);}
@@ -5779,12 +5784,24 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
         marshallChatHistory=marshallChatHistory.slice(-12);
       }
       if(ok)marshallCreationQualityAudit(intent);
-      if(usingCrew) reply=await marshallCrewFinalReply(workPrompt,intent,reply,ok);
-      else if(intent!=='general') reply=await marshallExpertFinalReply(workPrompt,intent,reply,ok);
-      var validation=await marshallSupervisorValidate(workPrompt,intent,reply,ok);reply=validation.reply||reply;
+      /* La Story doit rester exacte : ne pas laisser une reformulation IA supprimer Hook / Texte / CTA. */
+      if(usingCrew && intent!=='story') reply=await marshallCrewFinalReply(workPrompt,intent,reply,ok);
+      else if(intent!=='general'&&intent!=='story') reply=await marshallExpertFinalReply(workPrompt,intent,reply,ok);
+      var validation=await marshallSupervisorValidate(workPrompt,intent,reply,ok);
+      if(intent==='story'&&ok){
+        reply=marshallStoryConversationReply(marshallLastStoryPlan);
+        validation.reply=reply;
+      }else{
+        reply=validation.reply||reply;
+      }
       if(intent==='general'&&marshallChatHistory.length&&marshallChatHistory[marshallChatHistory.length-1].role==='assistant')marshallChatHistory[marshallChatHistory.length-1].content=reply;
       if(typing&&typing.parentNode)typing.remove();
       marshallChatBubble('assistant',reply);marshallChatSupervisorValidation(validation,intent);
+      /* Conserver la Story dans le contexte immédiat pour que « change la 2 », « poste-la samedi », etc. soient compris. */
+      if(intent==='story'&&ok){
+        marshallChatHistory.push({role:'user',content:workPrompt},{role:'assistant',content:reply});
+        marshallChatHistory=marshallChatHistory.slice(-12);
+      }
       if(input){input.value='';input.style.height='auto';input.focus();}
     }catch(e){
       console.error('Marshall V4',e);if(typing&&typing.parentNode)typing.remove();
@@ -6535,13 +6552,32 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     if(!skipPersist)marshallConversationAppendArtifact('generated_set',data);
     marshallUIV5EnhanceMessages();marshallScrollBottomSync(true);return card;
   }
+  function marshallStoryConversationReply(plan){
+    var frames=plan&&Array.isArray(plan.frames)?plan.frames.slice(0,3):[];
+    if(frames.length!==3)return 'Ta Story est prête. Les 3 écrans restent éditables dans le canvas. Tu peux continuer à me parler ici pour la modifier ou la programmer.';
+    var labels=['Accroche','Valeur','Action'],out=['Ta Story est prête. Voici les 3 écrans que je viens de créer :'];
+    frames.forEach(function(f,i){
+      var hook=String((f&&f.hook)||'').trim(),sub=String((f&&f.sub)||'').trim(),cta=String((f&&f.cta)||'').trim();
+      out.push('');
+      out.push('**Story 0'+(i+1)+' · '+labels[i]+'**');
+      if(hook)out.push('Hook : '+hook);
+      if(sub)out.push('Texte : '+sub);
+      if(cta)out.push('CTA : '+cta);
+    });
+    out.push('');
+    out.push('Les 3 écrans restent éditables dans le canvas. Continue simplement la discussion avec moi : par exemple « change le hook de la 1 », « modifie le CTA de la 3 » ou « programme-la samedi à 18h30 ».');
+    return out.join('\n');
+  }
   function marshallRenderGeneratedSet(){
     /* Ancien bloc global désactivé : les résultats appartiennent maintenant au chat qui les a créés. */
     var box=$('#mcamp-results');if(box){box.innerHTML='';box.classList.remove('show');box.style.display='none';}
     if(!marshallGeneratedSet||!marshallGeneratedSet.length)return;
     var kind=(marshallCanvasPages&&marshallCanvasPages[0]&&marshallCanvasPages[0].kind)||'creation';
-    var title=kind==='story'?'Ta Story est prête':kind==='campaign'?'Ta campagne est prête':kind==='variant'?'Tes variantes sont prêtes':'Ta création est prête';
-    var subtitle=kind==='story'?'Hook, valeur et CTA sont maintenant liés à cette conversation. Clique sur un écran pour l’ouvrir dans le canvas.':'Clique sur un élément pour l’ouvrir dans le canvas.';
+    /* Pour une Story, ne plus bloquer la discussion avec les 3 cartes de résultat.
+       La réponse finale de Marshall contient directement Hook / Valeur / CTA dans le fil. */
+    if(kind==='story')return null;
+    var title=kind==='campaign'?'Ta campagne est prête':kind==='variant'?'Tes variantes sont prêtes':'Ta création est prête';
+    var subtitle='Clique sur un élément pour l’ouvrir dans le canvas.';
     var data={kind:kind,title:title,subtitle:subtitle,items:marshallGeneratedSet.map(function(v,i){return {index:i,name:v.name||marshallCanvasDefaultName(kind,i),desc:v.desc||marshallCanvasDefaultDesc(kind,i)};})};
     return marshallChatGeneratedSetCard(data,false);
   }
