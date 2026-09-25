@@ -1720,6 +1720,24 @@
 html body{background:var(--bg)!important;color:var(--studio-ink);font-family:var(--studio-font);-webkit-font-smoothing:antialiased}
 body:not(:has(#app.show,#msgapp.show,#clientsapp.show,#reportsapp.show)){background:#6EC1F0!important}
 #auth,#connect-gate,#hub{background:#6EC1F0!important}
+/* Lock only the main menu; settings sheets retain their own scrolling. */
+html:has(#hub.show),body:has(#hub.show){height:100%;overflow:hidden!important;overscroll-behavior:none}
+#hub.show{position:fixed;inset:0;height:100dvh;min-height:0;box-sizing:border-box;overflow:hidden}
+#hub.show .hub-head{margin:0!important}
+@media(max-height:800px),(max-width:720px){
+  #hub.show{padding:100px 20px 24px}
+  #hub .hub-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px!important}
+  #hub .hub-card{padding:18px;gap:8px}
+  #hub .hub-ic{width:44px;height:44px}
+  #hub .hub-ct{font-size:20px}
+  #hub .hub-cd{font-size:13px}
+}
+@media(max-height:600px){
+  #hub .hub-card{padding:12px;gap:6px}
+  #hub .hub-cd{display:none}
+  #hub .hub-ic{width:30px;height:30px}
+  #hub .hub-ic svg{width:22px;height:22px}
+}
 #decor,.cloud{display:none!important}
 body :is(button,input,select,textarea){font-family:var(--studio-font)!important;letter-spacing:normal}
 :is(#side,.hdr-actions,.ed-rail,.ed-agent-rail,.ed-toolbar,.ed-panel,.ed-flyout,.madock,.auth-card,.hub-inner,.card,.sheet,#site-footer) :is(h1,h2,h3,b,strong,span,small,p,label,a,summary){font-family:var(--studio-font)!important;text-shadow:none!important}
@@ -2206,11 +2224,9 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
 <section id="hub">
   <div class="hub-inner">
     <div class="hub-head">
-      <h1 class="hub-title">Bonjour <span id="hub-name">👋</span></h1>
       <button id="hub-gear" class="hub-gear" type="button" title="Gérer mes connexions" aria-label="Gérer mes connexions">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6 1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
-      <p class="hub-sub">Que voulez-vous faire aujourd'hui ?</p>
     </div>
     <div class="hub-cards">
       <button class="hub-card" data-tool="studio">
@@ -8879,7 +8895,6 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     $('#auth').style.display='none';
     $('#me-name').textContent=me.nom;
     $('#me-role').textContent=me.role;
-    $('#hub-name').textContent=me.nom;
     $('#hub-me').textContent=me.nom+' · '+me.role;
     $('#gate-me').textContent=me.nom+' · '+me.role;
     resetLocalState();   // aucun état d'un compte précédent ne doit rester en mémoire
