@@ -749,6 +749,7 @@
     #topbar-app .hi .k { letter-spacing: 0.16em; }
   }
 </style>
+<script src="studio-billing-config.js"></script>
 </head>
 <body>
 <!-- ===== Transition portes entre pages ===== -->
@@ -1071,7 +1072,9 @@
       </a>
 
       <div class="spacer"></div>
-      <a class="side-logout" id="logout-btn">
+      <button type="button" class="nav-item account-gifts-nav" data-account-gifts hidden><span aria-hidden="true">🎁</span> Cartes cadeaux</button>
+<button type="button" class="nav-item studio-invoices-nav" data-studio-invoices hidden><span aria-hidden="true">▤</span> Factures Studio</button>
+<a class="side-logout" id="logout-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
         Se déconnecter
       </a>
@@ -1320,7 +1323,9 @@
       </a>
 
       <div class="spacer"></div>
-      <a class="side-logout" id="adm-logout">
+      <button type="button" class="nav-item account-gifts-nav" data-account-gifts hidden><span aria-hidden="true">🎁</span> Cartes cadeaux</button>
+<button type="button" class="nav-item studio-invoices-nav" data-studio-invoices hidden><span aria-hidden="true">▤</span> Factures Studio</button>
+<a class="side-logout" id="adm-logout">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
         Se déconnecter
       </a>
@@ -1518,6 +1523,7 @@
   var WORKER_URL = 'https://rendezvous.hugochenu75016.workers.dev';
   var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXNib3Fsbm5wbm13bHB2aGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTE3NzEsImV4cCI6MjA5ODY4Nzc3MX0.vwu9FGgl4cXZ8KExSeL3IrgWjxIbhvDYKeSWP9sb7X8';
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  window.mcdAccountSupabase = sb;
   var authUser = null;
   var clientChannel = null, adminChannel = null;
 
@@ -2325,8 +2331,36 @@
         '<div class="card col-6"><div class="card-title-row"><h2>Suivi de projet</h2></div>'+projHtml+'</div>'+
         '<div class="card col-6"><div class="card-title-row"><h2>Messagerie</h2></div><div class="chat-body" style="max-height:320px;">'+msgsHtml+'</div><div class="chat-compose"><textarea data-reply-for="'+c.id+'" rows="1" placeholder="Répondre à '+esc(c.nom.split(' ')[0])+'…"></textarea><button class="send-btn" data-act="reply" data-id="'+c.id+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l16-8-6 16-3-6-7-2z"/></svg></button></div></div>'+
       '</div>';
+    if(authUser&&String(authUser.email||'').toLowerCase()==='hugo.chenu@moncopaindigital.fr'&&!c.manual&&!c.prospect){
+      var agencyCard=document.createElement('section');agencyCard.id='agency-client-access';agencyCard.className='card';agencyCard.style.marginBottom='20px';
+      $('#aview-client').prepend(agencyCard);renderAgencyAccessCard(c.id);
+    }
     var cb=$('#aview-client .chat-body'); if(cb) cb.scrollTop=cb.scrollHeight;
   }
+
+  async function renderAgencyAccessCard(clientId){
+    var mount=document.getElementById('agency-client-access');if(!mount)return;
+    mount.textContent='Chargement de l’accès agence…';
+    async function call(body){
+      var session=await sb.auth.getSession();var token=session.data&&session.data.session&&session.data.session.access_token;
+      var response=await fetch(SUPABASE_URL+'/functions/v1/agency-social',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON,'Authorization':'Bearer '+(token||'')},body:JSON.stringify(body)});
+      var d=await response.json().catch(function(){return {};});if(!response.ok)throw Error(d.error||'Service agence indisponible.');return d;
+    }
+    try{
+      var d=await call({action:'admin_status',user_id:clientId});
+      if(!mount.isConnected)return;
+      var status=d.access&&d.access.status;
+      mount.innerHTML='<h2>Mode agence · Studio Social</h2><p>'+({enabled:'🟢 Autorisé',pending:'🟠 Demande en attente',disabled:'🔴 Désactivé'}[status]||'🔴 Aucun accès demandé')+'</p><p>Permet à ce client de relier plusieurs comptes sociaux autorisés et de publier sur les comptes sélectionnés. Ne donne aucun accès aux comptes des autres clients.</p><button type="button" class="primary-btn" data-agency-decision="'+(status==='enabled'?'disabled':'enabled')+'">'+(status==='enabled'?'Révoquer le mode agence':'Autoriser le mode agence')+'</button><p class="agency-decision-message" role="status"></p>';
+      mount.querySelector('[data-agency-decision]').addEventListener('click',async function(){
+        var decision=this.getAttribute('data-agency-decision');
+        if(!confirm(decision==='enabled'?'Autoriser ce client à utiliser le mode agence multi-comptes ?':'Révoquer cet accès ? Les nouvelles publications agence seront bloquées. Les publications déjà envoyées ne seront pas annulées.'))return;
+        this.disabled=true;
+        try{await call({action:'admin_decide',user_id:clientId,status:decision});await renderAgencyAccessCard(clientId);}
+        catch(e){if(mount.isConnected){mount.querySelector('.agency-decision-message').textContent=e.message;this.disabled=false;}}
+      });
+    }catch(e){if(mount.isConnected)mount.textContent=e.message;}
+  }
+
 
   /* ===== Faire régler : demande de paiement envoyée par email ===== */
   /* ===== Faire régler : demande de paiement envoyée par email ===== */
@@ -3082,5 +3116,14 @@
 // La notification "Votre Bulle" ne réapparaît plus sur l'accueil une fois la page visitée
 try{ localStorage.setItem('mcd-bulle-vue','1'); }catch(err){}
 </script>
-</body>
+
+<style>
+.account-gifts-nav{font:inherit;text-align:left;cursor:pointer;width:100%;border:0;background:transparent}.account-gifts-nav[hidden]{display:none!important}
+#account-gifts{width:min(720px,calc(100vw - 28px));max-height:88vh;max-height:88dvh;overflow:auto;border:1px solid #e2cdb6;border-radius:24px;padding:26px;color:#3b2a1c;background:#fff8ef;font:15px/1.5 Arial,Helvetica,sans-serif;box-shadow:0 25px 90px #0004}#account-gifts::backdrop{background:#15263788}#account-gifts *{box-sizing:border-box}#account-gifts [hidden]{display:none!important}#account-gifts h2{margin:0;font-size:25px}#account-gifts header{display:flex;justify-content:space-between;align-items:center;gap:14px}#account-gifts button{cursor:pointer;border:1px solid #dbc1a4;border-radius:12px;padding:10px 14px;background:#fff;color:#78400d;font:inherit}#account-gifts button:disabled{opacity:.55;cursor:default}#account-gifts .ag-primary{background:#ad4d10;color:#fff;border:0}#account-gifts input{display:block;width:100%;font:inherit;color:#35291f;background:#fff;border:1px solid #cdb99f;border-radius:10px;padding:12px;margin:7px 0 16px}#account-gifts label{display:block;margin-top:20px}#account-gifts .ag-row{border-bottom:1px solid #e6d9ca;padding:14px 0;display:flex;gap:16px;justify-content:space-between;align-items:center}#account-gifts .ag-row p{margin:0}#account-gifts .ag-row button{flex-shrink:0}#account-gifts #ag-message{background:#fff0da;padding:12px;border-radius:12px}#account-gifts #ag-message:empty{display:none}#account-gifts #ag-issued{background:#ffedce;border-radius:14px;padding:16px;margin-top:20px}#account-gifts #ag-code{font-family:monospace}#account-gifts a{color:#8f410c}#account-gifts :focus-visible{outline:3px solid #267bac;outline-offset:3px}@media(max-width:500px){#account-gifts{padding:20px}.ag-row{flex-direction:column;align-items:flex-start!important}}
+</style>
+<dialog id="account-gifts" aria-labelledby="ag-title"><header><h2 id="ag-title">Cartes cadeaux</h2><button type="button" data-close aria-label="Fermer les cartes cadeaux">Fermer</button></header><p>Offrez un mois de Studio Social. Le mois commence à l’activation du code, sans carte bancaire ni renouvellement automatique.</p><p id="ag-message" role="status" aria-live="polite"></p><form id="ag-form"><label for="ag-label">Repère interne (facultatif)</label><input id="ag-label" maxlength="120" placeholder="Ex. Découverte — boutique du centre"><button class="ag-primary" type="submit">Créer un code d’un mois</button></form><section id="ag-issued" hidden><label for="ag-code">Code à remettre au bénéficiaire</label><input id="ag-code" readonly><button type="button" id="ag-copy">Copier le code</button><p>Le bénéficiaire active ce code sur la <a href="cartes-cadeaux.html">page d’activation</a>. Conservez-le maintenant : le code complet ne sera pas récupérable.</p></section><h3>Cartes récentes</h3><p>Les commerciaux voient leurs cartes ; les administrateurs voient toutes les cartes. Jusqu’à 100 cartes récentes.</p><button id="ag-refresh" type="button">Actualiser</button><div id="ag-cards"></div></dialog><script src="compte-cartes-cadeaux.js"></script>
+<style>
+.studio-invoices-nav{font:inherit;text-align:left;cursor:pointer;width:100%;border:0;background:transparent}.studio-invoices-nav[hidden]{display:none!important}
+#studio-invoices-panel{width:min(850px,calc(100vw - 28px));max-height:88vh;max-height:88dvh;overflow:auto;border:1px solid #e2cdb6;border-radius:24px;padding:26px;color:#3b2a1c;background:#fff8ef;font:15px/1.5 Arial,sans-serif;box-shadow:0 25px 90px #0004}#studio-invoices-panel::backdrop{background:#15263788}#studio-invoices-panel [hidden]{display:none!important}#studio-invoices-panel header{display:flex;justify-content:space-between;gap:15px;align-items:center}#studio-invoices-panel h2{margin:0;font-size:25px}#studio-invoices-panel h3{margin:0;font-size:17px}#studio-invoices-panel button,#studio-invoices-panel a{font:inherit;border:1px solid #dbc1a4;padding:9px 13px;border-radius:11px;background:white;color:#78400d;cursor:pointer;display:inline-block;text-decoration:none;margin-right:8px}#studio-invoices-panel button:disabled{opacity:.45;cursor:default}#studio-invoices-panel .si-card{padding:20px 0;border-bottom:1px solid #e6d9ca}#studio-invoices-panel .si-card p{margin:6px 0}#studio-invoices-panel .si-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px}#studio-invoices-panel :focus-visible{outline:3px solid #267bac;outline-offset:3px}#si-message{background:#fff0da;padding:10px;border-radius:12px}#si-message:empty{display:none}
+</style><dialog id="studio-invoices-panel" aria-labelledby="si-title"><header><h2 id="si-title">Factures Studio</h2><button type="button" data-si-close>Fermer</button></header><p>Suivi des paiements et factures de vos abonnements Studio Social, y compris les renouvellements.</p><div class="si-controls"><label id="si-admin" hidden><input id="si-all" type="checkbox"> Toutes les factures (administrateur)</label><button id="si-refresh" type="button">Actualiser</button></div><p id="si-message" role="status" aria-live="polite"></p><div id="si-cards"></div><div class="si-controls"><button id="si-prev" type="button" disabled>Précédent</button><span id="si-page"></span><button id="si-next" type="button" disabled>Suivant</button></div></dialog><script src="compte-factures-studio.js"></script></body>
 </html>
