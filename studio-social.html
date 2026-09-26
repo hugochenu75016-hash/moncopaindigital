@@ -2053,6 +2053,11 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
 .field input:disabled{opacity:.55}
 @media(max-width:420px){.au-row{grid-template-columns:1fr;gap:0}}
 </style>
+<style id="mcd-otp-style">
+.au-otp-head{margin-bottom:14px}.au-otp-head b{display:block;font-size:17px;color:#252525;margin-bottom:4px}.au-otp-head p{margin:0;font-size:13.5px;line-height:1.45;color:#6c6c67}.au-otp-head strong{color:#252525;word-break:break-all}
+.field input.au-otp-input{font-size:26px!important;letter-spacing:.45em;text-align:center;font-variant-numeric:tabular-nums;padding:14px 10px!important}
+.au-otp-actions{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}.au-otp-actions .au-link{margin-top:12px}.au-link:disabled{opacity:.55;text-decoration:none;cursor:default}
+</style>
 </head>
 <body>
 <div id="door-tx" class="loading" aria-hidden="true">
@@ -2362,9 +2367,24 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
         <div class="field"><label for="su-account">Nom de ton compte <small class="au-opt">(facultatif)</small></label><input id="su-account" type="text" placeholder="Ex. Camille en cuisine"></div>
       </div>
       <div class="field"><label for="su-email">Email</label><input id="su-email" type="email" autocomplete="email" placeholder="vous@exemple.fr"></div>
-      <div class="field"><label for="su-pass">Mot de passe</label><div class="au-pass"><input id="su-pass" type="password" autocomplete="new-password" placeholder="8 caractères minimum" minlength="8"><button type="button" class="au-eye" data-eye="su-pass" aria-label="Afficher le mot de passe">Afficher</button></div></div>
+      <div class="field"><label for="su-pass">Mot de passe</label><div class="au-pass"><input id="su-pass" type="password" autocomplete="new-password" placeholder="8 caractères, lettres et chiffres" minlength="8"><button type="button" class="au-eye" data-eye="su-pass" aria-label="Afficher le mot de passe">Afficher</button></div></div>
       <div class="field"><label for="su-pass2">Confirmer le mot de passe</label><input id="su-pass2" type="password" autocomplete="new-password" placeholder="Retapez le mot de passe" minlength="8"></div>
       <button class="primary-btn" type="submit">Créer mon compte</button>
+    </form>
+    <form id="reset-form" style="display:none;" autocomplete="on" novalidate>
+      <div class="au-otp-head"><b>Nouveau mot de passe</b><p>Saisis le code envoyé à <strong id="reset-email"></strong>, puis ton nouveau mot de passe.</p></div>
+      <div class="field"><label for="reset-code">Code reçu par email</label><input id="reset-code" class="au-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •"></div>
+      <div class="field"><label for="reset-pass">Nouveau mot de passe</label><div class="au-pass"><input id="reset-pass" type="password" autocomplete="new-password" placeholder="8 caractères, lettres et chiffres"><button type="button" class="au-eye" data-eye="reset-pass" aria-label="Afficher le mot de passe">Afficher</button></div></div>
+      <div class="field"><label for="reset-pass2">Confirmer le mot de passe</label><input id="reset-pass2" type="password" autocomplete="new-password" placeholder="Retape le mot de passe"></div>
+      <button class="primary-btn" type="submit">Changer mon mot de passe</button>
+      <div class="au-otp-actions"><button type="button" class="au-link" id="reset-resend">Renvoyer le code</button><button type="button" class="au-link" id="reset-back">Retour à la connexion</button></div>
+    </form>
+    <form id="otp-form" style="display:none;" autocomplete="on" novalidate>
+      <div class="au-otp-head"><b>Vérifie ton email</b><p>On a envoyé un code à <strong id="otp-email"></strong>. Saisis-le ci-dessous pour activer ton compte.</p></div>
+      <div class="field"><label for="otp-code">Code de vérification</label><input id="otp-code" class="au-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •" aria-describedby="otp-help"></div>
+      <button class="primary-btn" type="submit">Activer mon compte</button>
+      <div class="au-otp-actions"><button type="button" class="au-link" id="otp-resend">Renvoyer le code</button><button type="button" class="au-link" id="otp-back">Modifier l’email</button></div>
+      <small class="au-help" id="otp-help">Le code arrive en moins d’une minute. Pense à regarder dans tes spams.</small>
     </form>
     <p style="font-size:12px;color:#8a6a0c;margin:16px 0 0;text-align:center;" id="auth-hint">Chaque client dispose de son propre espace : vos publications et votre connexion Instagram restent privées.</p>
   </div>
@@ -3067,6 +3087,8 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
     var tab=t.getAttribute('data-tab');
     $('#login-form').style.display = tab==='login' ? 'block' : 'none';
     $('#signup-form').style.display = tab==='signup' ? 'block' : 'none';
+    if(typeof otpHide==='function' && $('#otp-form') && $('#otp-form').style.display!=='none') otpHide();
+    if($('#reset-form')) $('#reset-form').style.display='none';
     $('#auth-err').style.display='none'; $('#auth-ok').style.display='none';
   }); });
   $('#login-form').addEventListener('submit', async function(ev){
@@ -3077,8 +3099,13 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
     var btn=$('#login-form .primary-btn'); btn.disabled=true; btn.textContent='Connexion…';
     try{
       var res=await sb.auth.signInWithPassword({ email:email, password:pass });
-      if(res.error){ showErr('Email ou mot de passe incorrect.'); return; }
+      if(res.error){
+        if(/not confirmed|confirm/i.test(String(res.error.message||''))){ try{ await sb.auth.resend({type:'signup',email:email}); }catch(_e){} otpShow(email,null); showOk('Ton email n’est pas encore vérifié : on vient de t’envoyer un code.'); return; }
+        showErr('Email ou mot de passe incorrect.'); return;
+      }
       authUser=res.data.user;
+      if(mcdA2fOn(authUser)){ await mcdStart2FA(email); return; }
+      mcdTouchActive(true);
       if(!(await resolveAccount())){ showErr('Accès refusé.'); return; }
       await startApp();
     }catch(e){ showErr('Erreur de connexion. Réessayez.'); }
@@ -3118,13 +3145,44 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
   $('#su-siret').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();suLookup();}});
   $('#su-siret').addEventListener('input',function(){var d=this.value.replace(/\D/g,'');if((d.length===9||d.length===14)&&(!suCompany||suCompany.siren!==d.slice(0,9)))suLookup();});
   $('#su-tva-none').addEventListener('change',function(){$('#su-tva').disabled=this.checked;});
+  function mcdPwProblem(p){p=String(p||'');if(p.length<8)return '8 caractères minimum.';if(!/[A-Za-zÀ-ÿ]/.test(p)||!/[0-9]/.test(p))return 'utilise au moins une lettre et un chiffre.';return '';}
+  var resetEmail='',resetTimer=null;
+  function resetCooldown(sec){var b=$('#reset-resend');clearInterval(resetTimer);var left=sec;function tick(){if(left<=0){clearInterval(resetTimer);b.disabled=false;b.textContent='Renvoyer le code';return;}b.disabled=true;b.textContent='Renvoyer le code ('+left+' s)';left--;}tick();resetTimer=setInterval(tick,1000);}
+  async function resetSend(){
+    try{var r=await sb.auth.resetPasswordForEmail(resetEmail,{redirectTo:location.origin+'/espace-compte.html'});if(r&&r.error)throw r.error;return true;}
+    catch(e){showErr(/rate|many|seconds/i.test(String(e&&e.message))?'Un code vient déjà d’être envoyé : patiente une minute.':'Envoi impossible pour le moment. Réessaie dans quelques minutes.');return false;}
+  }
   $('#li-forgot').addEventListener('click',async function(){
     var email=$('#li-email').value.trim().toLowerCase();
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){showErr('Entre ton email ci-dessus, puis clique à nouveau sur « Mot de passe oublié ? ».');$('#li-email').focus();return;}
-    this.disabled=true;
-    try{var r=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(r&&r.error)throw r.error;showOk('Si un compte existe pour cet email, tu vas recevoir un lien pour choisir un nouveau mot de passe.');}
-    catch(e){showErr('Envoi impossible pour le moment. Réessaie dans quelques minutes.');}
-    finally{this.disabled=false;}
+    this.disabled=true;resetEmail=email;
+    var ok=await resetSend();this.disabled=false;if(!ok)return;
+    $('#login-form').style.display='none';$('#reset-form').style.display='block';$('#reset-email').textContent=email;
+    ['#reset-code','#reset-pass','#reset-pass2'].forEach(function(s){$(s).value='';});
+    showOk('Code envoyé. Pense à regarder dans tes spams.');resetCooldown(45);setTimeout(function(){$('#reset-code').focus();},60);
+  });
+  $('#reset-code').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,10);if(this.value.length===6)$('#reset-pass').focus();});
+  $('#reset-resend').addEventListener('click',async function(){if(await resetSend()){showOk('Nouveau code envoyé à '+resetEmail+'.');resetCooldown(60);}});
+  $('#reset-back').addEventListener('click',function(){clearInterval(resetTimer);$('#reset-form').style.display='none';$('#login-form').style.display='block';$('#auth-err').style.display='none';$('#auth-ok').style.display='none';});
+  $('#reset-form').addEventListener('submit',async function(ev){
+    ev.preventDefault();$('#auth-ok').style.display='none';
+    var code=$('#reset-code').value,p1=$('#reset-pass').value,p2=$('#reset-pass2').value;
+    if(code.length<6){showErr('Saisis le code à 6 chiffres reçu par email.');$('#reset-code').focus();return;}
+    var pb=mcdPwProblem(p1);if(pb){showErr('Mot de passe : '+pb);$('#reset-pass').focus();return;}
+    if(p1!==p2){showErr('Les deux mots de passe ne correspondent pas.');$('#reset-pass2').focus();return;}
+    var btn=$('#reset-form .primary-btn');btn.disabled=true;btn.textContent='Vérification…';
+    try{
+      var v=await sb.auth.verifyOtp({email:resetEmail,token:code,type:'recovery'});
+      if(v.error||!v.data||!v.data.session){showErr('Code incorrect ou expiré. Vérifie les chiffres, ou renvoie un code.');return;}
+      var u=await sb.auth.updateUser({password:p1});
+      if(u&&u.error){var m=String(u.error.message||'');showErr(/same|different/i.test(m)?'Choisis un mot de passe différent de l’ancien.':(/weak|pwned|leaked/i.test(m)?'Ce mot de passe est trop courant : choisis-en un autre.':'Enregistrement impossible. Réessaie.'));return;}
+      try{await sb.auth.signOut({scope:'others'});}catch(e){}
+      clearInterval(resetTimer);$('#reset-form').style.display='none';$('#auth-err').style.display='none';
+      authUser=v.data.session.user;mcdTouchActive(true);
+      if(!(await resolveAccount())){showErr('Accès refusé.');return;}
+      await startApp();
+    }catch(e){showErr('Vérification impossible. Réessaie dans un instant.');}
+    finally{btn.disabled=false;btn.textContent='Changer mon mot de passe';}
   });
   /* Après connexion : recopie le type de compte et l’entreprise dans le profil de marque de Marshall. */
   function marshallSyncProfileFromMeta(){
@@ -3160,7 +3218,7 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
       brand=($('#su-account').value.trim()||[first,last].filter(Boolean).join(' ')).slice(0,80);
     }
     if(!email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){showErr('Indique un email valide.');$('#su-email').focus();return;}
-    if(pass.length<8){showErr('Le mot de passe doit faire 8 caractères minimum.');$('#su-pass').focus();return;}
+    var _pb=mcdPwProblem(pass);if(_pb){showErr('Mot de passe : '+_pb);$('#su-pass').focus();return;}
     if(pass!==pass2){showErr('Les deux mots de passe ne correspondent pas.');$('#su-pass2').focus();return;}
     Object.assign(data,{nom:brand,brand:brand,slug:slugify(brand)});
     var btn=$('#signup-form .primary-btn'); btn.disabled=true; btn.textContent='Création…';
@@ -3172,18 +3230,91 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
       }
       if(res.data && res.data.session){
         authUser=res.data.session.user;
-        try{var pr=Object.assign({id:authUser.id,email:authUser.email||null,nom:[data.prenom,data.nom_famille].filter(Boolean).join(' ')||brand,entreprise:data.account_type==='pro'?brand:null,adresse:data.adresse||null,updated_at:new Date().toISOString()},data);delete pr.brand;delete pr.slug;delete pr.nom_famille;var rr=await sb.from('profiles').upsert(pr);if(rr&&rr.error)await sb.from('profiles').upsert({id:authUser.id,email:authUser.email||null,nom:pr.nom,entreprise:pr.entreprise,adresse:pr.adresse});}catch(_e){}
+        mcdTouchActive(true);
+        await mcdSaveSignupProfile({data:data,brand:brand});
         if(!(await resolveAccount())){ showErr('Compte créé, mais accès refusé.'); return; }
         await startApp();
         return;
       }
       $('#auth-err').style.display='none';
-      var ok=$('#auth-ok'); ok.textContent='Compte créé. Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.';
-      ok.style.display='block';
+      otpShow(email,{data:data,brand:brand});
       $('#signup-form').reset();suCompany=null;$('#su-company').hidden=true;$('#su-company-fields').hidden=true;$('#su-tva').disabled=false;suSetType('pro');
     }catch(e){ showErr('Création impossible. Réessayez.'); }
     finally{ btn.disabled=false; btn.textContent='Créer mon compte'; }
   });
+
+
+  /* ===== Vérification de l’email par code à la création du compte ===== */
+  var MCD_OTP_LENGTH=6,otpPending=null,otpTimer=null;
+  async function mcdSaveSignupProfile(p){
+    if(!p||!authUser)return;
+    var data=p.data||{},brand=p.brand||'';
+    try{var pr=Object.assign({id:authUser.id,email:authUser.email||null,nom:[data.prenom,data.nom_famille].filter(Boolean).join(' ')||brand,entreprise:data.account_type==='pro'?brand:null,adresse:data.adresse||null,updated_at:new Date().toISOString()},data);delete pr.brand;delete pr.slug;delete pr.nom_famille;var rr=await sb.from('profiles').upsert(pr);if(rr&&rr.error)await sb.from('profiles').upsert({id:authUser.id,email:authUser.email||null,nom:pr.nom,entreprise:pr.entreprise,adresse:pr.adresse});}catch(_e){}
+  }
+  function otpCooldown(sec){
+    var b=$('#otp-resend');if(!b)return;clearInterval(otpTimer);var left=sec;
+    function tick(){if(left<=0){clearInterval(otpTimer);b.disabled=false;b.textContent='Renvoyer le code';return;}b.disabled=true;b.textContent='Renvoyer le code ('+left+' s)';left--;}
+    tick();otpTimer=setInterval(tick,1000);
+  }
+  /* ===== Double vérification : code par email si aucune activité depuis 12 h (ou nouvel appareil) ===== */
+  var MCD_2FA_HOURS=12,mcdActivityBound=false,mcdLastTouch=0;
+  function mcdActiveKey(uid){return 'mcd_last_active_'+uid;}
+  function mcdTouchActive(force){if(!authUser)return;var now=Date.now();if(!force&&now-mcdLastTouch<60000)return;mcdLastTouch=now;try{localStorage.setItem(mcdActiveKey(authUser.id),String(now));}catch(e){}}
+  function mcdA2fOn(u){var m=(u&&u.user_metadata)||{};return m.a2f!==false;}
+  function mcdNeeds2FA(uid){try{var t=Number(localStorage.getItem(mcdActiveKey(uid))||0);return !t||Date.now()-t>MCD_2FA_HOURS*3600000;}catch(e){return false;}}
+  function mcdBindActivity(){
+    if(mcdActivityBound)return;mcdActivityBound=true;
+    ['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){window.addEventListener(ev,function(){mcdTouchActive(false);},{passive:true});});
+    document.addEventListener('visibilitychange',function(){if(document.hidden||!authUser)return;if(mcdA2fOn(authUser)&&mcdNeeds2FA(authUser.id))location.reload();else mcdTouchActive(true);});
+  }
+  async function mcdStart2FA(email){
+    try{await sb.auth.signOut({scope:'local'});}catch(e){}
+    authUser=null;
+    otpShow(email,null,'login');
+    try{var r=await sb.auth.signInWithOtp({email:email,options:{shouldCreateUser:false}});if(r&&r.error)throw r.error;showOk('Pour ta sécurité, on t’a envoyé un code de connexion.');}
+    catch(e){showErr(/rate|many|seconds/i.test(String(e&&e.message))?'Un code vient déjà d’être envoyé : regarde ta boîte mail, ou patiente une minute.':'Envoi du code impossible pour le moment. Réessaie dans un instant.');}
+  }
+  function otpShow(email,pending,mode){
+    mode=mode==='login'?'login':'signup';
+    otpPending={email:email,profile:pending||null,mode:mode};
+    try{sessionStorage.setItem('mcd_otp',JSON.stringify(otpPending));}catch(e){}
+    $('#login-form').style.display='none';$('#signup-form').style.display='none';$('#otp-form').style.display='block';
+    var hb=$('#otp-form .au-otp-head b'),hp=$('#otp-form .au-otp-head p');
+    if(mode==='login'){hb.textContent='Vérification de sécurité';hp.innerHTML='La vérification en deux étapes protège ton compte. Saisis le code envoyé à <strong id="otp-email"></strong>.';}
+    else{hb.textContent='Vérifie ton email';hp.innerHTML='On a envoyé un code à <strong id="otp-email"></strong>. Saisis-le ci-dessous pour activer ton compte.';}
+    $('#otp-email').textContent=email;$('#otp-code').value='';
+    $('#otp-form .primary-btn').textContent=mode==='login'?'Me connecter':'Activer mon compte';
+    $('#otp-back').textContent=mode==='login'?'Utiliser un autre compte':'Modifier l’email';
+    setTimeout(function(){var c=$('#otp-code');if(c)c.focus();},60);
+    otpCooldown(45);
+  }
+  function otpHide(){otpPending=null;clearInterval(otpTimer);try{sessionStorage.removeItem('mcd_otp');}catch(e){}var f=$('#otp-form');if(f)f.style.display='none';}
+  $('#otp-code').addEventListener('input',function(){var v=this.value.replace(/\D/g,'').slice(0,10);if(v!==this.value)this.value=v;if(v.length===MCD_OTP_LENGTH)$('#otp-form').requestSubmit();});
+  $('#otp-form').addEventListener('submit',async function(ev){
+    ev.preventDefault();$('#auth-ok').style.display='none';
+    if(!otpPending){showErr('Recommence la connexion.');return;}
+    var code=$('#otp-code').value.replace(/\D/g,''),mode=otpPending.mode||'signup';
+    if(code.length<6){showErr('Le code contient '+MCD_OTP_LENGTH+' chiffres.');$('#otp-code').focus();return;}
+    var btn=$('#otp-form .primary-btn');if(btn.disabled)return;var label=btn.textContent;btn.disabled=true;btn.textContent='Vérification…';
+    try{
+      var res=await sb.auth.verifyOtp({email:otpPending.email,token:code,type:mode==='login'?'email':'signup'});
+      if(res.error||!res.data||!res.data.session){showErr('Code incorrect ou expiré. Vérifie les chiffres, ou clique sur « Renvoyer le code ».');$('#otp-code').select();return;}
+      $('#auth-err').style.display='none';
+      authUser=res.data.session.user;mcdTouchActive(true);
+      var pending=otpPending.profile;otpHide();
+      if(mode==='signup')await mcdSaveSignupProfile(pending);
+      if(!(await resolveAccount())){showErr('Accès refusé.');return;}
+      await startApp();
+    }catch(e){showErr('Vérification impossible. Réessaie dans un instant.');}
+    finally{btn.disabled=false;btn.textContent=label;}
+  });
+  $('#otp-resend').addEventListener('click',async function(){
+    if(!otpPending)return;this.disabled=true;
+    try{var r=otpPending.mode==='login'?await sb.auth.signInWithOtp({email:otpPending.email,options:{shouldCreateUser:false}}):await sb.auth.resend({type:'signup',email:otpPending.email});if(r&&r.error)throw r.error;showOk('Nouveau code envoyé à '+otpPending.email+'.');otpCooldown(60);}
+    catch(e){showErr(/rate|many|seconds/i.test(String(e&&e.message))?'Trop de demandes : patiente une minute avant de redemander un code.':'Envoi impossible pour le moment. Réessaie dans un instant.');this.disabled=false;}
+  });
+  $('#otp-back').addEventListener('click',function(){var m=otpPending&&otpPending.mode;otpHide();var t=$('#auth-tabs .seg[data-tab="'+(m==='login'?'login':'signup')+'"]');if(t)t.click();});
+  try{var _op=JSON.parse(sessionStorage.getItem('mcd_otp')||'null');if(_op&&_op.email){setTimeout(function(){if($('#auth')&&$('#auth').style.display!=='none'){var tb=_op.mode==='login'?'login':'signup';$all('#auth-tabs .seg').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-tab')===tb);});otpShow(_op.email,_op.profile,_op.mode);}},400);}}catch(e){}
 
   var studioProfileData=null,studioProfileUid=null,studioProfileRequest=0;
   async function studioProfileLoad(){
@@ -4326,7 +4457,7 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
           <div class="set-field full"><label>Outil vidéo Marshall</label><select id="marshall-story-render"><option value="auto">Vidéo Motion locale (recommandé)</option><option value="video">Motion locale + version IA · Wan 2.2</option><option value="static">Outil vidéo désactivé</option></select></div>
         </div></div>
         <div class="set-section" id="mbb-form"><div class="set-section-head"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/></svg><b>Profil de marque</b><span>Compte actif</span></div><div class="set-grid">
-          <div class="set-field full"><label>Compte et facturation</label><div class="set-state" id="mbb-account-summary"></div><a href="espace-compte.html#profil" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Gérer mes infos dans l’Espace compte</a></div><div class="set-field full" id="mbb-perso-row"><label>De quoi parle ton compte ? Que dois-je créer ?</label><textarea id="mbb-topic" placeholder="Ex : je partage mes recettes healthy et je veux gagner des abonnés"></textarea></div><div class="set-field"><label>Nom de marque</label><input id="mbb-name"></div><div class="set-field"><label>Secteur / activité</label><input id="mbb-sector"></div>
+          <div class="set-field full"><label>Compte et facturation</label><div class="set-state" id="mbb-account-summary"></div><a href="espace-compte.html#profil" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Gérer mes infos dans l’Espace compte</a> <a href="espace-compte.html#securite" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Changer mon mot de passe</a></div><div class="set-field full" id="mbb-perso-row"><label>De quoi parle ton compte ? Que dois-je créer ?</label><textarea id="mbb-topic" placeholder="Ex : je partage mes recettes healthy et je veux gagner des abonnés"></textarea></div><div class="set-field"><label>Nom de marque</label><input id="mbb-name"></div><div class="set-field"><label>Secteur / activité</label><input id="mbb-sector"></div>
           <div class="set-field full"><label>Site web officiel</label><input id="mbb-website" inputmode="url" placeholder="https://votresite.fr"></div>
           <div class="set-field full"><label>Offre / services</label><textarea id="mbb-offer"></textarea></div><div class="set-field full"><label>Cible</label><textarea id="mbb-audience"></textarea></div>
           <div class="set-field full"><label>Valeurs / personnalité</label><textarea id="mbb-values"></textarea></div><div class="set-field"><label>Ton</label><input id="mbb-tone"></div><div class="set-field"><label>Positionnement</label><input id="mbb-position"></div>
@@ -10405,6 +10536,7 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
 
   /* ============ START ============ */
   async function startApp(){
+    mcdTouchActive(true);mcdBindActivity();
     studioProfileSync();
     studioProfileLoad();
     marshallSyncProfileFromMeta();
@@ -10789,7 +10921,7 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
   (async function(){
     try{
       var s=await sb.auth.getSession();
-      if(s && s.data && s.data.session){ authUser=s.data.session.user; if(await resolveAccount()){ await startApp(); return; } }
+      if(s && s.data && s.data.session){ authUser=s.data.session.user; if(mcdA2fOn(authUser)&&mcdNeeds2FA(authUser.id)){ var _em=authUser.email; if(window.mcdDoorsOpen) window.mcdDoorsOpen(); await mcdStart2FA(_em); return; } mcdTouchActive(true); if(await resolveAccount()){ await startApp(); return; } }
     }catch(e){}
     if(window.mcdDoorsOpen) window.mcdDoorsOpen();
   })();
