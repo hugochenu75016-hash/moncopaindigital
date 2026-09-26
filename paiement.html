@@ -85,7 +85,7 @@
   }
   @media (max-width:760px){ #perso{ display:none; } }
   .step-hidden{ display:none; }
-  #step-forfait.step-in{ display:block; animation:stepReveal .55s cubic-bezier(.2,.8,.25,1) both; }
+  #step-forfait.step-in, #step-info.step-in{ display:block; animation:stepReveal .55s cubic-bezier(.2,.8,.25,1) both; }
   @keyframes stepReveal{ from{ opacity:0; transform:translateY(28px); } to{ opacity:1; transform:none; } }
   .panel{
     position:relative; border-radius:28px; padding:clamp(22px,2.6vw,34px);
@@ -560,7 +560,7 @@
     <!-- Étape 2 : Votre forfait + paiement (apparaît après validation) -->
     <div class="panel step-hidden" id="step-forfait" aria-hidden="true">
       <h2><span class="step-n">2</span> Votre forfait</h2>
-      <p class="hint">Séances d'accompagnement à domicile ou en visio. Éligibles au crédit d'impôt de 50&nbsp;%.</p>
+      <p class="hint">Séances d'accompagnement à domicile ou en visio. <a href="#" id="edit-info">Modifier mes informations</a></p>
       <div class="offers" id="offers"></div>
 
       <div class="qty-row">
@@ -576,8 +576,7 @@
         <div class="line"><span id="sum-name">—</span><span id="sum-unit">—</span></div>
         <div class="line"><span>Quantité</span><span id="sum-qty">×1</span></div>
         <div class="total"><span class="t-lbl">Total à payer</span><span class="t-amt" id="sum-total">—</span></div>
-        <div class="credit-note" id="sum-credit"></div>
-      </div>
+        </div>
 
       <div class="methods" aria-label="Moyens de paiement acceptés">
         <span class="m">CB</span>
@@ -662,7 +661,6 @@
   var STRIPE_PK = 'pk_live_51KviRCHuQEeEwwniSlC11bnLbttvp9HNyJaETbjNEfIjFX4Kl2Da0GidTLSTbq1vAVhycmP6JoTeR4WoC0w1W0s9000TKpQw4Q';
   var FN_URL = 'https://nlesboqlnnpnmwlpvhif.supabase.co/functions/v1/create-payment-intent';
 
-  var CREDIT_IMPOT = 0.5; // 50 % crédit d'impôt (indicatif)
   var OFFERS = [
     { id:'seance',  nom:'Séance à l\u2019unité',  desc:'1h d\u2019accompagnement, à domicile ou en visio.', prix:49 },
     { id:'pack3',   nom:'Pack 3 séances',        desc:'3 séances à utiliser quand vous voulez. Soit 47&nbsp;€/séance.', prix:141 },
@@ -691,11 +689,10 @@
     OFFERS.forEach(function(o){
       var el = document.createElement('div');
       el.className = 'offer' + (o.id===state.offer.id ? ' sel' : '');
-      var after = euro(o.prix * (1-CREDIT_IMPOT));
       el.innerHTML =
         '<span class="radio"></span>' +
         '<div class="o-body"><div class="o-name">'+o.nom+'</div><div class="o-desc">'+o.desc+'</div></div>' +
-        '<div class="o-price"><div class="o-amt">'+euro(o.prix)+'</div><div class="o-after">soit '+after+' après crédit d\u2019impôt</div></div>';
+        '<div class="o-price"><div class="o-amt">'+euro(o.prix)+'</div></div>';
       el.addEventListener('click', function(){ state.offer=o; if(o.id==='seance'||o.id==='custom'){} renderOffers(); renderSummary(); });
       box.appendChild(el);
     });
@@ -707,7 +704,6 @@
     $('#sum-unit').textContent = euro(o.prix);
     $('#sum-qty').textContent = '×'+q;
     $('#sum-total').textContent = euro(total);
-    $('#sum-credit').innerHTML = 'Soit environ <strong>'+euro(total*(1-CREDIT_IMPOT))+'</strong> après crédit d\u2019impôt de 50&nbsp;%.';
     var lbl=$('#pay-btn-label'); if(lbl) lbl.textContent = 'Payer '+euro(total);
   }
 
@@ -786,10 +782,22 @@
   $('#info-form').addEventListener('submit', function(e){
     e.preventDefault();
     if(!validInfos()) return;
+    var info=$('#step-info');
+    info.classList.add('step-hidden'); info.classList.remove('step-in'); info.setAttribute('aria-hidden','true');
     var step=$('#step-forfait');
     step.classList.remove('step-hidden'); step.classList.add('step-in'); step.setAttribute('aria-hidden','false');
     renderOffers(); renderSummary();
     setTimeout(function(){ window.scrollTo({ top: step.getBoundingClientRect().top + window.pageYOffset - 20, behavior:'smooth' }); }, 60);
+  });
+
+  /* ---------- Retour à l'étape 1 : modifier les informations ---------- */
+  $('#edit-info').addEventListener('click', function(e){
+    e.preventDefault();
+    ['#step-forfait','#step-pay'].forEach(function(id){ var s=$(id); s.classList.add('step-hidden'); s.classList.remove('step-in'); s.setAttribute('aria-hidden','true'); });
+    elements=null; $('#payment-element').innerHTML=''; $('#pay-btn').setAttribute('disabled','disabled');
+    var info=$('#step-info');
+    info.classList.remove('step-hidden'); info.classList.add('step-in'); info.setAttribute('aria-hidden','false');
+    setTimeout(function(){ window.scrollTo({ top: info.getBoundingClientRect().top + window.pageYOffset - 20, behavior:'smooth' }); }, 60);
   });
 
   /* ---------- Étape 2 → 3 : préparer le paiement (Stripe Payment Element) ---------- */
