@@ -2587,9 +2587,10 @@ function start() {
         let standupClip = null;                // Stand_Up (autre GLB, même squelette)
         let sitClip = null;                    // Stand_to_Sit (autre GLB, même squelette)
         let sitIdleClip = null;                // Sitting_Answering_Questions (boucle assise)
-        sitIdleClip = sitIdleClipFromModel;
+        // Plus de chaise : le personnage reste debout, droit, sans animation assise.
+        sitIdleClip = null;
         // Les portes n'ouvrent qu'une fois le mod&egrave;le ET son animation assise pr&ecirc;ts.
-        let animReady = !!sitIdleClip, modelDone = false, doorsSent = false;
+        let animReady = true, modelDone = false, doorsSent = false;
         const doorsIfReady = () => {
           if (doorsSent || !animReady || !modelDone) return;
           doorsSent = true;
@@ -2597,7 +2598,7 @@ function start() {
         };
         // si le nouveau mod&egrave;le n'embarque pas de clip, on reprend la boucle assise de
         // l'ancien GLB (m&ecirc;me squelette Meshy) pour garder la m&ecirc;me pose et le m&ecirc;me mouvement
-        if (!sitIdleClip){
+        if (false){   // animation assise désactivée (maincaractersitidle.glb n'est plus chargé)
           const oldL = new THREE.GLTFLoader();
           const oldD = new THREE.DRACOLoader();
           oldD.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/draco/');
