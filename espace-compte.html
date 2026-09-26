@@ -769,7 +769,7 @@
 @media(max-width:520px){.ec-type{grid-template-columns:1fr}}
 </style>
 <style id="ec-otp-style">
-.ec-otp-head{margin-bottom:14px;color:#fff}.ec-otp-head b{display:block;font-family:'Fredoka','Helvetica Neue',sans-serif;font-size:20px;margin-bottom:4px}.ec-otp-head p{margin:0;font-size:14px;line-height:1.45;color:#ffe9cf}.ec-otp-head strong{color:#fff;word-break:break-all}
+.ec-otp-head{margin-bottom:14px;color:#fff}.ec-otp-head b{display:block;font-family:'Fredoka','Helvetica Neue',sans-serif;font-size:20px;margin-bottom:4px}.ec-otp-head p{margin:0;font-size:14px;line-height:1.45;color:#ffe9cf}.ec-otp-head strong{display:block;margin-top:2px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(12px,3.6vw,15px)}
 .auth-card .field input.ec-otp-input{font-size:28px;letter-spacing:.45em;text-align:center;font-variant-numeric:tabular-nums}
 #ec-otp-resend[aria-disabled="true"]{opacity:.6;cursor:default;border-bottom-color:transparent}
 </style>
@@ -1012,8 +1012,8 @@
           <p class="auth-foot">Déjà inscrit ? <a href="#" id="go-login">Connectez-vous</a></p>
         </form>
         <form id="form-otp" style="display:none;" autocomplete="on" novalidate>
-          <div class="ec-otp-head"><b>Vérifiez votre email</b><p>Nous avons envoyé un code à <strong id="ec-otp-email"></strong>. Saisissez-le pour activer votre compte.</p></div>
-          <div class="field"><label for="ec-otp-code">Code de vérification</label><input id="ec-otp-code" class="ec-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •"></div>
+          <div class="ec-otp-head"><b>Vérifiez votre email</b><p>Saisissez le code envoyé à : <strong id="ec-otp-email"></strong></p></div>
+          <div class="field"><label for="ec-otp-code">Code de vérification</label><input id="ec-otp-code" class="ec-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • • • •"></div>
           <button class="primary-btn" type="submit">Activer mon compte</button>
           <p class="auth-foot"><a href="#" id="ec-otp-resend">Renvoyer le code</a> &nbsp;·&nbsp; <a href="#" id="ec-otp-back">Modifier l’email</a></p>
           <p class="auth-foot" style="margin-top:6px;opacity:.85">Le code arrive en moins d’une minute. Pensez à vérifier vos spams.</p>
@@ -1743,7 +1743,7 @@
   }
 
   /* ---------- Vérification par code : création du compte + connexion après 12 h sans activité ---------- */
-  var EC_OTP_LENGTH=6, ecOtpPending=null, ecOtpTimer=null, EC_2FA_HOURS=12, ecActivityBound=false, ecLastTouch=0;
+  var EC_OTP_LENGTH=8, ecOtpPending=null, ecOtpTimer=null, EC_2FA_HOURS=12, ecActivityBound=false, ecLastTouch=0;
   var formOtp=$('#form-otp');
   function ecActiveKey(uid){ return 'mcd_last_active_'+uid; }
   function ecTouchActive(force){ if(!authUser) return; var now=Date.now(); if(!force && now-ecLastTouch<60000) return; ecLastTouch=now; try{ localStorage.setItem(ecActiveKey(authUser.id), String(now)); }catch(e){} }
@@ -1769,8 +1769,8 @@
     try{ sessionStorage.setItem('mcd_ec_otp', JSON.stringify(ecOtpPending)); }catch(e){}
     formLogin.style.display='none'; formSignup.style.display='none'; formOtp.style.display='';
     var hb=formOtp.querySelector('.ec-otp-head b'), hp=formOtp.querySelector('.ec-otp-head p');
-    if(mode==='login'){ hb.textContent='Vérification de sécurité'; hp.innerHTML='La vérification en deux étapes protège votre compte. Saisissez le code envoyé à <strong id="ec-otp-email"></strong>.'; }
-    else { hb.textContent='Vérifiez votre email'; hp.innerHTML='Nous avons envoyé un code à <strong id="ec-otp-email"></strong>. Saisissez-le pour activer votre compte.'; }
+    if(mode==='login'){ hb.textContent='Vérification de sécurité'; hp.innerHTML='La vérification en deux étapes protège votre compte. Saisissez le code envoyé à : <strong id="ec-otp-email"></strong>'; }
+    else { hb.textContent='Vérifiez votre email'; hp.innerHTML='Saisissez le code envoyé à : <strong id="ec-otp-email"></strong>'; }
     $('#ec-otp-email').textContent=email; $('#ec-otp-code').value='';
     formOtp.querySelector('.primary-btn').textContent = mode==='login' ? 'Me connecter' : 'Activer mon compte';
     $('#ec-otp-back').textContent = mode==='login' ? 'Utiliser un autre compte' : 'Modifier l’email';
@@ -3234,7 +3234,7 @@
       '<h2 style="'+PW_TITLE+'">Désactiver la vérification</h2>'+
       '<p style="'+PW_TXT+'">Pour confirmer que c’est bien vous, nous envoyons un code à <strong>'+esc(mail)+'</strong>. Sans vérification en deux étapes, votre mot de passe suffira pour vous connecter.</p>'+
       '<div id="ad-step1"><button id="ad-send" style="'+PW_BTN+'">Recevoir le code</button></div>'+
-      '<div id="ad-step2" style="display:none"><input id="ad-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •" style="'+PW_CODE+'">'+
+      '<div id="ad-step2" style="display:none"><input id="ad-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • • • •" style="'+PW_CODE+'">'+
       '<button id="ad-go" style="'+PW_BTN+'">Désactiver</button><button id="ad-resend" style="'+PW_LINK+'">Renvoyer le code</button></div>'+
       '<div id="ad-msg" role="status" style="display:none;font-size:13.5px;margin:12px 0 0;"></div>'+
       '<button id="ad-close" style="'+PW_LINK+'">Garder la vérification activée</button>'
@@ -3247,7 +3247,7 @@
     c.querySelector('#ad-resend').addEventListener('click', async function(){ var b=this; if(await send()){ say('Nouveau code envoyé.', true); ecPwCooldown(b, 60); } });
     c.querySelector('#ad-code').addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); });
     c.querySelector('#ad-go').addEventListener('click', async function(){
-      var code=c.querySelector('#ad-code').value; if(code.length<6) return say('Saisissez le code à 6 chiffres reçu par email.');
+      var code=c.querySelector('#ad-code').value; if(code.length<6) return say('Saisissez le code à 8 chiffres reçu par email.');
       var b=this; b.disabled=true; b.textContent='Vérification…';
       try{
         var v=await sb.auth.verifyOtp({ email:mail, token:code, type:'email' });
@@ -3324,7 +3324,7 @@
       '<input id="rx-mail" type="email" autocomplete="email" value="'+String(prefill||'').replace(/"/g,'&quot;')+'" placeholder="votre@email.fr" style="'+PW_FIELD+'">'+
       '<button id="rx-go" style="'+PW_BTN+'">Recevoir un code</button></div>'+
       '<div id="fp-step2" style="display:none"><p style="'+PW_TXT+'">Saisissez le code envoyé à <strong id="fp-mail"></strong>, puis votre nouveau mot de passe.</p>'+
-      '<input id="fp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •" style="'+PW_CODE+'">'+
+      '<input id="fp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • • • •" style="'+PW_CODE+'">'+
       '<input id="fp-p1" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères, lettres et chiffres)" style="'+PW_FIELD+'">'+
       '<input id="fp-p2" type="password" autocomplete="new-password" placeholder="Confirmez le mot de passe" style="'+PW_FIELD+'">'+
       '<button id="fp-go" style="'+PW_BTN+'">Changer mon mot de passe</button>'+
@@ -3349,11 +3349,11 @@
       c.querySelector('#fp-mail').textContent=mail; say('Code envoyé. Pensez à regarder vos spams.', true);
       ecPwCooldown(c.querySelector('#fp-resend'), 45); c.querySelector('#fp-code').focus();
     });
-    c.querySelector('#fp-code').addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); if(this.value.length===6) c.querySelector('#fp-p1').focus(); });
+    c.querySelector('#fp-code').addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); if(this.value.length===8) c.querySelector('#fp-p1').focus(); });
     c.querySelector('#fp-resend').addEventListener('click', async function(){ var b=this; if(await send()){ say('Nouveau code envoyé.', true); ecPwCooldown(b, 60); } });
     c.querySelector('#fp-go').addEventListener('click', async function(){
       var code=c.querySelector('#fp-code').value, p1=c.querySelector('#fp-p1').value, p2=c.querySelector('#fp-p2').value;
-      if(code.length<6) return say('Saisissez le code à 6 chiffres reçu par email.');
+      if(code.length<6) return say('Saisissez le code à 8 chiffres reçu par email.');
       var pb=ecPwProblem(p1); if(pb) return say(pb);
       if(p1!==p2) return say('Les deux mots de passe sont différents.');
       var b=this; b.disabled=true; b.textContent='Vérification…';
@@ -3380,7 +3380,7 @@
       '<div id="cp-step1"><p style="'+PW_TXT+'">Pour protéger votre compte, nous allons envoyer un code de sécurité à <strong>'+esc(mail)+'</strong>.</p>'+
       '<button id="cp-send" style="'+PW_BTN+'">Recevoir le code</button></div>'+
       '<div id="cp-step2" style="display:none"><p style="'+PW_TXT+'">Saisissez le code reçu par email, puis votre nouveau mot de passe.</p>'+
-      '<input id="cp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •" style="'+PW_CODE+'">'+
+      '<input id="cp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • • • •" style="'+PW_CODE+'">'+
       '<input id="cp-p1" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères, lettres et chiffres)" style="'+PW_FIELD+'">'+
       '<input id="cp-p2" type="password" autocomplete="new-password" placeholder="Confirmez le mot de passe" style="'+PW_FIELD+'">'+
       '<label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:#5a4326;margin:0 0 16px;cursor:pointer"><input id="cp-others" type="checkbox" checked style="margin-top:2px;accent-color:#e8690d"> Déconnecter mes autres appareils</label>'+
@@ -3402,11 +3402,11 @@
       c.querySelector('#cp-step1').style.display='none'; c.querySelector('#cp-step2').style.display='';
       say('Code envoyé à '+mail+'. Pensez à regarder vos spams.', true); ecPwCooldown(c.querySelector('#cp-resend'), 45); c.querySelector('#cp-code').focus();
     });
-    c.querySelector('#cp-code').addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); if(this.value.length===6) c.querySelector('#cp-p1').focus(); });
+    c.querySelector('#cp-code').addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); if(this.value.length===8) c.querySelector('#cp-p1').focus(); });
     c.querySelector('#cp-resend').addEventListener('click', async function(){ var b=this; if(await send()){ say('Nouveau code envoyé.', true); ecPwCooldown(b, 60); } });
     c.querySelector('#cp-go').addEventListener('click', async function(){
       var code=c.querySelector('#cp-code').value, p1=c.querySelector('#cp-p1').value, p2=c.querySelector('#cp-p2').value;
-      if(code.length<6) return say('Saisissez le code à 6 chiffres reçu par email.');
+      if(code.length<6) return say('Saisissez le code à 8 chiffres reçu par email.');
       var pb=ecPwProblem(p1); if(pb) return say(pb);
       if(p1!==p2) return say('Les deux mots de passe sont différents.');
       var b=this; b.disabled=true; b.textContent='Enregistrement…';
