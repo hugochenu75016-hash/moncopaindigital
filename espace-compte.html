@@ -768,6 +768,20 @@
 #form-profil .field input:disabled{opacity:.55}
 @media(max-width:520px){.ec-type{grid-template-columns:1fr}}
 </style>
+<style id="ec-otp-style">
+.ec-otp-head{margin-bottom:14px;color:#fff}.ec-otp-head b{display:block;font-family:'Fredoka','Helvetica Neue',sans-serif;font-size:20px;margin-bottom:4px}.ec-otp-head p{margin:0;font-size:14px;line-height:1.45;color:#ffe9cf}.ec-otp-head strong{color:#fff;word-break:break-all}
+.auth-card .field input.ec-otp-input{font-size:28px;letter-spacing:.45em;text-align:center;font-variant-numeric:tabular-nums}
+#ec-otp-resend[aria-disabled="true"]{opacity:.6;cursor:default;border-bottom-color:transparent}
+</style>
+<style id="ec-a2f-style">
+.ec-a2f-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid rgba(120,60,0,.16);border-radius:16px;background:#fff6ea;margin:0 0 10px}
+.ec-a2f-row b{display:block;color:#5a3410;font-family:'Fredoka','Helvetica Neue',sans-serif;font-size:16px}.ec-a2f-row span{display:block;font-size:13px;line-height:1.45;color:#6b4a2a;margin-top:3px}
+.ec-switch{position:relative;flex:none;width:54px;height:30px;border-radius:999px;border:1px solid rgba(120,60,0,.25);background:#d9cfc3;cursor:pointer;padding:0;transition:background .2s}
+.ec-switch .ec-switch-knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(80,40,0,.3);transition:transform .2s}
+.ec-switch.on{background:#1f9d55;border-color:#1f9d55}.ec-switch.on .ec-switch-knob{transform:translateX(24px)}
+.ec-switch:focus-visible{outline:2px solid #e8690d;outline-offset:3px}.ec-switch:disabled{opacity:.6}
+.ec-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
 </head>
 <body>
 <!-- ===== Transition portes entre pages ===== -->
@@ -981,7 +995,7 @@
             </div>
             <div class="field">
               <label for="s-pass">Mot de passe</label>
-              <input id="s-pass" type="password" autocomplete="new-password" placeholder="6 caractères min." required>
+              <input id="s-pass" type="password" autocomplete="new-password" placeholder="8 caractères, lettres et chiffres" required>
             </div>
           </div>
           <div class="row2">
@@ -996,6 +1010,13 @@
           </div>
           <button class="primary-btn" type="submit" style="background:#fff8ef;color:#F3852B;border:2px solid #ffffff;text-shadow:none;box-shadow:inset 0 1.5px 1px rgba(255,255,255,0.95),0 12px 28px rgba(120,50,0,0.30);">Créer mon compte</button>
           <p class="auth-foot">Déjà inscrit ? <a href="#" id="go-login">Connectez-vous</a></p>
+        </form>
+        <form id="form-otp" style="display:none;" autocomplete="on" novalidate>
+          <div class="ec-otp-head"><b>Vérifiez votre email</b><p>Nous avons envoyé un code à <strong id="ec-otp-email"></strong>. Saisissez-le pour activer votre compte.</p></div>
+          <div class="field"><label for="ec-otp-code">Code de vérification</label><input id="ec-otp-code" class="ec-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •"></div>
+          <button class="primary-btn" type="submit">Activer mon compte</button>
+          <p class="auth-foot"><a href="#" id="ec-otp-resend">Renvoyer le code</a> &nbsp;·&nbsp; <a href="#" id="ec-otp-back">Modifier l’email</a></p>
+          <p class="auth-foot" style="margin-top:6px;opacity:.85">Le code arrive en moins d’une minute. Pensez à vérifier vos spams.</p>
         </form>
 
         <p class="auth-foot" style="margin-top:20px;"><a href="index.html" style="border:none;opacity:.85;">← Retour au site</a></p>
@@ -1261,6 +1282,16 @@
               <span class="saved-flash" id="prof-saved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Modifications enregistrées</span>
             </div>
           </form>
+        </div>
+        <div class="card" id="securite-card" style="margin-top:18px;">
+          <div class="card-title-row"><div><h2>Sécurité</h2><p class="sub" style="margin:2px 0 0;">Mot de passe et connexion à votre compte.</p></div></div>
+          <div class="ec-a2f-row">
+            <div><b>Vérification en deux étapes</b><span id="a2f-desc">Un code vous est envoyé par email à chaque connexion, et après 12 h d’inactivité.</span></div>
+            <button type="button" class="ec-switch" id="a2f-switch" role="switch" aria-checked="true" aria-labelledby="a2f-label"><span class="ec-switch-knob"></span><span class="ec-sr" id="a2f-label">Vérification en deux étapes</span></button>
+          </div>
+          <p class="ec-msg" id="a2f-msg" role="status" aria-live="polite"></p>
+          <p class="sub" style="margin:0 0 14px;">Un code de sécurité vous est aussi envoyé par email avant chaque changement de mot de passe.</p>
+          <button type="button" class="primary-btn" id="btn-change-pw" style="width:auto;padding:14px 28px;">Changer mon mot de passe</button>
         </div>
       </section>
 
@@ -1657,6 +1688,7 @@
     tabSignup.classList.toggle('active', !login);
     formLogin.style.display = login ? '' : 'none';
     formSignup.style.display = login ? 'none' : '';
+    if(typeof ecOtpHide==='function') ecOtpHide();
     var _hs = $('#hello-say'); if (_hs) _hs.innerHTML = login ? 'Content de vous revoir&nbsp;!' : 'Ravi de vous rencontrer&nbsp;!';
   }
   tabLogin.addEventListener('click', function(){ switchTab('login'); });
@@ -1690,21 +1722,85 @@
     var pass = $('#s-pass').value;
     if(!nom || !email || !pass){ showErr('Merci de remplir les champs obligatoires.'); return; }
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showErr('Adresse email invalide.'); return; }
-    if(pass.length < 6){ showErr('Le mot de passe doit faire au moins 6 caractères.'); return; }
+    var _spb=ecPwProblem(pass); if(_spb){ showErr('Mot de passe : '+_spb); return; }
     var btn = formSignup.querySelector('.primary-btn'); var lbl = btn.textContent; btn.disabled = true; btn.textContent = 'Création…';
     try{
       var res = await sb.auth.signUp({ email: email, password: pass, options: { data: Object.assign({ nom: nom, tel: tel, adresse: adresseFull, prenom: (nom.split(/\s+/)[0]||'') }, extra) } });
       if(res.error){ showErr(/already|exist/i.test(res.error.message) ? 'Un compte existe déjà avec cet email. Connectez-vous.' : ('Erreur : ' + res.error.message)); return; }
       if(res.data.session){
-        authUser = res.data.user;
-        try{ var _b={ id: authUser.id, nom: nom, tel: tel, adresse: adresseFull || null, email: authUser.email || null, entreprise: extra.brand || null }; var _r=await sb.from('profiles').upsert(Object.assign({}, _b, extra, { brand: undefined })); if(_r && _r.error) await sb.from('profiles').upsert(_b); }catch(e){}
+        authUser = res.data.user; ecTouchActive(true);
+        await ecSaveSignupProfile({ nom:nom, tel:tel, adresse:adresseFull, extra:extra });
         await routeAfterAuth();
       } else {
-        switchTab('login');
-        showOk('Compte créé ! Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.');
+        ecOtpShow(email, { nom:nom, tel:tel, adresse:adresseFull, extra:extra });
       }
     } finally { btn.disabled = false; btn.textContent = lbl; }
   });
+  async function ecSaveSignupProfile(p){
+    if(!p || !authUser) return;
+    var nom=p.nom, tel=p.tel, adresseFull=p.adresse, extra=p.extra||{};
+    try{ var _b={ id: authUser.id, nom: nom, tel: tel, adresse: adresseFull || null, email: authUser.email || null, entreprise: extra.brand || null }; var _x=Object.assign({}, _b, extra); delete _x.brand; var _r=await sb.from('profiles').upsert(_x); if(_r && _r.error) await sb.from('profiles').upsert(_b); }catch(e){}
+  }
+
+  /* ---------- Vérification par code : création du compte + connexion après 12 h sans activité ---------- */
+  var EC_OTP_LENGTH=6, ecOtpPending=null, ecOtpTimer=null, EC_2FA_HOURS=12, ecActivityBound=false, ecLastTouch=0;
+  var formOtp=$('#form-otp');
+  function ecActiveKey(uid){ return 'mcd_last_active_'+uid; }
+  function ecTouchActive(force){ if(!authUser) return; var now=Date.now(); if(!force && now-ecLastTouch<60000) return; ecLastTouch=now; try{ localStorage.setItem(ecActiveKey(authUser.id), String(now)); }catch(e){} }
+  /* A2F activée par défaut : seul le client peut la couper (avec un code). */
+  function ecA2fOn(u){ var m=(u&&u.user_metadata)||{}; return m.a2f!==false; }
+  function ecNeeds2FA(uid){ try{ var t=Number(localStorage.getItem(ecActiveKey(uid))||0); return !t || Date.now()-t > EC_2FA_HOURS*3600000; }catch(e){ return false; } }
+  function ecBindActivity(){
+    if(ecActivityBound) return; ecActivityBound=true;
+    ['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){ window.addEventListener(ev, function(){ ecTouchActive(false); }, { passive:true }); });
+    document.addEventListener('visibilitychange', function(){ if(document.hidden || !authUser) return; if(ecA2fOn(authUser) && ecNeeds2FA(authUser.id)) location.reload(); else ecTouchActive(true); });
+  }
+  async function ecStart2FA(email){
+    try{ await sb.auth.signOut({ scope:'local' }); }catch(e){}
+    authUser=null;
+    ecOtpShow(email, null, 'login');
+    try{ var r=await sb.auth.signInWithOtp({ email:email, options:{ shouldCreateUser:false } }); if(r && r.error) throw r.error; showOk('Pour votre sécurité, nous vous avons envoyé un code de connexion.'); }
+    catch(err){ showErr(/rate|many|seconds/i.test(String(err&&err.message)) ? 'Un code vient déjà d’être envoyé : regardez votre boîte mail, ou patientez une minute.' : 'Envoi du code impossible pour le moment. Réessayez dans un instant.'); }
+  }
+  function ecOtpCooldown(sec){ var a=$('#ec-otp-resend'); if(!a) return; clearInterval(ecOtpTimer); var left=sec; function tick(){ if(left<=0){ clearInterval(ecOtpTimer); a.removeAttribute('aria-disabled'); a.textContent='Renvoyer le code'; return; } a.setAttribute('aria-disabled','true'); a.textContent='Renvoyer le code ('+left+' s)'; left--; } tick(); ecOtpTimer=setInterval(tick,1000); }
+  function ecOtpShow(email, pending, mode){
+    mode = mode==='login' ? 'login' : 'signup';
+    ecOtpPending={ email:email, profile:pending||null, mode:mode };
+    try{ sessionStorage.setItem('mcd_ec_otp', JSON.stringify(ecOtpPending)); }catch(e){}
+    formLogin.style.display='none'; formSignup.style.display='none'; formOtp.style.display='';
+    var hb=formOtp.querySelector('.ec-otp-head b'), hp=formOtp.querySelector('.ec-otp-head p');
+    if(mode==='login'){ hb.textContent='Vérification de sécurité'; hp.innerHTML='La vérification en deux étapes protège votre compte. Saisissez le code envoyé à <strong id="ec-otp-email"></strong>.'; }
+    else { hb.textContent='Vérifiez votre email'; hp.innerHTML='Nous avons envoyé un code à <strong id="ec-otp-email"></strong>. Saisissez-le pour activer votre compte.'; }
+    $('#ec-otp-email').textContent=email; $('#ec-otp-code').value='';
+    formOtp.querySelector('.primary-btn').textContent = mode==='login' ? 'Me connecter' : 'Activer mon compte';
+    $('#ec-otp-back').textContent = mode==='login' ? 'Utiliser un autre compte' : 'Modifier l’email';
+    setTimeout(function(){ $('#ec-otp-code').focus(); },60);
+    ecOtpCooldown(45);
+  }
+  function ecOtpHide(){ ecOtpPending=null; clearInterval(ecOtpTimer); try{ sessionStorage.removeItem('mcd_ec_otp'); }catch(e){} if(formOtp) formOtp.style.display='none'; }
+  $('#ec-otp-code').addEventListener('input', function(){ var v=this.value.replace(/\D/g,'').slice(0,10); if(v!==this.value) this.value=v; if(v.length===EC_OTP_LENGTH) formOtp.requestSubmit(); });
+  formOtp.addEventListener('submit', async function(e){
+    e.preventDefault(); clearErr();
+    if(!ecOtpPending){ showErr('Recommencez la connexion.'); return; }
+    var code=$('#ec-otp-code').value.replace(/\D/g,''), mode=ecOtpPending.mode||'signup';
+    if(code.length<6){ showErr('Le code contient '+EC_OTP_LENGTH+' chiffres.'); return; }
+    var btn=formOtp.querySelector('.primary-btn'); if(btn.disabled) return; var label=btn.textContent; btn.disabled=true; btn.textContent='Vérification…';
+    try{
+      var res=await sb.auth.verifyOtp({ email:ecOtpPending.email, token:code, type: mode==='login' ? 'email' : 'signup' });
+      if(res.error || !res.data || !res.data.session){ showErr('Code incorrect ou expiré. Vérifiez les chiffres, ou cliquez sur « Renvoyer le code ».'); $('#ec-otp-code').select(); return; }
+      authUser=res.data.session.user; ecTouchActive(true); var pending=ecOtpPending.profile; ecOtpHide();
+      if(mode==='signup') await ecSaveSignupProfile(pending);
+      await routeAfterAuth();
+    }catch(err){ showErr('Vérification impossible. Réessayez dans un instant.'); }
+    finally{ btn.disabled=false; btn.textContent=label; }
+  });
+  $('#ec-otp-resend').addEventListener('click', async function(e){
+    e.preventDefault(); if(!ecOtpPending || this.getAttribute('aria-disabled')==='true') return; clearErr();
+    try{ var r = ecOtpPending.mode==='login' ? await sb.auth.signInWithOtp({ email:ecOtpPending.email, options:{ shouldCreateUser:false } }) : await sb.auth.resend({ type:'signup', email:ecOtpPending.email }); if(r && r.error) throw r.error; showOk('Nouveau code envoyé à '+ecOtpPending.email+'.'); ecOtpCooldown(60); }
+    catch(err){ showErr(/rate|many|seconds/i.test(String(err&&err.message)) ? 'Trop de demandes : patientez une minute avant de redemander un code.' : 'Envoi impossible pour le moment. Réessayez dans un instant.'); }
+  });
+  $('#ec-otp-back').addEventListener('click', function(e){ e.preventDefault(); var m=ecOtpPending&&ecOtpPending.mode; switchTab(m==='login' ? 'login' : 'signup'); });
+  try{ var _eop=JSON.parse(sessionStorage.getItem('mcd_ec_otp')||'null'); if(_eop && _eop.email){ setTimeout(function(){ if(authSection && authSection.style.display!=='none' && !(appSection && appSection.classList.contains('show'))) ecOtpShow(_eop.email, _eop.profile, _eop.mode); }, 500); } }catch(e){}
 
   formLogin.addEventListener('submit', async function(e){
     e.preventDefault(); clearErr();
@@ -1714,8 +1810,13 @@
     var btn = formLogin.querySelector('.primary-btn'); var lbl = btn.textContent; btn.disabled = true; btn.textContent = 'Connexion…';
     try{
       var res = await sb.auth.signInWithPassword({ email: email, password: pass });
-      if(res.error){ showErr('Email ou mot de passe incorrect (ou email pas encore confirmé).'); return; }
-      authUser = res.data.user; await routeAfterAuth();
+      if(res.error){
+        if(/not confirmed|confirm/i.test(String(res.error.message||''))){ try{ await sb.auth.resend({ type:'signup', email:email }); }catch(_e){} ecOtpShow(email, null); showOk('Votre email n’est pas encore vérifié : nous venons de vous envoyer un code.'); return; }
+        showErr('Email ou mot de passe incorrect.'); return;
+      }
+      authUser = res.data.user;
+      if(ecA2fOn(authUser)){ await ecStart2FA(email); return; }
+      ecTouchActive(true); await routeAfterAuth();
     } finally { btn.disabled = false; btn.textContent = lbl; }
   });
 
@@ -1736,10 +1837,11 @@
 
   /* ---------- Entrée dans l'app ---------- */
   function enterApp(){
+    setTimeout(function(){ if(/^#securite/.test(location.hash||'')) showChangePasswordDialog(); }, 400);
     authSection.style.display = 'none';
     appSection.classList.add('show');
     renderAll();
-    switchView(/^#profil/.test(location.hash||'') ? 'profil' : 'dash');
+    switchView(/^#(profil|securite)/.test(location.hash||'') ? 'profil' : 'dash');
     subscribeClientRealtime();
     window.scrollTo(0,0);
     maybeShowTour();
@@ -2138,6 +2240,7 @@
     var go=$('#p-siret-go');if(go)go.addEventListener('click',ecProfileLookup);
     var si=$('#p-siret');if(si){si.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();ecProfileLookup();}});si.addEventListener('input',function(){var d=this.value.replace(/\D/g,'');if((d.length===9||d.length===14)&&d.slice(0,9)!==current.siren)ecProfileLookup();});}
     var nt=$('#p-tva-none');if(nt)nt.addEventListener('change',function(){$('#p-tva').disabled=this.checked;});
+    var cpw=$('#btn-change-pw');if(cpw)cpw.addEventListener('click',function(){showChangePasswordDialog();});
   })();
   function renderProfil(){
     $('#p-nom').value = current.nom || '';
@@ -2152,6 +2255,7 @@
     $('#p-tva').value = current.tva || (current.siren && !current.tva_franchise ? ecTva(current.siren) : '');
     var pc=$('#p-company'); if(pc){ if(current.raison_sociale && current.naf){ pc.innerHTML='<b>'+esc(current.raison_sociale)+'</b><span>'+esc([current.naf_label||current.naf,current.ville].filter(Boolean).join(' · '))+'</span>'; pc.hidden=false; } else pc.hidden=true; }
     ecBillingMsg('');
+    try{ ecA2fRender(); }catch(e){}
     ecSetType(current.account_type || (current.entreprise ? 'pro' : 'perso'));
   }
   $('#form-profil').addEventListener('submit', function(e){
@@ -3018,6 +3122,7 @@
   }
 
   async function routeAfterAuth(){
+    ecTouchActive(true); ecBindActivity();
     if(isAdmin()){ admin.role='admin'; await loadAdminData(); enterAdmin(); return; }
     var myCoach = await safeSelect(sb.from('coachs').select('id').eq('user_id', authUser.id).maybeSingle());
     if(myCoach && myCoach.id){ admin.role='coach'; admin.myCoachId=myCoach.id; await loadAdminData(); enterAdmin(); return; }
@@ -3109,12 +3214,67 @@
   var PW_TXT = 'margin:0 0 20px;font-size:14.5px;line-height:1.55;color:#5a4326;';
 
   var recoveryShown = false;
+
+  /* Toggle A2F (Profil > Sécurité) */
+  function ecA2fRender(){
+    var sw=$('#a2f-switch'); if(!sw || !authUser) return; var on=ecA2fOn(authUser);
+    sw.setAttribute('aria-checked', on?'true':'false'); sw.classList.toggle('on', on);
+    $('#a2f-desc').textContent = on ? 'Activée : un code vous est envoyé par email à chaque connexion, et après 12 h d’inactivité.' : 'Désactivée : seul votre mot de passe protège votre compte. Nous vous conseillons de la réactiver.';
+  }
+  function ecA2fMsg(t, ok){ var m=$('#a2f-msg'); if(!m) return; m.textContent=t||''; m.className='ec-msg'+(ok?' ok':''); }
+  async function ecA2fSave(on){
+    var r=await sb.auth.updateUser({ data:{ a2f:on } });
+    if(r && r.error) throw r.error;
+    if(r && r.data && r.data.user) authUser=r.data.user; else { authUser.user_metadata=Object.assign({}, authUser.user_metadata||{}, { a2f:on }); }
+    ecA2fRender();
+  }
+  function ecA2fDisableDialog(){
+    var mail=authUser.email||'';
+    var d=pwOverlay(
+      '<h2 style="'+PW_TITLE+'">Désactiver la vérification</h2>'+
+      '<p style="'+PW_TXT+'">Pour confirmer que c’est bien vous, nous envoyons un code à <strong>'+esc(mail)+'</strong>. Sans vérification en deux étapes, votre mot de passe suffira pour vous connecter.</p>'+
+      '<div id="ad-step1"><button id="ad-send" style="'+PW_BTN+'">Recevoir le code</button></div>'+
+      '<div id="ad-step2" style="display:none"><input id="ad-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •" style="'+PW_CODE+'">'+
+      '<button id="ad-go" style="'+PW_BTN+'">Désactiver</button><button id="ad-resend" style="'+PW_LINK+'">Renvoyer le code</button></div>'+
+      '<div id="ad-msg" role="status" style="display:none;font-size:13.5px;margin:12px 0 0;"></div>'+
+      '<button id="ad-close" style="'+PW_LINK+'">Garder la vérification activée</button>'
+    );
+    var c=d.card, msg=c.querySelector('#ad-msg');
+    function say(t, ok){ msg.style.display='block'; msg.style.color= ok ? '#2e7d32' : '#c0390b'; msg.textContent=t; }
+    async function send(){ try{ var r=await sb.auth.signInWithOtp({ email:mail, options:{ shouldCreateUser:false } }); if(r && r.error) throw r.error; return true; }catch(e){ say(/rate|many|seconds/i.test(String(e&&e.message)) ? 'Un code vient déjà d’être envoyé : patientez une minute.' : 'Envoi impossible pour le moment.'); return false; } }
+    c.querySelector('#ad-close').addEventListener('click', function(){ d.ov.remove(); ecA2fRender(); });
+    c.querySelector('#ad-send').addEventListener('click', async function(){ var b=this; b.disabled=true; b.textContent='Envoi…'; var ok=await send(); b.disabled=false; b.textContent='Recevoir le code'; if(!ok) return; c.querySelector('#ad-step1').style.display='none'; c.querySelector('#ad-step2').style.display=''; say('Code envoyé. Pensez à regarder vos spams.', true); ecPwCooldown(c.querySelector('#ad-resend'), 45); c.querySelector('#ad-code').focus(); });
+    c.querySelector('#ad-resend').addEventListener('click', async function(){ var b=this; if(await send()){ say('Nouveau code envoyé.', true); ecPwCooldown(b, 60); } });
+    c.querySelector('#ad-code').addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); });
+    c.querySelector('#ad-go').addEventListener('click', async function(){
+      var code=c.querySelector('#ad-code').value; if(code.length<6) return say('Saisissez le code à 6 chiffres reçu par email.');
+      var b=this; b.disabled=true; b.textContent='Vérification…';
+      try{
+        var v=await sb.auth.verifyOtp({ email:mail, token:code, type:'email' });
+        if(v.error || !v.data || !v.data.session){ b.disabled=false; b.textContent='Désactiver'; return say('Code incorrect ou expiré.'); }
+        authUser=v.data.session.user; await ecA2fSave(false); ecTouchActive(true);
+        d.ov.remove(); ecA2fMsg('Vérification en deux étapes désactivée.', true);
+      }catch(e){ b.disabled=false; b.textContent='Désactiver'; say('Impossible pour le moment. Réessayez dans un instant.'); }
+    });
+  }
+  (function(){
+    var sw=$('#a2f-switch'); if(!sw) return;
+    sw.addEventListener('click', async function(){
+      if(!authUser) return; ecA2fMsg('');
+      if(ecA2fOn(authUser)){ ecA2fDisableDialog(); return; }
+      sw.disabled=true;
+      try{ await ecA2fSave(true); ecA2fMsg('Vérification en deux étapes activée.', true); }
+      catch(e){ ecA2fMsg('Impossible d’enregistrer pour le moment.'); }
+      finally{ sw.disabled=false; }
+    });
+  })();
+
   function showRecoveryDialog(){
     if(recoveryShown) return; recoveryShown = true;
     try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
     var d = pwOverlay(
       '<h2 style="'+PW_TITLE+'">Choisissez votre mot de passe</h2>'+
-      '<p style="'+PW_TXT+'">Il vous servira à ouvrir votre Bulle à chaque visite. 6 caractères minimum.</p>'+
+      '<p style="'+PW_TXT+'">Il vous servira à ouvrir votre Bulle à chaque visite. 8 caractères minimum, avec lettres et chiffres.</p>'+
       '<input id="rc-p1" type="password" placeholder="Nouveau mot de passe" style="'+PW_FIELD+'">'+
       '<input id="rc-p2" type="password" placeholder="Confirmez le mot de passe" style="'+PW_FIELD+'">'+
       '<div id="rc-err" style="display:none;font-size:13.5px;color:#c0390b;margin:0 0 12px;"></div>'+
@@ -3124,7 +3284,7 @@
     function fail(m){ err.textContent = m; err.style.display = 'block'; }
     d.card.querySelector('#rc-go').addEventListener('click', async function(){
       var p1 = d.card.querySelector('#rc-p1').value, p2 = d.card.querySelector('#rc-p2').value;
-      if(p1.length < 6) return fail('6 caractères minimum.');
+      var _pb=ecPwProblem(p1); if(_pb) return fail(_pb);
       if(p1 !== p2) return fail('Les deux mots de passe sont différents.');
       var btn = this; btn.disabled = true; btn.textContent = 'Enregistrement…';
       var r;
@@ -3145,36 +3305,122 @@
     showForgotDialog('', 'Ce lien a expiré', 'Les liens sont valables 24 h et à usage unique. Indiquez votre email, on vous en renvoie un tout neuf.');
   }
 
+  /* ---------- Mot de passe : règles communes ---------- */
+  function ecPwProblem(p){
+    p=String(p||'');
+    if(p.length<8) return '8 caractères minimum.';
+    if(!/[A-Za-zÀ-ÿ]/.test(p) || !/[0-9]/.test(p)) return 'Utilisez au moins une lettre et un chiffre.';
+    return '';
+  }
+  var PW_LINK='width:100%;margin-top:10px;cursor:pointer;background:none;border:none;font-size:14px;color:#a86a2e;text-decoration:underline;';
+  var PW_CODE=PW_FIELD+'font-size:24px;letter-spacing:.4em;text-align:center;font-variant-numeric:tabular-nums;';
+  function ecPwCooldown(btn, sec){ var left=sec; btn.disabled=true; var t=setInterval(function(){ if(!btn.isConnected){ clearInterval(t); return; } if(left<=0){ clearInterval(t); btn.disabled=false; btn.textContent='Renvoyer le code'; return; } btn.textContent='Renvoyer le code ('+left+' s)'; left--; },1000); btn.textContent='Renvoyer le code ('+left+' s)'; }
+
+  /* Mot de passe oublié : code reçu par email + nouveau mot de passe */
   function showForgotDialog(prefill, titre, texte){
     var d = pwOverlay(
       '<h2 style="'+PW_TITLE+'">'+(titre || 'Mot de passe oublié')+'</h2>'+
-      '<p style="'+PW_TXT+'">'+(texte || 'Indiquez votre email : vous recevrez un lien pour choisir un nouveau mot de passe.')+'</p>'+
-      '<input id="rx-mail" type="email" value="'+String(prefill||'').replace(/"/g,'&quot;')+'" placeholder="votre@email.fr" style="'+PW_FIELD+'">'+
-      '<div id="rx-msg" style="display:none;font-size:13.5px;margin:0 0 12px;"></div>'+
-      '<button id="rx-go" style="'+PW_BTN+'">Recevoir un lien</button>'+
-      '<button id="rx-close" style="width:100%;margin-top:10px;cursor:pointer;background:none;border:none;font-size:14px;color:#a86a2e;text-decoration:underline;">Retour à la connexion</button>'
+      '<div id="fp-step1"><p style="'+PW_TXT+'">'+(texte || 'Indiquez votre email : vous recevrez un code pour choisir un nouveau mot de passe.')+'</p>'+
+      '<input id="rx-mail" type="email" autocomplete="email" value="'+String(prefill||'').replace(/"/g,'&quot;')+'" placeholder="votre@email.fr" style="'+PW_FIELD+'">'+
+      '<button id="rx-go" style="'+PW_BTN+'">Recevoir un code</button></div>'+
+      '<div id="fp-step2" style="display:none"><p style="'+PW_TXT+'">Saisissez le code envoyé à <strong id="fp-mail"></strong>, puis votre nouveau mot de passe.</p>'+
+      '<input id="fp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •" style="'+PW_CODE+'">'+
+      '<input id="fp-p1" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères, lettres et chiffres)" style="'+PW_FIELD+'">'+
+      '<input id="fp-p2" type="password" autocomplete="new-password" placeholder="Confirmez le mot de passe" style="'+PW_FIELD+'">'+
+      '<button id="fp-go" style="'+PW_BTN+'">Changer mon mot de passe</button>'+
+      '<button id="fp-resend" style="'+PW_LINK+'">Renvoyer le code</button></div>'+
+      '<div id="rx-msg" role="status" style="display:none;font-size:13.5px;margin:12px 0 0;"></div>'+
+      '<button id="rx-close" style="'+PW_LINK+'">Retour à la connexion</button>'
     );
-    var msg = d.card.querySelector('#rx-msg');
-    d.card.querySelector('#rx-close').addEventListener('click', function(){ d.ov.remove(); });
-    d.card.querySelector('#rx-go').addEventListener('click', async function(){
-      var mail = d.card.querySelector('#rx-mail').value.trim().toLowerCase();
-      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)){ msg.style.display='block'; msg.style.color='#c0390b'; msg.textContent='Adresse email invalide.'; return; }
-      var btn = this; btn.disabled = true; btn.textContent = 'Envoi…';
-      // Passe par le Worker : email de marque Mon Copain Digital (et pas le mail Supabase)
+    var c=d.card, msg=c.querySelector('#rx-msg'), mail='';
+    function say(t, ok){ msg.style.display='block'; msg.style.color= ok ? '#2e7d32' : '#c0390b'; msg.textContent=t; }
+    async function send(){
+      try{ var r=await sb.auth.resetPasswordForEmail(mail, { redirectTo: location.origin + '/espace-compte.html' }); if(r && r.error) throw r.error; return true; }
+      catch(e){ say(/rate|many|seconds/i.test(String(e&&e.message)) ? 'Un code vient déjà d’être envoyé : patientez une minute.' : 'Envoi impossible pour le moment. Réessayez dans un instant.'); return false; }
+    }
+    c.querySelector('#rx-close').addEventListener('click', function(){ d.ov.remove(); });
+    c.querySelector('#rx-go').addEventListener('click', async function(){
+      mail = c.querySelector('#rx-mail').value.trim().toLowerCase();
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return say('Adresse email invalide.');
+      var b=this; b.disabled=true; b.textContent='Envoi…';
+      var ok=await send(); b.disabled=false; b.textContent='Recevoir un code';
+      if(!ok) return;
+      c.querySelector('#fp-step1').style.display='none'; c.querySelector('#fp-step2').style.display='';
+      c.querySelector('#fp-mail').textContent=mail; say('Code envoyé. Pensez à regarder vos spams.', true);
+      ecPwCooldown(c.querySelector('#fp-resend'), 45); c.querySelector('#fp-code').focus();
+    });
+    c.querySelector('#fp-code').addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); if(this.value.length===6) c.querySelector('#fp-p1').focus(); });
+    c.querySelector('#fp-resend').addEventListener('click', async function(){ var b=this; if(await send()){ say('Nouveau code envoyé.', true); ecPwCooldown(b, 60); } });
+    c.querySelector('#fp-go').addEventListener('click', async function(){
+      var code=c.querySelector('#fp-code').value, p1=c.querySelector('#fp-p1').value, p2=c.querySelector('#fp-p2').value;
+      if(code.length<6) return say('Saisissez le code à 6 chiffres reçu par email.');
+      var pb=ecPwProblem(p1); if(pb) return say(pb);
+      if(p1!==p2) return say('Les deux mots de passe sont différents.');
+      var b=this; b.disabled=true; b.textContent='Vérification…';
       try{
-        await fetch(WORKER_URL, {
-          method:'POST',
-          headers:{ 'Content-Type':'application/json' },
-          body: JSON.stringify({ action:'reset', email: mail })
-        });
-      }catch(e){
-        try{ await sb.auth.resetPasswordForEmail(mail, { redirectTo: location.origin + '/espace-compte.html' }); }catch(e2){}
-      }
-      msg.style.display='block'; msg.style.color='#2e7d32';
-      msg.textContent = 'C\'est envoyé ! Consultez votre boîte mail (et vos spams).';
-      btn.disabled = false; btn.textContent = 'Renvoyer';
+        var v=await sb.auth.verifyOtp({ email:mail, token:code, type:'recovery' });
+        if(v.error || !v.data || !v.data.session){ b.disabled=false; b.textContent='Changer mon mot de passe'; return say('Code incorrect ou expiré. Vérifiez les chiffres, ou renvoyez un code.'); }
+        var u=await sb.auth.updateUser({ password:p1 });
+        if(u && u.error){ b.disabled=false; b.textContent='Changer mon mot de passe'; return say(/same|different|should be different/i.test(u.error.message) ? 'Choisissez un mot de passe différent de l’ancien.' : (/weak|pwned|leaked/i.test(u.error.message) ? 'Ce mot de passe est trop courant : choisissez-en un autre.' : 'Enregistrement impossible : '+u.error.message)); }
+        try{ await sb.auth.signOut({ scope:'others' }); }catch(e){}
+        authUser=v.data.session.user; if(typeof ecTouchActive==='function') ecTouchActive(true);
+        d.ov.remove(); showOk('Mot de passe modifié. Vos autres appareils ont été déconnectés.');
+        await routeAfterAuth();
+      }catch(e){ b.disabled=false; b.textContent='Changer mon mot de passe'; say('Vérification impossible. Réessayez dans un instant.'); }
+    });
+    c.querySelector(prefill ? '#rx-go' : '#rx-mail').focus();
+  }
+
+  /* Changement de mot de passe depuis l’espace (connecté) : code de sécurité par email */
+  function showChangePasswordDialog(){
+    if(!authUser){ return; }
+    var mail=authUser.email||'';
+    var d = pwOverlay(
+      '<h2 style="'+PW_TITLE+'">Changer mon mot de passe</h2>'+
+      '<div id="cp-step1"><p style="'+PW_TXT+'">Pour protéger votre compte, nous allons envoyer un code de sécurité à <strong>'+esc(mail)+'</strong>.</p>'+
+      '<button id="cp-send" style="'+PW_BTN+'">Recevoir le code</button></div>'+
+      '<div id="cp-step2" style="display:none"><p style="'+PW_TXT+'">Saisissez le code reçu par email, puis votre nouveau mot de passe.</p>'+
+      '<input id="cp-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •" style="'+PW_CODE+'">'+
+      '<input id="cp-p1" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe (8 caractères, lettres et chiffres)" style="'+PW_FIELD+'">'+
+      '<input id="cp-p2" type="password" autocomplete="new-password" placeholder="Confirmez le mot de passe" style="'+PW_FIELD+'">'+
+      '<label style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:#5a4326;margin:0 0 16px;cursor:pointer"><input id="cp-others" type="checkbox" checked style="margin-top:2px;accent-color:#e8690d"> Déconnecter mes autres appareils</label>'+
+      '<button id="cp-go" style="'+PW_BTN+'">Enregistrer le nouveau mot de passe</button>'+
+      '<button id="cp-resend" style="'+PW_LINK+'">Renvoyer le code</button></div>'+
+      '<div id="cp-msg" role="status" style="display:none;font-size:13.5px;margin:12px 0 0;"></div>'+
+      '<button id="cp-close" style="'+PW_LINK+'">Annuler</button>'
+    );
+    var c=d.card, msg=c.querySelector('#cp-msg');
+    function say(t, ok){ msg.style.display='block'; msg.style.color= ok ? '#2e7d32' : '#c0390b'; msg.textContent=t; }
+    async function send(){
+      try{ var r=await sb.auth.reauthenticate(); if(r && r.error) throw r.error; return true; }
+      catch(e){ say(/rate|many|seconds/i.test(String(e&&e.message)) ? 'Un code vient déjà d’être envoyé : patientez une minute.' : 'Envoi impossible pour le moment. Réessayez dans un instant.'); return false; }
+    }
+    c.querySelector('#cp-close').addEventListener('click', function(){ d.ov.remove(); });
+    c.querySelector('#cp-send').addEventListener('click', async function(){
+      var b=this; b.disabled=true; b.textContent='Envoi…';
+      var ok=await send(); b.disabled=false; b.textContent='Recevoir le code'; if(!ok) return;
+      c.querySelector('#cp-step1').style.display='none'; c.querySelector('#cp-step2').style.display='';
+      say('Code envoyé à '+mail+'. Pensez à regarder vos spams.', true); ecPwCooldown(c.querySelector('#cp-resend'), 45); c.querySelector('#cp-code').focus();
+    });
+    c.querySelector('#cp-code').addEventListener('input', function(){ this.value=this.value.replace(/\D/g,'').slice(0,10); if(this.value.length===6) c.querySelector('#cp-p1').focus(); });
+    c.querySelector('#cp-resend').addEventListener('click', async function(){ var b=this; if(await send()){ say('Nouveau code envoyé.', true); ecPwCooldown(b, 60); } });
+    c.querySelector('#cp-go').addEventListener('click', async function(){
+      var code=c.querySelector('#cp-code').value, p1=c.querySelector('#cp-p1').value, p2=c.querySelector('#cp-p2').value;
+      if(code.length<6) return say('Saisissez le code à 6 chiffres reçu par email.');
+      var pb=ecPwProblem(p1); if(pb) return say(pb);
+      if(p1!==p2) return say('Les deux mots de passe sont différents.');
+      var b=this; b.disabled=true; b.textContent='Enregistrement…';
+      try{
+        var u=await sb.auth.updateUser({ password:p1, nonce:code });
+        if(u && u.error){ b.disabled=false; b.textContent='Enregistrer le nouveau mot de passe'; var m=String(u.error.message||''); return say(/nonce|reauth|otp|token|expired|invalid/i.test(m) ? 'Code incorrect ou expiré. Vérifiez les chiffres, ou renvoyez un code.' : (/same|different/i.test(m) ? 'Choisissez un mot de passe différent de l’ancien.' : (/weak|pwned|leaked/i.test(m) ? 'Ce mot de passe est trop courant : choisissez-en un autre.' : 'Enregistrement impossible : '+m))); }
+        if(c.querySelector('#cp-others').checked){ try{ await sb.auth.signOut({ scope:'others' }); }catch(e){} }
+        if(typeof ecTouchActive==='function') ecTouchActive(true);
+        c.innerHTML='<h2 style="'+PW_TITLE+'">C’est fait !</h2><p style="'+PW_TXT+'">Votre mot de passe a été modifié'+(c.querySelector ? '' : '')+'. Utilisez-le à votre prochaine connexion.</p><button id="cp-ok" style="'+PW_BTN+'">Fermer</button>';
+        c.querySelector('#cp-ok').addEventListener('click', function(){ d.ov.remove(); });
+      }catch(e){ b.disabled=false; b.textContent='Enregistrer le nouveau mot de passe'; say('Enregistrement impossible. Réessayez dans un instant.'); }
     });
   }
+
 
   sb.auth.onAuthStateChange(function(ev){ if(ev === 'PASSWORD_RECOVERY') showRecoveryDialog(); });
 
@@ -3184,7 +3430,7 @@
     var session = res && res.data && res.data.session;
     // Lien de définition de mot de passe : on demande le mot de passe avant d'entrer
     if(IS_RECOVERY){ showRecoveryDialog(); return; }
-    if(session){ authUser = session.user; await routeAfterAuth(); }
+    if(session){ authUser = session.user; if(ecA2fOn(authUser) && ecNeeds2FA(authUser.id)){ await ecStart2FA(authUser.email); return; } ecTouchActive(true); await routeAfterAuth(); }
   });
 })();
 </script>
