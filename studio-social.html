@@ -2054,7 +2054,7 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
 @media(max-width:420px){.au-row{grid-template-columns:1fr;gap:0}}
 </style>
 <style id="mcd-otp-style">
-.au-otp-head{margin-bottom:14px}.au-otp-head b{display:block;font-size:17px;color:#252525;margin-bottom:4px}.au-otp-head p{margin:0;font-size:13.5px;line-height:1.45;color:#6c6c67}.au-otp-head strong{color:#252525;word-break:break-all}
+.au-otp-head{margin-bottom:14px}.au-otp-head b{display:block;font-size:17px;color:#252525;margin-bottom:4px}.au-otp-head p{margin:0;font-size:13.5px;line-height:1.45;color:#6c6c67}.au-otp-head strong{display:block;margin-top:2px;color:#252525;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(12px,3.6vw,14.5px)}
 .field input.au-otp-input{font-size:26px!important;letter-spacing:.45em;text-align:center;font-variant-numeric:tabular-nums;padding:14px 10px!important}
 .au-otp-actions{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}.au-otp-actions .au-link{margin-top:12px}.au-link:disabled{opacity:.55;text-decoration:none;cursor:default}
 </style>
@@ -2372,16 +2372,16 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
       <button class="primary-btn" type="submit">Créer mon compte</button>
     </form>
     <form id="reset-form" style="display:none;" autocomplete="on" novalidate>
-      <div class="au-otp-head"><b>Nouveau mot de passe</b><p>Saisis le code envoyé à <strong id="reset-email"></strong>, puis ton nouveau mot de passe.</p></div>
-      <div class="field"><label for="reset-code">Code reçu par email</label><input id="reset-code" class="au-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •"></div>
+      <div class="au-otp-head"><b>Nouveau mot de passe</b><p>Saisis le code et ton nouveau mot de passe. Code envoyé à : <strong id="reset-email"></strong></p></div>
+      <div class="field"><label for="reset-code">Code reçu par email</label><input id="reset-code" class="au-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • • • •"></div>
       <div class="field"><label for="reset-pass">Nouveau mot de passe</label><div class="au-pass"><input id="reset-pass" type="password" autocomplete="new-password" placeholder="8 caractères, lettres et chiffres"><button type="button" class="au-eye" data-eye="reset-pass" aria-label="Afficher le mot de passe">Afficher</button></div></div>
       <div class="field"><label for="reset-pass2">Confirmer le mot de passe</label><input id="reset-pass2" type="password" autocomplete="new-password" placeholder="Retape le mot de passe"></div>
       <button class="primary-btn" type="submit">Changer mon mot de passe</button>
       <div class="au-otp-actions"><button type="button" class="au-link" id="reset-resend">Renvoyer le code</button><button type="button" class="au-link" id="reset-back">Retour à la connexion</button></div>
     </form>
     <form id="otp-form" style="display:none;" autocomplete="on" novalidate>
-      <div class="au-otp-head"><b>Vérifie ton email</b><p>On a envoyé un code à <strong id="otp-email"></strong>. Saisis-le ci-dessous pour activer ton compte.</p></div>
-      <div class="field"><label for="otp-code">Code de vérification</label><input id="otp-code" class="au-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • •" aria-describedby="otp-help"></div>
+      <div class="au-otp-head"><b>Vérifie ton email</b><p>Saisis ci-dessous le code envoyé à : <strong id="otp-email"></strong></p></div>
+      <div class="field"><label for="otp-code">Code de vérification</label><input id="otp-code" class="au-otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="• • • • • • • •" aria-describedby="otp-help"></div>
       <button class="primary-btn" type="submit">Activer mon compte</button>
       <div class="au-otp-actions"><button type="button" class="au-link" id="otp-resend">Renvoyer le code</button><button type="button" class="au-link" id="otp-back">Modifier l’email</button></div>
       <small class="au-help" id="otp-help">Le code arrive en moins d’une minute. Pense à regarder dans tes spams.</small>
@@ -3161,13 +3161,13 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
     ['#reset-code','#reset-pass','#reset-pass2'].forEach(function(s){$(s).value='';});
     showOk('Code envoyé. Pense à regarder dans tes spams.');resetCooldown(45);setTimeout(function(){$('#reset-code').focus();},60);
   });
-  $('#reset-code').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,10);if(this.value.length===6)$('#reset-pass').focus();});
+  $('#reset-code').addEventListener('input',function(){this.value=this.value.replace(/\D/g,'').slice(0,10);if(this.value.length===8)$('#reset-pass').focus();});
   $('#reset-resend').addEventListener('click',async function(){if(await resetSend()){showOk('Nouveau code envoyé à '+resetEmail+'.');resetCooldown(60);}});
   $('#reset-back').addEventListener('click',function(){clearInterval(resetTimer);$('#reset-form').style.display='none';$('#login-form').style.display='block';$('#auth-err').style.display='none';$('#auth-ok').style.display='none';});
   $('#reset-form').addEventListener('submit',async function(ev){
     ev.preventDefault();$('#auth-ok').style.display='none';
     var code=$('#reset-code').value,p1=$('#reset-pass').value,p2=$('#reset-pass2').value;
-    if(code.length<6){showErr('Saisis le code à 6 chiffres reçu par email.');$('#reset-code').focus();return;}
+    if(code.length<6){showErr('Saisis le code à 8 chiffres reçu par email.');$('#reset-code').focus();return;}
     var pb=mcdPwProblem(p1);if(pb){showErr('Mot de passe : '+pb);$('#reset-pass').focus();return;}
     if(p1!==p2){showErr('Les deux mots de passe ne correspondent pas.');$('#reset-pass2').focus();return;}
     var btn=$('#reset-form .primary-btn');btn.disabled=true;btn.textContent='Vérification…';
@@ -3245,7 +3245,7 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
 
 
   /* ===== Vérification de l’email par code à la création du compte ===== */
-  var MCD_OTP_LENGTH=6,otpPending=null,otpTimer=null;
+  var MCD_OTP_LENGTH=8,otpPending=null,otpTimer=null;
   async function mcdSaveSignupProfile(p){
     if(!p||!authUser)return;
     var data=p.data||{},brand=p.brand||'';
@@ -3280,8 +3280,8 @@ html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;fo
     try{sessionStorage.setItem('mcd_otp',JSON.stringify(otpPending));}catch(e){}
     $('#login-form').style.display='none';$('#signup-form').style.display='none';$('#otp-form').style.display='block';
     var hb=$('#otp-form .au-otp-head b'),hp=$('#otp-form .au-otp-head p');
-    if(mode==='login'){hb.textContent='Vérification de sécurité';hp.innerHTML='La vérification en deux étapes protège ton compte. Saisis le code envoyé à <strong id="otp-email"></strong>.';}
-    else{hb.textContent='Vérifie ton email';hp.innerHTML='On a envoyé un code à <strong id="otp-email"></strong>. Saisis-le ci-dessous pour activer ton compte.';}
+    if(mode==='login'){hb.textContent='Vérification de sécurité';hp.innerHTML='La vérification en deux étapes protège ton compte. Saisis le code envoyé à : <strong id="otp-email"></strong>';}
+    else{hb.textContent='Vérifie ton email';hp.innerHTML='Saisis ci-dessous le code envoyé à : <strong id="otp-email"></strong>';}
     $('#otp-email').textContent=email;$('#otp-code').value='';
     $('#otp-form .primary-btn').textContent=mode==='login'?'Me connecter':'Activer mon compte';
     $('#otp-back').textContent=mode==='login'?'Utiliser un autre compte':'Modifier l’email';
