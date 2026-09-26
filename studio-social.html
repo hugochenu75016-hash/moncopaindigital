@@ -2012,6 +2012,47 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
 @media (hover:none){.mv4-history-del{display:inline-flex}}
 .mv4-history-item .mv4-history-copy{padding-right:26px}
 </style>
+<style id="mcd-hello-style">
+.mv4-welcome-screen.mcd-hello{width:min(100%,640px)!important;margin:auto!important;padding:28px 8px 22px!important;text-align:center}
+.mv4-welcome-screen.mcd-hello::before{display:none!important}
+.mcd-hello-row{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+.mcd-hello-spark{width:38px;height:38px;flex:none;color:#F3852B;display:inline-block;animation:mcdSpin 14s linear infinite}
+.mcd-hello-spark svg{width:100%;height:100%;fill:currentColor}
+.mcd-hello-spark g{transform-origin:16px 16px;animation:mcdPulse 2.8s ease-in-out infinite}
+@keyframes mcdSpin{to{transform:rotate(360deg)}}@keyframes mcdPulse{0%,100%{transform:scale(1)}50%{transform:scale(.82)}}
+html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{margin:0!important;font:400 40px/1.1 'DM Serif Display','Playfair Display',Georgia,serif!important;letter-spacing:-.01em!important;color:#232320!important;animation:mcdRise .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes mcdRise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.mcd-hello-type{display:inline-flex;align-items:center;min-height:28px;margin:14px auto 0;padding:2px 6px;border:0;background:none;cursor:pointer;font:600 17px/1.4 'Inter','Nunito',sans-serif;color:#6f6b64;border-radius:8px;animation:mcdRise .6s .15s cubic-bezier(.2,.8,.2,1) both}
+.mcd-hello-type:hover{color:#F3852B;background:#fff4ea}
+.mcd-hello-caret{display:inline-block;width:2px;height:1.15em;margin-left:3px;background:#F3852B;border-radius:2px;animation:mcdBlink 1s steps(1) infinite}
+.mcd-hello-type.typing .mcd-hello-caret{animation:none}
+@keyframes mcdBlink{50%{opacity:0}}
+.mcd-hello-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:26px;animation:mcdRise .6s .3s cubic-bezier(.2,.8,.2,1) both}
+.mcd-hello-chips button{display:inline-flex;align-items:center;gap:7px;border:1px solid #e4e2dc;background:#fff;color:#44423e;border-radius:10px;padding:8px 13px;font:600 13px/1 'Inter','Nunito',sans-serif;cursor:pointer;transition:border-color .15s,background .15s,transform .15s}
+.mcd-hello-chips button:hover{border-color:#F3852B;background:#fffaf5;transform:translateY(-1px)}
+.mcd-hello-chips svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:#F3852B}
+@media(max-width:600px){html body .mv4-welcome-screen.mcd-hello h3.mcd-hello-title{font-size:30px!important}.mcd-hello-spark{width:30px;height:30px}.mcd-hello-type{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.mcd-hello-spark,.mcd-hello-spark g,.mcd-hello-caret,.mcd-hello-title,.mcd-hello-type,.mcd-hello-chips{animation:none!important}}
+</style>
+<style id="mcd-auth-v2">
+.au-type{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.au-type-opt{text-align:left;border:1px solid #e3e1dc;background:#fff;border-radius:12px;padding:11px 12px;cursor:pointer;font:inherit;color:#252525;transition:border-color .15s,background .15s}
+.au-type-opt b{display:block;font-size:14px}.au-type-opt small{display:block;font-size:11.5px;color:#8a867f;margin-top:2px}
+.au-type-opt.on{border-color:#F3852B;box-shadow:inset 0 0 0 1px #F3852B;background:#fff8f1}
+.au-type-opt:focus-visible,.au-eye:focus-visible,.au-link:focus-visible{outline:2px solid #F3852B;outline-offset:2px}
+.au-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.au-pass{position:relative;display:flex;align-items:center}.au-pass input{padding-right:92px!important}
+.au-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:#f3f2ee;color:#55524c;border-radius:8px;padding:6px 9px;font:600 11.5px/1 inherit;cursor:pointer}
+.au-eye:hover{background:#ebe9e3}.au-eye:disabled{opacity:.6}
+.au-help{display:block;margin-top:6px;font-size:11.5px;line-height:1.4;color:#8a867f}
+.au-opt{font-weight:500;opacity:.7;text-transform:none;letter-spacing:0}
+.au-company{margin:-2px 0 14px;border:1px solid #e3e1dc;border-radius:12px;padding:11px 12px;background:#fafaf8}
+.au-company b{display:block;font-size:14px;color:#252525}.au-company span{display:block;font-size:12px;color:#6b6760;margin-top:3px}.au-company em{display:block;font-size:12px;color:#c0392b;margin-top:4px}.au-company .au-ok{color:#1f9d55;font-weight:600}
+.au-check{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.4;color:#55524c;margin:-4px 0 16px;cursor:pointer}.au-check input{margin-top:2px;accent-color:#F3852B}
+.au-link{display:block;margin:12px auto 0;border:0;background:none;color:#8a867f;text-decoration:underline;font:inherit;font-size:12.5px;cursor:pointer}
+.field input:disabled{opacity:.55}
+@media(max-width:420px){.au-row{grid-template-columns:1fr;gap:0}}
+</style>
 </head>
 <body>
 <div id="door-tx" class="loading" aria-hidden="true">
@@ -2290,15 +2331,39 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     <div class="auth-err" id="auth-err"></div>
     <div class="auth-ok" id="auth-ok"></div>
     <form id="login-form" autocomplete="on">
-      <div class="field"><label for="li-email">Email</label><input id="li-email" type="email" placeholder="vous@exemple.fr" required></div>
-      <div class="field"><label for="li-pass">Mot de passe</label><input id="li-pass" type="password" placeholder="Votre mot de passe" required></div>
+      <div class="field"><label for="li-email">Email</label><input id="li-email" type="email" autocomplete="email" placeholder="vous@exemple.fr" required></div>
+      <div class="field"><label for="li-pass">Mot de passe</label><div class="au-pass"><input id="li-pass" type="password" autocomplete="current-password" placeholder="Votre mot de passe" required><button type="button" class="au-eye" data-eye="li-pass" aria-label="Afficher le mot de passe">Afficher</button></div></div>
       <button class="primary-btn" type="submit">Se connecter</button>
+      <button type="button" class="au-link" id="li-forgot">Mot de passe oublié ?</button>
     </form>
-    <form id="signup-form" autocomplete="on" style="display:none;">
-      <div class="field"><label for="su-brand">Nom de votre entreprise / marque</label><input id="su-brand" type="text" placeholder="Ex. Le Petit Café" required></div>
-      <div class="field"><label for="su-email">Email</label><input id="su-email" type="email" placeholder="vous@exemple.fr" required></div>
-      <div class="field"><label for="su-pass">Mot de passe</label><input id="su-pass" type="password" placeholder="8 caractères minimum" minlength="8" required></div>
-      <div class="field"><label for="su-pass2">Confirmer le mot de passe</label><input id="su-pass2" type="password" placeholder="Retapez le mot de passe" minlength="8" required></div>
+    <form id="signup-form" autocomplete="on" style="display:none;" novalidate>
+      <div class="au-type" role="radiogroup" aria-label="Type de compte">
+        <button type="button" class="au-type-opt on" data-type="pro" role="radio" aria-checked="true"><b>Entreprise</b><small>SIRET · factures avec TVA</small></button>
+        <button type="button" class="au-type-opt" data-type="perso" role="radio" aria-checked="false"><b>Particulier</b><small>Compte perso ou créateur</small></button>
+      </div>
+
+      <div class="au-pane" data-pane="pro">
+        <div class="field"><label for="su-siret">Numéro SIRET ou SIREN</label><div class="au-pass"><input id="su-siret" type="text" inputmode="numeric" autocomplete="off" placeholder="123 456 789 00012"><button type="button" class="au-eye" id="su-siret-go">Rechercher</button></div><small class="au-help" id="su-siret-help">On récupère automatiquement ta raison sociale, ton adresse et ton numéro de TVA.</small></div>
+        <div class="au-company" id="su-company" hidden></div>
+        <div class="au-company-fields" id="su-company-fields" hidden>
+          <div class="field"><label for="su-legal">Raison sociale</label><input id="su-legal" type="text" autocomplete="organization"></div>
+          <div class="field"><label for="su-brand">Nom commercial / marque</label><input id="su-brand" type="text" placeholder="Ex. Le Petit Café"></div>
+          <div class="field"><label for="su-address">Adresse de facturation</label><input id="su-address" type="text" autocomplete="street-address"></div>
+          <div class="field"><label for="su-tva">N° de TVA intracommunautaire</label><input id="su-tva" type="text" autocomplete="off" placeholder="FR00123456789"></div>
+          <label class="au-check"><input type="checkbox" id="su-tva-none"> Je ne facture pas la TVA (franchise en base, art. 293 B du CGI)</label>
+        </div>
+      </div>
+
+      <div class="au-row">
+        <div class="field"><label for="su-firstname">Prénom</label><input id="su-firstname" type="text" autocomplete="given-name" placeholder="Camille"></div>
+        <div class="field"><label for="su-lastname">Nom</label><input id="su-lastname" type="text" autocomplete="family-name" placeholder="Martin"></div>
+      </div>
+      <div class="au-pane" data-pane="perso" hidden>
+        <div class="field"><label for="su-account">Nom de ton compte <small class="au-opt">(facultatif)</small></label><input id="su-account" type="text" placeholder="Ex. Camille en cuisine"></div>
+      </div>
+      <div class="field"><label for="su-email">Email</label><input id="su-email" type="email" autocomplete="email" placeholder="vous@exemple.fr"></div>
+      <div class="field"><label for="su-pass">Mot de passe</label><div class="au-pass"><input id="su-pass" type="password" autocomplete="new-password" placeholder="8 caractères minimum" minlength="8"><button type="button" class="au-eye" data-eye="su-pass" aria-label="Afficher le mot de passe">Afficher</button></div></div>
+      <div class="field"><label for="su-pass2">Confirmer le mot de passe</label><input id="su-pass2" type="password" autocomplete="new-password" placeholder="Retapez le mot de passe" minlength="8"></div>
       <button class="primary-btn" type="submit">Créer mon compte</button>
     </form>
     <p style="font-size:12px;color:#8a6a0c;margin:16px 0 0;text-align:center;" id="auth-hint">Chaque client dispose de son propre espace : vos publications et votre connexion Instagram restent privées.</p>
@@ -3020,24 +3085,94 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     finally{ btn.disabled=false; btn.textContent='Se connecter'; }
   });
 
+  /* ===== Espace de connexion : Particulier / Entreprise (SIRET → registre, TVA) ===== */
+  function marshallTvaFromSiren(siren){siren=String(siren||'').replace(/\D/g,'');if(siren.length!==9)return '';var key=(12+3*(Number(siren)%97))%97;return 'FR'+String(key).padStart(2,'0')+siren;}
+  var suType='pro',suCompany=null;
+  function suSetType(t){
+    suType=t;
+    $all('#signup-form .au-type-opt').forEach(function(b){var on=b.getAttribute('data-type')===t;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');});
+    $all('#signup-form .au-pane').forEach(function(p){p.hidden=p.getAttribute('data-pane')!==t;});
+    $('#auth-err').style.display='none';
+  }
+  $all('#signup-form .au-type-opt').forEach(function(b){b.addEventListener('click',function(){suSetType(b.getAttribute('data-type'));});});
+  $all('[data-eye]').forEach(function(b){b.addEventListener('click',function(){var i=$('#'+b.getAttribute('data-eye'));if(!i)return;var show=i.type==='password';i.type=show?'text':'password';b.textContent=show?'Masquer':'Afficher';b.setAttribute('aria-label',show?'Masquer le mot de passe':'Afficher le mot de passe');});});
+  function suShowCompanyFields(c){
+    $('#su-company-fields').hidden=false;
+    if(c){$('#su-legal').value=c.name||'';if(!$('#su-brand').value)$('#su-brand').value=c.name||'';$('#su-address').value=c.address||'';$('#su-tva').value=c.tva||marshallTvaFromSiren(c.siren);}
+  }
+  async function suLookup(){
+    var btn=$('#su-siret-go'),help=$('#su-siret-help'),box=$('#su-company'),raw=$('#su-siret').value;
+    if(!raw.replace(/\D/g,''))return;
+    btn.disabled=true;btn.textContent='…';box.hidden=true;suCompany=null;
+    try{
+      var c=await marshallLookupCompany(raw);suCompany=c;
+      box.innerHTML='<b>'+esc(c.name||'Entreprise')+'</b><span>'+esc([c.nafLabel||c.naf,c.city].filter(Boolean).join(' · '))+'</span>'+(c.active?'':'<em>Cet établissement est indiqué comme fermé au registre.</em>')+'<span class="au-ok">✓ Trouvée au registre des entreprises</span>';
+      box.hidden=false;help.textContent='Vérifie les informations ci-dessous : elles apparaîtront sur tes factures.';
+      suShowCompanyFields(c);
+    }catch(e){
+      help.textContent=(e&&e.message?e.message:'Recherche impossible.')+(/injoignable|ne répond pas/.test(String(e&&e.message))?' Remplis les informations à la main.':'');
+      if(/injoignable|ne répond pas/.test(String(e&&e.message))){var d=raw.replace(/\D/g,'');suCompany={siren:d.slice(0,9),siret:d.length===14?d:'',manual:true};suShowCompanyFields(null);if(!$('#su-tva').value)$('#su-tva').value=marshallTvaFromSiren(d.slice(0,9));}
+    }finally{btn.disabled=false;btn.textContent='Rechercher';}
+  }
+  $('#su-siret-go').addEventListener('click',suLookup);
+  $('#su-siret').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();suLookup();}});
+  $('#su-siret').addEventListener('input',function(){var d=this.value.replace(/\D/g,'');if((d.length===9||d.length===14)&&(!suCompany||suCompany.siren!==d.slice(0,9)))suLookup();});
+  $('#su-tva-none').addEventListener('change',function(){$('#su-tva').disabled=this.checked;});
+  $('#li-forgot').addEventListener('click',async function(){
+    var email=$('#li-email').value.trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){showErr('Entre ton email ci-dessus, puis clique à nouveau sur « Mot de passe oublié ? ».');$('#li-email').focus();return;}
+    this.disabled=true;
+    try{var r=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(r&&r.error)throw r.error;showOk('Si un compte existe pour cet email, tu vas recevoir un lien pour choisir un nouveau mot de passe.');}
+    catch(e){showErr('Envoi impossible pour le moment. Réessaie dans quelques minutes.');}
+    finally{this.disabled=false;}
+  });
+  /* Après connexion : recopie le type de compte et l’entreprise dans le profil de marque de Marshall. */
+  function marshallSyncProfileFromMeta(){
+    try{
+      var md=(authUser&&authUser.user_metadata)||{};if(!md.account_type)return;
+      var b=marshallBrandManualGet()||{};
+      var patch={accountType:md.account_type,firstName:md.prenom||b.firstName||''};
+      if(md.account_type==='pro'){Object.assign(patch,{siren:md.siren||'',siret:md.siret||'',naf:md.naf||b.naf||'',nafLabel:md.naf_label||b.nafLabel||'',legalName:md.raison_sociale||'',city:md.ville||'',tva:md.tva||'',billingAddress:md.adresse||'',name:b.name||md.brand||'',sector:b.sector||md.naf_label||'',activity:b.activity||(md.naf_label?(md.naf_label+(md.ville?' à '+md.ville:'')):'')});}
+      marshallAccountSaveProfile(patch);
+    }catch(e){console.warn('Profile sync',e);}
+  }
   $('#signup-form').addEventListener('submit', async function(ev){
     ev.preventDefault();
     $('#auth-ok').style.display='none';
-    var brand=$('#su-brand').value.trim(), email=$('#su-email').value.trim().toLowerCase();
-    var pass=$('#su-pass').value, pass2=$('#su-pass2').value;
-    if(!brand||!email||!pass){ showErr('Tous les champs sont requis.'); return; }
-    if(pass.length<8){ showErr('Le mot de passe doit faire 8 caractères minimum.'); return; }
-    if(pass!==pass2){ showErr('Les deux mots de passe ne correspondent pas.'); return; }
+    var email=$('#su-email').value.trim().toLowerCase(), pass=$('#su-pass').value, pass2=$('#su-pass2').value;
+    var first=$('#su-firstname').value.trim().slice(0,40), last=$('#su-lastname').value.trim().slice(0,60);
+    var data={account_type:suType,prenom:first,nom_famille:last},brand='';
+    if(suType==='pro'){
+      var digits=$('#su-siret').value.replace(/\D/g,'');
+      if(digits.length!==9&&digits.length!==14){showErr('Indique ton numéro SIRET (14 chiffres) ou SIREN (9 chiffres).');$('#su-siret').focus();return;}
+      if(!marshallLuhn(digits)&&digits.slice(0,9)!=='356000000'){showErr('Ce numéro SIRET / SIREN ne semble pas valide : vérifie les chiffres.');$('#su-siret').focus();return;}
+      if(!suCompany||suCompany.siren!==digits.slice(0,9)){await suLookup();if(!suCompany){showErr('Entreprise introuvable avec ce numéro.');return;}}
+      var legal=$('#su-legal').value.trim().slice(0,120),address=$('#su-address').value.trim().slice(0,200),noTva=$('#su-tva-none').checked,tva=noTva?'':$('#su-tva').value.replace(/[\s.-]/g,'').toUpperCase();
+      brand=$('#su-brand').value.trim().slice(0,80)||legal;
+      if(!legal){showErr('Indique ta raison sociale.');$('#su-legal').focus();return;}
+      if(!address){showErr('Indique ton adresse de facturation.');$('#su-address').focus();return;}
+      if(!noTva&&!tva){showErr('Indique ton numéro de TVA, ou coche « Je ne facture pas la TVA ».');$('#su-tva').focus();return;}
+      if(!noTva&&!/^[A-Z]{2}[0-9A-Z]{2,13}$/.test(tva)){showErr('Le numéro de TVA semble incorrect (ex. FR12345678901).');$('#su-tva').focus();return;}
+      if(!noTva&&/^FR/.test(tva)&&tva!==marshallTvaFromSiren(digits.slice(0,9))){showErr('Ce numéro de TVA ne correspond pas à ton SIREN. Vérifie-le, ou coche « Je ne facture pas la TVA ».');$('#su-tva').focus();return;}
+      Object.assign(data,{siren:digits.slice(0,9),siret:digits.length===14?digits:(suCompany.siret||''),raison_sociale:legal,adresse:address,tva:tva,tva_franchise:noTva,naf:suCompany.naf||'',naf_label:suCompany.nafLabel||'',ville:suCompany.city||''});
+    }else{
+      if(!first){showErr('Indique ton prénom.');$('#su-firstname').focus();return;}
+      brand=($('#su-account').value.trim()||[first,last].filter(Boolean).join(' ')).slice(0,80);
+    }
+    if(!email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){showErr('Indique un email valide.');$('#su-email').focus();return;}
+    if(pass.length<8){showErr('Le mot de passe doit faire 8 caractères minimum.');$('#su-pass').focus();return;}
+    if(pass!==pass2){showErr('Les deux mots de passe ne correspondent pas.');$('#su-pass2').focus();return;}
+    Object.assign(data,{nom:brand,brand:brand,slug:slugify(brand)});
     var btn=$('#signup-form .primary-btn'); btn.disabled=true; btn.textContent='Création…';
     try{
-      var res=await sb.auth.signUp({ email:email, password:pass,
-        options:{ data:{ nom:brand, brand:brand, slug:slugify(brand) } } });
+      var res=await sb.auth.signUp({ email:email, password:pass, options:{ data:data } });
       if(res.error){
         showErr(/registered|exist/i.test(res.error.message||'') ? 'Un compte existe déjà avec cet email.' : 'Création impossible. Réessayez.');
         return;
       }
       if(res.data && res.data.session){
         authUser=res.data.session.user;
+        try{var pr=Object.assign({id:authUser.id,email:authUser.email||null,nom:[data.prenom,data.nom_famille].filter(Boolean).join(' ')||brand,entreprise:data.account_type==='pro'?brand:null,adresse:data.adresse||null,updated_at:new Date().toISOString()},data);delete pr.brand;delete pr.slug;delete pr.nom_famille;var rr=await sb.from('profiles').upsert(pr);if(rr&&rr.error)await sb.from('profiles').upsert({id:authUser.id,email:authUser.email||null,nom:pr.nom,entreprise:pr.entreprise,adresse:pr.adresse});}catch(_e){}
         if(!(await resolveAccount())){ showErr('Compte créé, mais accès refusé.'); return; }
         await startApp();
         return;
@@ -3045,7 +3180,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
       $('#auth-err').style.display='none';
       var ok=$('#auth-ok'); ok.textContent='Compte créé. Vérifiez votre boîte mail pour confirmer votre adresse, puis connectez-vous.';
       ok.style.display='block';
-      $('#signup-form').reset();
+      $('#signup-form').reset();suCompany=null;$('#su-company').hidden=true;$('#su-company-fields').hidden=true;$('#su-tva').disabled=false;suSetType('pro');
     }catch(e){ showErr('Création impossible. Réessayez.'); }
     finally{ btn.disabled=false; btn.textContent='Créer mon compte'; }
   });
@@ -4137,18 +4272,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
           </div>
 
           <div class="mv4-thread" id="marshall-thread">
-            <div class="mv4-welcome-screen" id="marshall-welcome-screen">
-              <div class="mv4-welcome-mark"><img src="avatarchatbot.png" alt=""></div>
-              <h3>Construisons quelque chose de fort.</h3>
-              <p>Marshall orchestre stratégie, direction artistique, génération d’images, Story/Motion et validation pour produire une création cohérente avec ta marque.</p>
-              <div class="mv5-welcome-badges"><span class="mv5-welcome-badge"><i></i>Brand Intelligence</span><span class="mv5-welcome-badge"><i></i>Multi-agents</span><span class="mv5-welcome-badge"><i></i>Canvas éditable</span><span class="mv5-welcome-badge"><i></i>Motion</span></div>
-              <div class="mv4-starters">
-                <button type="button" data-marshall-prompt="Crée-moi une vraie story marketing virale pour mon entreprise en utilisant mon branding, mon site, mes visuels et mon Instagram."><span class="mv5-starter-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span><span>Créer une Story</span><small>Stratégie · assets de marque · 3 canvases éditables</small></button>
-                <button type="button" data-marshall-prompt="Crée un post Instagram premium cohérent avec ma marque, mon offre et ma direction artistique."><span class="mv5-starter-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7 16 4-4 3 3 3-4 2 3"/></svg></span><span>Créer un post</span><small>Concept · copy · visuel · canvas éditable</small></button>
-                <button type="button" data-marshall-prompt="Analyse ma marque avec mon site et mon Instagram puis donne-moi les priorités stratégiques et créatives."><span class="mv5-starter-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M6 16V9M11 16V5M16 16v-4M21 16V7"/></svg></span><span>Analyser la marque</span><small>Audit 360° · Brand Intelligence · recommandations</small></button>
-                <button type="button" data-marshall-prompt="Propose-moi 3 concepts créatifs vraiment différents et exploitables pour ma prochaine campagne."><span class="mv5-starter-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21"/></svg></span><span>Explorer des concepts</span><small>3 directions · angles distincts · recommandations</small></button>
-              </div>
-            </div>
+            ${marshallWelcomeMarkup()}
           </div>
 
           <button type="button" class="mv5-scroll-bottom" id="marshall-scroll-bottom" title="Aller au dernier message"><svg viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button>
@@ -4202,7 +4326,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
           <div class="set-field full"><label>Outil vidéo Marshall</label><select id="marshall-story-render"><option value="auto">Vidéo Motion locale (recommandé)</option><option value="video">Motion locale + version IA · Wan 2.2</option><option value="static">Outil vidéo désactivé</option></select></div>
         </div></div>
         <div class="set-section" id="mbb-form"><div class="set-section-head"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/></svg><b>Profil de marque</b><span>Compte actif</span></div><div class="set-grid">
-          <div class="set-field full"><label>Type de compte</label><select id="mbb-acct"><option value="">À préciser</option><option value="pro">Professionnel (SIRET / SIREN)</option><option value="perso">Particulier (compte perso)</option></select></div><div class="set-field full" id="mbb-pro-row"><label>SIRET ou SIREN</label><div style="display:flex;gap:6px"><input id="mbb-siret" inputmode="numeric" autocomplete="off" placeholder="123 456 789 00012" style="flex:1;min-width:0"><button type="button" class="set-save" id="mbb-siret-check" style="width:auto;flex:none;padding:0 14px">Vérifier</button></div><div class="set-state" id="mbb-siret-state"></div></div><div class="set-field full" id="mbb-perso-row"><label>De quoi parle ton compte ? Que dois-je créer ?</label><textarea id="mbb-topic" placeholder="Ex : je partage mes recettes healthy et je veux gagner des abonnés"></textarea></div><div class="set-field"><label>Nom de marque</label><input id="mbb-name"></div><div class="set-field"><label>Secteur / activité</label><input id="mbb-sector"></div>
+          <div class="set-field full"><label>Compte et facturation</label><div class="set-state" id="mbb-account-summary"></div><a href="espace-compte.html#profil" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Gérer mes infos dans l’Espace compte</a></div><div class="set-field full" id="mbb-perso-row"><label>De quoi parle ton compte ? Que dois-je créer ?</label><textarea id="mbb-topic" placeholder="Ex : je partage mes recettes healthy et je veux gagner des abonnés"></textarea></div><div class="set-field"><label>Nom de marque</label><input id="mbb-name"></div><div class="set-field"><label>Secteur / activité</label><input id="mbb-sector"></div>
           <div class="set-field full"><label>Site web officiel</label><input id="mbb-website" inputmode="url" placeholder="https://votresite.fr"></div>
           <div class="set-field full"><label>Offre / services</label><textarea id="mbb-offer"></textarea></div><div class="set-field full"><label>Cible</label><textarea id="mbb-audience"></textarea></div>
           <div class="set-field full"><label>Valeurs / personnalité</label><textarea id="mbb-values"></textarea></div><div class="set-field"><label>Ton</label><input id="mbb-tone"></div><div class="set-field"><label>Positionnement</label><input id="mbb-position"></div>
@@ -4536,7 +4660,76 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     c.agent=marshallAgentMode.agent||'marshall';c.mission=marshallAgentMode.mission||'auto';c.manualAgent=!!marshallAgentManual;marshallConversationCaptureCanvas(c);marshallConversationSave();
   }
   window.addEventListener('beforeunload',function(){try{marshallConversationSnapshot();}catch(e){}});
-  function marshallWelcomeMarkup(){return '<div class="mv4-welcome-screen" id="marshall-welcome-screen"><div class="mv4-welcome-mark"><img src="avatarchatbot.png" alt=""></div><h3>Construisons quelque chose de fort.</h3><p>Marshall orchestre stratégie, direction artistique, génération d’images, Story/Motion et validation pour produire une création cohérente avec ta marque.</p><div class="mv5-welcome-badges"><span class="mv5-welcome-badge"><i></i>Brand Intelligence</span><span class="mv5-welcome-badge"><i></i>Multi-agents</span><span class="mv5-welcome-badge"><i></i>Canvas éditable</span><span class="mv5-welcome-badge"><i></i>Motion</span></div><div class="mv4-starters"><button type="button" data-marshall-prompt="Crée-moi une vraie story marketing virale pour mon entreprise en utilisant mon branding, mon site, mes visuels et mon Instagram."><span class="mv5-starter-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span><span>Créer une Story</span><small>Stratégie · assets de marque · 3 écrans · Motion</small></button><button type="button" data-marshall-prompt="Crée un post Instagram premium cohérent avec ma marque, mon offre et ma direction artistique."><span class="mv5-starter-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7 16 4-4 3 3 3-4 2 3"/></svg></span><span>Créer un post</span><small>Concept · copy · visuel · canvas éditable</small></button><button type="button" data-marshall-prompt="Analyse ma marque avec mon site et mon Instagram puis donne-moi les priorités stratégiques et créatives."><span class="mv5-starter-icon"><svg viewBox="0 0 24 24"><path d="M4 19h16M6 16V9M11 16V5M16 16v-4M21 16V7"/></svg></span><span>Analyser la marque</span><small>Audit 360° · Brand Intelligence · recommandations</small></button><button type="button" data-marshall-prompt="Propose-moi 3 concepts créatifs vraiment différents et exploitables pour ma prochaine campagne."><span class="mv5-starter-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21"/></svg></span><span>Explorer des concepts</span><small>3 directions · angles distincts · recommandations</small></button></div></div>';}
+  /* ===== Accueil Marshall façon Claude : salutation personnelle + phrase qui s’écrit toute seule ===== */
+  var marshallHelloTimer=null;
+  function marshallFirstName(){
+    try{
+      var md=(authUser&&authUser.user_metadata)||{},bp=(typeof marshallBrandManualGet==='function'?marshallBrandManualGet():{})||{};
+      var n=bp.firstName||md.prenom||md.first_name||md.given_name||md.full_name||md.name||'';
+      if(!n&&me&&me.isTeam)n=me.nom||'';
+      if(!n&&md.nom&&!md.brand)n=md.nom;
+      n=String(n||'').trim().split(/\s+/)[0]||'';
+      if(!n||/@/.test(n))return '';
+      return n.charAt(0).toLocaleUpperCase('fr')+n.slice(1);
+    }catch(e){return '';}
+  }
+  function marshallGreeting(){
+    var name=marshallFirstName(),d=new Date(),h=d.getHours(),day=d.getDay(),w=name?', '+name:'';
+    var pool;
+    if(h>=5&&h<12)pool=['Bonjour'+w,'Bien dormi'+w+' ?',(day===1?'Bon lundi':'Belle matinée')+w];
+    else if(h>=12&&h<18)pool=['Bon après-midi'+w,'Re-bonjour'+w,(day===5?'Bon vendredi':'Bonne journée')+w];
+    else if(h>=18&&h<23)pool=['Bonsoir'+w,'Belle soirée'+w,'Content de te revoir'+w];
+    else pool=['Encore debout'+w+' ?','Nuit créative'+w+' ?','Bonsoir'+w];
+    if(day===0||day===6)pool.push('Bon week-end'+w);
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
+  function marshallHelloLines(){
+    var b=(typeof marshallBrandManualGet==='function'?marshallBrandManualGet():{})||{},perso=b.accountType==='perso';
+    var lines=[
+      {t:'Qu’est-ce qu’on crée aujourd’hui ?',p:''},
+      {t:'Une story qui arrête le scroll ?',p:'Crée une story marketing premium pour mon '+(perso?'compte':'entreprise')+' en utilisant ma marque et mes vraies photos.'},
+      {t:'Un post pour cette semaine ?',p:'Crée un post Instagram cohérent avec ma marque pour cette semaine.'},
+      {t:'On planifie tes stories du mois ?',p:'Planifie un mois de stories pour le mois prochain.'},
+      {t:'Envie de 3 idées de campagne ?',p:'Propose-moi 3 concepts créatifs vraiment différents pour ma prochaine campagne.'},
+      {t:'On fait le point sur ta marque ?',p:'Analyse ma marque avec mon site et mon Instagram puis donne-moi les priorités.'}
+    ];
+    if(!perso)lines.push({t:'Une offre à mettre en avant ?',p:'Crée une story pour mettre en avant mon offre du moment.'});
+    return lines;
+  }
+  function marshallWelcomeMarkup(){
+    var chips=[
+      ['Story','Crée une story marketing premium pour mon entreprise en utilisant ma marque et mes vraies photos.','<path d="M6 3h12v18H6z"/><path d="M9 7h6M9 11h6M9 15h3"/>'],
+      ['Post','Crée un post Instagram premium cohérent avec ma marque, mon offre et ma direction artistique.','<rect x="4" y="4" width="16" height="16" rx="3"/><path d="m7 16 4-4 3 3 3-4 2 3"/>'],
+      ['Stories du mois','Planifie un mois de stories pour le mois prochain.','<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>'],
+      ['Analyser ma marque','Analyse ma marque avec mon site et mon Instagram puis donne-moi les priorités stratégiques et créatives.','<path d="M4 19h16M6 16V9M11 16V5M16 16v-4M21 16V7"/>'],
+      ['3 concepts','Propose-moi 3 concepts créatifs vraiment différents et exploitables pour ma prochaine campagne.','<path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/>']
+    ];
+    return '<div class="mv4-welcome-screen mcd-hello" id="marshall-welcome-screen">'+
+      '<div class="mcd-hello-row">'+
+      '<h3 class="mcd-hello-title" id="mcd-hello-title">'+esc(marshallGreeting())+'</h3></div>'+
+      '<button type="button" class="mcd-hello-type" id="mcd-hello-type" title="Utiliser cette idée"><span class="mcd-hello-text">Qu’est-ce qu’on crée aujourd’hui ?</span><i class="mcd-hello-caret" aria-hidden="true"></i></button>'+
+      '<div class="mcd-hello-chips">'+chips.map(function(c){return '<button type="button" data-marshall-prompt="'+esc(c[1])+'"><svg viewBox="0 0 24 24">'+c[2]+'</svg>'+esc(c[0])+'</button>';}).join('')+'</div>'+
+    '</div>';
+  }
+  function marshallWelcomeAnimate(){
+    clearTimeout(marshallHelloTimer);
+    var btn=document.getElementById('mcd-hello-type');if(!btn)return;
+    var txt=btn.querySelector('.mcd-hello-text'),lines=marshallHelloLines(),i=0,pos=0,del=false,cur=lines[0];
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    btn.onclick=function(){var p=$('#ai-prompt');if(!p)return;p.value=cur.p||'';p.dispatchEvent(new Event('input'));p.focus();};
+    var title=document.getElementById('mcd-hello-title');if(title)title.textContent=marshallGreeting();
+    if(reduce){txt.textContent=lines[0].t;return;}
+    txt.textContent='';
+    function tick(){
+      if(!btn.isConnected)return;
+      var full=cur.t,delay;
+      if(!del){pos++;txt.textContent=full.slice(0,pos);delay=pos>=full.length?2600:(34+Math.random()*40);if(pos>=full.length)del=true;}
+      else{pos--;txt.textContent=full.slice(0,Math.max(0,pos));delay=pos<=0?380:18;if(pos<=0){del=false;i=(i+1)%lines.length;cur=lines[i];}}
+      btn.classList.toggle('typing',!del&&pos<full.length);
+      marshallHelloTimer=setTimeout(tick,delay);
+    }
+    marshallHelloTimer=setTimeout(tick,450);
+  }
   var marshallStreamJobs=[];
   function marshallStreamCancelAll(){
     while(marshallStreamJobs.length){var j=marshallStreamJobs.pop();try{clearInterval(j.timer);}catch(e){}}
@@ -5009,7 +5202,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     if(!document.documentElement.getAttribute('data-marshall-v5-key')){document.documentElement.setAttribute('data-marshall-v5-key','1');document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&String(e.key).toLowerCase()==='k'){var f=$('#ed-flyout');if(f&&f.classList.contains('marshall-mode')&&f.classList.contains('show')){e.preventDefault();var hs=$('#marshall-history-search');if(hs)hs.focus();}}});}
     marshallUIV5Refresh();
   }
-  function marshallBindStarterPrompts(){var th=marshallChatThread();if(!th)return;$all('[data-marshall-prompt]',th).forEach(function(btn){btn.addEventListener('click',function(){var p=$('#ai-prompt');if(!p)return;p.value=this.getAttribute('data-marshall-prompt')||'';p.dispatchEvent(new Event('input'));p.focus();});});}
+  function marshallBindStarterPrompts(){var th=marshallChatThread();if(!th)return;try{marshallWelcomeAnimate();}catch(e){}$all('[data-marshall-prompt]',th).forEach(function(btn){btn.addEventListener('click',function(){var p=$('#ai-prompt');if(!p)return;p.value=this.getAttribute('data-marshall-prompt')||'';p.dispatchEvent(new Event('input'));p.focus();});});}
   function marshallResetThreadUI(){var th=marshallChatThread();if(!th)return;th.innerHTML=marshallWelcomeMarkup();marshallBindStarterPrompts();th.scrollTop=0;}
   function marshallConversationRenderActive(){
     marshallStreamCancelAll();
@@ -5054,7 +5247,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
       if(next){marshallConversationSelect(next.id);}else{marshallConversationNew();}
     }else{marshallConversationSave();marshallConversationRenderSidebar();}
     try{var cnt=$('#marshall-history-count');if(cnt)cnt.textContent=String(marshallConversationLoad().conversations.length);}catch(e){}
-    try{edAIStatus('Chat supprimé.');}catch(e){}
+    try{toast('Chat supprimé.');}catch(e){}
   }
   function marshallConversationSelect(id){
     marshallConversationSnapshot();var st=marshallConversationLoad();var c=st.conversations.find(function(x){return x.id===id;});if(!c)return;st.activeId=id;marshallConversationSave();
@@ -8541,7 +8734,9 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     if(!e)throw Error('Aucune entreprise trouvée pour ce numéro.');
     var siege=e.siege||{},etab=d.length===14?((e.matching_etablissements||[]).find(function(x){return x&&x.siret===d;})||(siege.siret===d?siege:null)):null,src=etab||siege;
     var naf=String(src.activite_principale||e.activite_principale||'');
-    return {siren:siren,siret:d.length===14?d:String(siege.siret||''),name:String(e.nom_complet||e.nom_raison_sociale||''),naf:naf,nafLabel:marshallNafLabel(naf),city:String(src.libelle_commune||siege.libelle_commune||''),active:e.etat_administratif==='A',createdAt:String(e.date_creation||'')};
+    var addr=String(src.adresse||siege.adresse||[src.numero_voie,src.type_voie,src.libelle_voie,src.code_postal,src.libelle_commune].filter(Boolean).join(' ')||'').replace(/\s+/g,' ').trim();
+    var tvaReg=e.tva&&(e.tva.numero_tva_intracommunautaire||e.tva.numero_tva||e.tva.numero||(typeof e.tva==='string'?e.tva:''));
+    return {address:addr,tva:String(tvaReg||marshallTvaFromSiren(siren)),siren:siren,siret:d.length===14?d:String(siege.siret||''),name:String(e.nom_complet||e.nom_raison_sociale||''),naf:naf,nafLabel:marshallNafLabel(naf),city:String(src.libelle_commune||siege.libelle_commune||''),active:e.etat_administratif==='A',createdAt:String(e.date_creation||'')};
   }
   /* L’IA lit la fiche officielle : libellé NAF exact + activité en une phrase, sans rien inventer d’autre. */
   async function marshallCompanyActivity(c){
@@ -8561,7 +8756,19 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     try{marshallBrandLoadUI();}catch(e){}
     return b;
   }
+  /* Le compte (Espace compte) est la source de vérité : on y renvoie aussi ce que Marshall apprend. */
+  async function marshallAccountPushServer(md){
+    try{
+      if(!authUser||typeof sb==='undefined'||!sb)return;
+      await sb.auth.updateUser({data:md});
+      var ext=Object.assign({id:authUser.id,updated_at:new Date().toISOString()},md);
+      delete ext.brand;delete ext.nom;
+      var r=await sb.from('profiles').upsert(ext);
+      if(r&&r.error)console.warn('Colonnes de facturation absentes de profiles (voir SQL) :',r.error.message);
+    }catch(e){console.warn('Account push',e);}
+  }
   function marshallAccountSaveCompany(c){
+    marshallAccountPushServer({account_type:'pro',siren:c.siren||'',siret:c.siret||'',raison_sociale:c.name||'',naf:c.naf||'',naf_label:c.nafLabel||'',ville:c.city||'',adresse:c.address||'',tva:c.tva||marshallTvaFromSiren(c.siren)});
     var b=marshallBrandManualGet();
     return marshallAccountSaveProfile({accountType:'pro',siren:c.siren,siret:c.siret,naf:c.naf,nafLabel:c.nafLabel,legalName:c.name,city:c.city,activity:c.activity||'',verifiedAt:new Date().toISOString(),name:b.name||c.name,sector:b.sector||c.nafLabel});
   }
@@ -8574,7 +8781,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   function marshallAccountGateIntent(intent){return ['story','monthly_story','canvas','campaign','creative','variants'].indexOf(intent)>=0;}
   function marshallAccountSummary(){
     var b=marshallBrandManualGet()||{};
-    if(b.accountType==='pro'&&b.naf)return '✓ Vérifié au registre : '+(b.legalName||b.name||'')+' · '+(b.nafLabel||b.naf)+(b.city?' · '+b.city:'');
+    if(b.accountType==='pro'&&(b.naf||b.siren))return '✓ Entreprise : '+(b.legalName||b.name||'')+(b.nafLabel?' · '+b.nafLabel:'')+(b.city?' · '+b.city:'')+(b.siret||b.siren?' · SIRET '+(b.siret||b.siren):'')+(b.tva?' · TVA '+b.tva:'');
     if(b.accountType==='pro')return 'Professionnel · activité déclarée : '+(b.sector||'à préciser');
     if(b.accountType==='perso')return 'Compte personnel · '+(b.personalTopic||'sujet à préciser');
     return 'Type de compte à préciser.';
@@ -8623,39 +8830,33 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     q('[data-act="nosiret"]').addEventListener('click',function(){q('[data-f="manual"]').hidden=false;q('[data-f="activity"]').focus();});
     q('[data-act="manual-save"]').addEventListener('click',function(){
       var t=String(q('[data-f="activity"]').value||'').trim();if(t.split(/\s+/).length<2){err('Décris ton activité en quelques mots.');return;}
-      var b=marshallBrandManualGet();marshallAccountSaveProfile({accountType:'pro',sector:t,activity:t});done('✓ Activité enregistrée : '+t);
+      marshallAccountPushServer({account_type:'pro'});marshallAccountSaveProfile({accountType:'pro',sector:t,activity:t});done('✓ Activité enregistrée : '+t);
     });
     box.querySelectorAll('[data-chip]').forEach(function(c){c.addEventListener('click',function(){var ta=q('[data-f="topic"]'),v=c.getAttribute('data-chip');ta.value=ta.value.trim()?ta.value.trim()+' · '+v:v+' : ';ta.focus();});});
     q('[data-act="perso-save"]').addEventListener('click',function(){
       var t=String(q('[data-f="topic"]').value||'').replace(/[\s:·]+$/,'').trim();
       if(t.split(/\s+/).length<3){err('Dis-m’en un peu plus : de quoi parle ton compte et ce que tu veux obtenir.');return;}
-      marshallAccountSaveProfile({accountType:'perso',personalTopic:t});done('✓ Compte personnel : '+t);
+      marshallAccountPushServer({account_type:'perso'});marshallAccountSaveProfile({accountType:'perso',personalTopic:t});done('✓ Compte personnel : '+t);
     });
     return box;
   }
   function marshallAccountBindSettings(){
-    var sel=$('#mbb-acct'),pro=$('#mbb-pro-row'),perso=$('#mbb-perso-row'),btn=$('#mbb-siret-check'),st=$('#mbb-siret-state');
-    function sync(){var v=sel?sel.value:'';if(pro)pro.style.display=v==='pro'?'':'none';if(perso)perso.style.display=v==='perso'?'':'none';}
-    if(sel){sel.addEventListener('change',sync);sync();}
-    if(btn)btn.addEventListener('click',async function(){
-      btn.disabled=true;btn.textContent='Recherche…';if(st)st.textContent='';
-      try{var c=await marshallLookupCompany(($('#mbb-siret')||{}).value);if(st)st.textContent='Trouvé : '+c.name+' · '+(c.nafLabel||c.naf)+(c.city?' · '+c.city:'')+' — Marshall lit la fiche…';
-        await marshallCompanyActivity(c);marshallAccountSaveCompany(c);if(st)st.textContent=marshallAccountSummary()+(c.active?'':' (établissement fermé au registre)');}
-      catch(e){if(st)st.textContent='⚠ '+(e&&e.message?e.message:'Recherche impossible.');}
-      finally{btn.disabled=false;btn.textContent='Vérifier';}
-    });
+    var b=marshallBrandManualGet()||{},sum=$('#mbb-account-summary'),perso=$('#mbb-perso-row');
+    if(sum)sum.textContent=b.accountType?marshallAccountSummary():'Type de compte à préciser : Entreprise (SIRET) ou Particulier, dans ton Espace compte.';
+    if(perso)perso.style.display=b.accountType==='perso'?'':'none';
   }
   function marshallBrandToggle(){
     var f=$('#mbb-form'); if(f)f.classList.toggle('show');
   }
   function marshallBrandLoadUI(){
-    var b=marshallBrandManualGet(), map={name:'mbb-name',sector:'mbb-sector',website:'mbb-website',primary:'mbb-primary',accent:'mbb-accent',offer:'mbb-offer',values:'mbb-values',artdir:'mbb-artdir',references:'mbb-references',audience:'mbb-audience',tone:'mbb-tone',position:'mbb-position',forbidden:'mbb-forbidden'};
+    var b=marshallBrandManualGet(), map={firstName:'mbb-firstname',name:'mbb-name',sector:'mbb-sector',website:'mbb-website',primary:'mbb-primary',accent:'mbb-accent',offer:'mbb-offer',values:'mbb-values',artdir:'mbb-artdir',references:'mbb-references',audience:'mbb-audience',tone:'mbb-tone',position:'mbb-position',forbidden:'mbb-forbidden'};
     Object.keys(map).forEach(function(k){var el=$('#'+map[k]);if(el&&b[k])el.value=b[k];});
     var ac=$('#mbb-acct');if(ac){ac.value=b.accountType||'';ac.dispatchEvent(new Event('change'));}var si=$('#mbb-siret');if(si)si.value=b.siret||b.siren||'';var tp=$('#mbb-topic');if(tp)tp.value=b.personalTopic||'';var ss=$('#mbb-siret-state');if(ss&&b.accountType)ss.textContent=marshallAccountSummary();
     var st=$('#mbb-state');if(st)st.textContent=b.name?'Profil actif : '+b.name:'Aucun profil de marque enregistré.';
   }
   function marshallBrandSave(){
     var b={
+      firstName:(marshallBrandManualGet()||{}).firstName||'',
       name:($('#mbb-name')||{}).value||'',
       sector:($('#mbb-sector')||{}).value||'',
       website:($('#mbb-website')||{}).value||'',
@@ -8672,7 +8873,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
     };
     var prev=marshallBrandManualGet()||{},digits=String(($('#mbb-siret')||{}).value||'').replace(/\D/g,'');
     b.accountType=($('#mbb-acct')||{}).value||prev.accountType||'';b.personalTopic=String(($('#mbb-topic')||{}).value||prev.personalTopic||'').trim();
-    if(digits&&digits.slice(0,9)===String(prev.siren||'')){['siren','siret','naf','nafLabel','legalName','city','activity','verifiedAt'].forEach(function(k){if(prev[k]!=null)b[k]=prev[k];});if(digits.length===14)b.siret=digits;}else if(digits){b.siret=digits;}
+    ['siren','siret','naf','nafLabel','legalName','city','activity','verifiedAt','tva','billingAddress'].forEach(function(k){if(prev[k]!=null)b[k]=prev[k];});
     marshallWriteLocal(MARSHALL_BRAND_KEY,b);marshallBrandLoadUI();
     marshallPersistAccountPrefs();
     edAIStatus('✓ Mémoire de marque enregistrée pour ce compte'+(b.name?' · '+b.name:'')+'. Marshall l’utilisera automatiquement.');
@@ -10206,6 +10407,7 @@ html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,la
   async function startApp(){
     studioProfileSync();
     studioProfileLoad();
+    marshallSyncProfileFromMeta();
     $('#auth').style.display='none';
     $('#me-name').textContent=me.nom;
     $('#me-role').textContent=me.role;
