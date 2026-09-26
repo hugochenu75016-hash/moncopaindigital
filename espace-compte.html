@@ -750,6 +750,24 @@
   }
 </style>
 <script src="studio-billing-config.js"></script>
+<style id="ec-billing-style">
+.ec-type{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ec-type-auth{margin-bottom:16px}
+.ec-type-opt{text-align:left;border:1px solid rgba(120,60,0,.22);background:rgba(255,255,255,.55);border-radius:14px;padding:10px 12px;cursor:pointer;font:inherit;color:#5a3410;transition:border-color .15s,background .15s}
+.ec-type-opt b{display:block;font-size:14px;font-family:'Fredoka','Helvetica Neue',sans-serif}.ec-type-opt small{display:block;font-size:11.5px;opacity:.75;margin-top:2px}
+.ec-type-opt.on{border-color:#e8690d;background:#fff4e6;box-shadow:inset 0 0 0 1px #e8690d}
+.ec-type-opt:focus-visible,.ec-mini:focus-visible{outline:2px solid #e8690d;outline-offset:2px}
+.ec-inline{position:relative}.ec-inline input{padding-right:110px!important}
+.ec-mini{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;border-radius:10px;background:#e8690d;color:#fff;font:600 12.5px/1 'Helvetica Neue',sans-serif;padding:8px 11px;cursor:pointer}.ec-mini:disabled{opacity:.6}
+.ec-help{display:block;margin-top:6px;font-size:12px;line-height:1.4;opacity:.8}
+.card .ec-help{color:#6b4a2a}
+.ec-company{margin:-2px 0 14px;border:1px solid rgba(120,60,0,.16);border-radius:14px;padding:10px 12px;background:#fff6ea}
+.ec-company b{display:block;color:#5a3410}.ec-company span{display:block;font-size:12.5px;color:#6b4a2a;margin-top:2px}.ec-company em{display:block;font-size:12px;color:#b3261e;margin-top:3px}.ec-company .ec-ok{color:#1f7a44;font-weight:600}
+.ec-check{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.4;color:#6b4a2a;margin:-4px 0 16px;cursor:pointer}.ec-check input{margin-top:2px;accent-color:#e8690d}
+.ec-msg{min-height:0;margin:0 0 12px;font-size:13px;color:#b3261e}.ec-msg:empty{display:none}.ec-msg.ok{color:#1f7a44}
+#form-profil .field input:disabled{opacity:.55}
+@media(max-width:520px){.ec-type{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <!-- ===== Transition portes entre pages ===== -->
@@ -942,6 +960,12 @@
 
         <!-- Inscription -->
         <form id="form-signup" style="display:none;">
+          <div class="ec-type ec-type-auth" role="radiogroup" aria-label="Type de compte"><button type="button" class="ec-type-opt on" data-sutype="perso" role="radio" aria-checked="true"><b>Particulier</b><small>Compte personnel</small></button><button type="button" class="ec-type-opt" data-sutype="pro" role="radio" aria-checked="false"><b>Entreprise</b><small>SIRET · factures avec TVA</small></button></div>
+          <div class="field" id="s-siret-field" hidden>
+            <label for="s-siret">Numéro SIRET ou SIREN</label>
+            <input id="s-siret" type="text" inputmode="numeric" autocomplete="off" placeholder="123 456 789 00012">
+            <small class="ec-help" id="s-siret-help">Nous remplissons votre raison sociale, votre adresse et votre TVA automatiquement.</small>
+          </div>
           <div class="field">
             <label for="s-nom">Nom complet</label>
             <input id="s-nom" type="text" autocomplete="name" placeholder="Marie Dupont" required>
@@ -1212,8 +1236,19 @@
               <div class="field"><label for="p-email">Email</label><input id="p-email" type="email" disabled></div>
               <div class="field"><label for="p-tel">Téléphone</label><input id="p-tel" type="tel" placeholder="06 12 34 56 78"></div>
             </div>
-            <div class="field"><label for="p-adresse">Adresse</label><input id="p-adresse" type="text" placeholder="12 rue de la Paix, 75002 Paris"></div>
-            <div class="field"><label for="p-entreprise">Entreprise (facultatif)</label><input id="p-entreprise" type="text" placeholder="Nom de votre société"></div>
+            <div class="field"><label>Type de compte</label><div class="ec-type" role="radiogroup" aria-label="Type de compte"><button type="button" class="ec-type-opt" data-ectype="pro" role="radio" aria-checked="false"><b>Entreprise</b><small>SIRET · factures avec TVA</small></button><button type="button" class="ec-type-opt" data-ectype="perso" role="radio" aria-checked="false"><b>Particulier</b><small>Compte personnel</small></button></div></div>
+            <div id="ec-pro-block" hidden>
+              <div class="field"><label for="p-siret">Numéro SIRET ou SIREN</label><div class="ec-inline"><input id="p-siret" type="text" inputmode="numeric" autocomplete="off" placeholder="123 456 789 00012"><button type="button" class="ec-mini" id="p-siret-go">Rechercher</button></div><small class="ec-help">Nous récupérons automatiquement votre raison sociale, votre adresse et votre numéro de TVA au registre officiel des entreprises.</small></div>
+              <div class="ec-company" id="p-company" hidden></div>
+              <div class="row2">
+                <div class="field"><label for="p-raison">Raison sociale</label><input id="p-raison" type="text" autocomplete="organization"></div>
+                <div class="field"><label for="p-entreprise">Nom commercial / marque</label><input id="p-entreprise" type="text" placeholder="Nom de votre société"></div>
+              </div>
+              <div class="field"><label for="p-tva">N° de TVA intracommunautaire</label><input id="p-tva" type="text" autocomplete="off" placeholder="FR00123456789"></div>
+              <label class="ec-check"><input type="checkbox" id="p-tva-none"> Je ne facture pas la TVA (franchise en base, art. 293 B du CGI)</label>
+            </div>
+            <div class="field"><label for="p-adresse" id="p-adresse-label">Adresse</label><input id="p-adresse" type="text" autocomplete="street-address" placeholder="12 rue de la Paix, 75002 Paris"></div>
+            <p class="ec-msg" id="p-billing-msg" role="status" aria-live="polite"></p>
             <div class="field">
               <label>Apparence</label>
               <div id="theme-slot" style="display:flex;align-items:center;gap:14px;">
@@ -1569,8 +1604,17 @@
       id: uid, email: authUser.email,
       nom: (prof && prof.nom) || meta.nom || authUser.email.split('@')[0],
       tel: (prof && prof.tel) || meta.tel || '',
-      adresse: (prof && prof.adresse) || '',
+      adresse: (prof && prof.adresse) || meta.adresse || '',
       entreprise: (prof && prof.entreprise) || '',
+      account_type: (prof && prof.account_type) || meta.account_type || '',
+      siren: (prof && prof.siren) || meta.siren || '',
+      siret: (prof && prof.siret) || meta.siret || '',
+      raison_sociale: (prof && prof.raison_sociale) || meta.raison_sociale || '',
+      tva: (prof && prof.tva) || meta.tva || '',
+      tva_franchise: !!((prof && prof.tva_franchise) || meta.tva_franchise),
+      naf: (prof && prof.naf) || meta.naf || '',
+      naf_label: (prof && prof.naf_label) || meta.naf_label || '',
+      ville: (prof && prof.ville) || meta.ville || '',
       avatar: (prof && prof.avatar) || '',
       rdv: (rdv||[]).map(function(r){ return { date:r.date, heure:r.heure, titre:r.titre, type:r.type, status:r.status }; }),
       project: proj ? { name:proj.name, status:proj.status, steps:(proj.steps||[]) } : null,
@@ -1589,7 +1633,11 @@
   }
 
   async function saveProfile(){
-    try{ await sb.from('profiles').upsert({ id:current.id, nom:current.nom, tel:current.tel, adresse:current.adresse, entreprise:current.entreprise, email:(authUser&&authUser.email)||current.email||null, updated_at:new Date().toISOString() }); }catch(e){}
+    var base={ id:current.id, nom:current.nom, tel:current.tel, adresse:current.adresse, entreprise:current.entreprise, email:(authUser&&authUser.email)||current.email||null, updated_at:new Date().toISOString() };
+    var bill=ecBillingData();
+    try{ var r=await sb.from('profiles').upsert(Object.assign({},base,bill)); if(r&&r.error){ console.warn('Colonnes de facturation absentes de la table profiles (voir SQL fourni) :', r.error.message); await sb.from('profiles').upsert(base); } }catch(e){ try{ await sb.from('profiles').upsert(base); }catch(_e){} }
+    /* Copie dans le compte : le Studio Social (Marshall) et les factures lisent ces infos. */
+    try{ var md=Object.assign({ nom_complet:current.nom, adresse:current.adresse||null }, bill); if(bill.account_type==='pro' && (current.entreprise||current.raison_sociale)) md.brand=current.entreprise||current.raison_sociale; await sb.auth.updateUser({ data: md }); }catch(e){}
   }
 
   /* ---------- Auth UI ---------- */
@@ -1618,25 +1666,38 @@
   $('#go-forgot').addEventListener('click', function(e){ e.preventDefault(); showForgotDialog($('#l-email').value.trim()); });
   try{ if(new URLSearchParams(location.search).get('signup')==='1'){ switchTab('signup'); } }catch(e){}
 
+  var suEcType='perso',suEcCompany=null;
+  $all('#form-signup [data-sutype]').forEach(function(b){ b.addEventListener('click', function(){ suEcType=b.getAttribute('data-sutype'); $all('#form-signup [data-sutype]').forEach(function(x){ var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-checked',on?'true':'false'); }); $('#s-siret-field').hidden = suEcType!=='pro'; clearErr(); }); });
+  (function(){ var s=$('#s-siret'); if(!s) return; s.addEventListener('input', async function(){ var d=s.value.replace(/\D/g,''), h=$('#s-siret-help'); if(d.length!==9 && d.length!==14) return; try{ suEcCompany=await ecLookup(d); h.textContent='✓ '+suEcCompany.name+(suEcCompany.city?' · '+suEcCompany.city:''); }catch(err){ suEcCompany=null; h.textContent=err&&err.message?err.message:'Recherche impossible.'; } }); })();
   formSignup.addEventListener('submit', async function(e){
     e.preventDefault(); clearErr();
+    var extra={ account_type: suEcType };
+    if(suEcType==='pro'){
+      var sd=$('#s-siret').value.replace(/\D/g,'');
+      if(sd.length!==9 && sd.length!==14){ showErr('Indiquez votre numéro SIRET (14 chiffres) ou SIREN (9 chiffres).'); return; }
+      if(!ecLuhn(sd) && sd.slice(0,9)!=='356000000'){ showErr('Ce numéro SIRET / SIREN ne semble pas valide.'); return; }
+      if(!suEcCompany || suEcCompany.siren!==sd.slice(0,9)){ try{ suEcCompany=await ecLookup(sd); }catch(err){ suEcCompany={ siren:sd.slice(0,9), siret:sd.length===14?sd:'', name:'', naf:'', nafLabel:'', city:'', address:'', tva:ecTva(sd.slice(0,9)) }; } }
+      extra=Object.assign(extra,{ siren:suEcCompany.siren, siret:suEcCompany.siret||'', raison_sociale:suEcCompany.name||'', naf:suEcCompany.naf||'', naf_label:suEcCompany.nafLabel||'', ville:suEcCompany.city||'', tva:suEcCompany.tva||ecTva(suEcCompany.siren), tva_franchise:false });
+      if(suEcCompany.name) extra.brand=suEcCompany.name;
+    }
     var nom = $('#s-nom').value.trim();
     var email = $('#s-email').value.trim().toLowerCase();
     var tel = $('#s-tel').value.trim();
     var adresse = $('#s-adresse').value.trim();
     var cp = $('#s-cp').value.trim();
     var adresseFull = [adresse, cp].filter(Boolean).join(', ');
+    if(suEcType==='pro' && !adresseFull && suEcCompany && suEcCompany.address) adresseFull = suEcCompany.address;
     var pass = $('#s-pass').value;
     if(!nom || !email || !pass){ showErr('Merci de remplir les champs obligatoires.'); return; }
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showErr('Adresse email invalide.'); return; }
     if(pass.length < 6){ showErr('Le mot de passe doit faire au moins 6 caractères.'); return; }
     var btn = formSignup.querySelector('.primary-btn'); var lbl = btn.textContent; btn.disabled = true; btn.textContent = 'Création…';
     try{
-      var res = await sb.auth.signUp({ email: email, password: pass, options: { data: { nom: nom, tel: tel, adresse: adresseFull } } });
+      var res = await sb.auth.signUp({ email: email, password: pass, options: { data: Object.assign({ nom: nom, tel: tel, adresse: adresseFull, prenom: (nom.split(/\s+/)[0]||'') }, extra) } });
       if(res.error){ showErr(/already|exist/i.test(res.error.message) ? 'Un compte existe déjà avec cet email. Connectez-vous.' : ('Erreur : ' + res.error.message)); return; }
       if(res.data.session){
         authUser = res.data.user;
-        try{ await sb.from('profiles').upsert({ id: authUser.id, nom: nom, tel: tel, adresse: adresseFull || null, email: authUser.email || null }); }catch(e){}
+        try{ var _b={ id: authUser.id, nom: nom, tel: tel, adresse: adresseFull || null, email: authUser.email || null, entreprise: extra.brand || null }; var _r=await sb.from('profiles').upsert(Object.assign({}, _b, extra, { brand: undefined })); if(_r && _r.error) await sb.from('profiles').upsert(_b); }catch(e){}
         await routeAfterAuth();
       } else {
         switchTab('login');
@@ -1678,7 +1739,7 @@
     authSection.style.display = 'none';
     appSection.classList.add('show');
     renderAll();
-    switchView('dash');
+    switchView(/^#profil/.test(location.hash||'') ? 'profil' : 'dash');
     subscribeClientRealtime();
     window.scrollTo(0,0);
     maybeShowTour();
@@ -2013,15 +2074,89 @@
   }
 
   /* ---------- Profil ---------- */
+
+  /* ---------- Type de compte & facturation : Entreprise (SIRET → registre officiel, TVA) / Particulier ---------- */
+  var EC_NAF_DIV={'01':'Agriculture et élevage','02':'Sylviculture','03':'Pêche et aquaculture','10':'Industrie alimentaire','11':'Fabrication de boissons','13':'Fabrication textile','14':'Fabrication de vêtements','15':'Cuir et chaussure','16':'Travail du bois','18':'Imprimerie','20':'Industrie chimique','25':'Fabrication de produits métalliques','26':'Produits électroniques','31':'Fabrication de meubles','32':'Autres industries manufacturières','33':'Réparation et installation de machines','35':'Énergie','41':'Construction de bâtiments','42':'Génie civil','43':'Travaux de construction spécialisés (artisans du bâtiment)','45':'Commerce et réparation automobile','46':'Commerce de gros','47':'Commerce de détail','49':'Transports terrestres','52':'Entreposage et logistique','53':'Livraison et courrier','55':'Hébergement','56':'Restauration','58':'Édition','59':'Production audiovisuelle et musicale','60':'Radio et télévision','62':'Programmation et conseil informatique','63':'Services d’information et web','64':'Services financiers','65':'Assurance','66':'Auxiliaires financiers et d’assurance','68':'Activités immobilières','69':'Activités juridiques et comptables','70':'Conseil de gestion','71':'Architecture et ingénierie','72':'Recherche-développement','73':'Publicité et études de marché','74':'Design, photographie et activités spécialisées','75':'Activités vétérinaires','77':'Location','78':'Emploi et recrutement','79':'Agences de voyage','80':'Sécurité','81':'Nettoyage et entretien','82':'Services administratifs aux entreprises','85':'Enseignement et formation','86':'Santé','87':'Hébergement médico-social','88':'Action sociale','90':'Arts et spectacles','91':'Bibliothèques, musées et patrimoine','93':'Sport et loisirs','94':'Associations','95':'Réparation d’objets personnels','96':'Services à la personne (coiffure, beauté, bien-être…)'};
+  var EC_NAF_LAB={'10.71C':'Boulangerie-pâtisserie','10.71D':'Pâtisserie','56.10A':'Restauration traditionnelle','56.10B':'Cafétéria et libre-service','56.10C':'Restauration rapide','56.21Z':'Traiteur','56.30Z':'Débit de boissons (bar, café)','47.71Z':'Commerce de détail d’habillement','47.72A':'Commerce de détail de chaussures','47.77Z':'Horlogerie et bijouterie','47.75Z':'Parfumerie et produits de beauté','47.91B':'Vente à distance (e-commerce)','47.24Z':'Boulangerie-pâtisserie (commerce)','47.76Z':'Fleuriste et animalerie','55.10Z':'Hôtellerie','62.01Z':'Programmation informatique','58.29C':'Édition de logiciels applicatifs','63.12Z':'Portails internet','70.22Z':'Conseil pour les affaires','73.11Z':'Agence de publicité','73.12Z':'Régie publicitaire','74.10Z':'Design','74.20Z':'Photographie','85.51Z':'Enseignement sportif et de loisirs','85.59A':'Formation continue d’adultes','85.59B':'Soutien scolaire et autres enseignements','86.90F':'Activités de santé humaine (bien-être, praticiens)','93.13Z':'Salle de sport / fitness','93.12Z':'Club de sport','96.02A':'Coiffure','96.02B':'Soins de beauté (institut, esthétique)','96.04Z':'Entretien corporel (spa, bien-être)','96.09Z':'Autres services personnels','68.31Z':'Agence immobilière','43.21A':'Électricité','43.22A':'Plomberie','43.32A':'Menuiserie','43.34Z':'Peinture et vitrerie','45.20A':'Garage automobile','49.32Z':'Taxi / VTC','81.21Z':'Nettoyage de locaux','90.01Z':'Arts du spectacle vivant','90.03A':'Création artistique (arts plastiques)','59.11B':'Production de films institutionnels et publicitaires'};
+  function ecNafLabel(c){c=String(c||'').toUpperCase();return EC_NAF_LAB[c]||EC_NAF_DIV[c.slice(0,2)]||'';}
+  function ecLuhn(d){var s=0;for(var i=0;i<d.length;i++){var n=+d.charAt(d.length-1-i);if(i%2){n*=2;if(n>9)n-=9;}s+=n;}return s%10===0;}
+  function ecTva(siren){siren=String(siren||'').replace(/\D/g,'');if(siren.length!==9)return '';return 'FR'+String((12+3*(Number(siren)%97))%97).padStart(2,'0')+siren;}
+  async function ecLookup(raw){
+    var d=String(raw||'').replace(/\D/g,'');
+    if(d.length!==9&&d.length!==14)throw Error('Un SIREN fait 9 chiffres et un SIRET 14 chiffres.');
+    if(!ecLuhn(d)&&d.slice(0,9)!=='356000000')throw Error('Ce numéro ne semble pas valide : vérifiez les chiffres.');
+    var siren=d.slice(0,9),r;
+    try{r=await fetch('https://recherche-entreprises.api.gouv.fr/search?q='+siren+'&page=1&per_page=1',{headers:{Accept:'application/json'}});}
+    catch(e){throw Error('Le registre des entreprises est injoignable : complétez les champs à la main.');}
+    if(!r.ok)throw Error('Le registre des entreprises ne répond pas ('+r.status+').');
+    var j=await r.json(),e=((j&&j.results)||[]).find(function(x){return x&&x.siren===siren;});
+    if(!e)throw Error('Aucune entreprise trouvée pour ce numéro.');
+    var sg=e.siege||{},et=d.length===14?(((e.matching_etablissements||[]).find(function(x){return x&&x.siret===d;}))||(sg.siret===d?sg:null)):null,src=et||sg,naf=String(src.activite_principale||e.activite_principale||'');
+    var addr=String(src.adresse||sg.adresse||[src.numero_voie,src.type_voie,src.libelle_voie,src.code_postal,src.libelle_commune].filter(Boolean).join(' ')||'').replace(/\s+/g,' ').trim();
+    var tvaReg=e.tva&&(e.tva.numero_tva_intracommunautaire||e.tva.numero_tva||e.tva.numero||(typeof e.tva==='string'?e.tva:''));
+    return {siren:siren,siret:d.length===14?d:String(sg.siret||''),name:String(e.nom_complet||e.nom_raison_sociale||''),naf:naf,nafLabel:ecNafLabel(naf),city:String(src.libelle_commune||sg.libelle_commune||''),address:addr,tva:String(tvaReg||ecTva(siren)),active:e.etat_administratif==='A'};
+  }
+  function ecSetType(t){
+    current.account_type=t;
+    $all('#form-profil .ec-type-opt').forEach(function(b){var on=b.getAttribute('data-ectype')===t;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');});
+    var pro=$('#ec-pro-block');if(pro)pro.hidden=t!=='pro';
+    var al=$('#p-adresse-label');if(al)al.textContent=t==='pro'?'Adresse de facturation':'Adresse';
+  }
+  function ecBillingMsg(m,ok){var el=$('#p-billing-msg');if(!el)return;el.textContent=m||'';el.className='ec-msg'+(ok?' ok':'');}
+  async function ecProfileLookup(){
+    var btn=$('#p-siret-go'),box=$('#p-company');if(!btn)return;
+    btn.disabled=true;btn.textContent='…';ecBillingMsg('');
+    try{
+      var c=await ecLookup($('#p-siret').value);
+      box.innerHTML='<b>'+esc(c.name||'Entreprise')+'</b><span>'+esc([c.nafLabel||c.naf,c.city].filter(Boolean).join(' · '))+'</span>'+(c.active?'':'<em>Établissement indiqué comme fermé au registre.</em>')+'<span class="ec-ok">✓ Trouvée au registre des entreprises</span>';box.hidden=false;
+      $('#p-raison').value=c.name||'';if(!$('#p-entreprise').value)$('#p-entreprise').value=c.name||'';if(c.address)$('#p-adresse').value=c.address;if(!$('#p-tva-none').checked)$('#p-tva').value=c.tva||ecTva(c.siren);
+      current.naf=c.naf;current.naf_label=c.nafLabel;current.ville=c.city;current.siren=c.siren;if(c.siret)current.siret=c.siret;
+    }catch(e){ecBillingMsg(e&&e.message?e.message:'Recherche impossible.');}
+    finally{btn.disabled=false;btn.textContent='Rechercher';}
+  }
+  function ecValidateBilling(){
+    if(current.account_type!=='pro')return true;
+    var d=$('#p-siret').value.replace(/\D/g,''),noTva=$('#p-tva-none').checked,tva=$('#p-tva').value.replace(/[\s.-]/g,'').toUpperCase();
+    if(d.length!==9&&d.length!==14){ecBillingMsg('Indiquez votre numéro SIRET (14 chiffres) ou SIREN (9 chiffres).');$('#p-siret').focus();return false;}
+    if(!ecLuhn(d)&&d.slice(0,9)!=='356000000'){ecBillingMsg('Ce numéro SIRET / SIREN ne semble pas valide.');$('#p-siret').focus();return false;}
+    if(!$('#p-raison').value.trim()){ecBillingMsg('Indiquez votre raison sociale.');$('#p-raison').focus();return false;}
+    if(!$('#p-adresse').value.trim()){ecBillingMsg('Indiquez votre adresse de facturation.');$('#p-adresse').focus();return false;}
+    if(!noTva&&!tva){ecBillingMsg('Indiquez votre numéro de TVA, ou cochez « Je ne facture pas la TVA ».');$('#p-tva').focus();return false;}
+    if(!noTva&&!/^[A-Z]{2}[0-9A-Z]{2,13}$/.test(tva)){ecBillingMsg('Le numéro de TVA semble incorrect (ex. FR12345678901).');$('#p-tva').focus();return false;}
+    if(!noTva&&/^FR/.test(tva)&&tva!==ecTva(d.slice(0,9))){ecBillingMsg('Ce numéro de TVA ne correspond pas à votre SIREN.');$('#p-tva').focus();return false;}
+    if(current.siren&&current.siren!==d.slice(0,9)){current.naf='';current.naf_label='';current.ville='';}
+    current.siren=d.slice(0,9);current.siret=d.length===14?d:(current.siret&&current.siret.slice(0,9)===current.siren?current.siret:'');
+    current.raison_sociale=$('#p-raison').value.trim();current.tva=noTva?'':tva;current.tva_franchise=noTva;
+    return true;
+  }
+  function ecBillingData(){
+    var pro=current.account_type==='pro';
+    return {account_type:current.account_type||null,prenom:String(current.nom||'').trim().split(/\s+/)[0]||null,siren:pro?current.siren||null:null,siret:pro?current.siret||null:null,raison_sociale:pro?current.raison_sociale||null:null,tva:pro?current.tva||null:null,tva_franchise:pro?!!current.tva_franchise:false,naf:pro?current.naf||null:null,naf_label:pro?current.naf_label||null:null,ville:pro?current.ville||null:null};
+  }
+  (function(){
+    $all('#form-profil .ec-type-opt').forEach(function(b){b.addEventListener('click',function(){ecSetType(b.getAttribute('data-ectype'));ecBillingMsg('');});});
+    var go=$('#p-siret-go');if(go)go.addEventListener('click',ecProfileLookup);
+    var si=$('#p-siret');if(si){si.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();ecProfileLookup();}});si.addEventListener('input',function(){var d=this.value.replace(/\D/g,'');if((d.length===9||d.length===14)&&d.slice(0,9)!==current.siren)ecProfileLookup();});}
+    var nt=$('#p-tva-none');if(nt)nt.addEventListener('change',function(){$('#p-tva').disabled=this.checked;});
+  })();
   function renderProfil(){
     $('#p-nom').value = current.nom || '';
     $('#p-email').value = current.email || '';
     $('#p-tel').value = current.tel || '';
     $('#p-adresse').value = current.adresse || '';
     $('#p-entreprise').value = current.entreprise || '';
+    $('#p-siret').value = current.siret || current.siren || '';
+    $('#p-raison').value = current.raison_sociale || '';
+    $('#p-tva-none').checked = !!current.tva_franchise;
+    $('#p-tva').disabled = !!current.tva_franchise;
+    $('#p-tva').value = current.tva || (current.siren && !current.tva_franchise ? ecTva(current.siren) : '');
+    var pc=$('#p-company'); if(pc){ if(current.raison_sociale && current.naf){ pc.innerHTML='<b>'+esc(current.raison_sociale)+'</b><span>'+esc([current.naf_label||current.naf,current.ville].filter(Boolean).join(' · '))+'</span>'; pc.hidden=false; } else pc.hidden=true; }
+    ecBillingMsg('');
+    ecSetType(current.account_type || (current.entreprise ? 'pro' : 'perso'));
   }
   $('#form-profil').addEventListener('submit', function(e){
     e.preventDefault();
+    if(!ecValidateBilling()) return;
     current.nom = $('#p-nom').value.trim() || current.nom;
     current.tel = $('#p-tel').value.trim();
     current.adresse = $('#p-adresse').value.trim();
