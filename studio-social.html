@@ -3615,7 +3615,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function newId(){ return 'p_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
   /* ============ CONNEXIONS ============ */
-  function loadConnsLocal(){ try{ var o=JSON.parse(localStorage.getItem(CONN_LS_KEY())||'null'); if(o) connections=Object.assign(connections,o); }catch(e){} }
+  function loadConnsLocal(){ try{ var o=JSON.parse(localStorage.getItem(CONN_LS_KEY())||'null'); if(o){ Object.keys(o).forEach(function(k){ if(o[k]&&/\(test\)/.test(o[k].account||'')) o[k]={connected:false,account:''}; }); connections=Object.assign(connections,o); } }catch(e){} }
   function saveConns(){ try{ localStorage.setItem(CONN_LS_KEY(), JSON.stringify(connections)); }catch(e){} updateConnBadge(); updateHandle(); renderHubNetworks(); }
   function renderHubNetworks(){
     var box=$('#hub-networks'); if(!box)return;
@@ -3686,17 +3686,27 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function connectNetwork(id){
     if(actingAs){ toast('Seul le client peut connecter ou reconnecter son propre compte.', true); return; }
     if(id==='tiktok'){ await loadConnections(); renderConnexions(); toast(connections[id].connected ? (net(id).name+' est relié ✓') : (net(id).name+' : configuré côté serveur (secrets).')); return; }
+    /* Plus de « faux » mode test : on ouvre la vraie connexion Meta, ou on explique précisément ce qui bloque. */
+    if(mcdIsOffline()){ toast('📴 Pas de connexion Internet : reconnecte-toi pour relier '+net(id).name+'.', true); return; }
+    var popup=null;
+    try{ popup=window.open('about:blank','_blank','width=620,height=760'); if(popup&&popup.document){ popup.document.write('<p style="font-family:sans-serif;padding:30px;color:#555">Ouverture de la connexion '+net(id).name+'…</p>'); } }catch(e){}
+    var why='';
     try{
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+CONN_FN_CONNECT, { method:'POST', headers:await authHeaders(), body:JSON.stringify({ network:id }) });
-      if(r.status!==404){
-        var d=null; try{ d=await r.json(); }catch(e){}
-        if(d && d.url){ lastOAuthConnectResult=null; watchConnectPopup(window.open(d.url,'_blank','width=620,height=760'), id); return; }
+      var d=null; try{ d=await r.json(); }catch(e){}
+      if(r.ok && d && d.url){
+        lastOAuthConnectResult=null;
+        if(popup&&!popup.closed){ popup.location.href=d.url; } else { popup=window.open(d.url,'_blank','width=620,height=760'); }
+        if(!popup){ toast('Ton navigateur a bloqué la fenêtre de connexion : autorise les fenêtres pop-up pour ce site, puis réessaie.', true); return; }
+        watchConnectPopup(popup, id); return;
       }
-    }catch(e){}
-    // Backend pas encore d\u00e9ploy\u00e9 : connexion locale de test pour utiliser l\u2019outil
-    connections[id]={ connected:true, account:'@'+HANDLE+' (test)' };
-    saveConns(); renderConnexions();
-    toast(net(id).name+' reli\u00e9 en mode test (d\u00e9ployez « '+CONN_FN_CONNECT+' » pour l\u2019OAuth r\u00e9el).');
+      if(r.status===404) why='la connexion '+net(id).name+' n’est pas encore activée sur le serveur (fonction « '+CONN_FN_CONNECT+' » introuvable)';
+      else if(r.status===401||r.status===403) why='ta session a expiré, reconnecte-toi à Studio puis réessaie';
+      else why=(d&&(d.error||d.message||d.msg))?String(d.error||d.message||d.msg):('erreur serveur '+r.status);
+    }catch(e){ why='impossible de joindre le serveur de connexion ('+String(e&&e.message||e)+')'; }
+    try{ if(popup&&!popup.closed) popup.close(); }catch(e){}
+    console.warn('Connexion '+id+' :',why);
+    toast(net(id).name+' non relié : '+why+'.', true);
   }
   // Surveille la popup OAuth : dès qu’elle se ferme (fin du flux Meta), on rafraîchit
   // automatiquement le statut de connexion, sans que l’utilisateur ait à cliquer «Verifier».
