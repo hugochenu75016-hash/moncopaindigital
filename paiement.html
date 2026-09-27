@@ -845,7 +845,7 @@
     if(!stripe || !elements) return;
     clearNotice('#pay-notice');
     var btn=$('#pay-btn'); btn.setAttribute('disabled','disabled'); var lbl=$('#pay-btn-label'); var prev=lbl.textContent; lbl.textContent='Paiement…';
-    var ret = location.origin + location.pathname + '?status=success';
+    var ret = location.origin + location.pathname + '?status=success' + aboReturnParams;
     try{
       if(reqMode){
         // Montant déjà fixé par la demande : le PaymentIntent est créé, clientSecret dans elements
@@ -900,11 +900,77 @@
     }
   }
 
+
+  /* ---------- Mode "abonnement Studio Social" (?abo=complet|hyper&retour=URL) ---------- */
+  var MARSHALL_API = 'https://hugochenu75016-hash--marshall-crewai-web.modal.run';
+  var ABO_PLANS = {
+    complet: { nom:'Studio Social Complet', prix:29, perks:['Marshall en mode Normal','Analyse de marque','Équipe d’agents Marshall','Vidéo IA Wan 2.2'] },
+    hyper:   { nom:'Studio Social Hyper',   prix:59, perks:['Tout le Complet','Mode ⚡ Hyper','Images Google Nano Banana 2','Vraies vidéos Google Veo 3.1'] }
+  };
+  var aboPlan = ABO_PLANS[params.get('abo')] ? params.get('abo') : '';
+  function safeRetour(u){
+    u = String(u||'');
+    try{ var x = new URL(u, location.href); if(x.origin === location.origin) return x.href; }catch(e){}
+    return new URL('studio-social.html', location.href).href;
+  }
+  var aboRetour = safeRetour(params.get('retour'));
+  function aboBackUrl(ok){ return aboRetour + (aboRetour.indexOf('?')>=0 ? '&' : '?') + (ok ? 'abonnement=ok&plan='+encodeURIComponent(aboPlan) : 'abonnement=annule'); }
+  var aboReturnParams = '';
+  async function initAboFlow(plan){
+    var P = ABO_PLANS[plan];
+    $('#step-info').style.display='none';
+    $('#step-forfait').style.display='none';
+    var back=$('#pay-back'); if(back){ back.innerHTML = back.innerHTML.replace('Retour','Retour à Studio Social'); back.onclick=function(e){ e.preventDefault(); e.stopImmediatePropagation(); location.href = aboBackUrl(false); }; }
+    var step=$('#step-pay'); step.classList.remove('step-hidden'); step.classList.add('step-in'); step.setAttribute('aria-hidden','false');
+    var h2=document.querySelector('#step-pay h2'); if(h2) h2.innerHTML = '<span class="step-n">⚡</span> Abonnement '+P.nom;
+    var hint=document.querySelector('#step-pay .hint');
+    if(hint) hint.innerHTML = '<strong>'+euro(P.prix)+' par mois</strong> · résiliable à tout moment depuis Studio Social.<br>'+P.perks.map(function(x){return '✓ '+x;}).join(' &nbsp;·&nbsp; ');
+    $('#pay-btn-label').textContent = 'S’abonner · '+euro(P.prix)+'/mois';
+    if(!stripe){ showNotice('#pay-notice','Configuration de paiement incomplète (clé Stripe).'); return; }
+    var sb = getSB(), token = null, user = null;
+    try{ var s = sb && await sb.auth.getSession(); token = s && s.data && s.data.session && s.data.session.access_token; user = s && s.data && s.data.session && s.data.session.user; }catch(e){}
+    if(!token){
+      $('#payment-element').innerHTML='';
+      showNotice('#pay-notice','Connecte-toi d’abord à Studio Social avec ton compte, puis reclique sur « Choisir '+P.nom.replace('Studio Social ','')+' ». <a href="'+aboRetour.replace(/"/g,'&quot;')+'">Ouvrir Studio Social</a>');
+      return;
+    }
+    try{
+      var nom = (user && user.user_metadata && (user.user_metadata.nom || user.user_metadata.prenom)) || '';
+      var res = await fetch(MARSHALL_API + '/stripe/subscribe', { method:'POST',
+        headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+token },
+        body: JSON.stringify({ plan: plan, name: nom }) });
+      var data = await res.json();
+      if(!res.ok || !data.clientSecret){ throw new Error((data && data.error) || 'Impossible de préparer l’abonnement.'); }
+      reqMode = true;
+      aboReturnParams = '&abo='+encodeURIComponent(plan)+'&retour='+encodeURIComponent(aboRetour);
+      currentOrder = { offerId:'abo_'+plan, offerName: P.nom+' (mensuel)', unit: P.prix, qty:1, total: P.prix, name: nom, abo: plan };
+      try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
+      elements = stripe.elements({ clientSecret: data.clientSecret,
+        appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
+      var pe = elements.create('payment', { layout:'tabs' });
+      $('#payment-element').innerHTML=''; pe.mount('#payment-element');
+      pe.on('ready', function(){ $('#pay-btn').removeAttribute('disabled'); });
+    }catch(err){
+      $('#payment-element').innerHTML='';
+      showNotice('#pay-notice', (err && err.message) ? err.message : 'Abonnement indisponible pour le moment.');
+    }
+  }
+
   /* ---------- Vue confirmation (retour depuis Stripe : ?status=success&redirect_status=succeeded) ---------- */
   function showConfirm(){
     var order=null; try{ order=JSON.parse(localStorage.getItem('mcd_pending_order')||'null'); }catch(e){}
     $('#pay-view').style.display='none';
     var c=$('#confirm'); c.classList.add('show');
+    if(aboPlan){
+      var P = ABO_PLANS[aboPlan];
+      var h1 = document.querySelector('#confirm h1'); if(h1) h1.innerHTML = 'Abonnement activé&nbsp;!';
+      $('#conf-sub').textContent = 'Merci ! Ton abonnement '+P.nom+' ('+euro(P.prix)+'/mois) est en place. Un reçu t’est envoyé par email.';
+      $('#conf-recap').innerHTML = '<div class="r-line"><span>'+P.nom+'</span><span>'+euro(P.prix)+'/mois</span></div><div class="r-line tot"><span>Payé aujourd’hui</span><span>'+euro(P.prix)+'</span></div>';
+      var acts = document.querySelector('#confirm .conf-actions');
+      if(acts) acts.innerHTML = '<a class="cta" href="'+aboBackUrl(true).replace(/"/g,'&quot;')+'">Ouvrir Studio Social</a><a class="cta ghost" href="espace-compte.html">Aller dans Votre Bulle</a>';
+      try{ localStorage.removeItem('mcd_pending_order'); }catch(e){}
+      return;
+    }
     if(order){
       $('#conf-recap').innerHTML =
         '<div class="r-line"><span>'+order.offerName+'</span><span>'+euro(order.unit)+'</span></div>' +
@@ -924,8 +990,11 @@
   if(params.get('status')==='success' && (!redirect || redirect==='succeeded')){
     showConfirm();
   } else if(redirect && redirect!=='succeeded'){
-    if(reqToken){ initReqFlow(reqToken); } else { renderOffers(); renderSummary(); prefillClient(); }
+    if(aboPlan){ initAboFlow(aboPlan); }
+    else if(reqToken){ initReqFlow(reqToken); } else { renderOffers(); renderSummary(); prefillClient(); }
     showNotice('#pay-notice', 'Le paiement n\u2019a pas abouti ('+redirect+'). Vous pouvez réessayer.');
+  } else if(aboPlan){
+    initAboFlow(aboPlan);
   } else if(reqToken){
     initReqFlow(reqToken);
   } else {
