@@ -1848,6 +1848,9 @@ html:has(#view-composer.active),body:has(#view-composer.active){height:100%;over
 #acct-pop .ap-ic img{object-fit:cover}
 #acct-pop [hidden]{display:none!important}
 #acct-pop .ap-btn{font-family:var(--studio-font)!important;border:1px solid #e6e6e2!important;border-radius:8px!important;box-shadow:none!important;transform:none!important;text-shadow:none!important;background:#f7f7f5!important;color:#252525!important}
+.mpl-upgrade{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px 0 11px;margin-right:8px;border:0;border-radius:999px;background:var(--bg,#6EC1F0);color:#fff;font:700 13px/1 inherit;letter-spacing:.01em;cursor:pointer;box-shadow:0 4px 12px rgba(40,120,170,.28);transition:transform .2s,box-shadow .2s;white-space:nowrap}.mpl-upgrade:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(40,120,170,.36)}.mpl-upgrade:focus-visible{outline:3px solid rgba(110,193,240,.5);outline-offset:2px}.mpl-upgrade svg{width:16px;height:16px;fill:#FFD66B;stroke:#fff;stroke-width:1.4;stroke-linejoin:round}.mpl-upgrade svg path+path{fill:none;stroke:#FFD66B;stroke-width:2;stroke-linecap:round}.mpl-upgrade[hidden]{display:none}
+@media (max-width:520px){.mpl-upgrade span{display:none}.mpl-upgrade{padding:0 10px}}
+#view-composer .hdr-actions #mpl-upgrade{background:#6EC1F0!important;color:#fff!important;border:0!important;border-radius:999px!important;height:34px!important;width:auto!important;padding:0 14px 0 11px!important;opacity:1!important;font-weight:700!important;box-shadow:0 4px 12px rgba(40,120,170,.28)!important}#view-composer .hdr-actions #mpl-upgrade:hover{background:#5bb5e8!important}#view-composer .hdr-actions #mpl-upgrade[hidden]{display:none!important}
 #studio-profile{position:relative}
 #studio-profile-toggle{width:36px;height:36px;padding:0!important;display:flex;align-items:center;justify-content:center;border:0!important;border-radius:0!important;background:transparent!important;color:#252525;box-shadow:none!important;cursor:pointer}
 #studio-profile-toggle img{width:36px;height:36px;object-fit:contain;display:block}
@@ -2103,6 +2106,8 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
 @media (max-width:760px){.mpl-grid{grid-template-columns:1fr}.mpl-box{padding:22px 16px 16px}.mpl-head h2{font-size:20px}}
 .mpl-cur b{display:block;font-size:16px;color:#2b1a0c}.mpl-cur b em{font-style:normal;font-weight:600;color:#8a867f;font-size:13px;margin-left:6px}.mpl-cur span{display:block;font-size:12.5px;color:#6c6c67;margin-top:4px;line-height:1.45}.mpl-cur .mpl-warn{color:#a4570f}.mpl-cur-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}.mpl-cur-actions .set-save{width:auto!important;padding:0 14px}
 .mpw-toggle button.locked{opacity:.55}.mpw-toggle button.locked::after{content:' 🔒';font-size:10px}
+#mcd-offline-bar{position:fixed;left:50%;top:10px;transform:translate(-50%,-140%);z-index:99999;display:flex;gap:8px;align-items:center;max-width:calc(100% - 32px);background:#2b1a0c;color:#fff;border-radius:999px;padding:8px 16px;font:500 13px/1.35 Inter,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25);transition:transform .3s}#mcd-offline-bar.show{transform:translate(-50%,0)}#mcd-offline-bar.sync{background:#c2540f}#mcd-offline-bar b{white-space:nowrap}
+@media (max-width:640px){#mcd-offline-bar{border-radius:14px;flex-direction:column;gap:2px;text-align:center}}
 .mbb-details>summary{cursor:pointer;font-size:12.5px;font-weight:700;color:#55524c;padding:4px 0 10px;list-style:none}.mbb-details>summary::before{content:'▸ ';}.mbb-details[open]>summary::before{content:'▾ ';}
 </style>
 </head>
@@ -2628,6 +2633,7 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
     <section class="view active" id="view-composer">
       <div class="topbar">
         <div class="hdr-actions">
+          <button type="button" id="mpl-upgrade" class="mpl-upgrade" hidden aria-label="Mise à niveau de ma formule Studio Social"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5l4.6 4 4.4-6.5 4.4 6.5 4.6-4-1.8 10.5H4.8L3 7.5z"/><path d="M5 20.5h14"/></svg><span>Mise à niveau</span></button>
           <div id="studio-profile">
             <button type="button" id="studio-profile-toggle" aria-label="Mon profil" aria-expanded="false" aria-controls="studio-profile-card" title="Mon espace compte"><img id="studio-profile-logo" src="boutonespacelog-trim.png" alt=""><span id="studio-profile-initial" hidden>●</span></button>
             <section id="studio-profile-card" aria-label="Mon profil" hidden>
@@ -3306,7 +3312,7 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
   /* ===== Double vérification : code par email si aucune activité depuis 12 h (ou nouvel appareil) ===== */
   var MCD_2FA_HOURS=12,mcdActivityBound=false,mcdLastTouch=0;
   function mcdActiveKey(uid){return 'mcd_last_active_'+uid;}
-  function mcdTouchActive(force){if(!authUser)return;var now=Date.now();if(!force&&now-mcdLastTouch<60000)return;mcdLastTouch=now;try{localStorage.setItem(mcdActiveKey(authUser.id),String(now));}catch(e){}}
+  function mcdTouchActive(force){if(!authUser)return;if(typeof navigator!=='undefined'&&navigator.onLine===false)return;var now=Date.now();if(!force&&now-mcdLastTouch<60000)return;mcdLastTouch=now;try{localStorage.setItem(mcdActiveKey(authUser.id),String(now));}catch(e){}}
   function mcdA2fOn(u){var m=(u&&u.user_metadata)||{};return m.a2f!==false;}
   function mcdNeeds2FA(uid){try{var t=Number(localStorage.getItem(mcdActiveKey(uid))||0);return !t||Date.now()-t>MCD_2FA_HOURS*3600000;}catch(e){return false;}}
   function mcdBindActivity(){
@@ -3442,6 +3448,80 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
   })();
   (function(){ var sh=$('#side-home'); if(sh) sh.addEventListener('click', function(e){ e.preventDefault(); showHub(!!actingAs); }); })();
 
+  /* ===== Mode hors ligne : composer sans réseau, tout est gardé sur l'appareil puis synchronisé ===== */
+  var MCD_OFFLINE={booted:false,flushing:false};
+  function mcdIsOffline(){return typeof navigator!=='undefined'&&navigator.onLine===false;}
+  function mcdIdb(){
+    if(mcdIdb.p)return mcdIdb.p;
+    mcdIdb.p=new Promise(function(resolve,reject){
+      try{var rq=indexedDB.open('mcd-studio-offline',1);rq.onupgradeneeded=function(){rq.result.createObjectStore('kv');};rq.onsuccess=function(){resolve(rq.result);};rq.onerror=function(){reject(rq.error);};}
+      catch(e){reject(e);}
+    });
+    return mcdIdb.p;
+  }
+  async function mcdIdbGet(key){try{var db=await mcdIdb();return await new Promise(function(res){var t=db.transaction('kv','readonly').objectStore('kv').get(key);t.onsuccess=function(){res(t.result);};t.onerror=function(){res(undefined);};});}catch(e){return undefined;}}
+  async function mcdIdbSet(key,val){try{var db=await mcdIdb();return await new Promise(function(res){var tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(val,key);tx.oncomplete=function(){res(true);};tx.onerror=function(){res(false);};});}catch(e){return false;}}
+  function mcdPendingKey(){return 'pending:'+(effectiveUid()||'anon');}
+  async function mcdPendingList(){var l=await mcdIdbGet(mcdPendingKey());return Array.isArray(l)?l:[];}
+  async function mcdPendingPut(p){var l=await mcdPendingList();l=l.filter(function(x){return x.id!==p.id;});l.push(JSON.parse(JSON.stringify(p)));await mcdIdbSet(mcdPendingKey(),l);mcdOfflineRender();}
+  async function mcdPendingDel(id){var l=await mcdPendingList();await mcdIdbSet(mcdPendingKey(),l.filter(function(x){return x.id!==id;}));}
+  async function mcdPendingMerge(){
+    var l=await mcdPendingList();
+    l.forEach(function(p){var ex=findPost(p.id);if(ex)Object.assign(ex,p);else posts.unshift(p);});
+    return l.length;
+  }
+  /* Session gardée par Supabase sur cet appareil (utilisée seulement hors ligne). */
+  function mcdStoredSession(){
+    try{
+      var ref=(new URL(SUPABASE_URL)).hostname.split('.')[0],raw=localStorage.getItem('sb-'+ref+'-auth-token');if(!raw)return null;
+      var s=JSON.parse(raw);s=s&&(s.currentSession||s);return s&&s.user?s:null;
+    }catch(e){return null;}
+  }
+  function mcdOfflineRender(){
+    var bar=document.getElementById('mcd-offline-bar');
+    if(!bar){bar=document.createElement('div');bar.id='mcd-offline-bar';bar.setAttribute('role','status');bar.setAttribute('aria-live','polite');document.body.appendChild(bar);}
+    if(mcdIsOffline()){
+      mcdPendingList().then(function(l){bar.innerHTML='<b>📴 Hors ligne</b><span>Tu peux continuer à composer : tout est enregistré sur cet appareil'+(l.length?' ('+l.length+' en attente d’envoi)':'')+'.</span>';bar.className='show';});
+    }else if(MCD_OFFLINE.flushing){bar.innerHTML='<b>🔄 Synchronisation…</b>';bar.className='show sync';}
+    else{bar.className='';}
+  }
+  /* Retour du réseau : on vérifie la session (et l'A2F si besoin) puis on envoie tout ce qui attendait. */
+  async function mcdOfflineFlush(){
+    if(mcdIsOffline()||MCD_OFFLINE.flushing||!authUser)return;
+    MCD_OFFLINE.flushing=true;mcdOfflineRender();
+    try{
+      var s=null;try{s=await sb.auth.getSession();}catch(e){}
+      var session=s&&s.data&&s.data.session;
+      if(!session){toast('Réseau revenu : reconnecte-toi pour synchroniser tes créations.',true);return;}
+      authUser=session.user;
+      if(MCD_OFFLINE.booted&&mcdA2fOn(authUser)&&mcdNeeds2FA(authUser.id)){toast('Réseau revenu : confirme ton identité (code par email) pour synchroniser tes créations.');setTimeout(function(){location.reload();},1800);return;}
+      MCD_OFFLINE.booted=false;mcdTouchActive(true);
+      var l=await mcdPendingList(),sent=0;
+      if(l.length){
+        storeMode='db';
+        for(var i=0;i<l.length;i++){
+          try{var r=await sb.from('social_posts').upsert(toRow(l[i])).select().single();if(!r.error&&r.data){await mcdPendingDel(l[i].id);var ex=findPost(l[i].id);if(ex)Object.assign(ex,fromRow(r.data));sent++;}}
+          catch(e){console.warn('Synchro',e);}
+        }
+      }
+      try{await loadPosts();}catch(e){}
+      try{renderCalendar();updateBadges();}catch(e){}
+      try{marshallTokensRefresh(true);}catch(e){}
+      if(sent)toast('✓ '+sent+' création'+(sent>1?'s':'')+' synchronisée'+(sent>1?'s':'')+' avec ton compte.');
+    }finally{MCD_OFFLINE.flushing=false;mcdOfflineRender();}
+  }
+  function mcdOfflineInit(){
+    if(mcdOfflineInit.done)return;mcdOfflineInit.done=true;
+    window.addEventListener('offline',function(){mcdOfflineRender();toast('📴 Hors ligne : continue à composer, tout est gardé sur cet appareil.');});
+    window.addEventListener('online',function(){mcdOfflineRender();setTimeout(mcdOfflineFlush,1200);});
+    mcdOfflineRender();
+    if(!mcdIsOffline())setTimeout(mcdOfflineFlush,4000);
+    try{
+      if('serviceWorker' in navigator&&(location.protocol==='https:'||/^(localhost|127\.0\.0\.1)$/.test(location.hostname)))
+        navigator.serviceWorker.register('studio-sw.js').catch(function(e){console.warn('Mode hors ligne indisponible (studio-sw.js)',e);});
+    }catch(e){}
+  }
+
   /* ============ STORE ============ */
   function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LS_KEY())||'[]'); }catch(e){ return []; } }
   function saveLocal(){ try{ localStorage.setItem(LS_KEY(), JSON.stringify(posts)); }catch(e){} }
@@ -3453,10 +3533,12 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
       var q=sb.from('social_posts').select('*').order('created_at',{ascending:false});
       if(scopedAlone()) q=q.eq('author_id', effectiveUid());
       var r=await q;
-      if(!r.error && r.data){ storeMode='db'; posts=r.data.map(fromRow); return; }
+      if(!r.error && r.data){ storeMode='db'; posts=r.data.map(fromRow); saveLocal(); try{localStorage.setItem('mcd_store_db_'+effectiveUid(),'1');}catch(e){} await mcdPendingMerge(); return; }
     }catch(e){}
-    storeMode='local'; posts=loadLocal();
+    var _wasDb=false;try{_wasDb=localStorage.getItem('mcd_store_db_'+effectiveUid())==='1';}catch(e){}
+    storeMode=(mcdIsOffline()&&_wasDb)?'db':'local'; posts=loadLocal();
     if(scopedAlone()) posts=posts.filter(function(p){ return p.author_id===effectiveUid(); });
+    await mcdPendingMerge();
   }
   function fromRow(row){
     return { id:row.id, author_id:row.author_id, author_name:row.author_name, caption:row.caption||'', tags:row.tags||'', crop:row.crop||{ratio:'1:1',pos:50}, formats:row.formats||{instagram:'Post',x:'Post',tiktok:'Vidéo',facebook:'Post'},
@@ -3469,8 +3551,9 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
   }
   async function persist(p){
     if(storeMode==='db'){
-      try{ var r=await sb.from('social_posts').upsert(toRow(p)).select().single(); if(!r.error && r.data){ Object.assign(p, fromRow(r.data)); return true; } }
-      catch(e){ console.warn('Persist social_posts',e); }
+      if(mcdIsOffline()){ saveLocal(); await mcdPendingPut(p); return false; }
+      try{ var r=await sb.from('social_posts').upsert(toRow(p)).select().single(); if(!r.error && r.data){ Object.assign(p, fromRow(r.data)); await mcdPendingDel(p.id); return true; } }
+      catch(e){ console.warn('Persist social_posts',e); if(mcdIsOffline()||/fetch|network|réseau/i.test(String(e&&e.message||e))){ saveLocal(); await mcdPendingPut(p); return false; } }
     }
     saveLocal();
     return false;
@@ -6409,6 +6492,7 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
     var prompt=String(forcePrompt!=null?forcePrompt:((input&&input.value)||'')).trim();
     opts=opts||{};
     if(!prompt){marshallChatBubble('assistant','Écris ce que tu veux créer, par exemple : « Crée une story Instagram pour présenter mon service ».');if(input)input.focus();return;}
+    if(mcdIsOffline()){marshallChatBubble('assistant','Tu es hors ligne 📴 Marshall a besoin d’Internet pour écrire et générer. En attendant, continue à composer : canvas, textes, calques et brouillons sont enregistrés sur cet appareil. Renvoie ta demande dès que le réseau revient.');return;}
     var earlyPending=marshallConversationPending();
     if((earlyPending&&earlyPending.intent==='story_schedule')||marshallLooksLikeStoryScheduleRequest(prompt)){
       marshallChatBubble('user',prompt);
@@ -6677,8 +6761,14 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
       if(MARSHALL_PLAN_RANK[marshallPlan()]>=MARSHALL_PLAN_RANK[target]){clearInterval(marshallPaywallClose.poll);marshallPaywallClose.poll=null;try{marshallPowerSet(MARSHALL_PLANS[target].power);}catch(e){}marshallPlanRender();if(done)done();}
     },5000);
   }
+  function marshallUpgradeRender(){
+    var b=$('#mpl-upgrade');if(!b)return;
+    if(!b.dataset.bound){b.dataset.bound='1';b.addEventListener('click',function(){marshallPaywallOpen(marshallPlan()==='complet'?'hyper':'complet');});}
+    b.hidden=!authUser||!!actingAs||marshallIsStaff()||marshallPlan()==='hyper';
+  }
   function marshallPlanRender(){
     try{marshallPowerRender();}catch(e){}
+    try{marshallUpgradeRender();}catch(e){}
     var box=$('#mpl-card');if(!box)return;
     if(marshallIsStaff()){box.innerHTML='<div class="mpl-cur"><b>Accès complet</b><span>Compte '+(((marshallTokenState.st||{}).role)==='commercial'?'commercial':'administrateur')+' : toutes les fonctions, sans abonnement.</span></div>';return;}
     var k=marshallPlan(),p=MARSHALL_PLANS[k],info=((marshallTokenState.st||{}).plan_info)||{};
@@ -6709,6 +6799,7 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
         edAIStatus('Paiement reçu : activation de ta formule '+MARSHALL_PLANS[tp].name+' en cours…');
         marshallPlanWatch(tp,function(){edAIStatus('✓ Abonnement '+MARSHALL_PLANS[tp].name+' activé : merci ! Toutes tes fonctions sont débloquées.');});return;
       }
+      if(mcdIsOffline()||!(marshallTokenState&&marshallTokenState.st))return;
       if(!marshallIsStaff()&&marshallPlan()==='gratuit'&&!marshallPlanOnOpen.shown){marshallPlanOnOpen.shown=true;marshallPaywallOpen('hyper');}
     }catch(e){console.warn('Abonnement',e);}
   }
@@ -11090,10 +11181,15 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
   $('#save-draft').addEventListener('click', async function(){
     if(!comp.caption.trim() && !comp.media.length){ toast('Ajoutez du texte ou un média avant d\u2019enregistrer.'); return; }
     var p=collectPost('draft'); upsertLocalList(p); await persist(p);
-    toast('Brouillon enregistré ✏️'); updateBadges(); resetComposer();
+    toast(mcdIsOffline()?'Brouillon gardé sur cet appareil 📴 Il sera envoyé dès le retour du réseau.':'Brouillon enregistré ✏️'); updateBadges(); resetComposer();
   });
 
   $('#publish-btn').addEventListener('click', async function(){
+    if(mcdIsOffline()){
+      if(!comp.caption.trim() && !comp.media.length){ toast('Votre post est vide.'); return; }
+      var dp=collectPost('draft'); upsertLocalList(dp); await persist(dp);
+      toast('📴 Pas de réseau : ta publication est gardée en brouillon sur cet appareil. Publie-la dès que tu es reconnecté.',true); updateBadges(); resetComposer(); return;
+    }
     var nets=selectedNets();
     if(!nets.length){ toast('Sélectionnez au moins un réseau.'); return; }
     if(!comp.caption.trim() && !comp.media.length){ toast('Votre post est vide.'); return; }
@@ -11828,7 +11924,10 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
   // session existante
   (async function(){
     try{
-      var s=await sb.auth.getSession();
+      mcdOfflineInit();
+      var s=null;try{s=await sb.auth.getSession();}catch(e){}
+      if(!(s&&s.data&&s.data.session)&&mcdIsOffline()){var _st=mcdStoredSession();if(_st){authUser=_st.user;MCD_OFFLINE.booted=true;if(await resolveAccount()){await startApp();return;}}}
+      if(s && s.data && s.data.session && mcdIsOffline()){authUser=s.data.session.user;MCD_OFFLINE.booted=true;if(await resolveAccount()){await startApp();return;}}
       if(s && s.data && s.data.session){ authUser=s.data.session.user; if(mcdA2fOn(authUser)&&mcdNeeds2FA(authUser.id)){ var _em=authUser.email; if(window.mcdDoorsOpen) window.mcdDoorsOpen(); await mcdStart2FA(_em); return; } mcdTouchActive(true); if(await resolveAccount()){ await startApp(); return; } }
     }catch(e){}
     if(window.mcdDoorsOpen) window.mcdDoorsOpen();
