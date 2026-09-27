@@ -2110,6 +2110,32 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
 @media (max-width:640px){#mcd-offline-bar{border-radius:14px;flex-direction:column;gap:2px;text-align:center}}
 .mbb-details>summary{cursor:pointer;font-size:12.5px;font-weight:700;color:#55524c;padding:4px 0 10px;list-style:none}.mbb-details>summary::before{content:'▸ ';}.mbb-details[open]>summary::before{content:'▾ ';}
 </style>
+<style id="auth-orange-style">
+/* Bloc de connexion orange (Mon Copain Digital) */
+html body #auth .auth-card{background:linear-gradient(160deg,#ff9f38 0%,#f3852b 52%,#e0661a 100%)!important;color:#fff!important;border:0!important;box-shadow:0 22px 50px rgba(120,50,0,.30)!important}
+html body #auth .auth-card :is(h1,.auth-logo,.auth-sub,label,.au-link,.au-opt,.au-check,.au-hint,p){color:#fff!important}
+html body #auth .auth-card .auth-sub{opacity:.95}
+html body #auth .auth-card .au-link{text-decoration:underline;opacity:.95}
+html body #auth .auth-card input:not([type=checkbox]){background:#fff!important;color:#2a1500!important;border:1px solid rgba(255,255,255,.7)!important}
+html body #auth .auth-card input::placeholder{color:#a88a73!important}
+html body #auth .auth-card #auth-tabs{background:rgba(255,255,255,.22)!important;border:0!important}
+html body #auth .auth-card #auth-tabs .seg{color:#fff!important;background:transparent!important}
+html body #auth .auth-card #auth-tabs .seg.on{background:#fff!important;color:#c2540f!important;box-shadow:0 2px 8px rgba(120,50,0,.18)!important}
+html body #auth .auth-card .primary-btn{background:#fff!important;color:#e0661a!important;border:0!important;box-shadow:0 8px 20px rgba(120,50,0,.22)!important;font-weight:800!important}
+html body #auth .auth-card .primary-btn:hover{background:#fff4ea!important}
+html body #auth .auth-card .au-type-opt{background:rgba(255,255,255,.92)!important;border:2px solid transparent!important}
+html body #auth .auth-card .au-type-opt :is(b,small){color:#3a2210!important}
+html body #auth .auth-card .au-type-opt.on{background:#fff!important;border-color:#2b1a0c!important}
+html body #auth .auth-card .au-pass button,html body #auth .auth-card .au-pass .au-eye{color:#c2540f!important;background:#fff4ea!important}
+html body #auth .auth-card :is(.auth-err,.auth-ok){background:#fff!important;border-radius:10px;padding:8px 10px}
+html body #auth .auth-card .auth-err{color:#b3261e!important}
+html body #auth .auth-card .auth-ok{color:#1f7a45!important}
+html body #auth .auth-card :is(.au-company,.otp-box,.au-note){background:rgba(255,255,255,.95)!important;color:#3a2210!important}
+html body #auth .auth-card :is(.au-company,.au-note) *{color:#3a2210!important}
+html body #auth .auth-card a{color:#fff!important}
+html body #auth .auth-card :is(.au-help,.au-ok,.au-otp-head,.au-otp-head *){color:#fff!important;opacity:.95}
+html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500!important}
+</style>
 </head>
 <body>
 <div id="door-tx" class="loading" aria-hidden="true">
@@ -3611,7 +3637,7 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
   }
   function connCount(){ return NETS.filter(function(n){ return connections[n.id].connected; }).length; }
   function updateConnBadge(){ var missing=NETS.length-connCount(); var b=$('#badge-conn'); if(b){ if(missing>0){ b.style.display='inline-flex'; b.textContent=missing; } else b.style.display='none'; }
-    var cc=$('#content-card'); if(cc) cc.classList.toggle('locked', connCount()===0); }
+    var cc=$('#content-card'); if(cc) cc.classList.remove('locked'); }
   function connGridHtml(){
     return NETS.map(function(n){
       var c=connections[n.id], ok=c.connected;
@@ -3694,7 +3720,7 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
   })();
   var _hdrDrafts=document.querySelector('[data-view="drafts"].btn-ghost'); if(_hdrDrafts) _hdrDrafts.addEventListener('click', function(){ switchView('drafts'); });
   function switchView(name){
-    if(name==='composer' && connCount()===0){ toast('Reliez un réseau pour composer.', true); }
+    if(name==='composer' && connCount()===0 && !switchView.hinted){ switchView.hinted=true; toast('Compose librement : un réseau relié n’est nécessaire que pour publier.'); }
     $all('.nav-item').forEach(function(n){ n.classList.toggle('active', n.getAttribute('data-view')===name); });
     $all('.view').forEach(function(v){ v.classList.toggle('active', v.id==='view-'+name); });
     var psx=$('#pub-step');
@@ -11198,7 +11224,7 @@ body.mpl-open{overflow:hidden}.mpl-modal{position:fixed;inset:0;z-index:100000;b
     var later = comp.sched==='later';
     if(later && !$('#sc-date').value){ toast('Choisissez une date de programmation.'); return; }
     var connSel = nets.filter(function(id){ return connections[id].connected; });
-    if(!later && !connSel.length){ toast('Connectez au moins un réseau depuis les toggles de l’accueil.', true); showHub(); return; }
+    if(!connSel.length){ var np=collectPost('draft'); upsertLocalList(np); await persist(np); updateBadges(); resetComposer(); toast('Ton post est gardé dans tes brouillons ✏️ Relie '+(nets.length===1?'ce réseau':'un de ces réseaux')+' depuis l’accueil pour le publier ou le programmer.', true); return; }
 
     var btn=this; btn.disabled=true;
     // Une story / un réel doit rester en 9:16 : pas de recadrage aux limites du fil (0,8–1,91).
