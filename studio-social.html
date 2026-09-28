@@ -7827,7 +7827,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     run(Math.max(0,Number(startIndex)||0));
   }
   function marshallTimelineWaitForImages(page){
-    var tasks=[];(page.layers||[]).forEach(function(l){if(l.type==='image'&&l.url){tasks.push(new Promise(function(resolve){var im=new Image();im.onload=function(){resolve();};im.onerror=function(){resolve();};im.src=l.url;if(im.complete)resolve();}));}});return Promise.all(tasks);
+    var tasks=[];(page.layers||[]).forEach(function(l){if(l.type==='image'&&l.url){tasks.push(new Promise(function(resolve){var im=new Image();im.onload=function(){resolve();};im.onerror=function(){resolve();};setTimeout(resolve,8000);im.src=l.url;if(im.complete)resolve();}));}});return Promise.all(tasks);
   }
   /* Export sans « tainted canvas » : les images externes (site, Instagram…) sont converties en data URL,
      directement si le site l'autorise (CORS), sinon via le relais sécurisé de Marshall. */
@@ -7839,8 +7839,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{if(new URL(url,location.href).origin===location.origin)return url;}catch(e){return url;}
     if(marshallExportImgCache[url])return marshallExportImgCache[url];
     var out=null;
-    try{var r=await fetch(url,{mode:'cors',credentials:'omit'});if(r.ok){var b=await r.blob();if(/^image\//.test(b.type))out=await marshallBlobToDataUrl(b);}}catch(e){}
-    if(!out){try{var r2=await fetch(MARSHALL_CREWAI_BASE+'/image/fetch?url='+encodeURIComponent(url),{headers:await authHeaders()});if(r2.ok){var b2=await r2.blob();if(/^image\//.test(b2.type))out=await marshallBlobToDataUrl(b2);}}catch(e){}}
+    var _to=function(ms){try{return AbortSignal.timeout(ms);}catch(e){return undefined;}};
+    try{var r=await fetch(url,{mode:'cors',credentials:'omit',signal:_to(10000)});if(r.ok){var b=await r.blob();if(/^image\//.test(b.type))out=await marshallBlobToDataUrl(b);}}catch(e){}
+    if(!out){try{var r2=await fetch(MARSHALL_CREWAI_BASE+'/image/fetch?url='+encodeURIComponent(url),{headers:await authHeaders(),signal:_to(15000)});if(r2.ok){var b2=await r2.blob();if(/^image\//.test(b2.type))out=await marshallBlobToDataUrl(b2);}}catch(e){}}
     if(out)marshallExportImgCache[url]=out;
     return out||'';
   }
@@ -7859,7 +7860,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!map)return Promise.resolve();
     var waits=[];
     ed.layers=(ed.layers||[]).filter(function(l){return !(l&&l.type==='image'&&l.url&&map[l.url]==='');});
-    ed.layers.forEach(function(l){if(l&&l.type==='image'&&l.url&&map[l.url]){var d=map[l.url];var im=new Image();waits.push(new Promise(function(r){im.onload=r;im.onerror=r;}));im.src=d;l._img=im;}});
+    ed.layers.forEach(function(l){if(l&&l.type==='image'&&l.url&&map[l.url]){var d=map[l.url];var im=new Image();waits.push(new Promise(function(r){im.onload=r;im.onerror=r;setTimeout(r,8000);}));im.src=d;l._img=im;}});
     return Promise.all(waits);
   }
   async function marshallTimelineStaticCanvases(){
@@ -9915,7 +9916,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         await marshallStoryWaitImages(ed.layers);
         var page={name:'Story · '+date.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}),desc:item.theme,kind:'story',fmt:'9:16',bg:ed.bg,motion:marshallClone(ed.pageMotion||marshallPageMotionDefault()),layers:marshallClone(ed.layers||[])};
         pages.push(page);
-        var canvas=edBuildCanvas(), dataUrl=canvas?canvas.toDataURL('image/png'):'', mediaUrl=dataUrl;
+        var canvas=edBuildCanvas(), dataUrl=canvas?canvas.toDataURL('image/jpeg',0.92):'', mediaUrl=dataUrl;
         if(dataUrl&&storeMode==='db'){var uploaded=await uploadMedia(dataUrl);if(uploaded)mediaUrl=uploaded;}
         var existing=posts.find(function(p){return p.results&&p.results.monthly_story_key===storyKey;});
         var post={id:existing?existing.id:newId(),author_id:effectiveUid(),author_name:actingAs?(actingName+' (via '+me.nom+')'):me.nom,caption:item.hook+(item.sub?' — '+item.sub:''),tags:'#Story',crop:{ratio:'9:16',pos:50},formats:{instagram:'Story',x:'Post',tiktok:'Vidéo',facebook:'Story',snapchat:'Snap'},media:mediaUrl?[{type:'image',url:mediaUrl,name:'story-'+dateKey+'.png'}]:[],nets:targetNets.slice(),first_comment:null,status:'scheduled',scheduled_at:iso,results:{monthly_story:true,monthly_story_key:storyKey,story_canvas:page,theme:item.theme,agents:(crew.agents||[]).map(function(a){return a.agent;}),approval:{approved:false,auto_publish:false,approved_at:null},scheduler:{mode:'server',state:'waiting_validation',queued_at:new Date().toISOString()}},created_at:existing?existing.created_at:new Date().toISOString()};
@@ -11363,17 +11364,18 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(pages.length<2){ edExportToMedia(); return; }
     try{marshallLearnScan('export');}catch(e){}
     try{edAIStatus('📤 Préparation des '+pages.length+' canvas pour la publication…');}catch(e){}
-    var frames=await marshallTimelineStaticCanvases(), out=[];
+    var frames=await marshallTimelineStaticCanvases(), out=[], skipped=[];
     pages.forEach(function(page,i){
       var vl=(page.layers||[]).find(function(l){return l&&l.type==='video'&&l.url;});
       if(vl){ out.push({ type:'video', url:vl.url, name:'clip-'+(i+1)+'.mp4' }); return; }
       var fr=frames.find(function(f){return f.page===page;});
-      if(!fr||!fr.canvas) return;
-      try{ out.push({ type:'image', url:fr.canvas.toDataURL('image/png'), name:'creation-'+(i+1)+'.png' }); }catch(e){ console.warn('Canvas '+(i+1)+' non exportable',e); }
+      if(!fr||!fr.canvas){ skipped.push((i+1)+' (vide)'); return; }
+      try{ out.push({ type:'image', url:fr.canvas.toDataURL('image/jpeg',0.92), name:'creation-'+(i+1)+'.jpg' }); }catch(e){ console.warn('Canvas '+(i+1)+' non exportable',e); skipped.push((i+1)+' (image externe bloquée)'); }
     });
     if(!out.length){ edExportToMedia(); return; }
     comp.media=out; comp._edMulti=true; renderThumbs();
-    try{edAIStatus('✓ '+out.length+' canvas prêts à publier.');}catch(e){}
+    try{edAIStatus('✓ '+out.length+' canvas prêts à publier.'+(skipped.length?' Ignoré : canvas '+skipped.join(', ')+'.':''));}catch(e){}
+    if(skipped.length){ try{toast('Canvas '+skipped.join(', ')+' non publié'+(skipped.length>1?'s':'')+'.',true);}catch(e){} }
   }
   function edExportToMedia(){
     comp._edMulti=false;
@@ -11381,7 +11383,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var _vl=(ed.layers||[]).find(function(l){return l&&l.type==='video'&&l.url;});
     if(_vl){ comp.media=[{ type:'video', url:_vl.url, name:'clip.mp4' }]; renderThumbs(); return; }
     var cvx=edBuildCanvas(); if(!cvx) return;
-    comp.media=[{ type:'image', url:cvx.toDataURL('image/png'), name:'creation.png' }];
+    comp.media=[{ type:'image', url:cvx.toDataURL('image/jpeg',0.92), name:'creation.jpg' }];
     renderThumbs();
   }
   var _edMeas=null;
@@ -11988,6 +11990,28 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function mediaHtml(m){ if(!m) return ''; var st=cropStyle(); return m.type==='video'?('<video src="'+m.url+'" muted style="'+st+'"></video>'):('<img src="'+m.url+'" alt="" style="'+st+'">'); }
   function ratioNum(r){ return ({'1:1':1,'4:5':0.8,'1.91:1':1.91,'9:16':0.5625,'original':0})[r]||1; }
   // Recadre réellement une image (JPEG) selon le format + position, en restant dans les limites Instagram (0.8–1.91)
+  /* Fil (Post) : Instagram refuse < 4:5 ou > 1.91:1. On garde tout le visuel, centré sur un fond flouté. */
+  function fitFeedImage(dataUrl){
+    return new Promise(function(resolve){
+      var img=new Image();
+      var done=function(v){ resolve(v); };
+      setTimeout(function(){ done(dataUrl); }, 10000);
+      img.onload=function(){
+        var r=img.width/img.height, target=r<0.8?0.8:(r>1.91?1.91:0);
+        if(!target){ done(dataUrl); return; }
+        try{
+          var W=target<1?Math.round(img.height*target):img.width, H=target<1?img.height:Math.round(img.width/target);
+          var cv=document.createElement('canvas'); cv.width=W; cv.height=H; var g=cv.getContext('2d');
+          var sc=Math.max(W/img.width,H/img.height); g.filter='blur(28px) brightness(.85)';
+          g.drawImage(img,(W-img.width*sc)/2,(H-img.height*sc)/2,img.width*sc,img.height*sc); g.filter='none';
+          var sc2=Math.min(W/img.width,H/img.height); g.drawImage(img,(W-img.width*sc2)/2,(H-img.height*sc2)/2,img.width*sc2,img.height*sc2);
+          done(cv.toDataURL('image/jpeg',0.92));
+        }catch(e){ done(dataUrl); }
+      };
+      img.onerror=function(){ done(dataUrl); };
+      img.src=dataUrl;
+    });
+  }
   function cropImage(dataUrl, ratioStr, posPct, clamp){
     return new Promise(function(resolve){
       var img=new Image();
@@ -12068,8 +12092,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function uploadMedia(dataUrl){
     try{
       var blob=await (await fetch(dataUrl)).blob();
-      var path=(effectiveUid()||'anon')+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.png';
-      var up=await sb.storage.from('media').upload(path, blob, { contentType:'image/png' });
+      var ctype=/^image\/(jpeg|png|webp)$/.test(blob.type)?blob.type:'image/jpeg', ext=ctype==='image/png'?'png':(ctype==='image/webp'?'webp':'jpg');
+      var path=(effectiveUid()||'anon')+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+      var up=await sb.storage.from('media').upload(path, blob, { contentType:ctype });
       if(up.error){ window.__mcdUpErr=(up.error.message||JSON.stringify(up.error)); return null; }
       var pu=sb.storage.from('media').getPublicUrl(path);
       return (pu && pu.data && pu.data.publicUrl) || null;
@@ -12125,7 +12150,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     for(var mi=0; mi<comp.media.length; mi++){
       var mm=comp.media[mi];
       if(mm.type!=='image'){ mediaOut.push(mm); continue; }
-      if(fromStudio(mm)){ mediaOut.push(mm); continue; }   // export de l'éditeur : déjà à la bonne taille
+      if(fromStudio(mm)){ mediaOut.push(vertOut ? mm : { type:'image', url:(await fitFeedImage(mm.url)), name:mm.name }); continue; }   // export de l'éditeur : 9:16 → 4:5 pour le fil
       var r = vertOut ? '9:16' : comp.crop.ratio;
       mediaOut.push({ type:'image', url:(await cropImage(mm.url, r, comp.crop.pos, !vertOut)), name:mm.name });
     }
@@ -12134,8 +12159,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     $('#publish-label').textContent=later?'Préparation serveur…':'Envoi du média…';
     for(var ui=0; ui<mediaOut.length; ui++){
       if(String(mediaOut[ui].url||'').indexOf('data:')===0){
+        if(mediaOut.length>1) $('#publish-label').textContent='Envoi du canvas '+(ui+1)+'/'+mediaOut.length+'…';
         var pub=await uploadMedia(mediaOut[ui].url);
-        if(!pub){ toast('Envoi de l’image impossible : '+(window.__mcdUpErr||'stockage indisponible'), true);
+        if(!pub){ toast((mediaOut.length>1?'Canvas '+(ui+1)+' : envoi':'Envoi de l’image')+' impossible : '+(window.__mcdUpErr||'stockage indisponible'), true);
           $('#publish-label').textContent=later?'Programmer':'Publier'; btn.disabled=false; return; }
         mediaOut[ui].url=pub;
       }
