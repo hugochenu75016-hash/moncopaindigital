@@ -6,6 +6,8 @@
 <link rel="icon" href="/favicons/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<script>try{if(window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true)document.documentElement.setAttribute("data-app","1");}catch(e){}</script>
 <meta name="theme-color" content="#6EC1F0">
 <script>
 (function(){
@@ -2266,6 +2268,98 @@ html body .ed-rail #ed-publish.mpub-locked::after{content:"";position:absolute;r
 #preview-tabs .pvbtn svg.cartoon-eye{width:26px!important;height:26px!important;filter:drop-shadow(0 1.5px 0 rgba(194,84,15,.25));transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
 #preview-tabs .pvbtn:hover svg.cartoon-eye{transform:scale(1.14) rotate(-6deg)}
 #preview-tabs #pv-back{color:#F3852B!important}
+
+<style id="pub-cartoon-style">
+html body #pub-step{gap:16px!important;box-sizing:border-box}
+html body #app #content-card #pub-step,html body #content-card.card #pub-step{padding:66px 18px 16px!important;height:calc(100dvh - 30px)!important}
+html body #pub-step .pub-card{background:#fff!important;border:2px solid #F6E4D0!important;border-radius:24px!important;box-shadow:0 4px 0 rgba(199,98,14,.10),0 16px 30px rgba(120,60,0,.10)!important;padding:18px!important;gap:12px!important}
+html body #pub-step .pub-ch{min-height:34px}
+html body #pub-step .pub-ch .lab{display:inline-flex;align-items:center;gap:9px;font:800 17px/1 'Baloo 2','Fredoka',sans-serif!important;letter-spacing:0!important;text-transform:none!important;color:#5A2A0C!important}
+html body #pub-step .pub-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;font:800 15px/1 'Baloo 2','Fredoka',sans-serif;box-shadow:0 2px 0 #C7620E}
+html body #pub-step .pub-badge{background:#FFF1E2!important;border:0!important;color:#C2540F!important;font:800 12px/1 'Fredoka',sans-serif!important;padding:6px 11px!important;border-radius:999px}
+/* 1 · réseaux */
+html body #pub-step .net-row{display:flex;flex-direction:column;gap:8px}
+html body #pub-step .net-line{background:#FFFAF4!important;border:2px solid #F3E4D3!important;border-radius:16px!important;padding:10px 12px!important;transition:transform .18s cubic-bezier(.34,1.56,.64,1),border-color .15s,background .15s}
+html body #pub-step .net-line:hover{transform:translateX(3px)}
+html body #pub-step .net-line .ni{width:34px!important;height:34px!important;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+html body #pub-step .net-line .ni svg{width:18px!important;height:18px!important}
+html body #pub-step .net-line .nn b{font:700 14.5px 'Fredoka',sans-serif!important;color:#4A2A10!important}
+html body #pub-step .net-line .nn small{font-size:11.5px!important}
+html body #pub-step .net-line.on{background:#FFF3E6!important;border-color:#F3852B!important;box-shadow:0 3px 0 #F6CDA5!important}
+html body #pub-step .net-line.off{opacity:.72}
+html body #pub-step .net-line .sw{width:44px!important;height:26px!important}
+html body #pub-step .net-line .sw i{width:20px!important;height:20px!important}
+html body #pub-step .net-line.on .sw i{left:21px!important}
+html body #pub-step #format-field .lab{margin-top:6px!important;font:800 13.5px 'Fredoka',sans-serif!important;text-transform:none!important;letter-spacing:0!important;color:#8A5A2B!important}
+html body #pub-step .fmt-row{display:flex;align-items:center;gap:8px;background:#FFFAF4;border-radius:14px;padding:7px 9px}
+html body #pub-step .fmt-chip{cursor:pointer;border:2px solid #F1E0CD;background:#fff;border-radius:999px;font:700 12.5px 'Fredoka',sans-serif!important;color:#8A5A2B;padding:5px 11px!important}
+html body #pub-step .fmt-chip.on{background:#F3852B;border-color:#F3852B;color:#fff;box-shadow:0 2px 0 #C7620E}
+html body #pub-step .pub-note{background:#FFF6EA;border-radius:12px;padding:9px 11px;color:#9A6A3A!important;font-size:12px!important}
+/* 2 · texte */
+html body #pub-step .pub-tools{gap:7px}
+html body #pub-step .pub-tools .tool{width:36px!important;height:36px!important;border:2px solid #F1E0CD!important;background:#fff!important;color:#C2540F!important;font:800 15px/1 'Fredoka',sans-serif!important;box-shadow:0 2px 0 #F3DCC4;transition:transform .16s cubic-bezier(.34,1.56,.64,1)}
+html body #pub-step .pub-tools .tool:hover{transform:translateY(-2px);background:#FFF1E2!important}
+html body #pub-step textarea#cap{width:100%!important;box-sizing:border-box;border:2px solid #F1E0CD!important;border-radius:18px!important;background:#FFFCF8!important;padding:16px 18px!important;font:600 15.5px/1.55 'Nunito','Helvetica Neue',Arial,sans-serif!important;color:#3D2410!important;outline:none!important;transition:border-color .15s,box-shadow .15s}
+html body #pub-step textarea#cap::placeholder{color:#C9AE92}
+html body #pub-step textarea#cap:focus,html body #pub-step .pub-2 input:focus{border-color:#F3852B!important;box-shadow:0 0 0 4px rgba(243,133,43,.15)!important}
+html body #pub-step .counters{display:flex;flex-wrap:wrap;gap:6px}
+html body #pub-step .cnt{background:#F2F8FE;color:#1F5F9E;border-radius:999px;font:700 11.5px 'Fredoka',sans-serif!important;padding:4px 10px!important}
+html body #pub-step .cnt.over{background:#FDECEC;color:#C0343A}
+html body #pub-step .pub-2 label{font:800 13px 'Fredoka',sans-serif!important;text-transform:none!important;letter-spacing:0!important;color:#8A5A2B!important}
+html body #pub-step .pub-2 input{width:100%!important;box-sizing:border-box;height:44px;border:2px solid #F1E0CD!important;border-radius:14px!important;background:#FFFCF8!important;padding:0 14px!important;font:600 14px 'Nunito',Arial,sans-serif!important;color:#3D2410!important;outline:none!important}
+html body #pub-step .emoji-pop{border:2px solid #F1E0CD!important;border-radius:16px!important;background:#fff!important}
+/* 3 · quand */
+html body #pub-step .pub-thumb{border:2px solid #F1E0CD!important;border-radius:18px!important;max-height:210px!important;background-color:#FFF6EA!important}
+html body #pub-step .pub-thumb span{font:700 12.5px 'Fredoka',sans-serif;color:#C2540F}
+html body #pub-step .sched-toggle{display:grid!important;grid-template-columns:1fr 1fr;gap:6px;background:#FFF1E2!important;border:0!important;border-radius:999px!important;padding:5px!important}
+html body #pub-step .sched-toggle .seg{cursor:pointer;text-align:center;border-radius:999px!important;padding:10px 8px!important;font:800 14px/1 'Baloo 2','Fredoka',sans-serif!important;color:#A0602A!important;background:transparent!important;border:0!important;box-shadow:none!important;transition:background .15s}
+html body #pub-step .sched-toggle .seg.on{background:linear-gradient(180deg,#FF9C46,#F3852B)!important;color:#fff!important;box-shadow:0 3px 0 #C7620E!important}
+html body #pub-step .quick-slots button{border:2px solid #F1E0CD!important;background:#fff!important;color:#8A5A2B!important;font:700 12.5px 'Fredoka',sans-serif!important;padding:7px 12px!important;transition:transform .16s}
+html body #pub-step .quick-slots button:hover{transform:translateY(-1px);border-color:#F3852B!important;color:#C2540F!important}
+html body #pub-step #sched-fields label{font:800 12.5px 'Fredoka',sans-serif!important;color:#8A5A2B!important;text-transform:none!important;letter-spacing:0!important}
+html body #pub-step #sched-fields input,html body #pub-step #sched-fields select{width:100%;box-sizing:border-box;height:42px;border:2px solid #F1E0CD!important;border-radius:12px!important;background:#FFFCF8!important;padding:0 10px!important;font:700 13.5px 'Nunito',Arial,sans-serif!important;color:#3D2410!important}
+html body #pub-step .pub-check{background:#FFFAF4!important;border:2px solid #F6E4D0!important;border-radius:18px!important;padding:12px 14px!important;gap:8px!important}
+html body #pub-step .pub-check .ck{font:700 12.5px/1.3 'Nunito',sans-serif!important;color:#6B4A2A!important}
+html body #pub-step .pub-check .ck i{width:20px!important;height:20px!important;font-weight:900;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+html body #pub-step .pub-check .ck.ok i{background:#2BB673!important}
+html body #pub-step .pub-check .ck.no i{background:#E5484D!important}
+html body #pub-step .pub-check .ck.no{color:#B23A3E!important}
+html body #pub-step .act-row{display:flex;gap:10px;margin-top:12px}
+html body #pub-step #save-draft{flex:0 0 auto;height:52px;padding:0 18px;border:2px solid #F1E0CD!important;border-radius:16px!important;background:#fff!important;color:#8A5A2B!important;font:800 15px 'Baloo 2','Fredoka',sans-serif!important;box-shadow:0 3px 0 #F3DCC4!important;cursor:pointer}
+html body #pub-step #publish-btn:not(.mpub-locked){flex:1;height:52px;border:0!important;border-radius:16px!important;background:linear-gradient(180deg,#FF9C46,#F3852B)!important;color:#fff!important;font:800 18px 'Baloo 2','Fredoka',sans-serif!important;box-shadow:0 4px 0 #C7620E,0 10px 20px rgba(243,133,43,.3)!important;transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
+html body #pub-step #publish-btn:not(.mpub-locked):hover{transform:translateY(-2px)}
+html body #pub-step #publish-btn.mpub-locked{flex:1;height:52px;border-radius:16px!important;font:800 16px 'Baloo 2','Fredoka',sans-serif!important}
+@media (max-width:900px){html body #pub-step{height:auto!important}}
+
+html body #pub-step .pub-ai-fill{margin-left:10px;margin-right:auto;cursor:pointer;border:0;border-radius:999px;padding:9px 16px;background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;font:800 14px/1 'Baloo 2','Fredoka',sans-serif;box-shadow:0 3px 0 #C7620E,0 6px 14px rgba(243,133,43,.28);transition:transform .18s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+html body #pub-step .pub-ai-fill:hover{transform:translateY(-2px) scale(1.03)}
+html body #pub-step #pub-content>.pub-ch{position:relative}
+html body #pub-step #pub-content .pub-ai-fill{position:absolute;left:50%;top:50%;margin:0!important;translate:-50% -50%}
+@media (max-width:1180px){html body #pub-step #pub-content .pub-ai-fill{position:static;translate:none;margin:0 auto!important}}
+html body #pub-step .pub-ai-fill:disabled{opacity:.75;cursor:wait;transform:none}
+html body #pub-step .pub-ai-note{background:#FFF6EA;border:2px dashed #F6CDA5;border-radius:16px;padding:10px 14px;font:600 13px/1.45 'Nunito',sans-serif;color:#6B4A2A}
+html body #pub-step .pub-ai-note b{font-family:'Fredoka',sans-serif;color:#C2540F}
+html body #pub-step .pub-ai-note ul{margin:6px 0 0;padding-left:18px}
+html body #pub-step .pub-ai-time{margin-top:6px;font-weight:700;color:#1F5F9E}
+html body #pub-step .pub-ai-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+html body #pub-step .pub-ai-actions button{cursor:pointer;border:2px solid #F1E0CD;background:#fff;border-radius:999px;padding:6px 12px;font:700 12.5px 'Fredoka',sans-serif;color:#8A5A2B}
+html body #pub-step .pub-ai-actions button:hover{border-color:#F3852B;color:#C2540F}
+
+#mcd-mobile-lock{display:none}
+html[data-app="1"] #mcd-mobile-lock{display:none!important}
+@media (max-width:760px){
+  #mcd-mobile-lock{display:flex;position:fixed;inset:0;z-index:2147483600;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:radial-gradient(circle at 50% 35%,#FFA24C 0%,#F3852B 45%,#E0660D 100%);color:#fff;text-align:center;overflow:hidden}
+  #mcd-mobile-lock::before{content:"";position:absolute;inset:-40%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.07) 0 10deg,transparent 10deg 20deg);animation:mmlSpin 40s linear infinite}
+  #mcd-mobile-lock .mml-inner{position:relative;max-width:340px}
+  #mcd-mobile-lock .mml-lock{width:min(58vw,220px);height:auto;filter:drop-shadow(0 10px 0 rgba(120,50,0,.25)) drop-shadow(0 18px 30px rgba(120,50,0,.3));animation:mmlBounce 2.4s cubic-bezier(.34,1.56,.64,1) infinite;transform-origin:50% 80%}
+  #mcd-mobile-lock h1{margin:26px 0 10px;font:800 27px/1.15 'Baloo 2','Fredoka',sans-serif;text-shadow:0 3px 0 rgba(150,60,0,.35)}
+  #mcd-mobile-lock p{margin:0 0 24px;font:600 15px/1.5 'Nunito','Helvetica Neue',Arial,sans-serif;opacity:.95}
+  #mcd-mobile-lock .mml-btn{display:inline-block;background:#fff;color:#E0660D;text-decoration:none;font:800 16px/1 'Baloo 2','Fredoka',sans-serif;padding:14px 24px;border-radius:999px;box-shadow:0 4px 0 rgba(150,60,0,.35)}
+  html body.mml-on{overflow:hidden!important}
+}
+@keyframes mmlBounce{0%,100%{transform:translateY(0) rotate(0)}15%{transform:translateY(-10px) rotate(-6deg)}30%{transform:translateY(0) rotate(5deg)}45%{transform:rotate(-2deg)}60%{transform:rotate(0)}}
+@keyframes mmlSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#mcd-mobile-lock .mml-lock,#mcd-mobile-lock::before{animation:none}}
 </style>
 <style id="mcd-house-style">
 .home-btn .mcd-house{width:24px!important;height:24px!important;display:block;filter:drop-shadow(0 1.5px 0 rgba(90,40,0,.22));transition:transform .25s cubic-bezier(.34,1.5,.5,1)}
@@ -2302,6 +2396,22 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 </style>
 </head>
 <body>
+<div id="mcd-mobile-lock" role="dialog" aria-modal="true" aria-labelledby="mml-title">
+  <div class="mml-inner">
+    <svg class="mml-lock" viewBox="0 0 120 140" aria-hidden="true">
+      <path d="M32 62V42a28 28 0 0 1 56 0v20" fill="none" stroke="#4a2a10" stroke-width="20" stroke-linecap="round"/>
+      <path d="M32 62V42a28 28 0 0 1 56 0v20" fill="none" stroke="#DCE6F2" stroke-width="12" stroke-linecap="round"/>
+      <path d="M40 40a20 20 0 0 1 16-18" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+      <rect x="10" y="58" width="100" height="76" rx="20" fill="#FFD23F" stroke="#4a2a10" stroke-width="5"/>
+      <rect x="18" y="66" width="84" height="12" rx="6" fill="#fff" opacity=".45"/>
+      <circle cx="60" cy="92" r="11" fill="#4a2a10"/>
+      <path d="M55 96h10l3 22H52z" fill="#4a2a10" stroke="#4a2a10" stroke-width="2" stroke-linejoin="round"/>
+    </svg>
+    <h1 id="mml-title">Studio Social s’ouvre en app sur mobile</h1>
+    <p>Ajoute Studio Social sur ton écran d’accueil, puis ouvre-le comme une application pour créer tes stories, posts et vidéos avec Marshall.</p>
+    <a class="mml-btn" href="index.html">← Retour à l’accueil</a>
+  </div>
+</div>
 <div id="door-tx" class="loading" aria-hidden="true">
   <div class="door l"></div>
   <div class="door r"></div>
@@ -3031,10 +3141,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
           <div id="pub-step" style="display:none;">
             <section class="pub-card" id="pub-dest">
-              <div class="pub-ch"><span class="lab">Destinations</span><span class="pub-badge" id="pub-dest-count">0</span></div>
+              <div class="pub-ch"><span class="lab"><span class="pub-num">1</span>Où publier ?</span><span class="pub-badge" id="pub-dest-count">0</span></div>
               <div class="net-row" id="net-row"></div>
               <div id="format-field" style="display:none;">
-                <div class="lab" style="margin-top:16px">Format par réseau</div>
+                <div class="lab" style="margin-top:16px">Format sur chaque réseau</div>
                 <div id="format-rows"></div>
               </div>
               <div class="pub-note" id="pub-conn-note"></div>
@@ -3049,7 +3159,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
               <div id="agency-results" role="status" aria-live="polite"></div>
             </section>
             <section class="pub-card" id="pub-content">
-              <div class="pub-ch"><span class="lab">Contenu</span>
+              <div class="pub-ch"><span class="lab"><span class="pub-num">2</span>Ton texte</span><button type="button" class="pub-ai-fill" id="pub-ai-fill" title="Marshall analyse ta publication et écrit la meilleure description + hashtags">✨ Tout remplir</button>
                 <div class="pub-tools">
                   <button type="button" class="tool" data-ins="#" title="Hashtag">#</button>
                   <button type="button" class="tool" data-ins="@" title="Mention">@</button>
@@ -3059,16 +3169,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
                 </div>
               </div>
               <div class="emoji-pop" id="emoji-pop"></div>
-              <textarea id="cap" placeholder="Quoi de neuf ? Rédigez votre publication…"></textarea>
+              <div class="pub-ai-note" id="pub-ai-note" role="status" aria-live="polite" hidden></div>
+              <textarea id="cap" placeholder="Écris ta légende ici… ✍️"></textarea>
               <div class="counters" id="counters"></div>
               <div class="pub-2">
-                <div><label for="tags">Identifier / hashtags</label><input id="tags" placeholder="@compte, #hashtag…"></div>
+                <div><label for="tags">Hashtags et mentions</label><input id="tags" placeholder="@compte, #hashtag…"></div>
                 <div><label for="first-comment">Premier commentaire</label><input id="first-comment" placeholder="Bloc de hashtags posté en commentaire…"></div>
               </div>
             </section>
 
             <section class="pub-card" id="pub-send">
-              <div class="pub-ch"><span class="lab">Envoi</span><span class="pub-badge" id="pub-when">Maintenant</span></div>
+              <div class="pub-ch"><span class="lab"><span class="pub-num">3</span>Quand ?</span><span class="pub-badge" id="pub-when">Maintenant</span></div>
               <button type="button" class="pub-thumb" id="pub-thumb" title="Ouvrir l’aperçu"><span>Aperçu</span></button>
               <div class="sched-toggle">
                 <div class="seg on" data-sched="now">Maintenant</div>
@@ -3961,6 +4072,56 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   $('#cap').addEventListener('input', function(){ comp.caption=this.value; renderCounters(); renderPreview(); pubRefresh(); });
   $('#tags').addEventListener('input', function(){ comp.tags=this.value; renderCounters(); renderPreview(); pubRefresh(); });
 
+
+  /* ===== « Tout remplir » : Marshall analyse le contenu prêt à publier et écrit description + hashtags ===== */
+  function pubAiContentBrief(){
+    var texts=[],seen={};
+    function addLayers(ls){(ls||[]).forEach(function(l){if(l&&l.type==='text'){var t=String(l.text||'').replace(/\s+/g,' ').trim();if(t&&!seen[t]){seen[t]=1;texts.push(t);}}});}
+    try{marshallCanvasPagesSaveCurrent();}catch(e){}
+    var pages=(marshallCanvasPages&&marshallCanvasPages.length)?marshallCanvasPages:[{layers:ed.layers}];
+    pages.forEach(function(p){addLayers(p.layers);});
+    var plan=null;try{plan=marshallLastStoryPlan;}catch(e){}
+    var imgs=pages.reduce(function(n,p){return n+(p.layers||[]).filter(function(l){return l&&l.type==='image';}).length;},0);
+    var desc='';try{if(marshallImageKnowledge&&marshallImageKnowledge.description)desc=String(marshallImageKnowledge.description).slice(0,300);}catch(e){}
+    return {textes_du_visuel:texts.slice(0,30),nombre_ecrans:pages.length,format:ed.fmt,images:imgs,description_image:desc,
+      story:plan&&plan.frames?plan.frames.map(function(f){return [f.hook,f.sub].filter(Boolean).join(' — ');}).slice(0,7):null};
+  }
+  async function pubAiFill(){
+    var btn=$('#pub-ai-fill');if(!btn||btn.disabled)return;
+    var nets=selectedNets();
+    var netInfo=nets.map(function(id){var n=NETS.find(function(x){return x.id===id;})||{name:id,limit:2200};return {reseau:n.name,format:comp.formats[id]||'Post',limite:n.limit};});
+    var maxLen=netInfo.length?Math.min.apply(null,netInfo.map(function(n){return n.limite||2200;})):2200;
+    var before={cap:$('#cap').value,tags:$('#tags').value,fc:($('#first-comment')||{}).value||''};
+    btn.disabled=true;var old=btn.textContent;btn.textContent='✨ Marshall analyse…';
+    var note=$('#pub-ai-note');if(note){note.hidden=false;note.innerHTML='<b>Marshall lit ta publication…</b> textes du visuel, format, réseaux et ta marque.';}
+    try{
+      var brief=pubAiContentBrief();
+      var r=await marshallRemoteJSONRetry([
+        'Tu es le Social Media Manager de Marshall. Tu écris la MEILLEURE description et les meilleurs hashtags pour publier ce contenu, prêt à poster.',
+        marshallBrandContext(),
+        'Objectif : '+marshallSetting('goal','Vente')+'. Réseaux et formats : '+JSON.stringify(netInfo)+'.',
+        'Règles : 1re ligne = accroche forte (le début est coupé après ~125 caractères sur Instagram). Phrases courtes, aérées, 1 à 3 émojis pertinents, un appel à l’action clair à la fin. Ton de la marque. Français.',
+        'La description doit coller EXACTEMENT au contenu du visuel (ses textes, son offre). N’invente aucun prix, chiffre, promo, avis ou date absent des données.',
+        'hashtags : 5 à 10 hashtags pertinents et spécifiques (mélange niche + local si une ville est connue + marque), sans hashtags génériques du type #love #instagood. Si X (Twitter) est choisi : 2 hashtags max et description + hashtags ≤ '+Math.min(maxLen,280)+' caractères.',
+        'first_comment : vide "" sauf si Instagram est choisi et que des hashtags secondaires utiles restent (alors 3 à 6 hashtags en plus).',
+        'Longueur max de la description : '+Math.max(200,maxLen-120)+' caractères.',
+        'Réponds UNIQUEMENT en JSON : {"caption":"…","hashtags":["#…"],"first_comment":"","why":["raison courte 1","raison courte 2"],"best_time":"meilleur moment pour publier, en 1 phrase"}'
+      ].join('\n'),JSON.stringify({contenu:brief,brouillon_actuel:before.cap.slice(0,800)}));
+      if(!r||typeof r!=='object'||!String(r.caption||'').trim())throw Error('Réponse vide');
+      var cap=String(r.caption).trim().slice(0,Math.max(200,maxLen));
+      var tags=(Array.isArray(r.hashtags)?r.hashtags:String(r.hashtags||'').split(/[\s,]+/)).map(function(h){h=String(h||'').trim().replace(/\s+/g,'');if(!h)return '';return h.charAt(0)==='#'?h:'#'+h;}).filter(Boolean).slice(0,10);
+      $('#cap').value=cap;comp.caption=cap;
+      $('#tags').value=tags.join(' ');comp.tags=$('#tags').value;
+      var fc=$('#first-comment');if(fc&&r.first_comment!=null)fc.value=String(r.first_comment||'').trim();
+      renderCounters();renderPreview();pubRefresh();
+      if(note){note.innerHTML='<b>✨ Rempli par Marshall</b>'+(Array.isArray(r.why)&&r.why.length?'<ul>'+r.why.slice(0,3).map(function(w){return '<li>'+esc(String(w))+'</li>';}).join('')+'</ul>':'')+(r.best_time?'<div class="pub-ai-time">🕒 '+esc(String(r.best_time))+'</div>':'')+'<div class="pub-ai-actions"><button type="button" id="pub-ai-undo">↩ Revenir à mon texte</button><button type="button" id="pub-ai-again">🔄 Autre proposition</button></div>';
+        $('#pub-ai-undo').addEventListener('click',function(){$('#cap').value=before.cap;comp.caption=before.cap;$('#tags').value=before.tags;comp.tags=before.tags;var f=$('#first-comment');if(f)f.value=before.fc;renderCounters();renderPreview();pubRefresh();note.hidden=true;});
+        $('#pub-ai-again').addEventListener('click',function(){$('#cap').value=before.cap;comp.caption=before.cap;pubAiFill();});}
+    }catch(e){
+      if(note){note.hidden=false;note.innerHTML='⚠ Marshall n’a pas pu remplir la publication : '+esc(e&&e.message?e.message:'réessaie');}
+    }finally{btn.disabled=false;btn.textContent=old;}
+  }
+  (function(){var b=$('#pub-ai-fill');if(b)b.addEventListener('click',pubAiFill);})();
   /* ===== Panneau publication : outils, créneaux, contrôle avant envoi ===== */
   var PUB_EMOJI=['🚀','✨','🔥','👋','🎉','💛','🙌','👀','📌','✅','⭐','🎁','📅','💡','🍽️','☕','🥐','🍕','🛍️','📸'];
   function pubInsert(txt){
@@ -10903,6 +11064,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       edExportToMedia();
       $('#ed-shell-wrap').style.display='none';
       $('#pub-step').style.display='grid';
+      try{renderNetChips();renderFormats();renderCounters();}catch(e){}
       document.body.classList.add('no-scroll');
       $('#ed-flyout').classList.remove('show');
       renderPreviewTabs();
@@ -12649,5 +12811,57 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
 </script>
 <!-- ===== Fin widget Le Copain ===== -->
+<!-- Invitation « Ajouter à l'écran d'accueil » (même pilule que la page d'accueil) -->
+<script id="mcd-install-pill">
+(function(){
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+  if(standalone){ document.documentElement.setAttribute('data-app','1'); return; }
+  var isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  var isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(!isMobile) return;
+  try{ if(localStorage.getItem('mcd-install-hide')==='1') return; }catch(e){}
+  var deferred = null, shown = false;
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred = e; later(); });
+  function later(){ setTimeout(show, 1800); }
+  if(isiOS) setTimeout(show, 3500);
+  function show(){
+    if(shown) return; shown = true;
+    var bar = document.createElement('div');
+    bar.setAttribute('role','dialog');
+    bar.setAttribute('aria-label','Installer l’application');
+    bar.style.cssText='position:fixed;left:12px;right:12px;top:calc(12px + max(env(safe-area-inset-top), 8px));z-index:2147483620;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:#fff;box-shadow:0 12px 34px rgba(90,40,0,.28);border:1px solid rgba(243,133,43,.45);font-family:Nunito,Helvetica,Arial,sans-serif;transform:translateY(calc(-100% - 24px));transition:transform .45s cubic-bezier(.2,1,.3,1)';
+    var ico = document.createElement('img');
+    ico.src='/favicons/favicon-180.png'; ico.alt='';
+    ico.style.cssText='width:44px;height:44px;border-radius:12px;flex:0 0 auto';
+    ico.onerror=function(){ ico.src='logomcd.png'; ico.onerror=null; };
+    var txt = document.createElement('div');
+    txt.style.cssText='flex:1 1 auto;min-width:0;line-height:1.3';
+    txt.innerHTML='<div style="font-weight:800;font-size:15px;color:#4a2a10">Installer l’application</div><div></div>';
+    var sub = txt.lastChild;
+    sub.style.cssText='font-size:12.5px;color:#8a6a52';
+    sub.textContent = isiOS ? 'Partager  ›  « Sur l’écran d’accueil »' : 'Accès direct depuis votre écran d’accueil';
+    var btn = document.createElement('button');
+    btn.type='button';
+    btn.textContent = isiOS ? 'Compris' : 'Installer';
+    btn.style.cssText='flex:0 0 auto;border:0;cursor:pointer;padding:11px 16px;min-height:44px;border-radius:999px;background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;font-weight:800;font-size:14px;font-family:inherit;box-shadow:0 3px 0 #C7620E';
+    var close = document.createElement('button');
+    close.type='button'; close.setAttribute('aria-label','Fermer'); close.textContent='×';
+    close.style.cssText='position:absolute;bottom:-12px;right:-6px;width:30px;height:30px;border-radius:50%;border:1px solid rgba(243,133,43,.5);background:#fff;color:#8a6a52;font-size:17px;line-height:1;cursor:pointer';
+    function dismiss(){
+      bar.style.transform='translateY(calc(-100% - 24px))';
+      setTimeout(function(){ bar.remove(); }, 450);
+      try{ localStorage.setItem('mcd-install-hide','1'); }catch(e){}
+    }
+    close.addEventListener('click', dismiss);
+    btn.addEventListener('click', function(){
+      if(deferred){ deferred.prompt(); deferred.userChoice.then(dismiss); deferred=null; }
+      else dismiss();
+    });
+    bar.appendChild(ico); bar.appendChild(txt); bar.appendChild(btn); bar.appendChild(close);
+    document.body.appendChild(bar);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ bar.style.transform='translateY(0)'; }); });
+  }
+})();
+</script>
 </body>
 </html>
