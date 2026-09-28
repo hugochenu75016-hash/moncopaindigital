@@ -2362,13 +2362,17 @@ html[data-app="1"] #mcd-mobile-lock{display:none!important}
 @media (prefers-reduced-motion:reduce){#mcd-mobile-lock .mml-lock,#mcd-mobile-lock::before{animation:none}}
 
 .mthink{display:flex;flex-direction:column;gap:4px;padding:2px 0}
-.mthink-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.mthink-verb{font:800 13px 'Fredoka','Nunito',sans-serif;color:#C2540F}
-.mthink-time{font:700 11.5px 'Fredoka','Nunito',sans-serif;color:#9A7A5A;background:#FFF1E2;border-radius:999px;padding:2px 8px}
-.mthink-pct{font:800 11.5px 'Fredoka','Nunito',sans-serif;color:#C2540F}
-.mthink-bar{height:7px;border-radius:999px;background:#F3EDE6;overflow:hidden;min-width:220px;max-width:420px}
+.mthink-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mthink-verb{font:800 12.5px 'Fredoka','Nunito',sans-serif;color:#C2540F}
+.mthink-time,.mthink-pct{font:700 11px 'Fredoka','Nunito',sans-serif;color:#A08A76}
+.mthink-time::before,.mthink-pct::before{content:'· ';}
+.mthink-bar{height:3px;width:170px;border-radius:999px;background:#F3EDE6;overflow:hidden;margin:0 0 2px 1px}
+.mthink-dots{display:inline-flex;gap:4px;align-items:center;height:10px}
+.mthink-dots i{width:7px;height:7px;border-radius:50%;background:#F3852B;display:block;animation:mthinkDot 1.1s infinite ease-in-out}
+.mthink-dots i:nth-child(2){animation-delay:.15s}.mthink-dots i:nth-child(3){animation-delay:.3s}
+@keyframes mthinkDot{0%,80%,100%{transform:translateY(0);opacity:.45}40%{transform:translateY(-4px);opacity:1}}
 .mthink-bar span{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#FF9C46,#F3852B);transition:width .9s ease}
-.mthink-step{font:600 12px/1.4 'Nunito',sans-serif;color:#7A6A5A;white-space:normal;max-width:420px}
+.mthink-step{font:600 11.5px/1.4 'Nunito',sans-serif;color:#7A6A5A;white-space:normal;max-width:420px}
 .mclip-tip{margin:0 0 10px;background:#EEF7FF;border-radius:12px;padding:9px 12px;font:600 12.5px/1.45 'Nunito',sans-serif;color:#1F5F9E}
 .mclip-count{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 10px;font:700 12.5px 'Fredoka',sans-serif;color:#7A4A1A}
 .mclip-count b{margin-right:4px}.mclip-count button{cursor:pointer;width:36px;height:34px;border:2px solid #F1E0CD;background:#fff;border-radius:11px;font:800 14px 'Fredoka',sans-serif;color:#7A4A1A}
@@ -5990,7 +5994,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallThinkingMount(d,dotsHtml){
     var t0=Date.now(),seen=false;
     d.classList.add('mthink-msg');
-    d.innerHTML='<div class="mthink"><div class="mthink-top">'+dotsHtml+'<b class="mthink-verb">Marshall réfléchit</b><span class="mthink-time">depuis 0 s</span><span class="mthink-pct">0 %</span></div><div class="mthink-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><div class="mthink-step" hidden></div></div>';
+    d.innerHTML='<div class="mthink"><div class="mthink-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span></span></div><div class="mthink-top"><span class="mthink-dots"><i></i><i></i><i></i></span><b class="mthink-verb">Marshall réfléchit</b><span class="mthink-time">depuis 0 s</span><span class="mthink-pct">0 %</span></div><div class="mthink-step" hidden></div></div>';
     var verb=d.querySelector('.mthink-verb'),time=d.querySelector('.mthink-time'),step=d.querySelector('.mthink-step'),pctEl=d.querySelector('.mthink-pct'),bar=d.querySelector('.mthink-bar'),fill=bar.querySelector('span'),pct=0;
     function tick(){
       if(!d.isConnected){if(seen||Date.now()-t0>5000)clearInterval(iv);return;}seen=true;
@@ -6997,6 +7001,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       marshallChatBubble('user',prompt);
       marshallChatPhotosCard(workPrompt,Object.assign({},opts,{photosAsked:true}));
       marshallChatClearInput(input);
+      return;
+    }
+    /* Clip depuis un lien : pas de questions ni de texte IA, juste la carte (format · durée · créer). */
+    if(intent==='video_clip'||marshallIntent(prompt)==='video_clip'){
+      if(!(opts&&opts.skipUserEcho))marshallChatBubble('user',prompt);
+      marshallChatClearInput(input);
+      try{var _cpx=await marshallCreateClip(workPrompt);if(_cpx&&_cpx.needPlan)marshallChatBubble('assistant',marshallClipReply(_cpx));}
+      catch(e){marshallChatBubble('error','Marshall n’a pas pu préparer le clip : '+(e&&e.message?e.message:'erreur')+'.');}
+      if(input)input.focus();
       return;
     }
     if(marshallAccountGateIntent(intent)&&!marshallAccountProfileReady()){
@@ -9454,8 +9467,13 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!marshallIsStaff()&&MARSHALL_PLAN_RANK[marshallPlan()]<MARSHALL_PLAN_RANK.complet){try{marshallPaywallOpen('complet');}catch(e){}return {asked:true,needPlan:true};}
     var t=String(prompt||'').toLowerCase(),sec=15,m=t.match(/(\d{1,2})\s*(?:s\b|sec|secondes?)/);if(m)sec=Math.max(5,Math.min(30,+m[1]));
     var mode=/\b(1|un|une seule?|seul)\s+(moment|passage|extrait)|moment (fort|attractif|cl[ée])/.test(t)?'single':'best';
-    marshallClipCard(url,sec,mode);
-    edAIStatus('✂️ Vérifie les réglages du clip puis clique « Créer mon clip ».');
+    var tt=t.replace(/https?:\/\/\S+/g,' ').normalize('NFD').replace(/[̀-ͯ]/g,''),count=null,cm=tt.match(/\b([1-3]|un|une|deux|trois)\s+(?:seul\s+)?(?:clips?|extraits?|videos?|reels?|shorts?)\b/);
+    if(cm)count={un:1,une:1,deux:2,trois:3}[cm[1]]||+cm[1];
+    else if(/\b(clips|extraits|reels|shorts)\b/.test(tt))count=3;
+    else if(/\b(clip|extrait|reel|short)\b/.test(tt))count=1;
+    else count=3;
+    marshallClipCard(url,sec,mode,count);
+    edAIStatus('✂️ '+(count>1?count+' clips':'1 clip')+' · vérifie les réglages puis clique « Créer '+(count>1?'mes clips':'mon clip')+' ».');
     return {asked:true};
   }
   function marshallClipReply(p){if(p&&p.needPlan)return 'Les clips depuis une vidéo sont inclus dès l’offre Complet (29 €/mois). Je t’ai ouvert les offres.';return 'Top 🎬 Je peux découper ta vidéo. Choisis juste en dessous : les meilleurs moments ou un seul moment fort, la durée, puis je m’occupe du montage 9:16 et des sous-titres qui suivent la voix.';}
@@ -9474,9 +9492,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     edAIStatus('✓ '+clips.length+' clip'+(clips.length>1?'s':'')+' placé'+(clips.length>1?'s':'')+' sur le'+(clips.length>1?'s':'')+' canvas '+[1,2,3].slice(0,clips.length).join('-')+'. Tu peux ajouter du texte par-dessus.');
     return clips.length;
   }
-  function marshallClipCard(url,sec,mode){
+  function marshallClipCard(url,sec,mode,count){
     var th=marshallChatThread();if(!th)return null;
-    var st={sec:sec||15,mode:mode||'best',count:3,captions:true,rights:false,busy:false,task:null,res:null,progress:0,msg:''};
+    var st={sec:sec||15,mode:mode||'best',count:Math.max(1,Math.min(3,+count||3)),captions:true,rights:false,busy:false,task:null,res:null,progress:0,msg:''};
     var box=document.createElement('div');box.className='mv4-msg assistant mrv-card mclip-card';
     var host='';try{host=new URL(url).hostname.replace(/^www\./,'');}catch(e){}
     function render(){
@@ -9495,7 +9513,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         (res&&res.clips&&res.clips.length>1?'<div class="mclip-grid">'+res.clips.map(function(c,i){return '<div class="mclip-cell"><video controls playsinline preload="metadata" src="'+esc(MARSHALL_CREWAI_BASE+c.video_url)+'"></video><b>Canvas '+(i+1)+(c.hook?' · '+esc(c.hook):'')+'</b><small>'+(Array.isArray(c.segments)?c.segments.map(function(sg){return marshallClipFmt(sg[0])+' → '+marshallClipFmt(sg[1]);}).join(' · '):'')+'</small><a href="'+esc(MARSHALL_CREWAI_BASE+c.video_url)+'" download target="_blank" rel="noopener">⬇ Télécharger</a></div>';}).join('')+'</div>':'')+
         (res&&res.video_url&&!(res.clips&&res.clips.length>1)?'<video class="mclip-video" controls playsinline preload="metadata" src="'+esc(MARSHALL_CREWAI_BASE+res.video_url)+'"></video>'+
           '<div class="mclip-info">'+(res.hook?'<b>« '+esc(res.hook)+' »</b>':'')+(Array.isArray(res.segments)?'<div>🎞️ '+res.segments.map(function(s){return marshallClipFmt(s[0])+' → '+marshallClipFmt(s[1]);}).join(' · ')+' <em>('+esc(String(res.clip_seconds||''))+' s)</em></div>':'')+(res.why?'<div>💡 '+esc(res.why)+'</div>':'')+(res.has_speech===false?'<div>🔇 Pas de voix détectée : clip sans sous-titres.</div>':'')+'</div>':'')+
-        '<div class="mrv-actions">'+(res&&res.video_url?(res.clips&&res.clips.length>1?'':'<a class="mrv-btn" href="'+esc(MARSHALL_CREWAI_BASE+res.video_url)+'" download target="_blank" rel="noopener">⬇ Télécharger le clip</a>')+'<button type="button" class="mrv-btn ghost" data-act="place">📐 Remettre sur les canvas</button><button type="button" class="mrv-btn ghost" data-act="again">🔄 Autres moments</button>':'<button type="button" class="mrv-btn" data-act="go"'+(st.busy?' disabled':'')+'>✂️ Créer mon clip</button>')+'</div>'+
+        '<div class="mrv-actions">'+(res&&res.video_url?(res.clips&&res.clips.length>1?'':'<a class="mrv-btn" href="'+esc(MARSHALL_CREWAI_BASE+res.video_url)+'" download target="_blank" rel="noopener">⬇ Télécharger le clip</a>')+'<button type="button" class="mrv-btn ghost" data-act="place">📐 Remettre sur les canvas</button><button type="button" class="mrv-btn ghost" data-act="again">🔄 Autres moments</button>':'<button type="button" class="mrv-btn" data-act="go"'+(st.busy?' disabled':'')+'>✂️ Créer '+(st.count>1?'mes '+st.count+' clips':'mon clip')+'</button>')+'</div>'+
         '<div class="mrv-state">'+esc(st.state||'')+'</div>';
       var r=box.querySelector('input[type=range]');if(r){r.disabled=st.busy;r.addEventListener('input',function(){st.sec=+r.value;box.querySelector('output').textContent=st.sec+' s';});}
       $all('[data-mode]',box).forEach(function(b){b.disabled=st.busy;b.addEventListener('click',function(){st.mode=b.getAttribute('data-mode');render();});});
