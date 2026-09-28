@@ -1124,6 +1124,16 @@
   .conn-btn.ghost:hover{ background:#ffe6c6; }
 .mv4-drop-hot{position:relative}.mv4-drop-hot::after{content:'📁 Dépose ta vidéo ici · Marshall en fait un clip';position:absolute;inset:8px;z-index:50;display:grid;place-items:center;border:3px dashed #F3852B;border-radius:18px;background:rgba(255,243,230,.92);color:#C7620E;font:900 16px 'Baloo 2','Nunito',sans-serif;pointer-events:none}
   html body .mv4-compose-tool.mv4-attach{color:#F3852B!important}html body .mv4-compose-tool.mv4-attach:hover{background:#FFF3E6!important;color:#C7620E!important}
+html body #media-thumbs .m-thumb{position:relative}html body #media-thumbs .m-num{position:absolute;left:4px;top:4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#F3852B;color:#fff;font:900 11px/18px 'Baloo 2','Nunito',sans-serif;text-align:center;box-shadow:0 2px 0 #C7620E;z-index:2}
+  html body #media-thumbs .m-multi{flex-basis:100%;width:100%;margin-top:6px;padding:7px 10px;border-radius:12px;background:#FFF3E6;border:1.5px solid #FFD2A8;color:#8a4a12;font:700 11.5px/1.35 'Nunito',sans-serif}
+html body #pub-step .pub-strip{display:none;margin:-2px 0 10px}html body #pub-step .pub-strip-row{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 6px}
+  html body #pub-step .pub-strip-item{position:relative;flex:0 0 52px;height:70px;border-radius:12px;overflow:hidden;border:2px solid #F1E0CD;background:#FFF6EA;box-shadow:0 2px 0 #F1E0CD}
+  html body #pub-step .pub-strip-item img,html body #pub-step .pub-strip-item video{width:100%;height:100%;object-fit:cover;display:block}
+  html body #pub-step .pub-strip-item em{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-style:normal;font-size:16px;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+  html body #pub-step .pub-strip-item b{position:absolute;left:3px;bottom:3px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#F3852B;color:#fff;font:900 10.5px/17px 'Baloo 2','Nunito',sans-serif;text-align:center;box-shadow:0 2px 0 #C7620E}
+  html body #pub-step .pub-strip-item button{position:absolute;right:3px;top:3px;width:18px;height:18px;padding:0;border:0;border-radius:50%;background:rgba(40,25,15,.72);color:#fff;font:900 12px/18px sans-serif;cursor:pointer}
+  html body #pub-step .pub-strip-item button:hover{background:#e5484d}
+  html body #pub-step .pub-strip-note{padding:6px 9px;border-radius:10px;background:#FFF3E6;border:1.5px solid #FFD2A8;color:#8a4a12;font:700 11px/1.35 'Nunito',sans-serif}
 </style>
 <style id="mcd-appweb">
 @media (max-width: 820px) {
@@ -3221,6 +3231,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
             <section class="pub-card" id="pub-send">
               <div class="pub-ch"><span class="lab"><span class="pub-num">3</span>Quand ?</span><span class="pub-badge" id="pub-when">Maintenant</span></div>
               <button type="button" class="pub-thumb" id="pub-thumb" title="Ouvrir l’aperçu"><span>Aperçu</span></button>
+              <div class="pub-strip" id="pub-strip"></div>
               <div class="sched-toggle">
                 <div class="seg on" data-sched="now">Maintenant</div>
                 <div class="seg" data-sched="later">Programmer</div>
@@ -4189,6 +4200,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       pubRefresh();
     }); });
   }
+  function pubStripRender(){
+    var box=$('#pub-strip'); if(!box) return;
+    var n=comp.media.length;
+    if(n<2){ box.innerHTML=''; box.style.display='none'; return; }
+    box.style.display='block';
+    box.innerHTML='<div class="pub-strip-row">'+comp.media.map(function(m,i){
+      var inner=m.type==='video'?'<video src="'+m.url+'" muted preload="metadata"></video><em>▶</em>':'<img src="'+m.url+'" alt="Canvas '+(i+1)+'">';
+      return '<div class="pub-strip-item">'+inner+'<b>'+(i+1)+'</b><button type="button" data-rm="'+i+'" title="Ne pas publier ce canvas" aria-label="Retirer le canvas '+(i+1)+'">×</button></div>';
+    }).join('')+'</div><div class="pub-strip-note">📚 <b>'+n+' canvas</b> publiés ensemble · Post = carrousel · Story = '+n+' stories à la suite</div>';
+    $all('#pub-strip [data-rm]').forEach(function(b){ b.addEventListener('click',function(ev){ ev.stopPropagation(); comp.media.splice(+b.getAttribute('data-rm'),1); if(comp.media.length<2) comp._edMulti=comp.media.length>0; renderThumbs(); try{renderPreview();}catch(e){} pubRefresh(); }); });
+  }
   function pubRefresh(){
     var step=$('#pub-step'); if(!step) return;
     var sel=selectedNets(), cap=(comp.caption||'').trim();
@@ -4201,6 +4223,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       thumb.style.backgroundImage = m ? 'url('+m.url+')' : 'none';
       thumb.querySelector('span').textContent = m ? 'Ouvrir l’aperçu' : 'Aucun visuel';
     }
+    try{pubStripRender();}catch(e){}
     var badge=$('#pub-when');
     if(badge) badge.textContent = comp.sched==='later'
       ? (($('#sc-date')&&$('#sc-date').value) ? ($('#sc-date').value.split('-').reverse().join('/')+' · '+$('#sc-time').value) : 'Date à choisir')
@@ -4208,7 +4231,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var items=[
       [sel.length>0, sel.length? sel.length+' réseau(x) sélectionné(s)' : 'Choisissez au moins un réseau'],
       [conn.length===sel.length && sel.length>0, sel.length&&conn.length<sel.length ? (sel.length-conn.length)+' compte(s) non connecté(s)' : 'Comptes connectés'],
-      [!!m, m? 'Visuel prêt' : 'Aucun visuel exporté'],
+      [!!m, m? (comp.media.length>1? comp.media.length+' canvas prêts' : 'Visuel prêt') : 'Aucun visuel exporté'],
       [cap.length>0, cap.length? 'Légende rédigée ('+cap.length+' caractères)' : 'Légende vide'],
       [over.length===0, over.length? 'Limite dépassée : '+over.join(', ') : 'Limites de caractères respectées'],
       [comp.sched!=='later' || !!($('#sc-date')&&$('#sc-date').value), comp.sched==='later' ? 'Date et heure définies' : 'Envoi immédiat'],
@@ -4304,8 +4327,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function renderThumbs(){
     $('#media-thumbs').innerHTML = comp.media.map(function(m,i){
       var inner = m.type==='video' ? ('<video src="'+m.url+'" muted></video><span class="vtag">VIDÉO</span>') : ('<img src="'+m.url+'" alt="">');
-      return '<div class="m-thumb">'+inner+'<button class="rm" data-i="'+i+'" title="Retirer">\u00d7</button></div>';
-    }).join('');
+      return '<div class="m-thumb">'+inner+(comp.media.length>1?'<span class="m-num">'+(i+1)+'</span>':'')+'<button class="rm" data-i="'+i+'" title="Retirer">\u00d7</button></div>';
+    }).join('')+(comp.media.length>1?'<div class="m-multi">📚 <b>'+comp.media.length+' canvas</b> publiés ensemble · Post = carrousel · Story = '+comp.media.length+' stories à la suite · retire ceux que tu ne veux pas avec ×</div>':'');
     $all('#media-thumbs .rm').forEach(function(b){ b.addEventListener('click', function(){ comp.media.splice(+b.getAttribute('data-i'),1); renderThumbs(); renderPreview(); }); });
     renderCrop();
   }
@@ -11306,8 +11329,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='d'){ e.preventDefault(); if(ed.sel) $('#ed-dup').click(); }
     });
 
-    $('#ed-publish').addEventListener('click', function(){
-      edExportToMedia();
+    $('#ed-publish').addEventListener('click', async function(){
+      var eb=this; if(eb._busy) return; eb._busy=1;
+      try{ await edExportAllToMedia(); }catch(e){ console.warn('Export multi-canvas',e); try{edExportToMedia();}catch(_e){} }
+      eb._busy=0;
       $('#ed-shell-wrap').style.display='none';
       $('#pub-step').style.display='grid';
       try{renderNetChips();renderFormats();renderCounters();}catch(e){}
@@ -11318,7 +11343,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       window.scrollTo({ top:0, behavior:'smooth' });
     });
     ['#publish-btn','#save-draft'].forEach(function(sel){
-      var b=document.querySelector(sel); if(b) b.addEventListener('click', function(){ edExportToMedia(); }, true);
+      var b=document.querySelector(sel); if(b) b.addEventListener('click', function(){ if(!comp._edMulti) edExportToMedia(); }, true);
     });
   })();
 
@@ -11331,7 +11356,27 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
 
   /* --- export : aplatit la page en image --- */
+  /* --- export de TOUS les canvas (story / carrousel) : un média par canvas, dans l'ordre --- */
+  async function edExportAllToMedia(){
+    try{marshallCanvasPagesEnsureCurrent();marshallCanvasPagesSaveCurrent();}catch(e){}
+    var pages=(typeof marshallCanvasPages!=='undefined'&&marshallCanvasPages)||[];
+    if(pages.length<2){ edExportToMedia(); return; }
+    try{marshallLearnScan('export');}catch(e){}
+    try{edAIStatus('📤 Préparation des '+pages.length+' canvas pour la publication…');}catch(e){}
+    var frames=await marshallTimelineStaticCanvases(), out=[];
+    pages.forEach(function(page,i){
+      var vl=(page.layers||[]).find(function(l){return l&&l.type==='video'&&l.url;});
+      if(vl){ out.push({ type:'video', url:vl.url, name:'clip-'+(i+1)+'.mp4' }); return; }
+      var fr=frames.find(function(f){return f.page===page;});
+      if(!fr||!fr.canvas) return;
+      try{ out.push({ type:'image', url:fr.canvas.toDataURL('image/png'), name:'creation-'+(i+1)+'.png' }); }catch(e){ console.warn('Canvas '+(i+1)+' non exportable',e); }
+    });
+    if(!out.length){ edExportToMedia(); return; }
+    comp.media=out; comp._edMulti=true; renderThumbs();
+    try{edAIStatus('✓ '+out.length+' canvas prêts à publier.');}catch(e){}
+  }
   function edExportToMedia(){
+    comp._edMulti=false;
     try{marshallLearnScan('export');}catch(e){}
     var _vl=(ed.layers||[]).find(function(l){return l&&l.type==='video'&&l.url;});
     if(_vl){ comp.media=[{ type:'video', url:_vl.url, name:'clip.mp4' }]; renderThumbs(); return; }
