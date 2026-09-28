@@ -1481,6 +1481,27 @@
   .set-save{flex:1;border:0;border-radius:13px;padding:12px 14px;background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;font:900 12px 'Nunito',sans-serif;cursor:pointer;box-shadow:0 4px 0 #C7620E;transition:transform .18s ease,box-shadow .18s ease}.set-save:hover{transform:translateY(-2px);box-shadow:0 6px 0 #C7620E,0 10px 18px rgba(199,98,14,.15)}.set-save:active{transform:translateY(1px);box-shadow:0 2px 0 #C7620E}
   .set-state{font-size:10.5px;line-height:1.4;color:#7C654F;background:#fff6ea;border-radius:10px;padding:8px 9px;margin-top:8px}
   @media(max-width:760px){.ed-flyout.settings-mode{width:min(460px,calc(100vw - 112px));max-height:82vh}.settings-v1{height:calc(82vh - 58px)}.set-grid{grid-template-columns:1fr}.set-grid .full{grid-column:1}}
+  .set2{padding-top:0!important}
+  .set2-tabs{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:6px;margin:0 -16px 4px;padding:12px 16px 10px;background:#FFF8EF;border-bottom:1px solid rgba(199,98,14,.1)}
+  .set2-tab{cursor:pointer;border:2px solid #F1E0CD;background:#fff;color:#8A5A2B;border-radius:999px;padding:8px 13px;font:800 13px/1 'Fredoka','Nunito',sans-serif;transition:transform .16s cubic-bezier(.34,1.56,.64,1),background .15s,border-color .15s}
+  .set2-tab:hover{transform:translateY(-1px)}
+  .set2-tab.on{background:linear-gradient(180deg,#FF9C46,#F3852B);border-color:transparent;color:#fff;box-shadow:0 3px 0 #C7620E}
+  .set2-saved{margin-left:auto;font:800 11.5px 'Fredoka',sans-serif;color:#2BA160;opacity:0;transform:translateY(3px);transition:.2s}
+  .set2-saved.show{opacity:1;transform:none}
+  .set2-help{margin:0 0 10px;font-size:12px;line-height:1.45;color:#8A6C54}
+  .set2 .set-section{margin-top:10px}
+  .set2 .set-section-head b{font:800 14px 'Fredoka','Nunito',sans-serif}
+  .set2 .set-field label{font-size:11.5px}
+  .set2 .set-field input,.set2 .set-field select,.set2 .set-field textarea{font-size:12.5px;padding:10px 11px}
+  .set2 .mbb-details>summary{cursor:pointer;font:800 13px 'Fredoka','Nunito',sans-serif;color:#C2540F;padding:4px 0;list-style:none}
+  .set2 .mbb-details>summary::-webkit-details-marker{display:none}
+  .set2 #mtk-card .mtk-week,.set2 #mtk-card .mtk-list{display:none}
+  .set2-state{display:none!important}
+  .set2 #mbb-intel-state,.set2 #mbb-intel-sources{display:none!important}
+  .set2 .set-state:empty{display:none}
+  .set2 .mbb-todo{font-size:12.5px!important}
+  .set2 [data-pane="account"] a.set-save{background:#fff!important;color:#C2540F!important;border:2px solid #F1E0CD!important;box-shadow:none!important;width:100%!important;min-height:40px!important}
+  .set2 [data-pane="account"] a.set-save:hover{border-color:#F3852B!important}
 </style>
 
 
@@ -2237,6 +2258,14 @@ html body .mpub-hint a{color:#e5484d;text-decoration:underline;cursor:pointer}
 html body .ed-rail #ed-publish.mpub-locked{background:linear-gradient(135deg,#ece6e6,#ddd3d3)!important;color:#b23a3e!important;border:2px solid #e5484d!important;box-shadow:none!important;position:relative}
 html body .ed-rail #ed-publish.mpub-locked svg{opacity:.45}
 html body .ed-rail #ed-publish.mpub-locked::after{content:"";position:absolute;right:6px;top:6px;width:16px;height:16px;border-radius:50%;background:#e5484d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center/10px no-repeat;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+
+#app #side .fan-wrap .nav-item svg.cartoon-ic{width:22px!important;height:22px!important;filter:drop-shadow(0 1.5px 0 rgba(74,42,16,.25));transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+#app #side .fan-wrap .nav-item:hover svg.cartoon-ic{transform:rotate(-8deg) scale(1.12)}
+#app #side .fan-wrap .nav-item.active svg.cartoon-ic{transform:scale(1.08)}
+
+#preview-tabs .pvbtn svg.cartoon-eye{width:26px!important;height:26px!important;filter:drop-shadow(0 1.5px 0 rgba(194,84,15,.25));transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+#preview-tabs .pvbtn:hover svg.cartoon-eye{transform:scale(1.14) rotate(-6deg)}
+#preview-tabs #pv-back{color:#F3852B!important}
 </style>
 <style id="mcd-house-style">
 .home-btn .mcd-house{width:24px!important;height:24px!important;display:block;filter:drop-shadow(0 1.5px 0 rgba(90,40,0,.22));transition:transform .25s cubic-bezier(.34,1.5,.5,1)}
@@ -2736,19 +2765,19 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     </div>
     <div class="fan-wrap" id="fan-wrap">
     <a class="nav-item active" data-view="composer">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      <svg class="cartoon-ic" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M15.4 3.8l4.8 4.8L9.1 19.7l-5.6 1.1 1.1-5.6z" fill="#FFD23F"/><path d="M13.6 5.6l4.8 4.8" fill="none"/><path d="M4.6 15.2l4.5 4.5-5.6 1.1z" fill="#FBE3C4"/><path d="M15.4 3.8l1.4-1.4a1.9 1.9 0 0 1 2.7 0l2.1 2.1a1.9 1.9 0 0 1 0 2.7l-1.4 1.4z" fill="#FF7FA8"/></g><path d="M3.3 19.3l1.4 1.4-1.9.5z" fill="#4a2a10"/><path d="M7.2 15.1l6.6-6.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".75"/></svg>
       <span>Composer</span>
     </a>
     <a class="nav-item" data-view="calendar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <svg class="cartoon-ic" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="2.8" y="4.6" width="18.4" height="16.6" rx="3.4" fill="#fff"/><path d="M2.8 10V8a3.4 3.4 0 0 1 3.4-3.4h11.6A3.4 3.4 0 0 1 21.2 8v2z" fill="#FF5A4E"/><rect x="6.6" y="2.3" width="2.6" height="5" rx="1.3" fill="#DCE6F2"/><rect x="14.8" y="2.3" width="2.6" height="5" rx="1.3" fill="#DCE6F2"/></g><rect x="6" y="12.4" width="3" height="2.6" rx=".9" fill="#FFB547"/><rect x="10.5" y="12.4" width="3" height="2.6" rx=".9" fill="#FFB547"/><rect x="15" y="12.4" width="3" height="2.6" rx=".9" fill="#7FD3FF"/><rect x="6" y="16.4" width="3" height="2.6" rx=".9" fill="#FFB547"/><path d="M11 17.6l1.1 1.1 2.2-2.4" fill="none" stroke="#2BB673" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span>Calendrier</span><span class="badge" id="badge-sched" style="display:none;">0</span>
     </a>
     <a class="nav-item" data-view="history">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+      <svg class="cartoon-ic" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><circle cx="12.6" cy="12.6" r="8.8" fill="#7FD3FF"/><circle cx="12.6" cy="12.6" r="6.2" fill="#fff"/><path d="M12.6 8.9v3.9l2.7 1.7" fill="none" stroke-width="1.9"/><path d="M1.9 6.2l2.2 4.2 4-2.4z" fill="#FFD23F"/></g><circle cx="12.6" cy="12.8" r="1" fill="#4a2a10"/><path d="M8.4 5.4a8 8 0 0 1 3.2-1" stroke="#fff" stroke-width="1.3" stroke-linecap="round" opacity=".8" fill="none"/></svg>
       <span>Historique</span>
     </a>
     <a class="nav-item" data-view="drafts">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <svg class="cartoon-ic" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M6 2.6h8.4l5.2 5.2v11.8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4.6a2 2 0 0 1 2-2z" fill="#fff"/><path d="M14.4 2.6v3.6a1.6 1.6 0 0 0 1.6 1.6h3.6z" fill="#FFE08A"/></g><path d="M7.4 11.4h8.2M7.4 14.4h8.2M7.4 17.4h5" stroke="#8FBFFF" stroke-width="1.8" stroke-linecap="round"/><circle cx="16.6" cy="17.4" r="1.3" fill="#FF7FA8"/></svg>
       <span>Brouillons</span><span class="badge" id="badge-drafts" style="display:none;">0</span>
     </a>
     <button type="button" class="fan-fab" id="fan-fab" title="Menu" aria-label="Menu">
@@ -4764,25 +4793,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(kind==='settings'){
       title.textContent='Réglages';
       var sbm=marshallBrandManualGet(), intel=marshallBrandIntelligenceGet();
-      body.innerHTML=`<div class="settings-v1">
-        <div class="set-intro"><span class="set-intro-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/></svg></span><div><b>Brand Intelligence</b><span>Marshall fusionne le profil, le site officiel et l’Instagram connecté de l’utilisateur actif.</span></div></div>
-        <div class="set-section" id="mpl-section"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M3 7h18v10H3z"/><path d="M3 10h18"/></svg><b>Mon abonnement</b><span>Studio Social</span></div><div id="mpl-card"></div></div>
-        <div class="set-section" id="mtk-section"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg><b>Mon utilisation</b><span>Temps réel</span></div><div id="mtk-card"></div></div>
+      body.innerHTML=`<div class="settings-v1 set2">
+        <div class="set2-tabs" role="tablist"><button type="button" class="set2-tab" data-set2="brand" role="tab">🎨 Ma marque</button><button type="button" class="set2-tab" data-set2="create" role="tab">✨ Création</button><button type="button" class="set2-tab" data-set2="account" role="tab">👤 Mon compte</button><span class="set2-saved" id="set2-saved" aria-live="polite"></span></div>
+        <div class="set2-pane" data-pane="brand">
         <div class="set-section mbb-express"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/></svg><b>Ta marque en 1 clic</b><span>Marshall remplit tout</span></div>
           <p class="mbb-express-intro">Donne ton site, ton compte Instagram ou décris ton activité en une phrase : Marshall analyse et remplit ton profil de marque.</p>
           <div class="mbb-express-row"><input id="mbb-express-input" placeholder="monsite.fr · @moncompte · « Boulangerie bio à Lyon »" aria-label="Site, Instagram ou description de ton activité"><button type="button" class="set-save" id="mbb-express-go">✨ Tout remplir</button></div>
           <div class="mbb-express-card" id="mbb-express-card"></div>
           <div class="set-state" id="mbb-intel-state"></div><div class="set-state" id="mbb-intel-sources"></div>
         </div>
-        <div class="set-section"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8M8 13h5"/></svg><b>Création</b><span>Préférences</span></div><div class="set-grid">
-          <div class="set-field"><label>Objectif</label><select id="ai-goal"><option value="Vente">Vente</option><option value="Engagement">Engagement</option><option value="Notoriété">Notoriété</option><option value="Lancement produit">Lancement produit</option></select></div>
-          <div class="set-field"><label>Plateforme</label><select id="ai-platform"><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Facebook">Facebook</option><option value="X">X</option><option value="Snapchat">Snapchat</option></select></div>
-          <div class="set-field full"><label>Style créatif</label><select id="marshall-style"><option value="auto">Automatique</option><option value="modern">Moderne</option><option value="premium">Premium</option><option value="bold">Bold social media</option><option value="ugc">UGC / natif</option></select></div>
-          <div class="set-field full"><label>Outil vidéo Marshall</label><select id="marshall-story-render"><option value="auto">Vidéo Motion locale (gratuit)</option><option value="veo-lite">Motion + vidéo IA Google Veo 3.1 Lite (≈ 470 tokens)</option><option value="veo-fast">Motion + vidéo IA Veo 3.1 Fast · premium (≈ 1 550 tokens)</option><option value="video">Motion + vidéo IA Wan 2.2 (open source)</option><option value="static">Outil vidéo désactivé</option></select></div>
-          <div class="set-field full"><label>Moteur d’images en mode Hyper</label><select id="marshall-image-engine"><option value="auto">Nano Banana 2 · Google (recommandé, ≈ 87 tokens/image)</option><option value="pro">Nano Banana Pro · qualité max (≈ 173 tokens/image)</option><option value="qwen">Qwen-Image · Modal (économique, ≈ 13 tokens)</option></select></div>
-        </div></div>
-        <div class="set-section" id="mbb-form"><div class="set-section-head"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/></svg><b>Détails de la marque</b><span>Rempli par Marshall · modifiable</span></div><details class="mbb-details"><summary>Voir et modifier les détails</summary><div class="set-grid">
-          <div class="set-field full"><label>Compte et facturation</label><div class="set-state" id="mbb-account-summary"></div><a href="espace-compte.html#profil" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Gérer mes infos dans l’Espace compte</a> <a href="espace-compte.html#securite" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Changer mon mot de passe</a></div><div class="set-field full" id="mbb-perso-row"><label>De quoi parle ton compte ? Que dois-je créer ?</label><textarea id="mbb-topic" placeholder="Ex : je partage mes recettes healthy et je veux gagner des abonnés"></textarea></div><div class="set-field"><label>Nom de marque</label><input id="mbb-name"></div><div class="set-field"><label>Secteur / activité</label><input id="mbb-sector"></div>
+        <div class="set-section" id="mbb-form"><div class="set-section-head"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c.8-4 3.2-6 7.5-6s6.7 2 7.5 6"/></svg><b>Détails de la marque</b><span>Rempli par Marshall · modifiable</span></div><details class="mbb-details"><summary>✏️ Voir et modifier les détails de ma marque</summary><div class="set-grid">
+          <div class="set-field full" id="mbb-perso-row"><label>De quoi parle ton compte ? Que dois-je créer ?</label><textarea id="mbb-topic" placeholder="Ex : je partage mes recettes healthy et je veux gagner des abonnés"></textarea></div><div class="set-field"><label>Nom de marque</label><input id="mbb-name"></div><div class="set-field"><label>Secteur / activité</label><input id="mbb-sector"></div>
           <div class="set-field full"><label>Site web officiel</label><input id="mbb-website" inputmode="url" placeholder="https://votresite.fr"></div>
           <div class="set-field full"><label>Offre / services</label><textarea id="mbb-offer"></textarea></div><div class="set-field full"><label>Cible</label><textarea id="mbb-audience"></textarea></div>
           <div class="set-field full"><label>Valeurs / personnalité</label><textarea id="mbb-values"></textarea></div><div class="set-field"><label>Ton</label><input id="mbb-tone"></div><div class="set-field"><label>Positionnement</label><input id="mbb-position"></div>
@@ -4790,10 +4811,30 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           <div class="set-field full"><label>Avis clients réels (un par ligne, avec le prénom : « Super accueil ! — Julie »)</label><textarea id="mbb-reviews" placeholder="Marshall récupère aussi les avis publiés sur ton site et sur Google."></textarea></div>
           <div class="set-field full"><label>Couleurs déclarées</label><div class="set-colorrow"><div class="set-color"><input id="mbb-primary" type="color"><span>Principale</span></div><div class="set-color"><input id="mbb-accent" type="color"><span>Accent</span></div></div></div>
         </div></details></div>
-        <div class="set-actions"><button type="button" class="set-save" id="mbb-save">Enregistrer les réglages</button></div><div class="set-state" id="mbb-state"></div>
+        </div>
+        <div class="set2-pane" data-pane="create"><div class="set-section"><p class="set2-help">Marshall utilise ces choix pour toutes tes créations. Tout est enregistré automatiquement.</p><div class="set-grid">
+          <div class="set-field"><label>Objectif</label><select id="ai-goal"><option value="Vente">Vente</option><option value="Engagement">Engagement</option><option value="Notoriété">Notoriété</option><option value="Lancement produit">Lancement produit</option></select></div>
+          <div class="set-field"><label>Plateforme</label><select id="ai-platform"><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Facebook">Facebook</option><option value="X">X</option><option value="Snapchat">Snapchat</option></select></div>
+          <div class="set-field full"><label>Style créatif</label><select id="marshall-style"><option value="auto">Automatique</option><option value="modern">Moderne</option><option value="premium">Premium</option><option value="bold">Bold social media</option><option value="ugc">UGC / natif</option></select></div>
+          <div class="set-field full"><label>Outil vidéo Marshall</label><select id="marshall-story-render"><option value="auto">Vidéo Motion locale (gratuit)</option><option value="veo-lite">Motion + vidéo IA Google Veo 3.1 Lite (≈ 470 tokens)</option><option value="veo-fast">Motion + vidéo IA Veo 3.1 Fast · premium (≈ 1 550 tokens)</option><option value="video">Motion + vidéo IA Wan 2.2 (open source)</option><option value="static">Outil vidéo désactivé</option></select></div>
+          <div class="set-field full"><label>Moteur d’images en mode Hyper</label><select id="marshall-image-engine"><option value="auto">Nano Banana 2 · Google (recommandé, ≈ 87 tokens/image)</option><option value="pro">Nano Banana Pro · qualité max (≈ 173 tokens/image)</option><option value="qwen">Qwen-Image · Modal (économique, ≈ 13 tokens)</option></select></div>
+        </div></div></div>
+        <div class="set2-pane" data-pane="account">
+          <div class="set-section" id="mpl-section"><div class="set-section-head"><b>Mon abonnement</b></div><div id="mpl-card"></div></div>
+          <div class="set-section" id="mtk-section"><div class="set-section-head"><b>Mon utilisation</b><span>Temps réel</span></div><div id="mtk-card"></div></div>
+          <div class="set-section"><div class="set-field full"><label>Mes infos et ma facturation</label><div class="set-state" id="mbb-account-summary"></div><a href="espace-compte.html#profil" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Gérer mes infos dans l’Espace compte</a> <a href="espace-compte.html#securite" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Changer mon mot de passe</a></div></div>
+        </div>
+        <div class="set-state set2-state" id="mbb-state"></div>
       </div>`;
       marshallSettingsLoadUI();marshallBrandLoadUI();marshallBrandIntelligenceRenderState();marshallAccountBindSettings();marshallBrandExpressBind();marshallTokensRender();marshallPlanRender();marshallTokensRefresh(true);
-      var save=$('#mbb-save');if(save)save.addEventListener('click',function(){marshallSettingsSave();marshallBrandSave();marshallBrandIntelligenceRenderState();});
+      (function(){var root=body.querySelector('.set2');if(!root)return;var cur='brand';try{cur=localStorage.getItem('mcd_set2_tab')||'brand';}catch(e){}
+        function show(k){$all('.set2-tab',root).forEach(function(t){var on=t.getAttribute('data-set2')===k;t.classList.toggle('on',on);t.setAttribute('aria-selected',on?'true':'false');});$all('.set2-pane',root).forEach(function(p){p.hidden=p.getAttribute('data-pane')!==k;});try{localStorage.setItem('mcd_set2_tab',k);}catch(e){}if(k==='account'){try{marshallTokensRefresh(true);}catch(e){}}}
+        $all('.set2-tab',root).forEach(function(t){t.addEventListener('click',function(){show(t.getAttribute('data-set2'));});});show(['brand','create','account'].indexOf(cur)>=0?cur:'brand');
+        var badge=$('#set2-saved'),tm=null;
+        root.addEventListener('change',function(e){var el=e.target;if(!el||!el.matches('input,select,textarea')||el.id==='mbb-express-input')return;
+          try{if(el.closest('[data-pane="create"]'))marshallSettingsSave();else{marshallSettingsSave();marshallBrandSave();marshallBrandIntelligenceRenderState();}}catch(err){console.warn('Réglages',err);}
+          if(badge){badge.textContent='✓ Enregistré';badge.classList.add('show');clearTimeout(tm);tm=setTimeout(function(){badge.classList.remove('show');},1800);}});
+      })();
       var analyze=$('#mbb-analyze');if(analyze)analyze.addEventListener('click',async function(){marshallSettingsSave();marshallBrandSave();analyze.disabled=true;analyze.textContent='Analyse en cours…';try{await marshallRefreshBrandIntelligence(true);marshallBrandIntelligenceRenderState();}catch(e){var st=$('#mbb-intel-state');if(st)st.textContent='Analyse impossible : '+(e&&e.message?e.message:'erreur inconnue');}finally{analyze.disabled=false;analyze.textContent='Analyser ma marque';}});
     }
     if(kind==='templates'){
@@ -11476,8 +11517,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'+
         '<path d="M19 12H5M11 18l-6-6 6-6"/></svg></div>':'')+
       '<div class="ptab pvbtn" id="pv-open" title="Aperçu">'+
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+
-      '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></div>';
+      '<svg class="cartoon-eye" viewBox="0 0 24 24" aria-hidden="true">'+'<path d="M1.8 12.2C4.2 7.6 7.8 5.2 12 5.2s7.8 2.4 10.2 7c-2.4 4.6-6 7-10.2 7s-7.8-2.4-10.2-7z" fill="#FFF1E2" stroke="#C2540F" stroke-width="1.8" stroke-linejoin="round"/>'+'<circle cx="12" cy="12.2" r="4.6" fill="#F3852B" stroke="#C2540F" stroke-width="1.6"/>'+'<circle cx="12" cy="12.2" r="2" fill="#5A2A0C"/>'+'<circle cx="13.6" cy="10.6" r="1.25" fill="#fff"/><circle cx="10.4" cy="13.8" r=".6" fill="#fff" opacity=".8"/>'+'<path d="M6 5.6 4.9 3.9M12 4.1V2.2M18 5.6l1.1-1.7" stroke="#C2540F" stroke-width="1.8" stroke-linecap="round"/></svg></div>';
     $('#pv-open').addEventListener('click', function(){ renderPreview(); pvxOpen(previewNet); });
     if($('#pv-back')) $('#pv-back').addEventListener('click', pubBackToEditor);
   }
