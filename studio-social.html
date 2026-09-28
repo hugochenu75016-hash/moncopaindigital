@@ -6905,6 +6905,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallLooksLikeStoryScheduleRequest(prompt){
     if(!marshallHasSchedulableStory())return false;
     var t=marshallScheduleNormalizeText(prompt);
+    /* Une demande de CRÉATION (ou un long texte d'actu) n'est jamais une demande de programmation. */
+    var when=/\b(demain|apres-demain|aujourd'hui|ce soir|ce matin|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|dans \d+|\d{1,2}\s*h(\d{2})?\b|\d{1,2}[:h]\d{2}|\d{1,2}\/\d{1,2})/.test(t);
+    if(String(prompt||'').length>220&&!/\b(programme|programmer|planifie|planifier)\b/.test(t.slice(0,60)))return false;
+    if(/\b(cree|creer|crees|fais|faire|genere|generer|compose|composer|redige|rediger|imagine|invente)\b/.test(t)&&!when)return false;
     var action=/\b(programme|programmer|planifie|planifier|planifies|poste|poster|publie|publier|publies|mets|mettre|ajoute|ajouter|cale|caler|schedule)\b/.test(t);
     var target=/\b(story|stories|visuel|visuels|creation|crea|la|les|ca|celle-ci|cette)\b/.test(t)||/calendrier/.test(t);
     return action&&target;
@@ -7042,7 +7046,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!prompt){marshallChatBubble('assistant','Écris ce que tu veux créer, par exemple : « Crée une story Instagram pour présenter mon service ».');if(input)input.focus();return;}
     if(mcdIsOffline()){marshallChatBubble('assistant','Tu es hors ligne 📴 Marshall a besoin d’Internet pour écrire et générer. En attendant, continue à composer : canvas, textes, calques et brouillons sont enregistrés sur cet appareil. Renvoie ta demande dès que le réseau revient.');return;}
     var earlyPending=marshallConversationPending();
-    if((earlyPending&&earlyPending.intent==='story_schedule')||marshallLooksLikeStoryScheduleRequest(prompt)){
+    if(!opts.forceIntent&&((earlyPending&&earlyPending.intent==='story_schedule')||marshallLooksLikeStoryScheduleRequest(prompt))){
       marshallChatBubble('user',prompt);
       try{
         var scheduled=await marshallHandleStoryScheduleTurn(prompt,earlyPending);
@@ -7053,7 +7057,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return;
     }
     marshallCaptureWebsite(prompt);
-    var intent=marshallEffectiveIntent(prompt), workPrompt=prompt, pending=marshallConversationPending();
+    var intent=opts.forceIntent||marshallEffectiveIntent(prompt), workPrompt=prompt, pending=opts.forceIntent?null:marshallConversationPending();
     if(pending && marshallAgentMode.mission==='auto'){
       if(/^(non|annule|annuler|laisse|pas maintenant|stop)\b/i.test(prompt)){
         marshallConversationClearPending();marshallChatBubble('user',prompt);marshallChatBubble('assistant','D’accord, j’annule cette création. Dis-moi simplement ce que tu veux faire ensuite.');marshallChatClearInput(input);if(input)input.focus();return;
@@ -9649,8 +9653,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     $all('[data-nat-story]',box).forEach(function(btn){btn.addEventListener('click',function(){
       var it=top[+btn.getAttribute('data-nat-story')]||{};
       marshallPendingNewsItem={country:name,item:it,at:Date.now()};
-      var pr='Crée une story sur cette actualité ('+name+') en restant 100 % factuel, sans rien inventer : '+(it.title||'')+'. '+(it.summary||'')+(it.key_figure?' Chiffre clé : '+it.key_figure+'.':'')+(it.post_idea?' Angle : '+it.post_idea:'');
-      var inp=$('#ai-prompt');if(inp){inp.value=pr;try{marshallChatSubmit();}catch(err){console.warn(err);}}
+      var pr='Crée une story sur cette actualité ('+name+') en restant 100 % factuel, sans rien inventer : '+(it.title||'')+'. '+(it.summary||'')+(it.key_figure?' Chiffre clé : '+it.key_figure+'.':'')+(it.post_idea?' Idée de format : '+it.post_idea:'');
+      try{marshallChatSubmit(pr,{forceIntent:'story'});}catch(err){console.warn(err);}
     });});
     var cp=box.querySelector('[data-nat-act="copy"]');if(cp)cp.addEventListener('click',function(){
       var txt=flag+' '+name+' · '+asOf+'\n'+(b.summary||'')+'\n\n'+top.map(function(it,i){return (i+1)+'. '+(it.title||'')+(it.date?' ('+it.date+')':'')+'\n'+(it.summary||'')+(it.key_figure?'\nChiffre clé : '+it.key_figure:'');}).join('\n\n')+(src.length?'\n\nSources :\n'+src.map(function(s){return '- '+s.title+' : '+s.url;}).join('\n'):'');
