@@ -2225,6 +2225,18 @@ html body .ed-rail .ed-tool.ed-tool-ai.on{box-shadow:0 0 0 3px #fff,0 0 0 5px #f
 html body .ed-rail .ed-tool.ed-tool-ai .ed-ai-avatar{display:block;width:38px;height:38px;border-radius:50%;background:#fff3e6;object-fit:cover;object-position:50% 4%;border:2px solid rgba(255,255,255,.9);box-shadow:0 2px 6px rgba(120,50,0,.25)}
 html body .ed-rail .ed-tool.ed-tool-ai span{color:#fff!important;font-weight:800!important}
 @media (max-width:760px){html body .ed-rail .ed-tool.ed-tool-ai .ed-ai-avatar{width:30px;height:30px}}
+
+html body #publish-btn.mpub-locked,html body #calv-approve.mpub-locked{background:linear-gradient(135deg,#ece6e6,#ddd3d3)!important;color:#b23a3e!important;border:2px solid #e5484d!important;box-shadow:none!important;cursor:pointer;position:relative}
+html body #publish-btn.mpub-locked svg{display:none}
+html body #publish-btn.mpub-locked::before,html body #calv-approve.mpub-locked::before{content:"";display:inline-block;width:16px;height:16px;margin-right:7px;vertical-align:-2px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center/contain no-repeat}
+html body #publish-btn.mpub-locked:hover,html body #calv-approve.mpub-locked:hover{background:linear-gradient(135deg,#f3e3e3,#e8d2d2)!important}
+html body .mpub-hint{display:none;margin:8px 2px 0;font:700 12.5px/1.35 'Fredoka',sans-serif;color:#b23a3e;text-align:center}
+html body .mpub-hint.show{display:block}
+html body .mpub-hint a{color:#e5484d;text-decoration:underline;cursor:pointer}
+
+html body .ed-rail #ed-publish.mpub-locked{background:linear-gradient(135deg,#ece6e6,#ddd3d3)!important;color:#b23a3e!important;border:2px solid #e5484d!important;box-shadow:none!important;position:relative}
+html body .ed-rail #ed-publish.mpub-locked svg{opacity:.45}
+html body .ed-rail #ed-publish.mpub-locked::after{content:"";position:absolute;right:6px;top:6px;width:16px;height:16px;border-radius:50%;background:#e5484d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E") center/10px no-repeat;box-shadow:0 2px 5px rgba(0,0,0,.2)}
 </style>
 <style id="mcd-house-style">
 .home-btn .mcd-house{width:24px!important;height:24px!important;display:block;filter:drop-shadow(0 1.5px 0 rgba(90,40,0,.22));transition:transform .25s cubic-bezier(.34,1.5,.5,1)}
@@ -6574,7 +6586,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
     }
     if(!d){
-      var add=/\bapres-demain\b/.test(t)?2:/\bdemain\b/.test(t)?1:/\baujourd'hui\b/.test(t)?0:null;
+      var add=/\bapres[- ]?demain\b/.test(t)?2:/\bdemain\b/.test(t)?1:/\b(aujourd'? ?hui|aujourdui|auj|ce soir|ce matin|cet apres[- ]?midi|tout a l'heure|tantot)\b/.test(t)?0:null;
       if(add!=null){d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+add);}
     }
     if(!d){
@@ -6589,7 +6601,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
     return d;
   }
+  function marshallScheduleRelative(text){
+    var t=marshallScheduleNormalizeText(text),m=t.match(/\bdans\s+(\d{1,3}|une?|deux|trois|cinq|dix|quinze|trente)\s*(min(?:ute)?s?|mn|h|heures?)\b/);
+    if(m){var w={un:1,une:1,deux:2,trois:3,cinq:5,dix:10,quinze:15,trente:30}[m[1]]||Number(m[1]);var ms=/^h/.test(m[2])?w*3600000:w*60000;return new Date(Date.now()+Math.max(60000,ms));}
+    if(/\bdans\s+une?\s+demi[- ]?heure\b/.test(t))return new Date(Date.now()+1800000);
+    if(/\b(tout de suite|maintenant|immediatement|asap)\b/.test(t))return new Date(Date.now()+90000);
+    return null;
+  }
   function marshallStoryScheduleParse(prompt){
+    var rel=marshallScheduleRelative(prompt);
+    if(rel){rel.setSeconds(0,0);if(rel.getTime()<=Date.now()+30000)rel=new Date(rel.getTime()+60000);return {missing:[],date:new Date(rel.getFullYear(),rel.getMonth(),rel.getDate()),time:{hour:rel.getHours(),minute:rel.getMinutes(),explicit:true},target:rel};}
     var recent=marshallScheduleRecentUserText(),time=marshallScheduleExtractTime(prompt)||marshallScheduleExtractTime(recent),date=marshallScheduleExtractDate(prompt,time);
     if(!date&&recent)date=marshallScheduleExtractDate(recent,time);
     var missing=[];if(!date)missing.push('date');if(!time)missing.push('time');
@@ -6600,14 +6621,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallStoryScheduleQuestion(spec){
     var miss=(spec&&spec.missing)||[];
-    if(miss.indexOf('future')>=0)return 'Cette heure est déjà passée. Donne-moi une nouvelle date ou heure et je place directement les 3 visuels dans le calendrier.';
-    if(miss.indexOf('date')>=0&&miss.indexOf('time')>=0)return 'Oui. Pour quel jour et à quelle heure veux-tu que je mette les 3 visuels dans le calendrier ?';
-    if(miss.indexOf('date')>=0)return 'À quelle date veux-tu que je mette les 3 visuels dans le calendrier ?';
-    return 'À quelle heure veux-tu que je programme les 3 visuels ?';
+    if(miss.indexOf('future')>=0)return 'Cette heure est déjà passée. Donne-moi une nouvelle date ou heure et je place directement ta Story dans le calendrier.';
+    if(miss.indexOf('date')>=0&&miss.indexOf('time')>=0)return 'Oui. Pour quel jour et à quelle heure veux-tu que je mette ta Story dans le calendrier ? (ex. « demain 18h », « dans 10 minutes »)';
+    if(miss.indexOf('date')>=0)return 'À quelle date veux-tu que je mette ta Story dans le calendrier ? (ex. « demain 18h », « dans 10 minutes »)';
+    return 'À quelle heure veux-tu que je programme ta Story ?';
   }
   function marshallScheduleScaledPng(canvas){
     if(!canvas)return '';
     var maxW=540,scale=Math.min(1,maxW/(canvas.width||maxW));
+    try{canvas.toDataURL('image/png',0.1);}catch(e){throw Error('une image externe de la Story bloque l’export (protection du site d’origine). Remplace-la ou importe-la depuis ton ordinateur.');}
     if(scale>=.999)return canvas.toDataURL('image/png');
     var c=document.createElement('canvas');c.width=Math.max(1,Math.round(canvas.width*scale));c.height=Math.max(1,Math.round(canvas.height*scale));
     var x=c.getContext('2d');x.drawImage(canvas,0,0,c.width,c.height);return c.toDataURL('image/png');
@@ -6616,6 +6638,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{marshallLearnScan('export');}catch(e){}
     var ctx=marshallCurrentStoryContext(),spec=marshallStoryScheduleParse(prompt);
     if(!ctx.pages.length)return {ok:false,message:'Je n’ai pas de Story active à programmer dans cette conversation.'};
+    if(!marshallCanPublish()){try{marshallPaywallOpen('complet');}catch(e){}return {ok:false,message:'La programmation et la publication sont incluses dès l’offre **Complet à 29 €/mois**. Je t’ai ouvert les offres : ta Story reste enregistrée dans le canvas en attendant.'};}
     if(spec.missing.length)return {ok:false,pending:true,message:marshallStoryScheduleQuestion(spec)};
     if(!marshallStoryIsComplete(ctx.pages)){
       edAIStatus('Marshall · la Story est incomplète, reconstruction des canvases…');
@@ -6880,8 +6903,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* ===== Abonnements Studio Social : Gratuit · Complet 29 € · Hyper 59 € — paiement sur paiement.html (Stripe) ===== */
   var MARSHALL_PAY_PAGE='paiement.html';
   var MARSHALL_PLANS={
-    gratuit:{name:'Gratuit',price:'0 €',per:'',power:'leger',perks:['Marshall en mode Léger','Stories et posts éditables','Images Qwen gratuites','Vidéo Motion à partir de tes Stories']},
-    complet:{name:'Complet',price:'29 €',per:'/mois',power:'normal',perks:['Tout le Gratuit','Marshall en mode Normal','Analyse de marque (site, Instagram, avis)','Équipe d’agents Marshall','Vidéo IA Wan 2.2']},
+    gratuit:{name:'Gratuit',price:'0 €',per:'',power:'leger',perks:['Marshall en mode Léger','Stories et posts éditables (brouillons)','Images Qwen gratuites','Vidéo Motion à partir de tes Stories']},
+    complet:{name:'Complet',price:'29 €',per:'/mois',power:'normal',perks:['Tout le Gratuit','Publication et programmation sur tes réseaux','Marshall en mode Normal','Analyse de marque (site, Instagram, avis)','Équipe d’agents Marshall','Vidéo IA Wan 2.2']},
     hyper:{name:'Hyper',price:'59 €',per:'/mois',power:'hyper',perks:['Tout le Complet','Mode ⚡ Hyper','Images Google Nano Banana 2','Vraies vidéos Google Veo 3.1','Le meilleur moteur de création']}
   };
   var MARSHALL_PLAN_RANK={gratuit:0,complet:1,hyper:2},MARSHALL_POWER_NEED={leger:'gratuit',normal:'complet',hyper:'hyper'};
@@ -6933,10 +6956,28 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(MARSHALL_PLAN_RANK[marshallPlan()]>=MARSHALL_PLAN_RANK[target]){clearInterval(marshallPaywallClose.poll);marshallPaywallClose.poll=null;try{marshallPowerSet(MARSHALL_PLANS[target].power);}catch(e){}marshallPlanRender();if(done)done();}
     },5000);
   }
+  /* ===== Publication réservée aux abonnés Complet (29 €) et Hyper ===== */
+  function marshallCanPublish(){return marshallIsStaff()||MARSHALL_PLAN_RANK[marshallPlan()]>=MARSHALL_PLAN_RANK.complet;}
+  function marshallPublishLockRender(){
+    var lock=!!authUser&&!marshallCanPublish();
+    ['#publish-btn','#calv-approve','#ed-publish'].forEach(function(sel){var b=$(sel);if(!b)return;b.classList.toggle('mpub-locked',lock);if(lock){b.setAttribute('title','Publication disponible dès l’offre Complet (29 €/mois)');b.setAttribute('aria-label','Publication verrouillée : voir les offres');}else{b.removeAttribute('title');b.removeAttribute('aria-label');}});
+    var send=$('#pub-send'),h=$('#mpub-hint');
+    if(send&&!h){h=document.createElement('p');h.id='mpub-hint';h.className='mpub-hint';h.innerHTML='🔒 La publication est incluse dès l’offre <b>Complet à 29 €</b>. <a data-mpub-offers>Voir les offres</a>';send.appendChild(h);}
+    if(h)h.classList.toggle('show',lock);
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target&&e.target.closest&&e.target.closest('#publish-btn.mpub-locked,#calv-approve.mpub-locked,#ed-publish.mpub-locked,[data-mpub-offers]');
+    if(!t)return;
+    if(marshallCanPublish()){try{marshallPublishLockRender();}catch(_e){}if(!t.hasAttribute('data-mpub-offers'))return;}
+    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+    try{if(t.id==='calv-approve')calendarValidationClose();}catch(_e){}
+    marshallPaywallOpen('complet');
+  },true);
   function marshallUpgradeRender(){
     var b=$('#mpl-upgrade');if(!b)return;
     if(!b.dataset.bound){b.dataset.bound='1';b.addEventListener('click',function(){marshallPaywallOpen(marshallPlan()==='complet'?'hyper':'complet');});}
     b.hidden=!authUser||!!actingAs||marshallIsStaff()||marshallPlan()==='hyper';
+    try{marshallPublishLockRender();}catch(e){}
   }
   function marshallPlanRender(){
     try{marshallPowerRender();}catch(e){}
@@ -6944,8 +6985,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var box=$('#mpl-card');if(!box)return;
     if(marshallIsStaff()){box.innerHTML='<div class="mpl-cur"><b>Accès complet</b><span>Compte '+(((marshallTokenState.st||{}).role)==='commercial'?'commercial':'administrateur')+' : toutes les fonctions, sans abonnement.</span></div>';return;}
     var k=marshallPlan(),p=MARSHALL_PLANS[k],info=((marshallTokenState.st||{}).plan_info)||{};
-    box.innerHTML='<div class="mpl-cur"><b>'+p.name+' <em>'+p.price+p.per+'</em></b><span>'+esc(p.perks.slice(1).join(' · '))+'</span>'+(info.cancel_at_period_end?'<span class="mpl-warn">Résiliation programmée à la fin de la période.</span>':'')+'</div>'+
-      '<div class="mpl-cur-actions"><button type="button" class="set-save" id="mpl-change">'+(k==='hyper'?'Voir les formules':'Passer à une formule supérieure')+'</button>'+(k!=='gratuit'&&info.status!=='manual'?'<button type="button" class="mbb-todo" id="mpl-cancel">'+(info.cancel_at_period_end?'Annuler la résiliation':'Résilier')+'</button>':'')+'</div><div class="set-state" id="mpl-msg"></div>';
+    box.innerHTML='<div class="mpl-cur"><b>'+p.name+' <em>'+p.price+p.per+'</em></b><span>'+esc(p.perks.slice(1).join(' · '))+'</span>'+(info.cancel_at_period_end?'<span class="mpl-warn">Résiliation programmée à la fin de la période.</span>':'')+(info.gift?'<span class="mpl-warn" style="color:#1f7a3a">🎁 '+MARSHALL_PLANS[info.gift.plan].name+' offert par Mon Copain Digital'+(info.gift.until?' jusqu’au '+new Date(info.gift.until*1000).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}):'')+'.</span>':'')+'</div>'+
+      '<div class="mpl-cur-actions"><button type="button" class="set-save" id="mpl-change">'+(k==='hyper'?'Voir les formules':'Passer à une formule supérieure')+'</button>'+((info.paid_plan||k)!=='gratuit'&&info.status!=='manual'&&info.source!=='gift'?'<button type="button" class="mbb-todo" id="mpl-cancel">'+(info.cancel_at_period_end?'Annuler la résiliation':'Résilier')+'</button>':'')+'</div><div class="set-state" id="mpl-msg"></div>';
     var ch=$('#mpl-change');if(ch)ch.addEventListener('click',function(){marshallPaywallOpen(k==='gratuit'?'complet':'hyper');});
     var cn=$('#mpl-cancel');if(cn)cn.addEventListener('click',async function(){
       var resume=!!info.cancel_at_period_end,msg=$('#mpl-msg');
@@ -7458,10 +7499,45 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallTimelineWaitForImages(page){
     var tasks=[];(page.layers||[]).forEach(function(l){if(l.type==='image'&&l.url){tasks.push(new Promise(function(resolve){var im=new Image();im.onload=function(){resolve();};im.onerror=function(){resolve();};im.src=l.url;if(im.complete)resolve();}));}});return Promise.all(tasks);
   }
+  /* Export sans « tainted canvas » : les images externes (site, Instagram…) sont converties en data URL,
+     directement si le site l'autorise (CORS), sinon via le relais sécurisé de Marshall. */
+  var marshallExportImgCache={};
+  function marshallBlobToDataUrl(b){return new Promise(function(res,rej){var fr=new FileReader();fr.onload=function(){res(fr.result);};fr.onerror=rej;fr.readAsDataURL(b);});}
+  async function marshallExportableUrl(url){
+    url=String(url||'');
+    if(!/^https?:/i.test(url))return url;
+    try{if(new URL(url,location.href).origin===location.origin)return url;}catch(e){return url;}
+    if(marshallExportImgCache[url])return marshallExportImgCache[url];
+    var out=null;
+    try{var r=await fetch(url,{mode:'cors',credentials:'omit'});if(r.ok){var b=await r.blob();if(/^image\//.test(b.type))out=await marshallBlobToDataUrl(b);}}catch(e){}
+    if(!out){try{var r2=await fetch(MARSHALL_CREWAI_BASE+'/image/fetch?url='+encodeURIComponent(url),{headers:await authHeaders()});if(r2.ok){var b2=await r2.blob();if(/^image\//.test(b2.type))out=await marshallBlobToDataUrl(b2);}}catch(e){}}
+    if(out)marshallExportImgCache[url]=out;
+    return out||'';
+  }
+  async function marshallMakePagesExportable(pages){
+    var map={},failed=0;
+    for(var i=0;i<(pages||[]).length;i++){
+      var ls=(pages[i]&&pages[i].layers)||[];
+      for(var j=0;j<ls.length;j++){
+        var l=ls[j];if(!l||l.type!=='image'||!l.url||!/^https?:/i.test(l.url)||map[l.url]!=null)continue;
+        var d=await marshallExportableUrl(l.url);map[l.url]=d||'';if(!d)failed++;
+      }
+    }
+    return {map:map,failed:failed};
+  }
+  function marshallApplyExportMap(map){
+    if(!map)return Promise.resolve();
+    var waits=[];
+    ed.layers=(ed.layers||[]).filter(function(l){return !(l&&l.type==='image'&&l.url&&map[l.url]==='');});
+    ed.layers.forEach(function(l){if(l&&l.type==='image'&&l.url&&map[l.url]){var d=map[l.url];var im=new Image();waits.push(new Promise(function(r){im.onload=r;im.onerror=r;}));im.src=d;l._img=im;}});
+    return Promise.all(waits);
+  }
   async function marshallTimelineStaticCanvases(){
-    marshallCanvasPagesEnsureCurrent();marshallCanvasPagesSaveCurrent();var active=marshallCanvasPageIndex,frames=[];
+    marshallCanvasPagesEnsureCurrent();marshallCanvasPagesSaveCurrent();
+    var _xm=null;try{_xm=await marshallMakePagesExportable(marshallCanvasPages);if(_xm.failed)console.warn('Export : '+_xm.failed+' image(s) externe(s) non récupérable(s), retirée(s) de l’export');}catch(e){console.warn('Export images',e);}
+    var active=marshallCanvasPageIndex,frames=[];
     for(var i=0;i<marshallCanvasPages.length;i++){
-      var page=marshallCanvasPages[i];await marshallTimelineWaitForImages(page);marshallCanvasPageIndex=i;marshallCanvasRestore(page);await new Promise(function(r){setTimeout(r,30);});var c=edBuildCanvas();if(c){var clone=document.createElement('canvas');clone.width=c.width;clone.height=c.height;clone.getContext('2d').drawImage(c,0,0);frames.push({canvas:clone,page:page,duration:marshallTimelinePageDuration(page)});}
+      var page=marshallCanvasPages[i];await marshallTimelineWaitForImages(page);marshallCanvasPageIndex=i;marshallCanvasRestore(page);await marshallApplyExportMap(_xm&&_xm.map);await new Promise(function(r){setTimeout(r,30);});var c=edBuildCanvas();if(c){var clone=document.createElement('canvas');clone.width=c.width;clone.height=c.height;clone.getContext('2d').drawImage(c,0,0);frames.push({canvas:clone,page:page,duration:marshallTimelinePageDuration(page)});}
     }
     marshallCanvasPageIndex=Math.max(0,Math.min(active,marshallCanvasPages.length-1));if(marshallCanvasPages[marshallCanvasPageIndex])marshallCanvasRestore(marshallCanvasPages[marshallCanvasPageIndex]);marshallCanvasPagesRender();return frames;
   }
@@ -11597,6 +11673,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       });
       if(r.status===404){ return { ok:false, notConfigured:true }; }
       var data=null; try{ data=await r.json(); }catch(e){}
+      if(data&&data.need_plan){ try{ toast(data.error||'La publication est incluse dès l’offre Complet (29 €/mois).',true); marshallPaywallOpen(data.need_plan); }catch(_e){} return { ok:false, planRequired:true, results:null }; }
       if(!r.ok || !data || data.ok===false){ return { ok:false, results:(data&&data.results)||null }; }
       return { ok:true, results:data.results||null };
     }catch(e){ return { ok:false, notConfigured:true }; }
