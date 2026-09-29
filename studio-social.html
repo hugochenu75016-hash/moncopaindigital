@@ -1159,6 +1159,7 @@ html body .mnat-card{padding:16px 16px 12px!important}
   html body .mnat-load{display:flex;align-items:center;gap:5px;padding:10px 4px}html body .mnat-load span{width:8px;height:8px;border-radius:50%;background:#1fb6ff;animation:mnatDot 1s infinite ease-in-out}html body .mnat-load span:nth-child(2){animation-delay:.15s}html body .mnat-load span:nth-child(3){animation-delay:.3s}
   html body .mnat-load em{margin-left:8px;font:700 12px 'Nunito',sans-serif;color:#555;font-style:normal}@keyframes mnatDot{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-6px);opacity:1}}
 .dm-link-field{margin-top:12px}.dm-link-field label{display:block;font-weight:800;font-size:13px;margin-bottom:6px}.dm-link-field label span{font-weight:600;color:#8a857c;font-size:12px}.dm-link-field input{width:100%;box-sizing:border-box}
+.mrep-card{max-width:520px}.mrep-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;margin:6px 0 10px}.mrep-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:#55524c}.mrep-grid input,.mrep-grid select{font:inherit;font-weight:500;font-size:13px;border:1px solid #e3e1dc;border-radius:10px;padding:8px 9px;background:#fff;color:#222}.mrep-nets{display:flex;gap:10px;flex-wrap:wrap;font-weight:500;padding-top:6px}.mrep-est{font-size:12.5px;color:#6b6760;line-height:1.45;margin-bottom:10px}.mrep-act{display:flex;gap:8px;flex-wrap:wrap}.mrep-go{border:0;background:#F3852B;color:#fff;font:inherit;font-weight:800;border-radius:999px;padding:9px 16px;cursor:pointer}.mrep-go:disabled{opacity:.6}.mrep-no{border:1px solid #e3e1dc;background:#fff;font:inherit;font-weight:700;border-radius:999px;padding:8px 14px;cursor:pointer;color:#333}.mrep-lab{font-size:12px;font-weight:800;color:#55524c;margin:4px 0 6px}.mrep-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.mrep-cat{border:1px solid #e3e1dc;background:#fff;border-radius:999px;padding:6px 11px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;color:#444}.mrep-cat.on{background:#16233B;border-color:#16233B;color:#fff}.mrep-runs{margin:0 0 10px;padding-left:16px;font-size:12.5px;color:#55524c;line-height:1.5}
 </style>
 <style id="mcd-appweb">
 @media (max-width: 820px) {
@@ -7088,6 +7089,112 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     return result;
   }
 
+  /* ===================== Répétitions : Marshall crée et publie seul (serveur), à intervalle régulier ===================== */
+  var MARSHALL_REP_DURS=[[1,'1 h'],[3,'3 h'],[6,'6 h'],[12,'12 h'],[24,'24 h'],[48,'48 h'],[72,'3 jours'],[168,'7 jours']];
+  var MARSHALL_REP_FREQS=[[60,'toutes les heures'],[120,'toutes les 2 h'],[180,'toutes les 3 h'],[240,'toutes les 4 h'],[360,'toutes les 6 h'],[480,'toutes les 8 h'],[720,'toutes les 12 h'],[1440,'1 fois par jour']];
+  function marshallRepIntent(text){
+    var t=marshallScheduleNormalizeText(text);
+    if(/\b(repetition|repetitions|en boucle|pilote automatique|autopilote)\b/.test(t))return true;
+    return /\b(pendant|durant)\s+\d+\s*(h|heures?|jours?|j)\b/.test(t)&&/\b(toutes? les|chaque|par heure|par jour)\b/.test(t)&&/\b(story|stories|post|posts|publie|publier|info|infos|actu)\b/.test(t);
+  }
+  function marshallRepParse(text){
+    var t=marshallScheduleNormalizeText(text),o={hours:24,freq:120,format:'Story',country:'',focus:''};
+    var m=t.match(/\b(\d{1,3})\s*(h|heures?)\b/);var md=t.match(/\b(\d{1,2})\s*(jours?|j)\b/);
+    if(md)o.hours=Math.min(168,Number(md[1])*24);else if(m&&/pendant|durant|sur/.test(t))o.hours=Math.min(168,Number(m[1]));
+    if(/\b(une semaine|7 jours)\b/.test(t))o.hours=168;
+    var f=t.match(/toutes?\s+les\s+(\d{1,2})\s*(h|heures?|min(?:utes?)?)\b/);
+    if(f)o.freq=/^min/.test(f[2])?60:Number(f[1])*60;else if(/\b(chaque heure|toutes les heures|par heure)\b/.test(t))o.freq=60;else if(/\b(une fois par jour|chaque jour|par jour)\b/.test(t))o.freq=1440;
+    o.freq=MARSHALL_REP_FREQS.map(function(x){return x[0];}).reduce(function(a,b){return Math.abs(b-o.freq)<Math.abs(a-o.freq)?b:a;});
+    o.hours=MARSHALL_REP_DURS.map(function(x){return x[0];}).reduce(function(a,b){return Math.abs(b-o.hours)<Math.abs(a-o.hours)?b:a;});
+    if(/car+ou?s+el|carousel/.test(t))o.format='Carrousel';else if(/\breels?\b|\bvideos?\b/.test(t))o.format='Reel';else if(/\b(post|posts|publication|publications)\b/.test(t)&&!/\bstor(y|ies)\b/.test(t))o.format='Post';
+    try{o.country=marshallNationFind(text)||'';}catch(e){}
+    return o;
+  }
+  function marshallRepTime(ts){var d=new Date(ts*1000);return d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+' '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
+  function marshallRepPerRun(){try{return marshallTokenPrice('nation')+marshallTokenPrice('qwen_image');}catch(e){return 65;}}
+  var MARSHALL_REP_CATS=['Actualité','Économie','Politique','Société','Culture','Sport','Tendance','Tech','Santé','Environnement'];
+  var MARSHALL_REP_FORMATS=[['Story','Story 9:16'],['Post','Post (1 visuel)'],['Reel','Reel (vidéo)'],['Carrousel','Carrousel (3 infos)']];
+  function marshallRepParseCats(text){var t=marshallScheduleNormalizeText(text),m={'Économie':/econom/,'Politique':/politi/,'Société':/societe|social/,'Culture':/cultur|cinema|musique/,'Sport':/sport|foot|match/,'Tendance':/tendance|buzz|viral/,'Tech':/\btech|numerique|\bia\b/,'Santé':/sante|medic/,'Environnement':/environnement|climat|ecolog/};return Object.keys(m).filter(function(k){return m[k].test(t);});}
+  /* Fiche de réglages : création (rec absent) ou modification d'une répétition EN COURS (rec fourni). */
+  function marshallChatRepCard(prompt,rec,onSaved){
+    var th=marshallChatThread();if(!th)return null;
+    var edit=!!rec,o=edit?{country:rec.country,focus:rec.focus||'',hours:rec.hours,freq:rec.freq_min,format:rec.format,cats:rec.categories||[],nets:rec.networks||['instagram']}:Object.assign(marshallRepParse(prompt),{cats:marshallRepParseCats(prompt),nets:['instagram']});
+    var b=marshallBrandGet()||{},fb=connections&&connections.facebook&&connections.facebook.connected;
+    var box=document.createElement('div');box.className='mv4-msg assistant mcd-acct-card mrep-card';
+    box.innerHTML='<b class="mcd-acct-title">'+(edit?'✏️ Modifier la répétition en cours':'🔁 Nouvelle répétition')+'</b><p class="mcd-acct-sub">'+(edit?'Les changements s’appliquent dès la prochaine publication.':'À chaque créneau, Marshall recharge les infos en temps réel, crée la publication et la publie seul, même si Studio Social est fermé. Jamais deux fois la même info.')+'</p>'+
+      '<div class="mrep-lab">Sur quoi il publie</div><div class="mrep-cats">'+MARSHALL_REP_CATS.map(function(c){return '<button type="button" class="mrep-cat'+(o.cats.indexOf(c)>=0?' on':'')+'" data-cat="'+c+'">'+c+'</button>';}).join('')+'</div>'+
+      '<div class="mrep-grid">'+
+      '<label>Pays<input data-r="country" value="'+esc(o.country||'France')+'"></label>'+
+      '<label>Sujet précis (facultatif)<input data-r="focus" value="'+esc(o.focus||'')+'" placeholder="ex. JO, élections, prix de l’essence…"></label>'+
+      '<label>En quoi<select data-r="format">'+MARSHALL_REP_FORMATS.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===o.format?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></label>'+
+      '<label>Fréquence<select data-r="freq">'+MARSHALL_REP_FREQS.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===o.freq?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></label>'+
+      '<label>Durée'+(edit?' (depuis le lancement)':'')+'<select data-r="hours">'+MARSHALL_REP_DURS.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===o.hours?' selected':'')+'>'+x[1]+'</option>';}).join('')+'</select></label>'+
+      '<label>Réseaux<span class="mrep-nets"><span><input type="checkbox" data-n="instagram"'+(o.nets.indexOf('instagram')>=0?' checked':'')+'> Instagram</span>'+(fb||o.nets.indexOf('facebook')>=0?'<span><input type="checkbox" data-n="facebook"'+(o.nets.indexOf('facebook')>=0?' checked':'')+'> Facebook</span>':'')+'</span></label>'+
+      '</div><div class="mrep-est" data-r="est"></div>'+
+      '<div class="mrep-act"><button type="button" class="mrep-go" data-r="go">'+(edit?'Enregistrer':'Lancer la répétition')+'</button><button type="button" class="mrep-no" data-r="no">Annuler</button></div><div class="mcd-acct-err" data-r="st"></div>';
+    th.appendChild(box);th.scrollTop=th.scrollHeight;
+    var q=function(k){return box.querySelector('[data-r="'+k+'"]');};
+    box.querySelectorAll('[data-cat]').forEach(function(c){c.addEventListener('click',function(){c.classList.toggle('on');});});
+    function est(){var h=+q('hours').value,f=+q('freq').value,fmt=q('format').value,n=Math.floor(h*60/f)+1,per=marshallTokenPrice('nation')+marshallTokenPrice('qwen_image')*(fmt==='Carrousel'?3:1),perDay=Math.ceil(Math.min(24,h)*60/f)*per;
+      q('est').innerHTML=(edit?'':'≈ <b>'+n+' publications</b> · ')+'environ <b>'+per+' tokens</b> par publication · '+perDay+' tokens / jour.'+(fmt==='Reel'?' Le Reel est une vidéo créée à partir du visuel.':'')+(fmt==='Carrousel'?' 3 infos différentes, 1 par slide.':'')+' Le lien envoyé en DM (« LIEN ») change à chaque publication.';}
+    ['hours','freq','format'].forEach(function(k){q(k).addEventListener('change',est);});est();
+    q('no').addEventListener('click',function(){box.innerHTML='<b class="mcd-acct-title">'+(edit?'Aucune modification.':'Répétition annulée.')+'</b>';});
+    q('go').addEventListener('click',async function(){
+      var st=q('st'),btn=q('go');st.textContent='';
+      if(!marshallCanPublish()){try{marshallPaywallOpen('complet');}catch(e){}st.textContent='Les répétitions sont incluses dès l’offre Complet.';return;}
+      var nets=[].slice.call(box.querySelectorAll('[data-n]')).filter(function(x){return x.checked;}).map(function(x){return x.getAttribute('data-n');});
+      if(!nets.length){st.textContent='Choisis au moins un réseau.';return;}
+      var cats=[].slice.call(box.querySelectorAll('.mrep-cat.on')).map(function(x){return x.getAttribute('data-cat');});
+      var body={country:q('country').value.trim()||'France',focus:q('focus').value.trim(),categories:cats,hours:+q('hours').value,freq_minutes:+q('freq').value,format:q('format').value,networks:nets};
+      btn.disabled=true;btn.textContent=edit?'Enregistrement…':'Lancement…';
+      try{
+        if(edit)body.id=rec.id;else body.brand={name:b.name||'',primary:b.primary||'',accent:b.accent||''};
+        var r=await fetch(MARSHALL_CREWAI_BASE+(edit?'/repetition/update':'/repetition/create'),{method:'POST',headers:await authHeaders(),body:JSON.stringify(body)});
+        var d=await r.json().catch(function(){return {};});
+        if(!r.ok||!d.ok)throw Error(d.error||('HTTP '+r.status));
+        box.remove();
+        if(edit){if(onSaved)onSaved(d.repetition);else marshallChatRepStatus(d.repetition,'C’est modifié : la prochaine publication suivra ces réglages.');}
+        else marshallChatRepStatus(d.repetition,'C’est parti : la première publication est en préparation (1 à 3 min).');
+      }catch(e){btn.disabled=false;btn.textContent=edit?'Enregistrer':'Lancer la répétition';st.textContent=(edit?'Impossible d’enregistrer : ':'Impossible de lancer : ')+(e.message||e)+(/404|Failed to fetch/i.test(String(e.message||e))?' (redéploie le serveur Marshall).':'');}
+    });
+    return box;
+  }
+  function marshallRepStatusHtml(r){
+    var lab={active:'🟢 Active',done:'✅ Terminée',stopped:'⏹ Arrêtée'}[r.status]||r.status;
+    var runs=(r.runs||[]).slice(-4).reverse().map(function(x){return '<li>'+(x.ok?'✓':'⚠')+' '+marshallRepTime(x.at).split(' ').slice(-1)[0]+' · '+esc(x.ok?(x.title||'publiée'):(x.error||'échec'))+'</li>';}).join('');
+    return '<b class="mcd-acct-title">🔁 '+esc((r.format||'Story')+' · actu '+(r.country||''))+((r.categories||[]).length?' · '+esc(r.categories.join(', ')):'')+(r.focus?' · '+esc(r.focus):'')+'</b>'+
+      '<p class="mcd-acct-sub">'+lab+' · '+(MARSHALL_REP_FREQS.find(function(x){return x[0]===r.freq_min;})||[0,''])[1]+' jusqu’au '+marshallRepTime(r.end)+' · '+(r.count||0)+' publiée'+((r.count||0)>1?'s':'')+(r.skipped?' · '+r.skipped+' sautée'+(r.skipped>1?'s':''):'')+(r.status==='active'?' · prochaine vers '+marshallRepTime(r.next).split(' ').slice(-1)[0]:'')+'</p>'+
+      (runs?'<ul class="mrep-runs">'+runs+'</ul>':'')+(r.status==='active'?'<p class="mcd-acct-sub">Infos rechargées à chaque créneau · le lien DM « LIEN » suit la dernière publication.</p>':'')+
+      '<div class="mrep-act">'+(r.status==='active'?'<button type="button" class="mrep-go" data-edit="1">Modifier</button><button type="button" class="mrep-no" data-stop="'+esc(r.id)+'">Arrêter</button>':'')+'<button type="button" class="mrep-no" data-refresh="1">Actualiser</button></div>';
+  }
+  function marshallChatRepStatus(r,intro){
+    var th=marshallChatThread();if(!th)return;
+    if(intro)marshallChatBubble('assistant',intro);
+    var box=document.createElement('div');box.className='mv4-msg assistant mcd-acct-card mrep-card';box.innerHTML=marshallRepStatusHtml(r);
+    th.appendChild(box);th.scrollTop=th.scrollHeight;
+    box.addEventListener('click',async function(ev){
+      var s=ev.target.closest('[data-stop]'),f=ev.target.closest('[data-refresh]'),ed=ev.target.closest('[data-edit]');
+      if(ed){marshallChatRepCard('',r,function(nr){r=nr;box.innerHTML=marshallRepStatusHtml(r);marshallChatBubble('assistant','C’est modifié : la prochaine publication suivra ces réglages.');});return;}
+      if(!s&&!f)return;
+      try{
+        if(s){var rr=await fetch(MARSHALL_CREWAI_BASE+'/repetition/stop',{method:'POST',headers:await authHeaders(),body:JSON.stringify({id:s.getAttribute('data-stop')})});var dd=await rr.json();if(dd.ok){r=dd.repetition;box.innerHTML=marshallRepStatusHtml(r);}return;}
+        var l=await marshallRepList();var nr=l.find(function(x){return x.id===r.id;});if(nr){r=nr;box.innerHTML=marshallRepStatusHtml(r);}
+      }catch(e){}
+    });
+  }
+  async function marshallRepList(){var r=await fetch(MARSHALL_CREWAI_BASE+'/repetition/list',{headers:await authHeaders()});var d=await r.json().catch(function(){return {};});if(!r.ok||!d.ok)throw Error(d.error||('HTTP '+r.status));return d.repetitions||[];}
+  async function marshallRepHandle(prompt){
+    var t=marshallScheduleNormalizeText(prompt);
+    if(/\b(mes|liste|voir|statut|etat|ou en est)\b.*\brepetitions?\b|\brepetitions? (en cours|actives?)\b|\b(arrete|stop|stoppe|annule)\b.*\brepetitions?\b/.test(t)){
+      try{var list=await marshallRepList();var act=list.filter(function(x){return x.status==='active';});
+        if(!list.length){marshallChatBubble('assistant','Tu n’as aucune répétition. Dis par exemple : « crée une répétition de story sur les infos du jour pendant 24 h toutes les 2 h ».');return;}
+        marshallChatBubble('assistant',act.length?'Voici tes répétitions actives :':'Aucune répétition active. Les dernières :');
+        (act.length?act:list.slice(0,3)).forEach(function(r){marshallChatRepStatus(r);});
+      }catch(e){marshallChatBubble('error','Impossible de lire tes répétitions : '+(e.message||e));}
+      return;
+    }
+    marshallChatRepCard(prompt);
+  }
   async function marshallChatSubmit(forcePrompt,opts){
     if(marshallChatBusy||marshallAgentDockBusy)return;
     var input=$('#ai-prompt'), b=$('#ai-run');
@@ -7096,6 +7203,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!prompt){marshallChatBubble('assistant','Écris ce que tu veux créer, par exemple : « Crée une story Instagram pour présenter mon service ».');if(input)input.focus();return;}
     if(mcdIsOffline()){marshallChatBubble('assistant','Tu es hors ligne 📴 Marshall a besoin d’Internet pour écrire et générer. En attendant, continue à composer : canvas, textes, calques et brouillons sont enregistrés sur cet appareil. Renvoie ta demande dès que le réseau revient.');return;}
     var earlyPending=marshallConversationPending();
+    if(!opts.forceIntent&&(marshallRepIntent(prompt)||/\brepetitions?\b/.test(marshallScheduleNormalizeText(prompt)))){
+      marshallChatBubble('user',prompt);marshallChatClearInput(input);
+      try{await marshallRepHandle(prompt);}catch(repErr){marshallChatBubble('error','Répétition : '+(repErr&&repErr.message||repErr));}
+      if(input)input.focus();return;
+    }
     if(!opts.forceIntent&&((earlyPending&&earlyPending.intent==='story_schedule')||marshallLooksLikeStoryScheduleRequest(prompt))){
       marshallChatBubble('user',prompt);
       try{
@@ -10399,7 +10511,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var n=typeof marshallStoryNews!=='undefined'&&marshallStoryNews;
     if(n){
       var it=(n.items||[])[0]||{};if(clean(it.source_url))return {url:clean(it.source_url),title:it.title||('Actu '+n.country),src:'actu'};
-      var s=(n.sources||[]).map(function(x){return clean(x&&x.url);}).filter(Boolean)[0];if(s)return {url:s,title:it.title||('Actu '+n.country),src:'actu'};
+      /* Pas de source attribuée : on ne prend une source que si son adresse / titre parle VRAIMENT de cette info (sinon aucun lien, jamais un article hors sujet). */
+      var wn=function(t){return String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').split(' ').filter(function(w){return w.length>=5;});};
+      var iw=wn((it.title||'')+' '+(it.summary||'')),best=null,bs=0;
+      (n.sources||[]).forEach(function(x){var u=clean(x&&x.url);if(!u)return;var hay=wn(u+' '+(x.title||'')).join(' '),sc=0;iw.forEach(function(w){if(hay.indexOf(w)>=0)sc++;});if(sc>bs){bs=sc;best=u;}});
+      if(best&&bs>=2)return {url:best,title:it.title||('Actu '+n.country),src:'actu'};
       return null;
     }
     var b=marshallBrandGet()||{},w=clean(b.website&&(/^https?:/i.test(b.website)?b.website:'https://'+b.website));
@@ -10471,6 +10587,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var current=marshallConversationCurrent(false);
     if(scope!==marshallAccountId()||conversationId!==(current&&current.id)||signature!==JSON.stringify(marshallSerializableClone({fmt:ed.fmt,bg:ed.bg,layers:ed.layers})))throw Error('Le canvas ou la conversation a changé pendant la préparation. Aucune création n’a remplacé ton travail.');
     if(_dm){plan.dmLink=_dm;var _lf=prepared.length?prepared[prepared.length-1].frame:null;if(_lf)_lf.cta=marshallStoryNews?'Écris LIEN en DM pour la source':'Écris LIEN en DM';marshallDmLinkSet(Object.assign({},_dm,{at:Date.now()}));}
+    else{try{localStorage.removeItem('studio_dm_link_v1');var _dl=document.getElementById('dm-link');if(_dl)_dl.value='';}catch(e){}}
     var before={fmt:ed.fmt,bg:ed.bg,layers:ed.layers,sel:ed.sel,hist:ed.hist.slice(),pages:marshallCanvasPages,page:marshallCanvasPageIndex,set:marshallGeneratedSet,plan:marshallLastStoryPlan};
     try{
       marshallGeneratedSet=[];
