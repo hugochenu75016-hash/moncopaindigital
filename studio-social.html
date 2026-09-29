@@ -45,6 +45,139 @@
 <title>Studio Social · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Baloo+2:wght@600;700;800&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo+Black&amp;family=Caveat:wght@500;700&amp;family=DM+Serif+Display:ital@0;1&amp;family=Inter:wght@500;800&amp;family=Montserrat:wght@500;800&amp;family=Nunito:wght@500;800&amp;family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+<script id="mcd-i18n" data-v="3">
+/* ===== Studio Social multilingue : traduit l'affichage (dictionnaire par langue), sans toucher à la logique ===== */
+(function(){
+  var LANGS={fr:'Français',en:'English',es:'Español',de:'Deutsch',it:'Italiano',pt:'Português',nl:'Nederlands'};
+  function pick(){
+    try{ var q=new URLSearchParams(location.search).get('lang'); if(q&&LANGS[q]){ try{localStorage.setItem('mcd_lang',q);}catch(e){} return q; } }catch(e){}
+    try{ var s=localStorage.getItem('mcd_lang'); if(s&&LANGS[s]) return s; }catch(e){}
+    var n=String((navigator.languages&&navigator.languages[0])||navigator.language||'fr').slice(0,2).toLowerCase();
+    return LANGS[n]?n:'fr';
+  }
+  var lang=pick();
+  window.MCD_LANGS=LANGS; window.MCD_LANG=lang;
+  document.documentElement.lang=lang;
+  window.mcdSetLang=function(l){ if(!LANGS[l]) return; try{localStorage.setItem('mcd_lang',l);}catch(e){} var u=new URL(location.href); u.searchParams.delete('lang'); location.href=u.href; };
+  window.mcdT=function(s){ return s; };
+
+  /* Marshall parle la langue de l'utilisateur : en-tête pour le serveur Marshall, consigne pour le chat. */
+  var NAMES={en:'English',es:'Spanish (español)',de:'German (Deutsch)',it:'Italian (italiano)',pt:'Portuguese (português)',nl:'Dutch (Nederlands)'};
+  if(lang!=='fr'&&window.fetch){
+    var NOTE='IMPORTANT — LANGUAGE: the user speaks '+NAMES[lang]+'. Write ALL your answers and ALL audience-facing content (captions, hooks, titles, texts shown on visuals, calls to action, hashtags) in '+NAMES[lang]+', even if the instructions above are written in French. Keep JSON keys and technical values unchanged.';
+    var of=window.fetch;
+    window.fetch=function(input,init){
+      try{
+        var url=typeof input==='string'?input:(input&&input.url)||'';
+        if(/marshall-crewai-web\.modal\.run/.test(url)){
+          init=Object.assign({},init||{}); var h=new Headers(init.headers||{}); h.set('x-mcd-lang',lang); init.headers=h;
+        } else if(/copain-api\.vercel\.app\/api\/chat/.test(url)&&init&&typeof init.body==='string'){
+          var b=JSON.parse(init.body);
+          if(b&&Array.isArray(b.messages)){
+            var sys=b.messages.filter(function(m){ return m&&m.role==='system'&&typeof m.content==='string'; })[0];
+            if(sys) sys.content+='\n\n'+NOTE; else b.messages.unshift({role:'system',content:NOTE});
+            init=Object.assign({},init,{body:JSON.stringify(b)});
+          }
+        }
+      }catch(e){}
+      return of.call(this,input,init);
+    };
+  }
+  /* Sélecteur de langue (Réglages) : noms des langues dans leur propre langue. */
+  /* Le panneau Réglages est construit plus tard par le code : on remplit le sélecteur dès qu'il apparaît. */
+  function fillLangSelect(){
+    var sel=document.getElementById('mcd-lang-select'); if(!sel||sel.options.length) return;
+    sel.innerHTML=Object.keys(LANGS).map(function(k){ return '<option value="'+k+'"'+(k===lang?' selected':'')+'>'+LANGS[k]+'</option>'; }).join('');
+  }
+  document.addEventListener('change',function(e){ if(e.target&&e.target.id==='mcd-lang-select') window.mcdSetLang(e.target.value); });
+  document.addEventListener('DOMContentLoaded',function(){
+    fillLangSelect();
+    new MutationObserver(fillLangSelect).observe(document.body,{childList:true,subtree:true});
+  });
+  if(lang==='fr') return;
+
+  /* Pas d'éclair de français : la page reste masquée le temps de charger le dictionnaire (1,5 s max). */
+  var hide=document.createElement('style'); hide.textContent='html.mcd-i18n-wait body{visibility:hidden}';
+  document.head.appendChild(hide); document.documentElement.classList.add('mcd-i18n-wait');
+  var reveal=function(){ document.documentElement.classList.remove('mcd-i18n-wait'); };
+  setTimeout(reveal,1500);
+
+  var EXACT=new Map(), PAT=new Map(), FRAG=null, FMAP=new Map(), ready=false;
+  var BRANDS=/Mon Copain Digital|Studio Social|Social Studio|Votre Bulle|Ma Bulle|Nano Banana( 2| Pro)?|Google Veo( 3\.1)?|Brand Intelligence/g;
+  var NUM=/\d+(?:[.,   ]\d{3})*(?:[.,]\d+)?/g;
+  var norm=function(s){ return String(s).replace(/\s+/g,' ').trim(); };
+  var esc=function(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); };
+  function build(dict){
+    var frags=[];
+    Object.keys(dict).forEach(function(k){
+      var v=dict[k]; if(!v||typeof v!=='string') return;
+      var nk=norm(k); EXACT.set(nk,v);
+      if(/\d/.test(nk)) PAT.set(nk.replace(NUM,'#'),v);
+      if(nk.length>=4){ FMAP.set(nk,v); frags.push(nk); }
+    });
+    frags.sort(function(a,b){ return b.length-a.length; });
+    if(frags.length) FRAG=new RegExp('(?<![A-Za-zÀ-ÿ])(?:'+frags.map(esc).join('|')+')(?![A-Za-zÀ-ÿ])','g');
+  }
+  function tr(text){
+    if(!ready||!text) return text;
+    var n=norm(text); if(!n||!/[A-Za-zÀ-ÿ]/.test(n)) return text;
+    var lead=text.match(/^\s*/)[0], tail=text.match(/\s*$/)[0], out=EXACT.get(n);
+    if(out==null&&/\d/.test(n)){
+      var p=PAT.get(n.replace(NUM,'#'));
+      if(p!=null){ var nums=n.match(NUM)||[], i=0; out=p.replace(NUM,function(m){ return i<nums.length?nums[i++]:m; }); }
+    }
+    if(out==null&&FRAG){
+      // Les noms de marque ne sont jamais traduits (ex. « Digital » dans « Mon Copain Digital »).
+      var kept=[], masked=n.replace(BRANDS,function(m){ kept.push(m); return '\u0001'+(kept.length-1)+'\u0001'; });
+      var r=masked.replace(FRAG,function(m){ return FMAP.get(m)||m; }).replace(/\u0001(\d+)\u0001/g,function(_,i){ return kept[+i]; });
+      if(r!==n) out=r;
+    }
+    return out==null?text:lead+out+tail;
+  }
+  window.mcdT=tr;
+
+  var SKIP='script,style,textarea,code,pre,svg,[contenteditable=""],[contenteditable="true"],.notranslate,[translate="no"],.mv4-msg.user,.it1,.pv-stage,.tt-cap,.pv-tags,#cap,#tags';
+  var ATTRS=['placeholder','title','aria-label','alt'];
+  var done=new WeakMap();
+  function skipEl(el){ return !el||(el.closest&&el.closest(SKIP)); }
+  function doText(node){
+    var p=node.parentElement; if(skipEl(p)) return;
+    var v=node.nodeValue; if(done.get(node)===v) return;
+    var t=tr(v); if(t!==v){ node.nodeValue=t; } done.set(node,node.nodeValue);
+  }
+  function doAttrs(el){
+    if(skipEl(el)) return;
+    for(var i=0;i<ATTRS.length;i++){ var a=ATTRS[i], v=el.getAttribute&&el.getAttribute(a); if(v){ var t=tr(v); if(t!==v) el.setAttribute(a,t); } }
+    if(el.tagName==='INPUT'&&/^(button|submit)$/i.test(el.type)&&el.value){ var tv=tr(el.value); if(tv!==el.value) el.value=tv; }
+  }
+  function walk(root){
+    if(!root) return;
+    if(root.nodeType===3){ doText(root); return; }
+    if(root.nodeType!==1&&root.nodeType!==9&&root.nodeType!==11) return;
+    if(root.nodeType===1){ if(skipEl(root)) return; doAttrs(root); }
+    var w=document.createTreeWalker(root,5,null), n;
+    while((n=w.nextNode())){ if(n.nodeType===3) doText(n); else doAttrs(n); }
+  }
+  var mo=new MutationObserver(function(list){
+    for(var i=0;i<list.length;i++){
+      var m=list[i];
+      if(m.type==='characterData') doText(m.target);
+      else if(m.type==='attributes') doAttrs(m.target);
+      else for(var j=0;j<m.addedNodes.length;j++) walk(m.addedNodes[j]);
+    }
+  });
+  ['alert','confirm','prompt'].forEach(function(k){ var o=window[k]; if(o) window[k]=function(msg){ var a=[].slice.call(arguments); a[0]=tr(String(msg==null?'':msg)); return o.apply(window,a); }; });
+
+  var v=(document.currentScript&&document.currentScript.getAttribute('data-v'))||'1';
+  fetch('i18n/studio-'+lang+'.json?v='+v).then(function(r){ if(!r.ok) throw Error('HTTP '+r.status); return r.json(); })
+    .then(function(dict){
+      build(dict); ready=true;
+      var go=function(){ document.title=tr(document.title); walk(document.body); mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:ATTRS}); reveal(); };
+      if(document.body) go(); else document.addEventListener('DOMContentLoaded',go);
+    })
+    .catch(function(e){ console.warn('Traduction indisponible ('+lang+')',e); reveal(); });
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{ --bg:#6EC1F0; --cream:#fff8ef; }
@@ -4203,10 +4336,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }); });
   }
   /* ===== Signature « Propulsé par… » : obligatoire, seule la formule Hyper peut la retirer (le serveur l'impose aussi). ===== */
-  var MCD_SIG='Propulsé par le Studio Social Mon Copain Digital';
+  var MCD_SIGS={fr:'Propulsé par le Studio Social Mon Copain Digital',en:'Powered by Studio Social · Mon Copain Digital',es:'Creado con Studio Social · Mon Copain Digital',
+    de:'Erstellt mit Studio Social · Mon Copain Digital',it:'Realizzato con Studio Social · Mon Copain Digital',pt:'Criado com o Studio Social · Mon Copain Digital',nl:'Gemaakt met Studio Social · Mon Copain Digital'};
+  var MCD_SIG=MCD_SIGS[window.MCD_LANG]||MCD_SIGS.fr;
   function mcdSigCanHide(){ try{ return marshallPlan()==='hyper'; }catch(e){ return false; } }
   function mcdSigOn(){ if(!mcdSigCanHide()) return true; try{ return localStorage.getItem('mcd_sig_off')!=='1'; }catch(e){ return true; } }
-  function mcdSigStrip(t){ return String(t||'').replace(/\s*Propulsé par le Studio Social Mon Copain Digital\s*$/i,''); }
+  function mcdSigStrip(t){ t=String(t||''); Object.keys(MCD_SIGS).forEach(function(k){ var s=MCD_SIGS[k]; if(t.slice(-s.length)===s) t=t.slice(0,-s.length); }); return t.replace(/\s+$/,''); }
   function mcdSigApply(t){ t=mcdSigStrip(t).replace(/\s+$/,''); return mcdSigOn()?(t?t+'\n\n':'')+MCD_SIG:t; }
   function mcdSigRender(){
     var el=document.getElementById('mcd-sig'); if(!el) return;
@@ -5182,6 +5317,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           <div class="set-field full"><label>Moteur d’images en mode Hyper</label><select id="marshall-image-engine"><option value="auto">Nano Banana 2 · Google (recommandé, ≈ 87 tokens/image)</option><option value="pro">Nano Banana Pro · qualité max (≈ 173 tokens/image)</option><option value="qwen">Qwen-Image · Modal (économique, ≈ 13 tokens)</option></select></div>
         </div></div></div>
         <div class="set2-pane" data-pane="account">
+          <div class="set-section" id="lang-section"><div class="set-section-head"><b>Langue</b><span>Interface et Marshall</span></div><div class="set-field full"><label for="mcd-lang-select">Langue de Studio Social</label><select id="mcd-lang-select" class="notranslate" translate="no"></select><div class="set-state">Marshall te répond et crée tes publications dans cette langue.</div></div></div>
           <div class="set-section" id="mpl-section"><div class="set-section-head"><b>Mon abonnement</b></div><div id="mpl-card"></div></div>
           <div class="set-section" id="mtk-section"><div class="set-section-head"><b>Mon utilisation</b><span>Temps réel</span></div><div id="mtk-card"></div></div>
           <div class="set-section"><div class="set-field full"><label>Mes infos et ma facturation</label><div class="set-state" id="mbb-account-summary"></div><a href="espace-compte.html#profil" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Gérer mes infos dans l’Espace compte</a> <a href="espace-compte.html#securite" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Changer mon mot de passe</a></div></div>
@@ -13260,7 +13396,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+PUBLISH_FN, {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+(tok||SUPABASE_ANON) },
-        body: JSON.stringify({ post_id:p.id, caption:p.caption, tags:p.tags, crop:p.crop, formats:p.formats, networks:p.nets, media:p.media, author:me.nom, dm_link:p.dmLink?{url:p.dmLink,keyword:'LIEN'}:undefined, on_behalf_of:actingAs||undefined })
+        body: JSON.stringify({ post_id:p.id, caption:p.caption, tags:p.tags, crop:p.crop, formats:p.formats, networks:p.nets, media:p.media, author:me.nom, dm_link:p.dmLink?{url:p.dmLink,keyword:'LIEN'}:undefined, on_behalf_of:actingAs||undefined, lang:window.MCD_LANG||'fr' })
       });
       if(r.status===404){ return { ok:false, notConfigured:true }; }
       var data=null; try{ data=await r.json(); }catch(e){}
