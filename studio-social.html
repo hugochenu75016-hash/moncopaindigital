@@ -1049,6 +1049,10 @@
   .pill.amber{ background:rgba(230,160,20,0.2); color:#9a6410; }
   .pill.blue{ background:rgba(40,110,220,0.16); color:#2b5fa0; }
   .pill.red{ background:rgba(210,60,30,0.16); color:#c0341a; }
+  .ed-rmbg-pill{ position:absolute; transform:translateX(-50%); z-index:60; display:inline-flex; align-items:center; gap:6px; border:0; border-radius:999px; padding:8px 15px; background:#F3852B; color:#fff; font:700 13px 'Fredoka',sans-serif; white-space:nowrap; cursor:pointer; box-shadow:0 6px 18px rgba(243,133,43,.45); }
+  .ed-rmbg-pill:hover{ background:#e0661a; }
+  .ed-rmbg-pill.busy{ opacity:.85; cursor:progress; animation:edRmbgPulse 1.2s ease-in-out infinite; }
+  @keyframes edRmbgPulse{ 50%{ box-shadow:0 6px 26px rgba(243,133,43,.8); } }
   .mtk-topup{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; padding:10px 12px; border:1px solid #f0dcc0; border-radius:14px; background:#fffaf2; }
   .mtk-topup > div{ flex:1 1 200px; display:flex; flex-direction:column; gap:2px; }
   .mtk-topup small{ color:#7a6a58; font-size:11.5px; }
@@ -4789,7 +4793,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var ED_SRC={};
   function edSnap(){
     var s=JSON.stringify({ fmt:ed.fmt, bg:ed.bg, pageMotion:ed.pageMotion||marshallPageMotionDefault(), layers:ed.layers.map(function(l){
-      var c={}; for(var k in l){ if(k==='_img') continue; if(k==='url' && l.type==='image') continue; c[k]=l[k]; }
+      var c={}; for(var k in l){ if(k==='_img'||k==='_rmbgBusy') continue; if(k==='url' && l.type==='image') continue; c[k]=l[k]; }
       return c;
     }) });
     ed.hist=ed.hist.slice(0,ed.hi+1); ed.hist.push(s); if(ed.hist.length>25) ed.hist.shift(); ed.hi=ed.hist.length-1; try{marshallCanvasMiniRefresh();}catch(e){}
@@ -4906,6 +4910,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
       return '<div class="ed-layer shp '+sel+'" data-lid="'+l.id+'" style="'+st+'">'+inner+edHandles(l.id)+'</div>';
     }).join('');
+    /* Pilule « ☁️ Supprimer le fond » sur l'image sélectionnée (détourage par le serveur Marshall). */
+    var selImg=ed.preview?null:ed.layers.filter(function(o){ return o.id===ed.sel && o.type==='image'; })[0];
+    if(selImg){
+      var pill=document.createElement('button'); pill.type='button'; pill.className='ed-rmbg-pill'+(selImg._rmbgBusy?' busy':''); pill.setAttribute('data-rmbg',selImg.id);
+      pill.style.left='calc('+(selImg.x+selImg.w/2)+'%)'; pill.style.top='calc('+Math.max(0,selImg.y)+'% + 10px)';
+      pill.textContent=selImg._rmbgBusy?'☁️ Détourage…':(ED_ORIG[selImg.id]?'☁️ Remettre le fond':'☁️ Supprimer le fond');
+      page.appendChild(pill);
+    }
     if(ed.safeZones && ed.fmt==='9:16'){
       var safe=document.createElement('div');safe.className='ed-safezone';safe.innerHTML='<div class="sz-top"></div><div class="sz-bottom"></div><div class="sz-left"></div><div class="sz-right"></div><div class="sz-label">ZONE SÛRE</div>';page.appendChild(safe);
     }
@@ -4913,6 +4925,32 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     edBind(); edPanel();
     if($('#ed-fly-title') && $('#ed-flyout').classList.contains('show') && ed.flyKind==='layers') edFlyout('layers');
   }
+
+  /* --- Détourage : supprime le fond de l'image sélectionnée (rembg / BiRefNet sur le serveur Marshall) --- */
+  var ED_ORIG={};   // image d'origine avant détourage (hors historique : un data URL peut peser plusieurs Mo)
+  function edBlobToDataUrl(b){ return new Promise(function(ok,ko){ var r=new FileReader(); r.onload=function(){ ok(r.result); }; r.onerror=ko; r.readAsDataURL(b); }); }
+  async function edRemoveBg(id){
+    var l=ed.layers.filter(function(o){ return o.id===id; })[0]; if(!l||l.type!=='image'||l._rmbgBusy) return;
+    if(ED_ORIG[l.id]){ l.url=ED_ORIG[l.id]; delete ED_ORIG[l.id]; ED_SRC[l.id]=l.url; edSnap(); edRender(); toast('Fond remis ✓'); return; }
+    l._rmbgBusy=true; edRender(); toast('☁️ Détourage en cours… (jusqu’à 1 min la première fois)');
+    try{
+      var src=String(l.url||'');
+      if(!/^data:/.test(src)){
+        var resp=await fetch(src).catch(function(){ return null; });
+        if(!resp||!resp.ok) throw Error('Cette image vient d’un autre site : importe-la depuis ton ordinateur pour la détourer.');
+        src=await edBlobToDataUrl(await resp.blob());
+      }
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/image/remove-bg',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:src})});
+      var d=await r.json().catch(function(){ return {}; });
+      try{ marshallTokensFromResponse(d); }catch(e){}
+      if(!r.ok||!d.ok||!d.image) throw Error(d.error||('HTTP '+r.status));
+      ED_ORIG[l.id]=l.url; l.url=d.image; ED_SRC[l.id]=d.image;
+      edSnap(); toast('Fond supprimé ✨ (clique à nouveau pour le remettre)');
+    }catch(err){ toast('Détourage impossible : '+(err.message||err),true); }
+    finally{ l._rmbgBusy=false; edRender(); }
+  }
+  document.addEventListener('pointerdown',function(e){ if(e.target.closest&&e.target.closest('.ed-rmbg-pill')){ e.stopPropagation(); } },true);
+  document.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('.ed-rmbg-pill'); if(!b) return; e.preventDefault(); e.stopPropagation(); edRemoveBg(b.getAttribute('data-rmbg')); },true);
 
   /* --- calque d'alignement (repères type Canva) --- */
   function edRectOf(l, box){
