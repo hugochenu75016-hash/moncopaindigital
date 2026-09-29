@@ -45,7 +45,7 @@
 <title>Studio Social · Mon Copain Digital</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Baloo+2:wght@600;700;800&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&amp;family=Archivo+Black&amp;family=Caveat:wght@500;700&amp;family=DM+Serif+Display:ital@0;1&amp;family=Inter:wght@500;800&amp;family=Montserrat:wght@500;800&amp;family=Nunito:wght@500;800&amp;family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
-<script id="mcd-i18n" data-v="3">
+<script id="mcd-i18n" data-v="4">
 /* ===== Studio Social multilingue : traduit l'affichage (dictionnaire par langue), sans toucher à la logique ===== */
 (function(){
   var LANGS={fr:'Français',en:'English',es:'Español',de:'Deutsch',it:'Italiano',pt:'Português',nl:'Nederlands'};
@@ -90,9 +90,44 @@
     sel.innerHTML=Object.keys(LANGS).map(function(k){ return '<option value="'+k+'"'+(k===lang?' selected':'')+'>'+LANGS[k]+'</option>'; }).join('');
   }
   document.addEventListener('change',function(e){ if(e.target&&e.target.id==='mcd-lang-select') window.mcdSetLang(e.target.value); });
+
+  /* Bouton drapeau (en haut à droite) : clic → liste des langues. Drapeaux en SVG (Windows n'affiche pas les emojis drapeaux). */
+  var FLAGS={
+    fr:'<rect width="3" height="2" fill="#fff"/><rect width="1" height="2" fill="#0055A4"/><rect x="2" width="1" height="2" fill="#EF4135"/>',
+    en:'<rect width="3" height="2" fill="#012169"/><path d="M0 0L3 2M3 0L0 2" stroke="#fff" stroke-width=".4"/><path d="M0 0L3 2M3 0L0 2" stroke="#C8102E" stroke-width=".15"/><path d="M1.5 0V2M0 1H3" stroke="#fff" stroke-width=".6"/><path d="M1.5 0V2M0 1H3" stroke="#C8102E" stroke-width=".35"/>',
+    es:'<rect width="3" height="2" fill="#AA151B"/><rect y=".5" width="3" height="1" fill="#F1BF00"/>',
+    de:'<rect width="3" height="2" fill="#FFCE00"/><rect width="3" height=".667" fill="#000"/><rect y=".667" width="3" height=".667" fill="#DD0000"/>',
+    it:'<rect width="3" height="2" fill="#fff"/><rect width="1" height="2" fill="#009246"/><rect x="2" width="1" height="2" fill="#CE2B37"/>',
+    pt:'<rect width="3" height="2" fill="#FF0000"/><rect width="1.2" height="2" fill="#006600"/><circle cx="1.2" cy="1" r=".38" fill="#FFCC00"/><circle cx="1.2" cy="1" r=".24" fill="#FF0000"/>',
+    nl:'<rect width="3" height="2" fill="#21468B"/><rect width="3" height=".667" fill="#AE1C28"/><rect y=".667" width="3" height=".667" fill="#fff"/>'
+  };
+  /* Drapeaux flag-icons (lipis, licence MIT) ; si le CDN ne répond pas, dessin simplifié ci-dessus. */
+  var FLAG_CODE={fr:'fr',en:'gb',es:'es',de:'de',it:'it',pt:'pt',nl:'nl'};
+  window.mcdFlagFallback=function(img){ var k=img.getAttribute('data-k'); var s=document.createElement('span'); s.innerHTML='<svg class="mcd-flag" viewBox="0 0 3 2" aria-hidden="true" preserveAspectRatio="none">'+(FLAGS[k]||FLAGS.fr)+'</svg>'; img.replaceWith(s.firstChild); };
+  function flag(k){ return '<img class="mcd-flag" data-k="'+k+'" src="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/flags/4x3/'+(FLAG_CODE[k]||'fr')+'.svg" alt="" width="24" height="18" loading="lazy" onerror="mcdFlagFallback(this)">'; }
+  window.mcdFlag=flag;
+  var css=document.createElement('style');
+  css.textContent='.mcd-lang{position:relative;display:inline-flex}.mcd-lang-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;cursor:pointer;border:0;padding:0 8px;height:38px;min-width:38px;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.12);font:700 12px Fredoka,sans-serif;color:#4d2000}'+
+    '.mcd-lang-btn .mcd-flag{width:24px;height:16px;object-fit:cover;display:block;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.12)}.mcd-lang-btn .mcd-caret{font-size:9px;opacity:.6}'+
+    '.mcd-lang-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:100000;background:#fff;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.2);padding:6px;min-width:180px;display:flex;flex-direction:column;gap:2px}'+
+    '.mcd-lang-menu[hidden]{display:none}.mcd-lang-menu button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:8px 10px;border-radius:10px;cursor:pointer;font:600 14px Nunito,sans-serif;color:#222;text-align:left}'+
+    '.mcd-lang-menu button:hover{background:#fff4e8}.mcd-lang-menu button.on{background:#fff0e0;font-weight:800}.mcd-lang-menu .mcd-flag{width:24px;height:16px;object-fit:cover;display:block;border-radius:3px;flex:0 0 auto;box-shadow:0 0 0 1px rgba(0,0,0,.12)}';
+  document.head.appendChild(css);
+  function langWidget(host){
+    if(!host||host.getAttribute('data-ready')) return; host.setAttribute('data-ready','1');
+    host.classList.add('mcd-lang','notranslate'); host.setAttribute('translate','no');
+    host.innerHTML='<button type="button" class="mcd-lang-btn" aria-haspopup="listbox" aria-expanded="false" title="'+LANGS[lang]+'">'+flag(lang)+'<span class="mcd-caret">▼</span></button>'+
+      '<div class="mcd-lang-menu" role="listbox" hidden>'+Object.keys(LANGS).map(function(k){ return '<button type="button" role="option" data-lang="'+k+'"'+(k===lang?' class="on" aria-selected="true"':'')+'>'+flag(k)+'<span>'+LANGS[k]+'</span></button>'; }).join('')+'</div>';
+    var btn=host.querySelector('.mcd-lang-btn'), menu=host.querySelector('.mcd-lang-menu');
+    btn.addEventListener('click',function(e){ e.stopPropagation(); var open=menu.hidden; document.querySelectorAll('.mcd-lang-menu').forEach(function(m){ m.hidden=true; }); menu.hidden=!open; btn.setAttribute('aria-expanded',open?'true':'false'); });
+    menu.addEventListener('click',function(e){ var o=e.target.closest('[data-lang]'); if(!o) return; e.stopPropagation(); if(o.getAttribute('data-lang')!==lang) window.mcdSetLang(o.getAttribute('data-lang')); else menu.hidden=true; });
+  }
+  document.addEventListener('click',function(){ document.querySelectorAll('.mcd-lang-menu').forEach(function(m){ m.hidden=true; }); });
+  function mountLangWidgets(){ fillLangSelect(); document.querySelectorAll('[data-mcd-lang]').forEach(langWidget); }
   document.addEventListener('DOMContentLoaded',function(){
-    fillLangSelect();
-    new MutationObserver(fillLangSelect).observe(document.body,{childList:true,subtree:true});
+    mountLangWidgets();
+    var queued=false;
+    new MutationObserver(function(){ if(queued) return; queued=true; requestAnimationFrame(function(){ queued=false; mountLangWidgets(); }); }).observe(document.body,{childList:true,subtree:true});
   });
   if(lang==='fr') return;
 
@@ -2784,6 +2819,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     </div>
   </div>
   <div id="mcd-social">
+    <div data-mcd-lang></div>
     <a class="social-btn" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
       <svg viewBox="0 0 24 24"><defs><radialGradient id="ssIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#ssIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
     </a>
@@ -5291,6 +5327,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       title.textContent='Réglages';
       var sbm=marshallBrandManualGet(), intel=marshallBrandIntelligenceGet();
       body.innerHTML=`<div class="settings-v1 set2">
+        <div class="set-section" id="lang-section" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;margin-bottom:10px;"><div style="flex:1 1 200px;"><b>🌐 Langue</b><div class="set-state" style="margin-top:2px;">Marshall te répond et crée tes publications dans cette langue.</div></div><div data-mcd-lang></div></div>
         <div class="set2-tabs" role="tablist"><button type="button" class="set2-tab" data-set2="brand" role="tab">🎨 Ma marque</button><button type="button" class="set2-tab" data-set2="create" role="tab">✨ Création</button><button type="button" class="set2-tab" data-set2="account" role="tab">👤 Mon compte</button><span class="set2-saved" id="set2-saved" aria-live="polite"></span></div>
         <div class="set2-pane" data-pane="brand">
         <div class="set-section mbb-express"><div class="set-section-head"><svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.2L18 9l-4.5 1.8L12 15l-1.5-4.2L6 9l4.5-1.8L12 3Z"/></svg><b>Ta marque en 1 clic</b><span>Marshall remplit tout</span></div>
@@ -5317,7 +5354,6 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           <div class="set-field full"><label>Moteur d’images en mode Hyper</label><select id="marshall-image-engine"><option value="auto">Nano Banana 2 · Google (recommandé, ≈ 87 tokens/image)</option><option value="pro">Nano Banana Pro · qualité max (≈ 173 tokens/image)</option><option value="qwen">Qwen-Image · Modal (économique, ≈ 13 tokens)</option></select></div>
         </div></div></div>
         <div class="set2-pane" data-pane="account">
-          <div class="set-section" id="lang-section"><div class="set-section-head"><b>Langue</b><span>Interface et Marshall</span></div><div class="set-field full"><label for="mcd-lang-select">Langue de Studio Social</label><select id="mcd-lang-select" class="notranslate" translate="no"></select><div class="set-state">Marshall te répond et crée tes publications dans cette langue.</div></div></div>
           <div class="set-section" id="mpl-section"><div class="set-section-head"><b>Mon abonnement</b></div><div id="mpl-card"></div></div>
           <div class="set-section" id="mtk-section"><div class="set-section-head"><b>Mon utilisation</b><span>Temps réel</span></div><div id="mtk-card"></div></div>
           <div class="set-section"><div class="set-field full"><label>Mes infos et ma facturation</label><div class="set-state" id="mbb-account-summary"></div><a href="espace-compte.html#profil" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Gérer mes infos dans l’Espace compte</a> <a href="espace-compte.html#securite" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Changer mon mot de passe</a></div></div>
