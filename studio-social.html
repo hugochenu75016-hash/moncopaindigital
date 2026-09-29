@@ -7186,8 +7186,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     function render(){
       ov.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===tab);});
       if(tab==='lay'){
-        body.innerHTML='<div class="rl-note">Sur le serveur, chaque layout est rendu avec le modèle le plus proche : '+MARSHALL_REP_MODELS.map(function(n,i){return marshallRepThumb(i)+' '+n;}).join(' · ')+'.</div><div class="rl-quick"><button type="button" data-all="1">Tout</button><button type="button" data-none="1">Aucun</button></div><div class="rl-grid">'+
-          keys.map(function(k){var m=marshallRepLayoutModel(k),on=st.lib_layouts.indexOf(k)>=0;return '<button type="button" class="rl-tile'+(on?' on':'')+'" data-lay="'+k+'">'+marshallRepThumb(m)+'<span class="rl-tx"><b>'+esc(cat[k].title)+'</b><small>'+esc(cat[k].description)+'</small><em>Rendu : '+MARSHALL_REP_MODELS[m]+'</em></span></button>';}).join('')+'</div>';
+        body.innerHTML='<div class="rl-note">✓ Le serveur dessine chaque layout avec le vrai moteur de Composer : le rendu est identique à ta bibliothèque, et chaque nouveau layout que tu y ajoutes apparaît ici après un redéploiement.</div><div class="rl-quick"><button type="button" data-all="1">Tout</button><button type="button" data-none="1">Aucun</button></div><div class="rl-grid">'+
+          keys.map(function(k){var m=marshallRepLayoutModel(k),on=st.lib_layouts.indexOf(k)>=0;return '<button type="button" class="rl-tile'+(on?' on':'')+'" data-lay="'+k+'">'+marshallRepThumb(m)+'<span class="rl-tx"><b>'+esc(cat[k].title)+'</b><small>'+esc(cat[k].description)+'</small></span></button>';}).join('')+'</div>';
       }else{
         var lib=MARSHALL_HOOK_LIBRARY,groups=Object.keys(lib);
         body.innerHTML='<label class="rl-switch"><input type="checkbox" data-hm="1"'+(st.hook_mode==='marshall'?' checked':'')+'> <b>Utiliser une accroche Marshall</b><small>Sinon, le titre de l’info est utilisé tel quel.</small></label>'+
@@ -13478,6 +13478,29 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   })();
 
 
+  /* ===== Rendu serveur (Répétitions) : le serveur Marshall ouvre CETTE page dans un navigateur invisible et
+     dessine la story avec les VRAIS layouts de la bibliothèque. Aucune donnée privée n'est exposée. ===== */
+  window.MarshallRender={
+    ready:function(){return typeof marshallBuildViralStoryFrame==='function'&&typeof edBuildCanvas==='function';},
+    layouts:function(){try{return Object.keys(marshallStoryLayoutCatalog());}catch(e){return [];}},
+    render:async function(spec){
+      spec=spec||{};var wait=function(ms){return new Promise(function(r){setTimeout(r,ms);});};
+      try{if(!me||!me.nom)me={nom:'Marshall',role:'Client'};}catch(e){me={nom:'Marshall',role:'Client'};}
+      if(!window.__mrStudio){try{var a=document.getElementById('auth');if(a)a.style.display='none';enterStudio();}catch(e){}window.__mrStudio=1;await wait(700);}
+      var b=spec.brand||{};
+      try{marshallWriteLocal(MARSHALL_BRAND_KEY,Object.assign({},marshallBrandManualGet()||{},{name:b.name||'',primary:b.primary||'',accent:b.accent||'',accountType:'pro'}));}catch(e){}
+      var kits=marshallStoryKits(),kk=Object.keys(kits),f=Object.assign({role:'single',single:true,total:1},spec.frame||{});
+      if(!f.kit||!kits[f.kit])f.kit=kk[Math.floor(Math.random()*kk.length)];
+      try{await Promise.race([marshallStoryPreloadFonts(f.kit),wait(8000)]);}catch(e){}
+      marshallBuildViralStoryFrame(f,0,spec.image||'',null);
+      try{edRender();}catch(e){}
+      for(var i=0;i<60;i++){var pend=(ed.layers||[]).filter(function(l){return l.type==='image'&&l.url&&!(l._img&&l._img.complete&&l._img.naturalWidth>0);});if(!pend.length)break;await wait(250);}
+      try{if(document.fonts&&document.fonts.ready)await Promise.race([document.fonts.ready,wait(4000)]);}catch(e){}
+      await wait(300);
+      var cv=edBuildCanvas();if(!cv)return {ok:false,error:'canvas vide'};
+      return {ok:true,layout:f.layout,kit:f.kit,image:cv.toDataURL('image/jpeg',0.9),w:cv.width,h:cv.height};
+    }
+  };
   /* ============ START ============ */
   async function startApp(){
     mcdTouchActive(true);mcdBindActivity();
