@@ -881,6 +881,10 @@
   .pill.amber{ background:rgba(230,160,20,0.2); color:#9a6410; }
   .pill.blue{ background:rgba(40,110,220,0.16); color:#2b5fa0; }
   .pill.red{ background:rgba(210,60,30,0.16); color:#c0341a; }
+  .mcd-sig{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:6px 0 2px; padding:8px 12px; border:1px dashed #e8cfa9; border-radius:12px; background:#fffaf2; font-size:12.5px; color:#7a5c08; }
+  .mcd-sig.off{ opacity:.6; text-decoration:line-through; }
+  .mcd-sig b{ font-weight:700; }
+  .mcd-sig button{ margin-left:auto; border:1px solid #e8cfa9; background:#fff; border-radius:999px; padding:4px 11px; font:700 11.5px 'Fredoka',sans-serif; color:#b25d10; cursor:pointer; white-space:nowrap; }
   .pill.rep{ background:#fff1e3; color:#b25d10; border:1px solid #f6d3b0; }
   .hist-filter{ display:inline-flex; gap:4px; padding:4px; background:#f1eee8; border:1px solid #e6e1d9; border-radius:999px; max-width:100%; overflow-x:auto; }
   .hist-filter button{ border:0; background:transparent; font:700 12.5px 'Fredoka',sans-serif; color:#7a6a58; padding:7px 13px; border-radius:999px; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; }
@@ -3290,6 +3294,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
               <div class="emoji-pop" id="emoji-pop"></div>
               <div class="pub-ai-note" id="pub-ai-note" role="status" aria-live="polite" hidden></div>
               <textarea id="cap" placeholder="Écris ta légende ici… ✍️"></textarea>
+              <div class="mcd-sig" id="mcd-sig"></div>
               <div class="counters" id="counters"></div>
               <div class="pub-2">
                 <div><label for="tags">Hashtags et mentions</label><input id="tags" placeholder="@compte, #hashtag…"></div>
@@ -4194,9 +4199,29 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       comp.formats[el.getAttribute('data-fnet')]=el.getAttribute('data-fmt'); renderFormats(); renderPreview(); pubRefresh();
     }); });
   }
+  /* ===== Signature « Propulsé par… » : obligatoire, seule la formule Hyper peut la retirer (le serveur l'impose aussi). ===== */
+  var MCD_SIG='Propulsé par le Studio Social Mon Copain Digital';
+  function mcdSigCanHide(){ try{ return marshallPlan()==='hyper'; }catch(e){ return false; } }
+  function mcdSigOn(){ if(!mcdSigCanHide()) return true; try{ return localStorage.getItem('mcd_sig_off')!=='1'; }catch(e){ return true; } }
+  function mcdSigStrip(t){ return String(t||'').replace(/\s*Propulsé par le Studio Social Mon Copain Digital\s*$/i,''); }
+  function mcdSigApply(t){ t=mcdSigStrip(t).replace(/\s+$/,''); return mcdSigOn()?(t?t+'\n\n':'')+MCD_SIG:t; }
+  function mcdSigRender(){
+    var el=document.getElementById('mcd-sig'); if(!el) return;
+    var on=mcdSigOn(), hyper=mcdSigCanHide();
+    el.className='mcd-sig'+(on?'':' off');
+    el.innerHTML='<span aria-hidden="true">🔒</span><span>Ajouté à la fin de ta légende : <b>'+esc(MCD_SIG)+'</b></span>'+
+      '<button type="button" data-sig="1">'+(hyper?(on?'Retirer':'Remettre'):'Retirer · ⚡ Hyper')+'</button>';
+  }
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#mcd-sig [data-sig]')) return;
+    if(!mcdSigCanHide()){ try{ marshallPaywallOpen('hyper'); }catch(err){} toast('Retirer la signature est réservé à la formule ⚡ Hyper.'); return; }
+    try{ localStorage.setItem('mcd_sig_off', mcdSigOn()?'1':'0'); }catch(err){}
+    mcdSigRender(); renderCounters();
+  });
   function renderCounters(){
+    mcdSigRender();
     var html = NETS.filter(function(n){ return comp.nets[n.id]; }).map(function(n){
-      var len=comp.caption.length, over=len>n.limit;
+      var len=mcdSigApply(comp.caption).length, over=len>n.limit;
       return '<span class="cnt '+(over?'over':'')+'">'+esc(n.name)+' '+len+'/'+n.limit+'</span>';
     }).join('');
     var hasLink = /(https?:\/\/|www\.|\b[a-z0-9-]+\.(fr|com|net|org|io|co|be)\b)/i.test(comp.caption+' '+comp.tags);
@@ -13128,9 +13153,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
   function collectPost(status){
     return { id:comp.editingId||newId(), author_id:effectiveUid(), author_name:actingAs?(actingName+' (via '+me.nom+')'):me.nom,
-      caption:comp.caption, tags:comp.tags, crop:comp.crop, formats:comp.formats, media:comp.media.slice(), nets:selectedNets(),
+      caption:status==='draft'?comp.caption:mcdSigApply(comp.caption), tags:comp.tags, crop:comp.crop, formats:comp.formats, media:comp.media.slice(), nets:selectedNets(),
       first_comment: (($('#first-comment')&&$('#first-comment').value)||'').trim() || null,
-      status:status, scheduled_at:scheduledISO(), results:comp.results||null,
+      status:status, scheduled_at:scheduledISO(), results:(status!=='draft'&&!mcdSigOn())?Object.assign({},comp.results||{},{no_signature:true}):(comp.results||null),
       created_at: (comp.editingId && findPost(comp.editingId)) ? findPost(comp.editingId).created_at : new Date().toISOString() };
   }
   function findPost(id){ for(var i=0;i<posts.length;i++) if(posts[i].id===id) return posts[i]; return null; }
@@ -13161,7 +13186,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var nets=selectedNets();
     if(!nets.length){ toast('Sélectionnez au moins un réseau.'); return; }
     if(!comp.caption.trim() && !comp.media.length){ toast('Votre post est vide.'); return; }
-    var over=NETS.filter(function(n){ return comp.nets[n.id] && comp.caption.length>n.limit; });
+    var over=NETS.filter(function(n){ return comp.nets[n.id] && mcdSigApply(comp.caption).length>n.limit; });
     if(over.length){ toast('Texte trop long pour : '+over.map(function(n){return n.name;}).join(', ')); return; }
     var later = comp.sched==='later';
     if(later && !$('#sc-date').value){ toast('Choisissez une date de programmation.'); return; }
@@ -13304,7 +13329,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function loadIntoComposer(id, duplicate){
     var p=findPost(id); if(!p) return;
-    comp={ nets:{instagram:false,x:false,tiktok:false,facebook:false,snapchat:false}, formats:Object.assign({instagram:'Post',x:'Post',tiktok:'Vidéo',facebook:'Post',snapchat:'Snap'}, p.formats||{}), caption:p.caption||'', tags:p.tags||'', crop:p.crop||{ratio:'1:1',pos:50}, media:(p.media||[]).slice(),
+    comp={ nets:{instagram:false,x:false,tiktok:false,facebook:false,snapchat:false}, formats:Object.assign({instagram:'Post',x:'Post',tiktok:'Vidéo',facebook:'Post',snapchat:'Snap'}, p.formats||{}), caption:mcdSigStrip(p.caption||''), tags:p.tags||'', crop:p.crop||{ratio:'1:1',pos:50}, media:(p.media||[]).slice(),
       sched:p.status==='scheduled'?'later':'now', editingId:duplicate?null:id, results:duplicate?null:(p.results||null) };
     (p.nets||[]).forEach(function(n){ comp.nets[n]=true; });
     $('#cap').value=comp.caption; $('#tags').value=comp.tags;
