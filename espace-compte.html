@@ -820,6 +820,7 @@
   #aview-abos .abo-msg{margin-top:10px;font:700 13px/1.3 'Fredoka',sans-serif;color:#c0343a;min-height:1em}
   @media (max-width:860px){#aview-abos .abo-wrap{grid-template-columns:1fr}#aview-abos .abo-list{max-height:320px}}
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" id="ss-fonts">
 </head>
 <body>
 <!-- ===== Transition portes entre pages ===== -->
@@ -3650,5 +3651,127 @@ try{ localStorage.setItem('mcd-bulle-vue','1'); }catch(err){}
 <style>
 .studio-invoices-nav{font:inherit;text-align:left;cursor:pointer;width:100%;border:0;background:transparent}.studio-invoices-nav[hidden]{display:none!important}
 #studio-invoices-panel{width:min(850px,calc(100vw - 28px));max-height:88vh;max-height:88dvh;overflow:auto;border:1px solid #e2cdb6;border-radius:24px;padding:26px;color:#3b2a1c;background:#fff8ef;font:15px/1.5 Arial,sans-serif;box-shadow:0 25px 90px #0004}#studio-invoices-panel::backdrop{background:#15263788}#studio-invoices-panel [hidden]{display:none!important}#studio-invoices-panel header{display:flex;justify-content:space-between;gap:15px;align-items:center}#studio-invoices-panel h2{margin:0;font-size:25px}#studio-invoices-panel h3{margin:0;font-size:17px}#studio-invoices-panel button,#studio-invoices-panel a{font:inherit;border:1px solid #dbc1a4;padding:9px 13px;border-radius:11px;background:white;color:#78400d;cursor:pointer;display:inline-block;text-decoration:none;margin-right:8px}#studio-invoices-panel button:disabled{opacity:.45;cursor:default}#studio-invoices-panel .si-card{padding:20px 0;border-bottom:1px solid #e6d9ca}#studio-invoices-panel .si-card p{margin:6px 0}#studio-invoices-panel .si-controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px}#studio-invoices-panel :focus-visible{outline:3px solid #267bac;outline-offset:3px}#si-message{background:#fff0da;padding:10px;border-radius:12px}#si-message:empty{display:none}
-</style><dialog id="studio-invoices-panel" aria-labelledby="si-title"><header><h2 id="si-title">Factures Studio</h2><button type="button" data-si-close>Fermer</button></header><p>Suivi des paiements et factures de vos abonnements Studio Social, y compris les renouvellements.</p><div class="si-controls"><label id="si-admin" hidden><input id="si-all" type="checkbox"> Toutes les factures (administrateur)</label><button id="si-refresh" type="button">Actualiser</button></div><p id="si-message" role="status" aria-live="polite"></p><div id="si-cards"></div><div class="si-controls"><button id="si-prev" type="button" disabled>Précédent</button><span id="si-page"></span><button id="si-next" type="button" disabled>Suivant</button></div></dialog><script src="compte-factures-studio.js"></script></body>
+</style><dialog id="studio-invoices-panel" aria-labelledby="si-title"><header><h2 id="si-title">Factures Studio</h2><button type="button" data-si-close>Fermer</button></header><p>Suivi des paiements et factures de vos abonnements Studio Social, y compris les renouvellements.</p><div class="si-controls"><label id="si-admin" hidden><input id="si-all" type="checkbox"> Toutes les factures (administrateur)</label><button id="si-refresh" type="button">Actualiser</button></div><p id="si-message" role="status" aria-live="polite"></p><div id="si-cards"></div><div class="si-controls"><button id="si-prev" type="button" disabled>Précédent</button><span id="si-page"></span><button id="si-next" type="button" disabled>Suivant</button></div></dialog><script src="compte-factures-studio.js"></script><style id="ss-studio-theme">
+/* ================= Style Studio Social (barre orange, fond crème, cartes blanches) ================= */
+:root{--ss-or1:#ff8a1f;--ss-or2:#f26c00;--ss-or3:#d95e00;--ss-btn1:#FF9C46;--ss-btn2:#F3852B;--ss-btnsh:#C7620E;
+  --ss-bg:#F7F4EF;--ss-card:#ffffff;--ss-line:#ECE8E1;--ss-ink:#252525;--ss-mut:#7A7368;--ss-soft:#FFF4E8;--ss-softink:#B8601A;--ss-softsh:#F3D9BF;--ss-row:#FAF8F5}
+body.night{--ss-bg:#15171C;--ss-card:#1F2229;--ss-line:#2E323B;--ss-ink:#F2EFEA;--ss-mut:#A7A198;--ss-soft:#3A2A1C;--ss-softink:#FFB27A;--ss-softsh:#1a120b;--ss-row:#262A32}
+
+/* ---------- Connexion : carte orange comme Studio ---------- */
+html body .auth-card{background:linear-gradient(160deg,#ff9a3d 0%,#f3852b 45%,#e0660f 100%)!important;border:1px solid rgba(255,255,255,.28)!important;border-radius:20px!important;box-shadow:0 24px 60px rgba(120,50,0,.28)!important;backdrop-filter:none!important}
+html body .auth-card::before,html body .auth-card::after{display:none!important}
+html body .auth-card .brand .nm{font-family:'Inter','Helvetica Neue',sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;text-shadow:none}
+html body .auth-card .brand .nm small{font-family:'Inter',sans-serif;color:#fff3e4;font-size:13px}
+html body .auth-tabs{background:transparent!important;border:0!important;padding:0!important;gap:10px!important}
+html body .auth-tabs button{border-radius:10px!important;border:1px solid rgba(255,255,255,.55)!important;background:rgba(255,255,255,.22)!important;color:#fff!important;font:700 14px 'Inter',sans-serif!important;padding:11px!important}
+html body .auth-tabs button.active{background:#fff!important;color:#C9560B!important;box-shadow:0 6px 16px rgba(120,50,0,.2)!important}
+html body .auth-card .field label{color:#fff!important;font:600 12px 'Inter',sans-serif!important;letter-spacing:.02em}
+html body .auth-card .field input,html body .auth-card .field select,html body .auth-card .field textarea{background:#fff!important;border:1px solid rgba(255,255,255,.9)!important;border-radius:10px!important;color:#2a1a0c!important;font-family:'Inter',sans-serif!important;font-size:16px!important;box-shadow:none!important}
+html body .auth-card .field input:focus{box-shadow:0 0 0 3px rgba(255,255,255,.45)!important}
+html body .auth-card .primary-btn{background:#fff!important;color:#D95E00!important;border:0!important;border-radius:12px!important;box-shadow:0 8px 20px rgba(120,50,0,.22)!important;font:800 16px 'Inter',sans-serif!important;letter-spacing:.02em!important}
+html body .auth-card .primary-btn:hover{transform:translateY(-1px)!important}
+html body .auth-card .ec-type-opt{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.5);color:#fff}
+html body .auth-card .ec-type-opt.on{background:#fff;color:#C9560B;border-color:#fff;box-shadow:none}
+html body .auth-card .ec-mini{background:#16233B}
+html body .auth-card .ec-help,html body .auth-card .auth-foot,html body .auth-card .auth-foot a{color:#fff}
+
+/* ---------- Espace connecté (client + admin) ---------- */
+body:has(#app.show),body:has(#admin.show){--bg:var(--ss-bg);background:var(--ss-bg)!important;color:var(--ss-ink)}
+body:has(#app.show) #decor,body:has(#admin.show) #decor,body:has(#app.show) #site-footer,body:has(#admin.show) #site-footer,body:has(#app.show) #scroll-hint,body:has(#admin.show) #scroll-hint{display:none!important}
+#app,#admin{font-family:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;color:var(--ss-ink)}
+
+/* Menu gauche = barre orange de Studio, à la verticale */
+html body #side,html body #adm-side{background:linear-gradient(180deg,var(--ss-or1) 0%,var(--ss-or2) 55%,var(--ss-or3) 100%)!important;border-right:1px solid rgba(120,50,0,.35)!important;box-shadow:8px 0 24px rgba(120,50,0,.16)!important;backdrop-filter:none!important;padding:20px 14px!important}
+html body #side::before,html body #side::after,html body #adm-side::before,html body #adm-side::after{display:none!important}
+html body #side .brand .nm,html body #adm-side .brand .nm{font-family:'Inter',sans-serif;font-weight:800;font-size:17px;letter-spacing:-.02em;color:#fff;text-shadow:none;text-transform:none}
+html body #side .brand .nm small,html body #adm-side .brand .nm small{font-family:'Inter',sans-serif;color:#ffe6c4;font-size:11px}
+html body #side .brand .brand-back,html body #adm-side .brand .brand-back{font-family:'Inter',sans-serif;color:#fff;opacity:.9;font-size:12.5px}
+html body .nav-item{font-family:'Inter',sans-serif!important;font-weight:600!important;font-size:14px!important;color:#FFF3E4!important;border-radius:10px!important;padding:11px 12px!important;border:0!important}
+html body .nav-item:hover{background:rgba(255,255,255,.16)!important;transform:none!important}
+html body .nav-item.active{background:#fff!important;color:#D95E00!important;box-shadow:0 4px 12px rgba(110,42,0,.18)!important}
+html body .side-logout{font-family:'Inter',sans-serif!important;color:#fff!important;border-radius:10px!important;border:1px solid rgba(255,255,255,.45)!important;background:rgba(255,255,255,.12)!important}
+html body .side-logout:hover{background:rgba(255,255,255,.24)!important}
+
+/* En-tête de page */
+html body #topbar-app .hi .k{color:#D95E00!important;font:700 12px 'Inter',sans-serif!important;letter-spacing:.14em!important}
+html body #topbar-app .hi h1{font-family:'Inter',sans-serif!important;font-weight:800!important;letter-spacing:-.03em;color:var(--ss-ink)!important;-webkit-text-stroke:0!important;text-shadow:none!important;paint-order:normal}
+html body #topbar-app .avatar,html body #tb-avatar,html body #adm-avatar{box-shadow:0 4px 12px rgba(0,0,0,.08)!important;border:2px solid #fff!important}
+html body #menu-btn,html body #adm-menu{background:#fff!important;color:#D95E00!important;border:1px solid var(--ss-line)!important;box-shadow:0 2px 8px rgba(0,0,0,.05)!important}
+
+/* Cartes blanches */
+html body #app .card,html body #admin .card,html body #aview-msg>.card,html body #view-msg>.card{background:var(--ss-card)!important;border:1px solid var(--ss-line)!important;border-radius:16px!important;box-shadow:0 2px 10px rgba(0,0,0,.035)!important;color:var(--ss-ink)}
+html body #app .card::before,html body #app .card::after,html body #admin .card::before,html body #admin .card::after{display:none!important}
+html body #app .card h2,html body #admin .card h2,html body #aview-msg h2,html body #view-msg h2,html body #aview-msg .adm-conv-nm{font-family:'Inter',sans-serif!important;font-weight:800!important;letter-spacing:-.02em;color:var(--ss-ink)!important;text-shadow:none!important}
+html body #app .card .sub,html body #admin .card .sub,html body #view-msg .card .sub{color:var(--ss-mut)!important}
+html body #app .card .stat .n,html body #admin .card .stat .n{font-family:'Inter',sans-serif;font-weight:800;color:var(--ss-ink)!important}
+html body #app .card .stat .l,html body #admin .card .stat .l,html body #app .card .list-item .li-main .t2,html body #admin .card .list-item .li-main .t2,html body #app .card .next-rdv .info .meta,html body #app .card .steps li .txt .sd,html body #app .card .profile-head .pe,html body #app .card .ec-help,html body #admin .card .ec-help{color:var(--ss-mut)!important}
+html body #app .card .list-item .li-main .t1,html body #admin .card .list-item .li-main .t1,html body #app .card .next-rdv .info .ttl,html body #app .card .steps li .txt .st,html body #app .card .prof,html body #app .card .profile-head .pn,html body #admin .card .profile-head .pn{color:var(--ss-ink)!important;font-family:'Inter',sans-serif}
+html body #app .stat .ic,html body #admin .stat .ic,html body #app .list-item .li-ic,html body #admin .list-item .li-ic{background:var(--ss-soft)!important;color:#D95E00!important;box-shadow:none!important;border-radius:10px!important}
+html body #app .card .list-item,html body #admin .card .list-item{background:var(--ss-row)!important;border:1px solid var(--ss-line)!important;border-radius:12px!important}
+html body #app .card .progress-outer,html body #admin .card .progress-outer{background:#F0ECE5!important;border-color:transparent!important}
+html body #app .progress-inner,html body #admin .progress-inner{background:linear-gradient(90deg,var(--ss-btn1),var(--ss-btn2))!important}
+html body #app .card .steps li .dot{background:var(--ss-soft)!important;border-color:#F3D9BF!important;color:#D95E00!important}
+html body #app .card .sys-note,html body #admin .card .sys-note{background:var(--ss-row)!important;border-color:var(--ss-line)!important;color:var(--ss-mut)!important}
+
+/* Pastilles */
+html body #app .card .pill.gray,html body #admin .card .pill.gray,html body #admin .pill.gray{background:#F1EEE9!important;color:#6F685E!important;border-color:transparent!important}
+html body #app .pill.green,html body #admin .pill.green{background:#E4F5EA!important;color:#1F7A44!important;border-color:transparent!important}
+html body #app .pill.amber,html body #admin .pill.amber{background:#FFF1DC!important;color:#A0600C!important;border-color:transparent!important}
+html body #app .pill.blue,html body #admin .pill.blue{background:#E6F1FC!important;color:#2B5FA0!important;border-color:transparent!important}
+
+/* Boutons */
+html body #app .link-btn,html body #admin .link-btn,html body #app .card .link-btn,html body #admin .card .link-btn{font-family:'Baloo 2','Fredoka',sans-serif!important;font-weight:800!important;font-size:14px!important;color:var(--ss-softink)!important;background:var(--ss-soft)!important;border:0!important;border-radius:12px!important;box-shadow:0 2px 0 var(--ss-softsh)!important;padding:7px 14px!important}
+html body #app .link-btn:hover,html body #admin .link-btn:hover{background:#FFE9D2!important;transform:translateY(-1px)}
+html body #app .primary-btn,html body #admin .primary-btn,html body #app .send-btn,html body #admin .send-btn,html body #admin .adm-iconbtn.primary{background:linear-gradient(180deg,var(--ss-btn1),var(--ss-btn2))!important;color:#fff!important;border:0!important;border-radius:14px!important;box-shadow:0 3px 0 var(--ss-btnsh),0 8px 18px rgba(243,133,43,.22)!important;font-family:'Baloo 2','Fredoka',sans-serif!important;font-weight:800!important;letter-spacing:.01em!important;text-shadow:none!important}
+html body #app .primary-btn:hover,html body #admin .primary-btn:hover{transform:translateY(-1px)!important}
+html body #app .glass-btn,html body #admin .glass-btn{background:var(--ss-soft)!important;color:var(--ss-softink)!important;border:0!important;border-radius:12px!important;box-shadow:0 2px 0 var(--ss-softsh)!important;font-family:'Baloo 2','Fredoka',sans-serif!important;font-weight:800!important;text-shadow:none!important}
+html body #admin .adm-iconbtn{border-radius:10px!important}
+
+/* Champs */
+html body #app .field label,html body #admin .field label,html body #app .card .field label,html body #admin .card .field label{color:var(--ss-mut)!important;font:700 11.5px 'Inter',sans-serif!important;letter-spacing:.05em}
+html body #app .field input,html body #app .field select,html body #app .field textarea,html body #admin .field input,html body #admin .field select,html body #admin .field textarea,html body #admin .adm-select,html body #admin .adm-search input,html body #admin input.adm-search,html body #app .chat-compose textarea,html body #admin .chat-compose textarea,html body #aview-msg .chat-compose textarea,html body #view-msg .chat-compose textarea{background:var(--ss-card)!important;border:1px solid #E3DED6!important;border-radius:10px!important;color:var(--ss-ink)!important;font-family:'Inter',sans-serif!important;box-shadow:none!important}
+html body #app .field input:focus,html body #app .field select:focus,html body #app .field textarea:focus,html body #admin .field input:focus,html body #admin .field select:focus,html body #admin .field textarea:focus,html body #app .chat-compose textarea:focus,html body #admin .chat-compose textarea:focus{border-color:var(--ss-btn2)!important;box-shadow:0 0 0 3px rgba(243,133,43,.16)!important;outline:0}
+html body #app .field input::placeholder,html body #app .field textarea::placeholder,html body #admin .field input::placeholder,html body #app .chat-compose textarea::placeholder,html body #admin .chat-compose textarea::placeholder{color:#A9A297!important}
+html body #app .field select,html body #admin .field select,html body #admin .adm-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23D95E00' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:right 14px center!important}
+html body #app .chat-compose,html body #admin .chat-compose{border-top-color:var(--ss-line)!important}
+
+/* Messagerie */
+html body #app .msg.them .bubble,html body #admin .msg.them .bubble{background:#F3F1ED!important;color:var(--ss-ink)!important;border:0!important;font-family:'Inter',sans-serif}
+html body #app .msg.me .bubble,html body #admin .msg.me .bubble{background:linear-gradient(180deg,var(--ss-btn1),var(--ss-btn2))!important;color:#fff!important;border:0!important;box-shadow:0 3px 0 var(--ss-btnsh)!important;font-family:'Inter',sans-serif}
+html body #admin .adm-conv-list{border-color:var(--ss-line)!important}
+
+/* Tableaux admin */
+html body #admin .adm-table th{color:#9A8F80!important;font-family:'Inter',sans-serif}
+html body #admin .adm-table td{background:var(--ss-row)!important;color:var(--ss-ink)!important;border-color:var(--ss-line)!important}
+html body #admin .adm-table tbody tr:hover td{background:#FFF4E8!important}
+html body #aview-abos .abo-row{background:var(--ss-row);color:var(--ss-ink);border-color:var(--ss-line)}
+html body #aview-abos .abo-row.sel{background:#fff;border-color:var(--ss-btn2)}
+
+/* Réglages / profil */
+html body .ec-a2f-row,html body .ec-company{background:var(--ss-row)!important;border-color:var(--ss-line)!important}
+html body .ec-a2f-row b,html body .ec-company b{color:var(--ss-ink)!important;font-family:'Inter',sans-serif!important}
+html body #app .ec-type-opt{background:var(--ss-row);border-color:var(--ss-line);color:var(--ss-ink)}
+html body #app .ec-type-opt.on{background:var(--ss-soft);border-color:var(--ss-btn2);box-shadow:inset 0 0 0 1px var(--ss-btn2)}
+html body #app .ec-mini,html body #admin .ec-mini{background:var(--ss-btn2)}
+
+/* Mode nuit : même mise en page, tons sombres */
+body.night #app .card h2,body.night #admin .card h2{color:var(--ss-ink)!important}
+body.night #app .msg.them .bubble,body.night #admin .msg.them .bubble{background:#2B2F38!important}
+body.night #app .card .progress-outer{background:#2B2F38!important}
+body.night #app .pill.gray,body.night #admin .pill.gray{background:#2B2F38!important;color:#C9C3BA!important}
+
+/* Mobile : menu qui glisse, reste orange */
+@media (max-width:900px){
+  html body #side,html body #adm-side{box-shadow:none!important}
+  html body #side.open,html body #adm-side.open{box-shadow:0 0 60px rgba(60,20,0,.35)!important}
+  html body #side-scrim,html body #adm-scrim{background:rgba(20,20,24,.38)!important}
+}
+html:has(#app.show),html:has(#admin.show){background:var(--ss-bg)!important}
+html body #app .send-note,html body #admin .send-note{color:var(--ss-mut)!important}
+html body #dash-progress-pct,html body #projet-pct{color:#D95E00!important;font-family:'Inter',sans-serif;font-weight:800}
+html body #app .big-av,html body #admin .big-av,html body #prof-av{color:#D95E00!important;background:var(--ss-soft)!important;border-color:#fff!important}
+html body #theme-label-txt{color:var(--ss-ink)!important;font-family:'Inter',sans-serif}
+body.night #app .field input,body.night #app .field select,body.night #app .field textarea,body.night #admin .field input,body.night #admin .field select,body.night #admin .field textarea,body.night #app .chat-compose textarea,body.night #admin .chat-compose textarea,body.night #admin .adm-select{border-color:#3A3F49!important}
+</style>
+</body>
 </html>
