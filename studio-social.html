@@ -5088,7 +5088,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         </div>
         <div class="set2-pane" data-pane="create"><div class="set-section"><p class="set2-help">Marshall utilise ces choix pour toutes tes créations. Tout est enregistré automatiquement.</p><div class="set-grid">
           <div class="set-field"><label>Objectif</label><select id="ai-goal"><option value="Vente">Vente</option><option value="Engagement">Engagement</option><option value="Notoriété">Notoriété</option><option value="Lancement produit">Lancement produit</option></select></div>
-          <div class="set-field"><label>Plateforme</label><select id="ai-platform"><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Facebook">Facebook</option><option value="X">X</option><option value="Snapchat">Snapchat</option></select></div>
+          <div class="set-field"><label>Plateforme</label><select id="ai-platform"><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Facebook">Facebook</option><option value="X">X</option><option value="Snapchat">Snapchat</option><option value="LinkedIn">LinkedIn</option></select></div>
           <div class="set-field full"><label>Style créatif</label><select id="marshall-style"><option value="auto">Automatique</option><option value="modern">Moderne</option><option value="premium">Premium</option><option value="bold">Bold social media</option><option value="ugc">UGC / natif</option></select></div>
           <div class="set-field full"><label>Outil vidéo Marshall</label><select id="marshall-story-render"><option value="auto">Vidéo Motion locale (gratuit)</option><option value="veo-lite">Motion + vidéo IA Google Veo 3.1 Lite (≈ 470 tokens)</option><option value="veo-fast">Motion + vidéo IA Veo 3.1 Fast · premium (≈ 1 550 tokens)</option><option value="video">Motion + vidéo IA Wan 2.2 (open source)</option><option value="static">Outil vidéo désactivé</option></select></div>
           <div class="set-field full"><label>Moteur d’images en mode Hyper</label><select id="marshall-image-engine"><option value="auto">Nano Banana 2 · Google (recommandé, ≈ 87 tokens/image)</option><option value="pro">Nano Banana Pro · qualité max (≈ 173 tokens/image)</option><option value="qwen">Qwen-Image · Modal (économique, ≈ 13 tokens)</option></select></div>
@@ -8390,7 +8390,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var frames=plan&&Array.isArray(plan.frames)?plan.frames.slice(0,MARSHALL_STORY_MAX):[];
     if(frames.length<MARSHALL_STORY_MIN)return 'Ta Story est prête. Les écrans restent éditables dans le canvas. Tu peux continuer à me parler ici pour la modifier ou la programmer.';
     var _lvl=(typeof MARSHALL_POWER!=='undefined'&&MARSHALL_POWER[marshallPower()])?MARSHALL_POWER[marshallPower()].label:'';
-    var out=[(frames.length>1?'Ta Story est prête : **'+frames.length+' écrans** qui racontent une histoire complète':'Ta Story est prête : **1 canvas** (accroche + action)')+(plan.angle?' (angle : '+plan.angle+')':'')+(_lvl?' · niveau **'+_lvl+'**':'')+'.'+(frames.length===1?' Pour une story en plusieurs écrans, demande par ex. « story en 5 écrans ».':'')];
+    var out=[(frames.length>1?'Ta Story est prête : **'+frames.length+' écrans** qui racontent une histoire complète':'Ta Story est prête : **1 canvas** (accroche + action)')+(plan.angle?' (angle : '+plan.angle+')':'')+(plan.hookLever?' · levier **'+plan.hookLever+'**':'')+(_lvl?' · niveau **'+_lvl+'**':'')+'.'+(frames.length===1?' Pour une story en plusieurs écrans, demande par ex. « story en 5 écrans ».':'')];
     frames.forEach(function(f,i){
       var hook=String((f&&f.hook)||'').trim(),sub=String((f&&f.sub)||'').trim(),cta=String((f&&f.cta)||'').trim(),items=(f&&f.items||[]).filter(Boolean);
       out.push('');
@@ -8631,10 +8631,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var MARSHALL_STORY_ANGLES=['la journée type de ta cible, heure par heure','l’erreur que tout le monde fait sans le savoir','ce que ton client ressent juste avant d’acheter','le détail de savoir-faire que personne ne voit','une comparaison inattendue avec la vie quotidienne','le « avant / pendant / après » d’un vrai client','la question qu’on te pose le plus souvent','une idée reçue du secteur démontée','les coulisses d’une vraie commande ou prestation','un mini-tuto actionnable en 3 gestes','le coût caché de ne rien faire','le « pourquoi » de la marque, raconté simplement','un défi lancé à la communauté','la checklist à enregistrer','un moment sensoriel (bruit, odeur, texture) autour du produit'];
   var MARSHALL_STORY_HOOK_STYLES=['question qui pique','affirmation contre-intuitive','POV : …','« Personne ne te dit que… »','chiffre uniquement s’il existe dans les données, sinon promesse de liste','« Arrête de… »','mini-histoire en 1 phrase','« Le vrai prix de… »','comparaison surprenante','confession de l’expert'];
   function marshallStoryPickAngle(rng){
-    var recent=marshallStoryRecent().slice(0,4).map(function(r){return r.angle;}).filter(Boolean);
+    var recent=marshallStoryRecent().slice(0,8).map(function(r){return r.angle;}).filter(Boolean);
     var pool=MARSHALL_STORY_ANGLES.filter(function(a){return recent.indexOf(a)<0;});if(!pool.length)pool=MARSHALL_STORY_ANGLES;
     var hs=MARSHALL_STORY_HOOK_STYLES,rh=marshallStoryRecent().slice(0,2).map(function(r){return r.hookStyle;}).filter(Boolean),hp=hs.filter(function(a){return rh.indexOf(a)<0;});if(!hp.length)hp=hs;
-    return {angle:pool[Math.floor(rng()*pool.length)%pool.length],hookStyle:hp[Math.floor(rng()*hp.length)%hp.length]};
+    var formula='';try{formula=marshallPickHookFormula(rng);}catch(e){}
+    return {angle:pool[Math.floor(rng()*pool.length)%pool.length],hookStyle:formula?('formule « '+formula+' » (adapte les [crochets] aux vraies données, reformule librement)'):hp[Math.floor(rng()*hp.length)%hp.length],formula:formula,lever:formula?marshallHookCombo(formula):''};
   }
   function marshallStoryRoleBrief(role){
     return {single:'écran UNIQUE qui fait tout : accroche forte (hook ≤ 8 mots) qui arrête le pouce, 1 bénéfice concret dans sub, et l’appel à l’action final dans cta',hook:'arrête le pouce en moins d’1 seconde : une tension, pas une présentation',problem:'nomme la douleur / le frein avec les mots de la cible, crée l’identification',value:'donne LA solution ou la méthode, concrète et actionnable (items si liste)',value2:'un détail concret supplémentaire (geste, matière, étape) qui rend la solution crédible',proof:'une preuve RÉELLE : savoir-faire, coulisses, méthode, avis réel s’il existe — jamais inventée',engage:'sticker sondage (option_a / option_b) pour faire interagir',cta:'UNE seule action concrète et facile maintenant (verbe + objet)'}[role]||'';
@@ -8660,7 +8661,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallStoryLocalChecks(plan){
     var fr=plan.frames||[],n=fr.length,out=[],words=function(s){return String(s||'').trim().split(/\s+/).filter(Boolean).length;};
     var lays={};fr.forEach(function(f){lays[f.layout]=1;});
-    var typeOnly={quote:1,poster:1,list:1,poll:1,myth:1,cta_sticker:1},seq=fr.map(function(f){return typeOnly[f.layout]?'T':'P';}).join(''),rhythm=!/TTT|PPP/.test(seq);
+    var typeOnly={quote:1,poster:1,list:1,poll:1,myth:1,cta_sticker:1,minimal_type:1,big_number:1,checklist:1,timeline:1,versus:1,sticker_pop:1,countdown:1},seq=fr.map(function(f){return typeOnly[f.layout]?'T':'P';}).join(''),rhythm=!/TTT|PPP/.test(seq);
     var last=fr[n-1]||{},ctaOk=!!String(last.cta||'').trim()&&!/suite|→/i.test(last.cta||'');
     var issues=fr.reduce(function(a,f){return a+(Number(f._issues)||0);},0);
     out.push(n===1?{ok:!!(fr[0]&&fr[0].role==='single'),label:'Story en 1 écran : accroche + action'}:{ok:n>=MARSHALL_STORY_MIN&&fr[0]&&fr[0].role==='hook'&&last.role==='cta',label:'Arc complet ('+n+' écrans : '+fr.map(function(f,i){return marshallStoryRoleLabel(f.role,i);}).join(' → ')+')'});
@@ -8685,7 +8686,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         if(norm&&norm.frames.length===plan.frames.length){
           edAIStatus('Story Reviewer · réécriture des écrans faibles puis nouvelle revue…');
           var second=null;try{second=await marshallStoryReviewAI(norm,prompt);}catch(e){}
-          if(!second||second.score>=review.score){norm.frames.forEach(function(f,i){f.visual_prompt=f.visual_prompt||plan.frames[i].visual_prompt;});plan=Object.assign(norm,{angle:plan.angle,hookStyle:plan.hookStyle,source:plan.source});review=second?Object.assign(second,{before:review.score}):Object.assign(review,{before:review.score,score:review.score});revisedUsed=true;}
+          if(!second||second.score>=review.score){norm.frames.forEach(function(f,i){f.visual_prompt=f.visual_prompt||plan.frames[i].visual_prompt;});plan=Object.assign(norm,{angle:plan.angle,hookStyle:plan.hookStyle,hookFormula:plan.hookFormula,hookLever:plan.hookLever,source:plan.source});review=second?Object.assign(second,{before:review.score}):Object.assign(review,{before:review.score,score:review.score});revisedUsed=true;}
         }
       }
     }catch(e){console.warn('Story review',e);review=null;}
@@ -8723,32 +8724,59 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       tip_card:{title:'Carte conseil',description:'cartes empilées avec un conseil concret (sub ou items)'},
       cta_sticker:{title:'Sticker CTA',description:'écran final : gros titre + sticker lien + flèche manuscrite'},
       device_demo:{title:'Device Demo',description:'maquette téléphone pour app / site / outil digital'},
-      testimonial:{title:'Avis client',description:'avis client RÉEL uniquement (étoiles + citation)'}
+      testimonial:{title:'Avis client',description:'avis client RÉEL uniquement (étoiles + citation)'},
+      big_number:{title:'Grand chiffre',description:'un chiffre géant (UNIQUEMENT s’il est dans les données) + phrase qui l’explique'},
+      news_flash:{title:'Flash info',description:'bandeau rouge « Flash », photo, titre d’actu percutant (idéal actualité)'},
+      headline_bar:{title:'Bandeau à la une',description:'photo plein cadre + bandeau sombre façon journal télé avec le titre'},
+      magazine_cover:{title:'Couverture magazine',description:'nom de marque en grand façon titre de magazine + titre de couverture sur photo'},
+      polaroid:{title:'Polaroid',description:'photo façon polaroid inclinée + légende manuscrite (kicker) + titre'},
+      diagonal:{title:'Diagonale',description:'photo en haut coupée par une bande de couleur en diagonale avec le texte'},
+      frame_border:{title:'Cadre',description:'photo encadrée sur fond de couleur de marque, texte en dessous'},
+      circle_focus:{title:'Focus rond',description:'grande photo ronde centrée, texte centré dessous'},
+      checklist:{title:'Checklist',description:'liste à cocher ✓ (2 à 4 items)'},
+      timeline:{title:'Étapes',description:'frise verticale « Étape 1, 2, 3 » (2 à 4 items)'},
+      versus:{title:'Versus',description:'comparatif A vs B en 2 colonnes (option_a / option_b)'},
+      question_box:{title:'Boîte à questions',description:'sticker question Instagram « Écris ta réponse » (hook = la question)'},
+      minimal_type:{title:'Typo minimale',description:'fond uni, titre énorme très épuré, aucune photo'},
+      gradient_glow:{title:'Glow',description:'fond sombre à halos de couleur + carte en verre dépoli'},
+      collage:{title:'Collage',description:'3 cadrages de la même photo en mosaïque + texte'},
+      sticker_pop:{title:'Stickers',description:'fond coloré pop, stickers inclinés, titre surligné (fun, jeune)'},
+      countdown:{title:'Compte à rebours',description:'gros « J-3 » dans un cercle (UNIQUEMENT si une date / un délai est dans les données)'},
+      map_pin:{title:'Lieu',description:'photo du lieu + épingle de carte, idéal commerce local / événement'}
     };
   }
-  var MARSHALL_STORY_LAYOUT_ALIAS={big_type:'hero_photo',full_bleed:'hero_photo',card:'tip_card',diagonal:'poster',stacked_cards:'tip_card',quote_focus:'quote',product_focus:'offer',checklist:'list'};
+  var MARSHALL_STORY_LAYOUT_ALIAS={big_type:'hero_photo',full_bleed:'hero_photo',card:'tip_card',stacked_cards:'tip_card',quote_focus:'quote',product_focus:'offer',flash:'news_flash',breaking:'news_flash',cover:'magazine_cover',steps:'timeline',vs:'versus',question:'question_box',minimal:'minimal_type',number:'big_number',stat:'big_number'};
   function marshallStoryResolveLayout(name){name=String(name||'');name=MARSHALL_STORY_LAYOUT_ALIAS[name]||name;return marshallStoryLayoutCatalog()[name]?name:'';}
   function marshallStoryFormats(){
     return {
-      probleme_solution:{name:'Problème → Solution',guide:'1 = une douleur précise vécue par la cible, dite avec SES mots. 2 = la solution / méthode de la marque en 2-3 points concrets (items). 3 = invitation claire à agir.',layouts:[['hero_photo','quote','poster'],['list','split','tip_card'],['cta_sticker','offer']]},
+      probleme_solution:{name:'Problème → Solution',guide:'1 = une douleur précise vécue par la cible, dite avec SES mots. 2 = la solution / méthode de la marque en 2-3 points concrets (items). 3 = invitation claire à agir.',layouts:[['hero_photo','quote','poster','minimal_type','diagonal','gradient_glow'],['list','split','tip_card'],['cta_sticker','offer']]},
       mythe_realite:{name:'Mythe vs Réalité',guide:'1 = une idée reçue du secteur (hook = le mythe, sub = la réalité en une phrase). 2 = l’explication de l’expert. 3 = CTA.',layouts:[['myth'],['editorial','split','tip_card'],['cta_sticker','poll']]},
-      erreurs:{name:'Erreurs à éviter',guide:'1 = promesse de liste ("3 erreurs qui…"). 2 = les erreurs concrètes (items, 3 max). 3 = CTA pour se faire aider.',layouts:[['poster','hero_photo'],['list'],['cta_sticker','offer']]},
-      coulisses:{name:'Coulisses',guide:'1 = immersion dans les coulisses (curiosité). 2 = un détail réel du savoir-faire. 3 = CTA.',layouts:[['hero_photo','editorial'],['split','editorial','tip_card'],['cta_sticker','poll']]},
-      sondage:{name:'Sondage / Engagement',guide:'1 = question sondage + option_a / option_b (réponses courtes et opposées). 2 = la réponse de l’expert. 3 = CTA conversation.',layouts:[['poll'],['split','quote','editorial'],['cta_sticker']]},
-      lancement:{name:'Lancement / Offre',guide:'1 = teasing de la nouveauté. 2 = l’offre / le produit et son bénéfice principal. 3 = CTA achat / réservation.',layouts:[['poster','hero_photo'],['offer'],['cta_sticker']]},
-      avant_apres:{name:'Avant / Après',guide:'1 = hook sur la transformation. 2 = hook = avant, sub = après (sans résultat chiffré inventé). 3 = CTA.',layouts:[['hero_photo','quote'],['before_after'],['cta_sticker','offer']]},
-      conseil:{name:'Conseil d’expert',guide:'1 = promesse d’un conseil utile. 2 = le conseil actionnable. 3 = CTA : enregistre / DM / en savoir plus.',layouts:[['editorial','poster'],['tip_card','list'],['cta_sticker','poll']]}
+      erreurs:{name:'Erreurs à éviter',guide:'1 = promesse de liste ("3 erreurs qui…"). 2 = les erreurs concrètes (items, 3 max). 3 = CTA pour se faire aider.',layouts:[['poster','hero_photo','minimal_type','sticker_pop'],['list','checklist'],['cta_sticker','offer','question_box']]},
+      coulisses:{name:'Coulisses',guide:'1 = immersion dans les coulisses (curiosité). 2 = un détail réel du savoir-faire. 3 = CTA.',layouts:[['hero_photo','editorial','polaroid','collage','frame_border'],['split','editorial','tip_card','circle_focus'],['cta_sticker','poll','question_box']]},
+      sondage:{name:'Sondage / Engagement',guide:'1 = question sondage + option_a / option_b (réponses courtes et opposées). 2 = la réponse de l’expert. 3 = CTA conversation.',layouts:[['poll','question_box','versus'],['split','quote','editorial'],['cta_sticker','question_box']]},
+      lancement:{name:'Lancement / Offre',guide:'1 = teasing de la nouveauté. 2 = l’offre / le produit et son bénéfice principal. 3 = CTA achat / réservation.',layouts:[['poster','hero_photo','magazine_cover','sticker_pop','countdown'],['offer','frame_border','collage'],['cta_sticker','map_pin']]},
+      avant_apres:{name:'Avant / Après',guide:'1 = hook sur la transformation. 2 = hook = avant, sub = après (sans résultat chiffré inventé). 3 = CTA.',layouts:[['hero_photo','quote','diagonal','polaroid'],['before_after','versus'],['cta_sticker','offer']]},
+      conseil:{name:'Conseil d’expert',guide:'1 = promesse d’un conseil utile. 2 = le conseil actionnable. 3 = CTA : enregistre / DM / en savoir plus.',layouts:[['editorial','poster','minimal_type','circle_focus'],['tip_card','list','checklist'],['cta_sticker','poll','question_box']]},
+      actu:{name:'Actu / Flash info',guide:'1 = le fait en une phrase choc (qui / quoi / où). 2 = le chiffre clé ou le contexte. 3 = ce que ça change + CTA (suis-nous, donne ton avis).',layouts:[['news_flash','headline_bar','magazine_cover','big_number'],['big_number','split','checklist','timeline'],['question_box','cta_sticker','poll']]},
+      chiffre_cle:{name:'Chiffre clé',guide:'1 = un chiffre réel des données, énorme. 2 = ce qu’il signifie concrètement. 3 = CTA. Si aucun chiffre réel : ne pas choisir ce format.',layouts:[['big_number','minimal_type'],['split','editorial','circle_focus'],['cta_sticker','question_box']]},
+      tuto_etapes:{name:'Tuto en étapes',guide:'1 = promesse du résultat. 2 = les étapes (items, 3 max). 3 = CTA : enregistre / essaie.',layouts:[['minimal_type','poster','polaroid'],['timeline','checklist','list'],['cta_sticker','question_box']]},
+      comparatif:{name:'Comparatif',guide:'1 = le match (A vs B) posé comme une question. 2 = la différence concrète (option_a / option_b). 3 = CTA.',layouts:[['versus','poster','minimal_type'],['split','checklist'],['cta_sticker','poll']]},
+      faq:{name:'FAQ',guide:'1 = la question que la cible se pose. 2 = la réponse claire de l’expert. 3 = CTA : pose ta question.',layouts:[['question_box','minimal_type'],['tip_card','editorial','circle_focus'],['cta_sticker','question_box']]},
+      evenement:{name:'Événement',guide:'1 = l’événement et sa date (si connue). 2 = le lieu / le programme. 3 = CTA réserver / venir.',layouts:[['countdown','magazine_cover','sticker_pop'],['polaroid','map_pin','split'],['cta_sticker','offer']]},
+      lifestyle:{name:'Lifestyle',guide:'1 = une ambiance, un moment de vie. 2 = le détail qui fait la différence. 3 = CTA doux.',layouts:[['polaroid','collage','circle_focus','gradient_glow'],['editorial','diagonal','frame_border'],['cta_sticker','question_box']]},
+      top_liste:{name:'Top liste',guide:'1 = promesse d’un classement utile (top 3). 2 = le classement (items). 3 = CTA.',layouts:[['sticker_pop','poster','minimal_type'],['checklist','list','timeline'],['cta_sticker','poll']]}
     };
   }
   function marshallStoryDefaultFormat(rng){
     rng=rng||Math.random;
     var goal=String(marshallSetting('goal','Vente')), mode=marshallStoryOfferMode(), c;
-    if((marshallBrandGet()||{}).accountType==='perso')c=['sondage','coulisses','conseil','mythe_realite'];
-    else if(/engag/i.test(goal))c=['sondage','mythe_realite','conseil','erreurs'];
-    else if(/notori/i.test(goal))c=['coulisses','conseil','mythe_realite'];
-    else if(/lancement/i.test(goal))c=['lancement','avant_apres'];
-    else c=mode==='food'||mode==='fashion'?['lancement','coulisses','sondage']:['probleme_solution','erreurs','avant_apres','lancement'];
-    var recent=marshallStoryRecent().slice(0,2).map(function(r){return r.format;});
+    if(typeof marshallStoryNews!=='undefined'&&marshallStoryNews)return 'actu';
+    if((marshallBrandGet()||{}).accountType==='perso')c=['sondage','coulisses','conseil','mythe_realite','lifestyle','faq','top_liste'];
+    else if(/engag/i.test(goal))c=['sondage','mythe_realite','conseil','erreurs','comparatif','faq','top_liste'];
+    else if(/notori/i.test(goal))c=['coulisses','conseil','mythe_realite','lifestyle','tuto_etapes','faq'];
+    else if(/lancement/i.test(goal))c=['lancement','avant_apres','evenement','comparatif'];
+    else c=mode==='food'||mode==='fashion'?['lancement','coulisses','sondage','lifestyle','top_liste','evenement']:['probleme_solution','erreurs','avant_apres','lancement','comparatif','tuto_etapes','faq','top_liste'];
+    var recent=marshallStoryRecent().slice(0,4).map(function(r){return r.format;});
     var pool=c.filter(function(k){return recent.indexOf(k)<0;});if(!pool.length)pool=c;
     return pool[Math.floor(rng()*pool.length)%pool.length];
   }
@@ -8847,6 +8875,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(unsupported)return marshallStoryPlanReject('Écran '+(i+1)+' : affirmation chiffrée ou preuve non sourcée.',{claim:unsupported});
       var hl=String(f.highlight||'').replace(/\s+/g,' ').trim();if(hl&&(hl.length>=hook.length||hook.toLocaleLowerCase('fr').indexOf(hl.toLocaleLowerCase('fr'))<0))hl='';
       var cands=marshallStoryShuffle(marshallStoryRoleLayouts(F,role),rng);
+      var _lh=marshallLayoutHist().slice(0,10),_fresh=cands.filter(function(k){return _lh.indexOf(k)<0;});
+      if(_fresh.length)cands=_fresh.concat(cands.filter(function(k){return _lh.indexOf(k)>=0;}));
+      if(f.layout&&_lh.slice(0,4).indexOf(marshallStoryResolveLayout(f.layout))>=0&&_fresh.length)f=Object.assign({},f,{layout:''});
       if(mode==='saas'&&role==='value'&&(fmtKey==='lancement'||fmtKey==='probleme_solution'))cands.unshift('device_demo');
       var layout=marshallStoryResolveLayout(f.layout);
       if(layout&&cands.indexOf(layout)<0&&role!=='hook'&&!lenient&&rng()<.5)layout='';
@@ -9092,7 +9123,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var goal=marshallSetting('goal','Vente'), platform=marshallSetting('platform','Instagram');
     var N=marshallStoryTargetCount(prompt),arc=marshallStoryArc(N),vseed=Date.now()^Math.floor(Math.random()*2147483647),vrng=marshallStoryRng(vseed);
     var pickedFormat=marshallStoryDefaultFormat(vrng),pick=marshallStoryPickAngle(vrng),FF=marshallStoryFormats()[pickedFormat];
-    function tagPlan(p){if(p){p.angle=p.angle||pick.angle;p.hookStyle=p.hookStyle||pick.hookStyle;}return p;}
+    function tagPlan(p){if(p){p.angle=p.angle||pick.angle;p.hookStyle=p.hookStyle||pick.hookStyle;p.hookFormula=pick.formula||'';p.hookLever=pick.lever||'';}return p;}
     var failureReason='', plan=null, normalized=null;
     if(marshallLastCrew&&marshallLastCrew.engine==='CrewAI'){
       var crewPlan=marshallLastCrew.story_plan&&Array.isArray(marshallLastCrew.story_plan.frames)&&marshallLastCrew.story_plan.frames.length===N?marshallNormalizeStoryPlan(marshallLastCrew.story_plan,prompt):null;
@@ -9109,7 +9140,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         'Mission : une story COMPLÈTE de '+N+' écrans qui arrête le pouce, garde l’attention jusqu’au bout (chaque écran crée l’envie de voir le suivant) et déclenche une action. Ne promets jamais la viralité.',
         marshallStoryNews?('SUJET IMPOSÉ — ACTUALITÉ '+String(marshallStoryNews.country).toUpperCase()+' (PRIORITÉ ABSOLUE sur tout le reste) : la story parle UNIQUEMENT de cette actualité réelle, vérifiée par le Journaliste Pays : '+marshallClip(marshallStoryNews.facts,1600)+' RÈGLES : le hook et le sub reprennent précisément cette info (lieu, acteurs, fait, date) ; n’utilise PAS l’offre, les services, l’atelier ou les clients de la marque comme sujet ; la marque ne fait que signer la story comme média ; chiffres autorisés = uniquement ceux des faits ci-dessus ; ton journalistique clair et factuel ; CTA d’actu (« Suis-nous pour l’actu », « Dis-nous ce que tu en penses », « Partage à un ami »). visual_prompt (EN ANGLAIS) = la scène qui illustre PRÉCISÉMENT cette info : le lieu exact, l’objet ou l’action dont parle l’actu (ex. plan Amazonie → vue aérienne de la forêt amazonienne et d’un fleuve ; match → le stade plein ; accord commercial → le port et ses conteneurs ; élection → bureau de vote et urnes). Jamais une image générique du pays, jamais l’entreprise ni ses locaux, aucune personnalité réelle reconnaissable (plans larges, silhouettes de dos, objets symboliques).'):'',
         arcGuide,
-        'ANGLE CRÉATIF IMPOSÉ (pour ne jamais refaire la même story) : '+pick.angle+'. Style d’accroche imposé pour l’écran 1 : '+pick.hookStyle+'. Graine de variation : '+vseed+'.',
+        'ANGLE CRÉATIF IMPOSÉ (pour ne jamais refaire la même story) : '+pick.angle+'. Style d’accroche imposé pour l’écran 1 : '+pick.hookStyle+'.'+(pick.formula?' LEVIER PSYCHOLOGIQUE de l’accroche : '+pick.lever+' — '+MARSHALL_HOOK_LEVERS[marshallHookLever(pick.formula)].how+'.':'')+' TON selon la plateforme — '+marshallPlatformTone()+' Graine de variation : '+vseed+'.',
         marshallMarketingContext(goal,platform),marshallBrandContext(),marshallClip(marshallBrandIntelligenceContext(),2200),marshallClip(marshallStyleContext(),600),marshallClip(marshallAnalysisContext(),900),marshallClip(marshallExpertContext(),900),marshallClip(marshallCrewContext(),900),
         referenceDescription?('IMAGE DE RÉFÉRENCE DE L’ENTREPRISE : '+marshallClip(referenceDescription,300)):'',
         'ÉTAPE 1 — FORMAT. '+marshallStoryRoleGuide(),
@@ -9125,7 +9156,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         '- cta : tous les écrans sauf le dernier = incitation à continuer (« Tape pour la suite → »). Écran '+N+' = verbe d’action + objet concret (max 5 mots) : « Réserve ton créneau », « Écris GUIDE en DM », « Commande ce soir ».',
         '- visual_prompt : EN ANGLAIS, SANS nom de marque, SANS citation ni mot à écrire, SANS logo : uniquement ce que l’on voit (sujet, action, lieu, lumière, cadrage).',
         '- Aucun chiffre, prix, statistique, avis, promo, garantie ou résultat absent des données de marque ou de la demande.',
-        'ÉTAPE 3 — MISE EN PAGE. Un layout par écran, TOUS différents, en alternant écrans photo et écrans typographiques (jamais 3 du même type à la suite). Évite la suite de layouts de la story précédente : '+JSON.stringify((recent[0]||{}).layouts||[])+'. Catalogue : '+marshallStoryLayoutPromptGuide(),
+        'ÉTAPE 3 — MISE EN PAGE. Un layout par écran, TOUS différents, en alternant écrans photo et écrans typographiques (jamais 3 du même type à la suite). Évite la suite de layouts de la story précédente : '+JSON.stringify((recent[0]||{}).layouts||[])+' et les mises en page utilisées récemment : '+JSON.stringify(marshallLayoutHist().slice(0,10))+'. Catalogue : '+marshallStoryLayoutPromptGuide(),
         'ÉTAPE 4 — VISUEL. visual_prompt EN ANGLAIS, 1 à 2 phrases : une vraie photo publicitaire pour CETTE entreprise (sujet précis, action, lieu, matières, lumière, cadrage). Écrans différents : plan large / détail / personne. Jamais de texte dans l’image.',
         marshallStoryCopyCoach(),
         'Évite ces accroches récentes : '+JSON.stringify(recent.map(function(r){return r.hooks;})),
@@ -9521,6 +9552,356 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       B.stack([marshallStoryCta(C,surf,{gap:0})],{x:8,w:84,y:80,anchor:'bottom'});
     }
   };
+  /* =====================================================================
+     BIBLIOTHÈQUE INTERNE MARSHALL — 18 mises en page supplémentaires
+     (s'ajoutent aux 14 d'origine : 32 compositions, chacune avec variantes)
+     ===================================================================== */
+  function marshallStoryFigure(f){
+    var src=[f&&f.kicker,f&&f.hook,f&&f.sub,f&&f.highlight].filter(Boolean).join(' ');
+    var m=src.match(/(\d[\d\s.,]*\d|\d)\s*(%|€|k€|M€|Md€|milliards?|millions?|k|ans|jours|h|min|x)?/i);
+    if(!m)return '';
+    var num=m[1].replace(/\s+/g,' ').trim(),unit=(m[2]||'').trim();
+    if(/^milliards?$/i.test(unit))unit='Md';else if(/^millions?$/i.test(unit))unit='M';
+    var out=num+(unit?(/^(%|€|k|M|Md|x)$/i.test(unit)?'':' ')+unit:'');
+    return out.length>9?num:out;
+  }
+  function marshallStoryPhotoOr(C,x,y,w,h,rad,pos){
+    var B=C.B,pal=C.pal;
+    if(C.url)return B.photo(C.url,x,y,w,h,rad||0,110,pos==null?50:pos);
+    B.rect(x,y,w,h,pal.primary,100,rad||0);
+    B.circle(x+w*.55,y-h*.1,w*.7,pal.accent,35);
+    return null;
+  }
+  function marshallStoryChecklistRows(C,surf,items,o){
+    var B=C.B;o=o||{};items=(items||[]).filter(Boolean);if(!items.length)return null;
+    return {gap:o.gap,make:function(s,x,w){
+      var rows=[],total=0,iw=6.4;
+      items.forEach(function(t){
+        var lt=B.makeText({text:t,x:x+iw+3,w:w-iw-3,size:(o.size||19)*s,font:C.kit.body,bold:true,color:o.color||surf.ink,lh:1.2,maxH:14});
+        var rh=Math.max(lt.h,iw*B.W/B.H)+2.8;rows.push({lt:lt,h:rh});total+=rh;
+      });
+      return {h:total,draw:function(y){rows.forEach(function(r){
+        var ih=iw*B.W/B.H;B.circle(x,y+.4,iw,surf.accent,100);B.icon('check',x+iw*.2,y+.4+ih*.2,iw*.6,surf.onAccent,3);
+        r.lt.y=y+Math.max(0,(ih-r.lt.h)/2)+.4;B.push(r.lt);y+=r.h;});}};
+    }};
+  }
+  function marshallStoryItemsFrom(f,max){
+    var it=(f.items||[]).filter(Boolean);
+    if(it.length<2&&f.sub){var parts=String(f.sub).split(/[.;•·|]\s*|\s+—\s+/).map(function(t){return t.trim();}).filter(function(t){return t.length>2;});if(parts.length>=2)it=parts;}
+    return it.slice(0,max||4);
+  }
+  var MARSHALL_STORY_COMPOSERS_X={
+    big_number:function(C){
+      var B=C.B,pal=C.pal,fig=marshallStoryFigure(C.f);
+      if(!fig)return MARSHALL_STORY_COMPOSERS.poster(C);
+      var bg=C.pick([pal.dark,pal.primary,pal.cream]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,8,12.5,surf.soft,'left',60);
+      if(C.url){var pw=26,ph=pw*B.W/B.H;B.photo(C.url,66,12,pw,ph,999,112,50);}
+      var box=B.stack([marshallStoryKicker(C,surf),B.T({text:fig,font:C.kit.display,bold:true,size:150,color:surf.accent,lh:.95,ls:-2,maxH:24})],{x:8,w:84,y:C.url?30:22,anchor:'top',maxH:34});
+      B.stack([B.Hook(C,{size:36,color:surf.ink,hi:surf.accent,mode:'none',maxH:22}),marshallStorySub(C,surf,{maxH:12}),marshallStoryCta(C,surf)],{x:8,w:84,y:Math.max(box.bottom+2.5,52),anchor:'top',maxH:86-Math.max(box.bottom+2.5,52)});
+    },
+    news_flash:function(C){
+      var B=C.B,pal=C.pal,red='#E5484D',bg='#0E0F12',surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.rect(0,10.6,100,6.4,red,100);
+      B.text({text:(C.f.kicker||'Flash info'),x:8,y:11.6,w:C.brand?42:84,size:15,font:C.kit.body,bold:true,upper:true,ls:2.2,color:'#FFFFFF',lh:1.1,maxH:4.4});
+      if(C.brand)B.text({text:C.brand,x:54,y:11.9,w:38,size:10.5,font:'Inter',bold:true,upper:true,ls:1.6,color:'#FFFFFF',align:'right',lh:1.1,maxH:3.6,op:85});
+      marshallStoryPhotoOr(C,6,19,88,34,28,45);
+      B.rect(6,53.6,22,.6,red,100);
+      B.stack([B.Hook(C,{size:40,color:'#FFFFFF',hi:red,mode:C.hi==='hand'?'color':C.hi,maxH:20}),marshallStorySub(C,surf,{maxH:10,color:'#D7D7D7'}),marshallStoryCta(C,surf,{fill:red,color:'#FFFFFF'})],{x:6,w:88,y:56,anchor:'top',maxH:31});
+    },
+    headline_bar:function(C){
+      var B=C.B,pal=C.pal,bar='#101114';ed.bg=bar;
+      if(C.url)B.photo(C.url,0,0,100,100,0,108,35);else{B.rect(0,0,100,100,pal.primary,100);B.circle(40,-10,90,pal.accent,40);}
+      B.fade(35,62,'#000000',.55,'down');
+      var surf=marshallStorySurface(pal,bar);
+      B.brand(C.brand,7,12.5,'#FFFFFF','left',70);
+      var idx=ed.layers.length;
+      var box=B.stack([B.Chip(C.f.kicker||'À la une',{fill:pal.accent,color:marshallStoryInk(pal.accent),font:C.kit.body}),B.Hook(C,{size:38,color:'#FFFFFF',hi:surf.accent,mode:'color',maxH:20}),marshallStorySub(C,surf,{maxH:9,color:'#DADADA',size:16}),marshallStoryCta(C,surf)],{x:7,w:86,y:85,anchor:'bottom',minY:52,maxH:34,gap:1.6});
+      var strip=B.rect(0,box.top-3,100,100-box.top+3,bar,92);B.under(idx,strip);
+      var line=B.rect(0,box.top-3,100,.55,pal.accent,100);B.under(idx+1,line);
+    },
+    magazine_cover:function(C){
+      var B=C.B,pal=C.pal;ed.bg=pal.dark;
+      if(C.url)B.photo(C.url,0,0,100,100,0,108,50);else{B.rect(0,0,100,100,pal.primary,100);B.circle(30,30,90,pal.accent,30);}
+      B.fade(0,30,'#000000',.55,'up');B.fade(55,100,'#000000',.8,'down');
+      var mast=String(C.brand||C.f.kicker||'Le Mag').toLocaleUpperCase('fr');
+      B.text({text:mast,x:6,y:11,w:88,size:64,font:C.kit.display,bold:true,upper:true,ls:-1,color:'#FFFFFF',lh:.95,maxH:11,align:'center'});
+      B.text({text:'N°'+String(C.idx+1).padStart(2,'0')+(C.f.kicker&&C.brand?' · '+C.f.kicker:''),x:6,y:23.5,w:88,size:11,font:'Inter',bold:true,upper:true,ls:2.4,color:'#FFFFFF',align:'center',lh:1,maxH:3.4,op:85});
+      var surf=marshallStorySurface(pal,'#111111');
+      B.stack([B.Hook(C,{size:44,color:'#FFFFFF',hi:pal.accent,mode:C.hi==='box'?'box':'color',maxH:24}),marshallStorySub(C,surf,{maxH:9,color:'#E6E6E6'}),marshallStoryCta(C,surf)],{x:7,w:86,y:86,anchor:'bottom',minY:40,maxH:40});
+    },
+    polaroid:function(C){
+      var B=C.B,pal=C.pal,bg=C.pick([pal.cream,pal.light,'#F3EFE8']),surf=marshallStorySurface(pal,bg),rot=C.pick([-4,3,-2]);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,8,12.5,surf.soft,'left',60);
+      B.rect(15.2,16.8,70,44,'#000000',14,6,rot);
+      B.rect(14,16,72,44,'#FFFFFF',100,6,rot);
+      marshallStoryPhotoOr(C,18,18.4,64,31,4,50);
+      if(ed.layers.length)ed.layers[ed.layers.length-1].rot=rot;
+      if(C.f.kicker)B.text({text:C.f.kicker,x:18,y:51.2,w:64,size:25,font:C.kit.hand,bold:true,color:'#333333',align:'center',lh:1,rot:rot,maxH:6});
+      B.stack([B.Hook(C,{size:38,color:surf.ink,hi:surf.accent,mode:C.hi,maxH:15}),marshallStorySub(C,surf,{maxH:8}),marshallStoryCta(C,surf)],{x:8,w:84,y:63.5,anchor:'top',maxH:23,gap:1.5});
+    },
+    diagonal:function(C){
+      var B=C.B,pal=C.pal,band=C.pick([pal.primary,pal.dark,pal.accent]),surf=marshallStorySurface(pal,band);ed.bg=band;
+      marshallStoryPhotoOr(C,0,0,100,62,0,40);
+      B.rect(-15,50,130,70,band,100,0,-7);
+      B.rect(-15,49.2,130,.9,surf.accent===surf.ink?'#FFFFFF':surf.accent,100,0,-7);
+      B.brand(C.brand,8,12.5,'#FFFFFF','left',70);
+      B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:40,color:surf.ink,hi:surf.accent,mode:C.hi==='box'?'color':C.hi,maxH:17}),marshallStorySub(C,surf,{maxH:9}),marshallStoryCta(C,surf)],{x:8,w:84,y:62,anchor:'top',maxH:25,gap:1.5});
+    },
+    frame_border:function(C){
+      var B=C.B,pal=C.pal,bg=C.pick([pal.accent,pal.primary]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,7,12.5,surf.ink,'left',60);
+      B.rect(6,16,88,44,'#FFFFFF',100,26);
+      marshallStoryPhotoOr(C,8,17.2,84,41.6,22,50);
+      B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:38,color:surf.ink,hi:surf.ink===marshallStoryInk(bg)?'#FFFFFF':surf.accent,mode:'color',maxH:15}),marshallStorySub(C,surf,{maxH:8}),marshallStoryCta(C,surf,{fill:surf.ink,color:bg})],{x:7,w:86,y:63,anchor:'top',maxH:24,gap:1.4});
+    },
+    circle_focus:function(C){
+      var B=C.B,pal=C.pal,bg=C.pick([pal.light,pal.cream,pal.dark]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,8,12.5,surf.soft,'center',84);
+      var w=62,h=w*B.W/B.H,x=19,y=17;
+      B.circle(x-4,y-4*B.W/B.H,w+8,surf.accent,22);
+      B.ring(x-1.5,y-1.5*B.W/B.H,w+3,surf.accent,5,100);
+      if(C.url)B.photo(C.url,x,y,w,h,999,112,50);else{B.circle(x,y,w,pal.primary,100);B.icon(C.pick(['etoile','coeur','ampoule','trophee']),x+w/2-9,y+h/2-9*B.W/B.H,18,marshallStoryInk(pal.primary),1.8);}
+      B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:36,color:surf.ink,hi:surf.accent,mode:C.hi,maxH:15}),marshallStorySub(C,surf,{maxH:8}),marshallStoryCta(C,surf)],{x:8,w:84,y:y+h+3.5,anchor:'top',align:'center',maxH:86-(y+h+3.5),gap:1.3});
+    },
+    checklist:function(C){
+      var items=marshallStoryItemsFrom(C.f,4);
+      if(items.length<2)return MARSHALL_STORY_COMPOSERS.tip_card(C);
+      var B=C.B,pal=C.pal,bg=C.pick(['#FFFFFF',pal.cream,pal.light]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,8,12.5,surf.soft,'left',60);
+      B.rect(0,0,2.2,100,surf.accent,100);
+      B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:36,color:surf.ink,hi:surf.accent,mode:C.hi==='hand'?'color':C.hi,maxH:18}),marshallStoryChecklistRows(C,surf,items,{gap:3}),marshallStoryCta(C,surf)],{x:8,w:84,y:18,anchor:'top',maxH:68,gap:2});
+    },
+    timeline:function(C){
+      var items=marshallStoryItemsFrom(C.f,4);
+      if(items.length<2)return MARSHALL_STORY_COMPOSERS.list(C);
+      var B=C.B,pal=C.pal,bg=C.pick([pal.dark,pal.primary,pal.cream]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,8,12.5,surf.soft,'left',60);
+      var head=B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:34,color:surf.ink,hi:surf.accent,mode:C.hi==='hand'?'color':C.hi,maxH:16})],{x:8,w:84,y:17,anchor:'top',maxH:22});
+      var y=head.bottom+4,avail=78-y,step=Math.max(8,avail/items.length),lx=12;
+      B.rect(lx-.3,y+1,.6,step*(items.length-1)+.5,surf.accent,70);
+      items.forEach(function(t,i){
+        var dw=4.2;B.circle(lx-dw/2,y+i*step,dw,surf.accent,100);
+        B.text({text:'Étape '+(i+1),x:lx+5,y:y+i*step-.4,w:70,size:11,font:C.kit.body,bold:true,upper:true,ls:1.6,color:surf.accent,lh:1,maxH:3});
+        B.text({text:t,x:lx+5,y:y+i*step+2.6,w:78,size:17,font:C.kit.body,bold:true,color:surf.ink,lh:1.15,maxH:Math.max(3.5,step-3.6)});
+      });
+      if(C.last)B.stack([marshallStoryCta(C,surf,{gap:0})],{x:8,w:84,y:86,anchor:'bottom'});
+    },
+    versus:function(C){
+      var a=String(C.f.option_a||'').trim(),b=String(C.f.option_b||'').trim(),it=marshallStoryItemsFrom(C.f,2);
+      if(!a||!b){a=it[0]||'';b=it[1]||'';}
+      if(!a||!b)return MARSHALL_STORY_COMPOSERS.before_after(C);
+      var B=C.B,pal=C.pal,bg=C.pick([pal.cream,pal.light]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,8,12.5,surf.soft,'left',60);
+      var head=B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:34,color:surf.ink,hi:surf.accent,mode:'color',maxH:15})],{x:8,w:84,y:17,anchor:'top',maxH:20});
+      var y=Math.max(head.bottom+4,38),h=30;
+      B.rect(6,y,42,h,'#E9E6E1',100,36);B.rect(52,y,42,h,pal.primary,100,36);
+      B.text({text:a,x:9,y:y+4,w:36,size:20,font:C.kit.body,bold:true,color:'#4A4744',align:'center',lh:1.15,maxH:h-8});
+      B.text({text:b,x:55,y:y+4,w:36,size:20,font:C.kit.body,bold:true,color:marshallStoryInk(pal.primary),align:'center',lh:1.15,maxH:h-8});
+      var vw=13,vh=vw*B.W/B.H;B.circle(50-vw/2,y+h/2-vh/2,vw,surf.accent,100);
+      B.text({text:'VS',x:50-vw/2,y:y+h/2-1.6,w:vw,size:17,font:C.kit.display,bold:true,color:surf.onAccent,align:'center',lh:1,maxH:3.4});
+      B.stack([marshallStorySub(C,surf,{maxH:8}),marshallStoryCta(C,surf)],{x:8,w:84,y:y+h+3,anchor:'top',maxH:Math.max(8,86-(y+h+3))});
+    },
+    question_box:function(C){
+      var B=C.B,pal=C.pal,bg=C.url?'#161616':pal.primary;ed.bg=bg;
+      if(C.url){B.photo(C.url,0,0,100,100,0,108,50);B.rect(0,0,100,100,'#000000',38);}
+      else{B.rect(0,0,100,100,bg,100);B.circle(-15,60,70,pal.accent,35);B.circle(60,-5,60,marshallStoryMix(pal.primary,'#FFFFFF',.18),80);}
+      var outer=marshallStorySurface(pal,bg);
+      B.brand(C.brand,8,12.5,outer.ink,'center',84);
+      var head=pal.accent,idx=ed.layers.length;
+      var box=B.stack([B.T({text:C.f.hook,size:24,font:C.kit.body,bold:true,color:marshallStoryInk(head),lh:1.18,maxH:14,align:'center'})],{x:16,w:68,y:34,anchor:'top',align:'center',maxH:16});
+      var card=B.rect(10,box.top-4,80,box.h+17,'#FFFFFF',100,40);B.under(idx,card);
+      var top=B.rect(10,box.top-4,80,box.h+7,head,100,40);B.under(idx+1,top);
+      B.rect(15,box.bottom+5,70,6,'#EFEFEF',100,24);
+      B.text({text:C.pick(['Écris ta réponse…','Ta question ici…','Réponds-moi ici…']),x:18,y:box.bottom+6.4,w:64,size:14,font:C.kit.body,color:'#9A9A9A',align:'center',lh:1,maxH:3.4});
+      B.stack([marshallStorySub(C,outer,{maxH:9,color:outer.ink}),marshallStoryCta(C,outer)],{x:10,w:80,y:box.bottom+17,anchor:'top',align:'center',maxH:Math.max(8,86-box.bottom-17)});
+    },
+    minimal_type:function(C){
+      var B=C.B,pal=C.pal,bg=C.pick(['#FFFFFF','#F6F4F0',pal.light,'#111111']),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,8,12.5,surf.soft,'left',60);
+      B.text({text:String(C.idx+1).padStart(2,'0'),x:70,y:12.5,w:22,size:11,font:'Inter',bold:true,ls:2,color:surf.soft,align:'right',lh:1,maxH:3});
+      B.rect(8,24,10,.9,surf.accent,100);
+      B.stack([B.Hook(C,{size:58,color:surf.ink,hi:surf.accent,mode:C.hi==='box'?'box':'color',maxH:40}),marshallStorySub(C,surf,{maxH:12,size:17})],{x:8,w:84,y:28,anchor:'top',maxH:50,gap:3});
+      B.stack([marshallStoryCta(C,surf,{gap:0})],{x:8,w:84,y:86,anchor:'bottom'});
+    },
+    gradient_glow:function(C){
+      var B=C.B,pal=C.pal,bg='#0D0C14';ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.circle(-30,-5,95,pal.primary,70);B.circle(35,50,90,pal.accent,55);B.circle(10,20,50,marshallStoryMix(pal.accent,'#FFFFFF',.35),25);
+      var surf=marshallStorySurface(pal,'#1A1826');
+      B.brand(C.brand,8,12.5,'#FFFFFF','left',60);
+      if(C.url)B.photo(C.url,8,17,84,26,30,110,50);
+      var idx=ed.layers.length;
+      var box=B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:38,color:'#FFFFFF',hi:marshallStoryMix(pal.accent,'#FFFFFF',.3),mode:'color',maxH:20}),marshallStorySub(C,surf,{maxH:10,color:'#E8E6F2'}),marshallStoryCta(C,surf)],{x:13,w:74,y:C.url?50:30,anchor:'top',maxH:C.url?33:48,gap:1.6});
+      var glass=B.rect(8,box.top-4,84,box.h+8,'#FFFFFF',13,36);B.under(idx,glass);
+    },
+    collage:function(C){
+      if(!C.url)return MARSHALL_STORY_COMPOSERS.poster(C);
+      var B=C.B,pal=C.pal,bg=C.pick([pal.cream,'#FFFFFF',pal.dark]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.brand(C.brand,7,12.5,surf.soft,'left',60);
+      B.photo(C.url,6,16,50,40,24,118,30);
+      B.photo(C.url,58,16,36,19,24,150,70);
+      B.photo(C.url,58,37,36,19,24,135,15);
+      B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:36,color:surf.ink,hi:surf.accent,mode:C.hi,maxH:15}),marshallStorySub(C,surf,{maxH:8}),marshallStoryCta(C,surf)],{x:7,w:86,y:59,anchor:'top',maxH:27,gap:1.4});
+    },
+    sticker_pop:function(C){
+      var B=C.B,pal=C.pal,bg=C.pick([pal.primary,pal.accent,'#FFE15D']),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      B.circle(62,8,50,marshallStoryMix(bg,'#FFFFFF',.2),100);B.circle(-20,72,55,marshallStoryMix(bg,'#000000',.12),100);
+      B.brand(C.brand,8,12.5,surf.ink,'left',60);
+      var stickers=[C.f.kicker||C.pick(['Nouveau','À savoir','Top','Le saviez-vous ?']),C.pick(['Wow','À tester','Vu ici','Promis'])];
+      B.stack([B.Chip(stickers[0],{fill:'#FFFFFF',color:'#151515',font:C.kit.body,rot:-6,shadow:'#000000'})],{x:8,w:84,y:18,anchor:'top'});
+      var hook=B.stack([B.Hook(C,{size:44,color:surf.ink,hi:'#FFFFFF',mode:'box',maxH:26})],{x:8,w:84,y:27,anchor:'top',maxH:30});
+      B.stack([B.Chip(stickers[1],{fill:'#151515',color:'#FFFFFF',font:C.kit.body,rot:5})],{x:8,w:84,y:hook.bottom+3,anchor:'top',align:'right'});
+      B.stack([marshallStorySub(C,surf,{maxH:10,color:surf.ink}),marshallStoryCta(C,surf,{fill:'#151515',color:'#FFFFFF'})],{x:8,w:84,y:86,anchor:'bottom',minY:hook.bottom+10,maxH:Math.max(8,76-hook.bottom)});
+    },
+    countdown:function(C){
+      var src=[C.f.kicker,C.f.hook,C.f.sub].join(' '),m=src.match(/\bJ\s?-\s?(\d{1,2})\b|\b(\d{1,2})\s*(jours?|heures?|semaines?)\b/i);
+      if(!m)return MARSHALL_STORY_COMPOSERS.sticker_pop?MARSHALL_STORY_COMPOSERS.sticker_pop(C):MARSHALL_STORY_COMPOSERS.poster(C);
+      var label=m[1]?'J-'+m[1]:m[2],unit=m[1]?'':String(m[3]||'').toLowerCase();
+      var B=C.B,pal=C.pal,bg=C.pick([pal.dark,pal.primary]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      if(C.url){B.photo(C.url,0,0,100,100,0,108,50);B.rect(0,0,100,100,bg,72);}
+      B.brand(C.brand,8,12.5,surf.ink,'center',84);
+      var w=54,h=w*B.W/B.H,x=23,y=18;
+      B.circle(x,y,w,surf.accent,100);B.ring(x-2,y-2*B.W/B.H,w+4,surf.ink,3,40);
+      B.text({text:label,x:x,y:y+h/2-(unit?7.5:6),w:w,size:unit?74:84,font:C.kit.display,bold:true,color:surf.onAccent,align:'center',lh:1,maxH:12});
+      if(unit)B.text({text:unit,x:x,y:y+h/2+4.5,w:w,size:18,font:C.kit.body,bold:true,upper:true,ls:2,color:surf.onAccent,align:'center',lh:1,maxH:3.6});
+      B.stack([B.Hook(C,{size:34,color:surf.ink,hi:surf.accent,mode:'color',maxH:15}),marshallStorySub(C,surf,{maxH:8}),marshallStoryCta(C,surf)],{x:8,w:84,y:y+h+4,anchor:'top',align:'center',maxH:86-(y+h+4),gap:1.3});
+    },
+    map_pin:function(C){
+      var B=C.B,pal=C.pal,bg=C.pick([pal.light,pal.cream]),surf=marshallStorySurface(pal,bg);ed.bg=bg;
+      B.rect(0,0,100,100,bg,100);
+      marshallStoryPhotoOr(C,0,0,100,46,0,50);
+      B.rect(0,42,100,58,bg,100,40);
+      var pw=16,ph=pw*B.W/B.H;B.circle(42,42-ph/2,pw,surf.accent,100);B.icon('lieu',44.5,42-ph/2+(pw-11)*B.W/B.H/2,11,surf.onAccent,2.2);
+      B.brand(C.brand,8,12.5,'#FFFFFF','left',70);
+      B.stack([marshallStoryKicker(C,surf),B.Hook(C,{size:36,color:surf.ink,hi:surf.accent,mode:C.hi,maxH:15}),marshallStorySub(C,surf,{maxH:9}),marshallStoryCta(C,surf)],{x:8,w:84,y:55,anchor:'top',align:'center',maxH:31,gap:1.4});
+    }
+  };
+  Object.keys(MARSHALL_STORY_COMPOSERS_X).forEach(function(k){MARSHALL_STORY_COMPOSERS[k]=MARSHALL_STORY_COMPOSERS_X[k];});
+  /* =====================================================================
+     BIBLIOTHÈQUE INTERNE MARSHALL — formules d'accroche, angles, mémoire anti-répétition
+     ===================================================================== */
+  var MARSHALL_HOOK_LIBRARY={
+    vente:[
+      'Tu paies encore trop cher pour [problème] ?','Le [produit] que tes clients vont s’arracher','Arrête d’acheter [alternative] au hasard','Ce que [cible] ne sait pas avant d’acheter','3 signes qu’il est temps de passer à [solution]',
+      'Le détail qui change tout dans [produit]','Pourquoi nos clients reviennent (vraie raison)','Avant d’acheter, regarde ça','[Bénéfice] sans [contrainte], c’est possible','Ton [objet] mérite mieux que ça',
+      'On t’a menti sur [sujet]','Le secret d’un [résultat] réussi','Ce qu’on met vraiment dans [produit]','Tu hésites encore ? Lis ça','La question qu’on nous pose avant chaque commande',
+      '[Produit] : pour qui, pourquoi, comment','Ce que tu rates si tu attends','Le petit plus que personne n’a','Fait main, fait ici, fait pour toi','Pourquoi c’est plus cher (et ça vaut le coup)',
+      'Ton futur [résultat] commence ici','Le bon choix pour [situation]','Ce que ça change dès le 1er jour','Tu cherchais ça sans le savoir','[Nombre] minutes pour [bénéfice]'
+    ],
+    engagement:[
+      'Team [A] ou team [B] ?','Avoue, toi aussi tu fais ça','Dis-moi en commentaire : [question]','1 mot pour décrire ton [sujet] ?','Tu préfères [A] ou [B] ?',
+      'Sois honnête : [question gênante] ?','On parie que tu ne savais pas ça','Note ton [sujet] de 1 à 10','Qui d’autre vit ça chaque semaine ?','Le débat qui divise l’équipe',
+      'Réponds sans réfléchir : [question]','Ton pire souvenir de [sujet] ?','Vrai ou faux : [affirmation]','Tag la personne qui [comportement]','Tu fais partie des 2 % qui [action] ?',
+      'Ça t’est déjà arrivé ?','Choisis ton camp','Question du jour :','On veut ton avis (vraiment)','Si tu devais n’en garder qu’un ?',
+      'L’erreur que tout le monde fait (même toi)','Tu te reconnais ?','Mission : [défi] cette semaine','Plutôt matin ou plutôt soir ?','Le sondage qu’on n’aurait pas dû faire'
+    ],
+    notoriete:[
+      'POV : tu passes une journée avec nous','Personne ne voit cette partie du travail','Il y a [X] ans, tout a commencé ici','Pourquoi on fait ce métier','Les coulisses que tu n’as jamais vues',
+      'Ce qu’on refuse de faire (et pourquoi)','Notre règle n°1','Le geste qu’on répète 100 fois par jour','Rencontre [personne / équipe]','Ce qui nous rend différents, en 1 image',
+      'Une journée type chez [marque]','Le bruit préféré de l’atelier','Ce qu’on a appris cette année','Notre plus belle erreur','Ici, on prend le temps',
+      'Derrière chaque [produit], il y a…','La promesse qu’on tient depuis le début','Ce que nos clients ne voient pas','Le mot qui nous résume','On te présente notre [lieu / outil]'
+    ],
+    lancement:[
+      'Ça arrive. Et ça change tout.','On l’a gardé secret pendant des mois','Nouveau : [produit] est là','Le jour J approche','Vous l’avez demandé, on l’a fait',
+      'Petit teaser (ne le dis à personne)','Enfin disponible','Première fois chez nous : [nouveauté]','Devine ce qu’on prépare','Compte à rebours lancé',
+      'Réservé aux premiers','Ce que [nouveauté] va changer pour toi','On l’a testé 100 fois avant de te le montrer','Édition limitée','Marque cette date',
+      'Découvre-le avant tout le monde','La nouveauté que personne n’attendait','Tu vas l’adorer (ou pas ?)','Version 2.0 : ce qui change','Le secret est levé'
+    ],
+    education:[
+      'L’erreur n°1 avec [sujet]','3 choses à savoir sur [sujet]','Arrête de [mauvaise habitude]','Le conseil que j’aurais aimé avoir','Comment [résultat] en [temps]',
+      'Mythe ou réalité : [idée reçue]','Personne ne te dit que [vérité]','La méthode en 3 étapes','Ce que font les pros (et pas toi)','Le piège à éviter absolument',
+      'Pourquoi [problème] arrive (vraie cause)','Checklist : [sujet] réussi','Avant / après : la bonne méthode','Le guide express de [sujet]','Enregistre ce post pour plus tard',
+      '[Sujet] expliqué en 30 secondes','Tu fais ça dans le mauvais ordre','Le mot que tout le monde prononce mal','Question fréquente : [question]','Le test simple pour savoir si [condition]',
+      'Ce que [chiffre réel] dit vraiment','Petit rappel qui change tout','Les 2 minutes qui t’éviteront [problème]','Le réflexe à prendre dès aujourd’hui','Comment savoir si [situation] ?'
+    ],
+    actu:[
+      'Ce qui vient de se passer en [pays]','[Fait] : ce qu’il faut retenir','Le chiffre du jour : [chiffre]','3 infos à connaître aujourd’hui','Pourquoi tout le monde parle de [sujet]',
+      'Ce que ça change pour toi','En bref : [fait]','Flash : [fait]','La décision qui fait débat','On t’explique [sujet] en 1 minute',
+      '[Pays] : l’info à ne pas manquer','Le point sur [sujet]','Ce qu’on sait (et ce qu’on ne sait pas)','Avant / maintenant : [changement]','La date à retenir',
+      'L’annonce du jour décryptée','Les réactions à [fait]','Qui, quoi, où : [fait]','Ce qui se prépare pour [date]','L’info qui va compter cette semaine'
+    ],
+    perso:[
+      'Petit moment de vie','Ce qui m’a fait sourire aujourd’hui','Confession du jour','Mon avis honnête sur [sujet]','Ce que je referais sans hésiter',
+      'La leçon de la semaine','Mon rituel du matin','Ce que personne ne voit de mon quotidien','Je te raconte ?','Trois mots pour ma semaine',
+      'Ce que j’aurais aimé savoir à 20 ans','Mon coup de cœur du moment','La chose que j’ai arrêtée (et ça va mieux)','Ma règle d’or','Tu fais quoi ce week-end ?'
+    ]
+  };
+  var MARSHALL_STORY_ANGLES_X=['le chiffre ou le fait qui surprend (uniquement s’il est dans les données)','une scène du quotidien de la cible, racontée au présent','le moment exact où le client se dit « enfin »','la règle d’or de la maison','ce qu’on ne fera jamais (valeurs)','une question que la cible n’ose pas poser','le test simple que la cible peut faire chez elle','un avant / après honnête, sans chiffre inventé','la saison ou le moment de l’année, et ce que ça change','la version express : l’essentiel en 10 secondes','le produit / service vu en très gros plan (matière, geste)','un conseil d’ami, pas de vendeur','la comparaison « ce que tu crois » vs « ce qui se passe vraiment »','le petit rituel qui rend l’expérience unique','l’objection n°1 et la réponse franche','la première fois d’un client, étape par étape','ce qui se passe en coulisses 1 heure avant l’ouverture','le mot du métier que personne ne connaît, expliqué','le défi de la semaine proposé à la communauté','le mini-classement (top 3) utile à la cible'];
+  MARSHALL_STORY_ANGLES=MARSHALL_STORY_ANGLES.concat(MARSHALL_STORY_ANGLES_X);
+  function marshallHookHist(){var h=marshallReadLocal('marshall_hook_hist_v1');return Array.isArray(h)?h:[];}
+  function marshallHookGroup(){
+    var goal=String(marshallSetting('goal','Vente')),b=marshallBrandGet()||{};
+    if(typeof marshallStoryNews!=='undefined'&&marshallStoryNews)return 'actu';
+    if(b.accountType==='perso')return marshallStoryRng(String(Date.now()))()<.5?'perso':'engagement';
+    if(/engag/i.test(goal))return 'engagement';if(/notori/i.test(goal))return 'notoriete';if(/lancement/i.test(goal))return 'lancement';
+    return 'vente';
+  }
+
+  /* Leviers psychologiques des accroches (idée inspirée de AiCMO-Marketing-Prompt-Collection, Apache-2.0) : on varie la MÉCANIQUE, pas seulement la phrase */
+  var MARSHALL_HOOK_LEVERS={
+    curiosite:{label:'Curiosité',how:'ouvre une boucle : promets une info cachée ou surprenante, ne la donne qu’après'},
+    urgence:{label:'Urgence',how:'rends le moment important : maintenant, bientôt, en quantité limitée — seulement si c’est vrai'},
+    probleme:{label:'Douleur',how:'nomme le problème ou l’erreur de la cible avec ses propres mots'},
+    preuve:{label:'Preuve',how:'appuie-toi sur un fait réel : savoir-faire, ancienneté, méthode, clients (jamais inventé)'},
+    identite:{label:'Identification',how:'la cible doit se dire « c’est moi » : situation vécue, tribu, POV'},
+    chiffre:{label:'Chiffre / liste',how:'structure concrète : un nombre d’étapes ou un chiffre présent dans les données'},
+    histoire:{label:'Histoire',how:'une mini-scène ou une confession à la 1re personne, avec une émotion'},
+    benefice:{label:'Aspiration',how:'montre le résultat désiré, concret et crédible'}
+  };
+  function marshallHookLever(f){
+    var t=String(f||'').toLowerCase();
+    if(/secret|ne sait pas|personne ne|jamais vu|devine|teaser|coulisses|cach|le détail|vraie raison|vraie cause|ce qu’on met|n’attendait|ne voit|vrai ou faux|la question qu|mythe ou/.test(t))return 'curiosite';
+    if(/attends|rates|limit|premiers|compte à rebours|jour j|approche|marque cette date|avant tout le monde|enfin disponible|dès aujourd|arrive|date à retenir|flash/.test(t))return 'urgence';
+    if(/erreur|arrête|trop cher|piège|mauvais|menti|problème|éviter|mythe|hésites|au hasard/.test(t))return 'probleme';
+    if(/clients|les pros|depuis|règle|promesse|testé|\bans\b|refuse|fait main/.test(t))return 'preuve';
+    if(/toi aussi|reconnais|team |qui d’autre|2 %|pov|avoue|tag |sois honnête|ça t’est|ton pire|choisis ton camp/.test(t))return 'identite';
+    if(/\d|\[nombre\]|\[chiffre|trois |checklist|étapes|en bref|le point/.test(t))return 'chiffre';
+    if(/raconte|confession|souvenir|journée|moment|il y a|leçon|rituel|coup de cœur|sourire|avis honnête/.test(t))return 'histoire';
+    return 'benefice';
+  }
+  function marshallHookCombo(f){var l=MARSHALL_HOOK_LEVERS[marshallHookLever(f)];return l.label+' × '+(/\?\s*$/.test(String(f||''))?'Question':'Affirmation');}
+  function marshallLeverHist(){var h=marshallReadLocal('marshall_lever_hist_v1');return Array.isArray(h)?h:[];}
+  function marshallPlatformTone(){
+    var p=String(marshallSetting('platform','Instagram'));
+    var T={
+      Instagram:'Instagram : tutoiement, direct et visuel, phrases courtes, 1 emoji maximum.',
+      TikTok:'TikTok : très oral, comme on parle face caméra, rythme rapide, « POV » et tournures parlées bienvenues.',
+      Facebook:'Facebook : chaleureux et communautaire, un peu plus explicatif, donne envie de commenter.',
+      X:'X : percutant, avis tranché, zéro fioriture.',
+      Snapchat:'Snapchat : ultra court, spontané, complice.',
+      LinkedIn:'LinkedIn : ton expert et posé, apprentissage concret, pas d’argot ni d’emoji, chiffres uniquement s’ils sont réels.'
+    };
+    return T[p]||T.Instagram;
+  }
+  function marshallPickHookFormula(rng){
+    rng=rng||Math.random;var g=marshallHookGroup(),hist=marshallHookHist().slice(0,30);
+    var groups=[g,g,g,'education',g==='actu'?'actu':'engagement'];
+    var grp=groups[Math.floor(rng()*groups.length)%groups.length],pool=(MARSHALL_HOOK_LIBRARY[grp]||MARSHALL_HOOK_LIBRARY.vente).filter(function(h){return hist.indexOf(h)<0;});
+    var _lh=marshallLeverHist().slice(0,2),_pl=pool.filter(function(h){return _lh.indexOf(marshallHookLever(h))<0;});if(_pl.length)pool=_pl;
+    if(!pool.length)pool=MARSHALL_HOOK_LIBRARY[grp]||MARSHALL_HOOK_LIBRARY.vente;
+    return pool[Math.floor(rng()*pool.length)%pool.length];
+  }
+  function marshallLayoutHist(){var h=marshallReadLocal('marshall_layout_hist_v1');return Array.isArray(h)?h:[];}
+  function marshallLibraryRemember(plan){
+    try{
+      var lh=marshallLayoutHist();(plan.frames||[]).forEach(function(f){if(f&&f.layout)lh.unshift(f.layout);});marshallWriteLocal('marshall_layout_hist_v1',lh.slice(0,24));
+      if(plan.hookStyle){var hh=marshallHookHist();hh.unshift(plan.hookStyle);marshallWriteLocal('marshall_hook_hist_v1',hh.slice(0,40));
+        var lv=marshallLeverHist();lv.unshift(marshallHookLever(plan.hookStyle));marshallWriteLocal('marshall_lever_hist_v1',lv.slice(0,12));}
+    }catch(e){}
+  }
   function marshallBuildViralStoryFrame(frame,index,generatedUrl,referenceImage){
     frame=frame||{};
     var kits=marshallStoryKits(),kitKey=kits[frame.kit]?frame.kit:marshallStoryPickKit(marshallStoryRng(String(frame.seed||'')+(frame.hook||'')+index));
@@ -9982,7 +10363,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var assetStrategy=null;if(!marshallStoryNews&&marshallBrandAssetCandidates().length){try{assetStrategy=await marshallStoryAssetStrategy(plan,prompt);}catch(e){console.warn('Story asset strategy',e);}}
     var prepared=[];
     var dims={width:768,height:1360}, storyFrameImages=[];
-    var genCount=0,genMax=marshallPower()==='hyper'?NF:(marshallPower()==='leger'?1:3),photoLess={quote:1,poll:1,list:1,poster:1,myth:1};
+    var genCount=0,genMax=marshallPower()==='hyper'?NF:(marshallPower()==='leger'?1:3),photoLess={quote:1,poll:1,list:1,poster:1,myth:1,minimal_type:1,checklist:1,timeline:1,versus:1,sticker_pop:1};
     for(var i=0;i<NF;i++){
       var frame=plan.frames[i]||{}, imageUrl=null,assetChoice=assetStrategy&&assetStrategy.frames&&assetStrategy.frames[i]||null;
       if(i>=Math.min(3,genMax)&&!assetChoice&&(genCount>=genMax||photoLess[marshallStoryResolveLayout(frame.layout)])){var reuse=prepared.filter(function(p){return p.url;});prepared.push({frame:frame,url:reuse.length?reuse[i%reuse.length].url:null});continue;}
@@ -10117,7 +10498,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     layout=marshallStoryResolveLayout(layout);var v=(+variant||0);
     var m={
       hero_photo:['main subject in the upper half, calm and darker lower 45% of the frame for a headline','main subject in the lower half, calm empty upper half for a headline','centered subject with a soft uniform background'][v%3],
-      split:'subject centered, will be cropped to a horizontal band','editorial':'single elegant subject, centered, clean uncluttered background',poster:'single subject centered, still readable when cropped as a circle',quote:'friendly portrait or signature detail',list:'wide establishing scene, will be cropped to a top banner',poll:'lifestyle scene, the center will be covered by a white sticker',myth:'moody scene that will be darkened',before_after:'the desired result, the "after" situation',offer:'hero product or service shot, centered, clean background, premium set',tip_card:'close-up detail, still readable when cropped as a circle',cta_sticker:'inviting ambiance that will be darkened behind text',device_demo:'vertical composition that reads like a phone screen',testimonial:'warm portrait'
+      split:'subject centered, will be cropped to a horizontal band','editorial':'single elegant subject, centered, clean uncluttered background',
+      news_flash:'subject centered, will be cropped to a wide landscape band',headline_bar:'subject in the upper 55% of the frame, lower part calm and darker',magazine_cover:'subject centered in the middle, clean sky or background at the top for a masthead',polaroid:'subject centered, square-friendly framing',diagonal:'subject in the upper half',frame_border:'subject centered with breathing room',circle_focus:'subject centered, readable when cropped as a circle',collage:'rich detailed scene that works when cropped into several tiles',gradient_glow:'subject centered, will be cropped to a wide band',map_pin:'wide shot of the place, subject in the upper half',big_number:'simple subject, will be a small circle',countdown:'atmospheric scene, will be heavily tinted',question_box:'lifestyle scene, the center will be covered by a white sticker',poster:'single subject centered, still readable when cropped as a circle',quote:'friendly portrait or signature detail',list:'wide establishing scene, will be cropped to a top banner',poll:'lifestyle scene, the center will be covered by a white sticker',myth:'moody scene that will be darkened',before_after:'the desired result, the "after" situation',offer:'hero product or service shot, centered, clean background, premium set',tip_card:'close-up detail, still readable when cropped as a circle',cta_sticker:'inviting ambiance that will be darkened behind text',device_demo:'vertical composition that reads like a phone screen',testimonial:'warm portrait'
     };
     return m[layout]||'subject centered with breathing room';
   }
@@ -10498,8 +10880,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var b=marshallBrandManualGet();if(b.website!==u.href){b=Object.assign({},b,{website:u.href});marshallWriteLocal(MARSHALL_BRAND_KEY,b);}
     }catch(e){}
   }
-  function marshallStoryRecent(){var h=marshallReadLocal('marshall_story_recent_v1');return Array.isArray(h)?h.slice(0,6):[];}
-  function marshallStoryRememberCurrent(plan){if(!plan||plan.draft)return;var h=marshallStoryRecent();h.unshift({hooks:plan.frames.map(function(f){return f.hook;}),layouts:plan.frames.map(function(f){return f.layout;}),format:plan.format||'',kit:plan.kit||'',angle:plan.angle||'',hookStyle:plan.hookStyle||''});marshallWriteLocal('marshall_story_recent_v1',h.slice(0,6));}
+  function marshallStoryRecent(){var h=marshallReadLocal('marshall_story_recent_v1');return Array.isArray(h)?h.slice(0,12):[];}
+  function marshallStoryRememberCurrent(plan){if(!plan||plan.draft)return;var h=marshallStoryRecent();h.unshift({hooks:plan.frames.map(function(f){return f.hook;}),layouts:plan.frames.map(function(f){return f.layout;}),format:plan.format||'',kit:plan.kit||'',angle:plan.angle||'',hookStyle:plan.hookStyle||''});marshallWriteLocal('marshall_story_recent_v1',h.slice(0,12));try{marshallLibraryRemember(Object.assign({},plan,{hookStyle:plan.hookFormula||plan.hookStyle}));}catch(e){}}
   function marshallReadableInk(hex){
     var m=/^#([0-9a-f]{6})$/i.exec(hex||'');if(!m)return '#FFFFFF';
     var c=[0,2,4].map(function(i){var n=parseInt(m[1].slice(i,i+2),16)/255;return n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4);});
