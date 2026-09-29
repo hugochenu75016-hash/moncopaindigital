@@ -4929,6 +4929,18 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* --- Détourage : supprime le fond de l'image sélectionnée (rembg / BiRefNet sur le serveur Marshall) --- */
   var ED_ORIG={};   // image d'origine avant détourage (hors historique : un data URL peut peser plusieurs Mo)
   function edBlobToDataUrl(b){ return new Promise(function(ok,ko){ var r=new FileReader(); r.onload=function(){ ok(r.result); }; r.onerror=ko; r.readAsDataURL(b); }); }
+  /* Réduit l'image avant l'envoi (1 600 px max) : une photo de téléphone en data URL pèse souvent 5 à 10 Mo, trop lourd pour l'envoi. */
+  async function edShrinkForUpload(dataUrl, max){
+    max=max||1600;
+    var blob=await (await fetch(dataUrl)).blob();
+    var bmp=await createImageBitmap(blob);
+    var k=Math.min(1, max/Math.max(bmp.width,bmp.height)), w=Math.round(bmp.width*k), h=Math.round(bmp.height*k);
+    var c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(bmp,0,0,w,h);
+    var png=/image\/png|image\/webp/.test(blob.type);   // garder la transparence éventuelle
+    var out=c.toDataURL(png?'image/png':'image/jpeg', 0.9);
+    if(png && out.length>4e6) out=c.toDataURL('image/jpeg',0.9);
+    return out;
+  }
   async function edRemoveBg(id){
     var l=ed.layers.filter(function(o){ return o.id===id; })[0]; if(!l||l.type!=='image'||l._rmbgBusy) return;
     if(ED_ORIG[l.id]){ l.url=ED_ORIG[l.id]; delete ED_ORIG[l.id]; ED_SRC[l.id]=l.url; edSnap(); edRender(); toast('Fond remis ✓'); return; }
@@ -4940,7 +4952,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         if(!resp||!resp.ok) throw Error('Cette image vient d’un autre site : importe-la depuis ton ordinateur pour la détourer.');
         src=await edBlobToDataUrl(await resp.blob());
       }
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/image/remove-bg',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:src})});
+      try{ src=await edShrinkForUpload(src,1600); }catch(e){ console.warn('Réduction image',e); }
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/image/remove-bg',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:src})})
+        .catch(function(){ throw Error('envoi de l’image impossible (connexion ou image trop lourde). Réessaie.'); });
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
       if(!r.ok||!d.ok||!d.image) throw Error(d.error||('HTTP '+r.status));
