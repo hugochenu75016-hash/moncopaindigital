@@ -5033,9 +5033,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function edVoiceover(id, opts){
     var l=edVoLayer(id); if(!l) return {ok:false,error:'sélectionne une vidéo sur le canvas.'};
     if(l._voBusy) return {ok:false,error:'une voix off est déjà en cours sur cette vidéo.'};
-    if(!/^https:\/\//.test(String(l.url||''))) return {ok:false,error:'la vidéo est encore en cours d’envoi : réessaie dans quelques secondes.'};
-    l._voBusy=true; l._voMsg='Analyse de la vidéo…'; edRender();
+    l._voBusy=true; l._voMsg='Envoi de la vidéo…'; edRender();
     try{
+      /* La vidéo doit être en ligne : on attend l'envoi en cours, ou on le relance s'il a échoué. */
+      if(!/^https:\/\//.test(String(l.url||''))){
+        if(ED_VUP[id]) await ED_VUP[id];
+        else if(/^blob:/.test(String(l.url||''))){
+          var blob=await fetch(l.url).then(function(x){ return x.blob(); }).catch(function(){ return null; });
+          if(!blob) throw Error('la vidéo locale n’est plus disponible : réimporte-la depuis ton ordinateur.');
+          await edUploadVideoLayer(id, blob, l.url);
+        }
+        l=edVoLayer(id)||l;
+        if(!/^https:\/\//.test(String(l.url||''))) throw Error('la vidéo n’a pas pu être mise en ligne : réimporte-la.');
+      }
+      l._voBusy=true; l._voMsg='Analyse de la vidéo…'; edRender();
       var brand=''; try{ brand=(typeof marshallBrandName==='function'?marshallBrandName():'')||''; }catch(e){}
       var r=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover',{method:'POST',headers:await authHeaders(),body:JSON.stringify({video_url:l.url,voice:opts.voice||'femme',tone:opts.tone||'dynamique',brief:opts.brief||'',brand:brand})})
         .catch(function(){ throw Error('serveur injoignable, réessaie.'); });
@@ -5058,7 +5069,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
       throw Error('le traitement prend trop de temps, réessaie plus tard.');
     }catch(err){ return {ok:false,error:String(err.message||err)}; }
-    finally{ l._voBusy=false; l._voMsg=''; edRender(); }
+    finally{ [l,edVoLayer(id)].forEach(function(x){ if(x){ x._voBusy=false; x._voMsg=''; } }); edRender(); }
   }
   /* Appelé par l'agent « Voice Director » depuis le chat Marshall. */
   async function edVoiceoverFromAgent(prompt){
@@ -5314,17 +5325,35 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     ed.layers.unshift(l); ed.sel=l.id; edSnap(); edRender();
     toast('🎬 Vidéo ajoutée au canvas · envoi en cours…');
     try{
-      var ext=(/quicktime/.test(f.type)?'mov':(/webm/.test(f.type)?'webm':'mp4'));
-      var path=(effectiveUid()||'anon')+'/video-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-      var up=await sb.storage.from('media').upload(path, f, { contentType:f.type||'video/mp4' });
-      if(up.error) throw Error(up.error.message||'stockage indisponible');
-      var pu=sb.storage.from('media').getPublicUrl(path), url=pu&&pu.data&&pu.data.publicUrl;
-      if(!url) throw Error('lien public introuvable');
-      ed.layers.forEach(function(x){ if(x.id===l.id) x.url=url; });
-      (marshallCanvasPages||[]).forEach(function(p){ (p.layers||[]).forEach(function(x){ if(x.id===l.id&&x.url===local) x.url=url; }); });
-      edSnap(); edRender(); try{marshallCanvasPagesSaveCurrent();marshallCanvasPersistConversation();}catch(e){}
+      await edUploadVideoLayer(l.id, f, local);
       toast('🎬 Vidéo prête ✓');
     }catch(err){ toast('Vidéo affichée, mais pas encore enregistrée : '+(err.message||err)+'. Elle ne pourra pas être publiée tant qu’elle n’est pas envoyée.',true); }
+  }
+  /* Envoie la vidéo d'un calque dans le stockage « media » et remplace son lien local (blob:) par le lien public. */
+  var ED_VUP={};   // envois en cours, par calque
+  function edUploadVideoLayer(id, fileOrBlob, local){
+    if(ED_VUP[id]) return ED_VUP[id];
+    var p=(async function(){
+      var type=fileOrBlob.type||'video/mp4';
+      var ext=(/quicktime/.test(type)?'mov':(/webm/.test(type)?'webm':'mp4'));
+      var path=(effectiveUid()||'anon')+'/video-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+      var up=await sb.storage.from('media').upload(path, fileOrBlob, { contentType:type });
+      if(up.error){
+        var m=String(up.error.message||'stockage indisponible');
+        if(/mime|type/i.test(m)) m='le stockage refuse ce format de vidéo ('+type+')';
+        else if(/size|large|exceed|payload/i.test(m)) m='vidéo trop lourde pour le stockage ('+Math.round((fileOrBlob.size||0)/1048576)+' Mo)';
+        throw Error(m);
+      }
+      var pu=sb.storage.from('media').getPublicUrl(path), url=pu&&pu.data&&pu.data.publicUrl;
+      if(!url) throw Error('lien public introuvable');
+      ed.layers.forEach(function(x){ if(x.id===id) x.url=url; });
+      (marshallCanvasPages||[]).forEach(function(pg){ (pg.layers||[]).forEach(function(x){ if(x.id===id&&(!local||x.url===local)) x.url=url; }); });
+      edSnap(); edRender(); try{marshallCanvasPagesSaveCurrent();marshallCanvasPersistConversation();}catch(e){}
+      return url;
+    })();
+    ED_VUP[id]=p;
+    p.then(function(){ delete ED_VUP[id]; },function(){ delete ED_VUP[id]; });
+    return p;
   }
   function edAddShape(shape){
     ed.seq++;
