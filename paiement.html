@@ -956,11 +956,81 @@
     }
   }
 
+  /* ---------- Mode "recharge de tokens Studio Social" (?recharge=recharge_5000&retour=URL) ---------- */
+  var TOPUP_PACKS = { recharge_5000: { nom:'Recharge 5 000 tokens', tokens:5000, prix:9.90 } };
+  var topupPack = TOPUP_PACKS[params.get('recharge')] ? params.get('recharge') : '';
+  function topupBackUrl(ok){ return aboRetour + (aboRetour.indexOf('?')>=0 ? '&' : '?') + (ok ? 'topup=ok' : 'topup=cancel'); }
+  async function topupSession(){ var sb=getSB(); try{ var s=sb && await sb.auth.getSession(); return (s && s.data && s.data.session) || null; }catch(e){ return null; } }
+  async function initTopupFlow(packId){
+    var P = TOPUP_PACKS[packId];
+    $('#step-info').style.display='none';
+    $('#step-forfait').style.display='none';
+    var back=$('#pay-back'); if(back){ back.innerHTML = back.innerHTML.replace('Retour','Retour à Studio Social'); back.onclick=function(e){ e.preventDefault(); e.stopImmediatePropagation(); location.href = topupBackUrl(false); }; }
+    var step=$('#step-pay'); step.classList.remove('step-hidden'); step.classList.add('step-in'); step.setAttribute('aria-hidden','false');
+    var h2=document.querySelector('#step-pay h2'); if(h2) h2.innerHTML = '<span class="step-n">＋</span> '+P.nom;
+    var hint=document.querySelector('#step-pay .hint');
+    if(hint) hint.innerHTML = '<strong>'+euro(P.prix)+'</strong> · paiement unique, sans abonnement.<br>✓ '+P.tokens.toLocaleString('fr-FR')+' tokens ajoutés à ton compte Studio Social &nbsp;·&nbsp; ✓ Utilisés après ton quota du mois &nbsp;·&nbsp; ✓ Sans date d’expiration';
+    $('#pay-btn-label').textContent = 'Payer '+euro(P.prix);
+    if(!stripe){ showNotice('#pay-notice','Configuration de paiement incomplète (clé Stripe).'); return; }
+    var sess = await topupSession(), token = sess && sess.access_token, user = sess && sess.user;
+    if(!token){
+      $('#payment-element').innerHTML='';
+      showNotice('#pay-notice','Connecte-toi d’abord à Studio Social avec ton compte, puis reclique sur « Recharger ». <a href="'+aboRetour.replace(/"/g,'&quot;')+'">Ouvrir Studio Social</a>');
+      return;
+    }
+    try{
+      var nom = (user && user.user_metadata && (user.user_metadata.nom || user.user_metadata.prenom)) || '';
+      var res = await fetch(MARSHALL_API + '/stripe/topup/intent', { method:'POST',
+        headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+token },
+        body: JSON.stringify({ pack: packId, name: nom }) });
+      var data = await res.json();
+      if(!res.ok || !data.clientSecret){ throw new Error((data && data.error) || 'Impossible de préparer la recharge.'); }
+      reqMode = true;
+      aboReturnParams = '&recharge='+encodeURIComponent(packId)+'&retour='+encodeURIComponent(aboRetour);
+      currentOrder = { offerId:'topup_'+packId, offerName: P.nom, unit: P.prix, qty:1, total: P.prix, name: nom, topup: packId };
+      try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
+      elements = stripe.elements({ clientSecret: data.clientSecret,
+        appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
+      var pe = elements.create('payment', { layout:'tabs' });
+      $('#payment-element').innerHTML=''; pe.mount('#payment-element');
+      pe.on('ready', function(){ $('#pay-btn').removeAttribute('disabled'); });
+    }catch(err){
+      $('#payment-element').innerHTML='';
+      showNotice('#pay-notice', (err && err.message) ? err.message : 'Recharge indisponible pour le moment.');
+    }
+  }
+  async function confirmTopup(){
+    var P = TOPUP_PACKS[topupPack], pid = params.get('payment_intent') || '';
+    var h1 = document.querySelector('#confirm h1'); if(h1) h1.innerHTML = 'Recharge en cours…';
+    $('#conf-sub').textContent = 'Paiement reçu. On ajoute tes tokens à ton compte…';
+    $('#conf-recap').innerHTML = '<div class="r-line"><span>'+P.nom+'</span><span>'+euro(P.prix)+'</span></div><div class="r-line tot"><span>Payé aujourd’hui</span><span>'+euro(P.prix)+'</span></div>';
+    var acts = document.querySelector('#confirm .conf-actions');
+    if(acts) acts.innerHTML = '<a class="cta" href="'+topupBackUrl(true).replace(/"/g,'&quot;')+'">Retour à Studio Social</a>';
+    try{ localStorage.removeItem('mcd_pending_order'); }catch(e){}
+    var sess = await topupSession(), token = sess && sess.access_token, done = false;
+    for(var i=0; i<5 && token && pid && !done; i++){
+      try{
+        var r = await fetch(MARSHALL_API + '/stripe/topup/confirm', { method:'POST',
+          headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+token },
+          body: JSON.stringify({ payment_intent: pid }) });
+        var d = await r.json().catch(function(){ return {}; });
+        if(r.ok && d.ok){ done = true; break; }
+        if(r.status !== 409) break;
+      }catch(e){}
+      await new Promise(function(ok){ setTimeout(ok, 2500); });
+    }
+    if(h1) h1.innerHTML = done ? 'Recharge ajoutée&nbsp;!' : 'Paiement reçu&nbsp;!';
+    $('#conf-sub').textContent = done
+      ? 'Merci ! '+P.tokens.toLocaleString('fr-FR')+' tokens ont été ajoutés à ton compte Studio Social. Un reçu t’est envoyé par email.'
+      : 'Merci ! Ton paiement est bien reçu. Tes '+P.tokens.toLocaleString('fr-FR')+' tokens apparaîtront dans Studio Social d’ici quelques minutes.';
+  }
+
   /* ---------- Vue confirmation (retour depuis Stripe : ?status=success&redirect_status=succeeded) ---------- */
   function showConfirm(){
     var order=null; try{ order=JSON.parse(localStorage.getItem('mcd_pending_order')||'null'); }catch(e){}
     $('#pay-view').style.display='none';
     var c=$('#confirm'); c.classList.add('show');
+    if(topupPack){ confirmTopup(); return; }
     if(aboPlan){
       var P = ABO_PLANS[aboPlan];
       var h1 = document.querySelector('#confirm h1'); if(h1) h1.innerHTML = 'Abonnement activé&nbsp;!';
@@ -990,9 +1060,12 @@
   if(params.get('status')==='success' && (!redirect || redirect==='succeeded')){
     showConfirm();
   } else if(redirect && redirect!=='succeeded'){
-    if(aboPlan){ initAboFlow(aboPlan); }
+    if(topupPack){ initTopupFlow(topupPack); }
+    else if(aboPlan){ initAboFlow(aboPlan); }
     else if(reqToken){ initReqFlow(reqToken); } else { renderOffers(); renderSummary(); prefillClient(); }
     showNotice('#pay-notice', 'Le paiement n\u2019a pas abouti ('+redirect+'). Vous pouvez réessayer.');
+  } else if(topupPack){
+    initTopupFlow(topupPack);
   } else if(aboPlan){
     initAboFlow(aboPlan);
   } else if(reqToken){

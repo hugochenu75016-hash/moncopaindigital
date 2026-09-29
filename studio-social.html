@@ -7910,10 +7910,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       (rows?'<div class="mtk-list"><div class="mtk-h">Détail du mois</div>'+rows+'</div>':'');
     marshallTokensLive();
   }
-  document.addEventListener('click',async function(e){var b=e.target.closest('#mtk-topup-btn');if(!b)return;b.disabled=true;var old=b.textContent;b.textContent='Ouverture du paiement…';
-    try{var r=await fetch(MARSHALL_CREWAI_BASE+'/stripe/topup',{method:'POST',headers:await authHeaders(),body:JSON.stringify({pack:'recharge_5000',name:(me&&me.nom)||''})});var d=await r.json().catch(function(){return {};});
-      if(!r.ok||!d.url)throw Error(d.error||('HTTP '+r.status));location.href=d.url;}
-    catch(err){toast('Recharge impossible : '+(err.message||err),true);b.disabled=false;b.textContent=old;}});
+  /* Recharge : paiement sur paiement.html (comme les abonnements), retour ici avec ?topup=ok */
+  document.addEventListener('click',function(e){var b=e.target.closest('#mtk-topup-btn');if(!b)return;b.disabled=true;b.textContent='Ouverture du paiement…';
+    var back=location.origin+location.pathname;location.href=MARSHALL_PAY_PAGE+'?recharge=recharge_5000&retour='+encodeURIComponent(back);});
   /* Temps réel : tant que la carte est affichée, le solde se met à jour toutes les 15 s (et après chaque action). */
   function marshallTokensLive(){
     if(marshallTokensLive.timer)return;
