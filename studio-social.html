@@ -4599,6 +4599,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function handleFiles(files){
     Array.prototype.forEach.call(files, function(f){
+      // Vidéo importée pendant que l'éditeur est ouvert : elle va directement sur le canvas.
+      if(f.type.indexOf('video')===0 && typeof edAddVideoFile==='function' && $('#ed-page') && $('#ed-page').offsetParent){ edAddVideoFile(f); if(ed.flyKind==='uploads') edFlyClose(); return; }
       var reader=new FileReader();
       reader.onload=function(ev){
         var raw=ev.target.result, isVid=(f.type.indexOf('video')===0);
@@ -5198,6 +5200,28 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var im=new Image(); im.src=url; l._img=im;
     edSnap(); edRender();
   }
+  /* Vidéo importée sur le canvas : affichage immédiat (lien local), puis envoi dans le stockage pour la garder et pouvoir la publier. */
+  async function edAddVideoFile(f){
+    if(!f||f.type.indexOf('video')!==0) return;
+    if(f.size>200*1024*1024){ toast('Vidéo trop lourde (200 Mo maximum).',true); return; }
+    ed.seq++;
+    var local=URL.createObjectURL(f);
+    var l={ id:'v'+ed.seq, type:'video', url:local, x:0, y:0, w:100, h:100, rot:0, op:100, rad:0 };
+    ed.layers.unshift(l); ed.sel=l.id; edSnap(); edRender();
+    toast('🎬 Vidéo ajoutée au canvas · envoi en cours…');
+    try{
+      var ext=(/quicktime/.test(f.type)?'mov':(/webm/.test(f.type)?'webm':'mp4'));
+      var path=(effectiveUid()||'anon')+'/video-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+      var up=await sb.storage.from('media').upload(path, f, { contentType:f.type||'video/mp4' });
+      if(up.error) throw Error(up.error.message||'stockage indisponible');
+      var pu=sb.storage.from('media').getPublicUrl(path), url=pu&&pu.data&&pu.data.publicUrl;
+      if(!url) throw Error('lien public introuvable');
+      ed.layers.forEach(function(x){ if(x.id===l.id) x.url=url; });
+      (marshallCanvasPages||[]).forEach(function(p){ (p.layers||[]).forEach(function(x){ if(x.id===l.id&&x.url===local) x.url=url; }); });
+      edSnap(); edRender(); try{marshallCanvasPagesSaveCurrent();marshallCanvasPersistConversation();}catch(e){}
+      toast('🎬 Vidéo prête ✓');
+    }catch(err){ toast('Vidéo affichée, mais pas encore enregistrée : '+(err.message||err)+'. Elle ne pourra pas être publiée tant qu’elle n’est pas envoyée.',true); }
+  }
   function edAddShape(shape){
     ed.seq++;
     ed.layers.push({ id:'s'+ed.seq, type:'shape', shape:shape, poly:(ED_POLY[shape]||null), x:28, y:28, w:44,
@@ -5493,7 +5517,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(kind==='uploads'){
       title.textContent='Importer';
       var ups=edUploads();
-      body.innerHTML='<button class="ed-preset" id="ed-up-pick">Importer depuis mon appareil</button>'+
+      body.innerHTML='<button class="ed-preset" id="ed-up-pick">Importer une photo ou une vidéo</button>'+
         '<div class="ed-sec">Dernières importations</div>'+
         (ups.length
           ? '<div class="ed-grid" style="grid-template-columns:repeat(3,1fr);">'+ups.map(function(u,i){
