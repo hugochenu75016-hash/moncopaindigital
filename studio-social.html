@@ -4618,6 +4618,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var wrap=st?st.parentNode:null;
     var availH=Math.min(window.innerHeight*0.66, 540);
     var availW=(wrap&&wrap.clientWidth)?wrap.clientWidth:520;
+    /* Largeur réellement disponible (sans les marges intérieures) : sur mobile, le canvas ne déborde plus de l'écran. */
+    if(window.innerWidth<=760){try{if(wrap){var _cs=getComputedStyle(wrap);availW-=(parseFloat(_cs.paddingLeft)||0)+(parseFloat(_cs.paddingRight)||0);}}catch(e){}availW=Math.min(availW,window.innerWidth-76);if(!(availW>80))availW=Math.max(200,window.innerWidth-76);}
     var k=Math.min(availH/H, availW/W); if(!(k>0)) k=0.5; k*=Number(ed.viewZoom||1);
     edMigrateUnits(W);
     p.style.width=W+'px'; p.style.height=H+'px';
@@ -13530,6 +13532,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return {ok:true,layout:f.layout,kit:f.kit,image:cv.toDataURL('image/jpeg',0.9),w:cv.width,h:cv.height};
     }
   };
+  /* Mobile : bouton « Agents IA » + feuille qui monte du bas. */
+  (function(){
+    function ensure(){
+      if(document.getElementById('mob-agents-btn'))return;
+      var b=document.createElement('button');b.type='button';b.id='mob-agents-btn';b.innerHTML='🤖 Agents IA';
+      var s=document.createElement('div');s.id='mob-agents-scrim';
+      document.body.appendChild(s);document.body.appendChild(b);
+      function close(){var r=document.getElementById('ed-agent-rail');if(r)r.classList.remove('mob-open');s.classList.remove('show');document.body.classList.remove('mob-agents-open');}
+      b.addEventListener('click',function(){var r=document.getElementById('ed-agent-rail');if(!r)return;if(s.parentNode!==r.parentNode)r.parentNode.insertBefore(s,r);var open=!r.classList.contains('mob-open');r.classList.toggle('mob-open',open);s.classList.toggle('show',open);document.body.classList.toggle('mob-agents-open',open);});
+      s.addEventListener('click',close);
+      document.addEventListener('click',function(ev){if(ev.target.closest&&ev.target.closest('#ed-agent-rail.mob-open [data-agent-rail]'))setTimeout(close,30);});
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure);else ensure();
+  })();
   /* ============ START ============ */
   async function startApp(){
     mcdTouchActive(true);mcdBindActivity();
@@ -14088,6 +14104,39 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   .mcd-mention { text-align: center; font-size: 11.5px; color: var(--gris); padding: 6px 16px 14px; margin: 0; background: #fff; }
   @media (max-width: 520px) { .mcd-chat { left: 12px; } .mcd-fenetre { width: calc(100vw - 24px); border-radius: 26px; } }
   @media (prefers-reduced-motion: reduce) { .mcd-lanceur, .mcd-points i, .mcd-envoyer, .mcd-suggestions button, .mcd-chat { transition: none; animation: none; } }
+
+/* ===== Mobile / web app (≤ 760 px) : barre d'outils à gauche, canvas visible, panneaux flottants ===== */
+@media(max-width:760px){
+  html body #view-composer .composer-grid{grid-template-columns:minmax(0,1fr)!important;gap:0!important}
+  html body #view-composer #content-card{min-width:0!important;width:100%!important;max-width:100vw!important;box-sizing:border-box}
+  html body #view-composer .ed-shell{min-width:0}
+  html body .ed-rail{position:fixed!important;left:0!important;top:110px!important;bottom:80px!important;width:60px!important;transform:none!important;flex-direction:column!important;flex-wrap:nowrap!important;overflow-y:auto!important;overflow-x:hidden!important;margin:0!important;z-index:65}
+  html body #app .ed-stagewrap{width:100%!important;box-sizing:border-box;padding:14px 6px 96px 64px!important;align-items:center}
+  html body .ed-toolbar{max-width:100%;flex-wrap:wrap;justify-content:center}
+  html body .ed-flyout.show{position:fixed!important;top:118px!important;bottom:86px!important;max-height:none!important;z-index:95!important;margin:0!important}
+  html body .ed-flyout.show:not(.marshall-mode){left:66px!important;right:6px!important;width:auto!important;transform:none!important}
+  html body .ed-flyout.marshall-mode.show{left:6px!important;right:6px!important;width:auto!important;transform:none!important}
+}
+
+/* ===== Mobile : agents IA dans un bouton flottant + feuille qui monte du bas (au lieu d'une barre coupée) ===== */
+#mob-agents-btn{display:none}
+@media(max-width:760px){
+  html body .ed-agent-rail{display:none!important}
+  html body .ed-agent-rail.mob-open{display:grid!important;position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;width:auto!important;max-height:72vh!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important;padding:16px 12px calc(16px + env(safe-area-inset-bottom,0px))!important;overflow-y:auto!important;overflow-x:hidden!important;
+    background:#fff!important;border-radius:22px 22px 0 0!important;border:0!important;box-shadow:0 -18px 50px rgba(0,0,0,.28)!important;z-index:7200!important;flex-direction:column}
+  html body .ed-agent-rail.mob-open .ed-agent-rail-title{display:block!important;grid-column:1/-1;font:800 16px 'Nunito',sans-serif;color:#222;margin:0 4px 4px;text-transform:none;letter-spacing:0}
+  html body .ed-agent-rail.mob-open .ed-agent-tool{flex:none!important;width:auto!important;min-height:64px!important;display:grid!important;grid-template-columns:34px minmax(0,1fr)!important;align-items:center;text-align:left!important;padding:10px!important;border:1px solid #ecebe6!important;border-radius:14px!important;background:#fafaf7!important}
+  html body .ed-agent-rail.mob-open .ed-agent-tool-copy b{font-size:12px!important}
+  html body .ed-agent-rail.mob-open .ed-agent-tool-copy small{font-size:10.5px!important;display:block!important}
+  #mob-agents-scrim{position:fixed;inset:0;background:rgba(18,20,24,.42);z-index:7100;display:none}
+  #mob-agents-scrim.show{display:block}
+  #mob-agents-btn{display:inline-flex;position:fixed;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:7050;align-items:center;gap:8px;border:0;border-radius:999px;background:#16233B;color:#fff;font:800 14px 'Nunito',sans-serif;padding:12px 18px;box-shadow:0 10px 26px rgba(0,0,0,.28)}
+  body:not(:has(#view-composer.active)) #mob-agents-btn,body.mob-agents-open #mob-agents-btn{display:none!important}
+  html body .ed-rail{bottom:calc(8px + env(safe-area-inset-bottom,0px))!important}
+  html body #app .ed-stagewrap{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px))!important}
+  html body .madock{left:6px!important;right:6px!important;top:112px!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;width:auto!important;max-height:none!important;z-index:7300!important}
+}
 </style>
 <div class="mcd-chat" data-ouvert="false" id="mcdChat">
   <div class="mcd-fenetre" role="dialog" aria-label="Assistant Marshall">
