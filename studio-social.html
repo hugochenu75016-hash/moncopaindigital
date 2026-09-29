@@ -881,6 +881,9 @@
   .pill.amber{ background:rgba(230,160,20,0.2); color:#9a6410; }
   .pill.blue{ background:rgba(40,110,220,0.16); color:#2b5fa0; }
   .pill.red{ background:rgba(210,60,30,0.16); color:#c0341a; }
+  .mtk-topup{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; padding:10px 12px; border:1px solid #f0dcc0; border-radius:14px; background:#fffaf2; }
+  .mtk-topup > div{ flex:1 1 200px; display:flex; flex-direction:column; gap:2px; }
+  .mtk-topup small{ color:#7a6a58; font-size:11.5px; }
   .mcd-sig{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:6px 0 2px; padding:8px 12px; border:1px dashed #e8cfa9; border-radius:12px; background:#fffaf2; font-size:12.5px; color:#7a5c08; }
   .mcd-sig.off{ opacity:.6; text-decoration:line-through; }
   .mcd-sig b{ font-weight:700; }
@@ -7680,9 +7683,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* ===== Abonnements Studio Social : Gratuit · Complet 29 € · Hyper 59 € — paiement sur paiement.html (Stripe) ===== */
   var MARSHALL_PAY_PAGE='paiement.html';
   var MARSHALL_PLANS={
-    gratuit:{name:'Gratuit',price:'0 €',per:'',power:'leger',perks:['Marshall en mode Léger','Stories et posts éditables (brouillons)','Images Qwen gratuites','Vidéo Motion à partir de tes Stories']},
-    complet:{name:'Complet',price:'29 €',per:'/mois',power:'normal',perks:['Tout le Gratuit','Publication et programmation sur tes réseaux','Marshall en mode Normal','Analyse de marque (site, Instagram, avis)','Équipe d’agents Marshall','Vidéo IA Wan 2.2']},
-    hyper:{name:'Hyper',price:'59 €',per:'/mois',power:'hyper',perks:['Tout le Complet','Mode ⚡ Hyper','Images Google Nano Banana 2','Vraies vidéos Google Veo 3.1','Le meilleur moteur de création']}
+    gratuit:{name:'Gratuit',price:'0 €',per:'',power:'leger',perks:['1 500 tokens / mois','Marshall en mode Léger','Stories et posts éditables (brouillons)','Images Qwen gratuites','Vidéo Motion à partir de tes Stories']},
+    complet:{name:'Complet',price:'29 €',per:'/mois',power:'normal',perks:['10 500 tokens / mois (≈ 150 créations)','Tout le Gratuit','Publication et programmation sur tes réseaux','Marshall en mode Normal','Analyse de marque (site, Instagram, avis)','Équipe d’agents Marshall','Vidéo IA Wan 2.2']},
+    hyper:{name:'Hyper',price:'59 €',per:'/mois',power:'hyper',perks:['22 500 tokens / mois','Tout le Complet','Mode ⚡ Hyper','Images Google Nano Banana 2','Vraies vidéos Google Veo 3.1','Le meilleur moteur de création']}
   };
   var MARSHALL_PLAN_RANK={gratuit:0,complet:1,hyper:2},MARSHALL_POWER_NEED={leger:'gratuit',normal:'complet',hyper:'hyper'};
   function marshallIsStaff(){var st=marshallTokenState&&marshallTokenState.st;return !!(st&&st.unlimited)||!!(me&&me.isTeam);}
@@ -7783,6 +7786,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       await marshallTokensRefresh(true);
       marshallPlanRender();
       var q='',tp='complet';try{var _sp=new URLSearchParams(location.search);q=_sp.get('abonnement')||'';tp=MARSHALL_PLANS[_sp.get('plan')]?_sp.get('plan'):'complet';}catch(e){}
+      var tq='';try{tq=new URLSearchParams(location.search).get('topup')||'';}catch(e){}
+      if(tq){try{var _t=new URL(location.href);_t.searchParams.delete('topup');history.replaceState(null,'',_t.href);}catch(e){}
+        if(tq==='ok'){toast('✓ Paiement reçu : ta recharge de tokens arrive dans quelques secondes.');var _n=0,_w=setInterval(function(){_n++;marshallTokensRefresh(true);if(_n>=6)clearInterval(_w);},5000);}else toast('Recharge annulée : aucun paiement effectué.');}
       if(q){try{var _u=new URL(location.href);_u.searchParams.delete('abonnement');_u.searchParams.delete('plan');history.replaceState(null,'',_u.href);}catch(e){}}
       if(q==='ok'){
         if(MARSHALL_PLAN_RANK[marshallPlan()]>=MARSHALL_PLAN_RANK[tp]){try{marshallPowerSet(MARSHALL_PLANS[tp].power);}catch(e){}edAIStatus('✓ Abonnement '+MARSHALL_PLANS[tp].name+' activé : merci !');return;}
@@ -7869,7 +7875,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     return marshallTokenState.pending;
   }
   function marshallTokensLeft(){var st=marshallTokenState.st;if(!st)return Infinity;return st.unlimited?Infinity:Number(st.remaining||0);}
-  function marshallTokensError(need){var st=marshallTokenState.st||{};return Error('Tes tokens du jour sont épuisés (il en reste '+marshallTokenFmt(st.remaining||0)+', il en faut '+marshallTokenFmt(need)+'). Ils se rechargent à minuit.');}
+  function marshallTokensError(need){var st=marshallTokenState.st||{};var e=Error('Tes tokens du mois sont épuisés (il en reste '+marshallTokenFmt(st.remaining||0)+', il en faut '+marshallTokenFmt(need)+'). Ils se rechargent le '+(st.resets_on||'1er du mois')+', ou tout de suite avec une recharge dans Réglages › Mon utilisation.');e.needTopup=true;return e;}
   /* Actions payées hors du serveur Marshall (chat, image Qwen) : vérification + débit au barème du serveur. */
   async function marshallTokensGate(kind){
     if(actingAs||!authUser)return;
@@ -7887,20 +7893,27 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!box)return;
     if(!st){box.innerHTML='<div class="mtk-empty">Chargement de ton utilisation…</div>';return;}
     var pc=function(a,b){return Math.max(0,Math.min(100,Math.round((a||0)/Math.max(1,b)*100)));};
-    var dayPct=pc(st.used,st.limit),weekLimit=st.week_limit||st.limit*7,weekUsed=st.week_used!=null?st.week_used:st.used,weekPct=pc(weekUsed,weekLimit);
+    var monthPct=pc(st.limit-(st.quota_left!=null?st.quota_left:Math.max(0,st.limit-st.used)),st.limit),quotaUsed=st.limit-(st.quota_left!=null?st.quota_left:Math.max(0,st.limit-st.used));
     var bar=function(title,pct,used,limit,note){return '<div class="mtk-gauge"><div class="mtk-gauge-top"><b>'+title+'</b><strong>'+(st.unlimited?'—':pct+' %')+'</strong></div>'+
       '<div class="mtk-bar'+(st.unlimited?' free':'')+'" role="progressbar" aria-label="'+title+'" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+(st.unlimited?0:pct)+'"><span style="width:'+(st.unlimited?0:pct)+'%"></span></div>'+
       '<small>'+marshallTokenFmt(used)+(st.unlimited?' tokens utilisés':' / '+marshallTokenFmt(limit)+' tokens')+(note?' · '+note:'')+'</small></div>';};
-    var days=['L','M','M','J','V','S','D'],wd=st.week_days||[],maxD=Math.max(st.limit||1,1);
+    var days=['L','M','M','J','V','S','D'],wd=st.week_days||[],maxD=Math.max.apply(null,[1].concat(wd.map(function(d){return d.used||0;})));
     var cols=wd.length?'<div class="mtk-week">'+wd.map(function(d,i){var h=d.future?0:Math.max(d.used?6:0,pc(d.used,maxD));return '<div class="mtk-col'+(d.day===st.day?' today':'')+(d.future?' future':'')+'" title="'+esc(d.day)+' : '+marshallTokenFmt(d.used)+' tokens"><i style="height:'+h+'%"></i><span>'+days[i]+'</span></div>';}).join('')+'</div>':'';
     var labels=st.labels||{},by=st.by_kind||{},rows=Object.keys(by).sort(function(a,b){return by[b]-by[a];}).map(function(k){return '<div class="mtk-row"><span>'+esc(labels[k]||k)+'</span><b>'+marshallTokenFmt(by[k])+'</b></div>';}).join('');
-    var ago=Math.max(0,Math.round((Date.now()-marshallTokenState.at)/1000));
+    var ago=Math.max(0,Math.round((Date.now()-marshallTokenState.at)/1000)),pack=(st.topup_packs||{}).recharge_5000||{tokens:5000,cents:990};
+    var topup=st.unlimited?'':'<div class="mtk-topup"><div><b>Recharge</b><small>'+(st.topup_left?marshallTokenFmt(st.topup_left)+' tokens de recharge disponibles · utilisés après ton quota du mois':'Besoin de plus ? Les tokens rechargés s’utilisent après ton quota et n’expirent pas.')+'</small></div>'+
+      '<button type="button" class="set-save" id="mtk-topup-btn">＋ '+marshallTokenFmt(pack.tokens)+' tokens · '+(pack.cents/100).toFixed(2).replace('.',',')+' €</button></div>';
     box.innerHTML='<div class="mtk-live"><i></i>En direct · <span class="mtk-ago">'+(ago<5?'à l’instant':'il y a '+ago+' s')+'</span>'+(st.unlimited?' · <b>Illimité</b> ('+(st.role==='admin'?'administrateur':'commercial')+')':'')+'</div>'+
-      bar('Aujourd’hui',dayPct,st.used,st.limit,st.unlimited?'':'recharge à minuit')+
-      bar('Cette semaine',weekPct,weekUsed,weekLimit,st.unlimited?'':'lundi → dimanche')+cols+
-      (rows?'<div class="mtk-list"><div class="mtk-h">Détail d’aujourd’hui</div>'+rows+'</div>':'');
+      bar('Ce mois-ci',monthPct,st.unlimited?st.used:quotaUsed,st.limit,st.unlimited?'':'formule '+esc((MARSHALL_PLANS[st.plan]||{}).name||'')+' · recharge le '+esc(st.resets_on||'1er du mois'))+
+      topup+
+      '<div class="mtk-h" style="margin-top:10px;">Cette semaine</div>'+cols+
+      (rows?'<div class="mtk-list"><div class="mtk-h">Détail du mois</div>'+rows+'</div>':'');
     marshallTokensLive();
   }
+  document.addEventListener('click',async function(e){var b=e.target.closest('#mtk-topup-btn');if(!b)return;b.disabled=true;var old=b.textContent;b.textContent='Ouverture du paiement…';
+    try{var r=await fetch(MARSHALL_CREWAI_BASE+'/stripe/topup',{method:'POST',headers:await authHeaders(),body:JSON.stringify({pack:'recharge_5000',name:(me&&me.nom)||''})});var d=await r.json().catch(function(){return {};});
+      if(!r.ok||!d.url)throw Error(d.error||('HTTP '+r.status));location.href=d.url;}
+    catch(err){toast('Recharge impossible : '+(err.message||err),true);b.disabled=false;b.textContent=old;}});
   /* Temps réel : tant que la carte est affichée, le solde se met à jour toutes les 15 s (et après chaque action). */
   function marshallTokensLive(){
     if(marshallTokensLive.timer)return;
@@ -7933,7 +7946,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           var body={prompt:prompt,width:d.width,height:d.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE,reference_images:(opts.references||[]).filter(function(u){return typeof u==='string'&&u&&u.length<7000000;}).slice(0,2),quality:pref==='pro'?'pro':''};
           var gr=await fetch(MARSHALL_CREWAI_BASE+'/image/generate',{method:'POST',headers:h,body:JSON.stringify(body)});
           var go=null;try{go=await gr.json();}catch(e){}
-          marshallTokensFromResponse(go);if(gr.status===402)throw Error((go&&go.error)||'Tokens du jour épuisés.');if(gr.status===403&&go&&go.need_plan){marshallPaywallOpen(go.need_plan);throw Error(go.error);}
+          marshallTokensFromResponse(go);if(gr.status===402)throw Error((go&&go.error)||'Tokens du mois épuisés.');if(gr.status===403&&go&&go.need_plan){marshallPaywallOpen(go.need_plan);throw Error(go.error);}
           if(gr.ok&&go&&go.success&&go.image){var gu='data:'+(go.mime||'image/png')+';base64,'+go.image;marshallMarkGeneratedImage(gu);marshallGenerateImageAsset.lastEngine=pref==='pro'?'Nano Banana Pro':'Nano Banana 2';return gu;}
           console.warn('Nano Banana indisponible, secours Qwen',go&&go.error||gr.status);
         }
@@ -13233,6 +13246,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     p.results = res.results || null;
     if(!res.ok && res.notConfigured) p.status='pending_config';
     await persist(p); updateBadges();
+    if(p.results&&p.results.x&&p.results.x.ok===true&&!actingAs){ (async function(){try{var r=await fetch(MARSHALL_CREWAI_BASE+'/tokens/charge',{method:'POST',headers:await authHeaders(),body:JSON.stringify({kind:'x_post'})});var d=await r.json();marshallTokensUpdate(d&&d.tokens?d.tokens:d);}catch(e){}})(); }
     if(res.ok){ toast('Publié sur '+connSel.length+' réseau(x) 🚀'); resetComposer(); }
     else if(res.notConfigured){ toast('Enregistré. La fonction « '+PUBLISH_FN+' » n\u2019est pas encore déployée.'); resetComposer(); }
     else{ toast('Échec de publication. Voir l\u2019historique.'); $('#publish-label').textContent='Publier'; }
