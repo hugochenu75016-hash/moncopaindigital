@@ -1051,6 +1051,21 @@
   .pill.red{ background:rgba(210,60,30,0.16); color:#c0341a; }
   .ed-rmbg-pill{ position:absolute; left:10px; top:10px; z-index:60; display:inline-flex; align-items:center; gap:6px; border:0; border-radius:999px; padding:8px 15px; background:#F3852B; color:#fff; font:700 13px 'Fredoka',sans-serif; white-space:nowrap; cursor:pointer; box-shadow:0 6px 18px rgba(243,133,43,.45); }
   .ed-rmbg-pill:hover{ background:#e0661a; }
+  .ed-vo-bar{ position:absolute; left:10px; top:10px; z-index:60; display:flex; gap:8px; flex-wrap:wrap; max-width:calc(100% - 20px); }
+  .ed-vo-bar .ed-rmbg-pill{ position:static; }
+  .ed-vo-bar .ed-vo-listen{ background:#201e1d; box-shadow:0 6px 18px rgba(0,0,0,.3); }
+  .ed-vo-modal{ position:fixed; inset:0; z-index:9999; background:rgba(20,18,17,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
+  .ed-vo-card{ background:#fff; color:#201e1d; border-radius:18px; padding:20px; width:min(440px,100%); max-height:90vh; overflow:auto; font-family:'Fredoka',sans-serif; box-shadow:0 20px 60px rgba(0,0,0,.35); }
+  .ed-vo-card h3{ margin:0 0 6px; font-size:19px; } .ed-vo-card p{ margin:0 0 12px; font-size:14px; opacity:.8; }
+  .ed-vo-card label{ display:block; font-weight:700; font-size:13px; margin:12px 0 6px; }
+  .ed-vo-card video{ width:100%; max-height:70vh; border-radius:12px; background:#000; display:block; margin-bottom:12px; }
+  .ed-vo-opts{ display:flex; flex-wrap:wrap; gap:6px; }
+  .ed-vo-opts button{ border:1.5px solid #e6ded6; background:#fff; border-radius:999px; padding:6px 12px; font:600 13px 'Fredoka',sans-serif; cursor:pointer; }
+  .ed-vo-opts button.on{ border-color:#F3852B; background:#fff3e8; color:#c75d10; }
+  .ed-vo-card textarea{ width:100%; box-sizing:border-box; border:1.5px solid #e6ded6; border-radius:12px; padding:8px 10px; font:14px 'Fredoka',sans-serif; resize:vertical; }
+  .ed-vo-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
+  .ed-vo-actions button,.ed-vo-card>.ed-vo-close{ border:0; border-radius:999px; padding:9px 16px; font:700 14px 'Fredoka',sans-serif; cursor:pointer; background:#f1ece7; color:#201e1d; }
+  .ed-vo-actions .ed-vo-go{ background:#F3852B; color:#fff; }
   .ed-rmbg-pill.busy{ opacity:.85; cursor:progress; animation:edRmbgPulse 1.2s ease-in-out infinite; }
   @keyframes edRmbgPulse{ 50%{ box-shadow:0 6px 26px rgba(243,133,43,.8); } }
   .mtk-topup{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; padding:10px 12px; border:1px solid #f0dcc0; border-radius:14px; background:#fffaf2; }
@@ -4921,6 +4936,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       pill.textContent=selImg._rmbgBusy?'☁️ Détourage…':(ED_ORIG[selImg.id]?'☁️ Remettre le fond':'☁️ Supprimer le fond');
       stage.appendChild(pill);
     }
+    /* Pilule « 🎙️ Voix off IA » sur la vidéo sélectionnée (+ « 🔊 Écouter » : le canvas lit la vidéo sans le son). */
+    var oldVo=stage&&stage.querySelector('.ed-vo-bar'); if(oldVo) oldVo.remove();
+    var selVid=ed.preview?null:ed.layers.filter(function(o){ return o.id===ed.sel && o.type==='video'; })[0];
+    if(selVid&&stage){
+      var bar=document.createElement('div'); bar.className='ed-vo-bar';
+      var b1=document.createElement('button'); b1.type='button'; b1.className='ed-rmbg-pill'+(selVid._voBusy?' busy':''); b1.setAttribute('data-vo',selVid.id);
+      b1.textContent=selVid._voBusy?('🎙️ '+(selVid._voMsg||'Voix off en cours…')):(ED_ORIG[selVid.id]?'🎙️ Retirer la voix off':'🎙️ Voix off IA');
+      bar.appendChild(b1);
+      if(!selVid._voBusy){ var b2=document.createElement('button'); b2.type='button'; b2.className='ed-rmbg-pill ed-vo-listen'; b2.setAttribute('data-vo-listen',selVid.id); b2.textContent='🔊 Écouter'; bar.appendChild(b2); }
+      stage.appendChild(bar);
+    }
     if(ed.safeZones && ed.fmt==='9:16'){
       var safe=document.createElement('div');safe.className='ed-safezone';safe.innerHTML='<div class="sz-top"></div><div class="sz-bottom"></div><div class="sz-left"></div><div class="sz-right"></div><div class="sz-label">ZONE SÛRE</div>';page.appendChild(safe);
     }
@@ -4967,7 +4993,85 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     finally{ l._rmbgBusy=false; edRender(); }
   }
   document.addEventListener('pointerdown',function(e){ if(e.target.closest&&e.target.closest('.ed-rmbg-pill')){ e.stopPropagation(); } },true);
-  document.addEventListener('click',function(e){ var b=e.target.closest&&e.target.closest('.ed-rmbg-pill'); if(!b) return; e.preventDefault(); e.stopPropagation(); edRemoveBg(b.getAttribute('data-rmbg')); },true);
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.ed-rmbg-pill'); if(!b) return; e.preventDefault(); e.stopPropagation();
+    if(b.hasAttribute('data-rmbg')) edRemoveBg(b.getAttribute('data-rmbg'));
+    else if(b.hasAttribute('data-vo')) edVoiceoverPill(b.getAttribute('data-vo'));
+    else if(b.hasAttribute('data-vo-listen')) edVoiceoverListen(b.getAttribute('data-vo-listen'));
+  },true);
+
+  /* --- Voix off IA : Marshall regarde la vidéo, écrit un texte qui la décrit et l'enregistre (Gemini + ffmpeg sur le serveur) --- */
+  function edVoLayer(id){ return ed.layers.filter(function(o){ return o.id===id && o.type==='video'; })[0]; }
+  function edVoiceoverListen(id){
+    var l=edVoLayer(id); if(!l) return;
+    var m=document.createElement('div'); m.className='ed-vo-modal';
+    m.innerHTML='<div class="ed-vo-card"><video controls autoplay playsinline></video><button type="button" class="ed-vo-close">Fermer</button></div>';
+    m.querySelector('video').src=l.url;
+    m.addEventListener('click',function(e){ if(e.target===m||e.target.closest('.ed-vo-close')){ var v=m.querySelector('video'); try{ v.pause(); }catch(x){} m.remove(); } });
+    document.body.appendChild(m);
+  }
+  function edVoiceoverPill(id){
+    var l=edVoLayer(id); if(!l||l._voBusy) return;
+    if(ED_ORIG[l.id]){ l.url=ED_ORIG[l.id]; delete ED_ORIG[l.id]; edSnap(); edRender(); toast('Voix off retirée ✓'); return; }
+    var m=document.createElement('div'); m.className='ed-vo-modal';
+    m.innerHTML='<div class="ed-vo-card"><h3>🎙️ Voix off IA</h3><p>Marshall regarde ta vidéo, écrit un texte qui la décrit et l’enregistre avec une voix naturelle.</p>'
+      +'<label>Voix</label><div class="ed-vo-opts" data-k="voice"><button type="button" data-v="femme" class="on">👩 Femme</button><button type="button" data-v="femme_douce">👩 Femme douce</button><button type="button" data-v="homme">👨 Homme</button><button type="button" data-v="homme_dynamique">👨 Homme dynamique</button></div>'
+      +'<label>Ton</label><div class="ed-vo-opts" data-k="tone"><button type="button" data-v="dynamique" class="on">⚡ Dynamique</button><button type="button" data-v="chaleureux">☀️ Chaleureux</button><button type="button" data-v="informatif">📘 Informatif</button></div>'
+      +'<label>Consigne (facultatif)</label><textarea rows="2" placeholder="Ex. : mets en avant notre nouveau menu, termine par « Réservez vite »"></textarea>'
+      +'<div class="ed-vo-actions"><button type="button" class="ed-vo-close">Annuler</button><button type="button" class="ed-vo-go">Lancer la voix off</button></div></div>';
+    m.addEventListener('click',function(e){
+      var o=e.target.closest('.ed-vo-opts button'); if(o){ o.parentNode.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===o); }); return; }
+      if(e.target===m||e.target.closest('.ed-vo-close')){ m.remove(); return; }
+      if(e.target.closest('.ed-vo-go')){
+        var pick=function(k){ var b=m.querySelector('[data-k="'+k+'"] .on'); return b?b.getAttribute('data-v'):''; };
+        var opts={voice:pick('voice'),tone:pick('tone'),brief:m.querySelector('textarea').value.trim()};
+        m.remove(); edVoiceover(l.id,opts).then(function(r){ if(r&&r.ok) toast('🎙️ Voix off ajoutée ! Clique sur « 🔊 Écouter » pour l’entendre.'); else if(r&&r.error) toast('Voix off impossible : '+r.error,true); });
+      }
+    });
+    document.body.appendChild(m);
+  }
+  async function edVoiceover(id, opts){
+    var l=edVoLayer(id); if(!l) return {ok:false,error:'sélectionne une vidéo sur le canvas.'};
+    if(l._voBusy) return {ok:false,error:'une voix off est déjà en cours sur cette vidéo.'};
+    if(!/^https:\/\//.test(String(l.url||''))) return {ok:false,error:'la vidéo est encore en cours d’envoi : réessaie dans quelques secondes.'};
+    l._voBusy=true; l._voMsg='Analyse de la vidéo…'; edRender();
+    try{
+      var brand=''; try{ brand=(typeof marshallBrandName==='function'?marshallBrandName():'')||''; }catch(e){}
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover',{method:'POST',headers:await authHeaders(),body:JSON.stringify({video_url:l.url,voice:opts.voice||'femme',tone:opts.tone||'dynamique',brief:opts.brief||'',brand:brand})})
+        .catch(function(){ throw Error('serveur injoignable, réessaie.'); });
+      var d=await r.json().catch(function(){ return {}; });
+      try{ marshallTokensFromResponse(d); }catch(e){}
+      if(!r.ok||!d.task_id) throw Error(d.error||d.detail||('HTTP '+r.status));
+      var t0=Date.now();
+      while(Date.now()-t0<12*60*1000){
+        await new Promise(function(ok){ setTimeout(ok,3000); });
+        var s=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover/'+encodeURIComponent(d.task_id)).then(function(x){ return x.json(); }).catch(function(){ return null; });
+        if(!s) continue;
+        if(s.failed) throw Error(s.message||s.error||'échec du traitement');
+        if(s.message&&s.message!==l._voMsg){ l._voMsg=s.message; if(ed.sel===l.id) edRender(); }
+        if(s.done&&s.video_url){
+          ED_ORIG[l.id]=l.url; l.url=s.video_url;
+          (marshallCanvasPages||[]).forEach(function(p){ (p.layers||[]).forEach(function(x){ if(x.id===l.id) x.url=s.video_url; }); });
+          edSnap();
+          return {ok:true,script:s.script||'',video_url:s.video_url};
+        }
+      }
+      throw Error('le traitement prend trop de temps, réessaie plus tard.');
+    }catch(err){ return {ok:false,error:String(err.message||err)}; }
+    finally{ l._voBusy=false; l._voMsg=''; edRender(); }
+  }
+  /* Appelé par l'agent « Voice Director » depuis le chat Marshall. */
+  async function edVoiceoverFromAgent(prompt){
+    var p=String(prompt||'').toLowerCase();
+    var vids=(ed&&ed.layers||[]).filter(function(o){ return o.type==='video'; });
+    var l=vids.filter(function(o){ return o.id===ed.sel; })[0]||vids[0];
+    if(!l) return {ok:false,error:'🎙️ Ajoute d’abord une vidéo sur ton canvas (bouton « Importer une photo ou une vidéo »), sélectionne-la, puis redemande-moi la voix off.'};
+    var voice=/homme|masculin|male\b|man\b/.test(p)?(/dynamique|pub|énergi/.test(p)?'homme_dynamique':'homme'):(/douce|calme|posée|posee/.test(p)?'femme_douce':'femme');
+    var tone=/informati|documentaire|posée|posee|calme/.test(p)?'informatif':(/chaleur|doux|douce|émotion/.test(p)?'chaleureux':'dynamique');
+    var r=await edVoiceover(l.id,{voice:voice,tone:tone,brief:String(prompt||'').slice(0,400)});
+    if(!r.ok&&r.error&&!/^🎙️/.test(r.error)) r.error='Voix off impossible : '+r.error;
+    return r;
+  }
 
   /* --- calque d'alignement (repères type Canva) --- */
   function edRectOf(l, box){
@@ -5957,6 +6061,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         {label:'Tendances réseaux d’un pays',mission:'nation_brief',prompt:'Tendances réseaux sociaux du moment dans le pays : '},
         {label:'Briefing France',mission:'nation_brief',prompt:'Briefing en temps réel sur la France'}
       ]},
+      voice:{name:'Voice Director',tag:'Voix off vidéo',icon:'🎙️',color:'linear-gradient(135deg,#ff7a45,#f3852b)',desc:'Regarde ta vidéo, écrit un texte qui la décrit et la met en valeur, puis ajoute une voix off naturelle dans ta langue.',logic:['Tu sélectionnes une vidéo sur le canvas','Il la regarde et écrit le texte','Donc → vidéo avec voix off, prête à publier'],actions:[
+        {label:'Voix off féminine',mission:'video_voiceover',prompt:'Ajoute une voix off féminine chaleureuse à ma vidéo.'},
+        {label:'Voix off masculine',mission:'video_voiceover',prompt:'Ajoute une voix off masculine à ma vidéo.'},
+        {label:'Voix off dynamique (pub)',mission:'video_voiceover',prompt:'Ajoute une voix off dynamique façon pub à ma vidéo.'},
+        {label:'Voix off posée (documentaire)',mission:'video_voiceover',prompt:'Ajoute une voix off calme et informative à ma vidéo.'}
+      ]},
       social:{name:'Directeur artistique social',tag:'Design social',icon:'🎨',color:'linear-gradient(135deg,#ff8b6c,#ffb35e)',desc:'Travaille la composition, la hiérarchie visuelle, le rythme de lecture et le branding des posts.',logic:['Si tu veux un post → structure + design','Si le message est dense → hiérarchiser','Donc → post plus lisible et premium'],actions:[
         {label:'Post premium',mission:'canvas',prompt:'Crée un post social premium cohérent avec ma marque, mon offre et ma direction artistique.'},
         {label:'Refonte canvas',mission:'vision',prompt:'Analyse le canvas actuel et propose une meilleure composition social media plus premium.'},
@@ -6198,6 +6308,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       else if(intent==='variants'){await marshallGenerateVariants(prompt);reply=marshallActionReply(intent,true);}
       else if(intent==='story_video'){await marshallRunStoryVideoTool(prompt);reply=marshallActionReply(intent,true);}
       else if(intent==='video_clip'){var _cp=await marshallCreateClip(prompt);reply=marshallClipReply(_cp);}
+      else if(intent==='video_voiceover'){var _vo=await edVoiceoverFromAgent(prompt);reply=_vo&&_vo.ok?'🎙️ Voix off ajoutée à ta vidéo. Clique sur « 🔊 Écouter » en haut à gauche du canvas pour l’entendre.\n\nTexte : « '+_vo.script+' »':(_vo&&_vo.error?_vo.error:'La voix off n’a pas pu être créée.');}
       else if(intent==='nation_brief'){var _nb=await marshallNationBrief(prompt);reply=_nb&&_nb.ok?'🌍 Briefing '+_nb.country+' prêt : les 3 infos clés sont juste au-dessus.':(_nb&&_nb.asked?'Indique le pays à suivre.':'Le briefing n’a pas pu aboutir.');}
       else if(intent==='video_create'){var _vp=await marshallCreateRealVideo(prompt);reply=marshallVideoReply(_vp);}
       else if(intent==='story'){await marshallCreateStory(prompt);reply=marshallActionReply(intent,true);}
@@ -6660,12 +6771,13 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       image:{name:'Image Art Director',role:'directeur artistique image et prompt engineer',focus:'composition, lumière, sujet, rendu premium, cohérence de marque et génération d’image'},
       visual:{name:'Visual QA Expert',role:'expert en audit graphique et UX visuelle',focus:'lisibilité, contraste, hiérarchie, espacements, équilibre et corrections concrètes'},
       testing:{name:'Creative Testing Expert',role:'expert A/B testing créatif et performance social media',focus:'variantes réellement distinctes, angles, hooks, hypothèses créatives et comparabilité'},
+      voice:{name:'Voice Director',role:'réalisateur de voix off vidéo',focus:'regarder la vidéo, écrire un texte oral qui la décrit et la met en valeur, puis l’enregistrer avec une voix naturelle'},
       nation:{name:'Journaliste Pays',role:'reporter IA de veille internationale',focus:'recherche en temps réel sur un pays : actualités, économie, tendances, fiche pays, et sélection des 3 infos les plus importantes avec sources'},
       audit:{name:'Brand Auditor',role:'consultant en stratégie de marque et direction artistique',focus:'audit 360°, diagnostic, opportunités, risques, direction artistique et recommandations prioritaires'}
     };
   }
   function marshallMissionLabel(intent){
-    var m={general:'Conversation libre',story:'Créer une story virale',story_video:'Créer une vidéo depuis la Story',monthly_story:'Planifier un mois de stories',canvas:'Créer un post',image_generate:'Générer une image',campaign:'Créer une campagne',creative:'Créer 3 concepts',variants:'Créer 3 variantes',image_analyze:'Analyser une image',image_compose:'Créer autour d’une image',vision:'Corriger le canvas',business_audit:'Audit 360° entreprise',brand:'Conseil branding',nation_brief:'Briefing pays en temps réel'};
+    var m={general:'Conversation libre',story:'Créer une story virale',story_video:'Créer une vidéo depuis la Story',monthly_story:'Planifier un mois de stories',canvas:'Créer un post',image_generate:'Générer une image',campaign:'Créer une campagne',creative:'Créer 3 concepts',variants:'Créer 3 variantes',image_analyze:'Analyser une image',image_compose:'Créer autour d’une image',vision:'Corriger le canvas',business_audit:'Audit 360° entreprise',brand:'Conseil branding',nation_brief:'Briefing pays en temps réel',video_voiceover:'Voix off sur la vidéo'};
     return m[intent]||'Répondre à la demande';
   }
   function marshallMissionPlaceholder(intent){
@@ -6676,7 +6788,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallSupervisorAgentForIntent(intent){
     var map={
       general:'marshall',story:'story',story_video:'marshall',monthly_story:'team',canvas:'social',image_generate:'image',image_analyze:'visual',image_compose:'social',
-      campaign:'campaign',creative:'social',variants:'testing',vision:'visual',business_audit:'audit',brand:'brand',nation_brief:'nation'
+      campaign:'campaign',creative:'social',variants:'testing',vision:'visual',business_audit:'audit',brand:'brand',nation_brief:'nation',video_voiceover:'voice'
     };
     return map[intent]||'marshall';
   }
@@ -11408,6 +11520,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallIntent(text){
     text=String(text||'').toLowerCase();
     try{if(marshallNationIntent(text))return 'nation_brief';}catch(e){}
+    if(/(voix[- ]?off|voice[- ]?over|narration|commente (la|ma) vid|une voix (sur|à|a) (la|ma) vid|fais parler)/.test(text)) return 'video_voiceover';
     if(/https?:\/\/\S+/.test(text)&&(/(clip|extrait|meilleur|moment|short|reel|réel|tiktok|découpe|decoupe|coupe|montage|sous-titr|secondes|\b\d{1,2}\s?s\b)/.test(text)||/(youtu\.?be|tiktok\.com|instagram\.com\/(reel|p|tv)|vimeo\.com|dailymotion|twitch\.tv|fb\.watch|facebook\.com\/.*video|\.mp4|\.mov|\.webm)/.test(text)))return 'video_clip';
     if(/(?:stor(?:y|ies)|stories).*(?:chaque jour|par jour|quotidien|tout le mois|mois complet|30 jours|31 jours)|(?:chaque jour|par jour|quotidien|tout le mois|mois complet|30 jours|31 jours).*(?:stor(?:y|ies)|stories)/.test(text)) return 'monthly_story';
     if(/(?:transforme|convertis|assemble|monte|exporte).*(?:vidéo|video|motion)|(?:vidéo|video|motion).*(?:story|stories|canva|canvas|3 écrans|3 ecrans|trois écrans|trois ecrans|\bcette\b|\bces\b)|(?:story|stories|canva|canvas).*(?:en|une) (?:vidéo|video)/.test(text)) return 'story_video';
