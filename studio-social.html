@@ -7141,7 +7141,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
   /* ===================== Répétitions : Marshall crée et publie seul (serveur), à intervalle régulier ===================== */
   var MARSHALL_REP_DURS=[[1,'1 h'],[3,'3 h'],[6,'6 h'],[12,'12 h'],[24,'24 h'],[48,'48 h'],[72,'3 jours'],[168,'7 jours']];
-  var MARSHALL_REP_FREQS=[[60,'toutes les heures'],[120,'toutes les 2 h'],[180,'toutes les 3 h'],[240,'toutes les 4 h'],[360,'toutes les 6 h'],[480,'toutes les 8 h'],[720,'toutes les 12 h'],[1440,'1 fois par jour']];
+  var MARSHALL_REP_FREQS=[[15,'toutes les 15 min'],[20,'toutes les 20 min'],[30,'toutes les 30 min'],[45,'toutes les 45 min'],[60,'toutes les heures'],[120,'toutes les 2 h'],[180,'toutes les 3 h'],[240,'toutes les 4 h'],[360,'toutes les 6 h'],[480,'toutes les 8 h'],[720,'toutes les 12 h'],[1440,'1 fois par jour']];
   function marshallRepIntent(text){
     var t=marshallScheduleNormalizeText(text);
     if(/\b(repetition|repetitions|en boucle|pilote automatique|autopilote)\b/.test(t))return true;
@@ -7152,8 +7152,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var m=t.match(/\b(\d{1,3})\s*(h|heures?)\b/);var md=t.match(/\b(\d{1,2})\s*(jours?|j)\b/);
     if(md)o.hours=Math.min(168,Number(md[1])*24);else if(m&&/pendant|durant|sur/.test(t))o.hours=Math.min(168,Number(m[1]));
     if(/\b(une semaine|7 jours)\b/.test(t))o.hours=168;
-    var f=t.match(/toutes?\s+les\s+(\d{1,2})\s*(h|heures?|min(?:utes?)?)\b/);
-    if(f)o.freq=/^min/.test(f[2])?60:Number(f[1])*60;else if(/\b(chaque heure|toutes les heures|par heure)\b/.test(t))o.freq=60;else if(/\b(une fois par jour|chaque jour|par jour)\b/.test(t))o.freq=1440;
+    var f=t.match(/toutes?\s+les\s+(\d{1,2})\s*(h|heures?|mn|min(?:utes?)?)\b/);
+    if(f)o.freq=/^m/.test(f[2])?Number(f[1]):Number(f[1])*60;else if(/\b(demi[- ]?heures?)\b/.test(t))o.freq=30;else if(/\b(quart d.?heures?)\b/.test(t))o.freq=15;else if(/\b(chaque heure|toutes les heures|par heure)\b/.test(t))o.freq=60;else if(/\b(une fois par jour|chaque jour|par jour)\b/.test(t))o.freq=1440;
     o.freq=MARSHALL_REP_FREQS.map(function(x){return x[0];}).reduce(function(a,b){return Math.abs(b-o.freq)<Math.abs(a-o.freq)?b:a;});
     o.hours=MARSHALL_REP_DURS.map(function(x){return x[0];}).reduce(function(a,b){return Math.abs(b-o.hours)<Math.abs(a-o.hours)?b:a;});
     if(/car+ou?s+el|carousel/.test(t))o.format='Carrousel';else if(/\breels?\b|\bvideos?\b/.test(t))o.format='Reel';else if(/\b(post|posts|publication|publications)\b/.test(t)&&!/\bstor(y|ies)\b/.test(t))o.format='Post';
