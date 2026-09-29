@@ -4264,6 +4264,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         ? 'Story / Réel : passez la page en 9:16 (1080×1920), sinon le réseau recadrera'
         : (vertSel ? 'Visuel en 9:16 pour la story' : 'Format de page compatible')]
     ];
+    if(comp.nets.instagram && comp.formats.instagram==='Reel' && comp.media.length && !comp.media.some(function(x){return x.type==='video';})){
+      items.push([true,'Reel : '+(comp.media.length>1?'tes '+comp.media.length+' images deviendront une vidéo':'ton image deviendra une vidéo de 6 s')+' (zoom doux, format 9:16)']);
+    }
     var box=$('#pub-check');
     if(box) box.innerHTML = items.map(function(it){
       return '<div class="ck '+(it[0]?'ok':'no')+'"><i>'+(it[0]?'✓':'!')+'</i>'+esc(it[1])+'</div>';
