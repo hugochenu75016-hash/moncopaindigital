@@ -1158,6 +1158,7 @@ html body .mnat-card{padding:16px 16px 12px!important}
   html body .mnat-foot{margin-top:8px;font:600 10.5px 'Nunito',sans-serif;color:#a29f99}
   html body .mnat-load{display:flex;align-items:center;gap:5px;padding:10px 4px}html body .mnat-load span{width:8px;height:8px;border-radius:50%;background:#1fb6ff;animation:mnatDot 1s infinite ease-in-out}html body .mnat-load span:nth-child(2){animation-delay:.15s}html body .mnat-load span:nth-child(3){animation-delay:.3s}
   html body .mnat-load em{margin-left:8px;font:700 12px 'Nunito',sans-serif;color:#555;font-style:normal}@keyframes mnatDot{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-6px);opacity:1}}
+.dm-link-field{margin-top:12px}.dm-link-field label{display:block;font-weight:800;font-size:13px;margin-bottom:6px}.dm-link-field label span{font-weight:600;color:#8a857c;font-size:12px}.dm-link-field input{width:100%;box-sizing:border-box}
 </style>
 <style id="mcd-appweb">
 @media (max-width: 820px) {
@@ -3251,6 +3252,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
                 <div><label for="tags">Hashtags et mentions</label><input id="tags" placeholder="@compte, #hashtag…"></div>
                 <div><label for="first-comment">Premier commentaire</label><input id="first-comment" placeholder="Bloc de hashtags posté en commentaire…"></div>
               </div>
+              <div class="dm-link-field"><label for="dm-link">Lien envoyé en DM <span>à chaque abonné qui écrit « LIEN » (Instagram et Facebook)</span></label><input id="dm-link" type="url" inputmode="url" placeholder="https://… (choisi par Marshall, modifiable)"></div>
             </section>
 
             <section class="pub-card" id="pub-send">
@@ -6249,7 +6251,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(intent!=='story'&&intent!=='monthly_story')return missing;
     var clean=low.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/precision utilisateur\s*:/g,' ').replace(/\b\d{1,2}\s*[\/.-]\s*\d{1,2}(?:\s*[\/.-]\s*\d{2,4})?\b/g,' ').replace(/\b\d{1,2}\s*(?:h|:)\s*\d{0,2}\b/g,' ').replace(/\b(?:aujourd'hui|demain|apres-demain|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|janvier|fevrier|mars|avril|mai|juin|juillet|aout|septembre|octobre|novembre|decembre)\b/g,' ').replace(/\b(?:j'aimerais|j aimerais|je voudrais|je veux|peux tu|est ce que tu peux|tu peux|merci|svp|stp|creer|cree|faire|fais|fasses|generer|produire|preparer|programmer|planifier|publier|publication|pour chaque jour|chaque jour|par jour|quotidienne?s?|mois prochain|ce mois|du mois|story|stories|instagram|facebook|tiktok|reseaux?|prochain|suivant|mois|jour|que|le|la|les|un|une|des|de|du|a|au|aux|pour|sur|mon|ma|mes|notre|nos|moi|me|tu)\b/g,' ').replace(/\b1\b/g,' ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
     if(clean.length<3)missing.push('subject');
-    var wantsSchedule=/publi|programm|planifi|\b(?:le|pour)\s*\d{1,2}\s*[\/.-]\s*\d{1,2}/i.test(raw);
+    /* Programmation UNIQUEMENT si tu la demandes clairement (« publie-la demain 18h », « programme-la le 30/09 ») :
+       un texte d'actu qui contient « services publics » ou une date n'est pas une demande de publication. */
+    var _sn=raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    var wantsSchedule=/\b(publie|publier|publies|publiez|programme|programmer|programmes|programmez|planifie|planifier|planifies|poste|poster|postes)(-la|-le|-les)?\b|\bmets?[- ](?:la|le|les)?\s*(?:en ligne|dans le calendrier)|\ben ligne (?:le|a|demain)/.test(_sn)
+      &&!/sur cette actualite\s*\(/.test(_sn)&&!(raw.length>220&&!/\b(publie|publier|programme|programmer|planifie|planifier)\b/.test(_sn.slice(0,80)));
     if(wantsSchedule&&intent==='story'){
       var hasDate=/\b\d{1,2}\s*[\/.-]\s*\d{1,2}(?:\s*[\/.-]\s*\d{2,4})?\b|\b(?:aujourd'hui|demain|après-demain|apres-demain)\b/i.test(raw);
       var hasTime=/\b\d{1,2}\s*(?:h|:)\s*\d{0,2}\b|\b(?:matin|midi|soir)\b/i.test(raw);
@@ -7271,7 +7277,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       edAddText({text: goal==='Vente'?'UNE OFFRE QUI\nDONNE ENVIE':'VOTRE MESSAGE\nCOMMENCE ICI',size:48,bold:true}); var h=edLayer(ed.sel); h.x=11; h.y=17; h.w=78; h.color='#201e1d'; h.lh=1.0;
       edAddText({text: platform+' · Création optimisée pour capter l’attention.',size:20,bold:false}); var sub=edLayer(ed.sel); sub.x=11; sub.y=43; sub.w=72; sub.color='#6b5108';
       edAddShape('pill'); var c=edLayer(ed.sel); c.x=11; c.y=68; c.w=35; c.h=10; c.fill='#F3852B'; c.rad=999;
-      edAddText({text:goal==='Vente'?'DÉCOUVRIR →':'EN SAVOIR PLUS →',size:16,bold:true}); var ct=edLayer(ed.sel); ct.x=14; ct.y=71; ct.w=30; ct.color='#ffffff'; ct.upper=true;
+      edAddText({text:goal==='Vente'?'LIEN EN BIO':'ÉCRIS-NOUS EN DM',size:16,bold:true}); var ct=edLayer(ed.sel); ct.x=14; ct.y=71; ct.w=30; ct.color='#ffffff'; ct.upper=true;
     } else {
       if(texts.length){
         var hero=texts.slice().sort(function(a,b){return (b.size||0)-(a.size||0);})[0];
@@ -7280,7 +7286,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         if(p.indexOf('premium')>=0){ hero.color='#201e1d'; hero.ls=Math.max(hero.ls||0,0.5); }
       }
       if(goal==='Vente' && !texts.some(function(t){return /découvrir|acheter|profiter|commander|offre|shop|voir/i.test(t.text||'');})){
-        edAddText({text:'DÉCOUVRIR →',size:18,bold:true}); var cta=edLayer(ed.sel); cta.x=10; cta.y=82; cta.w=36; cta.color='#F3852B';
+        edAddText({text:'LIEN EN BIO',size:18,bold:true}); var cta=edLayer(ed.sel); cta.x=10; cta.y=82; cta.w=36; cta.color='#F3852B';
       }
       ed.layers.forEach(function(l){ if(l.type==='text' && l!==hero && (l.size||0)>34) l.size=Math.round(l.size*.88); });
     }
@@ -8450,7 +8456,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     marshallGeneratedSet=[];
     variants.forEach(function(v,i){
       var sp={
-        brandLabel:marshallBrandGet().name||'',hook:v.hook||'UNE IDÉE FORTE',sub:v.sub||'',cta:v.cta||'DÉCOUVRIR →',
+        brandLabel:marshallBrandGet().name||'',hook:v.hook||'UNE IDÉE FORTE',sub:v.sub||'',cta:marshallCtaSafe(v.cta,{post:true,salt:i}),
         background:/^#[0-9a-f]{6}$/i.test(v.background||'')?v.background:'#FFFFFF',
         cardColor:/^#[0-9a-f]{6}$/i.test(v.cardColor||'')?v.cardColor:'#FFF8EF',
         heroSize:Number(v.heroSize)||48,heroAlign:v.heroAlign==='center'?'center':'left'
@@ -8488,15 +8494,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(p&&Array.isArray(p.posts)&&p.posts.length>=NC)specs=p.posts.slice();
     }catch(e){console.warn('Marshall campaign remote fallback',e);}
     if(!specs)specs=[
-      {name:'01 · Teasing',hook:'QUELQUE CHOSE ARRIVE.',sub:'Une nouveauté pensée pour attirer l’attention.',cta:'BIENTÔT →',art_direction:'Mystère, détail serré, tension visuelle.',visual_prompt:'Editorial teaser image with one intriguing partial subject, dramatic crop, strong negative space, premium social campaign, no text.'},
-      {name:'02 · Annonce',hook:prompt.replace(/^(crée|cree|fais|prépare|prepare)\s*/i,'').slice(0,70)||'C’EST OFFICIEL.',sub:'Présente clairement la nouveauté et son bénéfice principal.',cta:'DÉCOUVRIR →',art_direction:'Révélation claire du sujet principal.',visual_prompt:'Hero reveal image for a social launch campaign, clear central subject, premium lighting, confident composition, no text.'},
-      {name:'03 · Conversion',hook:'POURQUOI ÇA CHANGE TOUT.',sub:'Mets en avant le bénéfice principal sans promesse inventée.',cta:'VOIR LA SUITE →',art_direction:'Preuve visuelle et espace clair pour le CTA.',visual_prompt:'Conversion-focused campaign image showing the value or use context visually, strong focal point, clean premium composition, no text.'}
+      {name:'01 · Teasing',hook:'QUELQUE CHOSE ARRIVE.',sub:'Une nouveauté pensée pour attirer l’attention.',cta:'ACTIVE LES NOTIFS',art_direction:'Mystère, détail serré, tension visuelle.',visual_prompt:'Editorial teaser image with one intriguing partial subject, dramatic crop, strong negative space, premium social campaign, no text.'},
+      {name:'02 · Annonce',hook:prompt.replace(/^(crée|cree|fais|prépare|prepare)\s*/i,'').slice(0,70)||'C’EST OFFICIEL.',sub:'Présente clairement la nouveauté et son bénéfice principal.',cta:'LIEN EN BIO',art_direction:'Révélation claire du sujet principal.',visual_prompt:'Hero reveal image for a social launch campaign, clear central subject, premium lighting, confident composition, no text.'},
+      {name:'03 · Conversion',hook:'POURQUOI ÇA CHANGE TOUT.',sub:'Mets en avant le bénéfice principal sans promesse inventée.',cta:'ÉCRIS-NOUS EN DM',art_direction:'Preuve visuelle et espace clair pour le CTA.',visual_prompt:'Conversion-focused campaign image showing the value or use context visually, strong focal point, clean premium composition, no text.'}
     ];
     var dims=marshallImageDimensions();
     if(specs.length>NC)specs=NC===1?[specs.find(function(x){return /annonce/i.test(x&&x.name||'');})||specs[Math.min(1,specs.length-1)]]:specs.slice(0,NC);
     while(specs.length<NC)specs.push(Object.assign({},specs[specs.length%Math.max(1,specs.length)],{name:String(specs.length+1).padStart(2,'0')+' · '+campRoles[specs.length]}));
     for(var i=0;i<NC;i++){
-      var sp=specs[i]||{}, imageUrl=null;
+      var sp=specs[i]||{}, imageUrl=null;if(sp.cta)sp.cta=marshallCtaSafe(sp.cta,{post:true,salt:i});
       edAIStatus('Campagne · '+(i+1)+'/'+NC+' · génération d’un visuel unique…');
       try{
         var imagePrompt=[
@@ -8864,6 +8870,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var key=hook.toLocaleLowerCase('fr'),copy=[hook,sub,cta,kicker,items.join(' ')].join(' ');
       if(!hook)return marshallStoryPlanReject('Écran '+(i+1)+' : hook manquant.');
       if(!cta){if(!isLast)cta='La suite →';else return marshallStoryPlanReject('Écran '+N+' : CTA manquant.');}
+      if(isLast)cta=marshallCtaSafe(cta,{salt:i});
       if(hooks[key])return marshallStoryPlanReject('Écran '+(i+1)+' : hook dupliqué.',{hook:hook});
       if(hook.length>95){if(lenient)hook=marshallStoryShort(hook,12,80);else return marshallStoryPlanReject('Écran '+(i+1)+' : hook trop long (max 8 mots).',{length:hook.length});}
       if(!lenient&&generic.test(copy))return marshallStoryPlanReject('Écran '+(i+1)+' : formulation générique ou placeholder interdit.',{copy:copy.slice(0,180)});
@@ -9138,6 +9145,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       plan=await marshallRemoteJSONRetry([
         'Tu es le Viral Story Agent de Marshall : directeur de création ET copywriter senior spécialisé dans les Instagram Stories qui convertissent.',
         'Mission : une story COMPLÈTE de '+N+' écrans qui arrête le pouce, garde l’attention jusqu’au bout (chaque écran crée l’envie de voir le suivant) et déclenche une action. Ne promets jamais la viralité.',
+        'CTA FINAL : la story est publiée automatiquement, donc AUCUN lien cliquable n’existe. Interdit : « La suite », « Clique », « Découvrir », « En savoir plus », « Voir le site », « Lien », « Swipe », « Réserve / commande en ligne », flèche →. Autorisé : répondre à la story, mot-clé en DM (« Réponds INFO en DM »), partager, enregistrer, s’abonner, « Lien en bio », passer en boutique, appeler.',
         marshallStoryNews?('SUJET IMPOSÉ — ACTUALITÉ '+String(marshallStoryNews.country).toUpperCase()+' (PRIORITÉ ABSOLUE sur tout le reste) : la story parle UNIQUEMENT de cette actualité réelle, vérifiée par le Journaliste Pays : '+marshallClip(marshallStoryNews.facts,1600)+' RÈGLES : le hook et le sub reprennent précisément cette info (lieu, acteurs, fait, date) ; n’utilise PAS l’offre, les services, l’atelier ou les clients de la marque comme sujet ; la marque ne fait que signer la story comme média ; chiffres autorisés = uniquement ceux des faits ci-dessus ; ton journalistique clair et factuel ; CTA d’actu (« Suis-nous pour l’actu », « Dis-nous ce que tu en penses », « Partage à un ami »). visual_prompt (EN ANGLAIS) = la scène qui illustre PRÉCISÉMENT cette info : le lieu exact, l’objet ou l’action dont parle l’actu (ex. plan Amazonie → vue aérienne de la forêt amazonienne et d’un fleuve ; match → le stade plein ; accord commercial → le port et ses conteneurs ; élection → bureau de vote et urnes). Jamais une image générique du pays, jamais l’entreprise ni ses locaux, aucune personnalité réelle reconnaissable (plans larges, silhouettes de dos, objets symboliques).'):'',
         arcGuide,
         'ANGLE CRÉATIF IMPOSÉ (pour ne jamais refaire la même story) : '+pick.angle+'. Style d’accroche imposé pour l’écran 1 : '+pick.hookStyle+'.'+(pick.formula?' LEVIER PSYCHOLOGIQUE de l’accroche : '+pick.lever+' — '+MARSHALL_HOOK_LEVERS[marshallHookLever(pick.formula)].how+'.':'')+' TON selon la plateforme — '+marshallPlatformTone()+' Graine de variation : '+vseed+'.',
@@ -9382,10 +9390,25 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     return B.Chip(t,{fill:surf.accent,color:surf.onAccent,font:C.kit.body});
   }
   function marshallStorySub(C,surf,o){o=o||{};var t=String(o.text!=null?o.text:C.f.sub||'').trim();if(!t)return null;return C.B.T({text:t,size:o.size||18,font:C.kit.body,bold:!!o.bold,lh:1.32,color:o.color||surf.soft,maxH:o.maxH||15,gap:o.gap});}
+  /* Instagram n'accepte AUCUN sticker lien via l'API : le dernier appel à l'action ne doit jamais demander un clic.
+     On garde les CTA d'action réelle (DM, réponse, partage, enregistrement, lien en bio, boutique, appel). */
+  var MARSHALL_CTA_LINKY=/(^|\s)(la suite|voir la suite|suite)\s*(→|>|$)|clique|cliquez|clic\b|swipe|glisse vers|tape ici|appuie|ici\s*(→|$)|\blien\b(?!\s+en\s+(bio|dm))|\blink\b|site\b|en ligne|découvr|decouvr|en savoir plus|voir (plus|le|la|les|notre|nos)|visite|rends-toi sur|(réserve|reserve|commande|achète|achete|inscris-toi|profite)[a-zé]*\s+(ici|maintenant|sur|en ligne)/i;
+  function marshallCtaSafe(cta,opts){
+    opts=opts||{};var t=String(cta||'').replace(/\s+/g,' ').trim();
+    if(t&&!MARSHALL_CTA_LINKY.test(t))return t.replace(/\s*[→↗👉]+\s*$/,'').trim();
+    var goal=String(marshallSetting('goal','Vente')),news=typeof marshallStoryNews!=='undefined'&&marshallStoryNews;
+    var pool=news?['Partage à un ami','Dis-nous ce que tu en penses','Suis-nous pour l’actu','Réponds à cette story']
+      :/engag/i.test(goal)?['Réponds à cette story','Donne ton avis en DM','Partage à un ami','Enregistre pour plus tard']
+      :/notori/i.test(goal)?['Abonne-toi pour la suite','Partage à un ami','Enregistre cette story','Écris-nous en DM']
+      :['Réponds « INFO » en DM','Écris-nous en DM','Lien en bio','Passe nous voir'];
+    if(opts.post)pool=pool.map(function(x){return x.replace('cette story','ce post');});
+    var seed=String(t||'')+String(opts.salt||'');var h=0;for(var i=0;i<seed.length;i++)h=(h*31+seed.charCodeAt(i))>>>0;
+    return pool[h%pool.length];
+  }
   function marshallStoryCta(C,surf,o){
     o=o||{};var t=String(C.f.cta||'').trim(),B=C.B;
     if(!C.last)return B.T({text:t||'La suite →',size:12.5,font:C.kit.body,bold:true,upper:true,ls:1.7,color:o.soft||surf.soft,gap:o.gap==null?3:o.gap,maxH:5});
-    if(!t)t='En savoir plus';if(!/[→↓↗👉]/.test(t))t+=' →';
+    t=marshallCtaSafe(t,{salt:C.idx});
     return B.Pill(t,{fill:o.fill||surf.accent,color:o.color||marshallStoryInk(o.fill||surf.accent),size:16.5,font:C.kit.body,padX:1.4,padY:1,full:!!o.full,shadow:o.shadow,gap:o.gap==null?3:o.gap});
   }
   function marshallStoryItems(C,surf,o){o=o||{};return C.B.List(C.f.items,{font:C.kit.body,color:o.color||surf.ink,numColor:surf.accent,numFont:C.kit.display,numBold:C.kit.dBold,numItalic:C.kit.dItalic,lineColor:o.line||surf.soft,size:o.size||18});}
@@ -10037,7 +10060,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       '<div class="mnat-foot">Infos trouvées en temps réel par recherche Google. Vérifie toujours une info avant de la publier.</div>';
     $all('[data-nat-story]',box).forEach(function(btn){btn.addEventListener('click',function(){
       var it=top[+btn.getAttribute('data-nat-story')]||{};
-      marshallPendingNewsItem={country:name,item:it,at:Date.now()};
+      marshallPendingNewsItem={country:name,item:it,sources:(res&&res.sources)||[],at:Date.now()};
       var pr='Crée une story sur cette actualité ('+name+') en restant 100 % factuel, sans rien inventer : '+(it.title||'')+'. '+(it.summary||'')+(it.key_figure?' Chiffre clé : '+it.key_figure+'.':'')+(it.post_idea?' Idée de format : '+it.post_idea:'');
       try{marshallChatSubmit(pr,{forceIntent:'story'});}catch(err){console.warn(err);}
     });});
@@ -10325,7 +10348,24 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallStoryNewsFacts(news,n){
     return (news.items||[]).slice(0,Math.max(1,n||1)).map(function(it,i){return (i+1)+'. '+(it.title||'')+(it.date?' ('+it.date+')':'')+' — '+(it.summary||'')+(it.key_figure?' Chiffre clé : '+it.key_figure+'.':'');}).join(' ');
   }
+  /* ===== Lien envoyé en DM : Marshall choisit le lien parmi les infos de la création ===== */
+  function marshallDmLinkGet(){try{var x=JSON.parse(localStorage.getItem('studio_dm_link_v1')||'null');return x&&x.url?x:null;}catch(e){return null;}}
+  function marshallDmLinkSet(x){try{localStorage.setItem('studio_dm_link_v1',JSON.stringify(x));}catch(e){}try{var el=document.getElementById('dm-link');if(el&&x&&x.url){el.value=x.url;el.dispatchEvent(new Event('input'));}}catch(e){}}
+  window.marshallDmLinkGet=marshallDmLinkGet;
+  function marshallStoryPickLink(prompt){
+    var clean=function(u){u=String(u||'').trim().replace(/[)\].,;!?»"']+$/,'');return /^https?:\/\/[^\s]+\.[^\s]+/i.test(u)&&!/vertexaisearch|grounding-api/i.test(u)?u:'';};
+    var m=String(prompt||'').match(/https?:\/\/[^\s<>"']+/i);if(m&&clean(m[0]))return {url:clean(m[0]),title:'Lien de ta demande',src:'demande'};
+    var n=typeof marshallStoryNews!=='undefined'&&marshallStoryNews;
+    if(n){
+      var it=(n.items||[])[0]||{};if(clean(it.source_url))return {url:clean(it.source_url),title:it.title||('Actu '+n.country),src:'actu'};
+      var s=(n.sources||[]).map(function(x){return clean(x&&x.url);}).filter(Boolean)[0];if(s)return {url:s,title:it.title||('Actu '+n.country),src:'actu'};
+      return null;
+    }
+    var b=marshallBrandGet()||{},w=clean(b.website&&(/^https?:/i.test(b.website)?b.website:'https://'+b.website));
+    return w?{url:w,title:b.name||'Site',src:'marque'}:null;
+  }
   async function marshallCreateStory(prompt){
+    var _origPrompt=String(prompt||'');
     if(marshallCreateStory.busy)throw Error('Une story est déjà en préparation.');
     if(!marshallAccountProfileReady()){marshallChatAccountSetupCard(prompt,{});throw Error('dis-moi d’abord si c’est un compte professionnel (SIRET) ou personnel, juste au-dessus');}
     marshallCreateStory.busy=true;
@@ -10340,11 +10380,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(_topic){
       var _N=marshallStoryTargetCount(prompt);
       if(_topic.hasFacts){var _pn=(marshallPendingNewsItem&&Date.now()-marshallPendingNewsItem.at<600000)?marshallPendingNewsItem:null;marshallPendingNewsItem=null;
-        marshallStoryNews={country:_topic.country,items:_pn&&_pn.item?[_pn.item]:[],facts:prompt,orig:prompt,N:_N};}
+        marshallStoryNews={country:_topic.country,items:_pn&&_pn.item?[_pn.item]:[],sources:_pn&&_pn.sources||[],facts:prompt,orig:prompt,N:_N};}
       else{var _news=await marshallStoryFetchNews(_topic);_news.facts=marshallStoryNewsFacts(_news,Math.min(3,_N));_news.orig=prompt;_news.N=_N;marshallStoryNews=_news;
         prompt=prompt+' — FAITS VÉRIFIÉS (Journaliste Pays, '+(_news.asOf||'aujourd’hui')+') : '+_news.facts;}
       edAIStatus('📰 Story d’actualité '+_topic.country+' · rédaction à partir des faits vérifiés…');
     }
+    var _dm=null;try{_dm=marshallStoryPickLink(_origPrompt);}catch(e){}
     var referenceImage=marshallStoryNews?null:(ed.layers||[]).find(function(l){return l.type==='image'&&!l.brandMark;});
     var sourceImages=marshallStoryNews?[]:marshallBrandSourceImages();
     var referenceClone=referenceImage?marshallClone(referenceImage):null, referenceDescription='';
@@ -10388,6 +10429,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(document.fonts&&document.fonts.ready)await Promise.race([document.fonts.ready,new Promise(function(resolve){setTimeout(resolve,3000);})]);
     var current=marshallConversationCurrent(false);
     if(scope!==marshallAccountId()||conversationId!==(current&&current.id)||signature!==JSON.stringify(marshallSerializableClone({fmt:ed.fmt,bg:ed.bg,layers:ed.layers})))throw Error('Le canvas ou la conversation a changé pendant la préparation. Aucune création n’a remplacé ton travail.');
+    if(_dm){plan.dmLink=_dm;var _lf=prepared.length?prepared[prepared.length-1].frame:null;if(_lf)_lf.cta=marshallStoryNews?'Écris LIEN en DM pour la source':'Écris LIEN en DM';marshallDmLinkSet(Object.assign({},_dm,{at:Date.now()}));}
     var before={fmt:ed.fmt,bg:ed.bg,layers:ed.layers,sel:ed.sel,hist:ed.hist.slice(),pages:marshallCanvasPages,page:marshallCanvasPageIndex,set:marshallGeneratedSet,plan:marshallLastStoryPlan};
     try{
       marshallGeneratedSet=[];
@@ -10678,7 +10720,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(descriptorCategory==='branding'){
       hook = type==='story' ? 'UN BRANDING\nPLUS FORT\nPLUS MODERNE' : 'UN BRANDING\nMODERNE\nQUI MARQUE';
       sub = brand.offer || marshallDescriptorSentence(brandLabel, descriptor);
-      cta = 'PARLONS DE TA MARQUE →';
+      cta = 'PARLONS-EN EN DM';
     }else if(serviceLike || descriptorCategory==='digital'){
       hook = goal==='Engagement' ? 'FAIS BRILLER\nTA PRÉSENCE\nDIGITALE' : goal==='Notoriété' ? 'RENFORCE\nTA PRÉSENCE\nEN LIGNE' : 'BOOSTE\nTA PRÉSENCE\nDIGITALE';
       sub = brand.offer ? brand.offer : (marshallDescriptorSentence(brandLabel, descriptor)||((brandLabel||'Cette marque')+' aide à gagner en visibilité grâce à une communication plus claire et plus moderne.'));
@@ -11987,6 +12029,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     });
     if(!out.length){ edExportToMedia(); return; }
     comp.media=out; comp._edMulti=true; renderThumbs();
+    try{ var dml=$('#dm-link'),_d=window.marshallDmLinkGet&&window.marshallDmLinkGet(); if(dml&&_d&&_d.url) dml.value=_d.url; }catch(e){}
     try{edAIStatus('✓ '+out.length+' canvas prêts à publier.'+(skipped.length?' Ignoré : canvas '+skipped.join(', ')+'.':''));}catch(e){}
     if(skipped.length){ try{toast('Canvas '+skipped.join(', ')+' non publié'+(skipped.length>1?'s':'')+'.',true);}catch(e){} }
   }
@@ -12730,6 +12773,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     $all('.seg').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-sched')==='now'); });
     $('#sched-fields').style.display='none'; $('#publish-label').textContent='Publier';
     var fc=$('#first-comment'); if(fc) fc.value='';
+    var dml=$('#dm-link'); if(dml){ var _d=window.marshallDmLinkGet&&window.marshallDmLinkGet(); dml.value=(_d&&_d.url&&Date.now()-Number(_d.at||0)<3*86400000)?_d.url:''; }
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview(); pubRefresh();
   }
 
@@ -12780,6 +12824,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
     }
     var p=collectPost(later?'scheduled':'publishing'); p.nets = later ? nets : connSel; p.media=mediaOut;
+    var _dmv=(($('#dm-link')||{}).value||'').trim(); if(/^https?:\/\/\S+\.\S+/i.test(_dmv)){ p.dmLink=_dmv; p.results=Object.assign({},p.results||{},{dm_link:{url:_dmv,keyword:'LIEN'}}); }
     if(later){p.results=Object.assign({},p.results||{}, {approval:{approved:false,auto_publish:false,approved_at:null},scheduler:{mode:'server',state:'waiting_validation',queued_at:new Date().toISOString()}});}
     upsertLocalList(p);
     if(later){
@@ -12808,7 +12853,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var r=await fetch(SUPABASE_URL+'/functions/v1/'+PUBLISH_FN, {
         method:'POST',
         headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+(tok||SUPABASE_ANON) },
-        body: JSON.stringify({ post_id:p.id, caption:p.caption, tags:p.tags, crop:p.crop, formats:p.formats, networks:p.nets, media:p.media, author:me.nom, on_behalf_of:actingAs||undefined })
+        body: JSON.stringify({ post_id:p.id, caption:p.caption, tags:p.tags, crop:p.crop, formats:p.formats, networks:p.nets, media:p.media, author:me.nom, dm_link:p.dmLink?{url:p.dmLink,keyword:'LIEN'}:undefined, on_behalf_of:actingAs||undefined })
       });
       if(r.status===404){ return { ok:false, notConfigured:true }; }
       var data=null; try{ data=await r.json(); }catch(e){}
