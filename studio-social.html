@@ -1140,6 +1140,13 @@
   .vp-edit .vp-lines label{ display:flex; align-items:center; gap:8px; }
   .vp-edit .vp-lines span{ flex:none; width:40px; font-size:12px; opacity:.6; font-variant-numeric:tabular-nums; }
   .vp-edit .vp-lines input{ flex:1; border:1.5px solid #e6ded6; border-radius:10px; padding:7px 10px; font:14px 'Fredoka',sans-serif; }
+  .mrv-eng{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0 12px; }
+  .mrv-eng button{ border:2px solid #efe3d6; background:#fff; border-radius:14px; padding:9px 11px; text-align:left; cursor:pointer; font-family:inherit; transition:border-color .15s, background .15s, transform .15s; }
+  .mrv-eng button:hover:not(:disabled){ transform:translateY(-1px); border-color:#f7b57a; }
+  .mrv-eng button.on{ border-color:#F3852B; background:#fff4e8; box-shadow:0 2px 0 #f3d2b0; }
+  .mrv-eng button:disabled{ opacity:.5; cursor:not-allowed; }
+  .mrv-eng b{ display:block; font-size:13.5px; color:#2a1a0c; }
+  .mrv-eng small{ display:block; font-size:11.5px; color:#8a7a6c; margin-top:2px; }
   .ed-vid-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.28); pointer-events:none; }
   .ed-vid-loading span{ width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,.35); border-top-color:#F3852B; animation:edVidSpin .8s linear infinite; }
   @keyframes edVidSpin{ to{ transform:rotate(360deg); } }
@@ -9174,7 +9181,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   /* ===== Tokens : 1 € dépensé = 1 500 tokens · 1 500 tokens / jour · admin et commerciaux illimités (contrôlé par le serveur) ===== */
   var marshallTokenState={st:null,at:0,pending:null};
-  var MARSHALL_TOKEN_FALLBACK_PRICES={captions:13,voiceover:39,chat:3,qwen_image:13,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
+  var MARSHALL_TOKEN_FALLBACK_PRICES={wan_second:26,captions:13,voiceover:39,chat:3,qwen_image:13,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
   function marshallTokenPrice(kind,units){var p=(marshallTokenState.st&&marshallTokenState.st.prices)||MARSHALL_TOKEN_FALLBACK_PRICES;return Math.ceil((p[kind]||MARSHALL_TOKEN_FALLBACK_PRICES[kind]||1)*(units||1));}
   function marshallTokenFmt(n){return Number(n||0).toLocaleString('fr-FR');}
   function marshallTokensUpdate(st){if(st&&typeof st==='object'&&st.limit!=null){marshallTokenState.st=st;marshallTokenState.at=Date.now();try{marshallTokensRender();}catch(e){}try{marshallPlanRender();}catch(e){}}}
@@ -11663,8 +11670,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     throw Error('La génération vidéo prend trop de temps. Le rendu peut continuer côté serveur.');
   }
   /* ===== Vraie vidéo IA (5 à 10 s) : durée au curseur → script proposé → validation → images clés → Veo 3.1 → montage ===== */
-  function marshallVideoDur(sec){sec=Math.max(5,Math.min(10,Math.round(+sec||8)));return {sec:sec,veo:sec<=8?4:6,clip:Math.ceil(sec/2),words:sec*2};}
-  function marshallVideoCost(sec,tier){var d=marshallVideoDur(sec);return marshallTokenFmt(marshallTokenPrice(tier==='fast'?'veo_fast_second':'veo_lite_second',2*d.veo)+2*marshallTokenPrice('image'));}
+  function marshallVideoDur(sec){sec=Math.max(5,Math.min(10,Math.round(+sec||8)));return {sec:sec,veo:sec<=8?4:6,wan:sec<=8?4:5,clip:Math.ceil(sec/2),words:sec*2};}
+  function marshallVideoCost(sec,tier,engine){var d=marshallVideoDur(sec);return marshallTokenFmt((engine==='wan'?marshallTokenPrice('wan_second',2*d.wan):marshallTokenPrice(tier==='fast'?'veo_fast_second':'veo_lite_second',2*d.veo))+2*marshallTokenPrice('image'));}
+  function marshallVideoEngineLabel(engine,tier){return engine==='wan'?'Wan 2.2 · éco':'Veo 3.1 '+(tier==='fast'?'Fast':'Lite');}
   function marshallVideoWords(s){return String(s||'').trim().split(/\s+/).filter(Boolean).length;}
   async function marshallVideoScript(prompt,sec,feedback,prev){
     var d=marshallVideoDur(sec),per=Math.max(3,Math.floor(d.words/2));
@@ -11918,18 +11926,23 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     render();th.appendChild(box);th.scrollTop=th.scrollHeight;return box;
   }
   async function marshallCreateRealVideo(prompt){
-    if(marshallPower()!=='hyper'){marshallVideoNeedsHyperCard(prompt);return {asked:true,needHyper:true};}
+    var _pw=marshallPower();
+    if(_pw!=='hyper'&&_pw!=='normal'){marshallVideoNeedsHyperCard(prompt);return {asked:true,needHyper:true};}
     if(!marshallAccountProfileReady()){marshallChatAccountSetupCard(prompt,{});throw Error('dis-moi d’abord si c’est un compte professionnel (SIRET) ou personnel, juste au-dessus');}
     var eng=await marshallEngines();
-    if(!(eng.google&&eng.google.video))throw Error('La vidéo IA a besoin du moteur Google Veo (clé Gemini sur le serveur).');
+    var _veoOk=_pw==='hyper'&&!!(eng.google&&eng.google.video);
     try{var _mb=marshallBrandManualGet()||{};if(marshallBrandThin()&&Date.now()-Number(_mb.autopilotAt||0)>86400000&&(_mb.website||_mb.legalName||_mb.sector||_mb.personalTopic||_mb.autopilotHint))marshallBrandAutopilot('',{silent:true}).catch(function(){});}catch(e){}
-    marshallVideoProposalCard(prompt);
-    edAIStatus('🎬 Choisis la durée de ta vidéo avec le curseur.');
+    marshallVideoProposalCard(prompt,{veoOk:_veoOk,hyper:_pw==='hyper'});
+    edAIStatus('🎬 Choisis l’IA et la durée de ta vidéo.');
     return {asked:true};
   }
-  function marshallVideoProposalCard(prompt){
+  function marshallVideoProposalCard(prompt,opt){
     var th=marshallChatThread();if(!th)return null;
-    var tier=marshallEffectiveRender()==='veo-fast'?'fast':'lite',sec=8,plan=null,busy=false;
+    opt=opt||{};
+    var tier=marshallEffectiveRender()==='veo-fast'?'fast':'lite',sec=8,plan=null,busy=false,veoOk=opt.veoOk!==false;
+    var engine='veo';try{var _le=marshallReadLocal('marshall_video_engine_v1');if(_le==='wan'||_le==='veo')engine=_le;}catch(e){}
+    if(!veoOk)engine='wan';
+    function costLine(s2){return '≈ '+marshallVideoCost(s2,tier,engine)+' tokens · '+marshallVideoEngineLabel(engine,tier)+' · voix off '+marshallVideoDur(s2).words+' mots max';}
     try{var last=+marshallReadLocal('marshall_video_seconds_v1');if(last>=5&&last<=10)sec=last;}catch(e){}
     var box=document.createElement('div');box.className='mv4-msg assistant mrv-card';
     function words(){return plan?plan.shots.reduce(function(n,s){return n+marshallVideoWords(s.voiceover);},0):0;}
@@ -11938,23 +11951,29 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var d=marshallVideoDur(sec),over=plan&&words()>d.words;
       box.innerHTML='<div class="mrv-title">🎬 '+esc(plan&&plan.title||'Ta vidéo')+'</div>'+
         (plan?'<div class="mrv-sub">'+esc(plan.concept||'')+'</div><div class="mrv-ask">Voici mon idée. Tu peux modifier les phrases directement, ajuster la durée, puis valider.</div>':'<div class="mrv-ask">Quelle durée pour ta vidéo ? Règle le curseur, puis j’écris le script adapté.</div>')+
-        '<div class="mrv-slider"><div class="mrv-slider-top"><b>Durée</b><output>'+d.sec+' s</output></div><input type="range" min="5" max="10" step="1" value="'+d.sec+'" aria-label="Durée de la vidéo en secondes"><div class="mrv-scale"><span>5 s</span><span>10 s</span></div><small>≈ '+marshallVideoCost(d.sec,tier)+' tokens · Veo 3.1 '+(tier==='fast'?'Fast':'Lite')+' · voix off '+d.words+' mots max</small></div>'+
+        '<div class="mrv-eng" role="radiogroup" aria-label="IA qui crée la vidéo">'+
+          '<button type="button" role="radio" data-eng="veo" class="'+(engine==='veo'?'on':'')+'" aria-checked="'+(engine==='veo')+'"><b>🎬 Google Veo 3.1</b><small>'+(veoOk?'Qualité ciné · 1 à 3 min':(opt.hyper?'Indisponible pour le moment':'Offre Hyper'))+'</small></button>'+
+          '<button type="button" role="radio" data-eng="wan" class="'+(engine==='wan'?'on':'')+'" aria-checked="'+(engine==='wan')+'"><b>🌱 Wan 2.2</b><small>Éco · open source · 3 à 8 min</small></button>'+
+        '</div>'+
+        '<div class="mrv-slider"><div class="mrv-slider-top"><b>Durée</b><output>'+d.sec+' s</output></div><input type="range" min="5" max="10" step="1" value="'+d.sec+'" aria-label="Durée de la vidéo en secondes"><div class="mrv-scale"><span>5 s</span><span>10 s</span></div><small>'+costLine(d.sec)+'</small></div>'+
         (plan?'<div class="mrv-shots">'+plan.shots.map(function(s,i){return '<div class="mrv-shot" data-i="'+i+'"><div class="mrv-thumb"'+(s.image?' style="background-image:url(&quot;'+s.image+'&quot;)"':'')+'><span>'+(i+1)+'</span></div><div class="mrv-txt"><b>Plan '+(i+1)+' · voix off</b><span class="mrv-vo" contenteditable="'+(busy?'false':'true')+'" spellcheck="true" data-i="'+i+'">'+esc(s.voiceover||'')+'</span></div></div>';}).join('')+'</div>':'')+
         (over?'<div class="mrv-warn">Voix off trop longue pour '+d.sec+' s ('+words()+' mots / '+d.words+').<button type="button" class="mrv-chip" data-act="fit">✂️ Adapter à '+d.sec+' s</button></div>':'')+
         '<div class="mrv-actions">'+(plan?'<button type="button" class="mrv-btn ghost" data-act="redo">🔄 Autre idée</button><button type="button" class="mrv-btn" data-act="go">🎬 Créer la vidéo</button>':'<button type="button" class="mrv-btn" data-act="write">✍️ Écrire le script</button>')+'</div>'+
         '<div class="mrv-state">'+(state||'')+'</div>';
       var range=box.querySelector('input[type=range]'),out=box.querySelector('output');
       range.disabled=busy;
-      range.addEventListener('input',function(){sync();sec=+range.value;out.textContent=sec+' s';var sm=box.querySelector('.mrv-slider small');if(sm)sm.textContent='≈ '+marshallVideoCost(sec,tier)+' tokens · Veo 3.1 '+(tier==='fast'?'Fast':'Lite')+' · voix off '+marshallVideoDur(sec).words+' mots max';});
+      range.addEventListener('input',function(){sync();sec=+range.value;out.textContent=sec+' s';var sm=box.querySelector('.mrv-slider small');if(sm)sm.textContent=costLine(sec);});
       range.addEventListener('change',function(){sync();sec=+range.value;try{marshallWriteLocal('marshall_video_seconds_v1',sec);}catch(e){}render();});
       $all('button',box).forEach(function(b){b.disabled=busy;});
+      if(!veoOk){var _vb=box.querySelector('[data-eng="veo"]');if(_vb)_vb.disabled=true;}
+      $all('[data-eng]',box).forEach(function(b){b.addEventListener('click',function(){if(busy||b.disabled)return;sync();engine=b.getAttribute('data-eng');try{marshallWriteLocal('marshall_video_engine_v1',engine);}catch(e){}render();});});
       var act=function(name,fn){var b=box.querySelector('[data-act="'+name+'"]');if(b)b.addEventListener('click',fn);};
       act('write',function(){write('', 'Marshall écrit le script de '+sec+' s…');});
       act('redo',function(){sync();write('Propose une idée vraiment différente (autre angle, autre situation).','Marshall réécrit le script…');});
       act('fit',function(){sync();write('Garde la même idée mais raccourcis la voix off pour tenir en '+sec+' secondes.','Marshall adapte le texte à '+sec+' s…');});
       act('go',function(){sync();var d2=marshallVideoDur(sec);if(words()>d2.words){render('⚠ Raccourcis la voix off ou clique « Adapter ».');return;}
         busy=true;render('Lancement…');
-        marshallLaunchRealVideo(prompt,plan,d2.sec,tier,box,function(msg){render(msg);}).then(function(ok){busy=!!ok;render(ok?'✓ Vidéo de '+d2.sec+' s prête juste en dessous.':box.querySelector('.mrv-state').textContent);})
+        marshallLaunchRealVideo(prompt,plan,d2.sec,tier,box,function(msg){render(msg);},engine).then(function(ok){busy=!!ok;render(ok?'✓ Vidéo de '+d2.sec+' s prête juste en dessous.':box.querySelector('.mrv-state').textContent);})
           .catch(function(e){busy=false;render('⚠ '+(e&&e.message?e.message:'La vidéo a échoué.'));});});
     }
     async function write(feedback,msg){
@@ -11970,8 +11989,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     render('');th.appendChild(box);th.scrollTop=th.scrollHeight;return box;
   }
   /* Étape 2 (après validation) : images clés → Veo → montage. */
-  async function marshallLaunchRealVideo(prompt,plan,sec,tier,box,say){
-    var _d=marshallVideoDur(sec);await marshallTokensCheck(marshallTokenPrice(tier==='fast'?'veo_fast_second':'veo_lite_second',2*_d.veo)+2*marshallTokenPrice(marshallSetting('imageEngine','auto')==='pro'?'image_pro':'image'));
+  async function marshallLaunchRealVideo(prompt,plan,sec,tier,box,say,engine){
+    engine=engine==='wan'?'wan':'veo';
+    var _d=marshallVideoDur(sec);await marshallTokensCheck((engine==='wan'?marshallTokenPrice('wan_second',2*_d.wan):marshallTokenPrice(tier==='fast'?'veo_fast_second':'veo_lite_second',2*_d.veo))+2*marshallTokenPrice(marshallSetting('imageEngine','auto')==='pro'?'image_pro':'image'));
     var photos=marshallRealPhotos(),dims={width:768,height:1360},shots=plan.shots;
     for(var i=0;i<shots.length;i++){
       say('Image clé '+(i+1)+'/'+shots.length+'…');edAIStatus('🎬 Plan '+(i+1)+'/'+shots.length+' : image clé…');
@@ -11982,14 +12002,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(!url)throw Error('Impossible de générer l’image du plan '+(i+1)+'.');
       shots[i].image=url;
     }
-    say('Google Veo anime les plans (1 à 3 min)…');edAIStatus('🎬 Veo 3.1 '+(tier==='fast'?'Fast':'Lite')+' tourne ta vidéo de '+sec+' s…');
-    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/create',{method:'POST',headers:await authHeaders(),body:JSON.stringify({title:String(plan.title||'').slice(0,120),concept:String(plan.concept||'').slice(0,300),tier:tier,seconds:sec,prompt:String(prompt||'').slice(0,500),shots:shots.map(function(s){return {image:s.image,visual:String(s.visual).slice(0,600),motion:String(s.motion||'').slice(0,300),voiceover:String(s.voiceover||'').slice(0,160)};})})});
+    if(engine==='wan'){say('Wan 2.2 anime les plans (3 à 8 min)…');edAIStatus('🌱 Wan 2.2 tourne ta vidéo de '+sec+' s…');}
+    else{say('Google Veo anime les plans (1 à 3 min)…');edAIStatus('🎬 Veo 3.1 '+(tier==='fast'?'Fast':'Lite')+' tourne ta vidéo de '+sec+' s…');}
+    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/create',{method:'POST',headers:await authHeaders(),body:JSON.stringify({title:String(plan.title||'').slice(0,120),concept:String(plan.concept||'').slice(0,300),tier:tier,engine:engine,seconds:sec,prompt:String(prompt||'').slice(0,500),shots:shots.map(function(s){return {image:s.image,visual:String(s.visual).slice(0,600),motion:String(s.motion||'').slice(0,300),voiceover:String(s.voiceover||'').slice(0,160)};})})});
     var data=null;try{data=await r.json();}catch(e){}
     marshallTokensFromResponse(data);
     if(r.status===403&&data&&data.need_plan)marshallPaywallOpen(data.need_plan);
     if(!r.ok||!data||data.ok!==true)throw Error((data&&data.error)||('Vidéo HTTP '+r.status));
     say('Montage : voix off et sous-titres…');
-    await marshallPollStoryVideo(data.task_id,data.engine||'Veo 3.1');
+    await marshallPollStoryVideo(data.task_id,data.engine||(engine==='wan'?'Wan 2.2':'Veo 3.1'));
     return true;
   }
   function marshallVideoAI(mode){return mode==='video'||mode==='veo-lite'||mode==='veo-fast';}
