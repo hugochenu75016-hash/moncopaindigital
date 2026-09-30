@@ -1228,6 +1228,29 @@
   .sp-segs{ margin:5px 0 0; padding-left:18px; max-height:9em; overflow:auto; font-size:11px; font-style:italic; color:#5b4a3a; line-height:1.35; }
   .sp-segs li{ margin-bottom:4px; }
   .sp-res{ margin-top:6px; } .sp-res small{ display:block; font-size:11.5px; font-style:italic; color:#6b5a4a; margin-top:4px; }
+  .clp-url{ width:100%; box-sizing:border-box; border:2px solid #efe3d6; border-radius:14px; padding:11px 12px; font:14px 'Fredoka',sans-serif; background:#fffdfb; }
+  .clp-url:focus{ outline:none; border-color:#10b981; box-shadow:0 0 0 4px rgba(16,185,129,.12); }
+  .clp-root .sai-drop{ min-height:110px; } .clp-root .sai-drop.has-file{ border-style:solid; border-color:#10b981; background:#ecfdf5; }
+  .clp-rights{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:#5b4a3a; cursor:pointer; margin-top:2px; }
+  .clp-rights input{ width:16px; height:16px; accent-color:#10b981; }
+  .clp-prog{ display:flex; flex-direction:column; gap:6px; }
+  .clp-bar{ height:8px; border-radius:999px; background:#eef5f2; overflow:hidden; } .clp-bar span{ display:block; height:100%; background:linear-gradient(90deg,#10b981,#0ea5e9); border-radius:999px; transition:width .6s; }
+  .clp-prog small{ display:flex; align-items:center; gap:8px; font-size:12px; color:#5b4a3a; }
+  .clp-prog .vp-spin{ width:14px; height:14px; border-radius:50%; border:3px solid #cdeee3; border-top-color:#10b981; animation:edVidSpin .8s linear infinite; }
+  .clp-err{ padding:10px 12px; border-radius:12px; background:#fdecec; color:#b0464b; font-size:12.5px; }
+  .clp-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .clp-card{ border-radius:16px; overflow:hidden; background:#fff; border:1px solid #efe3d6; box-shadow:0 4px 14px rgba(0,0,0,.05); }
+  .clp-vid{ position:relative; aspect-ratio:9/16; background:#000; }
+  .clp-vid video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .clp-score{ position:absolute; top:7px; left:7px; font:800 12px 'Fredoka',sans-serif; padding:3px 8px; border-radius:999px; color:#fff; backdrop-filter:blur(6px); }
+  .clp-score.hot{ background:rgba(16,185,129,.9); } .clp-score.warm{ background:rgba(243,133,43,.9); } .clp-score.cool{ background:rgba(90,90,100,.8); }
+  .clp-dur{ position:absolute; top:7px; right:7px; font:700 11px 'Fredoka',sans-serif; padding:3px 7px; border-radius:999px; background:rgba(0,0,0,.55); color:#fff; }
+  .clp-play{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:46px; height:46px; border-radius:50%; border:0; background:rgba(255,255,255,.85); backdrop-filter:blur(8px); font-size:16px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+  .clp-meta{ padding:8px 9px 9px; } .clp-meta b{ display:block; font-size:12.5px; line-height:1.25; color:#2a1a0c; }
+  .clp-tags{ display:block; margin-top:3px; font-size:10.5px; color:#0e7490; line-height:1.3; }
+  .clp-acts{ display:flex; gap:5px; margin-top:7px; }
+  .clp-acts button,.clp-acts a{ border:0; border-radius:10px; background:#f1f7f4; color:#065f46; font:700 11.5px 'Fredoka',sans-serif; padding:6px 8px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; }
+  .clp-acts button:first-child{ flex:1; justify-content:center; background:#10b981; color:#fff; }
   .sai-eta{ font-size:11.5px; color:#8a7a6c; margin:-4px 0 0 4px; }
   .sai-secs button.on{ border-color:#F3852B; background:#fff4e8; color:#b8601a; }
   .sai-go1{ display:flex; align-items:center; justify-content:space-between; gap:10px; border:0; border-radius:16px; padding:13px 16px; background:linear-gradient(180deg,#ff9a3d,#F3852B); color:#fff; cursor:pointer; box-shadow:0 4px 0 #d0671a, 0 10px 20px rgba(243,133,43,.25); font-family:inherit; transition:transform .15s; }
@@ -7134,6 +7157,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       testing:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-5 9a2.5 2.5 0 0 0 2.2 3.7h9.6A2.5 2.5 0 0 0 19 17l-5-9V3"/><path d="M8 15h8M9.5 11h5"/></svg>',
       audit:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="11" height="15" rx="2"/><path d="M8 7h5M8 10h5M8 13h3"/><circle cx="16.5" cy="16.5" r="3.5"/><path d="m19 19 2 2"/></svg>',
       nation:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5s1.2-6.1 3.6-8.5Z"/></svg>',
+      clipper:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></svg>',
       studio:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M3 8l3.5-4.5M9 8l3.5-4.5M15 8l3.5-4.5"/><path d="M10 12.2v4.6l4-2.3-4-2.3Z"/></svg>',
       team:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2.5 20c.5-4 2.5-6 5.5-6s5 2 5.5 6"/><path d="M10.5 20c.5-3.2 2.3-5 5.5-5 3 0 4.8 1.8 5.5 5"/></svg>'
     };
@@ -7148,6 +7172,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         {label:'Expliquer Social Studio',mission:'auto',prompt:'Explique-moi simplement comment utiliser Social Studio pour en utilisant les informations disponibles sur ma marque.'},
         {label:'Valider une réponse finale',mission:'auto',prompt:'Contrôle, améliore et valide cette réponse avant envoi en utilisant les informations disponibles sur ma marque.'}
       ]},
+      clipper:{name:'Clippeur',tag:'Clips viraux',icon:'✂️',color:'linear-gradient(135deg,#10b981,#0ea5e9)',desc:'Colle le lien d’une vidéo longue (ou importe-la) : Marshall trouve les meilleurs moments, les recadre en 9:16 sur la personne qui parle, ajoute les sous-titres et note chaque clip.',logic:['Tu donnes ta vidéo longue','Marshall écoute, choisit et recadre','Donc → clips 9:16 classés par score viral'],actions:[]},
       studio:{name:'Studio IA',tag:'Image & vidéo IA',icon:'🎬',color:'linear-gradient(135deg,#8b5cf6,#ec4899)',desc:'Crée une vidéo à partir d’une image, une image à partir d’un texte, ou une vidéo à partir d’un texte. Tu choisis le moteur (Wan 2.2 ou Google Veo) et la qualité.',logic:['Tu choisis le moteur et la qualité','Tu décris ce que tu veux (et l’image de départ)','Donc → image ou vidéo posée sur un nouveau canva'],actions:[]},
       nation:{name:'Journaliste Pays',tag:'Infos en temps réel',icon:'🌍',color:'linear-gradient(135deg,#1fb6ff,#0b6fd6)',desc:'Cherche en temps réel toutes les infos sur un pays (actualités, économie, tendances réseaux, fiche pays) et te garde les 3 plus importantes, avec les sources.',logic:['Tu donnes un pays','Il cherche sur le web en direct','Donc → 3 infos clés + fiche pays + sources'],actions:[
         {label:'Briefing d’un pays',mission:'nation_brief',prompt:'Briefing en temps réel sur le pays : '},
@@ -7441,7 +7466,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallAgentRightRailInit(){
     var rail=document.getElementById('ed-agent-rail'); if(!rail)return;
-    var data=marshallAgentShowcaseData(),order=['marshall','studio','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
+    var data=marshallAgentShowcaseData(),order=['marshall','studio','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     rail.innerHTML='<div class="ed-agent-rail-title">Agents IA</div>'+order.map(function(key){var a=data[key];return '<button type="button" class="ed-agent-tool" data-agent-rail="'+key+'" title="'+esc(a.name)+'"><span class="ed-agent-tool-icon" style="background:'+a.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="ed-agent-tool-copy"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></span></button>';}).join('');
     $all('[data-agent-rail]',rail).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-agent-rail')||'marshall';var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected=key;marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();});});
     marshallAgentRightRailSync();
@@ -7718,10 +7743,121 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }catch(e){ try{ marshallAgentDockChatAdd('error','Création impossible : '+(e&&e.message?e.message:e),false); }catch(x){} toast('Création impossible : '+(e&&e.message?e.message:e),true); }
     finally{ S.busy=false; S.pipe=null; marshallStudioStatus(''); marshallAgentDockSetBusy(false); var d2=document.getElementById('marshall-agent-dock-detail'); if(d2&&window.marshallAgentDockSelected==='studio') marshallStudioRefresh(d2,false); }
   }
+  /* ===== Agent « Clippeur » (façon Klap) : lien ou fichier → jusqu'à 10 clips 9:16 notés (score viral), recadrés sur le visage ===== */
+  var MARSHALL_CLIPPER={src:'link',url:'',file:null,length:'auto',count:'0',reframe:'face',captions:'on',rights:false,busy:false,task:null,progress:0,msg:'',clips:null,error:''};
+  try{ var _cl=JSON.parse(marshallReadLocal('marshall_clipper_v1')||'{}'); ['src','length','count','reframe','captions'].forEach(function(k){ if(_cl[k]!=null) MARSHALL_CLIPPER[k]=_cl[k]; }); }catch(e){}
+  function marshallClipperSave(){ var C=MARSHALL_CLIPPER; try{ marshallWriteLocal('marshall_clipper_v1',JSON.stringify({src:C.src,length:C.length,count:C.count,reframe:C.reframe,captions:C.captions})); }catch(e){} }
+  function marshallClipperCost(){ var n=+MARSHALL_CLIPPER.count||5; return marshallTokenFmt(marshallTokenPrice('clip',n)); }
+  function marshallClipperScoreCls(s){ return s>=80?'hot':(s>=60?'warm':'cool'); }
+  function marshallClipperResultsHTML(){
+    var C=MARSHALL_CLIPPER;
+    if(C.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(4,Math.min(100,C.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(C.msg||'Préparation…')+'</small></div>';
+    if(C.error) return '<div class="clp-err">⚠ '+esc(C.error)+'</div>';
+    if(!C.clips||!C.clips.length) return '';
+    return '<div class="clp-grid">'+C.clips.map(function(c,i){
+      var url=MARSHALL_CREWAI_BASE+c.video_url, sc=+c.score||0;
+      return '<div class="clp-card"><div class="clp-vid"><video src="'+esc(url)+'#t=1" muted playsinline preload="metadata"></video><span class="clp-score '+marshallClipperScoreCls(sc)+'">🔥 '+sc+'</span><span class="clp-dur">'+esc(String(c.clip_seconds||''))+' s</span><button type="button" class="clp-play" data-clp="play" data-i="'+i+'" aria-label="Lire">▶</button></div>'
+        +'<div class="clp-meta"><b>'+esc(c.title||c.hook||('Clip '+(i+1)))+'</b>'+(c.hashtags&&c.hashtags.length?'<small class="clp-tags">'+esc(c.hashtags.join(' '))+'</small>':'')
+        +'<div class="clp-acts"><button type="button" data-clp="canvas" data-i="'+i+'">🎬 Sur un canva</button><a href="'+esc(url)+'" download="clip-'+(i+1)+'.mp4" target="_blank" rel="noopener">⬇</a><button type="button" data-clp="copy" data-i="'+i+'" title="Copier titre, description et hashtags">📋</button></div></div></div>';
+    }).join('')+'</div>';
+  }
+  function marshallClipperPanelHTML(prof){
+    var C=MARSHALL_CLIPPER;
+    var src=C.src==='file'
+      ?'<div class="sai-drop'+(C.file?' has-file':'')+'" data-clp="pick" tabindex="0" role="button">'+(C.file?'<div class="sai-drop-empty"><span class="sai-drop-ico">🎬</span><b>'+esc(C.file.name)+'</b><span>'+Math.round(C.file.size/1048576)+' Mo · clique pour changer</span></div>':'<div class="sai-drop-empty"><span class="sai-drop-ico">🎬</span><b>Glisse ta vidéo ici</b><span>ou clique pour l’importer (MP4, MOV… 90 min max)</span></div>')+'<input type="file" accept="video/*" data-clp-file hidden></div>'
+      :'<input type="url" class="clp-url" placeholder="Colle le lien de ta vidéo (TikTok, Instagram, Vimeo, lien MP4…)" value="'+esc(C.url||'')+'">';
+    return '<div class="sai-root clp-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('clipper')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'
+      +'<div class="sai-lbl">Ta vidéo longue</div>'+marshallLgToggle('src',[{v:'link',label:'🔗 Lien'},{v:'file',label:'📁 Fichier'}],C.src)+src
+      +'<div class="sai-lbl">Durée des clips</div>'+marshallLgToggle('length',[{v:'auto',label:'Auto'},{v:'short',label:'< 30 s'},{v:'medium',label:'30–60 s'},{v:'long',label:'60–90 s'}],C.length)
+      +'<div class="sai-lbl">Nombre de clips</div>'+marshallLgToggle('count',[{v:'0',label:'Auto'},{v:'3',label:'3'},{v:'5',label:'5'},{v:'10',label:'10'}],C.count)
+      +'<div class="sai-lbl">Cadrage 9:16</div>'+marshallLgToggle('reframe',[{v:'face',label:'🎯 Visage auto',sub:'Suit la personne'},{v:'blur',label:'🖼️ Plein cadre',sub:'Fond flouté'}],C.reframe)
+      +'<div class="sai-lbl">Sous-titres animés</div>'+marshallLgToggle('captions',[{v:'on',label:'Oui'},{v:'off',label:'Non'}],C.captions)
+      +'<label class="clp-rights"><input type="checkbox" data-clp-rights'+(C.rights?' checked':'')+'> J’ai les droits sur cette vidéo</label>'
+      +'<button type="button" class="sai-go1" data-clp="go"'+(C.busy?' disabled':'')+'><span>✂️ Créer les clips</span><small>≈ '+marshallClipperCost()+' tokens</small></button>'
+      +'<div class="clp-results">'+marshallClipperResultsHTML()+'</div></div>';
+  }
+  function marshallClipperRender(detail,prof){
+    detail.innerHTML=marshallClipperPanelHTML(prof);
+    if(!detail._clpBound){ detail._clpBound=true; marshallClipperBind(detail); }
+  }
+  function marshallClipperRefreshResults(){
+    var box=document.querySelector('#marshall-agent-dock-detail .clp-results'); if(box) box.innerHTML=marshallClipperResultsHTML();
+    var go=document.querySelector('#marshall-agent-dock-detail .clp-root .sai-go1'); if(go) go.disabled=!!MARSHALL_CLIPPER.busy;
+  }
+  function marshallClipperBind(detail){
+    var prof=function(){ return marshallAgentShowcaseData().clipper; };
+    detail.addEventListener('click',function(e){
+      var root=e.target.closest('.clp-root'); if(!root) return;
+      var C=MARSHALL_CLIPPER, tb=e.target.closest('.lgt button');
+      if(tb){ var tg=tb.parentNode, k=tg.getAttribute('data-k'), v=tb.getAttribute('data-v'); if(C[k]===v) return; C[k]=v; marshallClipperSave(); marshallStudioSlide(tg,v);
+        setTimeout(function(){ if(k==='src'){ marshallClipperRender(detail,prof()); } else { var go=root.querySelector('.sai-go1 small'); if(go) go.textContent='≈ '+marshallClipperCost()+' tokens'; } },k==='src'?140:10); return; }
+      var a=e.target.closest('[data-clp]'); if(!a) return;
+      var act=a.getAttribute('data-clp'), i=+a.getAttribute('data-i');
+      if(act==='pick'){ var f=root.querySelector('[data-clp-file]'); if(f) f.click(); return; }
+      if(act==='go'){ marshallClipperRun(); return; }
+      var c=C.clips&&C.clips[i]; if(!c) return;
+      var url=MARSHALL_CREWAI_BASE+c.video_url;
+      if(act==='play'){ var m=document.createElement('div'); m.className='ed-vo-modal'; m.innerHTML='<div class="ed-vo-card"><video src="'+esc(url)+'" controls autoplay playsinline></video><button type="button" class="ed-vo-close">Fermer</button></div>'; m.addEventListener('click',function(ev){ if(ev.target===m||ev.target.closest('.ed-vo-close')){ try{ m.querySelector('video').pause(); }catch(x){} m.remove(); } }); document.body.appendChild(m); return; }
+      if(act==='canvas'){ try{ marshallFreshReset(); }catch(x){} marshallVideoToCanvas(url,'Clippeur · '+(c.title||('clip '+(i+1))),{}); toast('🎬 Clip posé sur un nouveau canva.'); return; }
+      if(act==='copy'){ var txt=[(c.title||''),(c.description||''),(c.hashtags||[]).join(' ')].filter(Boolean).join('\n\n'); try{ navigator.clipboard.writeText(txt); a.textContent='✓'; setTimeout(function(){ a.textContent='📋'; },1200); }catch(x){} return; }
+    });
+    detail.addEventListener('input',function(e){ if(e.target.classList&&e.target.classList.contains('clp-url')) MARSHALL_CLIPPER.url=e.target.value.trim(); });
+    detail.addEventListener('change',function(e){
+      if(e.target.hasAttribute&&e.target.hasAttribute('data-clp-rights')){ MARSHALL_CLIPPER.rights=!!e.target.checked; return; }
+      if(e.target.hasAttribute&&e.target.hasAttribute('data-clp-file')){ var f=e.target.files&&e.target.files[0]; if(f){ MARSHALL_CLIPPER.file=f; marshallClipperRender(detail,prof()); } }
+    });
+    detail.addEventListener('dragover',function(e){ var z=e.target.closest&&e.target.closest('.clp-root .sai-drop'); if(!z) return; e.preventDefault(); z.classList.add('over'); });
+    detail.addEventListener('dragleave',function(e){ var z=e.target.closest&&e.target.closest('.clp-root .sai-drop'); if(z) z.classList.remove('over'); });
+    detail.addEventListener('drop',function(e){ var z=e.target.closest&&e.target.closest('.clp-root .sai-drop'); if(!z) return; e.preventDefault(); var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f&&/^video\//.test(f.type||'')){ MARSHALL_CLIPPER.file=f; marshallClipperRender(detail,prof()); } else toast('Choisis un fichier vidéo.',true); });
+  }
+  async function marshallClipperRun(){
+    var C=MARSHALL_CLIPPER; if(C.busy) return;
+    if(!authUser){ toast('Connecte-toi pour créer des clips.',true); return; }
+    if(C.src==='link'&&!/^https?:\/\/\S{4,}/.test(C.url||'')){ toast('Colle le lien de ta vidéo.',true); return; }
+    if(C.src==='file'&&!C.file){ toast('Importe ta vidéo.',true); return; }
+    if(!C.rights){ toast('Coche « J’ai les droits sur cette vidéo ».',true); return; }
+    C.busy=true; C.error=''; C.clips=null; C.progress=2; C.msg='Préparation…'; marshallClipperRefreshResults();
+    try{ marshallAgentDockChatAdd('user','✂️ Clippeur · '+(C.src==='file'?C.file.name:C.url),false); }catch(e){}
+    try{
+      var hd=await authHeaders(), sourceId=null;
+      if(C.src==='file'){
+        if(C.file.size>900*1024*1024) throw Error('vidéo trop lourde (900 Mo maximum)');
+        sourceId=await new Promise(function(resolve,reject){
+          var x=new XMLHttpRequest(); x.open('POST',MARSHALL_CREWAI_BASE+'/video/clip/upload');
+          Object.keys(hd).forEach(function(k){ if(k.toLowerCase()!=='content-type') x.setRequestHeader(k,hd[k]); });
+          x.setRequestHeader('Content-Type',C.file.type||'application/octet-stream');
+          x.upload.onprogress=function(ev){ if(ev.lengthComputable){ var pc=Math.round(ev.loaded/ev.total*100); C.progress=Math.max(2,Math.round(pc*0.15)); C.msg='Envoi de ta vidéo… '+pc+' %'; marshallClipperRefreshResults(); } };
+          x.onload=function(){ var d={}; try{ d=JSON.parse(x.responseText||'{}'); }catch(e){} if(x.status>=200&&x.status<300&&d.ok&&d.source_id) resolve(d.source_id); else { if(d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} } reject(Error(d.error||('Envoi impossible (HTTP '+x.status+')'))); } };
+          x.onerror=function(){ reject(Error('Envoi de la vidéo interrompu.')); };
+          x.send(C.file);
+        });
+      }
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/clip',{method:'POST',headers:hd,body:JSON.stringify({url:sourceId?'':C.url,source_id:sourceId||undefined,filename:C.file?C.file.name:undefined,clipper:true,count:+C.count||0,length:C.length,reframe:C.reframe,captions:C.captions!=='off',rights:true})});
+      var d=await r.json().catch(function(){ return {}; });
+      try{ marshallTokensFromResponse(d); }catch(e){}
+      if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
+      if(!r.ok||!d.ok) throw Error(d.code==='YOUTUBE_IMPORT'?'YouTube bloque les téléchargements depuis les serveurs : télécharge la vidéo puis importe-la avec « 📁 Fichier ».':(d.error||('Serveur HTTP '+r.status)));
+      C.task=d.task_id; try{ marshallTokensRefresh(true); }catch(e){}
+      var started=Date.now();
+      while(Date.now()-started<40*60000){
+        await new Promise(function(res){ setTimeout(res,4000); });
+        var s=await fetch(MARSHALL_CREWAI_BASE+'/video/clip/'+C.task).then(function(x){ return x.json(); }).catch(function(){ return null; });
+        if(!s) continue;
+        C.progress=+s.progress||C.progress; C.msg=s.message||C.msg;
+        if(s.failed) throw Error(/YOUTUBE_BLOCKED/.test(s.error||'')?'YouTube a bloqué le téléchargement : importe la vidéo avec « 📁 Fichier ».':(s.error||'les clips ont échoué'));
+        if(s.done&&s.clips){ C.clips=s.clips; break; }
+        marshallClipperRefreshResults();
+      }
+      if(!C.clips) throw Error('le traitement prend trop de temps, réessaie plus tard.');
+      try{ marshallAgentDockChatAdd('assistant','✂️ '+C.clips.length+' clip'+(C.clips.length>1?'s':'')+' prêt'+(C.clips.length>1?'s':'')+', classés par score viral (meilleur : '+(C.clips[0].score||0)+'/100).',true); }catch(e){}
+      toast('✂️ Clips prêts !');
+    }catch(e){ C.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Clippeur : '+C.error,false); }catch(x){} }
+    finally{ C.busy=false; marshallClipperRefreshResults(); }
+  }
   function marshallAgentDockRender(forceKey){
     var dock=marshallAgentDockEnsure(); if(!dock) return;
     var grid=dock.querySelector('#marshall-agent-dock-grid'),detail=dock.querySelector('#marshall-agent-dock-detail'); if(!detail) return;
-    var data=marshallAgentShowcaseData(),order=['marshall','studio','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
+    var data=marshallAgentShowcaseData(),order=['marshall','studio','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     var selected=(forceKey&&data[forceKey])?forceKey:(window.marshallAgentDockSelected||'marshall');
     if(!data[selected]||selected==='auto') selected='marshall';
     window.marshallAgentDockSelected=selected;
@@ -7730,6 +7866,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       $all('[data-madock-agent]',grid).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-madock-agent')||'marshall'; window.marshallAgentDockSelected=key; marshallAgentDockRender(key); });});
     }
     var prof=data[selected];
+    if(selected==='clipper'){ marshallClipperRender(detail,prof); var ct1=dock.querySelector('#marshall-agent-dock-chat-title');if(ct1)ct1.textContent=prof.name; marshallAgentRightRailSync(); return; }
     if(selected==='studio'){ marshallStudioAgentRender(detail,prof); var ct0=dock.querySelector('#marshall-agent-dock-chat-title');if(ct0)ct0.textContent=prof.name; marshallAgentRightRailSync(); return; }
     detail.innerHTML='\
       <div class="madock-detail-head">\
