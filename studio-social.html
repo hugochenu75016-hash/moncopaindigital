@@ -7465,8 +7465,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallStudioIsAdmin(){ var st=marshallTokenState&&marshallTokenState.st; return !!(st&&st.role==='admin'); }
   function marshallStudioNanoOk(){ return marshallStudioIsAdmin()||marshallPower()==='hyper'; }
   function marshallStudioSeconds(){ var S=MARSHALL_STUDIO, list=S.vEngine==='veo'?[4,6,8]:[3,5,10,15,20]; if(list.indexOf(+S.seconds)<0) S.seconds=S.vEngine==='veo'?6:5; return list; }
-  /* Temps de génération estimé (mesuré sur le GPU) : Wan Éco ≈ 18 s par seconde de vidéo, HD ≈ 58 s ; + démarrage du GPU. */
-  function marshallStudioEta(){ var S=MARSHALL_STUDIO, sec=+S.seconds||5; if(S.vEngine==='veo') return '1 à 3 min'; var m=Math.ceil(((S.vQuality==='hd'?70:22)*sec+(S.vQuality==='hd'?120:60))/60); return m<=2?'1 à 2 min':('environ '+m+' min'); }
+  /* Temps de génération estimé (mesuré sur GPU H100) : Wan Éco ≈ 8 s par seconde de vidéo, HD ≈ 25 s ; + démarrage du GPU. */
+  function marshallStudioEta(){ var S=MARSHALL_STUDIO, sec=+S.seconds||5; if(S.vEngine==='veo') return '1 à 3 min'; var m=Math.ceil(((S.vQuality==='hd'?25:8)*sec+(S.vQuality==='hd'?90:60))/60); return m<=2?'1 à 2 min':('environ '+m+' min'); }
   function marshallStudioCost(){
     var S=MARSHALL_STUDIO;
     var vid=S.vEngine==='veo'?marshallTokenPrice(S.vQuality==='hd'?'veo_fast_second':'veo_lite_second',S.seconds):marshallTokenPrice(S.vQuality==='hd'?'wan_hd_second':'wan_second',S.seconds);
