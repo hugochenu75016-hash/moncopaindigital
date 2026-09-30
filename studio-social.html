@@ -659,6 +659,30 @@
   #crop-box{ background:rgba(255,255,255,0.35); border:1px solid rgba(120,60,0,0.14); border-radius:16px; padding:16px; margin-top:12px; }
   .pv-tags{ color:#00376b; font-weight:600; }
   .fmt-row{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  #tt-panel{ margin-top:16px; border:1px solid #ece2d6; border-radius:16px; padding:14px; background:#fffdfb; display:flex; flex-direction:column; gap:12px; }
+  #tt-panel[hidden]{ display:none; }
+  .tt-head{ display:flex; align-items:center; gap:10px; }
+  .tt-head .tt-logo{ width:30px; height:30px; border-radius:9px; background:#010101; color:#fff; display:flex; align-items:center; justify-content:center; flex:none; }
+  .tt-head .tt-logo svg{ width:17px; height:17px; }
+  .tt-head img{ width:30px; height:30px; border-radius:50%; object-fit:cover; flex:none; }
+  .tt-head b{ display:block; font-size:14px; color:#2a1a0c; } .tt-head small{ display:block; font-size:12px; color:#8a7866; }
+  .tt-lab{ font-size:12.5px; font-weight:700; color:#4a3a2a; margin-bottom:6px; }
+  .tt-lab em{ font-style:normal; color:#e0452b; }
+  .tt-select{ width:100%; box-sizing:border-box; border:2px solid #efe3d6; border-radius:12px; padding:9px 10px; font:14px 'Fredoka',sans-serif; background:#fff; }
+  .tt-select.need{ border-color:#f3852b; }
+  .tt-checks{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tt-check{ display:inline-flex; align-items:center; gap:7px; padding:7px 11px; border-radius:999px; border:1px solid #ece2d6; background:#fff; font-size:13px; cursor:pointer; user-select:none; }
+  .tt-check input{ width:15px; height:15px; accent-color:#010101; margin:0; }
+  .tt-check.dis{ opacity:.45; cursor:not-allowed; }
+  .tt-switch{ display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13.5px; font-weight:600; color:#2a1a0c; cursor:pointer; }
+  .tt-switch input{ width:38px; height:22px; accent-color:#010101; }
+  .tt-sub{ padding:10px 12px; border-radius:12px; background:#f7f2ec; display:flex; flex-direction:column; gap:8px; font-size:13px; }
+  .tt-sub small{ color:#7a6a5a; line-height:1.35; }
+  .tt-tag{ display:inline-block; margin-top:2px; padding:3px 9px; border-radius:999px; background:#010101; color:#fff; font-size:11.5px; font-weight:700; }
+  .tt-warn{ padding:9px 11px; border-radius:12px; background:#fdecec; color:#b0464b; font-size:12.5px; line-height:1.35; }
+  .tt-info{ padding:9px 11px; border-radius:12px; background:#eef6ff; color:#1f4f82; font-size:12.5px; line-height:1.35; }
+  .tt-consent{ font-size:12px; color:#6a5a4a; line-height:1.4; }
+  .tt-consent a{ color:#010101; font-weight:700; }
   .fmt-row:last-child{ margin-bottom:0; }
   .fmt-net{ display:inline-flex; align-items:center; gap:8px; width:118px; flex:0 0 auto; font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; color:#6b5108; }
   .fmt-net .ni{ width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; }
@@ -3678,6 +3702,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
                 <div class="lab" style="margin-top:16px">Format sur chaque réseau</div>
                 <div id="format-rows"></div>
               </div>
+              <div id="tt-panel" hidden></div>
               <div class="pub-note" id="pub-conn-note"></div>
             </section>
 
@@ -4594,7 +4619,95 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }); });
     var dc=$('#pub-dest-count'); if(dc) dc.textContent=selectedNets().length+' / '+NETS.length;
   }
+  /* ===== Panneau TikTok : règles d'audit TikTok (compte affiché, visibilité choisie par l'utilisateur,
+     interactions, contenu commercial, consentement musique, durée max). ===== */
+  var ttCreator=null, ttCreatorErr='', ttCreatorBusy=false, ttCreatorFor=null, ttDurCache={};
+  var TT_PRIVACY_LABELS={PUBLIC_TO_EVERYONE:'Public (tout le monde)',MUTUAL_FOLLOW_FRIENDS:'Amis (abonnés mutuels)',FOLLOWER_OF_CREATOR:'Mes abonnés',SELF_ONLY:'Moi uniquement'};
+  function ttOpts(){ if(!comp.formats.tiktok_options||typeof comp.formats.tiktok_options!=='object') comp.formats.tiktok_options={privacy_level:'',disable_comment:true,disable_duet:true,disable_stitch:true,commercial:false,brand_organic_toggle:false,brand_content_toggle:false}; return comp.formats.tiktok_options; }
+  async function ttLoadCreator(force){
+    var who=actingAs||'me';
+    if(ttCreatorBusy||(!force&&ttCreatorFor===who&&(ttCreator||ttCreatorErr))) return;
+    ttCreatorBusy=true; ttCreatorFor=who; ttCreatorErr='';
+    try{
+      var r=await fetch(SUPABASE_URL+'/functions/v1/'+PUBLISH_FN,{method:'POST',headers:await authHeaders(),body:JSON.stringify({action:'tiktok_creator',on_behalf_of:actingAs||undefined})});
+      var d=null; try{ d=await r.json(); }catch(e){}
+      if(d&&d.ok&&d.creator){ ttCreator=d.creator; }
+      else { ttCreator=null; ttCreatorErr=(d&&d.error)||('erreur '+r.status); }
+    }catch(e){ ttCreator=null; ttCreatorErr='serveur injoignable'; }
+    ttCreatorBusy=false; renderTiktokPanel(); pubRefresh();
+  }
+  function ttVideoDuration(url){
+    if(ttDurCache[url]!==undefined) return ttDurCache[url];
+    ttDurCache[url]=null;
+    try{ var v=document.createElement('video'); v.preload='metadata'; v.muted=true;
+      v.onloadedmetadata=function(){ ttDurCache[url]=isFinite(v.duration)?v.duration:0; renderTiktokPanel(); pubRefresh(); v.removeAttribute('src'); try{v.load();}catch(e){} };
+      v.onerror=function(){ ttDurCache[url]=0; }; v.src=url; }catch(e){ ttDurCache[url]=0; }
+    return null;
+  }
+  // Renvoie la raison qui bloque la publication TikTok ('' si tout est bon).
+  function ttBlockReason(){
+    if(!comp.nets.tiktok) return '';
+    var o=ttOpts();
+    if(ttCreatorErr) return 'TikTok : '+ttCreatorErr;
+    if(!ttCreator) return 'TikTok : chargement du compte…';
+    if(!o.privacy_level) return 'TikTok : choisis qui peut voir la vidéo';
+    if(o.commercial&&!o.brand_organic_toggle&&!o.brand_content_toggle) return 'TikTok : précise le type de contenu commercial (ta marque et/ou contenu de marque)';
+    if(o.brand_content_toggle&&o.privacy_level==='SELF_ONLY') return 'TikTok : un contenu de marque ne peut pas être en « Moi uniquement »';
+    var v=comp.media.filter(function(m){ return m.type==='video'; })[0], max=ttCreator.max_video_post_duration_sec;
+    if(v&&max){ var d=ttVideoDuration(v.url); if(d&&d>max+0.5) return 'TikTok : vidéo trop longue ('+Math.round(d)+' s, maximum '+max+' s pour ce compte)'; }
+    return '';
+  }
+  function renderTiktokPanel(){
+    var box=$('#tt-panel'); if(!box) return;
+    if(!comp.nets.tiktok){ box.hidden=true; box.innerHTML=''; return; }
+    box.hidden=false;
+    if((actingAs||'me')!==ttCreatorFor) ttLoadCreator(true); else if(!ttCreator&&!ttCreatorErr) ttLoadCreator(false);
+    var o=ttOpts(), c=ttCreator, logo='<span class="tt-logo">'+(net('tiktok')?net('tiktok').icon:'')+'</span>';
+    if(!c){
+      box.innerHTML='<div class="tt-head">'+logo+'<span><b>TikTok</b><small>'+(ttCreatorErr?'':'Chargement de ton compte TikTok…')+'</small></span></div>'+
+        (ttCreatorErr?'<div class="tt-warn">Impossible de lire ton compte TikTok : '+esc(ttCreatorErr)+'. <a href="#" data-tt="retry">Réessayer</a></div>':'');
+      return;
+    }
+    var opts=(c.privacy_level_options||[]);
+    var privSel='<select class="tt-select'+(o.privacy_level?'':' need')+'" data-tt="privacy"><option value="">Choisir…</option>'+opts.map(function(v){
+      var dis=o.brand_content_toggle&&v==='SELF_ONLY';
+      return '<option value="'+esc(v)+'"'+(o.privacy_level===v?' selected':'')+(dis?' disabled':'')+'>'+esc(TT_PRIVACY_LABELS[v]||v)+(dis?' (indisponible pour un contenu de marque)':'')+'</option>'; }).join('')+'</select>';
+    function chk(key,label,disabledByCreator){
+      var on=!o['disable_'+key]&&!disabledByCreator;
+      return '<label class="tt-check'+(disabledByCreator?' dis':'')+'" title="'+(disabledByCreator?'Désactivé dans les réglages de ton compte TikTok':'')+'"><input type="checkbox" data-tt="allow_'+key+'"'+(on?' checked':'')+(disabledByCreator?' disabled':'')+'>'+label+'</label>';
+    }
+    var v=comp.media.filter(function(m){ return m.type==='video'; })[0], d=v?ttVideoDuration(v.url):null, max=c.max_video_post_duration_sec;
+    var labelTag = o.brand_content_toggle ? 'Partenariat rémunéré' : (o.brand_organic_toggle ? 'Contenu promotionnel' : '');
+    var consent = o.brand_content_toggle
+      ? 'En publiant, tu acceptes la <a href="https://www.tiktok.com/legal/page/global/bc-policy/fr" target="_blank" rel="noopener">Politique relative au contenu de marque</a> et la <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/fr" target="_blank" rel="noopener">Confirmation d’utilisation de la musique</a> de TikTok.'
+      : 'En publiant, tu acceptes la <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/fr" target="_blank" rel="noopener">Confirmation d’utilisation de la musique</a> de TikTok.';
+    box.innerHTML=
+      '<div class="tt-head">'+(c.avatar?'<img src="'+esc(c.avatar)+'" alt="">':logo)+'<span><b>Publier sur TikTok en tant que '+esc(c.nickname||'ton compte')+'</b><small>'+(c.username?'@'+esc(c.username):'Compte TikTok relié')+'</small></span></div>'+
+      (c.audited?'':'<div class="tt-info">Mode test TikTok : tant que l’appli n’est pas validée par TikTok, la vidéo sera publiée en « Moi uniquement ».</div>')+
+      '<div><div class="tt-lab">Qui peut voir cette vidéo ? <em>*</em></div>'+privSel+'</div>'+
+      '<div><div class="tt-lab">Autoriser les utilisateurs à</div><div class="tt-checks">'+chk('comment','Commenter',c.comment_disabled)+chk('duet','Duo',c.duet_disabled)+chk('stitch','Collage',c.stitch_disabled)+'</div></div>'+
+      '<label class="tt-switch"><span>Divulguer un contenu commercial</span><input type="checkbox" data-tt="commercial"'+(o.commercial?' checked':'')+'></label>'+
+      (o.commercial?'<div class="tt-sub"><small>Indique si cette vidéo fait la promotion de toi-même, d’une marque, d’un produit ou d’un service.</small>'+
+        '<label class="tt-check"><input type="checkbox" data-tt="brand_organic"'+(o.brand_organic_toggle?' checked':'')+'>Ta marque<small style="margin-left:4px">— tu fais ta propre promotion</small></label>'+
+        '<label class="tt-check"><input type="checkbox" data-tt="brand_content"'+(o.brand_content_toggle?' checked':'')+'>Contenu de marque<small style="margin-left:4px">— partenariat avec une marque tierce</small></label>'+
+        (labelTag?'<div>Ta vidéo sera étiquetée <span class="tt-tag">'+labelTag+'</span></div>':'<div class="tt-warn">Choisis au moins une option pour pouvoir publier.</div>')+'</div>':'')+
+      (v&&max&&d&&d>max+0.5?'<div class="tt-warn">Ta vidéo dure '+Math.round(d)+' s : ton compte TikTok accepte au maximum '+max+' s.</div>':'')+
+      (!v&&comp.media.length?'<div class="tt-info">TikTok publie des vidéos : ton visuel sera transformé en courte vidéo.</div>':'')+
+      '<div class="tt-consent">'+consent+' Après publication, la vidéo peut mettre quelques minutes à apparaître sur ton profil.</div>';
+  }
+  document.addEventListener('change',function(e){
+    var el=e.target.closest&&e.target.closest('#tt-panel [data-tt]'); if(!el) return;
+    var o=ttOpts(), k=el.getAttribute('data-tt');
+    if(k==='privacy') o.privacy_level=el.value;
+    else if(k.indexOf('allow_')===0) o['disable_'+k.slice(6)]=!el.checked;
+    else if(k==='commercial'){ o.commercial=el.checked; if(!el.checked){ o.brand_organic_toggle=false; o.brand_content_toggle=false; } }
+    else if(k==='brand_organic') o.brand_organic_toggle=el.checked;
+    else if(k==='brand_content'){ o.brand_content_toggle=el.checked; if(el.checked&&o.privacy_level==='SELF_ONLY') o.privacy_level=''; }
+    renderTiktokPanel(); pubRefresh();
+  });
+  document.addEventListener('click',function(e){ var a=e.target.closest&&e.target.closest('#tt-panel [data-tt="retry"]'); if(!a) return; e.preventDefault(); ttCreatorErr=''; ttLoadCreator(true); renderTiktokPanel(); });
   function renderFormats(){
+    try{ renderTiktokPanel(); }catch(e){ console.warn('panneau TikTok',e); }
     var active=NETS.filter(function(n){ return comp.nets[n.id]; });
     var field=$('#format-field'); field.style.display = active.length ? 'block' : 'none';
     $('#format-rows').innerHTML = active.map(function(n){
@@ -4756,6 +4869,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         ? 'Story / Réel : passez la page en 9:16 (1080×1920), sinon le réseau recadrera'
         : (vertSel ? 'Visuel en 9:16 pour la story' : 'Format de page compatible')]
     ];
+    if(comp.nets.tiktok){ var ttw=ttBlockReason(); items.push([!ttw, ttw||'TikTok : réglages de publication complétés']); }
     if(comp.nets.instagram && comp.formats.instagram==='Reel' && comp.media.length && !comp.media.some(function(x){return x.type==='video';})){
       items.push([true,'Reel : '+(comp.media.length>1?'tes '+comp.media.length+' images deviendront une vidéo':'ton image deviendra une vidéo de 6 s')+' (zoom doux, format 9:16)']);
     }
@@ -15238,6 +15352,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var nets=selectedNets();
     if(!nets.length){ toast('Sélectionnez au moins un réseau.'); return; }
     if(!comp.caption.trim() && !comp.media.length){ toast('Votre post est vide.'); return; }
+    var ttWhy=ttBlockReason(); if(ttWhy){ toast(ttWhy+'.', true); var ttp=$('#tt-panel'); if(ttp) ttp.scrollIntoView({behavior:'smooth',block:'center'}); return; }
     var over=NETS.filter(function(n){ return comp.nets[n.id] && mcdSigApply(comp.caption).length>n.limit; });
     if(over.length){ toast('Texte trop long pour : '+over.map(function(n){return n.name;}).join(', ')); return; }
     var later = comp.sched==='later';
