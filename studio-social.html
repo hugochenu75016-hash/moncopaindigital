@@ -4949,7 +4949,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
     /* Pilule « 🎙️ Voix off IA » sur la vidéo sélectionnée (+ « 🔊 Écouter » : le canvas lit la vidéo sans le son). */
     var selVid=ed.preview?null:ed.layers.filter(function(o){ return o.id===ed.sel && o.type==='video'; })[0];
-    if(selVid&&stage){
+    /* « 🎙️ Voix IA sur ce canva » : canva fixe -> vidéo avec une voix (visible quand aucune image/vidéo importée n'est sélectionnée). */
+    var cvl=edCanvasVoLayer(), hasRealVid=(ed.layers||[]).some(function(o){ return o.type==='video'&&!o.cvo; });
+    if(stage&&!ed.preview&&!selImg&&(!selVid||selVid.cvo)&&(cvl||!hasRealVid)){
+      var cvWhy=(ed._cvoBusy||cvl)?'':edCanvasVoBlock();
+      var b3=document.createElement('button'); b3.type='button'; b3.className='ed-rmbg-pill'+(ed._cvoBusy?' busy':'')+(cvWhy?' blocked':''); b3.setAttribute('data-cvo','1');
+      if(cvWhy){ b3.title=cvWhy; b3.setAttribute('aria-disabled','true'); }
+      b3.textContent=ed._cvoBusy?('🎙️ '+(ed._cvoMsg||'Voix IA en cours…')):(cvl?'🎙️ Retirer la voix':'🎙️ Voix IA sur ce canva');
+      bar.appendChild(b3);
+      if(cvl&&!ed._cvoBusy){ var b4=document.createElement('button'); b4.type='button'; b4.className='ed-rmbg-pill ed-vo-listen'; b4.setAttribute('data-vo-listen',cvl.id); b4.textContent='🔊 Écouter'; bar.appendChild(b4); }
+    }
+    if(selVid&&stage&&!selVid.cvo){
       var voWhy=(selVid._voBusy||ED_ORIG[selVid.id])?'':edVoBlock(selVid);
       var b1=document.createElement('button'); b1.type='button'; b1.className='ed-rmbg-pill'+(selVid._voBusy?' busy':'')+(voWhy?' blocked':''); b1.setAttribute('data-vo',selVid.id);
       if(voWhy){ b1.title=voWhy; b1.setAttribute('aria-disabled','true'); }
@@ -5028,6 +5038,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(b.hasAttribute('data-rmbg')) edRemoveBg(b.getAttribute('data-rmbg'));
     else if(b.hasAttribute('data-vo')) edVoiceoverPill(b.getAttribute('data-vo'));
     else if(b.hasAttribute('data-vo-listen')) edVoiceoverListen(b.getAttribute('data-vo-listen'));
+    else if(b.hasAttribute('data-cvo')) edCanvasVoicePill();
   },true);
 
   /* --- Voix off IA : Marshall regarde la vidéo, écrit un texte qui la décrit et l'enregistre (Gemini + ffmpeg sur le serveur) --- */
@@ -5107,6 +5118,119 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
     });
     document.body.appendChild(m);
+  }
+  /* --- Voix IA sur un canva fixe (flash info, affiche, story…) : le canva devient une vidéo avec la voix --- */
+  function edCanvasVoLayer(){ return (ed.layers||[]).filter(function(o){ return o.type==='video'&&o.cvo; })[0]; }
+  function edCanvasVoBlock(){
+    if(!authUser) return 'Connecte-toi pour utiliser la voix IA.';
+    if(typeof WebAssembly==='undefined'||typeof Worker==='undefined') return 'Navigateur non compatible : utilise Chrome ou Edge récent.';
+    if(!(ed.layers||[]).length) return 'Ton canva est vide : ajoute d’abord ton visuel.';
+    try{ var need=marshallTokenPrice('voiceover'); if(marshallTokensLeft()<need) return 'Tokens insuffisants ce mois-ci : recharge dans Réglages › Mon utilisation.'; }catch(e){}
+    return '';
+  }
+  function edCanvasVoicePill(){
+    if(ed._cvoBusy) return;
+    var cv=edCanvasVoLayer();
+    if(cv){   // « Retirer la voix » : on revient au canva fixe
+      ed.layers=ed.layers.filter(function(o){ return o!==cv; }); if(ed.sel===cv.id) ed.sel=null;
+      edSnap(); edRender(); try{ marshallCanvasPagesSaveCurrent(); }catch(e){} toast('Voix retirée ✓'); return;
+    }
+    var why=edCanvasVoBlock(); if(why){ toast('🎙️ '+why,true); return; }
+    var m=document.createElement('div'); m.className='ed-vo-modal';
+    m.innerHTML='<div class="ed-vo-card"><h3>🎙️ Voix IA sur ce canva</h3><p>Ton canva devient une vidéo : une voix annonce ton info (flash info, promo, événement…). Marshall écrit le texte d’après ton visuel, ou tu écris le tien.</p>'
+      +'<label>Voix</label><div class="ed-vo-opts" data-k="voice"><button type="button" data-v="femme" class="on">👩 Femme</button><button type="button" data-v="femme_douce">👩 Femme douce</button><button type="button" data-v="homme">👨 Homme</button><button type="button" data-v="homme_dynamique">👨 Homme dynamique</button></div>'
+      +'<label>Ton</label><div class="ed-vo-opts" data-k="tone"><button type="button" data-v="dynamique" class="on">⚡ Dynamique</button><button type="button" data-v="chaleureux">☀️ Chaleureux</button><button type="button" data-v="informatif">📘 Informatif</button></div>'
+      +'<p class="ed-vo-hint">🔊 Clique sur une voix ou un ton pour l’écouter.</p>'
+      +'<label>Texte</label><div class="ed-vo-opts" data-k="mode"><button type="button" data-v="auto" class="on">✨ Marshall l’écrit</button><button type="button" data-v="mine">✍️ J’écris mon texte</button></div>'
+      +'<textarea rows="3" data-f="brief" placeholder="Consigne (facultatif) : ex. insiste sur la date, termine par « On vous attend ! »"></textarea>'
+      +'<textarea rows="4" data-f="text" style="display:none" maxlength="1500" placeholder="Le texte exact que la voix doit dire…"></textarea>'
+      +'<div class="ed-vo-actions"><button type="button" class="ed-vo-close">Annuler</button><button type="button" class="ed-vo-go">Créer la vidéo avec la voix</button></div></div>';
+    var mode=function(){ var b=m.querySelector('[data-k="mode"] .on'); return b?b.getAttribute('data-v'):'auto'; };
+    m.addEventListener('click',function(e){
+      var o=e.target.closest('.ed-vo-opts button');
+      if(o){
+        o.parentNode.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===o); });
+        if(o.parentNode.getAttribute('data-k')==='mode'){ var mine=mode()==='mine'; m.querySelector('[data-f="text"]').style.display=mine?'':'none'; m.querySelector('[data-f="brief"]').style.display=mine?'none':''; }
+        else edVoSample(m);
+        return;
+      }
+      if(e.target===m||e.target.closest('.ed-vo-close')){ edVoSampleStop(); m.remove(); return; }
+      if(e.target.closest('.ed-vo-go')){
+        var pick=function(k){ var b=m.querySelector('[data-k="'+k+'"] .on'); return b?b.getAttribute('data-v'):''; };
+        var txt=mode()==='mine'?m.querySelector('[data-f="text"]').value.trim():'';
+        if(mode()==='mine'&&!txt){ toast('Écris le texte que la voix doit dire.',true); return; }
+        var opts={voice:pick('voice'),tone:pick('tone'),text:txt,brief:mode()==='mine'?'':m.querySelector('[data-f="brief"]').value.trim()};
+        edVoSampleStop(); m.remove();
+        edCanvasVoice(opts).then(function(r){ if(r&&r.ok) toast('🎙️ Ton canva est devenu une vidéo avec la voix ! Clique sur « 🔊 Écouter ».'); else if(r&&r.error) toast('Voix IA impossible : '+r.error,true); });
+      }
+    });
+    document.body.appendChild(m);
+  }
+  async function edCanvasVoice(opts){
+    var why=edCanvasVoBlock(); if(why) return {ok:false,error:why};
+    if(ed._cvoBusy) return {ok:false,error:'une voix est déjà en préparation sur ce canva.'};
+    if(edCanvasVoLayer()) return {ok:false,error:'ce canva a déjà une voix : retire-la d’abord pour en créer une nouvelle.'};
+    var setMsg=function(msg){ ed._cvoMsg=msg; edRender(); };
+    ed._cvoBusy=true; setMsg('Marshall lit ton canva…');
+    try{
+      var cvx=edBuildCanvas(); if(!cvx) throw Error('ton canva est vide.');
+      var full, small;
+      try{
+        full=cvx.toDataURL('image/jpeg',0.92);
+        var k=Math.min(1,900/Math.max(cvx.width,cvx.height)), sc=document.createElement('canvas'); sc.width=Math.round(cvx.width*k); sc.height=Math.round(cvx.height*k);
+        sc.getContext('2d').drawImage(cvx,0,0,sc.width,sc.height); small=sc.toDataURL('image/jpeg',0.82);
+      }catch(e){ throw Error('une image du canva vient d’un autre site : importe-la depuis ton ordinateur puis réessaie.'); }
+      if(!ED_FF_WARM){ ED_FF_WARM=true; edFfmpeg().catch(function(){}); }
+      var brand=''; try{ brand=(typeof marshallBrandName==='function'?marshallBrandName():'')||''; }catch(e){}
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover',{method:'POST',headers:await authHeaders(),body:JSON.stringify({frames:[small],duration:10,source:'canvas',text:opts.text||'',voice:opts.voice||'femme',tone:opts.tone||'dynamique',brief:opts.brief||'',brand:brand})})
+        .catch(function(){ throw Error('serveur injoignable, réessaie.'); });
+      var d=await r.json().catch(function(){ return {}; });
+      try{ marshallTokensFromResponse(d); }catch(e){}
+      if(!r.ok||!d.task_id) throw Error(d.error||d.detail||('HTTP '+r.status));
+      var t0=Date.now(), s=null;
+      while(Date.now()-t0<8*60*1000){
+        await new Promise(function(ok){ setTimeout(ok,2500); });
+        s=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover/'+encodeURIComponent(d.task_id)).then(function(x){ return x.json(); }).catch(function(){ return null; });
+        if(!s) continue;
+        if(s.failed) throw Error(s.message||s.error||'échec du traitement');
+        if(s.message&&s.message!==ed._cvoMsg) setMsg(s.message);
+        if(s.done&&s.audio_url) break;
+        s=null;
+      }
+      if(!s) throw Error('le traitement prend trop de temps, réessaie plus tard.');
+      var blob=await edStillToVideo(full, s.audio_url, setMsg);
+      var url=URL.createObjectURL(blob);
+      ed.seq++;
+      var l={ id:'v'+ed.seq, type:'video', url:url, x:0, y:0, w:100, h:100, rot:0, op:100, rad:0, cvo:true, script:s.script||'' };
+      ed.layers.push(l); ed.sel=l.id; edSnap();
+      try{ marshallCanvasPagesSaveCurrent(); marshallCanvasPersistConversation(); }catch(e){}
+      edUploadVideoLayer(l.id, blob, url).catch(function(e){ console.warn('Voix IA : envoi du fichier final',e); });
+      return {ok:true,script:s.script||''};
+    }catch(err){ return {ok:false,error:String(err.message||err)}; }
+    finally{ ed._cvoBusy=false; ed._cvoMsg=''; edRender(); }
+  }
+  /* Image fixe + voix -> MP4 (H.264 + AAC), fabriqué dans le navigateur ; la durée suit la voix (+0,8 s). */
+  async function edStillToVideo(imgDataUrl, voiceUrl, onMsg){
+    var ff=await edFfmpeg(onMsg);
+    if(onMsg) onMsg('Création de la vidéo…');
+    var img=await (await fetch(imgDataUrl)).arrayBuffer(), ab=await (await fetch(voiceUrl)).arrayBuffer();
+    var log='', onLog=function(e){ log+=e.message+'\n'; };
+    ff.on('log',onLog);
+    try{
+      await ff.writeFile('still.jpg', new Uint8Array(img));
+      await ff.writeFile('vo.m4a', new Uint8Array(ab));
+      log=''; await ff.exec(['-hide_banner','-i','vo.m4a']);
+      var mm=/Duration:\s*(\d+):(\d+):([\d.]+)/.exec(log), vd=mm?(+mm[1]*3600+(+mm[2])*60+(+mm[3])):10;
+      var dur=Math.max(3,Math.min(180,vd+0.8)).toFixed(2);
+      log=''; var code=await ff.exec(['-y','-loop','1','-framerate','25','-i','still.jpg','-i','vo.m4a',
+        '-filter_complex','[0:v]scale=trunc(iw/2)*2:trunc(ih/2)*2,format=yuv420p[v];[1:a]aresample=48000,apad[a]',
+        '-map','[v]','-map','[a]','-c:v','libx264','-preset','ultrafast','-tune','stillimage','-r','25',
+        '-c:a','aac','-b:a','160k','-t',dur,'-movflags','+faststart','cvo.mp4']);
+      if(code!==0) throw Error('création de la vidéo impossible ('+(log.split('\n').filter(Boolean).slice(-1)[0]||'ffmpeg')+')');
+      var data=await ff.readFile('cvo.mp4');
+      try{ await ff.deleteFile('still.jpg'); await ff.deleteFile('vo.m4a'); await ff.deleteFile('cvo.mp4'); }catch(e){}
+      return new Blob([data.buffer],{type:'video/mp4'});
+    } finally { ff.off('log',onLog); }
   }
   /* --- Voix off « lecture sur la page » : la vidéo ne quitte jamais le navigateur --- */
   // 1) images clés extraites ici  2) le serveur renvoie seulement la voix  3) mixage local avec ffmpeg (version web).
@@ -5223,11 +5347,18 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* Appelé par l'agent « Voice Director » depuis le chat Marshall. */
   async function edVoiceoverFromAgent(prompt){
     var p=String(prompt||'').toLowerCase();
-    var vids=(ed&&ed.layers||[]).filter(function(o){ return o.type==='video'; });
+    var vids=(ed&&ed.layers||[]).filter(function(o){ return o.type==='video'&&!o.cvo; });
     var l=vids.filter(function(o){ return o.id===ed.sel; })[0]||vids[0];
-    if(!l) return {ok:false,error:'🎙️ Ajoute d’abord une vidéo sur ton canvas (bouton « Importer une photo ou une vidéo »), sélectionne-la, puis redemande-moi la voix off.'};
     var voice=/homme|masculin|male\b|man\b/.test(p)?(/dynamique|pub|énergi/.test(p)?'homme_dynamique':'homme'):(/douce|calme|posée|posee/.test(p)?'femme_douce':'femme');
     var tone=/informati|documentaire|posée|posee|calme/.test(p)?'informatif':(/chaleur|doux|douce|émotion/.test(p)?'chaleureux':'dynamique');
+    if(!l){
+      // Pas de vidéo : le canva fixe devient une vidéo avec la voix. Texte entre guillemets / après « dis : » = lu tel quel.
+      if(!(ed&&ed.layers||[]).length) return {ok:false,error:'🎙️ Ouvre d’abord ton canva (story, flash info…) ou importe une vidéo, puis redemande-moi la voix.'};
+      var said=/[«"“]\s*([^»"”]{3,1500})\s*[»"”]/.exec(String(prompt||''))||/(?:dis|dit|lis|lit|annonce)\s*:\s*(.{3,1500})$/i.exec(String(prompt||''));
+      var rc=await edCanvasVoice({voice:voice,tone:tone,text:said?said[1].trim():'',brief:said?'':String(prompt||'').slice(0,400)});
+      if(!rc.ok&&rc.error&&!/^🎙️/.test(rc.error)) rc.error='Voix IA impossible : '+rc.error;
+      return rc;
+    }
     var r=await edVoiceover(l.id,{voice:voice,tone:tone,brief:String(prompt||'').slice(0,400)});
     if(!r.ok&&r.error&&!/^🎙️/.test(r.error)) r.error='Voix off impossible : '+r.error;
     return r;
@@ -11697,7 +11828,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallIntent(text){
     text=String(text||'').toLowerCase();
     try{if(marshallNationIntent(text))return 'nation_brief';}catch(e){}
-    if(/(voix[- ]?off|voice[- ]?over|narration|commente (la|ma) vid|une voix (sur|à|a) (la|ma) vid|fais parler)/.test(text)) return 'video_voiceover';
+    if(/(voix[- ]?off|voice[- ]?over|narration|commente (la|ma) vid|une voix (sur|à|a) (la|ma) vid|une voix (sur|à|a|au) (le |mon |ce )?canva|voix ia|fais parler)/.test(text)) return 'video_voiceover';
     if(/https?:\/\/\S+/.test(text)&&(/(clip|extrait|meilleur|moment|short|reel|réel|tiktok|découpe|decoupe|coupe|montage|sous-titr|secondes|\b\d{1,2}\s?s\b)/.test(text)||/(youtu\.?be|tiktok\.com|instagram\.com\/(reel|p|tv)|vimeo\.com|dailymotion|twitch\.tv|fb\.watch|facebook\.com\/.*video|\.mp4|\.mov|\.webm)/.test(text)))return 'video_clip';
     if(/(?:stor(?:y|ies)|stories).*(?:chaque jour|par jour|quotidien|tout le mois|mois complet|30 jours|31 jours)|(?:chaque jour|par jour|quotidien|tout le mois|mois complet|30 jours|31 jours).*(?:stor(?:y|ies)|stories)/.test(text)) return 'monthly_story';
     if(/(?:transforme|convertis|assemble|monte|exporte).*(?:vidéo|video|motion)|(?:vidéo|video|motion).*(?:story|stories|canva|canvas|3 écrans|3 ecrans|trois écrans|trois ecrans|\bcette\b|\bces\b)|(?:story|stories|canva|canvas).*(?:en|une) (?:vidéo|video)/.test(text)) return 'story_video';
