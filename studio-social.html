@@ -5016,21 +5016,34 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     m.addEventListener('click',function(e){ if(e.target===m||e.target.closest('.ed-vo-close')){ var v=m.querySelector('video'); try{ v.pause(); }catch(x){} m.remove(); } });
     document.body.appendChild(m);
   }
+  /* Durée d'une vidéo, lue UNE seule fois par lien avec un lecteur invisible (sans boucle de ré-affichage). */
+  var ED_VMETA={};
+  function edVideoMeta(url){
+    if(!url) return {};
+    if(ED_VMETA[url]) return ED_VMETA[url];
+    var rec=ED_VMETA[url]={pending:true};
+    var v=document.createElement('video'); v.preload='metadata'; v.muted=true;
+    var fin=function(r){
+      if(!rec.pending) return;
+      delete rec.pending; Object.assign(rec,r);
+      try{ v.removeAttribute('src'); v.load(); }catch(e){}
+      var s=ed&&ed.sel&&ed.layers.filter(function(o){ return o.id===ed.sel; })[0];
+      if(s&&s.url===url) edRender();   // un seul ré-affichage : le résultat est désormais en cache
+    };
+    v.onloadedmetadata=function(){ fin({dur:v.duration}); };
+    v.onerror=function(){ fin({err:true}); };
+    setTimeout(function(){ fin({}); },15000);
+    v.src=url;
+    return rec;
+  }
   /* Conditions de la voix off : renvoie la raison du blocage, ou '' si tout est bon. */
   function edVoBlock(l){
     if(!authUser) return 'Connecte-toi pour utiliser la voix off.';
     if(typeof WebAssembly==='undefined'||typeof Worker==='undefined') return 'Navigateur non compatible : utilise Chrome ou Edge récent.';
-    var vEl=document.querySelector('#ed-page .ed-layer[data-lid="'+l.id+'"] video');
-    if(vEl){
-      if(vEl.error) return 'Vidéo illisible dans le navigateur : réimporte-la (MP4 conseillé).';
-      if(vEl.readyState<1){
-        if(!vEl._voWait){ vEl._voWait=true; vEl.addEventListener('loadedmetadata',function(){ if(ed.sel===l.id) edRender(); },{once:true}); vEl.addEventListener('error',function(){ if(ed.sel===l.id) edRender(); },{once:true}); }
-      } else if(isFinite(vEl.duration)&&vEl.duration>180){
-        return 'Vidéo trop longue ('+Math.floor(vEl.duration/60)+' min '+String(Math.round(vEl.duration%60)).padStart(2,'0')+') : 3 min maximum pour une voix off.';
-      } else if(isFinite(vEl.duration)&&vEl.duration<1){
-        return 'Vidéo trop courte pour une voix off.';
-      }
-    }
+    var meta=edVideoMeta(String(l.url||''));
+    if(meta.err) return 'Vidéo illisible dans le navigateur : réimporte-la (MP4 conseillé).';
+    if(isFinite(meta.dur)&&meta.dur>180) return 'Vidéo trop longue ('+Math.floor(meta.dur/60)+' min '+String(Math.round(meta.dur%60)).padStart(2,'0')+') : 3 min maximum pour une voix off.';
+    if(isFinite(meta.dur)&&meta.dur<1) return 'Vidéo trop courte pour une voix off.';
     try{ var need=marshallTokenPrice('voiceover'); if(marshallTokensLeft()<need) return 'Tokens insuffisants ce mois-ci : recharge dans Réglages › Mon utilisation.'; }catch(e){}
     return '';
   }
