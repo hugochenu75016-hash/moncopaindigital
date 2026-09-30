@@ -1167,6 +1167,7 @@
   .mrv-range input[type=range]:disabled{ opacity:.55; cursor:not-allowed; }
   .mrv-slider2 .mrv-scale{ display:flex; justify-content:space-between; font-size:11px; color:#9a8f84; margin-top:2px; }
   .mrv-hyper{ margin-top:6px; font-size:11.5px; font-weight:700; color:#b8601a; }
+  .ed-vo-actions .ed-vo-del{ margin-right:auto; background:#fdecec!important; color:#c93a3f!important; }
   .ed-vid-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.28); pointer-events:none; }
   .ed-vid-loading span{ width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,.35); border-top-color:#F3852B; animation:edVidSpin .8s linear infinite; }
   @keyframes edVidSpin{ to{ transform:rotate(360deg); } }
@@ -5079,7 +5080,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var voWhy=(selVid._voBusy||ED_ORIG[selVid.id])?'':edVoBlock(selVid);
       var b1=document.createElement('button'); b1.type='button'; b1.className='ed-rmbg-pill'+(selVid._voBusy?' busy':'')+(voWhy?' blocked':''); b1.setAttribute('data-vo',selVid.id);
       if(voWhy){ b1.title=voWhy; b1.setAttribute('aria-disabled','true'); }
-      b1.textContent=selVid._voBusy?('🎙️ '+(selVid._voMsg||'Voix off en cours…')):(ED_ORIG[selVid.id]?'🎙️ Retirer la voix off':'🎙️ Voix off IA');
+      b1.textContent=selVid._voBusy?('🎙️ '+(selVid._voMsg||'Voix off en cours…')):(ED_ORIG[selVid.id]?'🎙️ Modifier la voix':'🎙️ Voix off IA');
       bar.appendChild(b1);
       if(!selVid._voBusy){ var b2=document.createElement('button'); b2.type='button'; b2.className='ed-rmbg-pill ed-vo-listen'; b2.setAttribute('data-vo-listen',selVid.id); b2.textContent='🔊 Écouter'; bar.appendChild(b2); }
     }
@@ -5775,21 +5776,41 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var l=edVoLayer(id); if(!l||l._voBusy) return;
     var why=ED_ORIG[l.id]?'':edVoBlock(l);
     if(why){ toast('🎙️ '+why,true); return; }
-    if(ED_ORIG[l.id]){ l.url=ED_ORIG[l.id]; delete ED_ORIG[l.id]; edSnap(); edRender(); toast('Voix off retirée ✓'); return; }
+    var editing=!!ED_ORIG[l.id], curV=l.voVoice||'femme', curT=l.voTone||'dynamique';
+    if(!editing){ try{ var vp=JSON.parse(marshallReadLocal('marshall_voice_pref_v1')||'{}'); if(vp.voice) curV=vp.voice; if(vp.tone) curT=vp.tone; }catch(e){} }
     var m=document.createElement('div'); m.className='ed-vo-modal';
-    m.innerHTML='<div class="ed-vo-card"><h3>🎙️ Voix off IA</h3><p>Marshall regarde ta vidéo, écrit un texte qui la décrit et l’enregistre avec une voix naturelle.</p>'
+    m.innerHTML='<div class="ed-vo-card"><h3>🎙️ '+(editing?'Modifier la voix':'Voix off IA')+'</h3><p>'+(editing?'Change le texte, la voix ou le ton : Marshall réenregistre la voix et met à jour les sous-titres.':'Marshall regarde ta vidéo, écrit un texte qui la décrit et l’enregistre avec une voix naturelle.')+'</p>'
       +'<label>Voix</label><div class="ed-vo-opts" data-k="voice"><button type="button" data-v="femme" class="on">👩 Femme</button><button type="button" data-v="femme_douce">👩 Femme douce</button><button type="button" data-v="homme">👨 Homme</button><button type="button" data-v="homme_dynamique">👨 Homme dynamique</button></div>'
       +'<label>Ton</label><div class="ed-vo-opts" data-k="tone"><button type="button" data-v="dynamique" class="on">⚡ Dynamique</button><button type="button" data-v="chaleureux">☀️ Chaleureux</button><button type="button" data-v="informatif">📘 Informatif</button></div>'
       +'<p class="ed-vo-hint">🔊 Clique sur une voix ou un ton pour l’écouter.</p>'
-      +'<label>Consigne (facultatif)</label><textarea rows="2" placeholder="Ex. : mets en avant notre nouveau menu, termine par « Réservez vite »"></textarea>'
-      +'<div class="ed-vo-actions"><button type="button" class="ed-vo-close">Annuler</button><button type="button" class="ed-vo-go">Lancer la voix off</button></div></div>';
+      +'<label>Texte de la voix'+(editing?'':' (facultatif)')+'</label><textarea rows="4" data-f="text" maxlength="1500" placeholder="Laisse vide : Marshall écrit le texte d’après ta vidéo."></textarea>'
+      +(editing?'':'<label>Consigne (facultatif)</label><textarea rows="2" data-f="brief" placeholder="Ex. : mets en avant notre nouveau menu, termine par « Réservez vite »"></textarea>')
+      +'<div class="ed-vo-actions">'+(editing?'<button type="button" class="ed-vo-del">Retirer la voix</button>':'')+'<button type="button" class="ed-vo-close">Annuler</button><button type="button" class="ed-vo-go">'+(editing?'Appliquer':'Lancer la voix off')+'</button></div></div>';
+    m.querySelector('[data-f="text"]').value=editing?(l.voText||''):'';
+    ['voice','tone'].forEach(function(k){ var want=k==='voice'?curV:curT; m.querySelectorAll('[data-k="'+k+'"] button').forEach(function(b){ b.classList.toggle('on',b.getAttribute('data-v')===want); }); });
     m.addEventListener('click',function(e){
       var o=e.target.closest('.ed-vo-opts button'); if(o){ o.parentNode.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===o); }); edVoSample(m); return; }
       if(e.target===m||e.target.closest('.ed-vo-close')){ edVoSampleStop(); m.remove(); return; }
+      if(e.target.closest('.ed-vo-del')){
+        edVoSampleStop(); m.remove();
+        if(ED_ORIG[l.id]){ l.url=ED_ORIG[l.id]; delete ED_ORIG[l.id]; }
+        if(l.caps&&l.caps.on){ l.caps.on=false; toast('Voix retirée ✓ · sous-titres masqués (plus de voix).'); } else toast('Voix off retirée ✓');
+        edSnap(); edRender(); return;
+      }
       if(e.target.closest('.ed-vo-go')){
         var pick=function(k){ var b=m.querySelector('[data-k="'+k+'"] .on'); return b?b.getAttribute('data-v'):''; };
-        var opts={voice:pick('voice'),tone:pick('tone'),brief:m.querySelector('textarea').value.trim()};
-        edVoSampleStop(); m.remove(); edVoiceover(l.id,opts).then(function(r){ if(r&&r.ok) toast('🎙️ Voix off ajoutée ! Clique sur « 🔊 Écouter » pour l’entendre.'); else if(r&&r.error) toast('Voix off impossible : '+r.error,true); });
+        var bf=m.querySelector('[data-f="brief"]');
+        var opts={voice:pick('voice'),tone:pick('tone'),text:m.querySelector('[data-f="text"]').value.trim(),brief:bf?bf.value.trim():''};
+        if(editing&&!opts.text){ toast('Écris le texte que la voix doit dire.',true); return; }
+        edVoSampleStop(); m.remove();
+        var hadCaps=!!(l.caps&&l.caps.words&&l.caps.words.length);
+        if(editing&&ED_ORIG[l.id]){ l.url=ED_ORIG[l.id]; delete ED_ORIG[l.id]; }
+        edVoiceover(l.id,opts).then(function(r){
+          if(r&&r.ok){
+            toast(editing?'🎙️ Voix modifiée !':'🎙️ Voix off ajoutée ! Clique sur « 🔊 Écouter » pour l’entendre.');
+            if(hadCaps&&typeof edCapsGenerate==='function'){ var nl=edVoLayer(l.id); if(nl) edCapsGenerate(nl); }   // sous-titres recalés sur la nouvelle voix
+          } else if(r&&r.error) toast('Voix off impossible : '+r.error,true);
+        });
       }
     });
     document.body.appendChild(m);
@@ -5988,7 +6009,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(fr.duration>180) throw Error('vidéo trop longue pour une voix off (3 min maximum).');
       if(!ED_FF_WARM){ ED_FF_WARM=true; edFfmpeg().catch(function(){}); }   // prépare l'outil de montage pendant que Marshall écrit
       var brand=''; try{ brand=(typeof marshallBrandName==='function'?marshallBrandName():'')||''; }catch(e){}
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover',{method:'POST',headers:await authHeaders(),body:JSON.stringify({frames:fr.frames,duration:fr.duration,voice:opts.voice||'femme',tone:opts.tone||'dynamique',brief:opts.brief||'',brand:brand})})
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover',{method:'POST',headers:await authHeaders(),body:JSON.stringify({frames:fr.frames,duration:fr.duration,voice:opts.voice||'femme',tone:opts.tone||'dynamique',brief:opts.brief||'',text:opts.text||'',brand:brand})})
         .catch(function(){ throw Error('serveur injoignable, réessaie.'); });
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
@@ -6008,7 +6029,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           }
           l=edVoLayer(id)||l;
           ED_ORIG[l.id]=l.url; l.url=newUrl;
-          (marshallCanvasPages||[]).forEach(function(p){ (p.layers||[]).forEach(function(x){ if(x.id===l.id) x.url=newUrl; }); });
+          l.voText=String(s.script||opts.text||''); l.voVoice=opts.voice||'femme'; l.voTone=opts.tone||'dynamique';
+          try{ marshallWriteLocal('marshall_voice_pref_v1',JSON.stringify({voice:l.voVoice,tone:l.voTone})); }catch(e){}
+          (marshallCanvasPages||[]).forEach(function(p){ (p.layers||[]).forEach(function(x){ if(x.id===l.id){ x.url=newUrl; x.voText=l.voText; x.voVoice=l.voVoice; x.voTone=l.voTone; } }); });
           edSnap();
           // Mise en ligne discrète de la version avec voix (utile pour publier) ; sans effet si le stockage la refuse.
           if(mixed) edUploadVideoLayer(l.id, mixed, newUrl).catch(function(e){ console.warn('Voix off : envoi du fichier final',e); });
@@ -11703,7 +11726,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     return m?(MARSHALL_CREWAI_BASE+'/video/story-file/mpt_'+m[1]+'_'+m[2]):u;
   }
   /* Vidéo IA terminée : posée sur un NOUVEAU canva 9:16, prête à être retouchée avec la barre vidéo. */
-  function marshallVideoToCanvas(url,engine,withCaps){
+  function marshallVideoToCanvas(url,engine,o){
+    o=(o&&typeof o==='object')?o:{caps:!!o};
     try{
       marshallCanvasPagesEnsureCurrent(); try{ marshallCanvasPagesSaveCurrent(); }catch(e){}
       ed.seq=(ed.seq||0)+1;
@@ -11713,7 +11737,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       try{ marshallFreshPages.push(page); }catch(e){}
       marshallCanvasRestore(page); marshallCanvasPagesRender(); marshallCanvasPersistConversation();
       // Sous-titres modifiables : générés dans l'outil 💬 Sous-titres de la barre vidéo (pas incrustés au montage).
-      if(withCaps){ setTimeout(function(){ try{ var lay=(ed.layers||[]).filter(function(x){ return x.type==='video'; })[0]; if(lay&&typeof edCapsGenerate==='function') edCapsGenerate(lay); }catch(e){ console.warn('Sous-titres auto',e); } },700); }
+      // Voix (texte du script validé) puis sous-titres : posés avec les outils du Studio, donc modifiables ensuite.
+      if(o.voiceText||o.caps){ setTimeout(async function(){ try{
+        var lay=(ed.layers||[]).filter(function(x){ return x.type==='video'; })[0]; if(!lay) return;
+        if(o.voiceText&&typeof edVoiceover==='function'){
+          var vp={}; try{ vp=JSON.parse(marshallReadLocal('marshall_voice_pref_v1')||'{}'); }catch(e){}
+          var vr=await edVoiceover(lay.id,{voice:vp.voice||'femme',tone:vp.tone||'informatif',text:o.voiceText});
+          if(!vr||!vr.ok){ toast('Voix off impossible : '+((vr&&vr.error)||'réessaie avec « 🎙️ Voix off IA »'),true); return; }
+        }
+        if(o.caps&&typeof edCapsGenerate==='function'){ var lay2=(ed.layers||[]).filter(function(x){ return x.id===lay.id; })[0]||lay; await edCapsGenerate(lay2); }
+      }catch(e){ console.warn('Voix / sous-titres auto',e); } },700); }
     }catch(e){ console.warn('Vidéo → canva',e); }
   }
   function marshallVideoResultCard(videoUrl,engine,skipPersist){
@@ -11740,7 +11773,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallVideoDeliver(url,engine,convId,o){
     var st=marshallConversationLoad(), active=st.activeId;
     url=marshallFixVideoUrl(url);
-    if(!convId||convId===active){ marshallVideoToCanvas(url,engine,o&&o.caps); if(marshallVideoResultCard(url,engine)){ marshallNotifyIfHidden(); return; } }
+    if(!convId||convId===active){ marshallVideoToCanvas(url,engine,o||{}); if(marshallVideoResultCard(url,engine)){ marshallNotifyIfHidden(); return; } }
     var c=st.conversations.find(function(x){ return x.id===(convId||active); });
     if(c){ c.artifacts=Array.isArray(c.artifacts)?c.artifacts:[]; c.artifacts.push({type:'video',data:{url:url,engine:engine||'vidéo IA'},at:Date.now()}); c.updatedAt=Date.now(); marshallConversationSave(); try{ marshallConversationRenderSidebar(); }catch(e){} }
     marshallNotifyIfHidden();
@@ -11749,8 +11782,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallPollStoryVideo(taskId,engine,resume){
     if(marshallPendingActive[taskId]) return marshallPendingActive[taskId];
     var conv=null; try{ conv=(resume&&resume.conv)||marshallConversationLoad().activeId; }catch(e){}
-    var caps=!!(resume&&resume.caps);
-    marshallPendingAdd({id:taskId,engine:engine||'',conv:conv,at:(resume&&resume.at)||Date.now(),caps:caps});
+    var caps=!!(resume&&resume.caps), voiceText=String((resume&&resume.voiceText)||'').slice(0,1500);
+    marshallPendingAdd({id:taskId,engine:engine||'',conv:conv,at:(resume&&resume.at)||Date.now(),caps:caps,voiceText:voiceText});
     var run=(async function(){
       var started=Date.now(),maxMs=16*60*1000,final=false;
       try{
@@ -11759,7 +11792,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           var r=await fetch(MARSHALL_VIDEO_STATUS_BASE+encodeURIComponent(taskId),{method:'GET'}),data=null;try{data=await r.json();}catch(e){}
           if(!r.ok||!data){ final=r.status>=400&&r.status<500; throw Error((data&&data.error)||('Statut vidéo HTTP '+r.status)); }
           if(data.failed){ final=true; throw Error(data.error||'La génération vidéo a échoué'); }
-          if(data.done&&data.video_url){ marshallPendingRemove(taskId); marshallVideoDeliver(data.video_url,engine,conv,{caps:caps}); edAIStatus('✓ Story vidéo prête · '+(engine||'vidéo IA')+'.'); return data; }
+          if(data.done&&data.video_url){ marshallPendingRemove(taskId); marshallVideoDeliver(data.video_url,engine,conv,{caps:caps,voiceText:voiceText}); edAIStatus('✓ Story vidéo prête · '+(engine||'vidéo IA')+'.'); return data; }
           var p=data.progress!=null?(' · '+data.progress+'%'):'';edAIStatus((data.state==='veo'?'Veo anime tes scènes':data.state==='wan'?'Wan 2.2 anime tes scènes':data.state==='montage'?'Montage de la vidéo':'Vidéo en cours')+p+'…');
         }
         throw Error('La génération vidéo prend trop de temps. Le rendu peut continuer côté serveur.');
@@ -12149,13 +12182,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
     if(engine==='wan'){say('Wan 2.2 anime les plans (3 à 8 min)…');edAIStatus('🌱 Wan 2.2 tourne ta vidéo de '+sec+' s…');}
     else{say('Google Veo anime les plans (1 à 3 min)…');edAIStatus('🎬 Veo 3.1 '+(tier==='fast'?'Fast':'Lite')+' tourne ta vidéo de '+sec+' s…');}
-    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/create',{method:'POST',headers:await authHeaders(),body:JSON.stringify({title:String(plan.title||'').slice(0,120),concept:String(plan.concept||'').slice(0,300),tier:tier,engine:engine,seconds:sec,captions_editable:!!(plan&&plan._news),prompt:String(prompt||'').slice(0,500),shots:shots.map(function(s){return {image:s.image,visual:String(s.visual).slice(0,600),motion:String(s.motion||'').slice(0,300),voiceover:String(s.voiceover||'').slice(0,160)};})})});
+    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/create',{method:'POST',headers:await authHeaders(),body:JSON.stringify({title:String(plan.title||'').slice(0,120),concept:String(plan.concept||'').slice(0,300),tier:tier,engine:engine,seconds:sec,captions_editable:!!(plan&&plan._news),raw:!!(plan&&plan._news),prompt:String(prompt||'').slice(0,500),shots:shots.map(function(s){return {image:s.image,visual:String(s.visual).slice(0,600),motion:String(s.motion||'').slice(0,300),voiceover:String(s.voiceover||'').slice(0,160)};})})});
     var data=null;try{data=await r.json();}catch(e){}
     marshallTokensFromResponse(data);
     if(r.status===403&&data&&data.need_plan)marshallPaywallOpen(data.need_plan);
     if(!r.ok||!data||data.ok!==true)throw Error((data&&data.error)||('Vidéo HTTP '+r.status));
     say('Montage : voix off et sous-titres…');
-    await marshallPollStoryVideo(data.task_id,data.engine||(engine==='wan'?'Wan 2.2':'Veo 3.1'),{caps:!!(plan&&plan._news)});
+    var _vtxt=plan&&plan._news?plan.shots.map(function(x){ return String(x.voiceover||'').trim(); }).filter(Boolean).join(' '):'';
+    await marshallPollStoryVideo(data.task_id,data.engine||(engine==='wan'?'Wan 2.2':'Veo 3.1'),{caps:!!(plan&&plan._news),voiceText:_vtxt});
     return true;
   }
   function marshallVideoAI(mode){return mode==='video'||mode==='veo-lite'||mode==='veo-fast';}
