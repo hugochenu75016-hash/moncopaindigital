@@ -7498,7 +7498,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         +(S.image?'<img src="'+esc(S.image)+'" alt=""><button type="button" class="sai-drop-x" data-sai="clear" aria-label="Retirer l’image">×</button>'
           :'<div class="sai-drop-empty"><span class="sai-drop-ico">🖼️</span><b>Glisse ton image ici</b><span>ou clique pour l’importer</span></div>')
         +'<input type="file" accept="image/*" data-sai-file hidden></div>'
-        +(selImg&&!S.image?'<button type="button" class="sai-link" data-sai="usesel">Utiliser l’image sélectionnée sur le canvas</button>':'');
+        +(selImg&&!S.image?'<button type="button" class="sai-link" data-sai="usesel">Utiliser l’image sélectionnée sur le canvas</button>':'')
+        +'<div class="sai-lbl">Ce que tu veux voir</div><textarea class="sai-prompt" rows="3" maxlength="600" placeholder="Ex. : la banane monte dans une petite voiture rouge et démarre"></textarea>';
     } else {
       zone='<div class="sai-lbl">'+(S.mode==='t2i'?'Décris ton image':'Décris ta vidéo')+'</div><textarea class="sai-prompt" rows="5" maxlength="1200" placeholder="'+(S.mode==='t2i'?'Ex. : un café parisien au lever du soleil, lumière dorée, style photo éditoriale':'Ex. : des vagues turquoise sur une plage de sable blanc, la caméra s’élève doucement au-dessus de l’eau')+'"></textarea>';
     }
@@ -7519,7 +7520,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallStudioFill(detail){
     var S=MARSHALL_STUDIO, ta=detail.querySelector('.sai-prompt');
-    if(ta){ ta.value=S.mode==='t2i'?S.draftI:S.draftV; }
+    if(ta){ ta.value=S.mode==='t2i'?S.draftI:(S.mode==='i2v'?(S.draftA||''):S.draftV); }
   }
   function marshallStudioRefresh(detail,animate){
     var host=detail.querySelector('.sai-host'); if(!host) return;
@@ -7570,7 +7571,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(act==='usesel'){ var si=(ed.layers||[]).filter(function(o){ return o.id===ed.sel&&o.type==='image'; })[0]; if(si){ S.image=si.url; marshallStudioRefresh(detail,false); } return; }
       if(act==='go'){ var ta=detail.querySelector('.sai-prompt'); marshallStudioRun(S.mode,ta?ta.value.trim():''); }
     });
-    detail.addEventListener('input',function(e){ if(e.target.classList&&e.target.classList.contains('sai-prompt')){ if(MARSHALL_STUDIO.mode==='t2i') MARSHALL_STUDIO.draftI=e.target.value; else MARSHALL_STUDIO.draftV=e.target.value; } });
+    detail.addEventListener('input',function(e){ if(e.target.classList&&e.target.classList.contains('sai-prompt')){ var M=MARSHALL_STUDIO.mode; if(M==='t2i') MARSHALL_STUDIO.draftI=e.target.value; else if(M==='i2v') MARSHALL_STUDIO.draftA=e.target.value; else MARSHALL_STUDIO.draftV=e.target.value; } });
     detail.addEventListener('change',function(e){ if(e.target.hasAttribute&&e.target.hasAttribute('data-sai-file')){ marshallStudioSetImage(detail,e.target.files&&e.target.files[0]); e.target.value=''; } });
     detail.addEventListener('dragover',function(e){ var z=e.target.closest&&e.target.closest('.sai-drop'); if(!z) return; e.preventDefault(); z.classList.add('over'); });
     detail.addEventListener('dragleave',function(e){ var z=e.target.closest&&e.target.closest('.sai-drop'); if(z) z.classList.remove('over'); });
@@ -7597,13 +7598,21 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var vp=String(r.video_prompt||'').trim(); if(!vp) throw Error('prompt Higgsfield non généré, réessaie');
     return {camera:cam,video_prompt:vp.slice(0,1100),image_prompt:String(r.image_prompt||vp).trim().slice(0,900),title:String(r.title||'').trim().slice(0,60)};
   }
+  async function marshallHiggsfieldI2V(image,idea,seconds){
+    var small=image;
+    try{ if(/^blob:/.test(small)) small=await edBlobToDataUrl(await (await fetch(small)).blob()); else if(!/^data:/.test(small)) small=await edBlobToDataUrl(await (await fetch(small)).blob()); small=await edShrinkForUpload(small,768); }catch(e){}
+    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/i2v-prompt',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:small,idea:idea,seconds:seconds})});
+    var d=null; try{ d=await r.json(); }catch(e){}
+    if(!r.ok||!d||!d.ok||!d.video_prompt) throw Error((d&&d.error)||('prompt Higgsfield HTTP '+r.status));
+    return {camera:d.camera||'Static',video_prompt:d.video_prompt,title:d.title||'',subject:d.subject||''};
+  }
   function marshallStudioPipeRender(){
     var el=document.getElementById('sai-status'), P=MARSHALL_STUDIO.pipe; if(!el) return;
     if(!P){ el.innerHTML=''; return; }
     var st=function(n){ return P.step>n?'done':(P.step===n?'run':''); };
     var ico=function(n){ return P.step>n?'✓':(P.step===n?'<span class="vp-spin"></span>':n); };
     el.innerHTML='<div class="sai-pipe">'
-      +'<div class="sp-step '+st(1)+'"><i>'+ico(1)+'</i><div><b>Ton prompt</b><small>'+esc(String(P.user||'').slice(0,140))+'</small></div></div>'
+      +'<div class="sp-step '+st(1)+'"><i>'+ico(1)+'</i><div><b>'+(P.i2v?'Ton image + ton idée':'Ton prompt')+'</b><small>'+esc(String(P.user||(P.i2v?'Mouvement naturel et cinéma':'')).slice(0,140))+'</small></div></div>'
       +'<div class="sp-step '+st(2)+'"><i>'+ico(2)+'</i><div><b>Prompt Higgsfield</b>'+(P.hp?'<span class="sp-cam">🎥 '+esc(P.hp.camera)+'</span><small class="sp-hp">'+esc(P.hp.video_prompt)+'</small>':'<small>Marshall écrit le prompt cinéma…</small>')+'</div></div>'
       +'<div class="sp-step '+st(3)+'"><i>'+ico(3)+'</i><div><b>Génération vidéo</b><small>'+esc(P.sub||(P.step>=3?'Préparation…':'En attente'))+'</small></div></div>'
       +'</div>';
@@ -7625,14 +7634,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       throw Error((go&&go.error)||('Nano Banana HTTP '+gr.status));
     }
     if(hd){ var k=Math.min(1.4,1536/Math.max(dims.width,dims.height)); dims={width:Math.round(dims.width*k/16)*16,height:Math.round(dims.height*k/16)*16}; }
-    // Le serveur d'images peut couper la 1re requête pendant son démarrage : on réessaie (2 fois max).
+    // Le serveur d'images peut couper les 1res requêtes pendant son démarrage : on réessaie (jusqu'à 5 essais).
     var body=JSON.stringify({prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE}), res=null;
-    for(var att=0;att<3;att++){
+    for(var att=0;att<5;att++){
       res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:body}).catch(function(){ return null; });
       if(res&&res.ok) break;
       if(res&&res.status>=400&&res.status<500) break;
       marshallStudioStatus('🖼️ Le serveur d’images démarre… nouvel essai');
-      await new Promise(function(ok){ setTimeout(ok,4000); });
+      await new Promise(function(ok){ setTimeout(ok,6000); });
     }
     if(!res||!res.ok) throw Error('serveur d’images indisponible'+(res?' (HTTP '+res.status+')':'')+', réessaie dans un instant');
     var out=await res.json();
@@ -7673,6 +7682,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{ marshallAgentDockChatAdd('user',label+(prompt?' : '+prompt:''),false); }catch(e){}
     var hp=null;
     try{
+      if(kind==='i2v'){
+        S.pipe={step:2,user:prompt,hp:null,sub:'',i2v:true}; marshallStudioPipeRender();
+        hp=await marshallHiggsfieldI2V(image,prompt,S.seconds);
+        S.pipe.hp=hp; S.pipe.step=3; S.pipe.sub='🎬 Lancement de la vidéo…'; marshallStudioPipeRender();
+      }
       if(kind==='t2v'){
         S.pipe={step:2,user:prompt,hp:null,sub:''}; marshallStudioPipeRender();
         hp=await marshallHiggsfieldPrompt(prompt,S.seconds);
