@@ -1147,6 +1147,10 @@
   .mrv-eng button:disabled{ opacity:.5; cursor:not-allowed; }
   .mrv-eng b{ display:block; font-size:13.5px; color:#2a1a0c; }
   .mrv-eng small{ display:block; font-size:11.5px; color:#8a7a6c; margin-top:2px; }
+  .mnat-btns{ display:flex; flex-wrap:wrap; gap:8px; }
+  .mnat-btn.vid{ background:linear-gradient(180deg,#2b2f3a,#1b1e26)!important; color:#fff!important; }
+  .mrv-news{ margin:8px 0 10px; padding:10px 12px; border-radius:12px; background:#f4f8ff; border:1px solid #dbe7fb; font-size:13px; line-height:1.35; color:#1d2b44; }
+  .mrv-news b{ margin-right:4px; } .mrv-news small{ display:block; margin-top:5px; font-size:11.5px; color:#6b7a93; }
   .ed-vid-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.28); pointer-events:none; }
   .ed-vid-loading span{ width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,.35); border-top-color:#F3852B; animation:edVidSpin .8s linear infinite; }
   @keyframes edVidSpin{ to{ transform:rotate(360deg); } }
@@ -11674,8 +11678,23 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallVideoCost(sec,tier,engine){var d=marshallVideoDur(sec);return marshallTokenFmt((engine==='wan'?marshallTokenPrice('wan_second',2*d.wan):marshallTokenPrice(tier==='fast'?'veo_fast_second':'veo_lite_second',2*d.veo))+2*marshallTokenPrice('image'));}
   function marshallVideoEngineLabel(engine,tier){return engine==='wan'?'Wan 2.2 · éco':'Veo 3.1 '+(tier==='fast'?'Fast':'Lite');}
   function marshallVideoWords(s){return String(s||'').trim().split(/\s+/).filter(Boolean).length;}
-  async function marshallVideoScript(prompt,sec,feedback,prev){
+  async function marshallVideoScript(prompt,sec,feedback,prev,news){
     var d=marshallVideoDur(sec),per=Math.max(3,Math.floor(d.words/2));
+    if(news&&news.item){
+      var it=news.item;
+      return marshallRemoteJSONRetry([
+        'Tu es le réalisateur de Marshall : tu IMAGINES une vidéo verticale 9:16 de '+d.sec+' secondes qui raconte une actualité, pour Reels / TikTok / Stories.',
+        'ACTUALITÉ ('+(news.country||'')+') : '+(it.title||'')+'. '+(it.summary||'')+(it.key_figure?' Chiffre clé : '+it.key_figure+'.':'')+(it.date?' Date : '+it.date+'.':'')+(it.why?' Enjeu : '+it.why:''),
+        'Structure : EXACTEMENT 2 plans. Plan 1 = une scène qui illustre l’info et accroche dès la 1re seconde. Plan 2 = ce que ça change concrètement pour les gens + invitation à suivre l’actu.',
+        'Pour chaque plan :',
+        '- "visual" : prompt en ANGLAIS pour une image verticale photoréaliste qui ILLUSTRE l’info de façon symbolique ou évocatrice (lieu typique du pays, objets, ambiance, personnes anonymes de dos ou floues). INTERDIT : personnalités réelles ou visages identifiables, politiciens, célébrités, logos, drapeaux déformés, texte, fausse scène présentée comme une vraie image de l’événement (violence, catastrophe, manifestation « en direct »).',
+        '- "motion" : mouvement de caméra et d’action en ANGLAIS, simple et réaliste.',
+        '- "voiceover" : voix off en FRANÇAIS, '+per+' mots MAXIMUM, ton de journaliste réseaux sociaux : reprends EXACTEMENT les faits donnés (titre, chiffre, date), n’invente rien, ne parle pas de la marque.',
+        prev?('Script précédent : '+JSON.stringify({title:prev.title,shots:prev.shots})):'',
+        feedback?('Consigne prioritaire : '+feedback):'',
+        'Réponds UNIQUEMENT en JSON : {"title":"","concept":"","shots":[{"visual":"","motion":"","voiceover":""},{"visual":"","motion":"","voiceover":""}]}'
+      ].filter(Boolean).join('\n'),'Demande : '+prompt);
+    }
     return marshallRemoteJSONRetry([
       'Tu es le réalisateur de Marshall : tu conçois des vidéos verticales 9:16 TRÈS COURTES ('+d.sec+' secondes au total) pour Reels / TikTok / Stories, qui arrêtent le scroll et font agir.',
       marshallBrandContext(),marshallClip(marshallBrandIntelligenceContext(),1500),
@@ -11746,7 +11765,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         (it.key_figure?'<div class="mnat-fig">📊 '+esc(it.key_figure)+'</div>':'')+
         (it.why?'<div class="mnat-why"><b>Pourquoi c’est important :</b> '+esc(it.why)+'</div>':'')+
         (it.post_idea?'<div class="mnat-idea">💡 '+esc(it.post_idea)+'</div>':'')+
-        '<button type="button" class="mnat-btn" data-nat-story="'+i+'">✨ Créer une story avec cette info</button></div>';}).join('')+
+        '<div class="mnat-btns"><button type="button" class="mnat-btn" data-nat-story="'+i+'">✨ Créer une story avec cette info</button><button type="button" class="mnat-btn vid" data-nat-video="'+i+'">🎬 Vidéo de 10 s sur cette info</button></div></div>';}).join('')+
       ((prof.length||leaders.length)?'<div class="mnat-sec">🗺️ Fiche pays</div><div class="mnat-grid">'+prof.map(function(x){return '<div><small>'+x[0]+'</small><b>'+esc(x[1])+'</b></div>';}).join('')+(leaders.length?'<div class="wide"><small>👤 Dirigeants</small><b>'+leaders.map(esc).join(' · ')+'</b></div>':'')+'</div>':'')+
       (e.length?'<div class="mnat-sec">📈 Économie</div><div class="mnat-eco">'+e.map(function(x){return '<div><small>'+esc(x.label||'')+'</small><b>'+esc(x.value||'—')+'</b>'+(x.period?'<em>'+esc(x.period)+'</em>':'')+'</div>';}).join('')+'</div>':'')+
       (tr.length?'<div class="mnat-sec">🔥 Tendances</div><div class="mnat-chips">'+tr.map(function(x){return '<span>'+esc(typeof x==='string'?x:(x.title||x.label||''))+'</span>';}).join('')+'</div>':'')+
@@ -11760,6 +11779,13 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       marshallPendingNewsItem={country:name,item:it,sources:(res&&res.sources)||[],at:Date.now()};
       var pr='Crée une story sur cette actualité ('+name+') en restant 100 % factuel, sans rien inventer : '+(it.title||'')+'. '+(it.summary||'')+(it.key_figure?' Chiffre clé : '+it.key_figure+'.':'')+(it.post_idea?' Idée de format : '+it.post_idea:'');
       try{marshallChatSubmit(pr,{forceIntent:'story'});}catch(err){console.warn(err);}
+    });});
+    $all('[data-nat-video]',box).forEach(function(btn){btn.addEventListener('click',async function(){
+      var it=top[+btn.getAttribute('data-nat-video')]||{};
+      var nw={country:name,item:it,sources:(res&&res.sources)||[],at:Date.now()};
+      var pr='Vidéo de 10 s qui imagine cette actualité ('+name+') : '+(it.title||'');
+      try{marshallChatBubble('user','🎬 '+pr);}catch(e){}
+      try{var r=await marshallCreateRealVideo(pr,{news:nw});if(r&&r.needHyper)return;}catch(err){try{marshallChatBubble('assistant','⚠ '+(err&&err.message?err.message:'Vidéo impossible pour le moment.'));}catch(e){}}
     });});
     var cp=box.querySelector('[data-nat-act="copy"]');if(cp)cp.addEventListener('click',function(){
       var txt=flag+' '+name+' · '+asOf+'\n'+(b.summary||'')+'\n\n'+top.map(function(it,i){return (i+1)+'. '+(it.title||'')+(it.date?' ('+it.date+')':'')+'\n'+(it.summary||'')+(it.key_figure?'\nChiffre clé : '+it.key_figure:'');}).join('\n\n')+(src.length?'\n\nSources :\n'+src.map(function(s){return '- '+s.title+' : '+s.url;}).join('\n'):'');
@@ -11925,14 +11951,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
     render();th.appendChild(box);th.scrollTop=th.scrollHeight;return box;
   }
-  async function marshallCreateRealVideo(prompt){
+  async function marshallCreateRealVideo(prompt,vopts){
+    vopts=vopts||{};
+    if(!vopts.news&&marshallPendingNewsItem&&Date.now()-marshallPendingNewsItem.at<600000&&/\b(info|infos|actu|actus|actualit|news)\b/i.test(String(prompt||''))){vopts.news=marshallPendingNewsItem;}
     var _pw=marshallPower();
     if(_pw!=='hyper'&&_pw!=='normal'){marshallVideoNeedsHyperCard(prompt);return {asked:true,needHyper:true};}
     if(!marshallAccountProfileReady()){marshallChatAccountSetupCard(prompt,{});throw Error('dis-moi d’abord si c’est un compte professionnel (SIRET) ou personnel, juste au-dessus');}
     var eng=await marshallEngines();
     var _veoOk=_pw==='hyper'&&!!(eng.google&&eng.google.video);
     try{var _mb=marshallBrandManualGet()||{};if(marshallBrandThin()&&Date.now()-Number(_mb.autopilotAt||0)>86400000&&(_mb.website||_mb.legalName||_mb.sector||_mb.personalTopic||_mb.autopilotHint))marshallBrandAutopilot('',{silent:true}).catch(function(){});}catch(e){}
-    marshallVideoProposalCard(prompt,{veoOk:_veoOk,hyper:_pw==='hyper'});
+    marshallVideoProposalCard(prompt,{veoOk:_veoOk,hyper:_pw==='hyper',news:vopts.news||null});
     edAIStatus('🎬 Choisis l’IA et la durée de ta vidéo.');
     return {asked:true};
   }
@@ -11944,13 +11972,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!veoOk)engine='wan';
     function costLine(s2){return '≈ '+marshallVideoCost(s2,tier,engine)+' tokens · '+marshallVideoEngineLabel(engine,tier)+' · voix off '+marshallVideoDur(s2).words+' mots max';}
     try{var last=+marshallReadLocal('marshall_video_seconds_v1');if(last>=5&&last<=10)sec=last;}catch(e){}
+    var news=opt.news&&opt.news.item?opt.news:null;if(news)sec=10;
     var box=document.createElement('div');box.className='mv4-msg assistant mrv-card';
     function words(){return plan?plan.shots.reduce(function(n,s){return n+marshallVideoWords(s.voiceover);},0):0;}
     function sync(){if(!plan)return;$all('.mrv-vo',box).forEach(function(el){var i=+el.getAttribute('data-i');if(plan.shots[i])plan.shots[i].voiceover=marshallNorm(el.textContent).slice(0,160);});}
     function render(state){
       var d=marshallVideoDur(sec),over=plan&&words()>d.words;
-      box.innerHTML='<div class="mrv-title">🎬 '+esc(plan&&plan.title||'Ta vidéo')+'</div>'+
-        (plan?'<div class="mrv-sub">'+esc(plan.concept||'')+'</div><div class="mrv-ask">Voici mon idée. Tu peux modifier les phrases directement, ajuster la durée, puis valider.</div>':'<div class="mrv-ask">Quelle durée pour ta vidéo ? Règle le curseur, puis j’écris le script adapté.</div>')+
+      box.innerHTML='<div class="mrv-title">🎬 '+esc(plan&&plan.title||(news?'Vidéo sur l’info':'Ta vidéo'))+'</div>'+
+        (news?'<div class="mrv-news"><b>📰 '+esc(news.country||'')+'</b> '+esc(news.item.title||'')+'<small>Les images sont une illustration imaginée par l’IA, pas des images réelles de l’événement.</small></div>':'')+
+        (plan?'<div class="mrv-sub">'+esc(plan.concept||'')+'</div><div class="mrv-ask">Voici mon idée. Tu peux modifier les phrases directement, ajuster la durée, puis valider.</div>':'<div class="mrv-ask">'+(news?'J’imagine une vidéo de 10 s qui raconte cette info. Choisis l’IA, puis j’écris le script.':'Quelle durée pour ta vidéo ? Règle le curseur, puis j’écris le script adapté.')+'</div>')+
         '<div class="mrv-eng" role="radiogroup" aria-label="IA qui crée la vidéo">'+
           '<button type="button" role="radio" data-eng="veo" class="'+(engine==='veo'?'on':'')+'" aria-checked="'+(engine==='veo')+'"><b>🎬 Google Veo 3.1</b><small>'+(veoOk?'Qualité ciné · 1 à 3 min':(opt.hyper?'Indisponible pour le moment':'Offre Hyper'))+'</small></button>'+
           '<button type="button" role="radio" data-eng="wan" class="'+(engine==='wan'?'on':'')+'" aria-checked="'+(engine==='wan')+'"><b>🌱 Wan 2.2</b><small>Éco · open source · 3 à 8 min</small></button>'+
@@ -11980,9 +12010,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       busy=true;render(msg);
       try{
         try{await marshallEnsureBrandIntelligence(false);}catch(e){}
-        var np=await marshallVideoScript(prompt,sec,feedback,plan),ns=(np&&Array.isArray(np.shots)?np.shots:[]).filter(function(s){return s&&s.visual;}).slice(0,2);
+        var np=await marshallVideoScript(prompt,sec,feedback,plan,news),ns=(np&&Array.isArray(np.shots)?np.shots:[]).filter(function(s){return s&&s.visual;}).slice(0,2);
         if(ns.length<2)throw Error('Script incomplet, réessaie.');
-        np.shots=ns;plan=np;busy=false;render('');
+        np.shots=ns;if(news)np._news=true;plan=np;busy=false;render('');
         edAIStatus('🎬 Script prêt : relis-le puis clique « Créer la vidéo ».');
       }catch(e){busy=false;render('⚠ '+(e&&e.message?e.message:'Réessaie.'));}
     }
@@ -11992,7 +12022,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function marshallLaunchRealVideo(prompt,plan,sec,tier,box,say,engine){
     engine=engine==='wan'?'wan':'veo';
     var _d=marshallVideoDur(sec);await marshallTokensCheck((engine==='wan'?marshallTokenPrice('wan_second',2*_d.wan):marshallTokenPrice(tier==='fast'?'veo_fast_second':'veo_lite_second',2*_d.veo))+2*marshallTokenPrice(marshallSetting('imageEngine','auto')==='pro'?'image_pro':'image'));
-    var photos=marshallRealPhotos(),dims={width:768,height:1360},shots=plan.shots;
+    var photos=plan&&plan._news?[]:marshallRealPhotos(),dims={width:768,height:1360},shots=plan.shots;   // vidéo « info » : pas de photos de la marque
     for(var i=0;i<shots.length;i++){
       say('Image clé '+(i+1)+'/'+shots.length+'…');edAIStatus('🎬 Plan '+(i+1)+'/'+shots.length+' : image clé…');
       var ip=shots[i].visual+'. Vertical 9:16 frame, photorealistic, cinematic commercial look, natural colours, sharp subject. Absolutely no text, letters, captions, logos or readable screens.';
