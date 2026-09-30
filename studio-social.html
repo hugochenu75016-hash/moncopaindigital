@@ -5063,6 +5063,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
     page.classList.toggle('ed-preview',!!ed.preview);
     edBind(); edPanel();
+    // La colonne des canvas (1, 2, 3, +) doit toujours être là, même quand on part directement d'une vidéo.
+    try{ var mp=$('#ed-multipage'); if(mp&&(!mp.classList.contains('show')||!mp.children.length)&&!edRender._mp){ edRender._mp=1; marshallCanvasPagesRender(); edRender._mp=0; } }catch(e){ edRender._mp=0; console.warn('Colonne des canvas',e); }
     if($('#ed-fly-title') && $('#ed-flyout').classList.contains('show') && ed.flyKind==='layers') edFlyout('layers');
   }
 
