@@ -8756,6 +8756,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   setTimeout(function(){try{if(authUser)marshallRepList().then(marshallRepPillSet).catch(function(){});}catch(e){}},4000);
   async function marshallChatSubmit(forcePrompt,opts){
     if(marshallChatBusy||marshallAgentDockBusy)return;
+    try{ marshallFreshReset(); }catch(e){}
     var input=$('#ai-prompt'), b=$('#ai-run');
     var prompt=String(forcePrompt!=null?forcePrompt:((input&&input.value)||'')).trim();
     opts=opts||{};
@@ -10018,13 +10019,23 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     marshallCanvasPagesRender();marshallCanvasPersistConversation();
     edAIStatus('✓ '+marshallCanvasPageLabel(marshallCanvasPages[index],index).name+' chargé.');
   }
+  /* Marshall crée toujours sur de NOUVEAUX canvas, ajoutés après ceux de l'utilisateur (jamais écrasés).
+     Pendant une même demande (nouvel essai, autre style), il remplace seulement ses propres canvas. */
+  var marshallFreshPages=[];
+  function marshallFreshReset(){ marshallFreshPages=[]; }
+  function marshallPagesAppendFresh(newPages){
+    marshallCanvasPagesEnsureCurrent();
+    try{ marshallCanvasPagesSaveCurrent(); }catch(e){}
+    var keep=marshallCanvasPages.filter(function(p){ return marshallFreshPages.indexOf(p)<0&&(p.layers||[]).length; });
+    marshallCanvasPages=keep.concat(newPages); marshallCanvasPageIndex=keep.length; marshallFreshPages=newPages.slice();
+  }
   function marshallCanvasPagesSetFromGenerated(kind){
-    marshallCanvasPages=marshallGeneratedSet.map(function(v,i){
+    var gen=marshallGeneratedSet.map(function(v,i){
       return {name:v.name||marshallCanvasDefaultName(kind||'post',i),desc:v.desc||marshallCanvasDefaultDesc(kind||'post',i),kind:kind||'post',fmt:v.fmt,bg:v.bg,motion:marshallClone(v.motion||marshallPageMotionDefault()),layers:marshallClone(v.layers||[])};
     });
-    marshallCanvasPageIndex=0;
+    marshallPagesAppendFresh(gen);
     marshallCanvasPagesRender();
-    if(marshallCanvasPages[0])marshallCanvasRestore(marshallCanvasPages[0]);
+    if(marshallCanvasPages[marshallCanvasPageIndex])marshallCanvasRestore(marshallCanvasPages[marshallCanvasPageIndex]);
     marshallCanvasPersistConversation();
   }
   function marshallCanvasPagesClear(){
@@ -12380,7 +12391,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         upsertLocalList(post);await persistScheduledServer(post);
         if(i%4===3)await new Promise(function(resolve){setTimeout(resolve,0);});
       }
-      marshallCanvasPages=pages;marshallCanvasPageIndex=0;marshallGeneratedSet=pages.map(function(p){return {name:p.name,desc:p.desc,fmt:p.fmt,bg:p.bg,motion:marshallClone(p.motion),layers:marshallClone(p.layers)};});
+      marshallPagesAppendFresh(pages);marshallGeneratedSet=pages.map(function(p){return {name:p.name,desc:p.desc,fmt:p.fmt,bg:p.bg,motion:marshallClone(p.motion),layers:marshallClone(p.layers)};});
       if(pages[0])marshallCanvasRestore(pages[0]);marshallCanvasPagesRender();marshallCanvasPersistConversation();
       calRef=new Date(target.year,target.month,1);renderCalendar();updateBadges();
       edAIStatus('✓ '+plan.length+' stories créées et planifiées dans le calendrier de '+label+'.');
@@ -12392,6 +12403,18 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
   /* --- Marshall Canvas Builder : crée le post directement en calques éditables --- */
   function marshallClearCanvas(){
+    try{
+      marshallCanvasPagesEnsureCurrent(); marshallCanvasPagesSaveCurrent();
+      var cur=marshallCanvasPages[marshallCanvasPageIndex];
+      if(cur&&marshallFreshPages.indexOf(cur)<0){
+        if((ed.layers||[]).length){
+          var page=marshallCanvasBlankPage(cur.kind||'post',marshallCanvasDefaultName(cur.kind||'post',marshallCanvasPages.length));
+          marshallCanvasPages.push(page); marshallCanvasPageIndex=marshallCanvasPages.length-1; marshallFreshPages=[page];
+          ed.hist=[]; ed.hi=-1;
+          marshallCanvasPagesRender();
+        } else marshallFreshPages=[cur];   // canva vide : Marshall l'utilise
+      }
+    }catch(e){ console.warn('Nouveau canva Marshall',e); }
     ed.layers=[]; ed.sel=null; ed.bg='#FFFFFF';
   }
   function marshallAddTextLayer(text,x,y,w,size,color,bold,align){
