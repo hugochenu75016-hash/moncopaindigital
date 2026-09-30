@@ -1151,6 +1151,9 @@
   .mnat-btn.vid{ background:linear-gradient(180deg,#2b2f3a,#1b1e26)!important; color:#fff!important; }
   .mrv-news{ margin:8px 0 10px; padding:10px 12px; border-radius:12px; background:#f4f8ff; border:1px solid #dbe7fb; font-size:13px; line-height:1.35; color:#1d2b44; }
   .mrv-news b{ margin-right:4px; } .mrv-news small{ display:block; margin-top:5px; font-size:11.5px; color:#6b7a93; }
+  #ed-ai.mnotify{ position:relative; }
+  #ed-ai.mnotify::after{ content:''; position:absolute; top:4px; right:8px; width:11px; height:11px; border-radius:50%; background:#e5484d; box-shadow:0 0 0 2px #fff; animation:mNotifyPulse 1.4s ease-in-out infinite; }
+  @keyframes mNotifyPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.25); } }
   .ed-vid-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.28); pointer-events:none; }
   .ed-vid-loading span{ width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,.35); border-top-color:#F3852B; animation:edVidSpin .8s linear infinite; }
   @keyframes edVidSpin{ to{ transform:rotate(360deg); } }
@@ -6353,10 +6356,18 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
   }
 
+  /* Marshall continue de travailler quand on ouvre un autre outil (canvas, texte, réglages…) :
+     son panneau est rangé, caché mais vivant, puis remis tel quel au retour (réponses, recherches et vidéos en cours comprises). */
+  function marshallNotifyIfHidden(){
+    try{ var fly=$('#ed-flyout'), vis=ed.flyKind==='ai'&&fly&&fly.classList.contains('show')&&!fly.classList.contains('minimized');
+      if(!vis){ var b=$('#ed-ai'); if(b) b.classList.add('mnotify'); } }catch(e){}
+  }
+  function marshallKeepHolder(){ var h=document.getElementById('marshall-keep'); if(!h){ h=document.createElement('div'); h.id='marshall-keep'; h.hidden=true; h.setAttribute('aria-hidden','true'); document.body.appendChild(h); } return h; }
   function edFlyout(kind){
     try{ if(ed.flyKind==='ai' && kind!=='ai') marshallConversationSnapshot(); }catch(e){}
     ed.flyKind=kind;
     var fly=$('#ed-flyout'), body=$('#ed-fly-body'), title=$('#ed-fly-title');
+    if(kind!=='ai'){ var _live=body&&body.querySelector(':scope > .marshall-v4'); if(_live) marshallKeepHolder().appendChild(_live); }
     if(kind!=='ai')fly.classList.remove('minimized');
     fly.classList.toggle('marshall-mode', kind==='ai');
     fly.classList.toggle('settings-mode', kind==='settings');
@@ -6364,6 +6375,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     fly.classList.add('show');
     if(kind==='ai'){ fly.classList.remove('minimized');
       title.textContent='Marshall';
+      var _nb=$('#ed-ai'); if(_nb) _nb.classList.remove('mnotify');
+      var _kept=body.querySelector(':scope > .marshall-v4')||document.querySelector('#marshall-keep > .marshall-v4');
+      if(_kept){
+        if(_kept.parentNode!==body){ body.innerHTML=''; body.appendChild(_kept); }
+        try{ marshallConversationRenderSidebar(); }catch(e){}
+        var _th=$('#marshall-thread'); if(_th) requestAnimationFrame(function(){ _th.scrollTop=_th.scrollHeight; });
+        var _pr=$('#ai-prompt'); if(_pr) setTimeout(function(){ try{ _pr.focus({preventScroll:true}); }catch(e){} },50);
+      } else {
       body.innerHTML=`
         <div class="marshall-v4">
           <aside class="mv4-sidebar" aria-label="Historique Marshall">
@@ -6469,6 +6488,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       try{marshallAttachWire();}catch(e){console.warn('Import vidéo Marshall',e);}
       var settingsShortcut=$('#marshall-settings-shortcut');if(settingsShortcut)settingsShortcut.addEventListener('click',function(){marshallConversationSnapshot();edFlyout('settings');});
       marshallUIV5Bind();
+      try{ var _thw=$('#marshall-thread'); if(_thw) new MutationObserver(function(ms){ if(ms.some(function(m){ return m.addedNodes&&m.addedNodes.length; })) marshallNotifyIfHidden(); }).observe(_thw,{childList:true}); }catch(e){}
+      }
     }
     if(kind==='settings'){
       title.textContent='Réglages';
