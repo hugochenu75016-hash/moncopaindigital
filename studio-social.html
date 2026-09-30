@@ -1168,29 +1168,56 @@
   .mrv-slider2 .mrv-scale{ display:flex; justify-content:space-between; font-size:11px; color:#9a8f84; margin-top:2px; }
   .mrv-hyper{ margin-top:6px; font-size:11.5px; font-weight:700; color:#b8601a; }
   .ed-vo-actions .ed-vo-del{ margin-right:auto; background:#fdecec!important; color:#c93a3f!important; }
-  .sai{ display:flex; flex-direction:column; gap:6px; margin-top:6px; }
-  .sai-lbl{ font:800 11.5px 'Nunito','Fredoka',sans-serif; letter-spacing:.04em; text-transform:uppercase; color:#8f6a3c; margin-top:6px; }
-  .sai-lbl em{ font-style:normal; text-transform:none; letter-spacing:0; font-weight:600; color:#b3a393; }
-  .sai-seg{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-  .sai-seg.sm{ grid-template-columns:repeat(3,1fr); }
-  .sai-seg button{ position:relative; border:2px solid #efe3d6; background:#fff; border-radius:12px; padding:7px 9px; text-align:left; cursor:pointer; font-family:inherit; transition:border-color .15s, background .15s; }
-  .sai-seg.sm button{ text-align:center; }
-  .sai-seg button b{ display:block; font-size:13px; color:#2a1a0c; } .sai-seg button small{ display:block; font-size:11px; color:#8a7a6c; margin-top:1px; }
-  .sai-seg button.on{ border-color:#F3852B; background:#fff4e8; }
-  .sai-seg button.locked{ border-color:#f0c2c3; background:#fbeeee; cursor:not-allowed; filter:grayscale(.3); }
-  .sai-seg button.locked b{ color:#b0464b; } .sai-seg button.locked small{ color:#c9777b; }
-  .sai-seg button.locked:hover::after{ content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 6px); transform:translateX(-50%); white-space:nowrap; background:#2a1a0c; color:#fff; font:700 12px 'Fredoka',sans-serif; padding:6px 10px; border-radius:8px; box-shadow:0 6px 16px rgba(0,0,0,.2); z-index:5; }
-  .sai-img{ display:flex; align-items:center; gap:10px; }
-  .sai-img img{ width:58px; height:58px; object-fit:cover; border-radius:10px; border:2px solid #efe3d6; }
-  .sai-img > span{ width:58px; height:58px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:10.5px; color:#b3a393; border:2px dashed #e8dccf; border-radius:10px; }
-  .sai-img > div{ display:flex; flex-wrap:wrap; gap:6px; }
-  .sai-mini{ border:0; border-radius:999px; background:#fff4e8; color:#b8601a; font:700 12px 'Fredoka',sans-serif; padding:6px 11px; cursor:pointer; }
-  .sai-prompt{ width:100%; box-sizing:border-box; border:2px solid #efe3d6; border-radius:12px; padding:8px 10px; font:14px 'Fredoka',sans-serif; resize:vertical; }
-  .sai-prompt:focus{ outline:none; border-color:#F3852B; }
-  .sai-go{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:4px; }
-  .sai-go button{ border:0; border-radius:14px; padding:9px 6px; background:linear-gradient(180deg,#ff9a3d,#F3852B); color:#fff; cursor:pointer; box-shadow:0 3px 0 #d0671a; font-family:inherit; display:flex; flex-direction:column; align-items:center; gap:2px; }
-  .sai-go button b{ font-size:15px; } .sai-go button span{ font-weight:800; font-size:12.5px; } .sai-go button small{ font-size:10.5px; opacity:.9; }
-  .sai-go button:disabled,.sai-seg button:disabled{ opacity:.55; cursor:progress; }
+  /* Studio IA : interrupteurs « liquid glass » */
+  .sai-root{ display:flex; flex-direction:column; gap:10px; }
+  .lgt{ --n:2; --i:0; position:relative; display:grid; grid-template-columns:repeat(var(--n),1fr); padding:4px; border-radius:999px; isolation:isolate;
+    background:linear-gradient(180deg,rgba(118,118,128,.14),rgba(118,118,128,.08)); box-shadow:inset 0 1px 2px rgba(0,0,0,.08), inset 0 0 0 1px rgba(255,255,255,.5); }
+  .lgt-thumb{ position:absolute; z-index:0; top:4px; bottom:4px; left:4px; width:calc((100% - 8px) / var(--n)); transform:translateX(calc(var(--i) * 100%));
+    transition:transform .55s cubic-bezier(.34,1.45,.5,1); pointer-events:none; }
+  .lgt-thumb i{ position:absolute; inset:0; border-radius:999px;
+    background:linear-gradient(180deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.62) 55%,rgba(255,236,214,.55) 100%);
+    backdrop-filter:blur(14px) saturate(1.8); -webkit-backdrop-filter:blur(14px) saturate(1.8);
+    border:1px solid rgba(255,255,255,.85);
+    box-shadow:0 6px 18px rgba(243,133,43,.18), 0 2px 6px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,1), inset 0 -2px 6px rgba(243,133,43,.10); }
+  .lgt-thumb i::after{ content:''; position:absolute; left:14%; right:14%; top:3px; height:38%; border-radius:999px; background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,0)); }
+  .lgt.lgt-go .lgt-thumb i{ animation:lgtLiquid .55s cubic-bezier(.34,1.45,.5,1); }
+  @keyframes lgtLiquid{ 0%{ transform:scale(1,1); } 35%{ transform:scale(1.16,.9); } 65%{ transform:scale(.97,1.04); } 100%{ transform:scale(1,1); } }
+  .lgt.lgt-no{ animation:lgtShake .35s ease; }
+  @keyframes lgtShake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-4px); } 75%{ transform:translateX(4px); } }
+  .lgt button{ position:relative; z-index:1; border:0; background:transparent; border-radius:999px; padding:7px 8px; cursor:pointer; font-family:inherit; color:#6b5a4a; text-align:center; transition:color .25s; line-height:1.15; }
+  .lgt button b{ display:block; font-size:13px; font-weight:800; }
+  .lgt button small{ display:block; font-size:10.5px; font-weight:600; opacity:.75; margin-top:1px; }
+  .lgt button.on{ color:#2a1a0c; }
+  .lgt button.locked{ color:#c0464b; cursor:not-allowed; }
+  .lgt button.locked b,.lgt button.locked small{ opacity:.7; }
+  .lgt button.locked::before{ content:''; position:absolute; inset:2px; border-radius:999px; background:rgba(229,72,77,.08); border:1px dashed rgba(229,72,77,.35); }
+  .lgt button.locked:hover::after{ content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 8px); transform:translateX(-50%); white-space:nowrap; background:rgba(42,26,12,.92); color:#fff; font:700 12px 'Fredoka',sans-serif; padding:6px 10px; border-radius:9px; box-shadow:0 6px 16px rgba(0,0,0,.2); z-index:5; }
+  .lgt-mode{ padding:5px; }
+  .lgt-mode button{ padding:10px 4px; } .lgt-mode button b{ font-size:12px; white-space:nowrap; letter-spacing:-.01em; }
+  .sai-lbl{ font:800 11px 'Nunito','Fredoka',sans-serif; letter-spacing:.05em; text-transform:uppercase; color:#8f6a3c; margin:4px 0 -4px 4px; }
+  .sai-panel{ display:flex; flex-direction:column; gap:10px; }
+  .sai-panel.sai-in{ animation:saiIn .35s cubic-bezier(.2,.8,.2,1); }
+  @keyframes saiIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+  .sai-tg{ display:flex; flex-direction:column; gap:10px; }
+  .sai-drop{ position:relative; min-height:150px; border-radius:18px; border:2px dashed #ecd9c4; background:linear-gradient(180deg,#fffaf5,#fff3e6); display:flex; align-items:center; justify-content:center; cursor:pointer; overflow:hidden; transition:border-color .2s, background .2s, transform .2s; }
+  .sai-drop:hover,.sai-drop:focus{ border-color:#F3852B; outline:none; }
+  .sai-drop.over{ border-color:#F3852B; background:#ffe9d3; transform:scale(1.01); }
+  .sai-drop.has{ border-style:solid; border-color:#efe3d6; background:#000; }
+  .sai-drop img{ display:block; max-width:100%; max-height:240px; object-fit:contain; }
+  .sai-drop-empty{ display:flex; flex-direction:column; align-items:center; gap:3px; color:#8a7a6c; text-align:center; padding:16px; }
+  .sai-drop-empty b{ color:#2a1a0c; font-size:14px; } .sai-drop-empty span{ font-size:12px; }
+  .sai-drop-ico{ font-size:30px!important; margin-bottom:2px; }
+  .sai-drop-x{ position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; border:0; background:rgba(255,255,255,.85); backdrop-filter:blur(8px); color:#2a1a0c; font-size:18px; line-height:30px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.2); }
+  .sai-link{ align-self:flex-start; border:0; background:none; color:#b8601a; font:700 12.5px 'Fredoka',sans-serif; cursor:pointer; padding:0 4px; text-decoration:underline; text-underline-offset:3px; }
+  .sai-prompt{ width:100%; box-sizing:border-box; border:2px solid #efe3d6; border-radius:16px; padding:10px 12px; font:14px/1.4 'Fredoka',sans-serif; resize:vertical; background:#fffdfb; }
+  .sai-prompt:focus{ outline:none; border-color:#F3852B; box-shadow:0 0 0 4px rgba(243,133,43,.12); }
+  .sai-secs{ display:flex; gap:6px; }
+  .sai-secs button{ flex:1; border:2px solid #efe3d6; background:#fff; border-radius:999px; padding:6px 0; font:800 12.5px 'Fredoka',sans-serif; color:#6b5a4a; cursor:pointer; }
+  .sai-secs button.on{ border-color:#F3852B; background:#fff4e8; color:#b8601a; }
+  .sai-go1{ display:flex; align-items:center; justify-content:space-between; gap:10px; border:0; border-radius:16px; padding:13px 16px; background:linear-gradient(180deg,#ff9a3d,#F3852B); color:#fff; cursor:pointer; box-shadow:0 4px 0 #d0671a, 0 10px 20px rgba(243,133,43,.25); font-family:inherit; transition:transform .15s; }
+  .sai-go1:hover{ transform:translateY(-1px); } .sai-go1:active{ transform:translateY(2px); box-shadow:0 1px 0 #d0671a; }
+  .sai-go1 span{ font:800 15px 'Baloo 2','Fredoka',sans-serif; } .sai-go1 small{ font-size:11.5px; opacity:.9; }
+  .sai-go1:disabled{ opacity:.6; cursor:progress; transform:none; }
   .sai-status{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:#6b5a4a; min-height:18px; }
   .sai-status .vp-spin{ width:16px; height:16px; border-radius:50%; border:3px solid #f3d9bf; border-top-color:#F3852B; animation:edVidSpin .8s linear infinite; }
   .ed-vid-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.28); pointer-events:none; }
@@ -7414,80 +7441,154 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       });
     });
   }
-  /* ===== Agent « Studio IA » : moteur (Wan 2.2 / Veo réservé admin), qualité, durée ; image→vidéo, prompt→image, prompt→vidéo ===== */
-  var MARSHALL_STUDIO={engine:'wan',quality:'eco',seconds:5,image:null,busy:false};
-  try{ var _sa=JSON.parse(marshallReadLocal('marshall_studio_agent_v1')||'{}'); ['engine','quality','seconds'].forEach(function(k){ if(_sa[k]!=null) MARSHALL_STUDIO[k]=_sa[k]; }); }catch(e){}
-  function marshallStudioSave(){ try{ marshallWriteLocal('marshall_studio_agent_v1',JSON.stringify({engine:MARSHALL_STUDIO.engine,quality:MARSHALL_STUDIO.quality,seconds:MARSHALL_STUDIO.seconds})); }catch(e){} }
+  /* ===== Agent « Studio IA » : 3 rubriques (Image → vidéo, Prompt → image, Prompt → vidéo),
+     chacune avec un interrupteur « liquid glass » pour l'IA utilisée et un pour la qualité. Veo : admin seulement. ===== */
+  var MARSHALL_STUDIO={mode:'i2v',vEngine:'wan',vQuality:'eco',seconds:5,iEngine:'qwen',iQuality:'eco',image:null,draftI:'',draftV:'',busy:false};
+  try{ var _sa=JSON.parse(marshallReadLocal('marshall_studio_agent_v2')||'{}'); ['mode','vEngine','vQuality','seconds','iEngine','iQuality'].forEach(function(k){ if(_sa[k]!=null) MARSHALL_STUDIO[k]=_sa[k]; }); }catch(e){}
+  function marshallStudioSave(){ var S=MARSHALL_STUDIO; try{ marshallWriteLocal('marshall_studio_agent_v2',JSON.stringify({mode:S.mode,vEngine:S.vEngine,vQuality:S.vQuality,seconds:S.seconds,iEngine:S.iEngine,iQuality:S.iQuality})); }catch(e){} }
   function marshallStudioIsAdmin(){ var st=marshallTokenState&&marshallTokenState.st; return !!(st&&st.role==='admin'); }
-  function marshallStudioSeconds(){ var S=MARSHALL_STUDIO, list=S.engine==='veo'?[4,6,8]:[3,4,5]; if(list.indexOf(+S.seconds)<0) S.seconds=S.engine==='veo'?6:5; return list; }
-  function marshallStudioCost(kind){
-    var S=MARSHALL_STUDIO, vid=S.engine==='veo'?marshallTokenPrice(S.quality==='hd'?'veo_fast_second':'veo_lite_second',S.seconds):marshallTokenPrice(S.quality==='hd'?'wan_hd_second':'wan_second',S.seconds);
-    var img=marshallTokenPrice(S.quality==='hd'?'image_pro':'image');
-    return marshallTokenFmt(kind==='t2i'?img:(kind==='t2v'?img+vid:vid));
+  function marshallStudioNanoOk(){ return marshallStudioIsAdmin()||marshallPower()==='hyper'; }
+  function marshallStudioSeconds(){ var S=MARSHALL_STUDIO, list=S.vEngine==='veo'?[4,6,8]:[3,4,5]; if(list.indexOf(+S.seconds)<0) S.seconds=S.vEngine==='veo'?6:5; return list; }
+  function marshallStudioCost(){
+    var S=MARSHALL_STUDIO;
+    var vid=S.vEngine==='veo'?marshallTokenPrice(S.vQuality==='hd'?'veo_fast_second':'veo_lite_second',S.seconds):marshallTokenPrice(S.vQuality==='hd'?'wan_hd_second':'wan_second',S.seconds);
+    var img=S.iEngine==='nano'?marshallTokenPrice(S.iQuality==='hd'?'image_pro':'image'):0;   // Qwen (open source, sur ton serveur) : gratuit
+    var total=S.mode==='t2i'?img:(S.mode==='t2v'?img+vid:vid);
+    return total?('≈ '+marshallTokenFmt(total)+' tokens'):'Gratuit';
+  }
+  /* Interrupteur « liquid glass » : pastille de verre translucide qui glisse avec un rebond. */
+  function marshallLgToggle(key,opts,cur,cls){
+    var idx=0; opts.forEach(function(o,i){ if(o.v===cur) idx=i; });
+    return '<div class="lgt '+(cls||'')+'" data-k="'+key+'" role="radiogroup" style="--n:'+opts.length+';--i:'+idx+'"><span class="lgt-thumb" aria-hidden="true"><i></i></span>'
+      +opts.map(function(o){ return '<button type="button" role="radio" aria-checked="'+(o.v===cur)+'" data-v="'+o.v+'" class="'+(o.v===cur?'on':'')+(o.locked?' locked':'')+'"'+(o.locked?' data-tip="'+esc(o.tip||'')+'"':'')+'><b>'+o.label+'</b>'+(o.sub?'<small>'+o.sub+'</small>':'')+'</button>'; }).join('')+'</div>';
+  }
+  function marshallStudioToggles(){
+    var S=MARSHALL_STUDIO, admin=marshallStudioIsAdmin(), nano=marshallStudioNanoOk();
+    if(S.mode==='t2i'){
+      if(!nano&&S.iEngine==='nano') S.iEngine='qwen';
+      return '<div class="sai-lbl">IA utilisée</div>'+marshallLgToggle('iEngine',[{v:'qwen',label:'🌱 Qwen',sub:'Open source'},{v:'nano',label:'🍌 Nano Banana',sub:nano?'Google':'Offre Hyper',locked:!nano,tip:'Disponible avec l’offre Hyper'}],S.iEngine)
+        +'<div class="sai-lbl">Qualité</div>'+marshallLgToggle('iQuality',[{v:'eco',label:'Éco',sub:S.iEngine==='nano'?'Nano Banana 2':'Standard'},{v:'hd',label:'HD',sub:S.iEngine==='nano'?'Nano Banana Pro':'Grande taille'}],S.iQuality);
+    }
+    if(!admin&&S.vEngine==='veo') S.vEngine='wan';
+    var veo=S.vEngine==='veo';
+    return '<div class="sai-lbl">IA utilisée</div>'+marshallLgToggle('vEngine',[{v:'wan',label:'🌱 Wan 2.2',sub:'Open source'},{v:'veo',label:'🎬 Google Veo',sub:admin?'Qualité ciné':'Bientôt disponible',locked:!admin,tip:'Bientôt disponible'}],S.vEngine)
+      +'<div class="sai-lbl">Qualité</div>'+marshallLgToggle('vQuality',[{v:'eco',label:'Éco',sub:veo?'Veo Lite':'480p · rapide'},{v:'hd',label:'HD',sub:veo?'Veo Fast':'720p · plus net'}],S.vQuality);
+  }
+  function marshallStudioPanelHTML(){
+    var S=MARSHALL_STUDIO, video=S.mode!=='t2i';
+    var selImg=(ed.layers||[]).filter(function(o){ return o.id===ed.sel&&o.type==='image'; })[0];
+    var zone;
+    if(S.mode==='i2v'){
+      zone='<div class="sai-lbl">Image</div><div class="sai-drop'+(S.image?' has':'')+'" data-sai="pick" tabindex="0" role="button" aria-label="Importer une image">'
+        +(S.image?'<img src="'+esc(S.image)+'" alt=""><button type="button" class="sai-drop-x" data-sai="clear" aria-label="Retirer l’image">×</button>'
+          :'<div class="sai-drop-empty"><span class="sai-drop-ico">🖼️</span><b>Glisse ton image ici</b><span>ou clique pour l’importer</span></div>')
+        +'<input type="file" accept="image/*" data-sai-file hidden></div>'
+        +(selImg&&!S.image?'<button type="button" class="sai-link" data-sai="usesel">Utiliser l’image sélectionnée sur le canvas</button>':'');
+    } else {
+      zone='<div class="sai-lbl">'+(S.mode==='t2i'?'Décris ton image':'Décris ta vidéo')+'</div><textarea class="sai-prompt" rows="5" maxlength="1200" placeholder="'+(S.mode==='t2i'?'Ex. : un café parisien au lever du soleil, lumière dorée, style photo éditoriale':'Ex. : des vagues turquoise sur une plage de sable blanc, la caméra s’élève doucement au-dessus de l’eau')+'"></textarea>';
+    }
+    var secs=video?'<div class="sai-lbl">Durée</div><div class="sai-secs">'+marshallStudioSeconds().map(function(n){ return '<button type="button" data-sec="'+n+'" class="'+(+S.seconds===n?'on':'')+'">'+n+' s</button>'; }).join('')+'</div>':'';
+    var goLabel=S.mode==='t2i'?'Créer l’image':'Créer la vidéo';
+    return '<div class="sai-panel" data-mode="'+S.mode+'">'+'<div class="sai-tg">'+marshallStudioToggles()+'</div>'+zone+secs
+      +'<button type="button" class="sai-go1" data-sai="go"'+(S.busy?' disabled':'')+'><span>'+goLabel+'</span><small>'+marshallStudioCost()+'</small></button>'
+      +'<div class="sai-status" id="sai-status" role="status" aria-live="polite"></div></div>';
   }
   function marshallStudioAgentRender(detail,prof){
-    var S=MARSHALL_STUDIO, admin=marshallStudioIsAdmin();
-    if(!admin&&S.engine==='veo') S.engine='wan';
+    var S=MARSHALL_STUDIO;
     if(!marshallTokenState.st){ try{ marshallTokensRefresh(false).then(function(){ var d=document.getElementById('marshall-agent-dock-detail'); if(d&&window.marshallAgentDockSelected==='studio') marshallStudioAgentRender(d,prof); }); }catch(e){} }
-    var secs=marshallStudioSeconds(), veo=S.engine==='veo';
-    var selImg=(ed.layers||[]).filter(function(o){ return o.id===ed.sel&&o.type==='image'; })[0];
-    var src=S.image||(selImg&&selImg.url)||'';
-    detail.innerHTML='<div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('studio')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div><span class="madock-meta">Créer</span></div>'
-      +'<div class="sai">'
-      +'<div class="sai-lbl">Modèle IA</div><div class="sai-seg" data-k="engine">'
-        +'<button type="button" data-v="wan" class="'+(S.engine==='wan'?'on':'')+'"><b>🌱 Wan 2.2</b><small>Open source · éco</small></button>'
-        +'<button type="button" data-v="veo" class="'+(veo?'on':'')+(admin?'':' locked')+'"'+(admin?'':' aria-disabled="true" data-tip="Bientôt disponible"')+'><b>🎬 Google Veo 3.1</b><small>'+(admin?'Qualité ciné':'Bientôt disponible')+'</small></button>'
-      +'</div>'
-      +'<div class="sai-lbl">Qualité</div><div class="sai-seg" data-k="quality">'
-        +'<button type="button" data-v="eco" class="'+(S.quality==='eco'?'on':'')+'"><b>Éco</b><small>'+(veo?'Veo Lite':'480p · rapide')+'</small></button>'
-        +'<button type="button" data-v="hd" class="'+(S.quality==='hd'?'on':'')+'"><b>HD</b><small>'+(veo?'Veo Fast':'720p · plus net')+'</small></button>'
-      +'</div>'
-      +'<div class="sai-lbl">Durée de la vidéo</div><div class="sai-seg sm" data-k="seconds">'+secs.map(function(n){ return '<button type="button" data-v="'+n+'" class="'+(+S.seconds===n?'on':'')+'"><b>'+n+' s</b></button>'; }).join('')+'</div>'
-      +'<div class="sai-lbl">Image de départ <em>(pour Image → vidéo)</em></div>'
-      +'<div class="sai-img">'+(src?'<img src="'+esc(src)+'" alt="">':'<span>Aucune image</span>')+'<div><label class="sai-mini">📁 Importer<input type="file" accept="image/*" data-sai-file hidden></label>'+(selImg?'<button type="button" class="sai-mini" data-sai="usesel">Image du canvas</button>':'')+(S.image?'<button type="button" class="sai-mini" data-sai="clear">Retirer</button>':'')+'</div></div>'
-      +'<div class="sai-lbl">Ta demande</div><textarea class="sai-prompt" rows="3" maxlength="1200" placeholder="Ex. : un café parisien au lever du soleil, vapeur qui s’élève des tasses, caméra qui avance doucement"></textarea>'
-      +'<div class="sai-go">'
-        +'<button type="button" data-sai="i2v"><b>🖼️ → 🎬</b><span>Image → vidéo</span><small>≈ '+marshallStudioCost('i2v')+' tokens</small></button>'
-        +'<button type="button" data-sai="t2i"><b>✍️ → 🖼️</b><span>Prompt → image</span><small>≈ '+marshallStudioCost('t2i')+' tokens</small></button>'
-        +'<button type="button" data-sai="t2v"><b>✍️ → 🎬</b><span>Prompt → vidéo</span><small>≈ '+marshallStudioCost('t2v')+' tokens</small></button>'
-      +'</div><div class="sai-status" id="sai-status" role="status" aria-live="polite"></div></div>';
-    var ta=detail.querySelector('.sai-prompt'); if(ta) ta.value=S.draft||''; if(ta) ta.addEventListener('input',function(){ S.draft=ta.value; });
-    $all('.sai-seg button',detail).forEach(function(b){ b.addEventListener('click',function(){
-      var k=b.parentNode.getAttribute('data-k'), v=b.getAttribute('data-v');
-      if(b.classList.contains('locked')){ toast('🎬 Google Veo arrive bientôt. Utilise Wan 2.2 en attendant.'); return; }
-      S[k]=k==='seconds'?+v:v; if(k==='engine') marshallStudioSeconds(); marshallStudioSave(); marshallStudioAgentRender(detail,prof);
-    }); });
-    var f=detail.querySelector('[data-sai-file]'); if(f) f.addEventListener('change',function(){ var file=f.files&&f.files[0]; if(!file) return; if(file.size>15*1024*1024){ toast('Image trop lourde (15 Mo max).',true); return; } var r=new FileReader(); r.onload=function(){ S.image=r.result; marshallStudioAgentRender(detail,prof); }; r.readAsDataURL(file); });
-    $all('[data-sai]',detail).forEach(function(b){ b.addEventListener('click',function(){
-      var a=b.getAttribute('data-sai');
-      if(a==='usesel'){ if(selImg){ S.image=selImg.url; marshallStudioAgentRender(detail,prof); } return; }
-      if(a==='clear'){ S.image=null; marshallStudioAgentRender(detail,prof); return; }
-      marshallStudioRun(a,(ta&&ta.value||'').trim());
-    }); });
-    $all('.sai button',detail).forEach(function(b){ if(MARSHALL_STUDIO.busy&&!b.classList.contains('locked')) b.disabled=true; });
+    detail.innerHTML='<div class="sai-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('studio')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'
+      +marshallLgToggle('mode',[{v:'i2v',label:'🖼️ Image → vidéo'},{v:'t2i',label:'✍️ Prompt → image'},{v:'t2v',label:'✍️ Prompt → vidéo'}],S.mode,'lgt-mode')
+      +'<div class="sai-host">'+marshallStudioPanelHTML()+'</div></div>';
+    marshallStudioFill(detail);
+    if(!detail._saiBound){ detail._saiBound=true; marshallStudioBind(detail); }
+  }
+  function marshallStudioFill(detail){
+    var S=MARSHALL_STUDIO, ta=detail.querySelector('.sai-prompt');
+    if(ta){ ta.value=S.mode==='t2i'?S.draftI:S.draftV; }
+  }
+  function marshallStudioRefresh(detail,animate){
+    var host=detail.querySelector('.sai-host'); if(!host) return;
+    host.innerHTML=marshallStudioPanelHTML(); marshallStudioFill(detail);
+    if(animate){ var pn=host.querySelector('.sai-panel'); if(pn){ pn.classList.add('sai-in'); } }
+  }
+  function marshallStudioSlide(tg,v){
+    var btns=tg.querySelectorAll('button'), idx=0;
+    btns.forEach(function(b,i){ var on=b.getAttribute('data-v')===v; b.classList.toggle('on',on); b.setAttribute('aria-checked',on); if(on) idx=i; });
+    tg.style.setProperty('--i',idx); tg.classList.remove('lgt-go'); void tg.offsetWidth; tg.classList.add('lgt-go');
+  }
+  function marshallStudioSetImage(detail,file){
+    if(!file||!/^image\//.test(file.type||'')){ toast('Choisis un fichier image.',true); return; }
+    if(file.size>15*1024*1024){ toast('Image trop lourde (15 Mo max).',true); return; }
+    var r=new FileReader(); r.onload=function(){ MARSHALL_STUDIO.image=r.result; marshallStudioRefresh(detail,false); }; r.readAsDataURL(file);
+  }
+  function marshallStudioBind(detail){
+    detail.addEventListener('click',function(e){
+      var root=e.target.closest('.sai-root'); if(!root) return;
+      var S=MARSHALL_STUDIO;
+      var tb=e.target.closest('.lgt button');
+      if(tb){
+        var tg=tb.parentNode, k=tg.getAttribute('data-k'), v=tb.getAttribute('data-v');
+        if(tb.classList.contains('locked')){ toast(k==='vEngine'?'🎬 Google Veo arrive bientôt. Utilise Wan 2.2 en attendant.':'🍌 Nano Banana est disponible avec l’offre Hyper.'); tg.classList.remove('lgt-no'); void tg.offsetWidth; tg.classList.add('lgt-no'); return; }
+        if(S[k]===v) return;
+        S[k]=v; marshallStudioSave(); marshallStudioSlide(tg,v);
+        if(k==='mode'){ setTimeout(function(){ marshallStudioRefresh(detail,true); },120); }
+        else setTimeout(function(){
+          // Met à jour les sous-titres de qualité, la durée et le coût sans casser l'animation de l'interrupteur touché.
+          var host=detail.querySelector('.sai-host'); if(!host) return;
+          var keepTa=detail.querySelector('.sai-prompt'); var txt=keepTa?keepTa.value:null;
+          var tmp=document.createElement('div'); tmp.innerHTML=marshallStudioPanelHTML();
+          var nt=tmp.querySelector('.sai-tg'), ot=host.querySelector('.sai-tg');
+          if(nt&&ot){ ot.querySelectorAll('.lgt').forEach(function(oldT){ if(oldT.getAttribute('data-k')!==k){ var repl=nt.querySelector('.lgt[data-k="'+oldT.getAttribute('data-k')+'"]'); if(repl) oldT.replaceWith(repl); } }); }
+          var ns=tmp.querySelector('.sai-secs'), os=host.querySelector('.sai-secs'); if(ns&&os) os.replaceWith(ns);
+          var ng=tmp.querySelector('.sai-go1'), og=host.querySelector('.sai-go1'); if(ng&&og) og.replaceWith(ng);
+          if(keepTa&&txt!=null) keepTa.value=txt;
+        },60);
+        return;
+      }
+      var sec=e.target.closest('[data-sec]');
+      if(sec){ S.seconds=+sec.getAttribute('data-sec'); marshallStudioSave(); marshallStudioRefresh(detail,false); return; }
+      var a=e.target.closest('[data-sai]'); if(!a) return;
+      var act=a.getAttribute('data-sai');
+      if(act==='clear'){ e.stopPropagation(); S.image=null; marshallStudioRefresh(detail,false); return; }
+      if(act==='pick'){ var f=detail.querySelector('[data-sai-file]'); if(f) f.click(); return; }
+      if(act==='usesel'){ var si=(ed.layers||[]).filter(function(o){ return o.id===ed.sel&&o.type==='image'; })[0]; if(si){ S.image=si.url; marshallStudioRefresh(detail,false); } return; }
+      if(act==='go'){ var ta=detail.querySelector('.sai-prompt'); marshallStudioRun(S.mode,ta?ta.value.trim():''); }
+    });
+    detail.addEventListener('input',function(e){ if(e.target.classList&&e.target.classList.contains('sai-prompt')){ if(MARSHALL_STUDIO.mode==='t2i') MARSHALL_STUDIO.draftI=e.target.value; else MARSHALL_STUDIO.draftV=e.target.value; } });
+    detail.addEventListener('change',function(e){ if(e.target.hasAttribute&&e.target.hasAttribute('data-sai-file')){ marshallStudioSetImage(detail,e.target.files&&e.target.files[0]); e.target.value=''; } });
+    detail.addEventListener('dragover',function(e){ var z=e.target.closest&&e.target.closest('.sai-drop'); if(!z) return; e.preventDefault(); z.classList.add('over'); });
+    detail.addEventListener('dragleave',function(e){ var z=e.target.closest&&e.target.closest('.sai-drop'); if(z) z.classList.remove('over'); });
+    detail.addEventListener('drop',function(e){ var z=e.target.closest&&e.target.closest('.sai-drop'); if(!z) return; e.preventDefault(); z.classList.remove('over'); var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; marshallStudioSetImage(detail,f); });
+    detail.addEventListener('keydown',function(e){ var z=e.target.closest&&e.target.closest('.sai-drop'); if(z&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); var f=detail.querySelector('[data-sai-file]'); if(f) f.click(); } });
   }
   function marshallStudioStatus(t){ var el=document.getElementById('sai-status'); if(el) el.innerHTML=t?('<span class="vp-spin"></span>'+esc(t)):''; }
   function marshallStudioResult(html){ var th=document.getElementById('marshall-agent-dock-thread'); if(!th) return; var d=document.createElement('div'); d.className='madock-msg assistant'; d.innerHTML=html; th.appendChild(d); th.scrollTop=th.scrollHeight; }
-  async function marshallStudioImage(prompt,quality){
-    var dims=marshallImageDimensions();
-    if(quality==='hd'&&(marshallPower()==='hyper'||marshallStudioIsAdmin())){
-      try{
-        var gr=await fetch(MARSHALL_CREWAI_BASE+'/image/generate',{method:'POST',headers:await authHeaders(),body:JSON.stringify({prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE,reference_images:[],quality:'pro'})});
-        var go=null; try{ go=await gr.json(); }catch(e){}
-        marshallTokensFromResponse(go);
-        if(gr.ok&&go&&go.success&&go.image){ var gu='data:'+(go.mime||'image/png')+';base64,'+go.image; try{ marshallMarkGeneratedImage(gu); }catch(e){} return gu; }
-      }catch(e){ console.warn('Image HD, secours',e); }
+  async function marshallStudioImage(prompt){
+    var S=MARSHALL_STUDIO, dims=marshallImageDimensions(), hd=S.iQuality==='hd';
+    if(S.iEngine==='nano'){
+      var gr=await fetch(MARSHALL_CREWAI_BASE+'/image/generate',{method:'POST',headers:await authHeaders(),body:JSON.stringify({prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE,reference_images:[],quality:hd?'pro':''})});
+      var go=null; try{ go=await gr.json(); }catch(e){}
+      marshallTokensFromResponse(go);
+      if(gr.status===403&&go&&go.need_plan){ try{ marshallPaywallOpen(go.need_plan); }catch(e){} }
+      if(gr.ok&&go&&go.success&&go.image){ var gu='data:'+(go.mime||'image/png')+';base64,'+go.image; try{ marshallMarkGeneratedImage(gu); }catch(e){} return gu; }
+      throw Error((go&&go.error)||('Nano Banana HTTP '+gr.status));
     }
-    return marshallGenerateImageAsset(prompt,dims);
+    if(hd){ var k=Math.min(1.4,1536/Math.max(dims.width,dims.height)); dims={width:Math.round(dims.width*k/16)*16,height:Math.round(dims.height*k/16)*16}; }
+    var res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE})});
+    if(!res.ok) throw Error('Qwen HTTP '+res.status);
+    var out=await res.json();
+    if(!out||out.success!==true||!out.image) throw Error((out&&out.error)||'image absente');
+    var url='data:'+(out.mime||'image/webp')+';base64,'+out.image; try{ marshallMarkGeneratedImage(url); }catch(e){}
+    return url;
   }
   async function marshallStudioAnimate(image,prompt){
     var S=MARSHALL_STUDIO;
-    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/animate',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:image,prompt:prompt,engine:S.engine,quality:S.quality,seconds:S.seconds})});
+    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/animate',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:image,prompt:prompt,engine:S.vEngine,quality:S.vQuality,seconds:S.seconds})});
     var d=null; try{ d=await r.json(); }catch(e){}
     try{ marshallTokensFromResponse(d); }catch(e){}
     if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
     if(!r.ok||!d||!d.task_id) throw Error((d&&(d.error||d.detail))||('HTTP '+r.status));
-    var label=S.engine==='veo'?'Google Veo':'Wan 2.2', t0=Date.now();
+    var label=S.vEngine==='veo'?'Google Veo':'Wan 2.2', t0=Date.now();
     while(Date.now()-t0<40*60000){
       await new Promise(function(ok){ setTimeout(ok,4000); });
       var st=await fetch(MARSHALL_CREWAI_BASE+'/video/animate/'+encodeURIComponent(d.task_id)).then(function(x){ return x.json(); }).catch(function(){ return null; });
@@ -7505,32 +7606,30 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var S=MARSHALL_STUDIO; if(S.busy) return;
     if(!authUser){ toast('Connecte-toi pour créer.',true); return; }
     if((kind==='t2i'||kind==='t2v')&&!prompt){ toast('Décris ce que tu veux créer.',true); return; }
-    var selImg=(ed.layers||[]).filter(function(o){ return o.id===ed.sel&&o.type==='image'; })[0];
-    var image=S.image||(selImg&&selImg.url)||'';
-    if(kind==='i2v'&&!image){ toast('Choisis une image de départ : importe-la ou sélectionne une image sur le canvas.',true); return; }
+    var image=S.image||'';
+    if(kind==='i2v'&&!image){ toast('Ajoute une image : glisse-la dans la zone ou clique pour l’importer.',true); return; }
     S.busy=true; marshallAgentDockSetBusy(true);
-    var detail=document.getElementById('marshall-agent-dock-detail'), data=marshallAgentShowcaseData();
-    if(detail) marshallStudioAgentRender(detail,data.studio);
+    var go=document.querySelector('.sai-go1'); if(go) go.disabled=true;
     var label=kind==='i2v'?'Image → vidéo':(kind==='t2i'?'Prompt → image':'Prompt → vidéo');
     try{ marshallAgentDockChatAdd('user',label+(prompt?' : '+prompt:''),false); }catch(e){}
     try{
       if(kind==='t2i'||kind==='t2v'){
         marshallStudioStatus('🖼️ Création de l’image…');
-        var img=await marshallStudioImage(prompt,S.quality);
+        var img=await marshallStudioImage(prompt);
         if(!img) throw Error('image non générée');
-        if(kind==='t2i'){ marshallStudioResult('<b>🖼️ Image prête</b><img src="'+esc(img)+'" alt="" style="display:block;width:100%;border-radius:12px;margin-top:6px">'); marshallStudioImageToCanvas(img); toast('🖼️ Image créée sur un nouveau canva.'); return; }
+        if(kind==='t2i'){ marshallStudioResult('<b>🖼️ Image prête · '+(S.iEngine==='nano'?'Nano Banana':'Qwen')+' '+(S.iQuality==='hd'?'HD':'Éco')+'</b><img src="'+esc(img)+'" alt="" style="display:block;width:100%;border-radius:12px;margin-top:6px">'); marshallStudioImageToCanvas(img); toast('🖼️ Image créée sur un nouveau canva.'); return; }
         image=img;
       }
       marshallStudioStatus('🎬 Lancement de la vidéo…');
       if(/^data:image/.test(image)&&image.length>4000000){ try{ image=await edShrinkForUpload(image,1600); }catch(e){} }
       else if(/^blob:/.test(image)){ try{ image=await edShrinkForUpload(await edBlobToDataUrl(await (await fetch(image)).blob()),1600); }catch(e){} }
       var url=await marshallStudioAnimate(image,prompt||'');
-      marshallStudioResult('<b>🎬 Vidéo prête · '+(S.engine==='veo'?'Google Veo':'Wan 2.2')+' '+(S.quality==='hd'?'HD':'Éco')+'</b><video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:420px;border-radius:12px;margin-top:6px;background:#000"></video>');
+      marshallStudioResult('<b>🎬 Vidéo prête · '+(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' '+(S.vQuality==='hd'?'HD':'Éco')+'</b><video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:420px;border-radius:12px;margin-top:6px;background:#000"></video>');
       try{ marshallFreshReset(); }catch(e){}
-      marshallVideoToCanvas(url,(S.engine==='veo'?'Google Veo':'Wan 2.2')+' · Studio IA',{});
+      marshallVideoToCanvas(url,(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' · Studio IA',{});
       toast('🎬 Vidéo créée sur un nouveau canva.');
     }catch(e){ try{ marshallAgentDockChatAdd('error','Création impossible : '+(e&&e.message?e.message:e),false); }catch(x){} toast('Création impossible : '+(e&&e.message?e.message:e),true); }
-    finally{ S.busy=false; marshallStudioStatus(''); marshallAgentDockSetBusy(false); var d2=document.getElementById('marshall-agent-dock-detail'); if(d2&&window.marshallAgentDockSelected==='studio') marshallStudioAgentRender(d2,marshallAgentShowcaseData().studio); }
+    finally{ S.busy=false; marshallStudioStatus(''); marshallAgentDockSetBusy(false); var d2=document.getElementById('marshall-agent-dock-detail'); if(d2&&window.marshallAgentDockSelected==='studio') marshallStudioRefresh(d2,false); }
   }
   function marshallAgentDockRender(forceKey){
     var dock=marshallAgentDockEnsure(); if(!dock) return;
