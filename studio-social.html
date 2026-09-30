@@ -1213,6 +1213,7 @@
   .sai-prompt:focus{ outline:none; border-color:#F3852B; box-shadow:0 0 0 4px rgba(243,133,43,.12); }
   .sai-secs{ display:flex; gap:6px; }
   .sai-secs button{ flex:1; border:2px solid #efe3d6; background:#fff; border-radius:999px; padding:6px 0; font:800 12.5px 'Fredoka',sans-serif; color:#6b5a4a; cursor:pointer; }
+  .sai-eta{ font-size:11.5px; color:#8a7a6c; margin:-4px 0 0 4px; }
   .sai-secs button.on{ border-color:#F3852B; background:#fff4e8; color:#b8601a; }
   .sai-go1{ display:flex; align-items:center; justify-content:space-between; gap:10px; border:0; border-radius:16px; padding:13px 16px; background:linear-gradient(180deg,#ff9a3d,#F3852B); color:#fff; cursor:pointer; box-shadow:0 4px 0 #d0671a, 0 10px 20px rgba(243,133,43,.25); font-family:inherit; transition:transform .15s; }
   .sai-go1:hover{ transform:translateY(-1px); } .sai-go1:active{ transform:translateY(2px); box-shadow:0 1px 0 #d0671a; }
@@ -7448,7 +7449,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallStudioSave(){ var S=MARSHALL_STUDIO; try{ marshallWriteLocal('marshall_studio_agent_v2',JSON.stringify({mode:S.mode,vEngine:S.vEngine,vQuality:S.vQuality,seconds:S.seconds,iEngine:S.iEngine,iQuality:S.iQuality})); }catch(e){} }
   function marshallStudioIsAdmin(){ var st=marshallTokenState&&marshallTokenState.st; return !!(st&&st.role==='admin'); }
   function marshallStudioNanoOk(){ return marshallStudioIsAdmin()||marshallPower()==='hyper'; }
-  function marshallStudioSeconds(){ var S=MARSHALL_STUDIO, list=S.vEngine==='veo'?[4,6,8]:[3,4,5]; if(list.indexOf(+S.seconds)<0) S.seconds=S.vEngine==='veo'?6:5; return list; }
+  function marshallStudioSeconds(){ var S=MARSHALL_STUDIO, list=S.vEngine==='veo'?[4,6,8]:[3,5,10,15,20]; if(list.indexOf(+S.seconds)<0) S.seconds=S.vEngine==='veo'?6:5; return list; }
+  /* Temps de génération estimé (mesuré sur le GPU) : Wan Éco ≈ 18 s par seconde de vidéo, HD ≈ 58 s ; + démarrage du GPU. */
+  function marshallStudioEta(){ var S=MARSHALL_STUDIO, sec=+S.seconds||5; if(S.vEngine==='veo') return '1 à 3 min'; var m=Math.ceil(((S.vQuality==='hd'?58:18)*sec+(S.vQuality==='hd'?120:60))/60); return m<=2?'1 à 2 min':('environ '+m+' min'); }
   function marshallStudioCost(){
     var S=MARSHALL_STUDIO;
     var vid=S.vEngine==='veo'?marshallTokenPrice(S.vQuality==='hd'?'veo_fast_second':'veo_lite_second',S.seconds):marshallTokenPrice(S.vQuality==='hd'?'wan_hd_second':'wan_second',S.seconds);
@@ -7487,7 +7490,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     } else {
       zone='<div class="sai-lbl">'+(S.mode==='t2i'?'Décris ton image':'Décris ta vidéo')+'</div><textarea class="sai-prompt" rows="5" maxlength="1200" placeholder="'+(S.mode==='t2i'?'Ex. : un café parisien au lever du soleil, lumière dorée, style photo éditoriale':'Ex. : des vagues turquoise sur une plage de sable blanc, la caméra s’élève doucement au-dessus de l’eau')+'"></textarea>';
     }
-    var secs=video?'<div class="sai-lbl">Durée</div><div class="sai-secs">'+marshallStudioSeconds().map(function(n){ return '<button type="button" data-sec="'+n+'" class="'+(+S.seconds===n?'on':'')+'">'+n+' s</button>'; }).join('')+'</div>':'';
+    var secs=video?'<div class="sai-lbl">Durée</div><div class="sai-secs">'+marshallStudioSeconds().map(function(n){ return '<button type="button" data-sec="'+n+'" class="'+(+S.seconds===n?'on':'')+'">'+n+' s</button>'; }).join('')+'</div><div class="sai-eta">⏱ Temps de création : '+marshallStudioEta()+(S.vEngine!=='veo'&&+S.seconds>5?' · '+Math.ceil(+S.seconds/5)+' segments enchaînés':'')+'</div>':'';
     var goLabel=S.mode==='t2i'?'Créer l’image':'Créer la vidéo';
     return '<div class="sai-panel" data-mode="'+S.mode+'">'+'<div class="sai-tg">'+marshallStudioToggles()+'</div>'+zone+secs
       +'<button type="button" class="sai-go1" data-sai="go"'+(S.busy?' disabled':'')+'><span>'+goLabel+'</span><small>'+marshallStudioCost()+'</small></button>'
@@ -7540,6 +7543,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           var nt=tmp.querySelector('.sai-tg'), ot=host.querySelector('.sai-tg');
           if(nt&&ot){ ot.querySelectorAll('.lgt').forEach(function(oldT){ if(oldT.getAttribute('data-k')!==k){ var repl=nt.querySelector('.lgt[data-k="'+oldT.getAttribute('data-k')+'"]'); if(repl) oldT.replaceWith(repl); } }); }
           var ns=tmp.querySelector('.sai-secs'), os=host.querySelector('.sai-secs'); if(ns&&os) os.replaceWith(ns);
+          var ne=tmp.querySelector('.sai-eta'), oe=host.querySelector('.sai-eta'); if(ne&&oe) oe.replaceWith(ne);
           var ng=tmp.querySelector('.sai-go1'), og=host.querySelector('.sai-go1'); if(ng&&og) og.replaceWith(ng);
           if(keepTa&&txt!=null) keepTa.value=txt;
         },60);
