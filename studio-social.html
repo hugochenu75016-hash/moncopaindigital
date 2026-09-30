@@ -5030,25 +5030,87 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     });
     document.body.appendChild(m);
   }
+  /* --- Voix off « lecture sur la page » : la vidéo ne quitte jamais le navigateur --- */
+  // 1) images clés extraites ici  2) le serveur renvoie seulement la voix  3) mixage local avec ffmpeg (version web).
+  async function edVideoFrames(url, maxN){
+    var v=document.createElement('video'); v.muted=true; v.playsInline=true; v.preload='auto';
+    if(!/^(blob|data):/.test(url)) v.crossOrigin='anonymous';
+    v.src=url;
+    await new Promise(function(ok,ko){ v.onloadedmetadata=ok; v.onerror=function(){ ko(Error('vidéo illisible dans le navigateur')); }; });
+    var d=v.duration; if(!isFinite(d)||d<=0) throw Error('durée de la vidéo introuvable');
+    var n=Math.max(4,Math.min(maxN||12,Math.floor(d/2)||4));
+    var k=Math.min(1,512/Math.max(v.videoWidth||512,v.videoHeight||512));
+    var c=document.createElement('canvas'); c.width=Math.round((v.videoWidth||512)*k); c.height=Math.round((v.videoHeight||512)*k);
+    var g=c.getContext('2d'), out=[];
+    for(var i=0;i<n;i++){
+      var t=Math.min(d-0.05,(i+0.5)*d/n);
+      await new Promise(function(ok){ var done=false, fin=function(){ if(!done){ done=true; ok(); } }; v.onseeked=fin; setTimeout(fin,4000); v.currentTime=t; });
+      try{ g.drawImage(v,0,0,c.width,c.height); out.push(c.toDataURL('image/jpeg',0.72)); }catch(e){ throw Error('impossible de lire les images de cette vidéo'); }
+    }
+    v.removeAttribute('src'); v.load();
+    return { frames:out, duration:d };
+  }
+  var _edFf=null;
+  function edFfmpeg(onMsg){
+    if(_edFf) return _edFf;
+    _edFf=(async function(){
+      var toBlobURL=async function(u,type){ var r=await fetch(u); if(!r.ok) throw Error('téléchargement de l’outil de montage impossible'); return URL.createObjectURL(new Blob([await r.arrayBuffer()],{type:type})); };
+      if(!window.FFmpegWASM){
+        await new Promise(function(ok,ko){ var s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js'; s.onload=ok; s.onerror=function(){ ko(Error('outil de montage indisponible')); }; document.head.appendChild(s); });
+      }
+      var ff=new window.FFmpegWASM.FFmpeg(), core='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm/';
+      if(onMsg) onMsg('Chargement de l’outil de montage (1re fois ~30 Mo)…');
+      await ff.load({
+        coreURL: await toBlobURL(core+'ffmpeg-core.js','text/javascript'),
+        wasmURL: await toBlobURL(core+'ffmpeg-core.wasm','application/wasm'),
+        classWorkerURL: await toBlobURL('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/814.ffmpeg.js','text/javascript')
+      });
+      return ff;
+    })();
+    _edFf.catch(function(){ _edFf=null; });
+    return _edFf;
+  }
+  /* Mélange la voix (m4a) à la vidéo : son d'origine baissé à 22 %, image copiée telle quelle (rapide, sans perte). */
+  async function edMixVoiceLocal(videoUrl, voiceUrl, onMsg){
+    var ff=await edFfmpeg(onMsg);
+    if(onMsg) onMsg('Montage de la voix sur ta vidéo…');
+    var vb=await (await fetch(videoUrl)).blob(), ab=await (await fetch(voiceUrl)).arrayBuffer();
+    var webm=/webm/.test(vb.type), ext=webm?'webm':(/quicktime/.test(vb.type)?'mov':'mp4');
+    var log='', onLog=function(e){ log+=e.message+'\n'; };
+    ff.on('log',onLog);
+    try{
+      await ff.writeFile('in.'+ext, new Uint8Array(await vb.arrayBuffer()));
+      await ff.writeFile('vo.m4a', new Uint8Array(ab));
+      log=''; await ff.exec(['-hide_banner','-i','in.'+ext]);   // repère la présence d'un son d'origine
+      var hasAudio=/Stream #0:\d+.*Audio:/.test(log);
+      var fc=hasAudio?'[0:a]aresample=48000,volume=0.22[bg];[1:a]aresample=48000[vo];[bg][vo]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[a]':'[1:a]aresample=48000,apad[a]';
+      var out='out.'+(webm?'webm':'mp4');
+      var args=['-y','-i','in.'+ext,'-i','vo.m4a','-filter_complex',fc,'-map','0:v:0','-map','[a]','-c:v','copy'];
+      args=args.concat(webm?['-c:a','libopus','-b:a','128k']:['-c:a','aac','-b:a','160k','-movflags','+faststart']);
+      if(!hasAudio) args.push('-shortest');
+      args.push(out);
+      log=''; var code=await ff.exec(args);
+      if(code!==0) throw Error('montage impossible ('+(log.split('\n').filter(Boolean).slice(-1)[0]||'ffmpeg')+')');
+      var data=await ff.readFile(out);
+      try{ await ff.deleteFile('in.'+ext); await ff.deleteFile('vo.m4a'); await ff.deleteFile(out); }catch(e){}
+      return new Blob([data.buffer],{type:webm?'video/webm':'video/mp4'});
+    } finally { ff.off('log',onLog); }
+  }
+  var ED_FF_WARM=false;
   async function edVoiceover(id, opts){
     var l=edVoLayer(id); if(!l) return {ok:false,error:'sélectionne une vidéo sur le canvas.'};
     if(l._voBusy) return {ok:false,error:'une voix off est déjà en cours sur cette vidéo.'};
-    l._voBusy=true; l._voMsg='Envoi de la vidéo…'; edRender();
+    var setMsg=function(m){ l._voMsg=m; if(ed.sel===l.id) edRender(); };
+    l._voBusy=true; l._voMsg='Marshall regarde la vidéo…'; edRender();
     try{
-      /* La vidéo doit être en ligne : on attend l'envoi en cours, ou on le relance s'il a échoué. */
-      if(!/^https:\/\//.test(String(l.url||''))){
-        if(ED_VUP[id]) await ED_VUP[id];
-        else if(/^blob:/.test(String(l.url||''))){
-          var blob=await fetch(l.url).then(function(x){ return x.blob(); }).catch(function(){ return null; });
-          if(!blob) throw Error('la vidéo locale n’est plus disponible : réimporte-la depuis ton ordinateur.');
-          await edUploadVideoLayer(id, blob, l.url);
-        }
-        l=edVoLayer(id)||l;
-        if(!/^https:\/\//.test(String(l.url||''))) throw Error('la vidéo n’a pas pu être mise en ligne : réimporte-la.');
-      }
-      l._voBusy=true; l._voMsg='Analyse de la vidéo…'; edRender();
+      /* La vidéo est lue ici, sur la page : seules quelques images clés partent vers Marshall, jamais le fichier. */
+      var src=String(l.url||'');
+      if(!src) throw Error('vidéo introuvable.');
+      var fr=await edVideoFrames(src,12).catch(function(e){ throw Error((e&&e.message)||'vidéo illisible'); });
+      if(fr.duration>180) throw Error('vidéo trop longue pour une voix off (3 min maximum).');
+      if(!ED_FF_WARM){ ED_FF_WARM=true; edFfmpeg().catch(function(){}); }   // prépare l'outil de montage pendant que Marshall écrit
       var brand=''; try{ brand=(typeof marshallBrandName==='function'?marshallBrandName():'')||''; }catch(e){}
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover',{method:'POST',headers:await authHeaders(),body:JSON.stringify({video_url:l.url,voice:opts.voice||'femme',tone:opts.tone||'dynamique',brief:opts.brief||'',brand:brand})})
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover',{method:'POST',headers:await authHeaders(),body:JSON.stringify({frames:fr.frames,duration:fr.duration,voice:opts.voice||'femme',tone:opts.tone||'dynamique',brief:opts.brief||'',brand:brand})})
         .catch(function(){ throw Error('serveur injoignable, réessaie.'); });
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
@@ -5059,12 +5121,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         var s=await fetch(MARSHALL_CREWAI_BASE+'/video/voiceover/'+encodeURIComponent(d.task_id)).then(function(x){ return x.json(); }).catch(function(){ return null; });
         if(!s) continue;
         if(s.failed) throw Error(s.message||s.error||'échec du traitement');
-        if(s.message&&s.message!==l._voMsg){ l._voMsg=s.message; if(ed.sel===l.id) edRender(); }
-        if(s.done&&s.video_url){
-          ED_ORIG[l.id]=l.url; l.url=s.video_url;
-          (marshallCanvasPages||[]).forEach(function(p){ (p.layers||[]).forEach(function(x){ if(x.id===l.id) x.url=s.video_url; }); });
+        if(s.message&&s.message!==l._voMsg) setMsg(s.message);
+        if(s.done&&(s.audio_url||s.video_url)){
+          var newUrl=s.video_url;
+          if(s.audio_url){
+            var mixed=await edMixVoiceLocal(src, s.audio_url, setMsg);
+            newUrl=URL.createObjectURL(mixed);
+          }
+          l=edVoLayer(id)||l;
+          ED_ORIG[l.id]=l.url; l.url=newUrl;
+          (marshallCanvasPages||[]).forEach(function(p){ (p.layers||[]).forEach(function(x){ if(x.id===l.id) x.url=newUrl; }); });
           edSnap();
-          return {ok:true,script:s.script||'',video_url:s.video_url};
+          // Mise en ligne discrète de la version avec voix (utile pour publier) ; sans effet si le stockage la refuse.
+          if(mixed) edUploadVideoLayer(l.id, mixed, newUrl).catch(function(e){ console.warn('Voix off : envoi du fichier final',e); });
+          return {ok:true,script:s.script||'',video_url:newUrl};
         }
       }
       throw Error('le traitement prend trop de temps, réessaie plus tard.');
