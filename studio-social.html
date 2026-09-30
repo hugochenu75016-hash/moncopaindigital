@@ -7463,11 +7463,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallStudioNanoOk(){ return marshallStudioIsAdmin()||marshallPower()==='hyper'; }
   function marshallStudioSeconds(){ var S=MARSHALL_STUDIO, list=S.vEngine==='veo'?[4,6,8]:[3,5,10,15,20]; if(list.indexOf(+S.seconds)<0) S.seconds=S.vEngine==='veo'?6:5; return list; }
   /* Temps de génération estimé (mesuré sur le GPU) : Wan Éco ≈ 18 s par seconde de vidéo, HD ≈ 58 s ; + démarrage du GPU. */
-  function marshallStudioEta(){ var S=MARSHALL_STUDIO, sec=+S.seconds||5; if(S.vEngine==='veo') return '1 à 3 min'; var m=Math.ceil(((S.vQuality==='hd'?58:18)*sec+(S.vQuality==='hd'?120:60))/60); return m<=2?'1 à 2 min':('environ '+m+' min'); }
+  function marshallStudioEta(){ var S=MARSHALL_STUDIO, sec=+S.seconds||5; if(S.vEngine==='veo') return '1 à 3 min'; var m=Math.ceil(((S.vQuality==='hd'?70:22)*sec+(S.vQuality==='hd'?120:60))/60); return m<=2?'1 à 2 min':('environ '+m+' min'); }
   function marshallStudioCost(){
     var S=MARSHALL_STUDIO;
     var vid=S.vEngine==='veo'?marshallTokenPrice(S.vQuality==='hd'?'veo_fast_second':'veo_lite_second',S.seconds):marshallTokenPrice(S.vQuality==='hd'?'wan_hd_second':'wan_second',S.seconds);
-    var img=S.iEngine==='nano'?marshallTokenPrice(S.iQuality==='hd'?'image_pro':'image'):0;   // Qwen (open source, sur ton serveur) : gratuit
+    var img=S.mode==='t2v'?(marshallStudioNanoOk()?marshallTokenPrice('image'):0):(S.iEngine==='nano'?marshallTokenPrice(S.iQuality==='hd'?'image_pro':'image'):0);   // Qwen (open source, sur ton serveur) : gratuit
     var total=S.mode==='t2i'?img:(S.mode==='t2v'?img+vid:vid);
     return total?('≈ '+marshallTokenFmt(total)+' tokens'):'Gratuit';
   }
@@ -7581,11 +7581,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* Étape 2 : Marshall réécrit la demande en prompt vidéo cinéma façon Higgsfield (mouvement de caméra prédéfini + plan détaillé). */
   async function marshallHiggsfieldPrompt(userPrompt,seconds){
     var r=await marshallRemoteJSONRetry([
-      'Tu es un réalisateur expert des prompts Higgsfield (génération vidéo IA cinéma). Tu transformes une idée en prompt vidéo professionnel.',
-      'Choisis UN mouvement de caméra Higgsfield adapté à l’idée parmi : '+MARSHALL_HIGGS_CAMERAS.join(', ')+'.',
-      'Écris "video_prompt" en ANGLAIS, une seule phrase dense au format Higgsfield : "[Camera move]: [sujet précis] [action visible et continue], [décor], [lumière], [ambiance / style], [optique et texture : lens mm, depth of field, film grain…]". Mouvement réaliste qui tient en '+(seconds||5)+' secondes, un seul plan, pas de coupe, pas de texte à l’écran.',
-      'Écris "image_prompt" en ANGLAIS : la PREMIÈRE image fixe de ce plan (même sujet, décor, lumière, cadrage de départ), photoréaliste, verticale 9:16, sans texte ni logo.',
-      'Écris "title" : 3 à 6 mots en français qui résument la vidéo.',
+      'Tu es un directeur de la photographie expert des prompts Higgsfield et du modèle vidéo Wan 2.2. Tu transformes une idée en un plan vidéo de '+(seconds||5)+' secondes, vertical 9:16, de qualité cinéma.',
+      'MOUVEMENT DE CAMÉRA : choisis UN mouvement Higgsfield qui sert l’idée, parmi : '+MARSHALL_HIGGS_CAMERAS.join(', ')+'. Mouvement lent et fluide si la durée est courte.',
+      '"video_prompt" (ANGLAIS, 70 à 120 mots, présent de l’indicatif, une seule phrase dense) suit EXACTEMENT cet ordre :',
+      '1) "[Camera move]:" 2) SUJET précis (qui/quoi, matière, couleur, vêtements, texture) 3) UNE SEULE action continue et physiquement plausible, avec un adverbe de vitesse (slowly, gently, steadily) 4) DÉCOR avec avant-plan et arrière-plan 5) LUMIÈRE : source (sunlight, practical lamps, neon…), qualité (soft/hard), moment (golden hour, blue hour, night…), température (warm/cool) 6) CADRAGE : taille de plan (close-up, medium, wide), angle (eye level, low angle…), composition, objectif en mm, profondeur de champ 7) STYLE et étalonnage (cinematic, teal-and-orange, natural, film grain…) 8) QUALITÉ DU MOUVEMENT : smooth, stable, natural motion blur, consistent subject.',
+      'RÈGLES DE QUALITÉ : mots concrets et visuels uniquement (jamais "beautiful", "amazing", "epic") ; 1 ou 2 sujets maximum ; pas de foule ; pas de gros plan de mains ; pas de texte, logo, écran lisible ni sous-titre ; pas de changement de scène ni de coupe ; pas d’action trop rapide ou chaotique ; amplitude du mouvement adaptée à '+(seconds||5)+' s ; tout reste cohérent du début à la fin du plan.',
+      'STYLE : respecte le style demandé par l’utilisateur (anime, 3D, illustration, pâte à modeler…) ; sinon, photoréaliste cinéma.',
+      '"image_prompt" (ANGLAIS, 60 à 90 mots) : la PREMIÈRE image exacte du plan, AVANT le mouvement de caméra (ex. Push In / Dolly In → cadrage un peu plus large ; Pull Out / Dolly Out → cadrage serré ; Crane Up → vue basse ; Orbit → sujet de trois-quarts). Même sujet, décor, lumière, style et étalonnage que le video_prompt. Netteté parfaite, très détaillé, sujet bien placé pour un format vertical 9:16, espace autour pour le mouvement, aucun texte ni logo.',
+      '"title" : 3 à 6 mots en français qui résument la vidéo.',
+      'Relis-toi : chaque règle est-elle respectée ? Corrige avant de répondre.',
       'Réponds UNIQUEMENT en JSON : {"camera":"","video_prompt":"","image_prompt":"","title":""}'
     ].join('\n'),'Idée : '+userPrompt);
     r=r||{};
@@ -7609,9 +7613,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var el=document.getElementById('sai-status'); if(el) el.innerHTML=t?('<span class="vp-spin"></span>'+esc(t)):'';
   }
   function marshallStudioResult(html){ var th=document.getElementById('marshall-agent-dock-thread'); if(!th) return; var d=document.createElement('div'); d.className='madock-msg assistant'; d.innerHTML=html; th.appendChild(d); th.scrollTop=th.scrollHeight; }
-  async function marshallStudioImage(prompt){
-    var S=MARSHALL_STUDIO, dims=marshallImageDimensions(), hd=S.iQuality==='hd';
-    if(S.iEngine==='nano'){
+  async function marshallStudioImage(prompt,forceBest){
+    var S=MARSHALL_STUDIO, dims=marshallImageDimensions(), hd=S.iQuality==='hd', engine=S.iEngine;
+    if(forceBest){ engine=marshallStudioNanoOk()?'nano':'qwen'; hd=engine==='qwen'; }   // image de départ d'une vidéo : la plus nette possible
+    if(engine==='nano'){
       var gr=await fetch(MARSHALL_CREWAI_BASE+'/image/generate',{method:'POST',headers:await authHeaders(),body:JSON.stringify({prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE,reference_images:[],quality:hd?'pro':''})});
       var go=null; try{ go=await gr.json(); }catch(e){}
       marshallTokensFromResponse(go);
@@ -7620,8 +7625,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       throw Error((go&&go.error)||('Nano Banana HTTP '+gr.status));
     }
     if(hd){ var k=Math.min(1.4,1536/Math.max(dims.width,dims.height)); dims={width:Math.round(dims.width*k/16)*16,height:Math.round(dims.height*k/16)*16}; }
-    var res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE})});
-    if(!res.ok) throw Error('Qwen HTTP '+res.status);
+    // Le serveur d'images peut couper la 1re requête pendant son démarrage : on réessaie (2 fois max).
+    var body=JSON.stringify({prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE}), res=null;
+    for(var att=0;att<3;att++){
+      res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:body}).catch(function(){ return null; });
+      if(res&&res.ok) break;
+      if(res&&res.status>=400&&res.status<500) break;
+      marshallStudioStatus('🖼️ Le serveur d’images démarre… nouvel essai');
+      await new Promise(function(ok){ setTimeout(ok,4000); });
+    }
+    if(!res||!res.ok) throw Error('serveur d’images indisponible'+(res?' (HTTP '+res.status+')':'')+', réessaie dans un instant');
     var out=await res.json();
     if(!out||out.success!==true||!out.image) throw Error((out&&out.error)||'image absente');
     var url='data:'+(out.mime||'image/webp')+';base64,'+out.image; try{ marshallMarkGeneratedImage(url); }catch(e){}
@@ -7667,7 +7680,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
       if(kind==='t2i'||kind==='t2v'){
         if(kind==='t2i') marshallStudioStatus('🖼️ Création de l’image…');
-        var img=await marshallStudioImage(hp?hp.image_prompt:prompt);
+        var img=await marshallStudioImage(hp?hp.image_prompt:prompt,kind==='t2v');
         if(!img) throw Error('image non générée');
         if(kind==='t2i'){ marshallStudioResult('<b>🖼️ Image prête · '+(S.iEngine==='nano'?'Nano Banana':'Qwen')+' '+(S.iQuality==='hd'?'HD':'Éco')+'</b><img src="'+esc(img)+'" alt="" style="display:block;width:100%;border-radius:12px;margin-top:6px">'); marshallStudioImageToCanvas(img); toast('🖼️ Image créée sur un nouveau canva.'); return; }
         image=img;
