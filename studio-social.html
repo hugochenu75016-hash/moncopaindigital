@@ -1056,6 +1056,8 @@
   @keyframes edVidSpin{ to{ transform:rotate(360deg); } }
   .ed-vo-bar{ position:absolute; left:10px; top:10px; z-index:60; display:flex; gap:8px; flex-wrap:wrap; max-width:calc(100% - 20px); }
   .ed-vo-bar .ed-rmbg-pill{ position:static; }
+  #ed-side-tools{ position:fixed; z-index:70; flex-direction:column; align-items:flex-end; max-width:none; }
+  #ed-side-tools.inside{ align-items:flex-start; }
   .ed-vo-bar .ed-rmbg-pill.blocked{ background:#d9a3a0; color:#fff7f6; box-shadow:none; cursor:not-allowed; filter:grayscale(.35); }
   .ed-vo-bar .ed-rmbg-pill.blocked:hover{ background:#d09591; }
   .ed-vo-bar .ed-vo-listen{ background:#201e1d; box-shadow:0 6px 18px rgba(0,0,0,.3); }
@@ -4935,27 +4937,27 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return '<div class="ed-layer shp '+sel+'" data-lid="'+l.id+'" style="'+st+'">'+inner+edHandles(l.id)+'</div>';
     }).join('');
     /* Pilule « ☁️ Supprimer le fond » sur l'image sélectionnée (détourage par le serveur Marshall). */
-    // Placée dans le cadre visible du canvas (#ed-stage, non mis à l'échelle), en haut à gauche.
-    var stage=$('#ed-stage'), oldPill=stage&&stage.querySelector('.ed-rmbg-pill'); if(oldPill) oldPill.remove();
+    // Placée à gauche du canvas, sur le fond bleu (colonne #ed-side-tools, positionnée par edPlaceSideTools).
+    var stage=$('#ed-stage'), bar=document.getElementById('ed-side-tools');
+    if(!bar){ bar=document.createElement('div'); bar.id='ed-side-tools'; bar.className='ed-vo-bar'; document.body.appendChild(bar); }
+    bar.innerHTML='';
     var selImg=ed.preview?null:ed.layers.filter(function(o){ return o.id===ed.sel && o.type==='image'; })[0];
     if(selImg&&stage){
       var pill=document.createElement('button'); pill.type='button'; pill.className='ed-rmbg-pill'+(selImg._rmbgBusy?' busy':''); pill.setAttribute('data-rmbg',selImg.id);
       pill.textContent=selImg._rmbgBusy?'☁️ Détourage…':(ED_ORIG[selImg.id]?'☁️ Remettre le fond':'☁️ Supprimer le fond');
-      stage.appendChild(pill);
+      bar.appendChild(pill);
     }
     /* Pilule « 🎙️ Voix off IA » sur la vidéo sélectionnée (+ « 🔊 Écouter » : le canvas lit la vidéo sans le son). */
-    var oldVo=stage&&stage.querySelector('.ed-vo-bar'); if(oldVo) oldVo.remove();
     var selVid=ed.preview?null:ed.layers.filter(function(o){ return o.id===ed.sel && o.type==='video'; })[0];
     if(selVid&&stage){
-      var bar=document.createElement('div'); bar.className='ed-vo-bar';
       var voWhy=(selVid._voBusy||ED_ORIG[selVid.id])?'':edVoBlock(selVid);
       var b1=document.createElement('button'); b1.type='button'; b1.className='ed-rmbg-pill'+(selVid._voBusy?' busy':'')+(voWhy?' blocked':''); b1.setAttribute('data-vo',selVid.id);
       if(voWhy){ b1.title=voWhy; b1.setAttribute('aria-disabled','true'); }
       b1.textContent=selVid._voBusy?('🎙️ '+(selVid._voMsg||'Voix off en cours…')):(ED_ORIG[selVid.id]?'🎙️ Retirer la voix off':'🎙️ Voix off IA');
       bar.appendChild(b1);
       if(!selVid._voBusy){ var b2=document.createElement('button'); b2.type='button'; b2.className='ed-rmbg-pill ed-vo-listen'; b2.setAttribute('data-vo-listen',selVid.id); b2.textContent='🔊 Écouter'; bar.appendChild(b2); }
-      stage.appendChild(bar);
     }
+    edPlaceSideTools(); requestAnimationFrame(edPlaceSideTools);
     if(ed.safeZones && ed.fmt==='9:16'){
       var safe=document.createElement('div');safe.className='ed-safezone';safe.innerHTML='<div class="sz-top"></div><div class="sz-bottom"></div><div class="sz-left"></div><div class="sz-right"></div><div class="sz-label">ZONE SÛRE</div>';page.appendChild(safe);
     }
@@ -4963,6 +4965,25 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     edBind(); edPanel();
     if($('#ed-fly-title') && $('#ed-flyout').classList.contains('show') && ed.flyKind==='layers') edFlyout('layers');
   }
+
+  /* Colonne d'outils (détourage, voix off) collée à gauche du canvas, sur le fond bleu ;
+     s'il n'y a pas la place (petit écran), elle revient dans le coin haut gauche du canvas. */
+  function edPlaceSideTools(){
+    var bar=document.getElementById('ed-side-tools'), stage=$('#ed-stage');
+    if(!bar) return;
+    if(!bar.children.length||!stage||!stage.offsetParent){ bar.style.display='none'; return; }
+    bar.style.display='flex';
+    var r=stage.getBoundingClientRect(), w=bar.offsetWidth;
+    var rail=document.querySelector('.ed-rail'), railR=0;
+    if(rail&&rail.offsetParent){ var rr=rail.getBoundingClientRect(); if(rr.right<=r.left) railR=rr.right; }
+    var outside=(r.left-14-w)>=railR+8;
+    bar.classList.toggle('inside',!outside);
+    bar.style.left=Math.round(outside?(r.left-14-w):(r.left+10))+'px';
+    bar.style.top=Math.round(Math.max(8,r.top+(outside?0:10)))+'px';
+  }
+  window.addEventListener('resize',edPlaceSideTools);
+  document.addEventListener('scroll',edPlaceSideTools,true);
+  setInterval(function(){ var b=document.getElementById('ed-side-tools'); if(b&&b.children.length) edPlaceSideTools(); },400);
 
   /* --- Détourage : supprime le fond de l'image sélectionnée (rembg / BiRefNet sur le serveur Marshall) --- */
   var ED_ORIG={};   // image d'origine avant détourage (hors historique : un data URL peut peser plusieurs Mo)
