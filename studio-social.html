@@ -9572,6 +9572,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallTimelineRender(){
     var box=$('#ed-timeline'); if(!box)return;
+    if(!window.MCD_OLD_TIMELINE){ box.style.display='none'; box.innerHTML=''; return; }   // remplacée par la barre vidéo sous le canvas
     if(!marshallTimelineHasVideo()){
       box.style.display='none';
       box.innerHTML='';
@@ -11681,7 +11682,25 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(best.issues)console.warn('Story QA : écran '+(index+1)+' garde '+best.issues+' point(s) de mise en page à vérifier');
     ed.sel=null;edApplyFmt();edSnap();edRender();
   }
+  function marshallFixVideoUrl(u){
+    u=String(u||'');
+    var m=/marshall-mpt-web\.modal\.run\/tasks\/.*?([0-9a-fA-F-]{36})\/([A-Za-z0-9_.-]+\.mp4)$/.exec(u);
+    return m?(MARSHALL_CREWAI_BASE+'/video/story-file/mpt_'+m[1]+'_'+m[2]):u;
+  }
+  /* Vidéo IA terminée : posée sur un NOUVEAU canva 9:16, prête à être retouchée avec la barre vidéo. */
+  function marshallVideoToCanvas(url,engine){
+    try{
+      marshallCanvasPagesEnsureCurrent(); try{ marshallCanvasPagesSaveCurrent(); }catch(e){}
+      ed.seq=(ed.seq||0)+1;
+      var page={name:'Vidéo IA',desc:String(engine||'Vidéo IA').slice(0,60),kind:'story',fmt:'9:16',bg:'#000000',motion:marshallPageMotionDefault(),
+        layers:[{id:'v'+ed.seq,type:'video',url:url,x:0,y:0,w:100,h:100,rot:0,op:100,rad:0}]};
+      marshallCanvasPages.push(page); marshallCanvasPageIndex=marshallCanvasPages.length-1;
+      try{ marshallFreshPages.push(page); }catch(e){}
+      marshallCanvasRestore(page); marshallCanvasPagesRender(); marshallCanvasPersistConversation();
+    }catch(e){ console.warn('Vidéo → canva',e); }
+  }
   function marshallVideoResultCard(videoUrl,engine,skipPersist){
+    videoUrl=marshallFixVideoUrl(videoUrl);
     var th=marshallChatThread();if(!th||!videoUrl)return null;
     var box=document.createElement('div');box.className='mv4-msg assistant';box.style.maxWidth='520px';box.style.padding='10px';
     var title=document.createElement('div');title.style.cssText='font-weight:800;margin:2px 4px 9px';title.textContent='Story vidéo prête · '+(engine||'Open-source');
@@ -11703,7 +11722,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* Livre la vidéo dans SA conversation, même si Marshall est fermé ou si un autre chat est affiché. */
   function marshallVideoDeliver(url,engine,convId){
     var st=marshallConversationLoad(), active=st.activeId;
-    if(!convId||convId===active){ if(marshallVideoResultCard(url,engine)){ marshallNotifyIfHidden(); return; } }
+    url=marshallFixVideoUrl(url);
+    if(!convId||convId===active){ marshallVideoToCanvas(url,engine); if(marshallVideoResultCard(url,engine)){ marshallNotifyIfHidden(); return; } }
     var c=st.conversations.find(function(x){ return x.id===(convId||active); });
     if(c){ c.artifacts=Array.isArray(c.artifacts)?c.artifacts:[]; c.artifacts.push({type:'video',data:{url:url,engine:engine||'vidéo IA'},at:Date.now()}); c.updatedAt=Date.now(); marshallConversationSave(); try{ marshallConversationRenderSidebar(); }catch(e){} }
     marshallNotifyIfHidden();
