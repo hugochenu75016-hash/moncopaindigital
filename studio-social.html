@@ -11682,17 +11682,53 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{marshallTimelineRender();}catch(e){}
     return box;
   }
-  async function marshallPollStoryVideo(taskId,engine){
-    var started=Date.now(),maxMs=16*60*1000;
-    while(Date.now()-started<maxMs){
-      await new Promise(function(resolve){setTimeout(resolve,3500);});
-      var r=await fetch(MARSHALL_VIDEO_STATUS_BASE+encodeURIComponent(taskId),{method:'GET'}),data=null;try{data=await r.json();}catch(e){}
-      if(!r.ok||!data)throw Error((data&&data.error)||('Statut vidéo HTTP '+r.status));
-      if(data.failed)throw Error(data.error||'La génération vidéo a échoué');
-      if(data.done&&data.video_url){marshallVideoResultCard(data.video_url,engine);edAIStatus('✓ Story vidéo prête · '+(engine||'vidéo IA')+'.');return data;}
-      var p=data.progress!=null?(' · '+data.progress+'%'):'';edAIStatus((data.state==='veo'?'Veo anime tes scènes':data.state==='montage'?'Montage de la vidéo':'Vidéo en cours')+p+'…');
-    }
-    throw Error('La génération vidéo prend trop de temps. Le rendu peut continuer côté serveur.');
+  /* Vidéos en cours (Veo / Wan / montage) : notées dans le navigateur pour reprendre leur suivi après un rechargement. */
+  function marshallPendingKey(){ return 'marshall_pending_videos_v1_'+marshallConversationAccountId(); }
+  function marshallPendingList(){ try{ var a=JSON.parse(localStorage.getItem(marshallPendingKey())||'[]'); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+  function marshallPendingSave(a){ try{ localStorage.setItem(marshallPendingKey(),JSON.stringify(a.slice(-10))); }catch(e){} }
+  function marshallPendingAdd(t){ var a=marshallPendingList().filter(function(x){ return x.id!==t.id; }); a.push(t); marshallPendingSave(a); }
+  function marshallPendingRemove(id){ marshallPendingSave(marshallPendingList().filter(function(x){ return x.id!==id; })); }
+  var marshallPendingActive={};
+  /* Livre la vidéo dans SA conversation, même si Marshall est fermé ou si un autre chat est affiché. */
+  function marshallVideoDeliver(url,engine,convId){
+    var st=marshallConversationLoad(), active=st.activeId;
+    if(!convId||convId===active){ if(marshallVideoResultCard(url,engine)){ marshallNotifyIfHidden(); return; } }
+    var c=st.conversations.find(function(x){ return x.id===(convId||active); });
+    if(c){ c.artifacts=Array.isArray(c.artifacts)?c.artifacts:[]; c.artifacts.push({type:'video',data:{url:url,engine:engine||'vidéo IA'},at:Date.now()}); c.updatedAt=Date.now(); marshallConversationSave(); try{ marshallConversationRenderSidebar(); }catch(e){} }
+    marshallNotifyIfHidden();
+    try{ toast('🎬 Ta vidéo est prête : ouvre Marshall pour la voir.'); }catch(e){}
+  }
+  function marshallPollStoryVideo(taskId,engine,resume){
+    if(marshallPendingActive[taskId]) return marshallPendingActive[taskId];
+    var conv=null; try{ conv=(resume&&resume.conv)||marshallConversationLoad().activeId; }catch(e){}
+    marshallPendingAdd({id:taskId,engine:engine||'',conv:conv,at:(resume&&resume.at)||Date.now()});
+    var run=(async function(){
+      var started=Date.now(),maxMs=16*60*1000,final=false;
+      try{
+        while(Date.now()-started<maxMs){
+          await new Promise(function(resolve){setTimeout(resolve,3500);});
+          var r=await fetch(MARSHALL_VIDEO_STATUS_BASE+encodeURIComponent(taskId),{method:'GET'}),data=null;try{data=await r.json();}catch(e){}
+          if(!r.ok||!data){ final=r.status>=400&&r.status<500; throw Error((data&&data.error)||('Statut vidéo HTTP '+r.status)); }
+          if(data.failed){ final=true; throw Error(data.error||'La génération vidéo a échoué'); }
+          if(data.done&&data.video_url){ marshallPendingRemove(taskId); marshallVideoDeliver(data.video_url,engine,conv); edAIStatus('✓ Story vidéo prête · '+(engine||'vidéo IA')+'.'); return data; }
+          var p=data.progress!=null?(' · '+data.progress+'%'):'';edAIStatus((data.state==='veo'?'Veo anime tes scènes':data.state==='wan'?'Wan 2.2 anime tes scènes':data.state==='montage'?'Montage de la vidéo':'Vidéo en cours')+p+'…');
+        }
+        throw Error('La génération vidéo prend trop de temps. Le rendu peut continuer côté serveur.');
+      }catch(e){ if(final) marshallPendingRemove(taskId); throw e; }
+      finally{ delete marshallPendingActive[taskId]; }
+    })();
+    marshallPendingActive[taskId]=run;
+    return run;
+  }
+  /* Au chargement : reprend le suivi des vidéos lancées il y a moins d'une heure. */
+  function marshallPendingResume(){
+    var now=Date.now(), list=marshallPendingList().filter(function(t){ return t&&t.id&&now-(+t.at||0)<60*60*1000; });
+    marshallPendingSave(list);
+    list.forEach(function(t){
+      if(marshallPendingActive[t.id]) return;
+      try{ toast('⏳ Marshall reprend le suivi de ta vidéo en cours…'); }catch(e){}
+      marshallPollStoryVideo(t.id,t.engine,t).catch(function(e){ console.warn('Reprise vidéo',e); try{ toast('Vidéo en cours : '+(e&&e.message||e),true); }catch(x){} });
+    });
   }
   /* ===== Vraie vidéo IA (5 à 10 s) : durée au curseur → script proposé → validation → images clés → Veo 3.1 → montage ===== */
   function marshallVideoDur(sec){sec=Math.max(5,Math.min(10,Math.round(+sec||8)));return {sec:sec,veo:sec<=8?4:6,wan:sec<=8?4:5,clip:Math.ceil(sec/2),words:sec*2};}
@@ -15062,6 +15098,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     await loadPosts();
     await loadConnections();
     calendarAutoPublishStart();
+    try{ marshallPendingResume(); }catch(e){ console.warn('Reprise des vidéos',e); }
     marshallEnsureBrandIntelligence(false).catch(function(e){console.warn('Brand Intelligence startup',e);});
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
     updateBadges(); renderConnexions();
