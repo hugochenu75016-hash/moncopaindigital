@@ -3310,7 +3310,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     <h2 id="agency-panel-title">Mes comptes agence</h2>
     <p id="agency-panel-state" role="status"></p>
     <div><button type="button" data-agency-network="instagram">Instagram / Facebook</button><button type="button" data-agency-network="x">X</button><button type="button" data-agency-network="snapchat">Snapchat</button></div>
-    <p style="font-size:12px;color:#666">TikTok n’est pas encore disponible. Les publications groupées sont immédiates, avec un seul média par publication.</p>
+    <p style="font-size:12px;color:#666">TikTok publie des vidéos : une image est transformée en courte vidéo. Les publications groupées sont immédiates, avec un seul média par publication.</p>
     <button type="button" id="agency-import">Importer mes connexions existantes</button><button type="button" id="agency-accounts-refresh">Actualiser</button>
     <div id="agency-accounts"></div>
     <p>Cochez les comptes destinataires, puis retrouvez le bouton de publication groupée à l’étape « Publier » du Studio.</p>
@@ -4504,7 +4504,6 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   async function connectNetwork(id){
     if(actingAs){ toast('Seul le client peut connecter ou reconnecter son propre compte.', true); return; }
-    if(id==='tiktok'){ await loadConnections(); renderConnexions(); toast(connections[id].connected ? (net(id).name+' est relié ✓') : (net(id).name+' : configuré côté serveur (secrets).')); return; }
     /* Plus de « faux » mode test : on ouvre la vraie connexion Meta, ou on explique précisément ce qui bloque. */
     if(mcdIsOffline()){ toast('📴 Pas de connexion Internet : reconnecte-toi pour relier '+net(id).name+'.', true); return; }
     var popup=null;
@@ -4553,7 +4552,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         }
       }, 700);
     }
-    function disconnectNetwork(id){ if(actingAs){ toast('Seul le client peut déconnecter son propre compte.', true); return; } if(id==='tiktok'){ toast(net(id).name+' est g\u00e9r\u00e9 c\u00f4t\u00e9 serveur (secrets).'); return; } connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
+    function disconnectNetwork(id){ if(actingAs){ toast('Seul le client peut déconnecter son propre compte.', true); return; } connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
 
   /* ============ NAV ============ */
   $all('.nav-item').forEach(function(n){ n.addEventListener('click', function(){ switchView(n.getAttribute('data-view')); var s=$('#side'); if(s) s.classList.remove('fan-open'); }); });
