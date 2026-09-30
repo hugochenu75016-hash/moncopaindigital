@@ -1064,6 +1064,8 @@
   .ed-vo-opts{ display:flex; flex-wrap:wrap; gap:6px; }
   .ed-vo-opts button{ border:1.5px solid #e6ded6; background:#fff; border-radius:999px; padding:6px 12px; font:600 13px 'Fredoka',sans-serif; cursor:pointer; }
   .ed-vo-opts button.on{ border-color:#F3852B; background:#fff3e8; color:#c75d10; }
+  .ed-vo-opts button.playing::after{ content:' 🔊'; animation:edRmbgPulse 1s ease-in-out infinite; }
+  .ed-vo-hint{ font-size:12px; opacity:.65; margin:4px 0 0; }
   .ed-vo-card textarea{ width:100%; box-sizing:border-box; border:1.5px solid #e6ded6; border-radius:12px; padding:8px 10px; font:14px 'Fredoka',sans-serif; resize:vertical; }
   .ed-vo-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
   .ed-vo-actions button,.ed-vo-card>.ed-vo-close{ border:0; border-radius:999px; padding:9px 16px; font:700 14px 'Fredoka',sans-serif; cursor:pointer; background:#f1ece7; color:#201e1d; }
@@ -5032,6 +5034,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{ var need=marshallTokenPrice('voiceover'); if(marshallTokensLeft()<need) return 'Tokens insuffisants ce mois-ci : recharge dans Réglages › Mon utilisation.'; }catch(e){}
     return '';
   }
+  /* Aperçu : « Bonjour, comment tu vas ? » avec la voix et le ton choisis (extrait mis en cache par le serveur). */
+  var _edVoAudio=null;
+  function edVoSampleStop(){ if(_edVoAudio){ try{ _edVoAudio.pause(); }catch(e){} _edVoAudio=null; } document.querySelectorAll('.ed-vo-opts button.playing').forEach(function(b){ b.classList.remove('playing'); }); }
+  function edVoSample(m){
+    var pick=function(k){ var b=m.querySelector('[data-k="'+k+'"] .on'); return b?b.getAttribute('data-v'):''; };
+    var lang=String(document.documentElement.lang||'fr').slice(0,2);
+    var url=MARSHALL_CREWAI_BASE+'/voice/sample?voice='+encodeURIComponent(pick('voice')||'femme')+'&tone='+encodeURIComponent(pick('tone')||'dynamique')+'&lang='+encodeURIComponent(lang);
+    edVoSampleStop();
+    var btns=m.querySelectorAll('.ed-vo-opts .on'); btns.forEach(function(b){ b.classList.add('playing'); });
+    var a=new Audio(url); _edVoAudio=a;
+    var end=function(){ if(_edVoAudio===a){ btns.forEach(function(b){ b.classList.remove('playing'); }); _edVoAudio=null; } };
+    a.onended=end; a.onerror=function(){ end(); toast('Aperçu de la voix indisponible pour le moment.',true); };
+    a.play().catch(end);
+  }
   function edVoiceoverPill(id){
     var l=edVoLayer(id); if(!l||l._voBusy) return;
     var why=ED_ORIG[l.id]?'':edVoBlock(l);
@@ -5041,15 +5057,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     m.innerHTML='<div class="ed-vo-card"><h3>🎙️ Voix off IA</h3><p>Marshall regarde ta vidéo, écrit un texte qui la décrit et l’enregistre avec une voix naturelle.</p>'
       +'<label>Voix</label><div class="ed-vo-opts" data-k="voice"><button type="button" data-v="femme" class="on">👩 Femme</button><button type="button" data-v="femme_douce">👩 Femme douce</button><button type="button" data-v="homme">👨 Homme</button><button type="button" data-v="homme_dynamique">👨 Homme dynamique</button></div>'
       +'<label>Ton</label><div class="ed-vo-opts" data-k="tone"><button type="button" data-v="dynamique" class="on">⚡ Dynamique</button><button type="button" data-v="chaleureux">☀️ Chaleureux</button><button type="button" data-v="informatif">📘 Informatif</button></div>'
+      +'<p class="ed-vo-hint">🔊 Clique sur une voix ou un ton pour l’écouter.</p>'
       +'<label>Consigne (facultatif)</label><textarea rows="2" placeholder="Ex. : mets en avant notre nouveau menu, termine par « Réservez vite »"></textarea>'
       +'<div class="ed-vo-actions"><button type="button" class="ed-vo-close">Annuler</button><button type="button" class="ed-vo-go">Lancer la voix off</button></div></div>';
     m.addEventListener('click',function(e){
-      var o=e.target.closest('.ed-vo-opts button'); if(o){ o.parentNode.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===o); }); return; }
-      if(e.target===m||e.target.closest('.ed-vo-close')){ m.remove(); return; }
+      var o=e.target.closest('.ed-vo-opts button'); if(o){ o.parentNode.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===o); }); edVoSample(m); return; }
+      if(e.target===m||e.target.closest('.ed-vo-close')){ edVoSampleStop(); m.remove(); return; }
       if(e.target.closest('.ed-vo-go')){
         var pick=function(k){ var b=m.querySelector('[data-k="'+k+'"] .on'); return b?b.getAttribute('data-v'):''; };
         var opts={voice:pick('voice'),tone:pick('tone'),brief:m.querySelector('textarea').value.trim()};
-        m.remove(); edVoiceover(l.id,opts).then(function(r){ if(r&&r.ok) toast('🎙️ Voix off ajoutée ! Clique sur « 🔊 Écouter » pour l’entendre.'); else if(r&&r.error) toast('Voix off impossible : '+r.error,true); });
+        edVoSampleStop(); m.remove(); edVoiceover(l.id,opts).then(function(r){ if(r&&r.ok) toast('🎙️ Voix off ajoutée ! Clique sur « 🔊 Écouter » pour l’entendre.'); else if(r&&r.error) toast('Voix off impossible : '+r.error,true); });
       }
     });
     document.body.appendChild(m);
