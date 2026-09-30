@@ -1224,6 +1224,9 @@
   .sp-step b{ display:block; font-size:13px; color:#2a1a0c; } .sp-step small{ display:block; font-size:11.5px; color:#8a7a6c; line-height:1.35; margin-top:2px; }
   .sp-hp{ font-style:italic; color:#5b4a3a!important; max-height:5.4em; overflow:auto; }
   .sp-cam{ display:inline-block; margin-top:3px; font:800 11px 'Fredoka',sans-serif; color:#7c3aed; background:#f3edff; border-radius:999px; padding:2px 8px; }
+  .sp-n{ margin-left:4px; color:#b8601a!important; background:#fff1e3!important; }
+  .sp-segs{ margin:5px 0 0; padding-left:18px; max-height:9em; overflow:auto; font-size:11px; font-style:italic; color:#5b4a3a; line-height:1.35; }
+  .sp-segs li{ margin-bottom:4px; }
   .sp-res{ margin-top:6px; } .sp-res small{ display:block; font-size:11.5px; font-style:italic; color:#6b5a4a; margin-top:4px; }
   .sai-eta{ font-size:11.5px; color:#8a7a6c; margin:-4px 0 0 4px; }
   .sai-secs button.on{ border-color:#F3852B; background:#fff4e8; color:#b8601a; }
@@ -7581,6 +7584,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var MARSHALL_HIGGS_CAMERAS=['Dolly In','Dolly Out','Push In','Pull Out','Crash Zoom In','Dolly Zoom','Crane Up','Crane Down','360 Orbit','Arc Left','Arc Right','FPV Drone','Tracking Shot','Handheld','Whip Pan','Tilt Up','Tilt Down','Low Angle Push','Overhead','Static'];
   /* Étape 2 : Marshall réécrit la demande en prompt vidéo cinéma façon Higgsfield (mouvement de caméra prédéfini + plan détaillé). */
   async function marshallHiggsfieldPrompt(userPrompt,seconds){
+    var _nseg=Math.max(1,Math.ceil((seconds||5)/5));
     var r=await marshallRemoteJSONRetry([
       'Tu es un directeur de la photographie expert des prompts Higgsfield et du modèle vidéo Wan 2.2. Tu transformes une idée en un plan vidéo de '+(seconds||5)+' secondes, vertical 9:16, de qualité cinéma.',
       'MOUVEMENT DE CAMÉRA : choisis UN mouvement Higgsfield qui sert l’idée, parmi : '+MARSHALL_HIGGS_CAMERAS.join(', ')+'. Mouvement lent et fluide si la durée est courte.',
@@ -7591,12 +7595,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       '"image_prompt" (ANGLAIS, 60 à 90 mots) : la PREMIÈRE image exacte du plan, AVANT le mouvement de caméra (ex. Push In / Dolly In → cadrage un peu plus large ; Pull Out / Dolly Out → cadrage serré ; Crane Up → vue basse ; Orbit → sujet de trois-quarts). Même sujet, décor, lumière, style et étalonnage que le video_prompt. Netteté parfaite, très détaillé, sujet bien placé pour un format vertical 9:16, espace autour pour le mouvement, aucun texte ni logo.',
       '"title" : 3 à 6 mots en français qui résument la vidéo.',
       'Relis-toi : chaque règle est-elle respectée ? Corrige avant de répondre.',
-      'Réponds UNIQUEMENT en JSON : {"camera":"","video_prompt":"","image_prompt":"","title":""}'
+      _nseg>1?('VIDÉO LONGUE : '+_nseg+' plans enchaînés d’environ '+Math.round((seconds||5)/_nseg)+' s ; chaque plan démarre EXACTEMENT sur la dernière image du précédent. Écris "segments" : '+_nseg+' prompts (ANGLAIS, 50 à 90 mots, même format) qui FONT AVANCER l’histoire étape par étape : plan 1 = début de l’action depuis l’image de départ ; chaque plan suivant = l’étape SUIVANTE (jamais la même action, jamais de retour au début, jamais de pause) ; dernier plan = conclusion. Même sujet, décor qui évolue logiquement, même lumière, caméra qui continue dans le même sens. video_prompt = segment 1.'):'',
+      'Réponds UNIQUEMENT en JSON : {"camera":"","video_prompt":"","image_prompt":"","title":""'+(_nseg>1?',"segments":[]':'')+'}'
     ].join('\n'),'Idée : '+userPrompt);
     r=r||{};
     var cam=String(r.camera||'').trim(); if(MARSHALL_HIGGS_CAMERAS.indexOf(cam)<0) cam=cam||'Dolly In';
     var vp=String(r.video_prompt||'').trim(); if(!vp) throw Error('prompt Higgsfield non généré, réessaie');
-    return {camera:cam,video_prompt:vp.slice(0,1100),image_prompt:String(r.image_prompt||vp).trim().slice(0,900),title:String(r.title||'').trim().slice(0,60)};
+    var segs=(Array.isArray(r.segments)?r.segments:[]).map(function(x){ return String(x||'').trim().slice(0,1100); }).filter(Boolean).slice(0,_nseg);
+    return {camera:cam,video_prompt:(segs[0]||vp).slice(0,1100),image_prompt:String(r.image_prompt||vp).trim().slice(0,900),title:String(r.title||'').trim().slice(0,60),segments:_nseg>1?segs:[]};
   }
   async function marshallHiggsfieldI2V(image,idea,seconds){
     var small=image;
@@ -7604,7 +7610,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var r=await fetch(MARSHALL_CREWAI_BASE+'/video/i2v-prompt',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:small,idea:idea,seconds:seconds})});
     var d=null; try{ d=await r.json(); }catch(e){}
     if(!r.ok||!d||!d.ok||!d.video_prompt) throw Error((d&&d.error)||('prompt Higgsfield HTTP '+r.status));
-    return {camera:d.camera||'Static',video_prompt:d.video_prompt,title:d.title||'',subject:d.subject||''};
+    return {camera:d.camera||'Static',video_prompt:d.video_prompt,title:d.title||'',subject:d.subject||'',segments:Array.isArray(d.segments)?d.segments:[]};
   }
   function marshallStudioPipeRender(){
     var el=document.getElementById('sai-status'), P=MARSHALL_STUDIO.pipe; if(!el) return;
@@ -7613,7 +7619,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var ico=function(n){ return P.step>n?'✓':(P.step===n?'<span class="vp-spin"></span>':n); };
     el.innerHTML='<div class="sai-pipe">'
       +'<div class="sp-step '+st(1)+'"><i>'+ico(1)+'</i><div><b>'+(P.i2v?'Ton image + ton idée':'Ton prompt')+'</b><small>'+esc(String(P.user||(P.i2v?'Mouvement naturel et cinéma':'')).slice(0,140))+'</small></div></div>'
-      +'<div class="sp-step '+st(2)+'"><i>'+ico(2)+'</i><div><b>Prompt Higgsfield</b>'+(P.hp?'<span class="sp-cam">🎥 '+esc(P.hp.camera)+'</span><small class="sp-hp">'+esc(P.hp.video_prompt)+'</small>':'<small>Marshall écrit le prompt cinéma…</small>')+'</div></div>'
+      +'<div class="sp-step '+st(2)+'"><i>'+ico(2)+'</i><div><b>Prompt Higgsfield</b>'+(P.hp?'<span class="sp-cam">🎥 '+esc(P.hp.camera)+'</span>'+(P.hp.segments&&P.hp.segments.length>1?'<span class="sp-cam sp-n">🎞️ '+P.hp.segments.length+' plans enchaînés</span><ol class="sp-segs">'+P.hp.segments.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ol>':'<small class="sp-hp">'+esc(P.hp.video_prompt)+'</small>'):'<small>Marshall écrit le prompt cinéma…</small>')+'</div></div>'
       +'<div class="sp-step '+st(3)+'"><i>'+ico(3)+'</i><div><b>Génération vidéo</b><small>'+esc(P.sub||(P.step>=3?'Préparation…':'En attente'))+'</small></div></div>'
       +'</div>';
   }
@@ -7649,9 +7655,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var url='data:'+(out.mime||'image/webp')+';base64,'+out.image; try{ marshallMarkGeneratedImage(url); }catch(e){}
     return url;
   }
-  async function marshallStudioAnimate(image,prompt){
+  async function marshallStudioAnimate(image,prompt,prompts){
     var S=MARSHALL_STUDIO;
-    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/animate',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:image,prompt:prompt,engine:S.vEngine,quality:S.vQuality,seconds:S.seconds})});
+    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/animate',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:image,prompt:prompt,prompts:(prompts&&prompts.length>1)?prompts:undefined,engine:S.vEngine,quality:S.vQuality,seconds:S.seconds})});
     var d=null; try{ d=await r.json(); }catch(e){}
     try{ marshallTokensFromResponse(d); }catch(e){}
     if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
@@ -7702,9 +7708,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       marshallStudioStatus('🎬 Lancement de la vidéo…');
       if(/^data:image/.test(image)&&image.length>4000000){ try{ image=await edShrinkForUpload(image,1600); }catch(e){} }
       else if(/^blob:/.test(image)){ try{ image=await edShrinkForUpload(await edBlobToDataUrl(await (await fetch(image)).blob()),1600); }catch(e){} }
-      var url=await marshallStudioAnimate(image,hp?hp.video_prompt:(prompt||''));
+      var url=await marshallStudioAnimate(image,hp?hp.video_prompt:(prompt||''),hp&&hp.segments&&hp.segments.length>1&&S.vEngine==='wan'?hp.segments:null);
       marshallStudioResult('<b>🎬 Vidéo prête · '+(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' '+(S.vQuality==='hd'?'HD':'Éco')+'</b>'
-        +(hp?'<div class="sp-res"><span class="sp-cam">🎥 '+esc(hp.camera)+'</span><small>'+esc(hp.video_prompt)+'</small></div>':'')
+        +(hp?'<div class="sp-res"><span class="sp-cam">🎥 '+esc(hp.camera)+'</span>'+(hp.segments&&hp.segments.length>1?'<ol class="sp-segs">'+hp.segments.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ol>':'<small>'+esc(hp.video_prompt)+'</small>')+'</div>':'')
         +'<video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:420px;border-radius:12px;margin-top:6px;background:#000"></video>');
       try{ marshallFreshReset(); }catch(e){}
       marshallVideoToCanvas(url,(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' · Studio IA',{});
