@@ -15860,6 +15860,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     else { ab.style.display='none'; }
     switchView('composer');
     setTimeout(function(){try{marshallAgentRightRailInit();marshallAgentRailHardBind();}catch(e){console.warn('Agents IA enterStudio',e);}},30);
+    // Recharge tout de suite les canvas de la conversation Marshall active (sans devoir ouvrir Marshall).
+    setTimeout(function(){try{if(window.__mcdCanvasBooted)return;window.__mcdCanvasBooted=true;var c=marshallConversationCurrent(false);if(c)marshallConversationRestoreCanvas(c);}catch(e){console.warn('Canvas au démarrage',e);}},60);
   }
   $all('#hub .hub-card').forEach(function(c){ c.addEventListener('click', function(){
     var t=c.getAttribute('data-tool');
