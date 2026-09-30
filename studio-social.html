@@ -5079,6 +5079,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     edBind(); edPanel();
     // La colonne des canvas (1, 2, 3, +) doit toujours être là, même quand on part directement d'une vidéo.
     try{ var mp=$('#ed-multipage'); if(mp&&(!mp.classList.contains('show')||!mp.children.length)&&!edRender._mp){ edRender._mp=1; marshallCanvasPagesRender(); edRender._mp=0; } }catch(e){ edRender._mp=0; console.warn('Colonne des canvas',e); }
+    try{ marshallCanvasStripPlace(); }catch(e){}   // position toujours recalculée sur la mise en page réelle
     if($('#ed-fly-title') && $('#ed-flyout').classList.contains('show') && ed.flyKind==='layers') edFlyout('layers');
   }
 
@@ -10002,6 +10003,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallCanvasStripPlace(){
     var box=$('#ed-multipage'),tb=document.querySelector('.ed-stagewrap .ed-toolbar');if(!box||!tb)return;
+    if(!tb.offsetParent||!tb.offsetHeight)return;   // éditeur caché : on ne mesure pas (sinon position fausse et figée)
     if(window.innerWidth>900){box.style.top=Math.round(tb.offsetTop+tb.offsetHeight+14)+'px';var rail=document.querySelector('.ed-rail'),wrap=box.parentElement,rl=14;if(rail&&wrap){var rr=rail.getBoundingClientRect(),wr=wrap.getBoundingClientRect();if(rr.width&&rr.right>wr.left)rl=Math.round(rr.right-wr.left+14);}box.style.left=rl+'px';}else{box.style.top='';box.style.left='';}
   }
   window.addEventListener('resize',function(){try{marshallCanvasStripPlace();}catch(e){}});
