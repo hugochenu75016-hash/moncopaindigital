@@ -1213,6 +1213,18 @@
   .sai-prompt:focus{ outline:none; border-color:#F3852B; box-shadow:0 0 0 4px rgba(243,133,43,.12); }
   .sai-secs{ display:flex; gap:6px; }
   .sai-secs button{ flex:1; border:2px solid #efe3d6; background:#fff; border-radius:999px; padding:6px 0; font:800 12.5px 'Fredoka',sans-serif; color:#6b5a4a; cursor:pointer; }
+  .sai-pipe{ width:100%; display:flex; flex-direction:column; gap:0; padding:10px 12px; border-radius:16px; background:#fffaf5; border:1px solid #f3e4d3; }
+  .sp-step{ position:relative; display:flex; gap:10px; padding:6px 0 10px; opacity:.5; }
+  .sp-step.run,.sp-step.done{ opacity:1; }
+  .sp-step:not(:last-child)::before{ content:''; position:absolute; left:11px; top:28px; bottom:-2px; width:2px; background:#f0dcc6; }
+  .sp-step.done:not(:last-child)::before{ background:#F3852B; }
+  .sp-step > i{ flex:none; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font:800 12px 'Fredoka',sans-serif; font-style:normal; background:#f3e7da; color:#8a7a6c; }
+  .sp-step.done > i{ background:#F3852B; color:#fff; } .sp-step.run > i{ background:#fff; box-shadow:inset 0 0 0 2px #F3852B; }
+  .sp-step.run > i .vp-spin{ width:14px!important; height:14px!important; border-width:2px!important; }
+  .sp-step b{ display:block; font-size:13px; color:#2a1a0c; } .sp-step small{ display:block; font-size:11.5px; color:#8a7a6c; line-height:1.35; margin-top:2px; }
+  .sp-hp{ font-style:italic; color:#5b4a3a!important; max-height:5.4em; overflow:auto; }
+  .sp-cam{ display:inline-block; margin-top:3px; font:800 11px 'Fredoka',sans-serif; color:#7c3aed; background:#f3edff; border-radius:999px; padding:2px 8px; }
+  .sp-res{ margin-top:6px; } .sp-res small{ display:block; font-size:11.5px; font-style:italic; color:#6b5a4a; margin-top:4px; }
   .sai-eta{ font-size:11.5px; color:#8a7a6c; margin:-4px 0 0 4px; }
   .sai-secs button.on{ border-color:#F3852B; background:#fff4e8; color:#b8601a; }
   .sai-go1{ display:flex; align-items:center; justify-content:space-between; gap:10px; border:0; border-radius:16px; padding:13px 16px; background:linear-gradient(180deg,#ff9a3d,#F3852B); color:#fff; cursor:pointer; box-shadow:0 4px 0 #d0671a, 0 10px 20px rgba(243,133,43,.25); font-family:inherit; transition:transform .15s; }
@@ -7565,7 +7577,37 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     detail.addEventListener('drop',function(e){ var z=e.target.closest&&e.target.closest('.sai-drop'); if(!z) return; e.preventDefault(); z.classList.remove('over'); var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; marshallStudioSetImage(detail,f); });
     detail.addEventListener('keydown',function(e){ var z=e.target.closest&&e.target.closest('.sai-drop'); if(z&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); var f=detail.querySelector('[data-sai-file]'); if(f) f.click(); } });
   }
-  function marshallStudioStatus(t){ var el=document.getElementById('sai-status'); if(el) el.innerHTML=t?('<span class="vp-spin"></span>'+esc(t)):''; }
+  var MARSHALL_HIGGS_CAMERAS=['Dolly In','Dolly Out','Push In','Pull Out','Crash Zoom In','Dolly Zoom','Crane Up','Crane Down','360 Orbit','Arc Left','Arc Right','FPV Drone','Tracking Shot','Handheld','Whip Pan','Tilt Up','Tilt Down','Low Angle Push','Overhead','Static'];
+  /* Étape 2 : Marshall réécrit la demande en prompt vidéo cinéma façon Higgsfield (mouvement de caméra prédéfini + plan détaillé). */
+  async function marshallHiggsfieldPrompt(userPrompt,seconds){
+    var r=await marshallRemoteJSONRetry([
+      'Tu es un réalisateur expert des prompts Higgsfield (génération vidéo IA cinéma). Tu transformes une idée en prompt vidéo professionnel.',
+      'Choisis UN mouvement de caméra Higgsfield adapté à l’idée parmi : '+MARSHALL_HIGGS_CAMERAS.join(', ')+'.',
+      'Écris "video_prompt" en ANGLAIS, une seule phrase dense au format Higgsfield : "[Camera move]: [sujet précis] [action visible et continue], [décor], [lumière], [ambiance / style], [optique et texture : lens mm, depth of field, film grain…]". Mouvement réaliste qui tient en '+(seconds||5)+' secondes, un seul plan, pas de coupe, pas de texte à l’écran.',
+      'Écris "image_prompt" en ANGLAIS : la PREMIÈRE image fixe de ce plan (même sujet, décor, lumière, cadrage de départ), photoréaliste, verticale 9:16, sans texte ni logo.',
+      'Écris "title" : 3 à 6 mots en français qui résument la vidéo.',
+      'Réponds UNIQUEMENT en JSON : {"camera":"","video_prompt":"","image_prompt":"","title":""}'
+    ].join('\n'),'Idée : '+userPrompt);
+    r=r||{};
+    var cam=String(r.camera||'').trim(); if(MARSHALL_HIGGS_CAMERAS.indexOf(cam)<0) cam=cam||'Dolly In';
+    var vp=String(r.video_prompt||'').trim(); if(!vp) throw Error('prompt Higgsfield non généré, réessaie');
+    return {camera:cam,video_prompt:vp.slice(0,1100),image_prompt:String(r.image_prompt||vp).trim().slice(0,900),title:String(r.title||'').trim().slice(0,60)};
+  }
+  function marshallStudioPipeRender(){
+    var el=document.getElementById('sai-status'), P=MARSHALL_STUDIO.pipe; if(!el) return;
+    if(!P){ el.innerHTML=''; return; }
+    var st=function(n){ return P.step>n?'done':(P.step===n?'run':''); };
+    var ico=function(n){ return P.step>n?'✓':(P.step===n?'<span class="vp-spin"></span>':n); };
+    el.innerHTML='<div class="sai-pipe">'
+      +'<div class="sp-step '+st(1)+'"><i>'+ico(1)+'</i><div><b>Ton prompt</b><small>'+esc(String(P.user||'').slice(0,140))+'</small></div></div>'
+      +'<div class="sp-step '+st(2)+'"><i>'+ico(2)+'</i><div><b>Prompt Higgsfield</b>'+(P.hp?'<span class="sp-cam">🎥 '+esc(P.hp.camera)+'</span><small class="sp-hp">'+esc(P.hp.video_prompt)+'</small>':'<small>Marshall écrit le prompt cinéma…</small>')+'</div></div>'
+      +'<div class="sp-step '+st(3)+'"><i>'+ico(3)+'</i><div><b>Génération vidéo</b><small>'+esc(P.sub||(P.step>=3?'Préparation…':'En attente'))+'</small></div></div>'
+      +'</div>';
+  }
+  function marshallStudioStatus(t){
+    if(MARSHALL_STUDIO.pipe){ MARSHALL_STUDIO.pipe.sub=t; marshallStudioPipeRender(); return; }
+    var el=document.getElementById('sai-status'); if(el) el.innerHTML=t?('<span class="vp-spin"></span>'+esc(t)):'';
+  }
   function marshallStudioResult(html){ var th=document.getElementById('marshall-agent-dock-thread'); if(!th) return; var d=document.createElement('div'); d.className='madock-msg assistant'; d.innerHTML=html; th.appendChild(d); th.scrollTop=th.scrollHeight; }
   async function marshallStudioImage(prompt){
     var S=MARSHALL_STUDIO, dims=marshallImageDimensions(), hd=S.iQuality==='hd';
@@ -7616,10 +7658,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var go=document.querySelector('.sai-go1'); if(go) go.disabled=true;
     var label=kind==='i2v'?'Image → vidéo':(kind==='t2i'?'Prompt → image':'Prompt → vidéo');
     try{ marshallAgentDockChatAdd('user',label+(prompt?' : '+prompt:''),false); }catch(e){}
+    var hp=null;
     try{
+      if(kind==='t2v'){
+        S.pipe={step:2,user:prompt,hp:null,sub:''}; marshallStudioPipeRender();
+        hp=await marshallHiggsfieldPrompt(prompt,S.seconds);
+        S.pipe.hp=hp; S.pipe.step=3; S.pipe.sub='🖼️ Image de départ…'; marshallStudioPipeRender();
+      }
       if(kind==='t2i'||kind==='t2v'){
-        marshallStudioStatus('🖼️ Création de l’image…');
-        var img=await marshallStudioImage(prompt);
+        if(kind==='t2i') marshallStudioStatus('🖼️ Création de l’image…');
+        var img=await marshallStudioImage(hp?hp.image_prompt:prompt);
         if(!img) throw Error('image non générée');
         if(kind==='t2i'){ marshallStudioResult('<b>🖼️ Image prête · '+(S.iEngine==='nano'?'Nano Banana':'Qwen')+' '+(S.iQuality==='hd'?'HD':'Éco')+'</b><img src="'+esc(img)+'" alt="" style="display:block;width:100%;border-radius:12px;margin-top:6px">'); marshallStudioImageToCanvas(img); toast('🖼️ Image créée sur un nouveau canva.'); return; }
         image=img;
@@ -7627,13 +7675,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       marshallStudioStatus('🎬 Lancement de la vidéo…');
       if(/^data:image/.test(image)&&image.length>4000000){ try{ image=await edShrinkForUpload(image,1600); }catch(e){} }
       else if(/^blob:/.test(image)){ try{ image=await edShrinkForUpload(await edBlobToDataUrl(await (await fetch(image)).blob()),1600); }catch(e){} }
-      var url=await marshallStudioAnimate(image,prompt||'');
-      marshallStudioResult('<b>🎬 Vidéo prête · '+(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' '+(S.vQuality==='hd'?'HD':'Éco')+'</b><video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:420px;border-radius:12px;margin-top:6px;background:#000"></video>');
+      var url=await marshallStudioAnimate(image,hp?hp.video_prompt:(prompt||''));
+      marshallStudioResult('<b>🎬 Vidéo prête · '+(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' '+(S.vQuality==='hd'?'HD':'Éco')+'</b>'
+        +(hp?'<div class="sp-res"><span class="sp-cam">🎥 '+esc(hp.camera)+'</span><small>'+esc(hp.video_prompt)+'</small></div>':'')
+        +'<video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:420px;border-radius:12px;margin-top:6px;background:#000"></video>');
       try{ marshallFreshReset(); }catch(e){}
       marshallVideoToCanvas(url,(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' · Studio IA',{});
       toast('🎬 Vidéo créée sur un nouveau canva.');
     }catch(e){ try{ marshallAgentDockChatAdd('error','Création impossible : '+(e&&e.message?e.message:e),false); }catch(x){} toast('Création impossible : '+(e&&e.message?e.message:e),true); }
-    finally{ S.busy=false; marshallStudioStatus(''); marshallAgentDockSetBusy(false); var d2=document.getElementById('marshall-agent-dock-detail'); if(d2&&window.marshallAgentDockSelected==='studio') marshallStudioRefresh(d2,false); }
+    finally{ S.busy=false; S.pipe=null; marshallStudioStatus(''); marshallAgentDockSetBusy(false); var d2=document.getElementById('marshall-agent-dock-detail'); if(d2&&window.marshallAgentDockSelected==='studio') marshallStudioRefresh(d2,false); }
   }
   function marshallAgentDockRender(forceKey){
     var dock=marshallAgentDockEnsure(); if(!dock) return;
