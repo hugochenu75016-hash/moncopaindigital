@@ -1051,6 +1051,15 @@
   .pill.red{ background:rgba(210,60,30,0.16); color:#c0341a; }
   .ed-rmbg-pill{ position:absolute; left:10px; top:10px; z-index:60; display:inline-flex; align-items:center; gap:6px; border:0; border-radius:999px; padding:8px 15px; background:#F3852B; color:#fff; font:700 13px 'Fredoka',sans-serif; white-space:nowrap; cursor:pointer; box-shadow:0 6px 18px rgba(243,133,43,.45); }
   .ed-rmbg-pill:hover{ background:#e0661a; }
+  #mcd-pub-ov{ position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; background:rgba(255,248,240,.28); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); opacity:0; transition:opacity .25s ease; }
+  #mcd-pub-ov.show{ opacity:1; }
+  #mcd-pub-ov .mpo-box{ width:118px; height:118px; border-radius:30px; background:linear-gradient(180deg,#FF9C46,#F3852B); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 0 #C7620E,0 22px 50px rgba(243,133,43,.4); transform:scale(.85); transition:transform .35s cubic-bezier(.34,1.56,.64,1), background .3s, box-shadow .3s; }
+  #mcd-pub-ov.show .mpo-box{ transform:scale(1); }
+  #mcd-pub-ov .mpo-spin{ width:54px; height:54px; }
+  #mcd-pub-ov .mpo-box.ok{ background:linear-gradient(180deg,#3ddc84,#1fb866); box-shadow:0 6px 0 #16904f,0 22px 50px rgba(31,184,102,.4); }
+  #mcd-pub-ov .mpo-box.fail{ background:linear-gradient(180deg,#ff6b6f,#e5484d); box-shadow:0 6px 0 #b23a3e,0 22px 50px rgba(229,72,77,.4); }
+  #mcd-pub-ov .mpo-mark{ width:60px; height:60px; stroke-dasharray:40; stroke-dashoffset:40; animation:mpoDraw .45s .05s ease-out forwards; }
+  @keyframes mpoDraw{ to{ stroke-dashoffset:0; } }
   .ed-vid-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.28); pointer-events:none; }
   .ed-vid-loading span{ width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,.35); border-top-color:#F3852B; animation:edVidSpin .8s linear infinite; }
   @keyframes edVidSpin{ to{ transform:rotate(360deg); } }
@@ -13859,7 +13868,42 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     toast(mcdIsOffline()?'Brouillon gardé sur cet appareil 📴 Il sera envoyé dès le retour du réseau.':'Brouillon enregistré ✏️'); updateBadges(); resetComposer();
   });
 
-  $('#publish-btn').addEventListener('click', async function(){
+  /* Écran de publication : page floutée + carré orange (les 3 carrés des portes) au centre,
+     puis coche verte (publié) ou croix rouge (refusé) avant le retour à l'éditeur. */
+  var MCD_PUB_SVG='<svg class="mpo-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">'
+    +'<rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2"><animate id="mpoS1" fill="freeze" attributeName="x" begin="0;mpoS12.end" dur="0.2s" values="1;13"/><animate id="mpoS2" fill="freeze" attributeName="y" begin="mpoS9.end" dur="0.2s" values="1;13"/><animate id="mpoS3" fill="freeze" attributeName="x" begin="mpoS10.end" dur="0.2s" values="13;1"/><animate id="mpoS4" fill="freeze" attributeName="y" begin="mpoS11.end" dur="0.2s" values="13;1"/></rect>'
+    +'<rect width="10" height="10" x="1" y="13" fill="currentColor" rx="2"><animate id="mpoS5" fill="freeze" attributeName="y" begin="mpoS1.end" dur="0.2s" values="13;1"/><animate id="mpoS6" fill="freeze" attributeName="x" begin="mpoS2.end" dur="0.2s" values="1;13"/><animate id="mpoS7" fill="freeze" attributeName="y" begin="mpoS3.end" dur="0.2s" values="1;13"/><animate id="mpoS8" fill="freeze" attributeName="x" begin="mpoS4.end" dur="0.2s" values="13;1"/></rect>'
+    +'<rect width="10" height="10" x="13" y="13" fill="currentColor" rx="2"><animate id="mpoS9" fill="freeze" attributeName="x" begin="mpoS5.end" dur="0.2s" values="13;1"/><animate id="mpoS10" fill="freeze" attributeName="y" begin="mpoS6.end" dur="0.2s" values="13;1"/><animate id="mpoS11" fill="freeze" attributeName="x" begin="mpoS7.end" dur="0.2s" values="1;13"/><animate id="mpoS12" fill="freeze" attributeName="y" begin="mpoS8.end" dur="0.2s" values="1;13"/></rect></svg>';
+  function mcdPubOverlay(state){
+    var ov=document.getElementById('mcd-pub-ov');
+    if(state==='show'){
+      if(ov) ov.remove();
+      ov=document.createElement('div'); ov.id='mcd-pub-ov'; ov.setAttribute('role','status'); ov.setAttribute('aria-label','Publication en cours');
+      ov.innerHTML='<div class="mpo-box">'+MCD_PUB_SVG+'</div>';
+      document.body.appendChild(ov); void ov.offsetWidth; ov.classList.add('show');
+      return Promise.resolve();
+    }
+    if(!ov) return Promise.resolve();
+    var box=ov.querySelector('.mpo-box'), ok=state==='ok';
+    box.classList.add(ok?'ok':'fail'); ov.setAttribute('aria-label',ok?'Publication réussie':'Publication refusée');
+    box.innerHTML=ok?'<svg class="mpo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
+                    :'<svg class="mpo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
+    return new Promise(function(done){
+      setTimeout(function(){ ov.classList.remove('show'); setTimeout(function(){ ov.remove(); done(); },260); },1300);
+    });
+  }
+  function mcdPubFinish(ok){
+    return mcdPubOverlay(ok?'ok':'fail').then(function(){ try{ if($('#pub-step')&&$('#pub-step').style.display!=='none') pubBackToEditor(); }catch(e){} });
+  }
+  $('#publish-btn').addEventListener('click', function(){
+    var self=this;
+    publishClick.call(self).catch(function(e){
+      console.error('Publication',e); mcdPubFinish(false);
+      self.disabled=false; $('#publish-label').textContent=comp.sched==='later'?'Programmer':'Publier';
+      toast('Échec de publication : '+(e&&e.message||e),true);
+    });
+  });
+  async function publishClick(){
     if(mcdIsOffline()){
       if(!comp.caption.trim() && !comp.media.length){ toast('Votre post est vide.'); return; }
       var dp=collectPost('draft'); upsertLocalList(dp); await persist(dp);
@@ -13876,6 +13920,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!connSel.length){ var np=collectPost('draft'); upsertLocalList(np); await persist(np); updateBadges(); resetComposer(); toast('Ton post est gardé dans tes brouillons ✏️ Relie '+(nets.length===1?'ce réseau':'un de ces réseaux')+' depuis l’accueil pour le publier ou le programmer.', true); return; }
 
     var btn=this; btn.disabled=true;
+    mcdPubOverlay('show');
     // Une story / un réel doit rester en 9:16 : pas de recadrage aux limites du fil (0,8–1,91).
     var vertOut = nets.some(function(id){ return isVertical(id); });
     var fromStudio = function(m){ return String(m.name||'').indexOf('creation')===0; };
@@ -13895,7 +13940,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         if(mediaOut.length>1) $('#publish-label').textContent='Envoi du canvas '+(ui+1)+'/'+mediaOut.length+'…';
         var pub=await uploadMedia(mediaOut[ui].url);
         if(!pub){ toast((mediaOut.length>1?'Canvas '+(ui+1)+' : envoi':'Envoi de l’image')+' impossible : '+(window.__mcdUpErr||'stockage indisponible'), true);
-          $('#publish-label').textContent=later?'Programmer':'Publier'; btn.disabled=false; return; }
+          $('#publish-label').textContent=later?'Programmer':'Publier'; btn.disabled=false; mcdPubFinish(false); return; }
         mediaOut[ui].url=pub;
       }
     }
@@ -13904,8 +13949,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(later){p.results=Object.assign({},p.results||{}, {approval:{approved:false,auto_publish:false,approved_at:null},scheduler:{mode:'server',state:'waiting_validation',queued_at:new Date().toISOString()}});}
     upsertLocalList(p);
     if(later){
-      try{await persistScheduledServer(p);}catch(schedulePersistErr){posts=posts.filter(function(x){return x.id!==p.id;});toast(schedulePersistErr.message||'Programmation serveur impossible.',true);$('#publish-label').textContent='Programmer';btn.disabled=false;return;}
-      toast('Publication enregistrée sur le serveur 📅'); updateBadges(); renderCalendar(); resetComposer(); btn.disabled=false; return;
+      try{await persistScheduledServer(p);}catch(schedulePersistErr){posts=posts.filter(function(x){return x.id!==p.id;});toast(schedulePersistErr.message||'Programmation serveur impossible.',true);$('#publish-label').textContent='Programmer';btn.disabled=false;mcdPubFinish(false);return;}
+      toast('Publication enregistrée sur le serveur 📅'); updateBadges(); renderCalendar(); resetComposer(); btn.disabled=false; mcdPubFinish(true); return;
     }
     await persist(p);
 
@@ -13916,11 +13961,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!res.ok && res.notConfigured) p.status='pending_config';
     await persist(p); updateBadges();
     if(p.results&&p.results.x&&p.results.x.ok===true&&!actingAs){ (async function(){try{var r=await fetch(MARSHALL_CREWAI_BASE+'/tokens/charge',{method:'POST',headers:await authHeaders(),body:JSON.stringify({kind:'x_post'})});var d=await r.json();marshallTokensUpdate(d&&d.tokens?d.tokens:d);}catch(e){}})(); }
-    if(res.ok){ toast('Publié sur '+connSel.length+' réseau(x) 🚀'); resetComposer(); }
-    else if(res.notConfigured){ toast('Enregistré. La fonction « '+PUBLISH_FN+' » n\u2019est pas encore déployée.'); resetComposer(); }
-    else{ toast('Échec de publication. Voir l\u2019historique.'); $('#publish-label').textContent='Publier'; }
+    if(res.ok){ toast('Publié sur '+connSel.length+' réseau(x) 🚀'); resetComposer(); mcdPubFinish(true); }
+    else if(res.notConfigured){ toast('Enregistré. La fonction « '+PUBLISH_FN+' » n\u2019est pas encore déployée.'); resetComposer(); mcdPubFinish(false); }
+    else{ toast('Échec de publication. Voir l\u2019historique.'); $('#publish-label').textContent='Publier'; mcdPubFinish(false); }
     btn.disabled=false;
-  });
+  }
 
   async function callPublish(p){
     // Appelle votre fonction backend (mêmes en-têtes que vos autres fonctions Supabase/Cloudflare)
