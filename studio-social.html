@@ -1051,6 +1051,9 @@
   .pill.red{ background:rgba(210,60,30,0.16); color:#c0341a; }
   .ed-rmbg-pill{ position:absolute; left:10px; top:10px; z-index:60; display:inline-flex; align-items:center; gap:6px; border:0; border-radius:999px; padding:8px 15px; background:#F3852B; color:#fff; font:700 13px 'Fredoka',sans-serif; white-space:nowrap; cursor:pointer; box-shadow:0 6px 18px rgba(243,133,43,.45); }
   .ed-rmbg-pill:hover{ background:#e0661a; }
+  .ed-vid-loading{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.28); pointer-events:none; }
+  .ed-vid-loading span{ width:44px; height:44px; border-radius:50%; border:4px solid rgba(255,255,255,.35); border-top-color:#F3852B; animation:edVidSpin .8s linear infinite; }
+  @keyframes edVidSpin{ to{ transform:rotate(360deg); } }
   .ed-vo-bar{ position:absolute; left:10px; top:10px; z-index:60; display:flex; gap:8px; flex-wrap:wrap; max-width:calc(100% - 20px); }
   .ed-vo-bar .ed-rmbg-pill{ position:static; }
   .ed-vo-bar .ed-rmbg-pill.blocked{ background:#d9a3a0; color:#fff7f6; box-shadow:none; cursor:not-allowed; filter:grayscale(.35); }
@@ -4902,7 +4905,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
       if(l.type==='video'){
         return '<div class="ed-layer vid '+sel+'" data-lid="'+l.id+'" style="'+s+' border-radius:'+(l.rad||0)+'px;overflow:hidden;background:#000;">'+
-          '<video src="'+esc(l.url)+'" crossorigin="anonymous" muted loop autoplay playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;pointer-events:none;display:block;"></video>'+edHandles(l.id)+'</div>';
+          '<video src="'+esc(l.url)+'" crossorigin="anonymous" muted loop autoplay playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;pointer-events:none;display:block;"></video>'+(ED_VUP[l.id]?'<div class="ed-vid-loading" aria-label="Chargement"><span></span></div>':'')+edHandles(l.id)+'</div>';
       }
       if(l.type==='text'){
         var ts=s+' font-family:\''+l.font+'\',sans-serif; font-size:'+l.size+'px; color:'+l.color+
@@ -5447,12 +5450,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     ed.seq++;
     var local=URL.createObjectURL(f);
     var l={ id:'v'+ed.seq, type:'video', url:local, x:0, y:0, w:100, h:100, rot:0, op:100, rad:0 };
-    ed.layers.unshift(l); ed.sel=l.id; edSnap(); edRender();
-    toast('🎬 Vidéo ajoutée au canvas · envoi en cours…');
-    try{
-      await edUploadVideoLayer(l.id, f, local);
-      toast('🎬 Vidéo prête ✓');
-    }catch(err){ toast('Vidéo affichée, mais pas encore enregistrée : '+(err.message||err)+'. Elle ne pourra pas être publiée tant qu’elle n’est pas envoyée.',true); }
+    ed.layers.unshift(l); ed.sel=l.id; edSnap();
+    // Import silencieux : seul un rond de chargement s'affiche sur la vidéo pendant l'envoi.
+    var up=edUploadVideoLayer(l.id, f, local);
+    edRender();
+    try{ await up; }catch(err){ console.warn('Envoi de la vidéo',err); }
   }
   /* Envoie la vidéo d'un calque dans le stockage « media » et remplace son lien local (blob:) par le lien public. */
   var ED_VUP={};   // envois en cours, par calque
@@ -5477,7 +5479,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return url;
     })();
     ED_VUP[id]=p;
-    p.then(function(){ delete ED_VUP[id]; },function(){ delete ED_VUP[id]; });
+    p.then(function(){ delete ED_VUP[id]; },function(){ delete ED_VUP[id]; try{ edRender(); }catch(e){} });
     return p;
   }
   function edAddShape(shape){
