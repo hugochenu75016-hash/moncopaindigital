@@ -1053,6 +1053,8 @@
   .ed-rmbg-pill:hover{ background:#e0661a; }
   .ed-vo-bar{ position:absolute; left:10px; top:10px; z-index:60; display:flex; gap:8px; flex-wrap:wrap; max-width:calc(100% - 20px); }
   .ed-vo-bar .ed-rmbg-pill{ position:static; }
+  .ed-vo-bar .ed-rmbg-pill.blocked{ background:#d9a3a0; color:#fff7f6; box-shadow:none; cursor:not-allowed; filter:grayscale(.35); }
+  .ed-vo-bar .ed-rmbg-pill.blocked:hover{ background:#d09591; }
   .ed-vo-bar .ed-vo-listen{ background:#201e1d; box-shadow:0 6px 18px rgba(0,0,0,.3); }
   .ed-vo-modal{ position:fixed; inset:0; z-index:9999; background:rgba(20,18,17,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
   .ed-vo-card{ background:#fff; color:#201e1d; border-radius:18px; padding:20px; width:min(440px,100%); max-height:90vh; overflow:auto; font-family:'Fredoka',sans-serif; box-shadow:0 20px 60px rgba(0,0,0,.35); }
@@ -4941,7 +4943,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var selVid=ed.preview?null:ed.layers.filter(function(o){ return o.id===ed.sel && o.type==='video'; })[0];
     if(selVid&&stage){
       var bar=document.createElement('div'); bar.className='ed-vo-bar';
-      var b1=document.createElement('button'); b1.type='button'; b1.className='ed-rmbg-pill'+(selVid._voBusy?' busy':''); b1.setAttribute('data-vo',selVid.id);
+      var voWhy=(selVid._voBusy||ED_ORIG[selVid.id])?'':edVoBlock(selVid);
+      var b1=document.createElement('button'); b1.type='button'; b1.className='ed-rmbg-pill'+(selVid._voBusy?' busy':'')+(voWhy?' blocked':''); b1.setAttribute('data-vo',selVid.id);
+      if(voWhy){ b1.title=voWhy; b1.setAttribute('aria-disabled','true'); }
       b1.textContent=selVid._voBusy?('🎙️ '+(selVid._voMsg||'Voix off en cours…')):(ED_ORIG[selVid.id]?'🎙️ Retirer la voix off':'🎙️ Voix off IA');
       bar.appendChild(b1);
       if(!selVid._voBusy){ var b2=document.createElement('button'); b2.type='button'; b2.className='ed-rmbg-pill ed-vo-listen'; b2.setAttribute('data-vo-listen',selVid.id); b2.textContent='🔊 Écouter'; bar.appendChild(b2); }
@@ -5010,8 +5014,28 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     m.addEventListener('click',function(e){ if(e.target===m||e.target.closest('.ed-vo-close')){ var v=m.querySelector('video'); try{ v.pause(); }catch(x){} m.remove(); } });
     document.body.appendChild(m);
   }
+  /* Conditions de la voix off : renvoie la raison du blocage, ou '' si tout est bon. */
+  function edVoBlock(l){
+    if(!authUser) return 'Connecte-toi pour utiliser la voix off.';
+    if(typeof WebAssembly==='undefined'||typeof Worker==='undefined') return 'Navigateur non compatible : utilise Chrome ou Edge récent.';
+    var vEl=document.querySelector('#ed-page .ed-layer[data-lid="'+l.id+'"] video');
+    if(vEl){
+      if(vEl.error) return 'Vidéo illisible dans le navigateur : réimporte-la (MP4 conseillé).';
+      if(vEl.readyState<1){
+        if(!vEl._voWait){ vEl._voWait=true; vEl.addEventListener('loadedmetadata',function(){ if(ed.sel===l.id) edRender(); },{once:true}); vEl.addEventListener('error',function(){ if(ed.sel===l.id) edRender(); },{once:true}); }
+      } else if(isFinite(vEl.duration)&&vEl.duration>180){
+        return 'Vidéo trop longue ('+Math.floor(vEl.duration/60)+' min '+String(Math.round(vEl.duration%60)).padStart(2,'0')+') : 3 min maximum pour une voix off.';
+      } else if(isFinite(vEl.duration)&&vEl.duration<1){
+        return 'Vidéo trop courte pour une voix off.';
+      }
+    }
+    try{ var need=marshallTokenPrice('voiceover'); if(marshallTokensLeft()<need) return 'Tokens insuffisants ce mois-ci : recharge dans Réglages › Mon utilisation.'; }catch(e){}
+    return '';
+  }
   function edVoiceoverPill(id){
     var l=edVoLayer(id); if(!l||l._voBusy) return;
+    var why=ED_ORIG[l.id]?'':edVoBlock(l);
+    if(why){ toast('🎙️ '+why,true); return; }
     if(ED_ORIG[l.id]){ l.url=ED_ORIG[l.id]; delete ED_ORIG[l.id]; edSnap(); edRender(); toast('Voix off retirée ✓'); return; }
     var m=document.createElement('div'); m.className='ed-vo-modal';
     m.innerHTML='<div class="ed-vo-card"><h3>🎙️ Voix off IA</h3><p>Marshall regarde ta vidéo, écrit un texte qui la décrit et l’enregistre avec une voix naturelle.</p>'
@@ -5100,6 +5124,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function edVoiceover(id, opts){
     var l=edVoLayer(id); if(!l) return {ok:false,error:'sélectionne une vidéo sur le canvas.'};
     if(l._voBusy) return {ok:false,error:'une voix off est déjà en cours sur cette vidéo.'};
+    var blockWhy=edVoBlock(l); if(blockWhy) return {ok:false,error:blockWhy};
     var setMsg=function(m){ l._voMsg=m; if(ed.sel===l.id) edRender(); };
     l._voBusy=true; l._voMsg='Marshall regarde la vidéo…'; edRender();
     try{
