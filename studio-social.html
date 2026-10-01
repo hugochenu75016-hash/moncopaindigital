@@ -4343,7 +4343,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var MCD_2FA_HOURS=12,mcdActivityBound=false,mcdLastTouch=0;
   function mcdActiveKey(uid){return 'mcd_last_active_'+uid;}
   function mcdTouchActive(force){if(!authUser)return;if(typeof navigator!=='undefined'&&navigator.onLine===false)return;var now=Date.now();if(!force&&now-mcdLastTouch<60000)return;mcdLastTouch=now;try{localStorage.setItem(mcdActiveKey(authUser.id),String(now));}catch(e){}}
-  function mcdA2fOn(u){var m=(u&&u.user_metadata)||{};return m.a2f!==false;}
+  /* Double authentification (code par e-mail) : coupée pour tout le monde pendant la revue Meta / TikTok. Remettre à true pour la réactiver. */
+  var MCD_A2F_ACTIVE=false;
+  function mcdA2fOn(u){var m=(u&&u.user_metadata)||{};return MCD_A2F_ACTIVE&&m.a2f!==false;}
   function mcdNeeds2FA(uid){try{var t=Number(localStorage.getItem(mcdActiveKey(uid))||0);return !t||Date.now()-t>MCD_2FA_HOURS*3600000;}catch(e){return false;}}
   function mcdBindActivity(){
     if(mcdActivityBound)return;mcdActivityBound=true;
