@@ -1349,6 +1349,62 @@
   .cal-ev .dots{ display:inline-flex; gap:2px; }
   .cal-ev .dots i{ width:8px; height:8px; border-radius:50%; display:inline-block; }
 
+  /* Calendrier visuel : vignettes, vue semaine, glisser-déposer */
+  .cal-toprow{ display:flex!important; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-start!important; }
+  .cal-toprow .cal-rep-pill{ margin-left:auto; }
+  .cal-mode{ display:inline-flex; padding:3px; border-radius:11px; background:#f1efe9; border:1px solid #e4e4dc; }
+  .cal-mode button{ border:0; background:transparent; color:#55524c; font:800 12px 'Nunito',sans-serif; padding:6px 13px; border-radius:8px; cursor:pointer; }
+  .cal-mode button.on{ background:#fff; color:#252525; box-shadow:0 1px 4px rgba(0,0,0,.12); }
+  .cal-today-btn{ border:1px solid #e4e4dc; background:#fff; color:#353530; font:800 12px 'Nunito',sans-serif; padding:7px 12px; border-radius:10px; cursor:pointer; }
+  .cal-today-btn:hover{ background:#f7f7f3; }
+  .cal-legend{ display:flex; gap:11px; flex-wrap:wrap; font-size:11px; font-weight:700; color:#77776e; margin-left:6px; }
+  .cal-legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .cal-legend i{ width:9px; height:9px; border-radius:3px; display:inline-block; }
+  .st-todo{ --st:#e0532f; } .st-ok{ --st:#27ae60; } .st-pub{ --st:#3b6fd8; } .st-fail{ --st:#9b1c1c; } .st-run{ --st:#F3852B; }
+  .cal-legend i{ background:var(--st); }
+  .view-fit .cal-grid{ grid-template-rows:auto; }
+  .cal-grid.week{ grid-template-rows:auto minmax(0,1fr); grid-auto-rows:auto; }
+  .cal-cell.drop{ outline:2px dashed #F3852B; outline-offset:-2px; background:#fff8f0!important; }
+  .cal-more{ font-size:10px; font-weight:800; color:#77776e; background:#f1efe9; border-radius:999px; padding:1px 6px; margin-left:auto; margin-right:6px; }
+  .cal-tiles{ flex:1 1 auto; min-height:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(0,1fr)); grid-template-rows:minmax(0,1fr); gap:4px; }
+  .cal-tile{ position:relative; min-height:0; border-radius:8px; overflow:hidden; background:#f1efe9; border:2px solid var(--st); cursor:pointer; padding:0; }
+  .cal-tile[draggable="true"]{ cursor:grab; }
+  .cal-tile.dragging,.cal-card.dragging{ opacity:.4; }
+  .cal-tile img,.cal-tile video,.cal-card-media img,.cal-card-media video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; }
+  .cal-noimg{ position:absolute; inset:0; display:grid; place-items:center; color:#a3a196; padding:4px; font-size:9.5px; line-height:1.25; text-align:center; overflow:hidden; }
+  .cal-noimg svg{ width:20px; height:20px; }
+  .cal-play{ position:absolute; top:4px; left:4px; width:16px; height:16px; border-radius:50%; background:rgba(0,0,0,.55); color:#fff; font-size:7px; display:grid; place-items:center; }
+  .cal-tile-foot{ position:absolute; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:3px; padding:10px 4px 3px; background:linear-gradient(transparent,rgba(0,0,0,.66)); color:#fff; font-size:10px; font-weight:800; }
+  .cal-tile-foot .dots,.cal-card .dots{ display:inline-flex; gap:2px; }
+  .cal-tile-foot .dots i,.cal-card .dots i{ width:7px; height:7px; border-radius:50%; box-shadow:0 0 0 1px rgba(255,255,255,.7); }
+  .cal-tile-st{ position:absolute; top:4px; right:4px; width:9px; height:9px; border-radius:50%; background:var(--st); box-shadow:0 0 0 2px #fff; }
+  /* Vue semaine */
+  .cal-week-col{ min-height:0; overflow:auto!important; }
+  .cal-week-col .cal-daynum small{ font-weight:600; color:#8a8a82; margin-right:4px; text-transform:capitalize; }
+  .cal-card{ display:block; width:100%; text-align:left; border:1px solid #e4e4dc; border-left:4px solid var(--st); border-radius:10px; background:#fff; padding:0; overflow:hidden; cursor:pointer; flex:0 0 auto; font-family:'Nunito',sans-serif; }
+  .cal-card[draggable="true"]{ cursor:grab; }
+  .cal-card:hover{ box-shadow:0 4px 14px rgba(0,0,0,.1); }
+  .cal-card-media{ position:relative; display:block; aspect-ratio:4/5; max-height:150px; width:100%; background:#f1efe9; }
+  .cal-card-body{ display:block; padding:7px 8px 8px; }
+  .cal-card-top{ display:flex; align-items:center; justify-content:space-between; gap:6px; }
+  .cal-card-top b{ font-size:12.5px; color:#252525; }
+  .cal-pill{ font-size:9.5px; font-weight:800; color:#fff; background:var(--st); border-radius:999px; padding:2px 7px; white-space:nowrap; }
+  .cal-card-cap{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin:5px 0 6px; font-size:11px; line-height:1.35; color:#55524c; }
+  .cal-more-m{ display:none; }
+  .cal-week-empty{ margin:auto 0; text-align:center; font-size:11px; color:#b5b3aa; padding:10px 0; }
+  @media (max-width:820px){
+    .cal-legend{ display:none; }
+    .cal-tiles{ grid-template-columns:minmax(0,1fr); }
+    .cal-tiles .cal-tile:nth-child(n+2){ display:none; }
+    .cal-more-d{ display:none; } .cal-more-m{ display:inline-block; }
+    .cal-tile-foot{ padding:6px 2px 2px; font-size:8.5px; } .cal-tile-foot .dots{ display:none; } .cal-tile-st{ display:none; }
+    .view-fit .cal-grid.week{ grid-template-columns:1fr!important; grid-template-rows:none; grid-auto-rows:auto; align-content:start; overflow:auto; }
+    .cal-grid.week .cal-dow{ display:none; }
+    .view-fit .cal-week-col{ overflow:visible!important; min-height:auto; }
+    .cal-week-col .cal-card{ display:grid; grid-template-columns:64px 1fr; }
+    .cal-week-col .cal-card-media{ aspect-ratio:auto; height:80px; max-height:none; }
+  }
+
   /* Validation d'une publication programmée */
   #cal-validation{position:fixed;inset:0;z-index:26000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(18,20,24,.48);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
   #cal-validation.show{display:flex}
@@ -3778,7 +3834,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     <section class="view view-fit" id="view-calendar">
       <div class="topbar"><div><h1>Calendrier</h1><div class="ts">Vos publications programmées.</div></div></div>
       <div class="card">
-        <div class="cal-toprow"><button type="button" class="cal-rep-pill" id="cal-reps" aria-haspopup="dialog">🔁 Répétitions<span class="cal-rep-n" id="cal-reps-n" hidden>0</span></button></div>
+        <div class="cal-toprow"><div class="cal-mode" role="tablist" aria-label="Affichage du calendrier"><button type="button" data-cal-mode="month" role="tab">Mois</button><button type="button" data-cal-mode="week" role="tab">Semaine</button></div><button type="button" class="cal-today-btn" id="cal-today">Aujourd’hui</button><div class="cal-legend" aria-hidden="true"><span><i class="st-todo"></i>À valider</span><span><i class="st-ok"></i>Validé</span><span><i class="st-pub"></i>Publié</span><span><i class="st-fail"></i>Échec</span></div><button type="button" class="cal-rep-pill" id="cal-reps" aria-haspopup="dialog">🔁 Répétitions<span class="cal-rep-n" id="cal-reps-n" hidden>0</span></button></div>
         <div class="cal-head">
           <button class="icon-btn" id="cal-prev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
           <div class="cal-title" id="cal-title">—</div>
@@ -15521,8 +15577,26 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* ============ CALENDRIER ============ */
   var calRef=new Date(); calRef.setDate(1);
   var CAL_VALIDATION_NETS=['instagram','facebook','x','tiktok'], calendarValidationPostId=null, calendarAutoBusy=false, calendarAutoTimer=null;
-  $('#cal-prev').addEventListener('click', function(){ calRef.setMonth(calRef.getMonth()-1); renderCalendar(); });
-  $('#cal-next').addEventListener('click', function(){ calRef.setMonth(calRef.getMonth()+1); renderCalendar(); });
+  var calMode=(function(){ try{ return localStorage.getItem('mcd_cal_mode')==='week'?'week':'month'; }catch(e){ return 'month'; } })();
+  function calMonday(d){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
+  var calWeekRef=calMonday(new Date());
+  /* Mois « porteur » d'une semaine = celui de son jeudi (là où tombe la majorité des jours). */
+  function calWeekMonth(){ var th=new Date(calWeekRef); th.setDate(th.getDate()+3); return new Date(th.getFullYear(),th.getMonth(),1); }
+  function calShift(dir){
+    if(calMode==='week'){ calWeekRef.setDate(calWeekRef.getDate()+7*dir); calRef=calWeekMonth(); }
+    else calRef.setMonth(calRef.getMonth()+dir);
+    renderCalendar();
+  }
+  $('#cal-prev').addEventListener('click', function(){ calShift(-1); });
+  $('#cal-next').addEventListener('click', function(){ calShift(1); });
+  $('#cal-today').addEventListener('click', function(){ var t=new Date(); calRef=new Date(t.getFullYear(),t.getMonth(),1); calWeekRef=calMonday(t); renderCalendar(); });
+  $all('[data-cal-mode]').forEach(function(b){ b.addEventListener('click', function(){
+    var m=b.getAttribute('data-cal-mode'); if(m===calMode) return;
+    if(m==='week'){ var t=new Date(); calWeekRef=calMonday(t.getFullYear()===calRef.getFullYear()&&t.getMonth()===calRef.getMonth()?t:calRef); }
+    else calRef=calWeekMonth();
+    calMode=m; try{ localStorage.setItem('mcd_cal_mode',m); }catch(e){}
+    renderCalendar();
+  }); });
   function calendarApproval(p){return p&&p.results&&p.results.approval&&typeof p.results.approval==='object'?p.results.approval:null;}
   function calendarPostApproved(p){var a=calendarApproval(p);return !!(a&&a.approved===true);}
   function calendarValidationClose(){var box=$('#cal-validation');if(box){box.classList.remove('show');box.setAttribute('aria-hidden','true');}calendarValidationPostId=null;}
@@ -15569,28 +15643,99 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     toast(ok?'Publication supprimée 🗑️ Elle ne sera pas publiée.':'Publication retirée de cet appareil 🗑️ La suppression sera confirmée sur le serveur dès le retour du réseau.');
   });
   addEventListener('keydown',function(e){if(e.key==='Escape'&&$('#cal-validation').classList.contains('show'))calendarValidationClose();});
+  function calYmd(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+  function calState(p){
+    if(p.status==='published') return {cls:'st-pub',label:'Publié'};
+    if(p.status==='failed') return {cls:'st-fail',label:'Échec'};
+    if(p.status==='publishing') return {cls:'st-run',label:'En cours'};
+    return calendarPostApproved(p)?{cls:'st-ok',label:'Validé'}:{cls:'st-todo',label:'À valider'};
+  }
+  function calMedia(p,capFallback){
+    var m=p.media&&p.media[0];
+    if(m&&m.url){
+      if(m.type==='video') return '<video src="'+esc(m.url)+'#t=0.1" muted playsinline preload="metadata"></video><span class="cal-play">▶</span>';
+      return '<img src="'+esc(m.url)+'" alt="" loading="lazy">';
+    }
+    var t=(p.caption||'').replace(/\s+/g,' ').trim();
+    return '<span class="cal-noimg">'+(capFallback&&t?esc(t.slice(0,70)):'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v14H4zM4 15l4-4 4 4 4-5 4 4"/></svg>')+'</span>';
+  }
+  function calDots(p){ return '<span class="dots">'+(p.nets||[]).map(function(id){ return '<i style="background:'+bg(id)+'"></i>'; }).join('')+'</span>'; }
+  function calTime(p){ return new Date(p.scheduled_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+  function calDayHead(d,evs,label){
+    var dayApproved=evs.length>0&&evs.every(calendarPostApproved), firstId=evs[0]?evs[0].id:'', more='';
+    if(calMode==='month'){
+      if(evs.length>2) more+='<span class="cal-more cal-more-d">+'+(evs.length-2)+'</span>';
+      if(evs.length>1) more+='<span class="cal-more cal-more-m">+'+(evs.length-1)+'</span>';
+    }
+    return '<div class="cal-dayhead"><div class="cal-daynum">'+(label||'')+d.getDate()+'</div>'+more+(evs.length?'<button type="button" class="cal-day-status'+(dayApproved?' approved':'')+'" data-cal-first="'+firstId+'" aria-label="'+(dayApproved?'Publication validée':'Validation manquante')+'" title="'+(dayApproved?'Validé · publication automatique autorisée':'Rouge · validation du post requise')+'"></button>':'')+'</div>';
+  }
   function renderCalendar(){
-    var y=calRef.getFullYear(), m=calRef.getMonth();
-    $('#cal-title').textContent=calRef.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
-    var first=new Date(y,m,1), startDow=(first.getDay()+6)%7; // lundi=0
-    var daysInMonth=new Date(y,m+1,0).getDate();
     var today=new Date(); today.setHours(0,0,0,0);
     var dows=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
     var html=dows.map(function(d){ return '<div class="cal-dow">'+d+'</div>'; }).join('');
-    var sched=posts.filter(function(p){ return p.scheduled_at&&['scheduled','publishing','published','failed','pending_config'].indexOf(p.status)>=0; });
-    for(var i=0;i<startDow;i++){ html+='<div class="cal-cell out"></div>'; }
-    for(var day=1;day<=daysInMonth;day++){
-      var cur=new Date(y,m,day);
-      var evs=sched.filter(function(p){ var d=new Date(p.scheduled_at); return d.getFullYear()===y && d.getMonth()===m && d.getDate()===day; });
-      var isToday = cur.getTime()===today.getTime(), dayApproved=evs.length>0&&evs.every(calendarPostApproved), firstId=evs[0]?evs[0].id:'';
-      html+='<div class="cal-cell'+(isToday?' today':'')+'"><div class="cal-dayhead"><div class="cal-daynum">'+day+'</div><button type="button" class="cal-day-status'+(dayApproved?' approved':'')+'" data-cal-first="'+firstId+'" aria-label="'+(dayApproved?'Publication validée':'Validation manquante')+'" title="'+(dayApproved?'Validé · publication automatique autorisée':'Rouge · validation du post requise')+'"></button></div>'+ 
-        evs.map(function(p){ var t=new Date(p.scheduled_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}),ok=calendarPostApproved(p);
-          return '<div class="cal-ev '+(ok?'validation-ok':'validation-missing')+'" data-validate="'+p.id+'" title="'+esc(excerpt(p))+' · '+(ok?'validé':'à valider')+'"><span class="cal-ev-state"></span><span class="dots">'+p.nets.map(function(id){ return '<i style="background:'+bg(id)+'"></i>'; }).join('')+'</span>'+t+'</div>'; }).join('')+
-      '</div>';
+    var sched=posts.filter(function(p){ return p.scheduled_at&&['scheduled','publishing','published','failed','pending_config'].indexOf(p.status)>=0; })
+      .sort(function(a,b){ return new Date(a.scheduled_at)-new Date(b.scheduled_at); });
+    function evsOn(d){ var k=calYmd(d); return sched.filter(function(p){ return calYmd(new Date(p.scheduled_at))===k; }); }
+    $all('[data-cal-mode]').forEach(function(b){ var on=b.getAttribute('data-cal-mode')===calMode; b.classList.toggle('on',on); b.setAttribute('aria-selected',on?'true':'false'); });
+    var grid=$('#cal-grid'); grid.classList.toggle('week',calMode==='week');
+    if(calMode==='week'){
+      /* Si un autre écran a déplacé calRef (ex. Marshall), la semaine suit ce mois. */
+      var wEnd=new Date(calWeekRef); wEnd.setDate(wEnd.getDate()+6);
+      var inMonth=function(d){ return d.getFullYear()===calRef.getFullYear()&&d.getMonth()===calRef.getMonth(); };
+      if(!inMonth(calWeekRef)&&!inMonth(wEnd)){ calWeekRef=calMonday(calRef); wEnd=new Date(calWeekRef); wEnd.setDate(wEnd.getDate()+6); }
+      var f=function(d,o){ return d.toLocaleDateString('fr-FR',o); };
+      $('#cal-title').textContent=calWeekRef.getMonth()===wEnd.getMonth()?(calWeekRef.getDate()+' – '+f(wEnd,{day:'numeric',month:'long',year:'numeric'})):(f(calWeekRef,{day:'numeric',month:'short'})+' – '+f(wEnd,{day:'numeric',month:'short',year:'numeric'}));
+      for(var w=0;w<7;w++){
+        var cd=new Date(calWeekRef); cd.setDate(cd.getDate()+w);
+        var wevs=evsOn(cd);
+        html+='<div class="cal-cell cal-week-col'+(cd.getTime()===today.getTime()?' today':'')+'" data-cal-date="'+calYmd(cd)+'">'+calDayHead(cd,wevs,'<small>'+f(cd,{weekday:'short'})+'</small>')+
+          (wevs.length?wevs.map(function(p){ var s=calState(p), cap=(p.caption||'').replace(/\s+/g,' ').trim();
+            return '<button type="button" class="cal-card '+s.cls+'" data-validate="'+p.id+'"'+(p.status==='scheduled'?' draggable="true"':'')+' title="'+esc(excerpt(p))+'"><span class="cal-card-media">'+calMedia(p,true)+'</span><span class="cal-card-body"><span class="cal-card-top"><b>'+calTime(p)+'</b><span class="cal-pill">'+s.label+'</span></span>'+(cap?'<span class="cal-card-cap">'+esc(cap)+'</span>':'')+calDots(p)+'</span></button>'; }).join(''):'<div class="cal-week-empty">Rien de prévu</div>')+
+        '</div>';
+      }
+    } else {
+      var y=calRef.getFullYear(), m=calRef.getMonth();
+      $('#cal-title').textContent=calRef.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+      var startDow=(new Date(y,m,1).getDay()+6)%7, daysInMonth=new Date(y,m+1,0).getDate();
+      for(var i=0;i<startDow;i++){ html+='<div class="cal-cell out"></div>'; }
+      for(var day=1;day<=daysInMonth;day++){
+        var cur=new Date(y,m,day), evs=evsOn(cur);
+        html+='<div class="cal-cell'+(cur.getTime()===today.getTime()?' today':'')+'" data-cal-date="'+calYmd(cur)+'">'+calDayHead(cur,evs)+
+          (evs.length?'<div class="cal-tiles">'+evs.slice(0,2).map(function(p){ var s=calState(p);
+            return '<button type="button" class="cal-tile '+s.cls+'" data-validate="'+p.id+'"'+(p.status==='scheduled'?' draggable="true"':'')+' title="'+esc(calTime(p)+' · '+s.label+' · '+excerpt(p))+'">'+calMedia(p,false)+'<span class="cal-tile-st"></span><span class="cal-tile-foot"><span>'+calTime(p)+'</span>'+calDots(p)+'</span></button>'; }).join('')+'</div>':'')+
+        '</div>';
+      }
     }
-    var grid=$('#cal-grid'); grid.innerHTML=html;
-    $all('[data-validate]',grid).forEach(function(b){ b.addEventListener('click', function(){ calendarValidationOpen(b.getAttribute('data-validate')); }); });
+    grid.innerHTML=html;
+    $all('[data-validate]',grid).forEach(function(b){
+      b.addEventListener('click', function(){ calendarValidationOpen(b.getAttribute('data-validate')); });
+      b.addEventListener('dragstart', function(e){ e.dataTransfer.setData('text/plain',b.getAttribute('data-validate')); e.dataTransfer.effectAllowed='move'; b.classList.add('dragging'); });
+      b.addEventListener('dragend', function(){ b.classList.remove('dragging'); $all('.cal-cell.drop',grid).forEach(function(c){ c.classList.remove('drop'); }); });
+    });
+    $all('[data-cal-date]',grid).forEach(function(c){
+      c.addEventListener('dragover', function(e){ e.preventDefault(); e.dataTransfer.dropEffect='move'; c.classList.add('drop'); });
+      c.addEventListener('dragleave', function(e){ if(!c.contains(e.relatedTarget)) c.classList.remove('drop'); });
+      c.addEventListener('drop', function(e){ e.preventDefault(); c.classList.remove('drop'); var id=e.dataTransfer.getData('text/plain'); if(id) calMovePost(id,c.getAttribute('data-cal-date')); });
+    });
     $all('[data-cal-first]',grid).forEach(function(b){ b.addEventListener('click', function(){var id=b.getAttribute('data-cal-first');if(id)calendarValidationOpen(id);else toast('Aucune publication n’est encore prévue pour cette date.',true);}); });
+  }
+  /* Glisser-déposer : change le jour d'une publication programmée en gardant son heure. */
+  async function calMovePost(id,ymd){
+    var p=findPost(id); if(!p||!p.scheduled_at||p.status!=='scheduled') return;
+    var old=new Date(p.scheduled_at), parts=ymd.split('-').map(Number), nd=new Date(parts[0],parts[1]-1,parts[2],old.getHours(),old.getMinutes(),0,0);
+    if(calYmd(nd)===calYmd(old)) return;
+    if(nd.getTime()<Date.now()+60000){ toast('Impossible de déplacer une publication dans le passé.',true); return; }
+    var prev=p.scheduled_at, prevResults=p.results;
+    p.scheduled_at=nd.toISOString();
+    if(p.results&&p.results.scheduler) p.results=Object.assign({},p.results,{scheduler:Object.assign({},p.results.scheduler,{updated_at:new Date().toISOString()})});
+    renderCalendar();
+    try{
+      if(calendarPostApproved(p)) await persistScheduledServer(p); else await persist(p);
+      toast('Publication déplacée au '+nd.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+' à '+calTime(p)+' 📅');
+    }catch(err){
+      p.scheduled_at=prev; p.results=prevResults; toast('Déplacement impossible : '+(err&&err.message?err.message:'erreur inconnue'),true);
+    }
+    renderCalendar(); updateBadges();
   }
 
   // Le navigateur ne publie plus les tâches planifiées : il ne fait qu’actualiser l’état.
