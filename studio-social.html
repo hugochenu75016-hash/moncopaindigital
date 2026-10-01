@@ -676,7 +676,21 @@
   .ap-new{ border:0; border-radius:12px; padding:10px; font:700 14px 'Fredoka',sans-serif; background:#F3852B; color:#fff; cursor:pointer; }
   .ap-lab{ font:700 11.5px 'Fredoka',sans-serif; color:#9a7a5a; text-transform:uppercase; letter-spacing:.04em; margin:8px 0 4px; }
   .ap-li,.ap-tpl{ text-align:left; border:1px solid #efe3d6; background:#fff; border-radius:12px; padding:8px 10px; cursor:pointer; font:500 13px 'Fredoka',sans-serif; color:#3a2a1a; }
-  .ap-li b{ display:block; font-size:13.5px; } .ap-li small{ color:#9a8a7a; font-size:11.5px; }
+  .ap-li{ position:relative; display:flex; flex-direction:column; gap:3px; }
+  .ap-li b{ display:block; font-size:13.5px; padding-right:4px; } .ap-li small{ color:#9a8a7a; font-size:11px; }
+  .ap-chip{ align-self:flex-start; font:700 10.5px 'Fredoka',sans-serif; padding:2px 8px; border-radius:999px; background:#f1ece6; color:#6b5a4a; }
+  .ap-chip.run{ background:#fff3d6; color:#b45309; animation:apBlink 1.4s ease-in-out infinite; } .ap-chip.on{ background:#dcfce7; color:#15803d; }
+  .ap-chip.pause{ background:#e0e7ff; color:#4338ca; } .ap-chip.err{ background:#fdecec; color:#b91c1c; } .ap-chip.stop{ background:#f1f5f9; color:#475569; }
+  .ap-chip.done{ background:#ecfdf5; color:#047857; }
+  @keyframes apBlink{ 50%{ opacity:.55; } }
+  .ap-ctl{ display:flex; gap:4px; margin-top:2px; }
+  .ap-ctl button{ width:30px; height:28px; border-radius:9px; border:1px solid #efe3d6; background:#fff; cursor:pointer; font:15px/1 'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif; }
+  .ap-ctl button:hover{ border-color:#F3852B; background:#fff4e8; }
+  .ap-detail{ display:flex; flex-direction:column; gap:10px; }
+  .ap-dh{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .ap-dh b{ font-size:16px; color:#2a1a0c; }
+  .ap-chain{ display:flex; flex-wrap:wrap; gap:4px; }
+  .ap-mini{ width:28px; height:28px; border-radius:8px; border:2px solid #3b1d08; display:flex; align-items:center; justify-content:center; font-size:14px; box-shadow:0 2px 0 #3b1d08; }
+  .ap-dmeta{ font-size:12px; color:#7a6a5a; } .ap-dact{ display:flex; flex-wrap:wrap; gap:6px; } .ap-dact .ap-btn{ padding:7px 11px; font-size:12.5px; }
   .ap-li.on{ border-color:#F3852B; box-shadow:0 0 0 3px rgba(243,133,43,.15); }
   .ap-tpl{ background:#fff8ef; } .ap-tpl:hover,.ap-li:hover{ border-color:#f5b47a; }
   .ap-empty{ font-size:12.5px; color:#9a8a7a; padding:4px 2px; }
@@ -4827,7 +4841,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     {name:'Chaque nouvelle vidéo de ma chaîne en clip',pieces:[['schedule',{freq:'hourly',every:'3'}],['web',{url:''}],['clipper',{}],['email',{}]]},
     {name:'Mon blog en vidéo TikTok',pieces:[['manual'],['web',{}],['write',{network:'TikTok'}],['hashtags',{}],['image',{}],['animate',{quality:'eco',seconds:'5'}],['voice',{source:'texte'}],['captions',{}]]}
   ];
-  var AUTO={list:[],cur:null,sel:-1,run:null,timer:null,loaded:false};
+  var AUTO={list:[],cur:null,sel:-1,run:null,timer:null,loaded:false,view:null,seenStatus:{}};
   function autoBlank(){ return {id:'',name:'Ma nouvelle automatisation',active:false,pieces:[{type:'manual',params:{}}]}; }
   function autoDefParams(t){ var o={}; (AUTO_PIECES[t].params||[]).forEach(function(f){ o[f.k]=Array.isArray(f.def)?f.def.slice():f.def; }); return o; }
   function autoMake(t,params){ return {type:t,params:Object.assign(autoDefParams(t),params||{})}; }
@@ -4907,7 +4921,13 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return '<div class="ap-group"><div class="ap-gl">'+g[1]+'</div><div class="ap-gitems">'+items.map(function(t){return autoPieceHTML(t,'in-lib','draggable="true" data-lib="'+t+'"');}).join('')+'</div></div>';
     }).join('');
     var list=AUTO.list.map(function(x){
-      return '<button type="button" class="ap-li'+(x.id===a.id?' on':'')+'" data-open="'+esc(x.id)+'"><b>'+esc(x.name)+'</b><small>'+(x.active?'⏰ active':'manuelle')+' · '+(x.count||0)+' passage(s)'+(x.last_status==='error'?' · ⚠️':'')+'</small></button>';
+      var st=autoState(x), hasSched=(x.pieces||[]).some(function(p){return p.type==='schedule';});
+      return '<div class="ap-li'+(x.id===AUTO.view?' on':'')+'" data-open="'+esc(x.id)+'" role="button" tabindex="0"><b>'+esc(x.name)+'</b>'+
+        '<span class="ap-chip '+st.cls+'">'+st.label+'</span><small>'+(x.count||0)+' passage(s)'+(x.active&&x.next?' · prochain '+autoWhen(x.next):'')+'</small>'+
+        '<span class="ap-ctl">'+
+          (hasSched?(x.active?'<button type="button" data-ctl="pause" data-id="'+esc(x.id)+'" title="Mettre en pause">⏸</button>':'<button type="button" data-ctl="resume" data-id="'+esc(x.id)+'" title="Reprendre">▶</button>'):'<button type="button" data-ctl="again" data-id="'+esc(x.id)+'" title="Relancer maintenant">↻</button>')+
+          ((st.cls==='run'||x.active)?'<button type="button" data-ctl="stop" data-id="'+esc(x.id)+'" title="Arrêter">⏹</button>':'')+
+          '<button type="button" data-ctl="del" data-id="'+esc(x.id)+'" title="Supprimer">🗑</button></span></div>';
     }).join('')||'<div class="ap-empty">Aucune automatisation enregistrée.</div>';
     var tpl=AUTO_TEMPLATES.map(function(t,i){return '<button type="button" class="ap-tpl" data-tpl="'+i+'">'+esc(t.name)+'</button>';}).join('');
     var sel=AUTO.sel>=0&&pieces[AUTO.sel]?pieces[AUTO.sel]:null;
@@ -4919,7 +4939,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       (a.id?'<button type="button" class="ap-btn ghost danger" data-act="del" title="Supprimer">🗑</button>':'')+'</div>'+
       '<div class="ap-lane" id="ap-lane">'+lane+'</div><div class="ap-status'+(err?' bad':'')+'">'+(err?'⚠️ '+esc(err):'✓ Le puzzle est complet.'+(a.active&&a.next?' Prochain passage : '+new Date(a.next*1000).toLocaleString('fr-FR',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''))+'</div>'+
       '</div><div class="ap-bottom"><div class="card ap-libcard"><div class="ap-lab">Boîte à pièces <small>glisse une pièce sur la ligne, ou clique pour l’ajouter au bout</small></div><div class="ap-lib">'+lib+'</div></div>'+
-      '<div class="card ap-sidecol">'+(sel?autoParamsHTML(sel):'<div class="ap-hint">👆 Clique sur une pièce de la ligne pour la régler.</div>')+'<div id="ap-run">'+autoRunHTML(run)+'</div></div></div></div></div>';
+      '<div class="card ap-sidecol">'+(sel?autoParamsHTML(sel)+'<div id="ap-run">'+autoRunHTML(run)+'</div>':(autoDetailHTML()||'<div class="ap-hint">👆 Clique sur une pièce de la ligne pour la régler.<br><br>Quand ton puzzle est prêt, clique sur <b>▶ Lancer maintenant</b> : il part travailler et tu le retrouves dans « Mes automatisations ».</div>'))+'</div></div></div></div>';
     autoBind(v);
   }
   function autoParamsHTML(pc){
@@ -5005,7 +5025,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     $all('[data-pk]',v).forEach(function(el){el.addEventListener('change',function(){var pc=a.pieces[AUTO.sel];if(!pc)return;pc.params[el.getAttribute('data-pk')]=el.type==='checkbox'?(el.checked?'1':'0'):el.value;autoRender();});
       if(el.tagName==='TEXTAREA'||el.type==='text')el.addEventListener('input',function(){var pc=a.pieces[AUTO.sel];if(pc)pc.params[el.getAttribute('data-pk')]=el.value;});});
     $all('[data-net]',v).forEach(function(el){el.addEventListener('change',function(){var pc=a.pieces[AUTO.sel];if(!pc)return;pc.params.networks=[].slice.call(v.querySelectorAll('[data-net]')).filter(function(x){return x.checked;}).map(function(x){return x.getAttribute('data-net');});autoRender();});});
-    $all('[data-open]',v).forEach(function(b){b.addEventListener('click',function(){var x=AUTO.list.find(function(y){return y.id===b.getAttribute('data-open');});if(!x)return;AUTO.cur=JSON.parse(JSON.stringify(x));AUTO.sel=-1;AUTO.run=x.last?{autoKey:x.id,run:x.last}:null;autoRender();});});
+    $all('[data-open]',v).forEach(function(b){b.addEventListener('click',function(e){if(e.target.closest('[data-ctl]'))return;AUTO.view=b.getAttribute('data-open');AUTO.sel=-1;autoRender();});});
+    $all('[data-ctl]',v).forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();autoControl(b.getAttribute('data-id'),b.getAttribute('data-ctl'));});});
     $all('[data-tpl]',v).forEach(function(b){b.addEventListener('click',function(){var t=AUTO_TEMPLATES[+b.getAttribute('data-tpl')];AUTO.cur={id:'',name:t.name,active:false,pieces:t.pieces.map(function(x){return autoMake(x[0],x[1]);})};AUTO.sel=-1;AUTO.run=null;autoRender();});});
     $all('[data-act]',v).forEach(function(b){
       var act=b.getAttribute('data-act');
@@ -5045,34 +5066,95 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{ await fetch(MARSHALL_CREWAI_BASE+'/auto/delete',{method:'POST',headers:await authHeaders(),body:JSON.stringify({id:AUTO.cur.id})}); }catch(e){}
     AUTO.cur=autoBlank(); AUTO.sel=-1; AUTO.run=null; await autoLoad(true); autoRender(); toast('Automatisation supprimée.');
   }
+  function autoWhen(ts){ try{ return new Date(ts*1000).toLocaleString('fr-FR',{weekday:'short',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+  function autoState(x){
+    var ls=x.last&&x.last.status||x.last_status||'';
+    if(ls==='running') return {cls:'run',label:x.paused?'⏳ En cours · puis pause':'⏳ En cours'};
+    if(x.active) return {cls:'on',label:'⏰ Active'};
+    if(x.paused) return {cls:'pause',label:'⏸ En pause'};
+    if(ls==='error') return {cls:'err',label:'⚠️ Erreur'};
+    if(ls==='stopped') return {cls:'stop',label:'⏹ Arrêtée'};
+    if(ls==='done') return {cls:'done',label:'✅ Terminée'};
+    return {cls:'idle',label:'Prête'};
+  }
+  function autoDetailHTML(){
+    var x=AUTO.view&&AUTO.list.find(function(y){return y.id===AUTO.view;}); if(!x) return '';
+    var st=autoState(x), hasSched=(x.pieces||[]).some(function(p){return p.type==='schedule';});
+    AUTO.run=x.last?{autoKey:'view:'+x.id,run:x.last}:null;
+    var chain=(x.pieces||[]).map(function(p){var P=AUTO_PIECES[p.type]||{};return '<span class="ap-mini" style="background:'+(P.color||'#999')+'" title="'+esc(P.name||p.type)+'">'+(P.icon||'')+'</span>';}).join('');
+    return '<div class="ap-detail"><div class="ap-dh"><b>'+esc(x.name)+'</b><span class="ap-chip '+st.cls+'">'+st.label+'</span></div>'+
+      '<div class="ap-chain">'+chain+'</div>'+
+      '<div class="ap-dmeta">'+(x.count||0)+' passage(s) réussi(s)'+(x.active&&x.next?' · prochain passage '+autoWhen(x.next):'')+'</div>'+
+      '<div class="ap-dact">'+
+        (hasSched?(x.active?'<button type="button" class="ap-btn ghost" data-ctl="pause" data-id="'+esc(x.id)+'">⏸ Pause</button>':'<button type="button" class="ap-btn" data-ctl="resume" data-id="'+esc(x.id)+'">▶ Reprendre</button>'):'<button type="button" class="ap-btn" data-ctl="again" data-id="'+esc(x.id)+'">↻ Relancer</button>')+
+        ((st.cls==='run'||x.active)?'<button type="button" class="ap-btn ghost" data-ctl="stop" data-id="'+esc(x.id)+'">⏹ Arrêter</button>':'')+
+        '<button type="button" class="ap-btn ghost" data-ctl="edit" data-id="'+esc(x.id)+'">✏️ Modifier</button>'+
+        '<button type="button" class="ap-btn ghost danger" data-ctl="del" data-id="'+esc(x.id)+'">🗑 Supprimer</button></div>'+
+      (x.last?autoRunHTML(AUTO.run):'<div class="ap-hint">Pas encore de passage.</div>')+'</div>';
+  }
+  async function autoControl(id,act){
+    var x=AUTO.list.find(function(y){return y.id===id;}); if(!x) return;
+    if(act==='edit'){ AUTO.cur={id:x.id,name:x.name,active:x.active,pieces:JSON.parse(JSON.stringify(x.pieces||[]))}; AUTO.sel=-1; AUTO.view=null; autoRender(); toast('Automatisation chargée dans le puzzle : modifie-la puis « Enregistrer ».'); return; }
+    if(act==='del'){
+      if(!confirm('Supprimer l’automatisation « '+x.name+' » ? Un passage en cours sera arrêté.')) return;
+      try{ await fetch(MARSHALL_CREWAI_BASE+'/auto/delete',{method:'POST',headers:await authHeaders(),body:JSON.stringify({id:id})}); }catch(e){}
+      if(AUTO.view===id) AUTO.view=null; if(AUTO.cur&&AUTO.cur.id===id) AUTO.cur=autoBlank();
+      await autoLoad(true); autoRender(); toast('Automatisation supprimée.'); return;
+    }
+    if(act==='again'){
+      try{
+        var r0=await fetch(MARSHALL_CREWAI_BASE+'/auto/run',{method:'POST',headers:await authHeaders(),body:JSON.stringify({id:x.id,name:x.name,pieces:x.pieces,lang:window.MCD_LANG||'fr',brand:autoPayload().brand})});
+        var d0=await r0.json().catch(function(){return {};}); if(!r0.ok||!d0.ok) throw Error(d0.error||('erreur '+r0.status));
+        toast('Automatisation relancée ⏳'); AUTO.view=id; await autoLoad(true); autoRender(); autoWatch();
+      }catch(e){ toast('Relance impossible : '+(e.message||e),true); }
+      return;
+    }
+    try{
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/auto/state',{method:'POST',headers:await authHeaders(),body:JSON.stringify({id:id,action:act})});
+      var d=await r.json().catch(function(){return {};}); if(!r.ok||!d.ok) throw Error(d.error||('erreur '+r.status));
+      toast(act==='pause'?'Automatisation en pause ⏸':act==='resume'?'Automatisation reprise ▶':'Automatisation arrêtée ⏹');
+    }catch(e){ toast((e.message||e),true); }
+    await autoLoad(true); autoRender();
+  }
+  /* Suit les automatisations en cours (rafraîchit la liste et la fiche, sans déranger la saisie). */
+  function autoWatch(){
+    clearTimeout(AUTO.timer);
+    AUTO.timer=setTimeout(async function(){
+      var before=JSON.stringify(AUTO.list.map(function(x){return [x.id,x.last&&x.last.status,x.last&&x.last.steps];}));
+      await autoLoad(true);
+      var now=JSON.stringify(AUTO.list.map(function(x){return [x.id,x.last&&x.last.status,x.last&&x.last.steps];}));
+      var ae=document.activeElement, typing=ae&&$('#view-automations')&&$('#view-automations').contains(ae)&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName);
+      if(before!==now&&$('#view-automations.active')&&!typing) autoRender();
+      AUTO.list.forEach(function(x){ var prev=AUTO.seenStatus[x.id], cur=x.last&&x.last.status;
+        if(prev==='running'&&cur&&cur!=='running'){ toast(cur==='done'?('« '+x.name+' » : terminée ✓'):('« '+x.name+' » : '+(cur==='stopped'?'arrêtée':'erreur – '+((x.last&&x.last.error)||''))),cur!=='done'); try{marshallTokensRefresh&&marshallTokensRefresh();}catch(e){} }
+        AUTO.seenStatus[x.id]=cur; });
+      if(AUTO.list.some(function(x){return x.last&&x.last.status==='running';})||$('#view-automations.active')) autoWatch();
+    }, AUTO.list.some(function(x){return x.last&&x.last.status==='running';})?4000:20000);
+  }
   async function autoRun(){
     if(!autoGate()) return;
     var err=autoCheck(AUTO.cur.pieces); if(err){toast(err,true);return;}
-    var key=AUTO.cur.id||'new';
+    var hasSched=AUTO.cur.pieces.some(function(p){return p.type==='schedule';});
+    await mcdPubOverlay('show');
     try{
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/auto/run',{method:'POST',headers:await authHeaders(),body:JSON.stringify(autoPayload())});
+      var pay=autoPayload(); pay.active=hasSched;
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/auto/save',{method:'POST',headers:await authHeaders(),body:JSON.stringify(pay)});
       var d=await r.json().catch(function(){return {};});
       if(!r.ok||!d.ok) throw Error(d.error||('erreur '+r.status));
-      AUTO.run={autoKey:key,id:d.run_id,run:{status:'running',steps:AUTO.cur.pieces.filter(function(p){return !AUTO_PIECES[p.type].trigger;}).map(function(p){return {type:p.type,state:'wait',msg:''};})}};
-      autoRender(); autoPoll();
-    }catch(e){ toast('Lancement impossible : '+(e.message||e),true); }
-  }
-  async function autoPoll(){
-    clearTimeout(AUTO.timer);
-    var run=AUTO.run; if(!run||!run.id) return;
-    try{
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/auto/run/'+run.id,{headers:await authHeaders()});
-      var d=await r.json().catch(function(){return {};});
-      if(d&&d.ok&&d.run){ run.run=d.run; if($('#view-automations.active')) autoRender(); }
-      if(d&&d.run&&d.run.status!=='running'){
-        try{tokensRefreshQuiet();}catch(e){}
-        try{marshallTokensRefresh&&marshallTokensRefresh();}catch(e){}
-        toast(d.run.status==='done'?'Automatisation terminée ✓':'Automatisation arrêtée : '+(d.run.error||''),d.run.status!=='done');
-        if(AUTO.cur.id) autoLoad(true);
-        return;
-      }
-    }catch(e){}
-    AUTO.timer=setTimeout(autoPoll,3500);
+      pay.id=d.automation.id;
+      var r2=await fetch(MARSHALL_CREWAI_BASE+'/auto/run',{method:'POST',headers:await authHeaders(),body:JSON.stringify(pay)});
+      var d2=await r2.json().catch(function(){return {};});
+      if(!r2.ok||!d2.ok) throw Error(d2.error||('erreur '+r2.status));
+      await mcdPubOverlay('ok');
+      // Le puzzle redevient vierge ; l'automatisation part travailler dans « Mes automatisations ».
+      AUTO.cur=autoBlank(); AUTO.sel=-1; AUTO.view=pay.id; AUTO.run=null;
+      AUTO.seenStatus[pay.id]='running';
+      await autoLoad(true); autoRender(); autoWatch();
+      toast(hasSched?'Automatisation lancée et programmée ⏰':'Automatisation lancée ⏳ Suis-la dans « Mes automatisations ».');
+    }catch(e){
+      await mcdPubOverlay('fail');
+      toast('Lancement impossible : '+(e.message||e),true);
+    }
   }
   function autoToComposer(){
     var r=AUTO.run&&AUTO.run.run&&AUTO.run.run.result||{};
@@ -5092,7 +5174,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         if(AUTO.cur&&AUTO.cur.id){ var x=AUTO.list.find(function(y){return y.id===AUTO.cur.id;}); if(x){ AUTO.cur.active=x.active; AUTO.cur.next=x.next; } } }
     }catch(e){}
   }
-  async function autoOpen(){ autoRender(); await autoLoad(false); autoRender(); }
+  async function autoOpen(){ autoRender(); await autoLoad(false); AUTO.list.forEach(function(x){AUTO.seenStatus[x.id]=x.last&&x.last.status;}); autoRender(); autoWatch(); }
 
   /* ============ COMPOSER UI ============ */
   function renderNetChips(){
