@@ -7603,11 +7603,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallStudioIsAdmin(){ var st=marshallTokenState&&marshallTokenState.st; return !!(st&&st.role==='admin'); }
   function marshallStudioNanoOk(){ return marshallStudioIsAdmin()||marshallPower()==='hyper'; }
   function marshallStudioSeconds(){ var S=MARSHALL_STUDIO, list=S.vEngine==='veo'?[4,6,8]:[3,5,10,15,20]; if(list.indexOf(+S.seconds)<0) S.seconds=S.vEngine==='veo'?6:5; return list; }
-  /* Temps de génération estimé (mesuré sur GPU H100) : Wan Éco ≈ 8 s par seconde de vidéo, HD ≈ 25 s ; + démarrage du GPU. */
-  function marshallStudioEta(){ var S=MARSHALL_STUDIO, sec=+S.seconds||5; if(S.vEngine==='veo') return '1 à 3 min'; var m=Math.ceil(((S.vQuality==='hd'?25:8)*sec+(S.vQuality==='hd'?90:60))/60); return m<=2?'1 à 2 min':('environ '+m+' min'); }
+  /* Temps de génération estimé (mesuré sur GPU H100) : Éco ≈ 8 s/s, HD ≈ 21 s/s, Pro ≈ 15 s/s ; + démarrage. */
+  function marshallStudioEta(){ var S=MARSHALL_STUDIO, sec=+S.seconds||5; if(S.vEngine==='veo') return '1 à 3 min'; var rate=S.vQuality==='pro'?15:(S.vQuality==='hd'?21:8), cold=S.vQuality==='pro'?290:(S.vQuality==='hd'?90:60), m=Math.ceil((rate*sec+cold)/60); return m<=2?'1 à 2 min':('environ '+m+' min'); }
   function marshallStudioCost(){
     var S=MARSHALL_STUDIO;
-    var vid=S.vEngine==='veo'?marshallTokenPrice(S.vQuality==='hd'?'veo_fast_second':'veo_lite_second',S.seconds):marshallTokenPrice(S.vQuality==='hd'?'wan_hd_second':'wan_second',S.seconds);
+    var vid=S.vEngine==='veo'?marshallTokenPrice(S.vQuality==='hd'?'veo_fast_second':'veo_lite_second',S.seconds):marshallTokenPrice(S.vQuality==='pro'?'wan_pro_second':(S.vQuality==='hd'?'wan_hd_second':'wan_second'),S.seconds);
     var img=S.mode==='t2v'?(marshallStudioNanoOk()?marshallTokenPrice('image'):0):(S.iEngine==='nano'?marshallTokenPrice(S.iQuality==='hd'?'image_pro':'image'):0);   // Qwen (open source, sur ton serveur) : gratuit
     var total=S.mode==='t2i'?img:(S.mode==='t2v'?img+vid:vid);
     return total?('≈ '+marshallTokenFmt(total)+' tokens'):'Gratuit';
@@ -7619,7 +7619,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       +opts.map(function(o){ return '<button type="button" role="radio" aria-checked="'+(o.v===cur)+'" data-v="'+o.v+'" class="'+(o.v===cur?'on':'')+(o.locked?' locked':'')+'"'+(o.locked?' data-tip="'+esc(o.tip||'')+'"':'')+'><b>'+o.label+'</b>'+(o.sub?'<small>'+o.sub+'</small>':'')+'</button>'; }).join('')+'</div>';
   }
   function marshallStudioToggles(){
-    var S=MARSHALL_STUDIO, admin=marshallStudioIsAdmin(), nano=marshallStudioNanoOk();
+    var S=MARSHALL_STUDIO, admin=marshallStudioIsAdmin(), nano=marshallStudioNanoOk(), pro=nano;
     if(S.mode==='t2i'){
       if(!nano&&S.iEngine==='nano') S.iEngine='qwen';
       return '<div class="sai-lbl">IA utilisée</div>'+marshallLgToggle('iEngine',[{v:'qwen',label:'🌱 Qwen',sub:'Open source'},{v:'nano',label:'🍌 Nano Banana',sub:nano?'Google':'Offre Hyper',locked:!nano,tip:'Disponible avec l’offre Hyper'}],S.iEngine)
@@ -7627,8 +7627,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
     if(!admin&&S.vEngine==='veo') S.vEngine='wan';
     var veo=S.vEngine==='veo';
+    if((!pro||veo)&&S.vQuality==='pro') S.vQuality='hd';
     return '<div class="sai-lbl">IA utilisée</div>'+marshallLgToggle('vEngine',[{v:'wan',label:'🌱 Wan 2.2',sub:'Open source'},{v:'veo',label:'🎬 Google Veo',sub:admin?'Qualité ciné':'Bientôt disponible',locked:!admin,tip:'Bientôt disponible'}],S.vEngine)
-      +'<div class="sai-lbl">Qualité</div>'+marshallLgToggle('vQuality',[{v:'eco',label:'Éco',sub:veo?'Veo Lite':'480p · rapide'},{v:'hd',label:'HD',sub:veo?'Veo Fast':'720p · plus net'}],S.vQuality);
+      +'<div class="sai-lbl">Qualité</div>'+marshallLgToggle('vQuality',[{v:'eco',label:'Éco',sub:veo?'Veo Lite':'480p · rapide'},{v:'hd',label:'HD',sub:veo?'Veo Fast':'720p · plus net'},{v:'pro',label:'Pro',sub:'A14B · Lightning',locked:!pro||veo,tip:veo?'Disponible avec Wan 2.2':'Réservé à la formule Hyper'}],S.vQuality);
   }
   function marshallStudioPanelHTML(){
     var S=MARSHALL_STUDIO, video=S.mode!=='t2i';
@@ -7685,7 +7686,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var tb=e.target.closest('.lgt button');
       if(tb){
         var tg=tb.parentNode, k=tg.getAttribute('data-k'), v=tb.getAttribute('data-v');
-        if(tb.classList.contains('locked')){ toast(k==='vEngine'?'🎬 Google Veo arrive bientôt. Utilise Wan 2.2 en attendant.':'🍌 Nano Banana est disponible avec l’offre Hyper.'); tg.classList.remove('lgt-no'); void tg.offsetWidth; tg.classList.add('lgt-no'); return; }
+        if(tb.classList.contains('locked')){ toast(k==='vEngine'?'🎬 Google Veo arrive bientôt. Utilise Wan 2.2 en attendant.':(k==='vQuality'?'🔒 Pro est réservé à la formule Hyper.':'🍌 Nano Banana est disponible avec l’offre Hyper.')); tg.classList.remove('lgt-no'); void tg.offsetWidth; tg.classList.add('lgt-no'); return; }
         if(S[k]===v) return;
         S[k]=v; marshallStudioSave(); marshallStudioSlide(tg,v);
         if(k==='mode'){ setTimeout(function(){ marshallStudioRefresh(detail,true); },120); }
@@ -7847,7 +7848,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(/^data:image/.test(image)&&image.length>4000000){ try{ image=await edShrinkForUpload(image,1600); }catch(e){} }
       else if(/^blob:/.test(image)){ try{ image=await edShrinkForUpload(await edBlobToDataUrl(await (await fetch(image)).blob()),1600); }catch(e){} }
       var url=await marshallStudioAnimate(image,hp?hp.video_prompt:(prompt||''),hp&&hp.segments&&hp.segments.length>1&&S.vEngine==='wan'?hp.segments:null);
-      marshallStudioResult('<b>🎬 Vidéo prête · '+(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' '+(S.vQuality==='hd'?'HD':'Éco')+'</b>'
+      marshallStudioResult('<b>🎬 Vidéo prête · '+(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' '+(S.vQuality==='pro'?'Pro':(S.vQuality==='hd'?'HD':'Éco'))+'</b>'
         +(hp?'<div class="sp-res"><span class="sp-cam">🎥 '+esc(hp.camera)+'</span>'+(hp.segments&&hp.segments.length>1?'<ol class="sp-segs">'+hp.segments.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ol>':'<small>'+esc(hp.video_prompt)+'</small>')+'</div>':'')
         +'<video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:420px;border-radius:12px;margin-top:6px;background:#000"></video>');
       try{ marshallFreshReset(); }catch(e){}
