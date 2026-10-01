@@ -661,7 +661,16 @@
   .pv-tags{ color:#00376b; font-weight:600; }
   .fmt-row{ display:flex; align-items:center; gap:12px; margin-bottom:10px; }
   /* ===== Automatisations (puzzle) ===== */
-  #view-automations .ap-wrap{ display:grid; grid-template-columns:230px minmax(0,1fr); gap:16px; align-items:start; }
+  #view-automations{ overflow:hidden; }
+  #view-automations .ap-top{ margin-bottom:10px; } #view-automations .ap-top h1{ font-size:24px; } #view-automations .ap-top .ts{ font-size:12.5px; }
+  #view-automations .ap-wrap{ flex:1; min-height:0; display:grid; grid-template-columns:210px minmax(0,1fr); gap:14px; align-items:stretch; }
+  #view-automations .ap-side{ overflow:auto; }
+  #view-automations .ap-main{ min-height:0; min-width:0; display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto minmax(0,1fr); gap:12px; }
+  #view-automations .ap-board,#view-automations .ap-bottom>*{ min-width:0; }
+  #view-automations .ap-sidecol .ap-fields{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+  #view-automations .ap-bottom{ min-height:0; display:grid; grid-template-columns:minmax(0,1.55fr) minmax(260px,1fr); gap:12px; }
+  #view-automations .ap-libcard,#view-automations .ap-sidecol{ min-height:0; overflow:auto; }
+  .ap-lab small{ text-transform:none; letter-spacing:0; font-weight:500; color:#b49a80; margin-left:6px; }
   #view-automations .card{ padding:14px; }
   .ap-side{ display:flex; flex-direction:column; gap:6px; position:sticky; top:12px; }
   .ap-new{ border:0; border-radius:12px; padding:10px; font:700 14px 'Fredoka',sans-serif; background:#F3852B; color:#fff; cursor:pointer; }
@@ -680,7 +689,7 @@
   .ap-btn{ border:0; border-radius:12px; padding:9px 14px; font:700 13.5px 'Fredoka',sans-serif; background:#F3852B; color:#fff; cursor:pointer; }
   .ap-btn.ghost{ background:#fff4e8; color:#b45a12; } .ap-btn.danger{ color:#c0341a; background:#fdecec; }
   .ap-btn:disabled{ opacity:.45; cursor:not-allowed; }
-  .ap-lane{ display:flex; align-items:flex-start; gap:0; overflow-x:auto; padding:14px 10px 8px; min-height:150px; border-radius:16px;
+  .ap-lane{ display:flex; align-items:flex-start; gap:0; overflow-x:auto; padding:14px 10px 8px; min-height:140px; border-radius:16px;
     background:repeating-linear-gradient(90deg,#fffaf3 0 22px,#fff5ea 22px 44px); border:2px dashed #f2d9bf; transition:border-color .2s, background .2s; }
   .ap-lane.over{ border-color:#F3852B; background:#fff1e2; }
   .ap-lane.shake{ animation:apShake .4s; }
@@ -688,12 +697,19 @@
   .ap-slot{ position:relative; flex:none; display:flex; flex-direction:column; align-items:center; margin-right:-10px; }
   .ap-piece{ position:relative; width:144px; height:88px; cursor:grab; user-select:none; flex:none; transition:transform .18s, filter .18s; }
   .ap-piece:active{ cursor:grabbing; }
-  .ap-shape{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; filter:drop-shadow(0 4px 8px rgba(60,30,0,.22)); }
-  .ap-ic{ position:absolute; left:20px; top:12px; font-size:22px; }
-  .ap-nm{ position:absolute; left:20px; right:24px; bottom:12px; color:#fff; font:700 12.5px/1.15 'Fredoka',sans-serif; text-shadow:0 1px 2px rgba(0,0,0,.25); }
+  .ap-shape{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .ap-ic{ position:absolute; left:16px; top:10px; width:32px; height:32px; border-radius:50%; background:#fff; border:2.5px solid #3b1d08;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 #3b1d08; }
+  .ap-ic i{ font-style:normal; font-size:17px; line-height:1; }
+  .ap-nm{ position:absolute; left:16px; right:22px; bottom:11px; color:#fff; font:800 13px/1.1 'Fredoka',sans-serif; letter-spacing:.01em;
+    -webkit-text-stroke:3px #3b1d08; paint-order:stroke fill; }
+  .ap-piece{ transition:transform .22s cubic-bezier(.3,1.6,.5,1), filter .18s; }
+  .ap-piece:hover{ transform:translateY(-3px) rotate(-1.5deg); }
+  .ap-slot{ animation:apPop .35s cubic-bezier(.3,1.7,.5,1); }
+  @keyframes apPop{ from{ transform:scale(.7) rotate(-6deg); opacity:.3; } }
   .ap-piece.in-lane:hover{ transform:translateY(-3px); }
   .ap-piece.sel{ transform:translateY(-4px) scale(1.03); }
-  .ap-piece.sel .ap-shape{ filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 3px #2a1a0c) drop-shadow(0 6px 10px rgba(60,30,0,.3)); }
+  .ap-piece.sel .ap-shape{ filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 4px #FFD23F) drop-shadow(0 0 2px #FFD23F); }
   .ap-piece.bad .ap-shape{ filter:grayscale(.6) drop-shadow(0 0 3px #e0452b); }
   .ap-piece.st-run{ animation:apPulse 1.1s ease-in-out infinite; }
   .ap-piece.st-ok::after{ content:'✓'; position:absolute; right:22px; top:6px; width:20px; height:20px; border-radius:50%; background:#10b981; color:#fff; font:800 12px/20px sans-serif; text-align:center; }
@@ -718,12 +734,12 @@
   .ap-f textarea{ resize:vertical; }
   .ap-nets{ display:flex; flex-wrap:wrap; gap:6px; } .ap-nets label{ display:flex; align-items:center; gap:4px; font-weight:500; font-size:12.5px; }
   .ap-nets label.off{ opacity:.45; }
-  .ap-lib{ display:flex; flex-direction:column; gap:10px; }
-  .ap-group{ display:flex; align-items:center; gap:10px; }
-  .ap-gl{ width:70px; flex:none; font:700 12px 'Fredoka',sans-serif; color:#8a6a4a; }
-  .ap-gitems{ display:flex; flex-wrap:wrap; gap:8px 4px; }
-  .ap-piece.in-lib{ transform:scale(.86); transform-origin:left center; margin-right:-14px; }
-  .ap-piece.in-lib:hover{ transform:scale(.9); }
+  .ap-lib{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:4px 12px; }
+  .ap-group{ display:flex; align-items:center; gap:6px; padding:2px 0; }
+  .ap-gl{ width:58px; flex:none; font:800 11.5px 'Fredoka',sans-serif; color:#8a6a4a; }
+  .ap-gitems{ display:flex; flex-wrap:nowrap; gap:0 4px; }
+  .ap-piece.in-lib{ transform:scale(.74); transform-origin:left center; margin:-11px -34px -11px 0; }
+  .ap-piece.in-lib:hover{ transform:scale(.8) rotate(-2deg); }
   .ap-runcard .ap-steps{ list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
   .ap-steps li{ display:flex; align-items:center; gap:8px; font-size:13px; } .ap-steps li small{ color:#7a6a5a; }
   .ap-steps li.st-error small{ color:#c0341a; }
@@ -4816,12 +4832,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function autoPieceSVG(t){
     var p=AUTO_PIECES[t], inS=p.trigger?'':(p.needs?AUTO_SHAPE[p.needs[0]]:'round'), outS=p.end?'':AUTO_SHAPE[(p.gives||[])[0]]||'';
-    return '<svg class="ap-shape" viewBox="-2 -2 146 88" aria-hidden="true"><path d="'+autoPath(inS,outS)+'" fill="'+p.color+'"/><path d="'+autoPath(inS,outS)+'" fill="url(#ap-gloss)"/></svg>';
+    var d=autoPath(inS,outS);
+    return '<svg class="ap-shape" viewBox="-4 -4 150 96" aria-hidden="true">'+
+      '<path d="'+d+'" transform="translate(0 5)" fill="#3b1d08" opacity=".9"/>'+
+      '<path d="'+d+'" fill="'+p.color+'" stroke="#3b1d08" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M14 8 H'+(p.end?112:104)+' Q118 8 118 16 V20 Q118 24 112 24 H14 Q10 24 10 20 V14 Q10 8 14 8Z" fill="#fff" opacity=".28"/>'+
+      '</svg>';
   }
   function autoPieceHTML(t,extra,attrs){
     var p=AUTO_PIECES[t];
     return '<div class="ap-piece '+(extra||'')+'" '+(attrs||'')+' title="'+esc(p.desc||p.name)+'">'+autoPieceSVG(t)+
-      '<span class="ap-ic">'+p.icon+'</span><span class="ap-nm">'+esc(p.name)+'</span></div>';
+      '<span class="ap-ic"><i>'+p.icon+'</i></span><span class="ap-nm">'+esc(p.name)+'</span></div>';
   }
   function autoSummary(pc){
     var p=pc.params||{};
@@ -4857,17 +4878,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }).join('')||'<div class="ap-empty">Aucune automatisation enregistrée.</div>';
     var tpl=AUTO_TEMPLATES.map(function(t,i){return '<button type="button" class="ap-tpl" data-tpl="'+i+'">'+esc(t.name)+'</button>';}).join('');
     var sel=AUTO.sel>=0&&pieces[AUTO.sel]?pieces[AUTO.sel]:null;
-    v.innerHTML='<div class="topbar"><div><h1>Automatisations</h1><div class="ts">Assemble les pouvoirs de Marshall comme un puzzle : ils s’exécutent de gauche à droite.</div></div></div>'+
+    v.innerHTML='<div class="topbar ap-top"><div><h1>Automatisations</h1><div class="ts">Assemble les pouvoirs de Marshall comme un puzzle : ils s’exécutent de gauche à droite.</div></div></div>'+
       '<div class="ap-wrap"><aside class="ap-side card"><button type="button" class="ap-new" data-act="new">＋ Nouvelle</button><div class="ap-lab">Mes automatisations</div>'+list+'<div class="ap-lab">Modèles prêts</div>'+tpl+'</aside>'+
       '<div class="ap-main"><div class="card ap-board"><div class="ap-head"><input class="ap-name" value="'+esc(a.name)+'" maxlength="80" aria-label="Nom de l’automatisation">'+
       (sched?'<label class="ap-active"><input type="checkbox" data-act="active"'+(a.active?' checked':'')+'> Activer l’horaire</label>':'')+
       '<button type="button" class="ap-btn ghost" data-act="save">Enregistrer</button><button type="button" class="ap-btn" data-act="run"'+(err||(run&&run.run&&run.run.status==='running')?' disabled':'')+'>▶ Lancer maintenant</button>'+
       (a.id?'<button type="button" class="ap-btn ghost danger" data-act="del" title="Supprimer">🗑</button>':'')+'</div>'+
       '<div class="ap-lane" id="ap-lane">'+lane+'</div><div class="ap-status'+(err?' bad':'')+'">'+(err?'⚠️ '+esc(err):'✓ Le puzzle est complet.'+(a.active&&a.next?' Prochain passage : '+new Date(a.next*1000).toLocaleString('fr-FR',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):''))+'</div>'+
-      (sel?autoParamsHTML(sel):'<div class="ap-hint">Clique sur une pièce de la ligne pour la régler. Glisse une pièce de la boîte ci-dessous, ou clique dessus pour l’ajouter au bout.</div>')+
-      '</div><div class="card ap-libcard"><div class="ap-lab">Boîte à pièces</div><div class="ap-lib">'+lib+'</div></div>'+
-      '<div id="ap-run">'+autoRunHTML(run)+'</div></div></div>'+
-      '<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="ap-gloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".12"/></linearGradient></defs></svg>';
+      '</div><div class="ap-bottom"><div class="card ap-libcard"><div class="ap-lab">Boîte à pièces <small>glisse une pièce sur la ligne, ou clique pour l’ajouter au bout</small></div><div class="ap-lib">'+lib+'</div></div>'+
+      '<div class="card ap-sidecol">'+(sel?autoParamsHTML(sel):'<div class="ap-hint">👆 Clique sur une pièce de la ligne pour la régler.</div>')+'<div id="ap-run">'+autoRunHTML(run)+'</div></div></div></div></div>';
     autoBind(v);
   }
   function autoParamsHTML(pc){
@@ -4921,6 +4940,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return slots.length;
     }
     lane.addEventListener('dragover',function(e){e.preventDefault();lane.classList.add('over');});
+    if(!autoBind.scrollHook){ autoBind.scrollHook=true;
+      document.addEventListener('dragover',function(e){
+        if(!$('#view-automations.active')) return;
+        var y=e.clientY, H=window.innerHeight, edge=90;
+        if(y<edge) window.scrollBy(0,-Math.ceil((edge-y)/4)); else if(y>H-edge) window.scrollBy(0,Math.ceil((y-(H-edge))/4));
+        var lb=document.querySelector('#view-automations .ap-libcard'); if(lb){ var r=lb.getBoundingClientRect(); if(y>r.top&&y<r.top+40) lb.scrollTop-=12; else if(y<r.bottom&&y>r.bottom-40) lb.scrollTop+=12; }
+      });
+    }
     lane.addEventListener('dragleave',function(e){if(!lane.contains(e.relatedTarget))lane.classList.remove('over');});
     lane.addEventListener('drop',function(e){
       e.preventDefault();lane.classList.remove('over');
