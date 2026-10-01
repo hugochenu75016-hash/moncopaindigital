@@ -4785,7 +4785,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         {k:'mins',label:'Toutes les',type:'select',opts:[['10','10 minutes'],['20','20 minutes'],['30','30 minutes'],['60','1 heure']],def:'30',show:function(p){return p.freq==='minutes';}},
         {k:'time',label:'Heure',type:'time',def:'09:00',show:function(p){return p.freq==='daily'||p.freq==='weekly';}},
         {k:'day',label:'Jour',type:'select',opts:[['0','Lundi'],['1','Mardi'],['2','Mercredi'],['3','Jeudi'],['4','Vendredi'],['5','Samedi'],['6','Dimanche']],def:'0',show:function(p){return p.freq==='weekly';}},
-        {k:'every',label:'Toutes les',type:'select',opts:[['1','1 heure'],['2','2 heures'],['3','3 heures'],['6','6 heures'],['12','12 heures']],def:'3',show:function(p){return p.freq==='hourly';}}]},
+        {k:'every',label:'Toutes les',type:'select',opts:[['1','1 heure'],['2','2 heures'],['3','3 heures'],['6','6 heures'],['12','12 heures']],def:'3',show:function(p){return p.freq==='hourly';}},
+        {k:'prepare',label:'Préparer en avance',type:'select',opts:[['auto','Auto (selon la durée habituelle)'],['5','5 min avant'],['10','10 min avant'],['20','20 min avant'],['0','Non : préparer à l’heure']],def:'auto'},
+        {k:'_lead',label:'',type:'info',text:'⏱ Marshall commence la préparation (texte, image, vidéo…) en avance, puis attend : la publication part pile à l’heure prévue. En « Auto », il mesure la durée de chaque passage pour s’ajuster.'}]},
     news:{g:'source',name:'Actu du pays',icon:'📰',color:'#0ea5e9',needs:null,gives:['info','text'],cost:'nation',desc:'Marshall cherche l’info la plus récente (jamais deux fois la même).',
       params:[{k:'country',label:'Pays',type:'text',def:'France'},{k:'theme',label:'Thème (facultatif)',type:'text',def:'',ph:'économie, sport, tech…'}]},
     idea:{g:'source',name:'Mon idée',icon:'💡',color:'#f59e0b',needs:null,gives:['info','text'],desc:'Tu écris le sujet : une offre, un événement, un conseil…',
@@ -4886,7 +4888,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function autoSummary(pc){
     var p=pc.params||{};
-    if(pc.type==='schedule'&&p.freq==='minutes') return 'toutes les '+(p.mins==='60'?'1 h':p.mins+' min');
+    if(pc.type==='schedule'&&p.freq==='minutes') return 'toutes les '+(p.mins==='60'?'1 h':p.mins+' min')+(p.prepare&&p.prepare!=='0'&&p.prepare!=='auto'?' · prépa '+p.prepare+' min':'');
     if(pc.type==='schedule') return p.freq==='hourly'?('toutes les '+p.every+' h'):(p.freq==='weekly'?(['lun','mar','mer','jeu','ven','sam','dim'][+p.day||0]+' '+p.time):('chaque jour '+p.time));
     if(pc.type==='news') return (p.country||'France')+(p.theme?' · '+p.theme:'');
     if(pc.type==='idea') return p.text?String(p.text).slice(0,26)+(String(p.text).length>26?'…':''):'à écrire';
@@ -5084,7 +5086,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var chain=(x.pieces||[]).map(function(p){var P=AUTO_PIECES[p.type]||{};return '<span class="ap-mini" style="background:'+(P.color||'#999')+'" title="'+esc(P.name||p.type)+'">'+(P.icon||'')+'</span>';}).join('');
     return '<div class="ap-detail"><div class="ap-dh"><b>'+esc(x.name)+'</b><span class="ap-chip '+st.cls+'">'+st.label+'</span></div>'+
       '<div class="ap-chain">'+chain+'</div>'+
-      '<div class="ap-dmeta">'+(x.count||0)+' passage(s) réussi(s)'+(x.active&&x.next?' · prochain passage '+autoWhen(x.next):'')+'</div>'+
+      '<div class="ap-dmeta">'+(x.count||0)+' passage(s) réussi(s)'+(x.active&&x.next?' · prochaine publication '+autoWhen(x.next)+(x.lead?' (préparation dès '+autoWhen(x.next-x.lead)+')':''):'')+'</div>'+
       '<div class="ap-dact">'+
         (hasSched?(x.active?'<button type="button" class="ap-btn ghost" data-ctl="pause" data-id="'+esc(x.id)+'">⏸ Pause</button>':'<button type="button" class="ap-btn" data-ctl="resume" data-id="'+esc(x.id)+'">▶ Reprendre</button>'):'<button type="button" class="ap-btn" data-ctl="again" data-id="'+esc(x.id)+'">↻ Relancer</button>')+
         ((st.cls==='run'||x.active)?'<button type="button" class="ap-btn ghost" data-ctl="stop" data-id="'+esc(x.id)+'">⏹ Arrêter</button>':'')+
