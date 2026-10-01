@@ -738,6 +738,7 @@
   .ap-group{ display:flex; align-items:center; gap:6px; padding:2px 0; }
   .ap-gl{ width:58px; flex:none; font:800 11.5px 'Fredoka',sans-serif; color:#8a6a4a; }
   .ap-gitems{ display:flex; flex-wrap:nowrap; gap:0 6px; }
+  .ap-finfo{ grid-column:1/-1; font-size:12px; line-height:1.45; color:#6b5a4a; background:#fff8ef; border:1px solid #f4e2cc; border-radius:10px; padding:8px 10px; }
   .ap-f.ap-check{ flex-direction:row; align-items:center; gap:8px; } .ap-f.ap-check input{ width:18px; height:18px; accent-color:#F3852B; }
   .ap-piece.in-lib{ transform:scale(.64); transform-origin:left center; margin:-16px -48px -16px 0; }
   .ap-piece.in-lib:hover{ transform:scale(.7) rotate(-2deg); }
@@ -4775,12 +4776,13 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       params:[{k:'country',label:'Pays',type:'text',def:'France'},{k:'theme',label:'Thème (facultatif)',type:'text',def:'',ph:'économie, sport, tech…'}]},
     idea:{g:'source',name:'Mon idée',icon:'💡',color:'#f59e0b',needs:null,gives:['info','text'],desc:'Tu écris le sujet : une offre, un événement, un conseil…',
       params:[{k:'text',label:'Ton idée',type:'area',def:'',ph:'Ex. Nouvelle collection d’automne, -20 % ce week-end'}]},
-    web:{g:'source',name:'Site / flux RSS',icon:'🔗',color:'#0284c7',needs:null,gives:['info','text'],cost:'chat',desc:'Marshall lit un site ou un flux RSS et prend le dernier article (jamais deux fois le même).',
-      params:[{k:'url',label:'Adresse du site ou du flux RSS',type:'text',def:'',ph:'https://monsite.fr/blog/feed'}]},
+    web:{g:'source',name:'Lien à suivre',icon:'🔗',color:'#0284c7',needs:null,gives:['info','text'],cost:'chat',desc:'Colle un seul lien : un site, une rubrique ou catégorie, un flux RSS, une chaîne YouTube, un subreddit… Marshall prend le dernier article ou la dernière vidéo, jamais deux fois le même.',
+      params:[{k:'url',label:'Le lien à suivre',type:'text',def:'',ph:'ex. lemonde.fr/sport · youtube.com/@chaine · monblog.fr/categorie/recettes'},
+        {k:'_help',label:'',type:'info',text:'✅ Sites, rubriques, catégories, blogs, flux RSS, chaînes et playlists YouTube, Reddit, Dailymotion, Vimeo. ❌ Profils Instagram, Facebook, X, LinkedIn et TikTok : ces réseaux bloquent la lecture depuis l’extérieur.'}]},
     photo:{g:'source',name:'Ma photo (lien)',icon:'📷',color:'#d97706',needs:null,gives:['image'],desc:'Part d’une de tes photos, à partir de son lien.',
       params:[{k:'url',label:'Lien de la photo',type:'text',def:'',ph:'https://…/photo.jpg'},{k:'caption',label:'De quoi parle-t-elle ? (facultatif)',type:'text',def:'',ph:'Ex. notre nouveau menu d’automne'}]},
     clipper:{g:'source',name:'Clippeur (lien vidéo)',icon:'✂️',color:'#059669',needs:null,gives:['video','info','text','tags'],cost:'clip',desc:'Marshall regarde une vidéo longue (YouTube, TikTok, MP4…) et en sort le meilleur moment en 9:16, recadré et sous-titré.',
-      params:[{k:'url',label:'Lien de la vidéo',type:'text',def:'',ph:'https://youtube.com/watch?v=…'},
+      params:[{k:'url',label:'Lien de la vidéo (vide = dernière vidéo de la pièce « Lien à suivre »)',type:'text',def:'',ph:'https://youtube.com/watch?v=…'},
         {k:'length',label:'Durée du clip',type:'select',opts:[['short','Court (15–30 s)'],['medium','Moyen (30–60 s)'],['long','Long (60–90 s)']],def:'short'},
         {k:'captions',label:'Sous-titres',type:'select',opts:[['1','Oui'],['0','Non']],def:'1'},
         {k:'rights',label:'J’ai les droits sur cette vidéo',type:'check',def:'0'}]},
@@ -4822,6 +4824,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     {name:'Vidéo IA d’une idée',pieces:[['manual'],['idea',{}],['write',{}],['image',{}],['animate',{quality:'eco',seconds:'5'}],['voice',{source:'texte'}]]},
     {name:'Post illustré',pieces:[['manual'],['idea',{}],['write',{}],['hashtags',{}],['image',{}]]},
     {name:'Clip viral d’une vidéo',pieces:[['manual'],['clipper',{}],['email',{}]]},
+    {name:'Chaque nouvelle vidéo de ma chaîne en clip',pieces:[['schedule',{freq:'hourly',every:'3'}],['web',{url:''}],['clipper',{}],['email',{}]]},
     {name:'Mon blog en vidéo TikTok',pieces:[['manual'],['web',{}],['write',{network:'TikTok'}],['hashtags',{}],['image',{}],['animate',{quality:'eco',seconds:'5'}],['voice',{source:'texte'}],['captions',{}]]}
   ];
   var AUTO={list:[],cur:null,sel:-1,run:null,timer:null,loaded:false};
@@ -4881,6 +4884,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(pc.type==='voice') return p.voice+' · '+p.tone;
     if(pc.type==='hashtags') return p.count+' hashtags';
     if(pc.type==='web'||pc.type==='photo') return p.url?String(p.url).replace(/^https?:\/\/(www\.)?/,'').slice(0,24):'lien à coller';
+    if(pc.type==='clipper'&&!p.url) return 'dernière vidéo du lien';
     if(pc.type==='clipper') return p.url?(String(p.url).replace(/^https?:\/\/(www\.)?/,'').slice(0,18)+(p.rights==='1'?'':' · droits ?')):'lien à coller';
     if(pc.type==='translate') return p.lang;
     if(pc.type==='removebg') return 'fond '+p.bg;
@@ -4925,6 +4929,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(x.type==='select') inp='<select data-pk="'+x.k+'">'+x.opts.map(function(o){return '<option value="'+esc(o[0])+'"'+(String(val)===o[0]?' selected':'')+'>'+esc(o[1])+'</option>';}).join('')+'</select>';
       else if(x.type==='area') inp='<textarea data-pk="'+x.k+'" rows="3" placeholder="'+esc(x.ph||'')+'">'+esc(val||'')+'</textarea>';
       else if(x.type==='time') inp='<input type="time" data-pk="'+x.k+'" value="'+esc(val||'09:00')+'">';
+      else if(x.type==='info') return '<div class="ap-finfo">'+esc(x.text||'')+'</div>';
       else if(x.type==='check') return '<label class="ap-f ap-check"><input type="checkbox" data-pk="'+x.k+'"'+(String(val)==='1'?' checked':'')+'><span>'+esc(x.label)+'</span></label>';
       else if(x.type==='nets') inp='<span class="ap-nets">'+['instagram','facebook','tiktok','x','snapchat'].map(function(n){var c=connections[n]&&connections[n].connected;return '<label class="'+(c?'':'off')+'"><input type="checkbox" data-net="'+n+'"'+((val||[]).indexOf(n)>=0?' checked':'')+(c?'':' disabled')+'> '+(net(n)?net(n).name:n)+(c?'':' (non relié)')+'</label>';}).join('')+'</span>';
       else inp='<input type="text" data-pk="'+x.k+'" value="'+esc(val||'')+'" placeholder="'+esc(x.ph||'')+'">';
