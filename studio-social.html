@@ -4766,8 +4766,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var AUTO_PIECES={
     manual:{g:'start',name:'Lancer à la main',icon:'▶️',color:'#64748b',trigger:true,gives:['start'],desc:'Tu lances l’automatisation quand tu veux, avec le bouton « Lancer ».'},
     schedule:{g:'start',name:'À heure fixe',icon:'⏰',color:'#475569',trigger:true,gives:['start'],desc:'Marshall la lance tout seul, même si Studio Social est fermé.',
-      params:[{k:'freq',label:'Fréquence',type:'select',opts:[['daily','Chaque jour'],['weekly','Chaque semaine'],['hourly','Toutes les X heures']],def:'daily'},
-        {k:'time',label:'Heure',type:'time',def:'09:00',show:function(p){return p.freq!=='hourly';}},
+      params:[{k:'freq',label:'Fréquence',type:'select',opts:[['minutes','Toutes les X minutes'],['hourly','Toutes les X heures'],['daily','Chaque jour'],['weekly','Chaque semaine']],def:'daily'},
+        {k:'mins',label:'Toutes les',type:'select',opts:[['10','10 minutes'],['20','20 minutes'],['30','30 minutes'],['60','1 heure']],def:'30',show:function(p){return p.freq==='minutes';}},
+        {k:'time',label:'Heure',type:'time',def:'09:00',show:function(p){return p.freq==='daily'||p.freq==='weekly';}},
         {k:'day',label:'Jour',type:'select',opts:[['0','Lundi'],['1','Mardi'],['2','Mercredi'],['3','Jeudi'],['4','Vendredi'],['5','Samedi'],['6','Dimanche']],def:'0',show:function(p){return p.freq==='weekly';}},
         {k:'every',label:'Toutes les',type:'select',opts:[['1','1 heure'],['2','2 heures'],['3','3 heures'],['6','6 heures'],['12','12 heures']],def:'3',show:function(p){return p.freq==='hourly';}}]},
     news:{g:'source',name:'Actu du pays',icon:'📰',color:'#0ea5e9',needs:null,gives:['info','text'],cost:'nation',desc:'Marshall cherche l’info la plus récente (jamais deux fois la même).',
@@ -4868,6 +4869,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function autoSummary(pc){
     var p=pc.params||{};
+    if(pc.type==='schedule'&&p.freq==='minutes') return 'toutes les '+(p.mins==='60'?'1 h':p.mins+' min');
     if(pc.type==='schedule') return p.freq==='hourly'?('toutes les '+p.every+' h'):(p.freq==='weekly'?(['lun','mar','mer','jeu','ven','sam','dim'][+p.day||0]+' '+p.time):('chaque jour '+p.time));
     if(pc.type==='news') return (p.country||'France')+(p.theme?' · '+p.theme:'');
     if(pc.type==='idea') return p.text?String(p.text).slice(0,26)+(String(p.text).length>26?'…':''):'à écrire';
