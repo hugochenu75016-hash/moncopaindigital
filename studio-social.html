@@ -734,12 +734,13 @@
   .ap-f textarea{ resize:vertical; }
   .ap-nets{ display:flex; flex-wrap:wrap; gap:6px; } .ap-nets label{ display:flex; align-items:center; gap:4px; font-weight:500; font-size:12.5px; }
   .ap-nets label.off{ opacity:.45; }
-  .ap-lib{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:4px 12px; }
+  .ap-lib{ display:grid; grid-template-columns:repeat(auto-fill,minmax(400px,1fr)); gap:2px 14px; }
   .ap-group{ display:flex; align-items:center; gap:6px; padding:2px 0; }
   .ap-gl{ width:58px; flex:none; font:800 11.5px 'Fredoka',sans-serif; color:#8a6a4a; }
-  .ap-gitems{ display:flex; flex-wrap:nowrap; gap:0 4px; }
-  .ap-piece.in-lib{ transform:scale(.74); transform-origin:left center; margin:-11px -34px -11px 0; }
-  .ap-piece.in-lib:hover{ transform:scale(.8) rotate(-2deg); }
+  .ap-gitems{ display:flex; flex-wrap:nowrap; gap:0 6px; }
+  .ap-f.ap-check{ flex-direction:row; align-items:center; gap:8px; } .ap-f.ap-check input{ width:18px; height:18px; accent-color:#F3852B; }
+  .ap-piece.in-lib{ transform:scale(.64); transform-origin:left center; margin:-16px -48px -16px 0; }
+  .ap-piece.in-lib:hover{ transform:scale(.7) rotate(-2deg); }
   .ap-runcard .ap-steps{ list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
   .ap-steps li{ display:flex; align-items:center; gap:8px; font-size:13px; } .ap-steps li small{ color:#7a6a5a; }
   .ap-steps li.st-error small{ color:#c0341a; }
@@ -4761,7 +4762,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* ===================== AUTOMATISATIONS : puzzle des pouvoirs de Marshall =====================
      Chaque pouvoir = une pièce. L'utilisateur les pose sur une ligne : elles s'exécutent de gauche à droite.
      Une pièce n'entre que si ce dont elle a besoin existe déjà avant elle (même règle que le serveur). */
-  var AUTO_SHAPE={start:'round',info:'tri',text:'tri',tags:'tri',image:'square',video:'chevron'};
+  var AUTO_SHAPE={start:'round',info:'tri',text:'tri',tags:'tri',image:'square',video:'chevron',mail:''};
   var AUTO_PIECES={
     manual:{g:'start',name:'Lancer à la main',icon:'▶️',color:'#64748b',trigger:true,gives:['start'],desc:'Tu lances l’automatisation quand tu veux, avec le bouton « Lancer ».'},
     schedule:{g:'start',name:'À heure fixe',icon:'⏰',color:'#475569',trigger:true,gives:['start'],desc:'Marshall la lance tout seul, même si Studio Social est fermé.',
@@ -4773,16 +4774,29 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       params:[{k:'country',label:'Pays',type:'text',def:'France'},{k:'theme',label:'Thème (facultatif)',type:'text',def:'',ph:'économie, sport, tech…'}]},
     idea:{g:'source',name:'Mon idée',icon:'💡',color:'#f59e0b',needs:null,gives:['info','text'],desc:'Tu écris le sujet : une offre, un événement, un conseil…',
       params:[{k:'text',label:'Ton idée',type:'area',def:'',ph:'Ex. Nouvelle collection d’automne, -20 % ce week-end'}]},
+    web:{g:'source',name:'Site / flux RSS',icon:'🔗',color:'#0284c7',needs:null,gives:['info','text'],cost:'chat',desc:'Marshall lit un site ou un flux RSS et prend le dernier article (jamais deux fois le même).',
+      params:[{k:'url',label:'Adresse du site ou du flux RSS',type:'text',def:'',ph:'https://monsite.fr/blog/feed'}]},
+    photo:{g:'source',name:'Ma photo (lien)',icon:'📷',color:'#d97706',needs:null,gives:['image'],desc:'Part d’une de tes photos, à partir de son lien.',
+      params:[{k:'url',label:'Lien de la photo',type:'text',def:'',ph:'https://…/photo.jpg'},{k:'caption',label:'De quoi parle-t-elle ? (facultatif)',type:'text',def:'',ph:'Ex. notre nouveau menu d’automne'}]},
+    clipper:{g:'source',name:'Clippeur (lien vidéo)',icon:'✂️',color:'#059669',needs:null,gives:['video','info','text','tags'],cost:'clip',desc:'Marshall regarde une vidéo longue (YouTube, TikTok, MP4…) et en sort le meilleur moment en 9:16, recadré et sous-titré.',
+      params:[{k:'url',label:'Lien de la vidéo',type:'text',def:'',ph:'https://youtube.com/watch?v=…'},
+        {k:'length',label:'Durée du clip',type:'select',opts:[['short','Court (15–30 s)'],['medium','Moyen (30–60 s)'],['long','Long (60–90 s)']],def:'short'},
+        {k:'captions',label:'Sous-titres',type:'select',opts:[['1','Oui'],['0','Non']],def:'1'},
+        {k:'rights',label:'J’ai les droits sur cette vidéo',type:'check',def:'0'}]},
     write:{g:'texte',name:'Marshall écrit',icon:'✍️',color:'#8b5cf6',needs:['info'],gives:['text'],cost:'chat',desc:'La légende, avec une accroche, dans le ton choisi.',
       params:[{k:'tone',label:'Ton',type:'select',opts:[['engageant','Engageant'],['professionnel','Professionnel'],['drôle','Drôle'],['inspirant','Inspirant'],['urgent','Urgent']],def:'engageant'},
         {k:'length',label:'Longueur',type:'select',opts:[['court','Courte'],['long','Longue']],def:'court'},
         {k:'network',label:'Pour',type:'select',opts:[['Instagram','Instagram'],['TikTok','TikTok'],['Facebook','Facebook'],['X','X'],['LinkedIn','LinkedIn']],def:'Instagram'}]},
     hashtags:{g:'texte',name:'Hashtags',icon:'#️⃣',color:'#a855f7',needs:['info','text'],gives:['tags'],cost:'chat',desc:'Des hashtags pertinents ajoutés sous le texte.',
       params:[{k:'count',label:'Nombre',type:'select',opts:[['4','4'],['6','6'],['10','10'],['15','15']],def:'6'}]},
+    translate:{g:'texte',name:'Traduire',icon:'🌐',color:'#7c3aed',needs:['text'],gives:['text'],cost:'chat',desc:'Traduit le texte de la publication en gardant le ton.',
+      params:[{k:'lang',label:'Langue',type:'select',opts:[['anglais','Anglais'],['espagnol','Espagnol'],['allemand','Allemand'],['italien','Italien'],['portugais','Portugais'],['néerlandais','Néerlandais'],['arabe','Arabe'],['français','Français']],def:'anglais'}]},
     image:{g:'visuel',name:'Image IA',icon:'🖼️',color:'#10b981',needs:['info','text'],gives:['image'],cost:'qwen_image',desc:'Une image 9:16 qui illustre le sujet.',
       params:[{k:'style',label:'Style',type:'select',opts:[['photo réaliste','Photo réaliste'],['illustration','Illustration'],['3D','3D'],['cinéma','Cinéma']],def:'photo réaliste'}]},
     design:{g:'visuel',name:'Mise en page story',icon:'🎨',color:'#14b8a6',needs:['info'],gives:['image'],desc:'Une story mise en page aux couleurs de ta marque (titre, texte, image). Si tu animes ensuite, c’est la photo qui est animée : le texte se déformerait.',
       params:[{k:'layout',label:'Modèle',type:'select',opts:[['auto','Varié à chaque fois'],['news_flash','Flash info'],['headline_bar','Bandeau titre'],['hero_photo','Grande photo'],['split','Partagé'],['magazine_cover','Couverture magazine'],['polaroid','Polaroid'],['minimal_type','Texte seul']],def:'auto'}]},
+    removebg:{g:'visuel',name:'Retirer le fond',icon:'🪄',color:'#0d9488',needs:['image'],gives:['image'],cost:'remove_bg',desc:'Détoure le sujet et le pose sur un fond propre.',
+      params:[{k:'bg',label:'Nouveau fond',type:'select',opts:[['marque','Couleur de ma marque'],['blanc','Blanc'],['noir','Noir']],def:'marque'}]},
     animate:{g:'video',name:'Animer en vidéo',icon:'🎬',color:'#ef4444',needs:['image'],gives:['video'],desc:'L’image prend vie (Wan 2.2). Avec une story mise en page, c’est la photo d’origine qui est animée.',
       params:[{k:'quality',label:'Qualité',type:'select',opts:[['eco','Éco · rapide'],['hd','HD · plus net'],['pro','Pro · Hyper']],def:'eco'},
         {k:'seconds',label:'Durée',type:'select',opts:[['4','4 s'],['5','5 s'],['8','8 s'],['10','10 s'],['15','15 s'],['20','20 s']],def:'5'},
@@ -4791,6 +4805,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       params:[{k:'voice',label:'Voix',type:'select',opts:[['femme','Femme'],['homme','Homme']],def:'femme'},
         {k:'tone',label:'Ton',type:'select',opts:[['chaleureux','Chaleureux'],['dynamique','Dynamique'],['journaliste','Journaliste'],['calme','Calme']],def:'chaleureux'},
         {k:'source',label:'Ce qu’elle dit',type:'select',opts:[['auto','Marshall décrit la vidéo'],['texte','Lit le texte de la publication']],def:'auto'}]},
+    captions:{g:'video',name:'Sous-titres',icon:'💬',color:'#e11d48',needs:['video'],gives:['video'],desc:'Sous-titres animés (style TikTok) gravés sur la vidéo. Sans voix, Marshall affiche le texte de la publication.',
+      params:[{k:'color',label:'Couleur du mot actif',type:'select',opts:[['orange','Orange'],['jaune','Jaune'],['vert','Vert'],['rose','Rose']],def:'orange'},
+        {k:'position',label:'Position',type:'select',opts:[['bas','En bas'],['milieu','Au milieu']],def:'bas'}]},
+    email:{g:'diff',name:'M’envoyer par e-mail',icon:'📧',color:'#ea580c',needs:['image','video','text'],gives:['mail'],desc:'Tu reçois le résultat (texte, liens de l’image et de la vidéo) sur l’e-mail de ton compte.'},
     publish:{g:'diff',name:'Publier',icon:'📤',color:'#F3852B',needs:['image','video','text'],gives:['published'],end:true,desc:'Publie sur tes réseaux reliés. Sans cette pièce, le résultat reste en brouillon.',
       params:[{k:'networks',label:'Réseaux',type:'nets',def:['instagram']},
         {k:'format',label:'Format',type:'select',opts:[['Post','Post'],['Story','Story'],['Reel','Reel / vidéo']],def:'Post'},
@@ -4801,7 +4819,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var AUTO_TEMPLATES=[
     {name:'Actu du jour en story',pieces:[['schedule',{freq:'daily',time:'09:00'}],['news',{country:'France'}],['write',{}],['hashtags',{}],['image',{}],['design',{}],['publish',{format:'Story'}]]},
     {name:'Vidéo IA d’une idée',pieces:[['manual'],['idea',{}],['write',{}],['image',{}],['animate',{quality:'eco',seconds:'5'}],['voice',{source:'texte'}]]},
-    {name:'Post illustré',pieces:[['manual'],['idea',{}],['write',{}],['hashtags',{}],['image',{}]]}
+    {name:'Post illustré',pieces:[['manual'],['idea',{}],['write',{}],['hashtags',{}],['image',{}]]},
+    {name:'Clip viral d’une vidéo',pieces:[['manual'],['clipper',{}],['email',{}]]},
+    {name:'Mon blog en vidéo TikTok',pieces:[['manual'],['web',{}],['write',{network:'TikTok'}],['hashtags',{}],['image',{}],['animate',{quality:'eco',seconds:'5'}],['voice',{source:'texte'}],['captions',{}]]}
   ];
   var AUTO={list:[],cur:null,sel:-1,run:null,timer:null,loaded:false};
   function autoBlank(){ return {id:'',name:'Ma nouvelle automatisation',active:false,pieces:[{type:'manual',params:{}}]}; }
@@ -4858,6 +4878,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(pc.type==='image') return p.style;
     if(pc.type==='voice') return p.voice+' · '+p.tone;
     if(pc.type==='hashtags') return p.count+' hashtags';
+    if(pc.type==='web'||pc.type==='photo') return p.url?String(p.url).replace(/^https?:\/\/(www\.)?/,'').slice(0,24):'lien à coller';
+    if(pc.type==='clipper') return p.url?(String(p.url).replace(/^https?:\/\/(www\.)?/,'').slice(0,18)+(p.rights==='1'?'':' · droits ?')):'lien à coller';
+    if(pc.type==='translate') return p.lang;
+    if(pc.type==='removebg') return 'fond '+p.bg;
+    if(pc.type==='captions') return p.color+' · '+p.position;
     return '';
   }
   function autoRender(){
@@ -4898,6 +4923,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(x.type==='select') inp='<select data-pk="'+x.k+'">'+x.opts.map(function(o){return '<option value="'+esc(o[0])+'"'+(String(val)===o[0]?' selected':'')+'>'+esc(o[1])+'</option>';}).join('')+'</select>';
       else if(x.type==='area') inp='<textarea data-pk="'+x.k+'" rows="3" placeholder="'+esc(x.ph||'')+'">'+esc(val||'')+'</textarea>';
       else if(x.type==='time') inp='<input type="time" data-pk="'+x.k+'" value="'+esc(val||'09:00')+'">';
+      else if(x.type==='check') return '<label class="ap-f ap-check"><input type="checkbox" data-pk="'+x.k+'"'+(String(val)==='1'?' checked':'')+'><span>'+esc(x.label)+'</span></label>';
       else if(x.type==='nets') inp='<span class="ap-nets">'+['instagram','facebook','tiktok','x','snapchat'].map(function(n){var c=connections[n]&&connections[n].connected;return '<label class="'+(c?'':'off')+'"><input type="checkbox" data-net="'+n+'"'+((val||[]).indexOf(n)>=0?' checked':'')+(c?'':' disabled')+'> '+(net(n)?net(n).name:n)+(c?'':' (non relié)')+'</label>';}).join('')+'</span>';
       else inp='<input type="text" data-pk="'+x.k+'" value="'+esc(val||'')+'" placeholder="'+esc(x.ph||'')+'">';
       return '<label class="ap-f"><span>'+esc(x.label)+'</span>'+inp+'</label>';
@@ -4969,7 +4995,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     v.querySelector('.ap-libcard').addEventListener('dragover',function(e){e.preventDefault();});
     v.querySelector('.ap-libcard').addEventListener('drop',function(e){e.preventDefault();var d=e.dataTransfer.getData('text/plain')||'';if(d.indexOf('lane:')===0){a.pieces.splice(+d.slice(5),1);AUTO.sel=-1;autoRender();}});
     $all('[data-del]',v).forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();a.pieces.splice(+b.getAttribute('data-del'),1);AUTO.sel=-1;autoRender();});});
-    $all('[data-pk]',v).forEach(function(el){el.addEventListener('change',function(){var pc=a.pieces[AUTO.sel];if(!pc)return;pc.params[el.getAttribute('data-pk')]=el.value;autoRender();});
+    $all('[data-pk]',v).forEach(function(el){el.addEventListener('change',function(){var pc=a.pieces[AUTO.sel];if(!pc)return;pc.params[el.getAttribute('data-pk')]=el.type==='checkbox'?(el.checked?'1':'0'):el.value;autoRender();});
       if(el.tagName==='TEXTAREA'||el.type==='text')el.addEventListener('input',function(){var pc=a.pieces[AUTO.sel];if(pc)pc.params[el.getAttribute('data-pk')]=el.value;});});
     $all('[data-net]',v).forEach(function(el){el.addEventListener('change',function(){var pc=a.pieces[AUTO.sel];if(!pc)return;pc.params.networks=[].slice.call(v.querySelectorAll('[data-net]')).filter(function(x){return x.checked;}).map(function(x){return x.getAttribute('data-net');});autoRender();});});
     $all('[data-open]',v).forEach(function(b){b.addEventListener('click',function(){var x=AUTO.list.find(function(y){return y.id===b.getAttribute('data-open');});if(!x)return;AUTO.cur=JSON.parse(JSON.stringify(x));AUTO.sel=-1;AUTO.run=x.last?{autoKey:x.id,run:x.last}:null;autoRender();});});
