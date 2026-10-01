@@ -4731,7 +4731,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var el=document.getElementById('mcd-sig'); if(!el) return;
     var on=mcdSigOn(), hyper=mcdSigCanHide();
     el.className='mcd-sig'+(on?'':' off');
-    el.innerHTML='<span aria-hidden="true">🔒</span><span>Ajouté à la fin de ta légende : <b>'+esc(MCD_SIG)+'</b></span>'+
+    el.innerHTML='<span aria-hidden="true">🔒</span><span>Ajouté à la fin de ta légende'+(comp.nets&&comp.nets.tiktok?' (sauf sur TikTok)':'')+' : <b>'+esc(MCD_SIG)+'</b></span>'+
       '<button type="button" data-sig="1">'+(hyper?(on?'Retirer':'Remettre'):'Retirer · ⚡ Hyper')+'</button>';
   }
   document.addEventListener('click', function(e){
@@ -4743,7 +4743,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function renderCounters(){
     mcdSigRender();
     var html = NETS.filter(function(n){ return comp.nets[n.id]; }).map(function(n){
-      var len=mcdSigApply(comp.caption).length, over=len>n.limit;
+      var len=(n.id==='tiktok'?mcdSigStrip(comp.caption):mcdSigApply(comp.caption)).length, over=len>n.limit;
       return '<span class="cnt '+(over?'over':'')+'">'+esc(n.name)+' '+len+'/'+n.limit+'</span>';
     }).join('');
     var hasLink = /(https?:\/\/|www\.|\b[a-z0-9-]+\.(fr|com|net|org|io|co|be)\b)/i.test(comp.caption+' '+comp.tags);
