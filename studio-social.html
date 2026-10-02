@@ -1753,6 +1753,11 @@
   .rsort{ display:flex; gap:8px; flex-wrap:wrap; }
   .rsort-chip{ cursor:pointer; font-family:'Fredoka',sans-serif; font-weight:600; font-size:12px; color:#6b5108; background:#fff6ea; border:1.5px solid rgba(120,60,0,0.16); border-radius:999px; padding:6px 13px; white-space:nowrap; }
   .rsort-chip.on{ background:#8a6a0c; color:#fff; border-color:transparent; }
+  .ag-invite{ padding:14px 16px; margin-bottom:12px; } .ag-invite p{ margin:4px 0 10px; }
+  .ag-row{ display:flex; gap:8px; flex-wrap:wrap; } .ag-row input{ flex:1; min-width:180px; border:1.5px solid #f0dcc6; border-radius:10px; padding:9px 12px; font:inherit; }
+  .ag-pend{ font-size:11px; font-weight:700; color:#b55d14; background:#fff3e6; border-radius:999px; padding:2px 8px; margin-left:6px; }
+  .ag-link{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; padding:12px 16px; border-radius:16px; background:#fff; border:1px solid #f0e2d2; margin:-10px 0 18px; font-size:13.5px; }
+  .ag-link.ag-new{ border-color:#F3852B; background:#fffaf5; } .ag-acts{ display:flex; gap:8px; }
   .dele-toggle{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 20px; border-radius:18px; margin-bottom:22px;
     background:linear-gradient(to bottom,#f8e7ac 0%,#eecd73 55%,#e4bf5a 100%); color:#5a4400; }
   .dele-toggle .dt-txt{ font-size:13.5px; line-height:1.5; max-width:520px; }
@@ -4174,6 +4179,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
       <div>Seuls les clients ayant explicitement activé « Autoriser l'agence à gérer mon compte » depuis leur espace apparaissent ici. Cliquez sur un client pour composer, publier et répondre à ses messages en son nom.</div>
     </div>
+    <div class="card ag-invite" id="ag-invite" hidden><b>Inviter un client</b><p class="ts">Il reçoit l’invitation dans son onglet Connexions et l’accepte en un clic. Ensuite, tu composes, programmes et publies pour lui.</p>
+      <div class="ag-row"><input type="email" id="ag-email" placeholder="email@du-client.fr"><input type="text" id="ag-name" placeholder="Nom du client (optionnel)"><button class="btn-ghost ag-go" id="ag-send">Inviter</button></div></div>
     <div class="card"><div class="list" id="clients-list"></div></div>
   </main>
 </div>
@@ -18027,7 +18034,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     marshallEnsureBrandIntelligence(false).catch(function(e){console.warn('Brand Intelligence startup',e);});
     renderNetChips(); renderFormats(); renderCounters(); renderThumbs(); renderPreviewTabs(); renderPreview();
     updateBadges(); renderConnexions();
-    var hcc=$('#hub-card-clients'); if(hcc) hcc.style.display = me.isTeam ? 'flex' : 'none';
+    var hcc=$('#hub-card-clients'); if(hcc) hcc.style.display = (me.isTeam||mcdAgencyAllowed()) ? 'flex' : 'none';
     var dt=$('#dele-toggle'); if(dt) dt.style.display = me.isTeam ? 'none' : 'flex';
     if(!me.isTeam) await loadDelegation();
     try{ var agencyReturn=new URLSearchParams(location.search).get('agency_connect');
@@ -18688,12 +18695,19 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var r=await fetch(SUPABASE_URL+'/functions/v1/agency-clients', { headers:await authHeaders() });
       var d=await r.json();
       var list=(d && d.clients) || [];
-      if(!list.length){ $('#clients-list').innerHTML='<div class="empty">Aucun client n’a encore autorisé l’agence. Demandez-leur d’activer l’option dans leur onglet Connexions.</div>'; return; }
+      var inv=$('#ag-invite'); if(inv) inv.hidden=!(d&&d.can_invite);
+      if(!list.length){ $('#clients-list').innerHTML='<div class="empty">'+(d&&d.can_invite?'Aucun client pour l’instant : invite ton premier client ci-dessus.':'Aucun client n’a encore autorisé l’agence. Demandez-leur d’activer l’option dans leur onglet Connexions.')+'</div>'; return; }
       $('#clients-list').innerHTML = list.map(function(c){
+        var pending=c.status==='pending';
         return '<div class="item"><div class="ithumb">'+esc(initials(c.nom||c.email||'C'))+'</div>'+
-          '<div class="imain"><div class="it1">'+esc(c.nom||c.email)+'</div><div class="it2">'+esc(c.email||'')+'</div></div>'+
-          '<div class="iend"><button class="conn-btn" data-cid="'+esc(c.user_id)+'" data-cname="'+esc(c.nom||c.email)+'">Gérer</button></div></div>';
+          '<div class="imain"><div class="it1">'+esc(c.nom||c.email)+(pending?' <span class="ag-pend">invitation envoyée</span>':'')+'</div><div class="it2">'+esc(c.email||'')+'</div></div>'+
+          '<div class="iend">'+(pending?'':'<button class="conn-btn" data-cid="'+esc(c.user_id)+'" data-cname="'+esc(c.nom||c.email)+'">Gérer</button>')
+          +(c.kind==='agency'?' <button class="btn-ghost ag-rm" data-ag-revoke="'+esc(c.id)+'">'+(pending?'Annuler':'Retirer')+'</button>':'')+'</div></div>';
       }).join('');
+      $all('#clients-list [data-ag-revoke]').forEach(function(b){ b.addEventListener('click', async function(){
+        if(!confirm('Retirer l’accès à ce client ?')) return;
+        try{ await mcdAgencyPost({action:'revoke',id:b.getAttribute('data-ag-revoke')}); toast('Accès retiré.'); loadClientsList(); }catch(e){ toast(String(e&&e.message||e),true); }
+      }); });
       $all('#clients-list [data-cid]').forEach(function(b){ b.addEventListener('click', function(){
         actingAs=b.getAttribute('data-cid'); actingName=b.getAttribute('data-cname');
         loadPosts(); loadConnections().then(renderConnexions);
@@ -18708,8 +18722,42 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var r=await fetch(SUPABASE_URL+'/functions/v1/agency-clients?self=1', { headers:await authHeaders() });
       var d=await r.json();
       $('#dele-check').checked = !!(d && d.agency_access);
+      mcdAgencyRenderLinks((d&&d.links)||[]);
     }catch(e){}
   }
+  /* ===== Mode agence : une agence (formule Hyper) gère les réseaux de ses clients, avec leur accord ===== */
+  var MCD_AGENCY_OPEN=false;   // passer à true pour ouvrir le mode agence à la formule Hyper (après le script mode-agence.sql)
+  function mcdAgencyAllowed(){ try{ return !!authUser&&!actingAs&&(marshallStudioIsAdmin()||(MCD_AGENCY_OPEN&&marshallPlan()==='hyper')); }catch(e){ return false; } }
+  async function mcdAgencyPost(body){
+    var r=await fetch(SUPABASE_URL+'/functions/v1/agency-clients',{method:'POST',headers:await authHeaders(),body:JSON.stringify(body)});
+    var d=await r.json().catch(function(){ return {}; });
+    if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
+    if(!r.ok||!d.ok) throw Error((d&&d.error)||('Serveur HTTP '+r.status));
+    return d;
+  }
+  function mcdAgencyRenderLinks(links){
+    var host=$('#dele-toggle'); if(!host||me.isTeam) return;
+    var box=$('#ag-links'); if(!box){ box=document.createElement('div'); box.id='ag-links'; host.parentNode.insertBefore(box,host.nextSibling); }
+    var pend=links.filter(function(l){ return l.status==='pending'; }), act=links.filter(function(l){ return l.status==='active'; });
+    if(!pend.length&&!act.length){ box.innerHTML=''; return; }
+    box.innerHTML=pend.map(function(l){ return '<div class="ag-link ag-new"><div><b>'+esc(l.agency_name||'Une agence')+'</b> souhaite gérer tes réseaux sociaux (composer, programmer et publier pour toi).</div><div class="ag-acts"><button class="conn-btn" data-ag-act="accept" data-id="'+esc(l.id)+'">Accepter</button><button class="btn-ghost" data-ag-act="decline" data-id="'+esc(l.id)+'">Refuser</button></div></div>'; }).join('')
+      +act.map(function(l){ return '<div class="ag-link"><div>✅ <b>'+esc(l.agency_name||'Une agence')+'</b> gère tes réseaux.</div><div class="ag-acts"><button class="btn-ghost" data-ag-act="revoke" data-id="'+esc(l.id)+'">Retirer l’accès</button></div></div>'; }).join('');
+    $all('#ag-links [data-ag-act]').forEach(function(b){ b.addEventListener('click', async function(){
+      var act=b.getAttribute('data-ag-act'); if(act==='revoke'&&!confirm('Retirer l’accès à cette agence ?')) return;
+      b.disabled=true;
+      try{ await mcdAgencyPost({action:act,id:b.getAttribute('data-id')}); toast(act==='accept'?'✅ Agence autorisée.':(act==='decline'?'Invitation refusée.':'Accès retiré.')); loadDelegation(); }
+      catch(e){ b.disabled=false; toast(String(e&&e.message||e),true); }
+    }); });
+  }
+  (function(){ var bt=$('#ag-send'); if(!bt) return; bt.addEventListener('click', async function(){
+    var em=($('#ag-email').value||'').trim(), nm=($('#ag-name').value||'').trim();
+    if(!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(em)){ toast('Adresse e-mail invalide.',true); return; }
+    bt.disabled=true;
+    try{ await mcdAgencyPost({action:'invite',email:em,name:nm,agency_name:(me&&me.nom)||''}); toast('📨 Invitation envoyée : ton client la verra dans son onglet Connexions.'); $('#ag-email').value=''; $('#ag-name').value=''; loadClientsList(); }
+    catch(e){ toast(String(e&&e.message||e),true); }
+    finally{ bt.disabled=false; }
+  }); })();
+  setInterval(function(){ var hcc=$('#hub-card-clients'); if(hcc&&authUser&&!me.isTeam) hcc.style.display=mcdAgencyAllowed()?'flex':'none'; },4000);
   var _deleBox=$('#dele-check'); if(_deleBox) _deleBox.addEventListener('change', async function(){
     var on=this.checked;
     try{
