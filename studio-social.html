@@ -1361,6 +1361,9 @@
   .clp-url{ width:100%; box-sizing:border-box; border:2px solid #efe3d6; border-radius:14px; padding:11px 12px; font:14px 'Fredoka',sans-serif; background:#fffdfb; }
   .clp-url:focus{ outline:none; border-color:#10b981; box-shadow:0 0 0 4px rgba(16,185,129,.12); }
   .clp-root .sai-drop{ min-height:110px; } .clp-root .sai-drop.has-file{ border-style:solid; border-color:#10b981; background:#ecfdf5; }
+  .gj-root .gj-photo{ min-height:120px; } .gj-root .gj-photo img{ max-height:170px; max-width:100%; border-radius:12px; display:block; margin:auto; }
+  .gj-result video{ width:100%; max-height:420px; border-radius:16px; background:#000; display:block; margin-bottom:8px; }
+  .gj-wait{ color:#8a7866!important; font-size:11.5px!important; }
   .clp-rights{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:#5b4a3a; cursor:pointer; margin-top:2px; }
   .clp-rights input{ width:16px; height:16px; accent-color:#10b981; }
   .clp-prog{ display:flex; flex-direction:column; gap:6px; }
@@ -7848,6 +7851,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       testing:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-5 9a2.5 2.5 0 0 0 2.2 3.7h9.6A2.5 2.5 0 0 0 19 17l-5-9V3"/><path d="M8 15h8M9.5 11h5"/></svg>',
       audit:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="11" height="15" rx="2"/><path d="M8 7h5M8 10h5M8 13h3"/><circle cx="16.5" cy="16.5" r="3.5"/><path d="m19 19 2 2"/></svg>',
       nation:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5s1.2-6.1 3.6-8.5Z"/></svg>',
+      genjutsu:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3v4c0 5-3.6 9-8 9s-8-4-8-9z"/><path d="M8.5 11c.6-.7 1.6-.7 2.2 0M13.3 11c.6-.7 1.6-.7 2.2 0M9.5 15c1.4 1 3.6 1 5 0"/></svg>',
       clipper:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></svg>',
       studio:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M3 8l3.5-4.5M9 8l3.5-4.5M15 8l3.5-4.5"/><path d="M10 12.2v4.6l4-2.3-4-2.3Z"/></svg>',
       team:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2.5 20c.5-4 2.5-6 5.5-6s5 2 5.5 6"/><path d="M10.5 20c.5-3.2 2.3-5 5.5-5 3 0 4.8 1.8 5.5 5"/></svg>'
@@ -7863,6 +7867,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         {label:'Expliquer Social Studio',mission:'auto',prompt:'Explique-moi simplement comment utiliser Social Studio pour en utilisant les informations disponibles sur ma marque.'},
         {label:'Valider une réponse finale',mission:'auto',prompt:'Contrôle, améliore et valide cette réponse avant envoi en utilisant les informations disponibles sur ma marque.'}
       ]},
+      genjutsu:{name:'Genjutsu',tag:'Toi dans la vidéo',icon:'🎭',color:'linear-gradient(135deg,#7c3aed,#ec4899)',desc:'Importe une vidéo et une photo : Marshall met la personne de la photo à la place de celle de la vidéo, en gardant ses gestes, ses expressions, la lumière et le décor.',logic:['Ta vidéo + la photo de la personne','Marshall détecte le mouvement et le visage','Donc → la vidéo rejouée avec la nouvelle personne'],actions:[]},
       clipper:{name:'Clippeur',tag:'Clips viraux',icon:'✂️',color:'linear-gradient(135deg,#10b981,#0ea5e9)',desc:'Colle le lien d’une vidéo longue (ou importe-la) : Marshall trouve les meilleurs moments, les recadre en 9:16 sur la personne qui parle, ajoute les sous-titres et note chaque clip.',logic:['Tu donnes ta vidéo longue','Marshall écoute, choisit et recadre','Donc → clips 9:16 classés par score viral'],actions:[]},
       studio:{name:'Studio IA',tag:'Image & vidéo IA',icon:'🎬',color:'linear-gradient(135deg,#8b5cf6,#ec4899)',desc:'Crée une vidéo à partir d’une image, une image à partir d’un texte, ou une vidéo à partir d’un texte. Tu choisis le moteur (Wan 2.2 ou Google Veo) et la qualité.',logic:['Tu choisis le moteur et la qualité','Tu décris ce que tu veux (et l’image de départ)','Donc → image ou vidéo posée sur un nouveau canva'],actions:[]},
       nation:{name:'Journaliste Pays',tag:'Infos en temps réel',icon:'🌍',color:'linear-gradient(135deg,#1fb6ff,#0b6fd6)',desc:'Cherche en temps réel toutes les infos sur un pays (actualités, économie, tendances réseaux, fiche pays) et te garde les 3 plus importantes, avec les sources.',logic:['Tu donnes un pays','Il cherche sur le web en direct','Donc → 3 infos clés + fiche pays + sources'],actions:[
@@ -8157,7 +8162,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallAgentRightRailInit(){
     var rail=document.getElementById('ed-agent-rail'); if(!rail)return;
-    var data=marshallAgentShowcaseData(),order=['marshall','studio','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
+    var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     rail.innerHTML='<div class="ed-agent-rail-title">Agents IA</div>'+order.map(function(key){var a=data[key];return '<button type="button" class="ed-agent-tool" data-agent-rail="'+key+'" title="'+esc(a.name)+'"><span class="ed-agent-tool-icon" style="background:'+a.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="ed-agent-tool-copy"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></span></button>';}).join('');
     $all('[data-agent-rail]',rail).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-agent-rail')||'marshall';var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected=key;marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();});});
     marshallAgentRightRailSync();
@@ -8546,10 +8551,106 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }catch(e){ C.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Clippeur : '+C.error,false); }catch(x){} }
     finally{ C.busy=false; marshallClipperRefreshResults(); }
   }
+  /* ===== Agent « Genjutsu » : ta photo remplace la personne d'une vidéo (mouvement, expressions et décor gardés) ===== */
+  var MARSHALL_GENJUTSU={file:null,image:'',seconds:'10',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:''};
+  function marshallGjCost(){ return marshallTokenFmt(marshallTokenPrice('genjutsu_second',+MARSHALL_GENJUTSU.seconds||10)); }
+  function marshallGjResultHTML(){
+    var G=MARSHALL_GENJUTSU;
+    if(G.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,G.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(G.msg||'Préparation…')+'</small><small class="gj-wait">Compte environ 20 à 40 min pour 10 s : tu peux continuer à travailler, la vidéo arrivera ici.</small></div>';
+    if(G.error) return '<div class="clp-err">⚠ '+esc(G.error)+'</div>';
+    if(!G.url) return '';
+    return '<div class="gj-result"><video src="'+esc(G.url)+'" controls playsinline></video><div class="clp-acts"><button type="button" data-gj="canvas">🎬 Sur un canva</button><a href="'+esc(G.url)+'" download="genjutsu.mp4" target="_blank" rel="noopener">⬇ Télécharger</a></div></div>';
+  }
+  function marshallGjPanelHTML(prof){
+    var G=MARSHALL_GENJUTSU;
+    var vid='<div class="sai-drop'+(G.file?' has-file':'')+'" data-gj="pickv" tabindex="0" role="button"><div class="sai-drop-empty"><span class="sai-drop-ico">🎬</span>'+(G.file?'<b>'+esc(G.file.name)+'</b><span>'+Math.max(1,Math.round(G.file.size/1048576))+' Mo · clique pour changer</span>':'<b>Ta vidéo</b><span>Une personne bien visible, de face (les 10 premières secondes sont utilisées)</span>')+'</div></div><input type="file" accept="video/*" data-gj-video hidden>';
+    var img='<div class="sai-drop gj-photo'+(G.image?' has-file':'')+'" data-gj="picki" tabindex="0" role="button">'+(G.image?'<img src="'+esc(G.image)+'" alt="">':'<div class="sai-drop-empty"><span class="sai-drop-ico">🧑</span><b>La photo de la personne</b><span>Visage net, de face, bien éclairé (jusqu’à la taille idéalement)</span></div>')+'</div><input type="file" accept="image/*" data-gj-image hidden>';
+    return '<div class="sai-root gj-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('genjutsu')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'
+      +'<div class="sai-lbl">1. La vidéo</div>'+vid
+      +'<div class="sai-lbl">2. Qui apparaît à la place</div>'+img
+      +'<div class="sai-lbl">Durée traitée</div>'+marshallLgToggle('seconds',[{v:'5',label:'5 s',sub:'≈ 20 min'},{v:'10',label:'10 s',sub:'≈ 40 min'}],G.seconds)
+      +'<label class="clp-rights"><input type="checkbox" data-gj-rights'+(G.rights?' checked':'')+'> Cette vidéo m’appartient et la personne de la photo a donné son accord</label>'
+      +'<button type="button" class="sai-go1" data-gj="go"'+(G.busy?' disabled':'')+'><span>🎭 Lancer Genjutsu</span><small>≈ '+marshallGjCost()+' tokens</small></button>'
+      +'<div class="gj-results">'+marshallGjResultHTML()+'</div></div>';
+  }
+  function marshallGenjutsuRender(detail,prof){
+    detail.innerHTML=marshallGjPanelHTML(prof);
+    if(!detail._gjBound){ detail._gjBound=true; marshallGjBind(detail); }
+  }
+  function marshallGjRefresh(){
+    var box=document.querySelector('#marshall-agent-dock-detail .gj-results'); if(box) box.innerHTML=marshallGjResultHTML();
+    var go=document.querySelector('#marshall-agent-dock-detail .gj-root .sai-go1'); if(go) go.disabled=!!MARSHALL_GENJUTSU.busy;
+  }
+  function marshallGjBind(detail){
+    var prof=function(){ return marshallAgentShowcaseData().genjutsu; };
+    var setVideo=function(f){ if(!f||!/^video\//.test(f.type||'')){ toast('Choisis un fichier vidéo.',true); return; } if(f.size>900*1024*1024){ toast('Vidéo trop lourde (900 Mo max).',true); return; } MARSHALL_GENJUTSU.file=f; marshallGenjutsuRender(detail,prof()); };
+    var setImage=function(f){ if(!f||!/^image\//.test(f.type||'')){ toast('Choisis une photo.',true); return; } if(f.size>12*1024*1024){ toast('Photo trop lourde (12 Mo max).',true); return; } var r=new FileReader(); r.onload=function(){ MARSHALL_GENJUTSU.image=r.result; marshallGenjutsuRender(detail,prof()); }; r.readAsDataURL(f); };
+    detail.addEventListener('click',function(e){
+      var root=e.target.closest('.gj-root'); if(!root) return;
+      var G=MARSHALL_GENJUTSU, tb=e.target.closest('.lgt button');
+      if(tb){ var tg=tb.parentNode, k=tg.getAttribute('data-k'), v=tb.getAttribute('data-v'); if(G[k]===v) return; G[k]=v; marshallStudioSlide(tg,v); var go=root.querySelector('.sai-go1 small'); if(go) go.textContent='≈ '+marshallGjCost()+' tokens'; return; }
+      var a=e.target.closest('[data-gj]'); if(!a) return;
+      var act=a.getAttribute('data-gj');
+      if(act==='pickv'){ root.querySelector('[data-gj-video]').click(); return; }
+      if(act==='picki'){ root.querySelector('[data-gj-image]').click(); return; }
+      if(act==='go'){ marshallGenjutsuRun(); return; }
+      if(act==='canvas'&&G.url){ try{ marshallFreshReset(); }catch(x){} marshallVideoToCanvas(G.url,'Genjutsu',{}); toast('🎬 Vidéo posée sur un nouveau canva.'); }
+    });
+    detail.addEventListener('change',function(e){
+      var t=e.target; if(!t.hasAttribute) return;
+      if(t.hasAttribute('data-gj-rights')){ MARSHALL_GENJUTSU.rights=!!t.checked; return; }
+      if(t.hasAttribute('data-gj-video')){ setVideo(t.files&&t.files[0]); return; }
+      if(t.hasAttribute('data-gj-image')){ setImage(t.files&&t.files[0]); }
+    });
+    detail.addEventListener('dragover',function(e){ var z=e.target.closest&&e.target.closest('.gj-root .sai-drop'); if(!z) return; e.preventDefault(); z.classList.add('over'); });
+    detail.addEventListener('dragleave',function(e){ var z=e.target.closest&&e.target.closest('.gj-root .sai-drop'); if(z) z.classList.remove('over'); });
+    detail.addEventListener('drop',function(e){ var z=e.target.closest&&e.target.closest('.gj-root .sai-drop'); if(!z) return; e.preventDefault(); var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(!f) return; if(z.classList.contains('gj-photo')) setImage(f); else setVideo(f); });
+  }
+  async function marshallGenjutsuRun(){
+    var G=MARSHALL_GENJUTSU; if(G.busy) return;
+    if(!authUser){ toast('Connecte-toi pour lancer Genjutsu.',true); return; }
+    if(!G.file){ toast('Importe ta vidéo.',true); return; }
+    if(!G.image){ toast('Ajoute la photo de la personne.',true); return; }
+    if(!G.rights){ toast('Coche « Cette vidéo m’appartient et la personne de la photo a donné son accord ».',true); return; }
+    G.busy=true; G.error=''; G.url=''; G.progress=2; G.msg='Envoi de ta vidéo…'; marshallGjRefresh();
+    try{ marshallAgentDockChatAdd('user','🎭 Genjutsu · '+G.file.name,false); }catch(e){}
+    try{
+      var hd=await authHeaders();
+      var sourceId=await new Promise(function(resolve,reject){
+        var x=new XMLHttpRequest(); x.open('POST',MARSHALL_CREWAI_BASE+'/video/clip/upload');
+        Object.keys(hd).forEach(function(k){ if(k.toLowerCase()!=='content-type') x.setRequestHeader(k,hd[k]); });
+        x.setRequestHeader('Content-Type',G.file.type||'application/octet-stream');
+        x.upload.onprogress=function(ev){ if(ev.lengthComputable){ var pc=Math.round(ev.loaded/ev.total*100); G.progress=Math.max(2,Math.round(pc*0.06)); G.msg='Envoi de ta vidéo… '+pc+' %'; marshallGjRefresh(); } };
+        x.onload=function(){ var d={}; try{ d=JSON.parse(x.responseText||'{}'); }catch(e){} if(x.status>=200&&x.status<300&&d.ok&&d.source_id) resolve(d.source_id); else { if(d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} } reject(Error(d.error||('envoi refusé ('+x.status+')'))); } };
+        x.onerror=function(){ reject(Error('Envoi de la vidéo interrompu.')); };
+        x.send(G.file);
+      });
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,seconds:+G.seconds||10,rights:true})});
+      var d=await r.json().catch(function(){ return {}; });
+      try{ marshallTokensFromResponse(d); }catch(e){}
+      if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
+      if(!r.ok||!d.ok) throw Error(d.error||('Serveur HTTP '+r.status));
+      G.task=d.task_id; try{ marshallTokensRefresh(true); }catch(e){}
+      var started=Date.now();
+      while(Date.now()-started<120*60000){
+        await new Promise(function(res){ setTimeout(res,8000); });
+        var st=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu/'+G.task,{headers:await authHeaders()}).then(function(x){ return x.json(); }).catch(function(){ return null; });
+        if(!st) continue;
+        G.progress=+st.progress||G.progress; G.msg=st.message||G.msg;
+        if(st.failed) throw Error(st.error||'Genjutsu a échoué');
+        if(st.done&&st.video_url){ G.url=st.video_url; break; }
+        marshallGjRefresh();
+      }
+      if(!G.url) throw Error('la génération prend trop de temps, réessaie plus tard.');
+      try{ marshallAgentDockChatAdd('assistant','🎭 Genjutsu terminé : ta vidéo est prête.',true); }catch(e){}
+      toast('🎭 Genjutsu terminé !');
+    }catch(e){ G.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Genjutsu : '+G.error,false); }catch(x){} }
+    finally{ G.busy=false; marshallGjRefresh(); }
+  }
   function marshallAgentDockRender(forceKey){
     var dock=marshallAgentDockEnsure(); if(!dock) return;
     var grid=dock.querySelector('#marshall-agent-dock-grid'),detail=dock.querySelector('#marshall-agent-dock-detail'); if(!detail) return;
-    var data=marshallAgentShowcaseData(),order=['marshall','studio','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
+    var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     var selected=(forceKey&&data[forceKey])?forceKey:(window.marshallAgentDockSelected||'marshall');
     if(!data[selected]||selected==='auto') selected='marshall';
     window.marshallAgentDockSelected=selected;
@@ -8558,6 +8659,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       $all('[data-madock-agent]',grid).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-madock-agent')||'marshall'; window.marshallAgentDockSelected=key; marshallAgentDockRender(key); });});
     }
     var prof=data[selected];
+    if(selected==='genjutsu'){ marshallGenjutsuRender(detail,prof); var ctg=dock.querySelector('#marshall-agent-dock-chat-title');if(ctg)ctg.textContent=prof.name; marshallAgentRightRailSync(); return; }
     if(selected==='clipper'){ marshallClipperRender(detail,prof); var ct1=dock.querySelector('#marshall-agent-dock-chat-title');if(ct1)ct1.textContent=prof.name; marshallAgentRightRailSync(); return; }
     if(selected==='studio'){ marshallStudioAgentRender(detail,prof); var ct0=dock.querySelector('#marshall-agent-dock-chat-title');if(ct0)ct0.textContent=prof.name; marshallAgentRightRailSync(); return; }
     detail.innerHTML='\
@@ -10405,7 +10507,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   /* ===== Tokens : 1 € dépensé = 1 500 tokens · 1 500 tokens / jour · admin et commerciaux illimités (contrôlé par le serveur) ===== */
   var marshallTokenState={st:null,at:0,pending:null};
-  var MARSHALL_TOKEN_FALLBACK_PRICES={wan_hd_second:52,wan_second:26,captions:13,voiceover:39,chat:3,qwen_image:13,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
+  var MARSHALL_TOKEN_FALLBACK_PRICES={genjutsu_second:516,wan_hd_second:52,wan_second:26,captions:13,voiceover:39,chat:3,qwen_image:13,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
   function marshallTokenPrice(kind,units){var p=(marshallTokenState.st&&marshallTokenState.st.prices)||MARSHALL_TOKEN_FALLBACK_PRICES;return Math.ceil((p[kind]||MARSHALL_TOKEN_FALLBACK_PRICES[kind]||1)*(units||1));}
   function marshallTokenFmt(n){return Number(n||0).toLocaleString('fr-FR');}
   function marshallTokensUpdate(st){if(st&&typeof st==='object'&&st.limit!=null){marshallTokenState.st=st;marshallTokenState.at=Date.now();try{marshallTokensRender();}catch(e){}try{marshallPlanRender();}catch(e){}}}
