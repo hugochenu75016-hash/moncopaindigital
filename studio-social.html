@@ -8602,7 +8602,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallGjCost(){ return marshallTokenFmt(marshallTokenPrice('genjutsu_second',+MARSHALL_GENJUTSU.seconds||10)); }
   function marshallGjResultHTML(){
     var G=MARSHALL_GENJUTSU;
-    if(G.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,G.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(G.msg||'Préparation…')+'</small><small class="gj-wait">Compte environ 20 à 40 min pour 10 s : tu peux continuer à travailler, la vidéo arrivera ici.</small></div>';
+    if(G.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,G.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(G.msg||'Préparation…')+'</small><small class="gj-wait">Compte environ 12 min pour 5 s et 22 min pour 10 s : tu peux continuer à travailler, la vidéo arrivera ici.</small></div>';
     if(G.error) return '<div class="clp-err">⚠ '+esc(G.error)+'</div>';
     if(!G.url) return '';
     return '<div class="gj-result"><video src="'+esc(G.url)+'" controls playsinline></video><div class="clp-acts"><button type="button" data-gj="canvas">🎬 Sur un canva</button><a href="'+esc(G.url)+'" download="genjutsu.mp4" target="_blank" rel="noopener">⬇ Télécharger</a></div></div>';
@@ -8614,7 +8614,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     return '<div class="sai-root gj-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('genjutsu')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'
       +'<div class="sai-lbl">1. La vidéo</div>'+vid
       +'<div class="sai-lbl">2. Qui apparaît à la place</div>'+img
-      +'<div class="sai-lbl">Durée traitée</div>'+marshallLgToggle('seconds',[{v:'5',label:'5 s',sub:'≈ 20 min'},{v:'10',label:'10 s',sub:'≈ 40 min'}],G.seconds)
+      +'<div class="sai-lbl">Durée traitée</div>'+marshallLgToggle('seconds',[{v:'5',label:'5 s',sub:'≈ 12 min'},{v:'10',label:'10 s',sub:'≈ 22 min'}],G.seconds)
       +'<label class="clp-rights"><input type="checkbox" data-gj-rights'+(G.rights?' checked':'')+'> Cette vidéo m’appartient et la personne de la photo a donné son accord</label>'
       +'<button type="button" class="sai-go1" data-gj="go"'+(G.busy?' disabled':'')+'><span>🎭 Lancer Genjutsu</span><small>≈ '+marshallGjCost()+' tokens</small></button>'
       +'<div class="gj-results">'+marshallGjResultHTML()+'</div></div>';
