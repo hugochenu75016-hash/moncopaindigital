@@ -1383,6 +1383,9 @@
   .clp-url{ width:100%; box-sizing:border-box; border:2px solid #efe3d6; border-radius:14px; padding:11px 12px; font:14px 'Fredoka',sans-serif; background:#fffdfb; }
   .clp-url:focus{ outline:none; border-color:#10b981; box-shadow:0 0 0 4px rgba(16,185,129,.12); }
   .clp-root .sai-drop{ min-height:110px; } .clp-root .sai-drop.has-file{ border-style:solid; border-color:#10b981; background:#ecfdf5; }
+  .av-root .av-text{ width:100%; box-sizing:border-box; border:1.5px solid rgba(0,0,0,.1); border-radius:12px; padding:10px 12px; font:inherit; font-size:13px; resize:vertical; min-height:84px; background:#fff; }
+  .av-root .av-text:focus{ outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
+  .av-root .av-count{ display:block; margin-top:4px; font-size:11px; color:#7a6a5a; }
   .gj-root .gj-angles{ display:flex; flex-wrap:wrap; gap:8px; }
   .gj-root .gj-angle{ position:relative; width:64px; height:64px; border-radius:12px; overflow:hidden; border:1.5px solid rgba(0,0,0,.1); background:#fff; padding:0; }
   .gj-root .gj-angle img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -7921,6 +7924,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       testing:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v5l-5 9a2.5 2.5 0 0 0 2.2 3.7h9.6A2.5 2.5 0 0 0 19 17l-5-9V3"/><path d="M8 15h8M9.5 11h5"/></svg>',
       audit:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="11" height="15" rx="2"/><path d="M8 7h5M8 10h5M8 13h3"/><circle cx="16.5" cy="16.5" r="3.5"/><path d="m19 19 2 2"/></svg>',
       nation:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.6 5.2 3.6 8.5s-1.2 6.1-3.6 8.5c-2.4-2.4-3.6-5.2-3.6-8.5s1.2-6.1 3.6-8.5Z"/></svg>',
+      avatar:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="8" r="4"/><path d="M3 20c0-3.9 3.1-7 7-7 1.6 0 3 .5 4.2 1.4"/><path d="M17 12.5c1.2.9 1.2 3.1 0 4M19.5 10.5c2.3 2 2.3 6 0 8"/></svg>',
       genjutsu:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3v4c0 5-3.6 9-8 9s-8-4-8-9z"/><path d="M8.5 11c.6-.7 1.6-.7 2.2 0M13.3 11c.6-.7 1.6-.7 2.2 0M9.5 15c1.4 1 3.6 1 5 0"/></svg>',
       clipper:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></svg>',
       studio:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M3 8l3.5-4.5M9 8l3.5-4.5M15 8l3.5-4.5"/><path d="M10 12.2v4.6l4-2.3-4-2.3Z"/></svg>',
@@ -7937,6 +7941,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         {label:'Expliquer Social Studio',mission:'auto',prompt:'Explique-moi simplement comment utiliser Social Studio pour en utilisant les informations disponibles sur ma marque.'},
         {label:'Valider une réponse finale',mission:'auto',prompt:'Contrôle, améliore et valide cette réponse avant envoi en utilisant les informations disponibles sur ma marque.'}
       ]},
+      avatar:{name:'Avatar parlant',tag:'Ta photo qui parle',icon:'🗣️',color:'linear-gradient(135deg,#0ea5e9,#6366f1)',desc:'Une photo + un texte : la personne parle face caméra, lèvres synchronisées, avec la voix de Marshall ou ta propre voix (clonée avec ton accord).',logic:['Ta photo + ton texte (ou un audio)','Marshall prépare la voix puis anime le visage','Donc → une vidéo où tu parles face caméra'],actions:[]},
       genjutsu:{name:'Genjutsu',tag:'Toi dans la vidéo',icon:'🎭',color:'linear-gradient(135deg,#7c3aed,#ec4899)',desc:'Importe une vidéo et une photo : Marshall met la personne de la photo à la place de celle de la vidéo, en gardant ses gestes, ses expressions, la lumière et le décor.',logic:['Ta vidéo + la photo de la personne','Marshall détecte le mouvement et le visage','Donc → la vidéo rejouée avec la nouvelle personne'],actions:[]},
       clipper:{name:'Clippeur',tag:'Clips viraux',icon:'✂️',color:'linear-gradient(135deg,#10b981,#0ea5e9)',desc:'Colle le lien d’une vidéo longue (ou importe-la) : Marshall trouve les meilleurs moments, les recadre en 9:16 sur la personne qui parle, ajoute les sous-titres et note chaque clip.',logic:['Tu donnes ta vidéo longue','Marshall écoute, choisit et recadre','Donc → clips 9:16 classés par score viral'],actions:[]},
       studio:{name:'Studio IA',tag:'Image & vidéo IA',icon:'🎬',color:'linear-gradient(135deg,#8b5cf6,#ec4899)',desc:'Crée une vidéo à partir d’une image, une image à partir d’un texte, ou une vidéo à partir d’un texte. Tu choisis le moteur (Wan 2.2 ou Google Veo) et la qualité.',logic:['Tu choisis le moteur et la qualité','Tu décris ce que tu veux (et l’image de départ)','Donc → image ou vidéo posée sur un nouveau canva'],actions:[]},
@@ -8241,7 +8246,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallAgentRightRailInit(){
     var rail=document.getElementById('ed-agent-rail'); if(!rail)return;
-    var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
+    var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','avatar','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     rail.innerHTML='<div class="ed-agent-rail-title">Agents IA</div>'+order.map(function(key){var a=data[key];var lk=marshallAgentLocked(key);return '<button type="button" class="ed-agent-tool'+(lk?' locked':'')+'" data-agent-rail="'+key+'" title="'+esc(lk?a.name+' · Bientôt disponible':a.name)+'"'+(lk?' aria-disabled="true"':'')+'>'+(lk?MARSHALL_LOCK_HTML:'')+'<span class="ed-agent-tool-icon" style="background:'+a.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="ed-agent-tool-copy"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></span></button>';}).join('');
     $all('[data-agent-rail]',rail).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-agent-rail')||'marshall';if(marshallAgentLocked(key)){toast('🔒 '+((marshallAgentShowcaseData()[key]||{}).name||'Cet agent')+' : bientôt disponible.');return;}var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected=key;marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();});});
     marshallAgentRightRailSync();
@@ -8750,10 +8755,120 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }catch(e){ G.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Genjutsu : '+G.error,false); }catch(x){} }
     finally{ G.busy=false; marshallGjRefresh(); }
   }
+  /* ===== Agent « Avatar parlant » : photo + texte (voix Marshall ou clonée) ou audio → la personne parle face caméra ===== */
+  var MARSHALL_AVATAR={image:'',vmode:'marshall',voice:'femme',sample:'',sampleName:'',audio:'',audioName:'',audioSec:0,text:'',hd:false,rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:''};
+  function marshallAvSeconds(){ var A=MARSHALL_AVATAR; if(A.vmode==='audio') return Math.max(2,Math.min(60,Math.round(A.audioSec||0)||20)); var w=(A.text.match(/[\wÀ-ÿ’']+/g)||[]).length; return Math.max(2,Math.min(60,Math.round(w/2.6+1))); }
+  function marshallAvCost(){ return marshallTokenFmt(marshallTokenPrice('avatar_second',marshallAvSeconds())); }
+  function marshallAvResultHTML(){
+    var A=MARSHALL_AVATAR;
+    if(A.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,A.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(A.msg||'Préparation…')+'</small><small class="gj-wait">Compte quelques minutes : tu peux continuer à travailler, la vidéo arrivera ici.</small></div>';
+    if(A.error) return '<div class="clp-err">⚠ '+esc(A.error)+'</div>';
+    if(!A.url) return '';
+    return '<div class="gj-result"><video src="'+esc(A.url)+'" controls playsinline></video><div class="clp-acts"><button type="button" data-av="canvas">🎬 Sur un canva</button><a href="'+esc(A.url)+'" download="avatar-parlant.mp4" target="_blank" rel="noopener">⬇ Télécharger</a></div></div>';
+  }
+  function marshallAvPanelHTML(prof){
+    var A=MARSHALL_AVATAR;
+    var img='<div class="sai-drop gj-photo'+(A.image?' has-file':'')+'" data-av="picki" tabindex="0" role="button">'+(A.image?'<img src="'+esc(A.image)+'" alt="">':'<div class="sai-drop-empty"><span class="sai-drop-ico">🧑</span><b>La photo de la personne</b><span>Visage net, de face, épaules visibles, bien éclairé</span></div>')+'</div><input type="file" accept="image/*" data-av-image hidden>';
+    var voix='';
+    if(A.vmode==='marshall') voix='<div class="sai-lbl">Voix</div>'+marshallLgToggle('voice',[{v:'femme',label:'Femme'},{v:'femme_douce',label:'Femme douce'},{v:'homme',label:'Homme'},{v:'homme_dynamique',label:'Homme dynamique'}],A.voice);
+    if(A.vmode==='clone') voix='<div class="sai-drop'+(A.sample?' has-file':'')+'" data-av="picks" tabindex="0" role="button"><div class="sai-drop-empty"><span class="sai-drop-ico">🎙️</span>'+(A.sample?'<b>'+esc(A.sampleName)+'</b><span>clique pour changer</span>':'<b>Un extrait de ta voix</b><span>10 à 30 s, une seule personne, sans musique (mémo vocal, vidéo…)</span>')+'</div></div><input type="file" accept="audio/*,video/*" data-av-sample hidden>';
+    if(A.vmode==='audio') voix='<div class="sai-drop'+(A.audio?' has-file':'')+'" data-av="picka" tabindex="0" role="button"><div class="sai-drop-empty"><span class="sai-drop-ico">🎧</span>'+(A.audio?'<b>'+esc(A.audioName)+'</b><span>'+(A.audioSec?Math.round(A.audioSec)+' s · ':'')+'clique pour changer</span>':'<b>Le fichier audio</b><span>Ce que la personne dit (60 s max)</span>')+'</div></div><input type="file" accept="audio/*,video/*" data-av-audio hidden>';
+    var texte=A.vmode==='audio'?'':'<div class="sai-lbl">3. Le texte à dire</div><textarea class="av-text" data-av-text rows="4" maxlength="1200" placeholder="Ex. : Bonjour ! Cette semaine, -20 % sur toute la collection d’automne. On vous attend en boutique !">'+esc(A.text)+'</textarea><small class="av-count" data-av-count>≈ '+marshallAvSeconds()+' s de vidéo · 60 s max</small>';
+    return '<div class="sai-root gj-root av-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('avatar')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'
+      +'<div class="sai-lbl">1. La photo</div>'+img
+      +'<div class="sai-lbl">2. La voix</div>'+marshallLgToggle('vmode',[{v:'marshall',label:'Voix Marshall',sub:'prête'},{v:'clone',label:'Ma voix',sub:'clonée'},{v:'audio',label:'Un audio',sub:'importé'}],A.vmode)+voix
+      +texte
+      +'<label class="clp-rights"><input type="checkbox" data-av-hd'+(A.hd?' checked':'')+'> Qualité HD (720p, un peu plus long)</label>'
+      +'<label class="clp-rights"><input type="checkbox" data-av-rights'+(A.rights?' checked':'')+'> La personne de la photo'+(A.vmode==='marshall'?'':' et de la voix')+' a donné son accord</label>'
+      +'<button type="button" class="sai-go1" data-av="go"'+(A.busy?' disabled':'')+'><span>🗣️ Faire parler</span><small>≈ '+marshallAvCost()+' tokens</small></button>'
+      +'<div class="av-results">'+marshallAvResultHTML()+'</div></div>';
+  }
+  function marshallAvatarRender(detail,prof){
+    detail.innerHTML=marshallAvPanelHTML(prof);
+    if(!detail._avBound){ detail._avBound=true; marshallAvBind(detail); }
+  }
+  function marshallAvRefresh(){
+    var box=document.querySelector('#marshall-agent-dock-detail .av-results'); if(box) box.innerHTML=marshallAvResultHTML();
+    var go=document.querySelector('#marshall-agent-dock-detail .av-root .sai-go1'); if(go) go.disabled=!!MARSHALL_AVATAR.busy;
+  }
+  function marshallAvBind(detail){
+    var prof=function(){ return marshallAgentShowcaseData().avatar; };
+    var rerender=function(){ if(detail.querySelector('.av-root')) marshallAvatarRender(detail,prof()); };
+    var readAudio=function(f,kind){
+      if(!f||!/^(audio|video)\//.test(f.type||'')){ toast('Choisis un fichier audio (ou une vidéo).',true); return; }
+      if(f.size>18*1024*1024){ toast('Fichier trop lourd (18 Mo max).',true); return; }
+      var r=new FileReader(); r.onload=function(){
+        if(kind==='sample'){ MARSHALL_AVATAR.sample=r.result; MARSHALL_AVATAR.sampleName=f.name; rerender(); return; }
+        MARSHALL_AVATAR.audio=r.result; MARSHALL_AVATAR.audioName=f.name; MARSHALL_AVATAR.audioSec=0;
+        try{ var m=document.createElement(/^video/.test(f.type)?'video':'audio'); m.preload='metadata'; m.onloadedmetadata=function(){ MARSHALL_AVATAR.audioSec=m.duration||0; if(MARSHALL_AVATAR.audioSec>60.5) toast('Audio de plus de 60 s : seules les 60 premières secondes seront utilisées.'); rerender(); }; m.src=URL.createObjectURL(f); }catch(e){}
+        rerender(); };
+      r.readAsDataURL(f);
+    };
+    detail.addEventListener('click',function(e){
+      var root=e.target.closest('.av-root'); if(!root) return;
+      var A=MARSHALL_AVATAR, tb=e.target.closest('.lgt button');
+      if(tb){ var tg=tb.parentNode, k=tg.getAttribute('data-k'), v=tb.getAttribute('data-v'); if(A[k]===v) return; A[k]=v; if(k==='vmode'){ rerender(); return; } marshallStudioSlide(tg,v); return; }
+      var a=e.target.closest('[data-av]'); if(!a) return;
+      var act=a.getAttribute('data-av');
+      if(act==='picki'){ root.querySelector('[data-av-image]').click(); return; }
+      if(act==='picks'){ root.querySelector('[data-av-sample]').click(); return; }
+      if(act==='picka'){ root.querySelector('[data-av-audio]').click(); return; }
+      if(act==='go'){ marshallAvatarRun(); return; }
+      if(act==='canvas'&&A.url){ try{ marshallFreshReset(); }catch(x){} marshallVideoToCanvas(A.url,'Avatar parlant',{}); toast('🎬 Vidéo posée sur un nouveau canva.'); }
+    });
+    detail.addEventListener('input',function(e){
+      var t=e.target; if(!t.hasAttribute||!t.hasAttribute('data-av-text')) return;
+      MARSHALL_AVATAR.text=t.value;
+      var c=detail.querySelector('[data-av-count]'); if(c) c.textContent='≈ '+marshallAvSeconds()+' s de vidéo · 60 s max';
+      var go=detail.querySelector('.av-root .sai-go1 small'); if(go) go.textContent='≈ '+marshallAvCost()+' tokens';
+    });
+    detail.addEventListener('change',function(e){
+      var t=e.target; if(!t.hasAttribute) return;
+      if(t.hasAttribute('data-av-rights')){ MARSHALL_AVATAR.rights=!!t.checked; return; }
+      if(t.hasAttribute('data-av-hd')){ MARSHALL_AVATAR.hd=!!t.checked; return; }
+      if(t.hasAttribute('data-av-image')){ var f=t.files&&t.files[0]; if(!f||!/^image\//.test(f.type||'')){ toast('Choisis une photo.',true); return; } marshallGjShrink(f).then(function(u){ if(u){ MARSHALL_AVATAR.image=u; rerender(); } }); return; }
+      if(t.hasAttribute('data-av-sample')){ readAudio(t.files&&t.files[0],'sample'); t.value=''; return; }
+      if(t.hasAttribute('data-av-audio')){ readAudio(t.files&&t.files[0],'audio'); t.value=''; }
+    });
+  }
+  async function marshallAvatarRun(){
+    var A=MARSHALL_AVATAR; if(A.busy) return;
+    if(!authUser){ toast('Connecte-toi pour lancer l’avatar parlant.',true); return; }
+    if(!A.image){ toast('Ajoute la photo de la personne.',true); return; }
+    if(A.vmode!=='audio'&&!(A.text||'').trim()){ toast('Écris le texte à faire dire.',true); return; }
+    if(A.vmode==='clone'&&!A.sample){ toast('Ajoute un extrait de ta voix (10 à 30 s).',true); return; }
+    if(A.vmode==='audio'&&!A.audio){ toast('Ajoute le fichier audio.',true); return; }
+    if(!A.rights){ toast('Coche la case d’accord de la personne.',true); return; }
+    A.busy=true; A.error=''; A.url=''; A.progress=2; A.msg='Envoi…'; marshallAvRefresh();
+    try{ marshallAgentDockChatAdd('user','🗣️ Avatar parlant · '+(A.vmode==='audio'?A.audioName:(A.text.slice(0,80)+(A.text.length>80?'…':''))),false); }catch(e){}
+    try{
+      var hd=await authHeaders();
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/avatar',{method:'POST',headers:hd,body:JSON.stringify({image:A.image,text:A.text,voice_mode:A.vmode,voice:A.voice,sample:A.vmode==='clone'?A.sample:'',audio:A.vmode==='audio'?A.audio:'',seconds:marshallAvSeconds(),hd:A.hd,lang:(window.MCD_LANG||'fr'),rights:true})});
+      var d=await r.json().catch(function(){ return {}; });
+      try{ marshallTokensFromResponse(d); }catch(e){}
+      if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
+      if(!r.ok||!d.ok) throw Error(d.error||('Serveur HTTP '+r.status));
+      A.task=d.task_id; try{ marshallTokensRefresh(true); }catch(e){}
+      var started=Date.now();
+      while(Date.now()-started<120*60000){
+        await new Promise(function(res){ setTimeout(res,6000); });
+        var st=await fetch(MARSHALL_CREWAI_BASE+'/video/avatar/'+A.task,{headers:await authHeaders()}).then(function(x){ return x.json(); }).catch(function(){ return null; });
+        if(!st) continue;
+        A.progress=+st.progress||A.progress; A.msg=st.message||A.msg;
+        if(st.failed) throw Error(st.error||'L’avatar parlant a échoué');
+        if(st.done&&st.video_url){ A.url=st.video_url; break; }
+        marshallAvRefresh();
+      }
+      if(!A.url) throw Error('la génération prend trop de temps, réessaie plus tard.');
+      try{ marshallAgentDockChatAdd('assistant','🗣️ Ta vidéo qui parle est prête.',true); }catch(e){}
+      toast('🗣️ Avatar parlant terminé !');
+    }catch(e){ A.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Avatar parlant : '+A.error,false); }catch(x){} }
+    finally{ A.busy=false; marshallAvRefresh(); }
+  }
   function marshallAgentDockRender(forceKey){
     var dock=marshallAgentDockEnsure(); if(!dock) return;
     var grid=dock.querySelector('#marshall-agent-dock-grid'),detail=dock.querySelector('#marshall-agent-dock-detail'); if(!detail) return;
-    var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
+    var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','avatar','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     var selected=(forceKey&&data[forceKey])?forceKey:(window.marshallAgentDockSelected||'marshall');
     if(!data[selected]||selected==='auto'||marshallAgentLocked(selected)) selected='marshall';
     window.marshallAgentDockSelected=selected;
@@ -8762,6 +8877,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       $all('[data-madock-agent]',grid).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-madock-agent')||'marshall';if(marshallAgentLocked(key)){toast('🔒 '+((data[key]||{}).name||'Cet agent')+' : bientôt disponible.');return;} window.marshallAgentDockSelected=key; marshallAgentDockRender(key); });});
     }
     var prof=data[selected];
+    if(selected==='avatar'){ marshallAvatarRender(detail,prof); var cta=dock.querySelector('#marshall-agent-dock-chat-title');if(cta)cta.textContent=prof.name; marshallAgentRightRailSync(); return; }
     if(selected==='genjutsu'){ marshallGenjutsuRender(detail,prof); var ctg=dock.querySelector('#marshall-agent-dock-chat-title');if(ctg)ctg.textContent=prof.name; marshallAgentRightRailSync(); return; }
     if(selected==='clipper'){ marshallClipperRender(detail,prof); var ct1=dock.querySelector('#marshall-agent-dock-chat-title');if(ct1)ct1.textContent=prof.name; marshallAgentRightRailSync(); return; }
     if(selected==='studio'){ marshallStudioAgentRender(detail,prof); var ct0=dock.querySelector('#marshall-agent-dock-chat-title');if(ct0)ct0.textContent=prof.name; marshallAgentRightRailSync(); return; }
@@ -10622,7 +10738,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   /* ===== Tokens : 1 € dépensé = 1 500 tokens · 1 500 tokens / jour · admin et commerciaux illimités (contrôlé par le serveur) ===== */
   var marshallTokenState={st:null,at:0,pending:null};
-  var MARSHALL_TOKEN_FALLBACK_PRICES={genjutsu_second:516,wan_hd_second:52,wan_second:26,captions:13,voiceover:39,chat:3,qwen_image:13,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
+  var MARSHALL_TOKEN_FALLBACK_PRICES={genjutsu_second:516,avatar_second:387,wan_hd_second:52,wan_second:26,captions:13,voiceover:39,chat:3,qwen_image:13,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
   function marshallTokenPrice(kind,units){var p=(marshallTokenState.st&&marshallTokenState.st.prices)||MARSHALL_TOKEN_FALLBACK_PRICES;return Math.ceil((p[kind]||MARSHALL_TOKEN_FALLBACK_PRICES[kind]||1)*(units||1));}
   function marshallTokenFmt(n){return Number(n||0).toLocaleString('fr-FR');}
   function marshallTokensUpdate(st){if(st&&typeof st==='object'&&st.limit!=null){marshallTokenState.st=st;marshallTokenState.at=Date.now();try{marshallTokensRender();}catch(e){}try{marshallPlanRender();}catch(e){}}}
