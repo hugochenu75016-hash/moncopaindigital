@@ -1365,6 +1365,18 @@
   .sai-prompt:focus{ outline:none; border-color:#F3852B; box-shadow:0 0 0 4px rgba(243,133,43,.12); }
   .sai-secs{ display:flex; gap:6px; }
   .sai-secs button{ flex:1; border:2px solid #efe3d6; background:#fff; border-radius:999px; padding:6px 0; font:800 12.5px 'Fredoka',sans-serif; color:#6b5a4a; cursor:pointer; }
+  .sp-review-wrap{ flex:1; min-width:0; }
+  .sp-review{ margin-top:6px; display:flex; flex-direction:column; gap:6px; }
+  .sp-resume{ margin:0; padding:8px 10px; border-radius:10px; background:#fff; border:1px solid #f3e4d3; font-size:12.5px; line-height:1.4; color:#3b2f25; }
+  .sp-review .sp-lbl{ font-size:11px; font-weight:700; color:#7a6a5a; margin-top:2px; }
+  .sp-edit{ width:100%; box-sizing:border-box; border:1.5px solid #f0dcc6; border-radius:10px; padding:8px 10px; font:12px/1.4 ui-monospace,Consolas,monospace; resize:vertical; background:#fff; color:#2b2118; }
+  .sp-edit:focus{ outline:none; border-color:#F3852B; box-shadow:0 0 0 3px rgba(243,133,43,.15); }
+  .sp-hint{ font-size:10.5px; color:#9a8a7a; }
+  .sp-redo{ display:flex; gap:6px; } .sp-redo input{ flex:1; min-width:0; border:1.5px solid #f0dcc6; border-radius:10px; padding:7px 10px; font:inherit; font-size:12px; }
+  .sp-redo button,.sp-acts button{ border:0; border-radius:10px; padding:8px 12px; font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+  .sp-redo button{ background:#fff3e6; color:#b55d14; } .sp-redo button .vp-spin{ width:12px!important; height:12px!important; }
+  .sp-acts{ display:flex; gap:6px; flex-wrap:wrap; } .sp-acts .sp-ok{ flex:1; background:#F3852B; color:#fff; justify-content:center; } .sp-acts .sp-cancel{ background:transparent; color:#7a6a5a; }
+  .sp-redo button:disabled,.sp-acts button:disabled{ opacity:.6; cursor:default; }
   .sai-pipe{ width:100%; display:flex; flex-direction:column; gap:0; padding:10px 12px; border-radius:16px; background:#fffaf5; border:1px solid #f3e4d3; }
   .sp-step{ position:relative; display:flex; gap:10px; padding:6px 0 10px; opacity:.5; }
   .sp-step.run,.sp-step.done{ opacity:1; }
@@ -8331,6 +8343,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallStudioFill(detail){
     var S=MARSHALL_STUDIO, ta=detail.querySelector('.sai-prompt');
     if(ta){ ta.value=S.mode==='t2i'?S.draftI:(S.mode==='i2v'?(S.draftA||''):S.draftV); }
+    if(S.pipe) try{ marshallStudioPipeRender(); }catch(e){}   // relecture ou génération en cours : réaffichée au retour sur le panneau
   }
   function marshallStudioRefresh(detail,animate){
     var host=detail.querySelector('.sai-host'); if(!host) return;
@@ -8411,13 +8424,60 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var segs=(Array.isArray(r.segments)?r.segments:[]).map(function(x){ return String(x||'').trim().slice(0,1100); }).filter(Boolean).slice(0,_nseg);
     return {camera:cam,video_prompt:(segs[0]||vp).slice(0,1100),image_prompt:String(r.image_prompt||vp).trim().slice(0,900),title:String(r.title||'').trim().slice(0,60),segments:_nseg>1?segs:[]};
   }
-  async function marshallHiggsfieldI2V(image,idea,seconds){
+  async function marshallHiggsfieldI2V(image,idea,seconds,note,previous){
     var small=image;
     try{ if(/^blob:/.test(small)) small=await edBlobToDataUrl(await (await fetch(small)).blob()); else if(!/^data:/.test(small)) small=await edBlobToDataUrl(await (await fetch(small)).blob()); small=await edShrinkForUpload(small,768); }catch(e){}
-    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/i2v-prompt',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:small,idea:idea,seconds:seconds})});
+    var r=await fetch(MARSHALL_CREWAI_BASE+'/video/i2v-prompt',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:small,idea:idea,seconds:seconds,note:note||'',previous:previous||''})});
     var d=null; try{ d=await r.json(); }catch(e){}
     if(!r.ok||!d||!d.ok||!d.video_prompt) throw Error((d&&d.error)||('prompt Higgsfield HTTP '+r.status));
-    return {camera:d.camera||'Static',video_prompt:d.video_prompt,title:d.title||'',subject:d.subject||'',segments:Array.isArray(d.segments)?d.segments:[]};
+    return {camera:d.camera||'Static',video_prompt:d.video_prompt,title:d.title||'',subject:d.subject||'',segments:Array.isArray(d.segments)?d.segments:[],resume:d.resume||'',resumes:Array.isArray(d.resumes)?d.resumes:[]};
+  }
+  /* Relecture du prompt Higgsfield avant de lancer (et payer) la vidéo : modifiable à la main ou reformulable avec une consigne */
+  function marshallStudioReviewHTML(P){
+    var hp=P.hp, segs=hp.segments&&hp.segments.length>1?hp.segments:null;
+    var body=segs?segs.map(function(x,i){ return '<label class="sp-lbl">Plan '+(i+1)+(hp.resumes&&hp.resumes[i]?' · '+esc(hp.resumes[i]):'')+'</label><textarea class="sp-edit" data-sp-seg="'+i+'" rows="3">'+esc(x)+'</textarea>'; }).join('')
+      :'<textarea class="sp-edit" data-sp-vp rows="4">'+esc(hp.video_prompt)+'</textarea>';
+    return '<div class="sp-review">'+(hp.resume?'<p class="sp-resume">📝 '+esc(hp.resume)+'</p>':'')
+      +'<span class="sp-cam">🎥 '+esc(hp.camera)+'</span>'+body
+      +'<small class="sp-hint">Prompt en anglais : le modèle vidéo le comprend mieux. Tu peux le modifier directement.</small>'
+      +'<div class="sp-redo"><input type="text" data-sp-note maxlength="300" placeholder="Une retouche ? Ex. : plus lent, zoom arrière, garder le sourire…"><button type="button" data-sp="redo"'+(P.redoing?' disabled':'')+'>'+(P.redoing?'<span class="vp-spin"></span>':'🔄')+' Reformuler</button></div>'
+      +'<div class="sp-acts"><button type="button" class="sp-ok" data-sp="ok"'+(P.redoing?' disabled':'')+'>🎬 Lancer la vidéo</button><button type="button" class="sp-cancel" data-sp="cancel">Annuler</button></div></div>';
+  }
+  function marshallStudioReview(image,idea,hp){
+    var S=MARSHALL_STUDIO;
+    if(!document._spReviewBound){
+      document._spReviewBound=true;
+      document.addEventListener('input',function(e){
+        var P=MARSHALL_STUDIO.pipe, t=e.target; if(!P||!P.review||!t.hasAttribute) return;
+        if(t.hasAttribute('data-sp-vp')) P.hp.video_prompt=t.value;
+        if(t.hasAttribute('data-sp-seg')){ P.hp.segments[+t.getAttribute('data-sp-seg')]=t.value; if(+t.getAttribute('data-sp-seg')===0) P.hp.video_prompt=t.value; }
+      });
+      document.addEventListener('click',async function(e){
+        var b=e.target.closest&&e.target.closest('[data-sp]'); var P=MARSHALL_STUDIO.pipe; if(!b||!P||!P.review) return;
+        var act=b.getAttribute('data-sp'), done=MARSHALL_STUDIO.reviewDone;
+        if(act==='cancel'){ P.review=false; if(done) done(null); return; }
+        if(act==='ok'){
+          var empty=(P.hp.segments&&P.hp.segments.length>1)?P.hp.segments.some(function(x){ return !String(x||'').trim(); }):!String(P.hp.video_prompt||'').trim();
+          if(empty){ toast('Le prompt est vide : écris-le ou reformule.',true); return; }
+          P.review=false; if(done) done(P.hp); return;
+        }
+        if(act==='redo'&&!P.redoing){
+          var inp=document.querySelector('[data-sp-note]'), note=(inp&&inp.value||'').trim();
+          if(!note){ toast('Écris ce que tu veux changer (ex. : plus lent, zoom arrière…).',true); if(inp) inp.focus(); return; }
+          var prev=(P.hp.segments&&P.hp.segments.length>1)?P.hp.segments.map(function(x,i){ return 'Plan '+(i+1)+' : '+x; }).join(' | '):P.hp.video_prompt;
+          P.redoing=true; marshallStudioPipeRender();
+          try{ P.hp=await marshallHiggsfieldI2V(P.image,P.user,MARSHALL_STUDIO.seconds,note,prev); toast('🔄 Nouvelle version prête : relis-la.'); }
+          catch(x){ toast('Reformulation impossible : '+(x&&x.message?x.message:x),true); }
+          finally{ P.redoing=false; marshallStudioPipeRender(); }
+        }
+      });
+    }
+    return new Promise(function(resolve){
+      S.pipe.hp=hp; S.pipe.image=image; S.pipe.review=true; S.pipe.redoing=false;
+      S.reviewDone=function(v){ S.reviewDone=null; resolve(v); };
+      marshallStudioPipeRender();
+      try{ var el=document.getElementById('sai-status'); if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'}); }catch(e){}
+    });
   }
   function marshallStudioPipeRender(){
     var el=document.getElementById('sai-status'), P=MARSHALL_STUDIO.pipe; if(!el) return;
@@ -8426,8 +8486,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var ico=function(n){ return P.step>n?'✓':(P.step===n?'<span class="vp-spin"></span>':n); };
     el.innerHTML='<div class="sai-pipe">'
       +'<div class="sp-step '+st(1)+'"><i>'+ico(1)+'</i><div><b>'+(P.i2v?'Ton image + ton idée':'Ton prompt')+'</b><small>'+esc(String(P.user||(P.i2v?'Mouvement naturel et cinéma':'')).slice(0,140))+'</small></div></div>'
-      +'<div class="sp-step '+st(2)+'"><i>'+ico(2)+'</i><div><b>Prompt Higgsfield</b>'+(P.hp?'<span class="sp-cam">🎥 '+esc(P.hp.camera)+'</span>'+(P.hp.segments&&P.hp.segments.length>1?'<span class="sp-cam sp-n">🎞️ '+P.hp.segments.length+' plans enchaînés</span><ol class="sp-segs">'+P.hp.segments.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ol>':'<small class="sp-hp">'+esc(P.hp.video_prompt)+'</small>'):'<small>Marshall écrit le prompt cinéma…</small>')+'</div></div>'
-      +'<div class="sp-step '+st(3)+'"><i>'+ico(3)+'</i><div><b>Génération vidéo</b><small>'+esc(P.sub||(P.step>=3?'Préparation…':'En attente'))+'</small></div></div>'
+      +(P.review&&P.hp?'<div class="sp-step run"><i>2</i><div class="sp-review-wrap"><b>Prompt Higgsfield · à relire</b>'+marshallStudioReviewHTML(P)+'</div></div>':'<div class="sp-step '+st(2)+'"><i>'+ico(2)+'</i><div><b>Prompt Higgsfield</b>'+(P.hp?'<span class="sp-cam">🎥 '+esc(P.hp.camera)+'</span>'+(P.hp.segments&&P.hp.segments.length>1?'<span class="sp-cam sp-n">🎞️ '+P.hp.segments.length+' plans enchaînés</span><ol class="sp-segs">'+P.hp.segments.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ol>':'<small class="sp-hp">'+esc(P.hp.video_prompt)+'</small>'):'<small>Marshall écrit le prompt cinéma…</small>')+'</div></div>'
+      )+'<div class="sp-step '+st(3)+'"><i>'+ico(3)+'</i><div><b>Génération vidéo</b><small>'+esc(P.sub||(P.step>=3?'Préparation…':'En attente'))+'</small></div></div>'
       +'</div>';
   }
   function marshallStudioStatus(t){
@@ -8498,6 +8558,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(kind==='i2v'){
         S.pipe={step:2,user:prompt,hp:null,sub:'',i2v:true}; marshallStudioPipeRender();
         hp=await marshallHiggsfieldI2V(image,prompt,S.seconds);
+        hp=await marshallStudioReview(image,prompt,hp);
+        if(!hp){ try{ marshallAgentDockChatAdd('assistant','Vidéo annulée : rien n’a été lancé ni facturé.',false); }catch(e){} return; }
         S.pipe.hp=hp; S.pipe.step=3; S.pipe.sub='🎬 Lancement de la vidéo…'; marshallStudioPipeRender();
       }
       if(kind==='t2v'){
