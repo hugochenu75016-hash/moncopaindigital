@@ -714,11 +714,12 @@
   #view-pilote .pl-gen{ display:flex; gap:12px; align-items:center; padding:16px; } #view-pilote .pl-empty{ padding:18px; }
   @media (max-width:900px){ #view-pilote .pl-grid{ grid-template-columns:1fr; } }
   /* Pilote automatique : design pro, icônes cartoon (même style que la barre de navigation) */
-  #view-pilote .plx{ --ink:#2b2118; --mut:#6b5848; --or:#F3852B; --line:#f0e2d2; --soft:#FFF6EC; display:flex; flex-direction:column; gap:16px; color:var(--ink); }
+  #view-pilote .plx{ --ink:#2b2118; --mut:#6b5848; --or:#F3852B; --line:#f0e2d2; --soft:#FFF6EC; display:flex; flex-direction:column; gap:16px; color:var(--ink); padding-top:50px; }
   #view-pilote .plx h1,#view-pilote .plx h2,#view-pilote .plx-go,#view-pilote .plx-more summary{ font-family:Fredoka,system-ui,sans-serif; }
   #view-pilote .plx-i{ width:1.25em; height:1.25em; flex:0 0 auto; vertical-align:-.28em; }
   #view-pilote .plx-hero{ display:flex; align-items:center; gap:18px; padding:18px 22px; border:1px solid #f3dcc4; border-radius:20px; background:linear-gradient(135deg,#FFF6EC 0%,#FFE7D1 100%); }
-  #view-pilote .plx-mascot{ width:84px; height:84px; object-fit:cover; object-position:top; border-radius:50%; background:#fff; border:3px solid #fff; box-shadow:0 6px 16px rgba(243,133,43,.25); flex:0 0 auto; }
+  #view-pilote .plx-mascot{ width:112px; height:112px; border-radius:50%; overflow:hidden; background:#fff; border:4px solid #fff; box-shadow:0 8px 20px rgba(243,133,43,.28); flex:0 0 auto; }
+  #view-pilote .plx-mascot img{ display:block; width:168px; height:168px; max-width:none; margin:-4px 0 0 -28px; }
   #view-pilote .plx-hello{ flex:1; min-width:0; }
   #view-pilote .plx-hello h1{ margin:0 0 4px; font-size:22px; line-height:1.25; font-weight:600; }
   #view-pilote .plx-hello p{ margin:0; font-size:14.5px; line-height:1.5; color:var(--mut); }
@@ -793,7 +794,7 @@
   #view-pilote .plx-btn2{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1.5px solid #f0dcc6; border-radius:999px; background:#fff; padding:6px 14px; font:inherit; font-size:13px; font-weight:600; }
   #view-pilote .plx-btn2:hover{ border-color:#f5b07a; }
   @media (max-width:1000px){ #view-pilote .plx-steps{ grid-template-columns:1fr; } }
-  @media (max-width:640px){ #view-pilote .plx-hero{ flex-wrap:wrap; padding:16px; gap:12px; } #view-pilote .plx-mascot{ width:60px; height:60px; } #view-pilote .plx-hello{ flex:1 1 180px; }
+  @media (max-width:640px){ #view-pilote .plx-hero{ flex-wrap:wrap; padding:16px; gap:12px; } #view-pilote .plx-mascot{ width:72px; height:72px; border-width:3px; } #view-pilote .plx-mascot img{ width:108px; height:108px; margin:-3px 0 0 -18px; } #view-pilote .plx-hello{ flex:1 1 180px; }
     #view-pilote .plx-switch{ width:100%; box-sizing:border-box; } #view-pilote .plx-hello h1{ font-size:19px; } #view-pilote .plx-go{ width:100%; justify-content:center; font-size:17px; padding:13px 20px; } #view-pilote .plx-more-body{ grid-template-columns:1fr; } }
   #view-automations{ overflow:hidden; }
   #view-automations .ap-top{ margin-bottom:10px; } #view-automations .ap-top h1{ font-size:24px; } #view-automations .ap-top .ts{ font-size:12.5px; }
@@ -3852,7 +3853,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       <span>Brouillons</span><span class="badge" id="badge-drafts" style="display:none;">0</span>
     </a>
     <a class="nav-item" data-view="pilote" id="nav-pilote" hidden>
-      <svg class="cartoon-ic" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="3.2" y="4.6" width="17.6" height="15.6" rx="3" fill="#FFD27A"/><path d="M3.2 9.4h17.6" fill="none"/><path d="M8 2.8v3.6M16 2.8v3.6" fill="none"/><path d="M8.2 14.6l2.4 2.4 5-5" fill="none" stroke="#1f7a3e" stroke-width="2"/></g></svg>
+      <svg class="cartoon-ic" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="3.2" y="4.6" width="17.6" height="15.6" rx="3" fill="#E3E8EF"/><path d="M3.2 9.4V7.6a3 3 0 0 1 3-3h11.6a3 3 0 0 1 3 3v1.8z" fill="#AEB9C7"/><path d="M8 2.8v3.6M16 2.8v3.6" fill="none"/><path d="M8.2 14.6l2.4 2.4 5-5" fill="none" stroke="#1f7a3e" stroke-width="2"/></g></svg>
       <span>Pilote</span>
     </a>
     <a class="nav-item" data-view="automations">
@@ -5062,7 +5063,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   async function piloteOpen(){
     var v=$('#view-pilote'); if(!v) return;
-    if(!piloteIsAdmin()){ v.innerHTML='<div class="plx"><section class="plx-hero"><img class="plx-mascot" src="avatarchatbot.png" alt="Marshall"><div class="plx-hello"><h1>Le Pilote automatique arrive bientôt</h1><p>Bientôt, je préparerai <b>tous tes posts de la semaine</b> pendant que tu t’occupes de ton activité.</p></div></section></div>'; return; }
+    if(!piloteIsAdmin()){ v.innerHTML='<div class="plx"><section class="plx-hero"><span class="plx-mascot"><img src="avatarchatbot.png" alt="Marshall"></span><div class="plx-hello"><h1>Le Pilote automatique arrive bientôt</h1><p>Bientôt, je préparerai <b>tous tes posts de la semaine</b> pendant que tu t’occupes de ton activité.</p></div></section></div>'; return; }
     if(!PILOTE.loaded){ v.innerHTML='<div class="plx"><div class="plx-card"><span class="plx-bounce" style="display:inline-flex">'+plxIc('calendar')+'</span><div><b>Ouverture du Pilote…</b></div></div></div>'; await piloteLoad(); }
     piloteRender(); piloteWatch();
   }
@@ -5087,7 +5088,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     sparkle:['<path d="M11 2.8l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2z" fill="#FFE27A"/><path d="M18.4 14.6l.9 2.2 2.2.9-2.2.9-.9 2.2-.9-2.2-2.2-.9 2.2-.9z" fill="#fff"/>',''],
     clock:['<circle cx="12" cy="12" r="8.8" fill="#7FD3FF"/><circle cx="12" cy="12" r="6.2" fill="#fff"/><path d="M12 8.4V12l2.6 1.7" fill="none" stroke-width="1.9"/>',''],
     lock:['<path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke-width="1.9"/><rect x="5" y="10.5" width="14" height="10.5" rx="2.6" fill="#FFD23F"/>','<circle cx="12" cy="15.2" r="1.5" fill="#4a2a10"/><path d="M12 16v2" stroke="#4a2a10" stroke-width="1.6" stroke-linecap="round"/>'],
-    calendar:['<rect x="3.2" y="4.6" width="17.6" height="15.6" rx="3" fill="#FFD27A"/><path d="M3.2 9.4h17.6" fill="none"/><path d="M8 2.8v3.6M16 2.8v3.6" fill="none"/><path d="M8.2 14.6l2.4 2.4 5-5" fill="none" stroke="#1f7a3e" stroke-width="2"/>',''],
+    calendar:['<rect x="3.2" y="4.6" width="17.6" height="15.6" rx="3" fill="#E3E8EF"/><path d="M3.2 9.4V7.6a3 3 0 0 1 3-3h11.6a3 3 0 0 1 3 3v1.8z" fill="#AEB9C7"/><path d="M8 2.8v3.6M16 2.8v3.6" fill="none"/><path d="M8.2 14.6l2.4 2.4 5-5" fill="none" stroke="#1f7a3e" stroke-width="2"/>',''],
     save:['<path d="M5.4 3.4h10.8l3.6 3.6v11.6a2 2 0 0 1-2 2H5.4a2 2 0 0 1-2-2V5.4a2 2 0 0 1 2-2z" fill="#8FBFFF"/><rect x="7.6" y="3.4" width="7.6" height="5" rx="1" fill="#fff"/><rect x="7" y="13" width="10" height="7.6" rx="1.2" fill="#fff"/>',''],
     mailbox:['<path d="M8.6 20v2" fill="none"/><path d="M8.6 5.6h7.8A4.6 4.6 0 0 1 21 10.2V20h-8.4" fill="#5B8DEF"/><path d="M4 10.2a4.6 4.6 0 0 1 9.2 0V20H4z" fill="#8FBFFF"/><path d="M16.4 9.4V3.4h3.4v2.6h-3.4" fill="#FF5A4E"/>','<path d="M6.2 13.4h4.8" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>'],
     pot:['<path d="M4 11h16v5.4a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" fill="#FF8A5B"/><path d="M2.4 11h19.2" fill="none"/><rect x="10" y="8.2" width="4" height="2.8" rx="1" fill="#FFD23F"/>','<path d="M8 6.6c-1-1 1-2 0-3.4M12 6.2c-1-1 1-2 0-3.4M16 6.6c-1-1 1-2 0-3.4" fill="none" stroke="#C9B29C" stroke-width="1.5" stroke-linecap="round"/>'],
@@ -5113,7 +5114,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var tile=function(k,val,ic,t,sub,on,tag){ return '<button type="button" class="plx-tile'+(on?' on':'')+'" data-pl-set="'+k+'" data-v="'+esc(String(val))+'">'+(tag?'<i class="plx-tag">'+tag+'</i>':'')+plxIc(ic)+'<span class="plx-tt"><b>'+t+'</b><small>'+sub+'</small></span></button>'; };
     var manual=c.validation!=='auto';
     v.innerHTML='<div class="plx">'
-      +'<section class="plx-hero"><img class="plx-mascot" src="avatarchatbot.png" alt="Marshall">'
+      +'<section class="plx-hero"><span class="plx-mascot"><img src="avatarchatbot.png" alt="Marshall"></span>'
       +'<div class="plx-hello"><h1>Bonjour'+(prenom?' '+esc(prenom):'')+', je suis Marshall.</h1>'
       +'<p>Je prépare <b>tous tes posts de la semaine</b> : idées, textes, hashtags et visuels. Tu n’as plus qu’à valider.</p></div>'
       +'<label class="plx-switch"><input type="checkbox" data-pl-active'+(c.active?' checked':'')+'><span></span><div><b>'+(c.active?'Activé':'Désactivé')+'</b><em>Chaque semaine, automatiquement</em></div></label></section>'
