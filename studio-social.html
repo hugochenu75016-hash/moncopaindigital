@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<script>try{if(window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true)document.documentElement.setAttribute("data-app","1");}catch(e){}</script>
+<script>try{if(window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true)document.documentElement.setAttribute("data-app","1");if(/[?&]demo=/.test(location.search))document.documentElement.setAttribute("data-demo","1");}catch(e){}</script>
 <meta name="theme-color" content="#f26c00">
 <script>
 (function(){
@@ -3144,7 +3144,19 @@ html body #pub-step .pub-ai-actions button{cursor:pointer;border:2px solid #F1E0
 html body #pub-step .pub-ai-actions button:hover{border-color:#F3852B;color:#C2540F}
 
 #mcd-mobile-lock{display:none}
-html[data-app="1"] #mcd-mobile-lock{display:none!important}
+html[data-app="1"] #mcd-mobile-lock,html[data-demo="1"] #mcd-mobile-lock{display:none!important}
+/* Mobile : l'accueil laisse la place à la barre de navigation du bas (elle recouvrait la rangée des réseaux) */
+@media (max-width:760px){ html body #hub{ padding-bottom:calc(112px + env(safe-area-inset-bottom))!important; } }
+/* Mobile, dans le Studio : la pastille « Démo » passe en bas à gauche (en haut, elle cachait les boutons de l'en-tête) */
+@media (max-width:600px){
+  html body:has(#app.show) #mcd-demo-bar{ top:auto!important; bottom:calc(16px + env(safe-area-inset-bottom))!important; left:12px!important; transform:none!important; max-width:calc(100% - 160px)!important; }
+  html body:has(#app.show) #mcd-demo-bar > :not(.dm-short):not(#mcd-demo-signup){ display:none!important; }
+}
+/* Mobile : « Partager » en icône seule, pour que toutes les actions tiennent sur une ligne (le bouton de téléchargement recouvrait l'onglet Composer) */
+@media (max-width:600px){
+  html body #app .hdr-actions #hdr-share > span{ display:none!important; }
+  html body #app .hdr-actions #hdr-share{ width:36px!important; min-width:36px!important; padding:0!important; justify-content:center!important; }
+}
 @media (max-width:760px){
   #mcd-mobile-lock{display:flex;position:fixed;inset:0;z-index:2147483600;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:radial-gradient(circle at 50% 35%,#FFA24C 0%,#F3852B 45%,#E0660D 100%);color:#fff;text-align:center;overflow:hidden}
   #mcd-mobile-lock::before{content:"";position:absolute;inset:-40%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.07) 0 10deg,transparent 10deg 20deg);animation:mmlSpin 40s linear infinite}
@@ -3152,6 +3164,13 @@ html[data-app="1"] #mcd-mobile-lock{display:none!important}
   #mcd-mobile-lock .mml-lock{width:min(58vw,220px);height:auto;filter:drop-shadow(0 10px 0 rgba(120,50,0,.25)) drop-shadow(0 18px 30px rgba(120,50,0,.3));animation:mmlBounce 2.4s cubic-bezier(.34,1.56,.64,1) infinite;transform-origin:50% 80%}
   #mcd-mobile-lock h1{margin:26px 0 10px;font:800 27px/1.15 'Baloo 2','Fredoka',sans-serif;text-shadow:0 3px 0 rgba(150,60,0,.35)}
   #mcd-mobile-lock p{margin:0 0 24px;font:600 15px/1.5 'Nunito','Helvetica Neue',Arial,sans-serif;opacity:.95}
+  #mcd-mobile-lock .mml-acts{display:flex;flex-direction:column;align-items:center;gap:12px}
+  #mcd-mobile-lock .mml-btn.mml-demo{background:rgba(255,255,255,.18);color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.85)}
+  #mcd-mobile-lock button.mml-btn{border:0;cursor:pointer}
+  #mcd-mobile-lock .mml-back{color:#fff;opacity:.9;font:700 14px 'Nunito',Arial,sans-serif;text-decoration:underline}
+  #mcd-mobile-lock .mml-steps{margin:-8px 0 20px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.16);font:700 14px/1.5 'Nunito',Arial,sans-serif;text-align:left}
+  #mcd-mobile-lock .mml-steps:empty{display:none}
+  #mcd-mobile-lock .mml-steps b{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#fff;color:#E0660D;margin-right:8px;font-size:13px}
   #mcd-mobile-lock .mml-btn{display:inline-block;background:#fff;color:#E0660D;text-decoration:none;font:800 16px/1 'Baloo 2','Fredoka',sans-serif;padding:14px 24px;border-radius:999px;box-shadow:0 4px 0 rgba(150,60,0,.35)}
   html body.mml-on{overflow:hidden!important}
 }
@@ -3227,6 +3246,9 @@ html body #auth .auth-card .auth-ok{color:#1f7a45!important}
 html body #auth .auth-card :is(.au-company,.otp-box,.au-note){background:rgba(255,255,255,.95)!important;color:#3a2210!important}
 html body #auth .auth-card :is(.au-company,.au-note) *{color:#3a2210!important}
 html body #auth .auth-card a{color:#fff!important}
+html body #auth .auth-card a#li-demo.au-demo{display:flex!important;flex-direction:column;align-items:center;gap:2px;margin:14px 0 4px;padding:11px 14px;border-radius:14px;border:2px solid rgba(255,255,255,.9);background:rgba(255,255,255,.14);text-decoration:none!important;font:700 15px/1.2 Fredoka,system-ui,sans-serif;transition:background .15s,transform .15s}
+html body #auth .auth-card a#li-demo.au-demo small{font-weight:600;font-size:12px;opacity:.9;text-decoration:none}
+html body #auth .auth-card a#li-demo.au-demo:hover,html body #auth .auth-card a#li-demo.au-demo:focus-visible{background:rgba(255,255,255,.26);transform:translateY(-1px)}
 html body #auth .auth-card :is(.au-help,.au-ok,.au-otp-head,.au-otp-head *){color:#fff!important;opacity:.95}
 html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500!important}
 </style>
@@ -3245,9 +3267,28 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     </svg>
     <h1 id="mml-title">Studio Social s’ouvre en app sur mobile</h1>
     <p>Ajoute Studio Social sur ton écran d’accueil, puis ouvre-le comme une application pour créer tes stories, posts et vidéos avec Marshall.</p>
-    <a class="mml-btn" href="index.html">← Retour à l’accueil</a>
+    <div class="mml-steps" id="mml-steps"></div>
+    <div class="mml-acts">
+      <button type="button" class="mml-btn mml-install" id="mml-install" hidden>📲 Installer l’application</button>
+      <a class="mml-btn mml-demo" href="?demo=complet">👀 Essayer la démo, sans compte</a>
+      <a class="mml-back" href="index.html">← Retour à l’accueil</a>
+    </div>
   </div>
 </div>
+<script>
+/* Écran mobile : instructions d'installation selon l'appareil + bouton « Installer » quand Android le permet */
+(function(){
+  var ua=navigator.userAgent, ios=/iPhone|iPad|iPod/i.test(ua), steps=document.getElementById('mml-steps'), btn=document.getElementById('mml-install');
+  if(steps){
+    steps.innerHTML=ios
+      ?'<div><b>1</b>Touche <strong>Partager</strong> (le carré avec la flèche) en bas de Safari</div><div><b>2</b>Choisis <strong>« Sur l’écran d’accueil »</strong></div><div><b>3</b>Ouvre Studio Social depuis ta nouvelle icône</div>'
+      :'<div><b>1</b>Touche <strong>Installer l’application</strong> ci-dessous (ou le menu ⋮ › « Installer l’appli »)</div><div><b>2</b>Ouvre Studio Social depuis ta nouvelle icône</div>';
+  }
+  var evt=null;
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); evt=e; if(btn) btn.hidden=false; });
+  if(btn) btn.addEventListener('click',function(){ if(!evt) return; evt.prompt(); evt.userChoice.finally(function(){ evt=null; btn.hidden=true; }); });
+})();
+</script>
 <div id="door-tx" class="loading" aria-hidden="true">
   <div class="door l"></div>
   <div class="door r"></div>
@@ -18200,6 +18241,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       ['#️⃣','Groupes de hashtags','Enregistre tes hashtags et réutilise-les en un clic.',function(){mcdGoView('composer');}],
       ['♻️','Ton travail est sauvegardé','Légende et canvas récupérables après une fermeture accidentelle.',null]
     ];
+    // Écran tactile sans clavier : la palette Ctrl/⌘ + K n'a pas de sens
+    try{ if(matchMedia('(hover: none) and (pointer: coarse)').matches) F=F.filter(function(f){ return f[1]!=='Palette de commandes'; }); }catch(e){}
     var ov=document.createElement('div');ov.id='mcd-wn';
     ov.innerHTML='<div class="wn-box" role="dialog" aria-modal="true" aria-labelledby="wn-t"><div class="wn-head"><h3 id="wn-t">✨ Quoi de neuf dans Studio Social</h3><button type="button" class="wn-x" aria-label="Fermer">✕</button></div><div class="wn-grid">'
       +F.map(function(f,i){return '<div class="wn-c"><span class="wn-ic" aria-hidden="true">'+f[0]+'</span><b>'+esc(f[1])+'</b><small>'+esc(f[2])+'</small>'+(f[3]?'<button type="button" data-wn="'+i+'">Essayer</button>':'')+'</div>';}).join('')
