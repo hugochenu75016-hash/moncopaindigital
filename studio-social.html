@@ -838,6 +838,15 @@
   .ed-rail{ position:fixed; left:16px; top:50%; transform:translateY(-50%); z-index:65; display:flex; flex-direction:column; gap:8px; width:76px; }
   .ed-agent-rail{position:fixed;right:14px;top:96px;transform:none;z-index:5000;display:flex!important;visibility:visible!important;opacity:1!important;flex-direction:column;gap:8px;width:146px;max-height:calc(100vh - 118px);padding:10px 8px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;pointer-events:auto;background:rgba(255,250,244,.82);border:1px solid rgba(120,60,0,.10);border-radius:24px;box-shadow:0 18px 38px rgba(72,43,10,.14);backdrop-filter:blur(12px)}
   .ed-agent-rail::-webkit-scrollbar{display:none}
+  .ed-agent-tool.locked,.madock-pill.locked{ position:relative; cursor:not-allowed; overflow:hidden; }
+  .ed-agent-tool.locked > :not(.agent-lock),.madock-pill.locked > :not(.agent-lock){ filter:blur(1.6px) grayscale(.8); opacity:.55; }
+  .agent-lock{ position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; gap:6px; border-radius:inherit; pointer-events:none;
+    background:linear-gradient(135deg,rgba(200,48,48,.22),rgba(110,110,118,.30)); backdrop-filter:blur(1.5px); }
+  .agent-lock i{ font-style:normal; font-size:15px; filter:drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
+  .agent-lock em{ position:absolute; font:800 10.5px/1.1 'Fredoka',sans-serif; font-style:normal; color:#fff; background:rgba(150,30,30,.85); padding:4px 8px; border-radius:999px;
+    opacity:0; transform:translateY(4px); transition:opacity .18s, transform .18s; white-space:nowrap; }
+  .ed-agent-tool.locked:hover .agent-lock em,.madock-pill.locked:hover .agent-lock em{ opacity:1; transform:none; }
+  .ed-agent-tool.locked:hover .agent-lock i,.madock-pill.locked:hover .agent-lock i{ display:none; }
   .ed-agent-tool{appearance:none;width:100%;min-height:52px;padding:7px 8px;border:1px solid rgba(120,60,0,.13);border-radius:16px;background:#fff7ed;color:#754b12;box-shadow:0 6px 14px rgba(104,61,13,.08);display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:8px;cursor:pointer;text-align:left;transition:transform .16s ease,background .16s ease,border-color .16s ease,box-shadow .16s ease}
   .ed-agent-tool:hover{transform:translateX(-3px);background:#ffe9ce;border-color:#efb26b;box-shadow:0 10px 22px rgba(104,61,13,.15)}
   .ed-agent-tool.active{background:linear-gradient(135deg,#fff5e8,#ffe4c2);border-color:#f3852b;box-shadow:0 0 0 2px rgba(243,133,43,.12),0 10px 24px rgba(104,61,13,.16)}
@@ -8155,6 +8164,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(typeof cb==='function')cb();
   }
 
+  /* Agents verrouillés (« Bientôt disponible ») : tout sauf Marshall pour les clients ; tout reste ouvert pour l'admin. */
+  function marshallAgentLocked(key){
+    if(key==='marshall') return false;
+    var em=String((authUser&&authUser.email)||'').toLowerCase();
+    if(ADMIN_EMAILS.indexOf(em)!==-1) return false;
+    try{ if(marshallStudioIsAdmin()) return false; }catch(e){}
+    return true;
+  }
+  var MARSHALL_LOCK_HTML='<span class="agent-lock" aria-hidden="true"><i>🔒</i><em>Bientôt disponible</em></span>';
   function marshallAgentRightRailSync(){
     var rail=document.getElementById('ed-agent-rail'); if(!rail)return;
     var selected=window.marshallAgentDockSelected||'marshall';
@@ -8163,8 +8181,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallAgentRightRailInit(){
     var rail=document.getElementById('ed-agent-rail'); if(!rail)return;
     var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
-    rail.innerHTML='<div class="ed-agent-rail-title">Agents IA</div>'+order.map(function(key){var a=data[key];return '<button type="button" class="ed-agent-tool" data-agent-rail="'+key+'" title="'+esc(a.name)+'"><span class="ed-agent-tool-icon" style="background:'+a.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="ed-agent-tool-copy"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></span></button>';}).join('');
-    $all('[data-agent-rail]',rail).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-agent-rail')||'marshall';var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected=key;marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();});});
+    rail.innerHTML='<div class="ed-agent-rail-title">Agents IA</div>'+order.map(function(key){var a=data[key];var lk=marshallAgentLocked(key);return '<button type="button" class="ed-agent-tool'+(lk?' locked':'')+'" data-agent-rail="'+key+'" title="'+esc(lk?a.name+' · Bientôt disponible':a.name)+'"'+(lk?' aria-disabled="true"':'')+'>'+(lk?MARSHALL_LOCK_HTML:'')+'<span class="ed-agent-tool-icon" style="background:'+a.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="ed-agent-tool-copy"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></span></button>';}).join('');
+    $all('[data-agent-rail]',rail).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-agent-rail')||'marshall';if(marshallAgentLocked(key)){toast('🔒 '+((marshallAgentShowcaseData()[key]||{}).name||'Cet agent')+' : bientôt disponible.');return;}var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected=key;marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();});});
     marshallAgentRightRailSync();
   }
   function marshallAgentRailHardBind(){
@@ -8174,6 +8192,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(btn.getAttribute('data-hard-bound')==='1')return;btn.setAttribute('data-hard-bound','1');
       btn.addEventListener('click',function(){
         var key=this.getAttribute('data-agent-rail')||'marshall';
+        if(marshallAgentLocked(key)) return;
         try{window.marshallAgentDockSelected=key;var dock=marshallAgentDockEnsure();marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();}catch(e){console.warn('Agent rail click',e);}
       });
     });
@@ -8652,11 +8671,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var grid=dock.querySelector('#marshall-agent-dock-grid'),detail=dock.querySelector('#marshall-agent-dock-detail'); if(!detail) return;
     var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     var selected=(forceKey&&data[forceKey])?forceKey:(window.marshallAgentDockSelected||'marshall');
-    if(!data[selected]||selected==='auto') selected='marshall';
+    if(!data[selected]||selected==='auto'||marshallAgentLocked(selected)) selected='marshall';
     window.marshallAgentDockSelected=selected;
     if(grid){
-      grid.innerHTML=order.map(function(key){var p=data[key];return '<button type="button" class="madock-pill '+(selected===key?'active':'')+'" data-madock-agent="'+key+'"><span class="madock-pill-icon" style="background:'+p.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="madock-pill-copy"><b>'+esc(p.name)+'</b><small>'+esc(p.tag)+'</small></span><span class="madock-pill-chevron">›</span></button>';}).join('');
-      $all('[data-madock-agent]',grid).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-madock-agent')||'marshall'; window.marshallAgentDockSelected=key; marshallAgentDockRender(key); });});
+      grid.innerHTML=order.map(function(key){var p=data[key],lk=marshallAgentLocked(key);return '<button type="button" class="madock-pill '+(selected===key?'active':'')+(lk?' locked':'')+'" data-madock-agent="'+key+'"'+(lk?' title="Bientôt disponible" aria-disabled="true"':'')+'>'+(lk?MARSHALL_LOCK_HTML:'')+'<span class="madock-pill-icon" style="background:'+p.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="madock-pill-copy"><b>'+esc(p.name)+'</b><small>'+esc(p.tag)+'</small></span><span class="madock-pill-chevron">›</span></button>';}).join('');
+      $all('[data-madock-agent]',grid).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-madock-agent')||'marshall';if(marshallAgentLocked(key)){toast('🔒 '+((data[key]||{}).name||'Cet agent')+' : bientôt disponible.');return;} window.marshallAgentDockSelected=key; marshallAgentDockRender(key); });});
     }
     var prof=data[selected];
     if(selected==='genjutsu'){ marshallGenjutsuRender(detail,prof); var ctg=dock.querySelector('#marshall-agent-dock-chat-title');if(ctg)ctg.textContent=prof.name; marshallAgentRightRailSync(); return; }
