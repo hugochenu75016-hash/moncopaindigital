@@ -5607,6 +5607,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     captions:{g:'video',name:'Sous-titres',icon:'💬',color:'#e11d48',needs:['video'],gives:['video'],desc:'Sous-titres animés (style TikTok) gravés sur la vidéo. Sans voix, Marshall affiche le texte de la publication.',
       params:[{k:'color',label:'Couleur du mot actif',type:'select',opts:[['orange','Orange'],['jaune','Jaune'],['vert','Vert'],['rose','Rose']],def:'orange'},
         {k:'position',label:'Position',type:'select',opts:[['bas','En bas'],['milieu','Au milieu']],def:'bas'}]},
+    journalist:{g:'video',name:'Journaliste',icon:'📺',color:'#dc2626',needs:['info'],gives:['video','text'],cost:'report_second',desc:'Un journaliste au premier plan, au cœur de l’action, raconte le sujet face caméra (lèvres synchronisées), avec des plans de coupe animés en Wan 2.2 Pro et un bandeau « EN DIRECT ». Formule Hyper.',
+      params:[{k:'journalist',label:'Le journaliste',type:'select',opts:[['marshall','Marshall'],['femme','Une journaliste'],['homme','Un journaliste']],def:'marshall'},
+        {k:'seconds',label:'Durée',type:'select',opts:[['15','15 s'],['20','20 s'],['30','30 s']],def:'20'},
+        {k:'_j',label:'',type:'info',text:'🎙️ Marshall écrit le texte du reporter à partir du sujet (sans rien inventer), le met en scène sur place, puis monte le reportage. Compte 10 à 20 minutes.'}]},
     email:{g:'diff',name:'M’envoyer par e-mail',icon:'📧',color:'#ea580c',needs:['image','video','text'],gives:['mail'],desc:'Tu reçois le résultat (texte, liens de l’image et de la vidéo) sur l’e-mail de ton compte.'},
     publish:{g:'diff',name:'Publier',icon:'📤',color:'#F3852B',needs:['image','video','text'],gives:['published'],end:true,desc:'Publie sur tes réseaux reliés. Sans cette pièce, le résultat reste en brouillon.',
       params:[{k:'networks',label:'Réseaux',type:'nets',def:['instagram']},
@@ -5614,13 +5618,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         {k:'tiktok_privacy',label:'Visibilité TikTok',type:'select',opts:[['SELF_ONLY','Moi uniquement'],['MUTUAL_FOLLOW_FRIENDS','Amis'],['PUBLIC_TO_EVERYONE','Public']],def:'SELF_ONLY',show:function(p){return (p.networks||[]).indexOf('tiktok')>=0;}}]}
   };
   var AUTO_GROUPS=[['start','Départ'],['source','Sujet'],['texte','Texte'],['visuel','Visuel'],['video','Vidéo'],['diff','Diffusion']];
-  var AUTO_NEED_LABEL={info:'un sujet (Actu ou Idée)',text:'un texte',image:'une image (Image IA ou Mise en page)',video:'une vidéo (Animer en vidéo)'};
+  var AUTO_NEED_LABEL={info:'un sujet (Actu, Idée ou Lien à suivre)',text:'un texte',image:'une image (Image IA ou Mise en page)',video:'une vidéo (Animer en vidéo)'};
   var AUTO_TEMPLATES=[
     {name:'Actu du jour en story',pieces:[['schedule',{freq:'daily',time:'09:00'}],['news',{country:'France'}],['write',{}],['hashtags',{}],['image',{}],['design',{}],['publish',{format:'Story'}]]},
     {name:'Vidéo IA d’une idée',pieces:[['manual'],['idea',{}],['write',{}],['image',{}],['animate',{quality:'eco',seconds:'5'}],['voice',{source:'texte'}]]},
     {name:'Post illustré',pieces:[['manual'],['idea',{}],['write',{}],['hashtags',{}],['image',{}]]},
     {name:'Clip viral d’une vidéo',pieces:[['manual'],['clipper',{}],['email',{}]]},
     {name:'Chaque nouvelle vidéo de ma chaîne en clip',pieces:[['schedule',{freq:'hourly',every:'3'}],['web',{url:''}],['clipper',{}],['email',{}]]},
+    {name:'Reportage d’actu avec journaliste',pieces:[['manual'],['news',{country:'France'}],['journalist',{journalist:'marshall',seconds:'20'}],['write',{network:'TikTok'}],['hashtags',{}]]},
     {name:'Mon blog en vidéo TikTok',pieces:[['manual'],['web',{}],['write',{network:'TikTok'}],['hashtags',{}],['image',{}],['animate',{quality:'eco',seconds:'5'}],['voice',{source:'texte'}],['captions',{}]]}
   ];
   var AUTO={list:[],cur:null,sel:-1,run:null,timer:null,loaded:false,view:null,seenStatus:{}};
@@ -14328,7 +14333,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         '<div class="mrep-l">Le journaliste</div><div class="mrep-seg" data-r="journalist">'+
           [['marshall','<img src="avatarchatbot.png" alt="">Marshall'],['femme','👩🏻‍💼 Une journaliste'],['homme','👨🏽‍💼 Un journaliste']].map(function(o){return '<button type="button" data-v="'+o[0]+'" class="'+(R.journalist===o[0]?'on':'')+'">'+o[1]+'</button>';}).join('')+'</div>'+
         '<div class="mrep-l">Durée</div><div class="mrep-seg" data-r="seconds">'+[15,20,30].map(function(v){return '<button type="button" data-v="'+v+'" class="'+(R.seconds===v?'on':'')+'">'+v+' s</button>';}).join('')+'</div>'+
-        '<label class="mrep-hd"><input type="checkbox"'+(R.hd?' checked':'')+'> Qualité HD (720p, plus lent)</label>'+
+        '<label class="mrep-hd"><input type="checkbox"'+(R.hd?' checked':'')+'> Journaliste en HD (720p, plus lent) · plans d’action toujours en Wan 2.2 Pro</label>'+
         '<button type="button" class="mrep-go">🎬 Lancer le reportage · '+marshallTokenFmt(cost())+' tokens</button>'+
         '<small class="mrep-n">Compte environ '+Math.round((150+R.seconds*45)/60+3)+' min : tu peux continuer à travailler, le reportage arrivera dans la discussion. Réservé à la formule Hyper.</small>';
     }
