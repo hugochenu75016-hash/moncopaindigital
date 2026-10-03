@@ -795,6 +795,22 @@
   #view-pilote .plx-btn2:hover{ border-color:#f5b07a; }
   #view-pilote .plx-mascot.plx-anim{ background:linear-gradient(180deg,#fff,#FFF1E2); }
   #view-pilote .plx-mascot.plx-anim img{ width:100%; height:auto; margin:6px 0 0; }
+  #view-pilote .plx-q{ font-size:12.5px!important; } #view-pilote .plx-q small{ opacity:.7; }
+  #plq-ov{ position:fixed; inset:0; z-index:10040; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(40,24,10,.38); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  #plq-ov .plq-box{ position:relative; width:min(620px,100%); max-height:92vh; overflow:auto; box-sizing:border-box; background:#fff; border-radius:22px; padding:22px 22px 18px; box-shadow:0 24px 70px rgba(40,20,0,.3); color:#2b2118; font-family:'Nunito',system-ui,sans-serif; }
+  #plq-ov h3{ margin:0 0 6px; font:600 21px Fredoka,system-ui,sans-serif; } #plq-ov .plq-sub{ margin:0 0 16px; font-size:13.5px; line-height:1.5; color:#6b5848; }
+  #plq-ov .plq-x{ position:absolute; top:12px; right:12px; width:32px; height:32px; border:0; border-radius:50%; background:#f4efe8; font-size:20px; line-height:1; cursor:pointer; color:#6b5848; }
+  #plq-ov .plq-row{ margin-bottom:14px; } #plq-ov .plq-row h4{ display:flex; align-items:center; gap:8px; margin:0 0 8px; font:600 15px Fredoka,system-ui,sans-serif; }
+  #plq-ov .plx-i{ width:22px; height:22px; flex:0 0 auto; }
+  #plq-ov .plq-opts{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+  #plq-ov .plq-opt{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; cursor:pointer; background:#fff; border:1.5px solid #f0dcc6; border-radius:14px; padding:10px 12px; font:inherit; color:inherit; transition:border-color .15s, box-shadow .15s, background .15s; }
+  #plq-ov .plq-opt:hover{ border-color:#f5b07a; } #plq-ov .plq-opt.on{ border-color:#F3852B; background:#FFF6EC; box-shadow:0 0 0 3px rgba(243,133,43,.15); }
+  #plq-ov .plq-opt b{ font-size:14.5px; } #plq-ov .plq-opt span{ font-size:12.5px; color:#4a3a2a; } #plq-ov .plq-opt small{ font-size:11.5px; color:#8a7562; }
+  #plq-ov .plq-opt.lock{ opacity:.6; } #plq-ov .plq-opt.lock small{ color:#b55d14; font-weight:700; }
+  #plq-ov .plq-foot{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:6px; padding-top:14px; border-top:1px solid #f0e2d2; }
+  #plq-ov .plq-foot span{ font-size:13.5px; display:flex; flex-direction:column; } #plq-ov .plq-foot small{ font-size:12px; color:#8a7562; }
+  #plq-ov .plx-go{ display:inline-flex; align-items:center; gap:8px; cursor:pointer; border:0; border-radius:999px; background:linear-gradient(180deg,#F89A4C,#F3852B); color:#fff; font:600 15px Fredoka,system-ui,sans-serif; padding:11px 20px; box-shadow:0 8px 20px rgba(243,133,43,.35); }
+  @media (max-width:560px){ #plq-ov .plq-opts{ grid-template-columns:1fr; } #plq-ov .plq-go{ width:100%; justify-content:center; } }
   #view-pilote .pl-tools{ position:absolute; top:8px; right:8px; display:flex; gap:6px; }
   #view-pilote .pl-tools .icon-btn{ width:32px; height:32px; border-radius:10px; border:0; background:rgba(255,255,255,.92); color:#4a3a2a; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.15); padding:0; }
   #view-pilote .pl-tools .icon-btn svg{ width:16px; height:16px; } #view-pilote .pl-tools .icon-btn:hover{ background:#fff; color:#F3852B; }
@@ -5074,7 +5090,42 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     return d;
   }
   function piloteDefaults(){
-    return {active:false,per_week:3,networks:['instagram'],formats:['Post','Reel'],validation:'manual',day:0,hour:8,mail:String((authUser&&authUser.email)||''),style:'photo réaliste',topics:'',avatar:{enabled:false,voice_mode:'marshall',voice:'femme'}};
+    return {active:false,per_week:3,networks:['instagram'],formats:['Post','Reel'],validation:'manual',day:0,hour:8,mail:String((authUser&&authUser.email)||''),style:'photo réaliste',topics:'',img_q:'basse',vid_q:'basse',avatar:{enabled:false,voice_mode:'marshall',voice:'femme'}};
+  }
+  /* Qualité des créations du Pilote : demandée avant chaque préparation, gardée pour les préparations automatiques. */
+  var PILOTE_Q={
+    img:{basse:{n:'Basse',e:'Qwen-Image',k:'qwen_image'},moyenne:{n:'Moyenne',e:'Nano Banana 2',k:'image',hyper:true},haute:{n:'Haute',e:'Nano Banana Pro',k:'image_pro',hyper:true}},
+    vid:{basse:{n:'Basse',e:'Wan 2.2 Éco',k:'wan_second'},moyenne:{n:'Moyenne',e:'Wan 2.2 HD',k:'wan_hd_second'},haute:{n:'Haute',e:'Wan 2.2 Pro',k:'wan_pro_second',hyper:true}}
+  };
+  function piloteQualityLabel(c){ c=c||{}; return 'Images '+PILOTE_Q.img[c.img_q||'basse'].n.toLowerCase()+' · vidéos '+PILOTE_Q.vid[c.vid_q||'basse'].n.toLowerCase(); }
+  function piloteQualityAsk(){
+    return new Promise(function(done){
+      var c=PILOTE.cfg||piloteDefaults(), hyper=marshallStudioNanoOk(), sel={img:c.img_q||'basse',vid:c.vid_q||'basse'};
+      if(!hyper){ if(PILOTE_Q.img[sel.img].hyper) sel.img='basse'; if(PILOTE_Q.vid[sel.vid].hyper) sel.vid='moyenne'; }
+      var reels=(c.formats||[]).indexOf('Reel')>=0?Math.ceil((+c.per_week||3)/2):0;
+      var ov=document.createElement('div'); ov.id='plq-ov';
+      function row(kind,title,ic,unit){
+        return '<div class="plq-row"><h4>'+plxIc(ic)+title+'</h4><div class="plq-opts">'+['basse','moyenne','haute'].map(function(q){ var o=PILOTE_Q[kind][q], lock=o.hyper&&!hyper;
+          return '<button type="button" class="plq-opt'+(sel[kind]===q?' on':'')+(lock?' lock':'')+'" data-k="'+kind+'" data-q="'+q+'"><b>'+o.n+(lock?' 🔒':'')+'</b><span>'+o.e+'</span><small>'+(lock?'Formule Hyper':'≈ '+marshallTokenFmt(marshallTokenPrice(o.k,kind==='vid'?5:1))+' tokens '+unit)+'</small></button>'; }).join('')+'</div></div>';
+      }
+      function draw(){
+        var tot=(+c.per_week||3)*marshallTokenPrice(PILOTE_Q.img[sel.img].k)+reels*marshallTokenPrice(PILOTE_Q.vid[sel.vid].k,5);
+        ov.innerHTML='<div class="plq-box" role="dialog" aria-modal="true" aria-label="Qualité des créations"><button type="button" class="plq-x" aria-label="Fermer">×</button>'
+          +'<h3>Quelle qualité pour ta semaine ?</h3><p class="plq-sub">Marshall crée '+(+c.per_week||3)+' visuels'+(reels?' et anime environ '+reels+' Reel'+(reels>1?'s':''):'')+'. Plus la qualité est haute, plus le rendu est soigné et plus ça consomme de tokens.</p>'
+          +row('img','Images','palette','par image')+row('vid','Vidéos (Reels, 5 s)','camera','par vidéo')
+          +'<div class="plq-foot"><span>Estimation pour la semaine : <b>≈ '+marshallTokenFmt(tot)+' tokens</b><small>Ce choix sert aussi aux préparations automatiques.</small></span>'
+          +'<button type="button" class="plx-go plx-go-sm plq-go">'+plxIc('sparkle')+'Lancer la préparation</button></div></div>';
+      }
+      function close(v){ ov.remove(); document.removeEventListener('keydown',esc_); done(v); }
+      function esc_(e){ if(e.key==='Escape') close(null); }
+      ov.addEventListener('click',function(e){
+        if(e.target===ov||e.target.closest('.plq-x')) return close(null);
+        var o=e.target.closest('.plq-opt'); if(o){ if(o.classList.contains('lock')){ close(null); try{ marshallPaywallOpen('hyper'); }catch(_){} return; } sel[o.getAttribute('data-k')]=o.getAttribute('data-q'); draw(); return; }
+        if(e.target.closest('.plq-go')) close({img_q:sel.img,vid_q:sel.vid});
+      });
+      document.addEventListener('keydown',esc_);
+      draw(); document.body.appendChild(ov);
+    });
   }
   function piloteContext(){
     // Ce que le Studio sait déjà : Ma marque, meilleur créneau (Rapports), temps forts à venir.
@@ -5154,6 +5205,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       +'</div>'
       +'<section class="plx-cta"><button type="button" class="plx-go" data-pl-act="gen"'+(PILOTE.busy?' disabled':'')+'>'+plxIc('sparkle')+'Préparer ma semaine maintenant</button>'
       +'<p><span>'+plxIc('clock')+'Prêt en quelques minutes</span>'+(manual?'<span>'+plxIc('lock')+'Rien n’est publié sans ton accord</span>':'<span>'+plxIc('calendar')+'Publié aux meilleurs horaires</span>')+'</p>'
+      +'<p class="plx-q"><span>'+plxIc('palette')+'Qualité : '+piloteQualityLabel(c)+'</span><small>(choisie au lancement)</small></p>'
       +'<button type="button" class="plx-save" data-pl-act="save">'+plxIc('save')+'Enregistrer mes réglages</button>'
       +(c.active&&c.next_run?'<p class="plx-next"><span>'+plxIc('calendar')+'Prochaine préparation : <b>'+new Date(c.next_run*1000).toLocaleString('fr-FR',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})+'</b></span></p>':'')+'</section>'
       +'<div class="pl-plans" id="pl-plans"></div>'
@@ -5292,7 +5344,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(act==='gen'){
       if(PILOTE.busy) return; PILOTE.busy=true; b.disabled=true;
       var t0=Date.now(), ovOn=false;
-      try{ if(!(await piloteSave(true))) return;
+      try{ var qq=await piloteQualityAsk(); if(!qq) return;
+        PILOTE.cfg=Object.assign(PILOTE.cfg||piloteDefaults(),piloteCollect(),qq);
+        if(!(await piloteSave(true))) return;
         mcdPubOverlay('show',{marshall:MARSHALL_ANIM.ordi,label:'Marshall prépare ta semaine…'}); ovOn=true;
         await piloteApi('/pilote/generate',{}); await piloteLoad();
         await new Promise(function(r){ setTimeout(r,Math.max(0,3500-(Date.now()-t0))); });
