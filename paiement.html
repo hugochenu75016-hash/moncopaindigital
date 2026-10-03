@@ -439,6 +439,14 @@
   @keyframes dtLogoIn{ 0%{opacity:0;transform:translate(-50%,-50%) scale(.6);} 45%{opacity:1;} 100%{opacity:1;transform:translate(-50%,-50%) scale(1);} }
   @media (prefers-reduced-motion:reduce){ #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{ animation-duration:.01s !important; } }
 </style>
+<style>
+  .waiver{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;padding:12px 14px;border:1.5px solid #f0cfae;border-radius:13px;background:#fff8ef;font-size:13px;line-height:1.45;color:#4d2000;cursor:pointer}
+  .waiver[hidden]{display:none}
+  .waiver input{flex:none;width:18px;height:18px;margin-top:1px;accent-color:#e0662a;cursor:pointer}
+  .waiver a{color:#c2501a;font-weight:700}
+  .waiver.shake{animation:wvShake .45s;border-color:#e5484d}
+  @keyframes wvShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style>
 </head>
 <body>
 <!-- ===== Transition portes ===== -->
@@ -619,6 +627,11 @@
       <p class="hint">Réglez <strong id="pay-amount">—</strong> par carte, Apple&nbsp;Pay ou Google&nbsp;Pay.</p>
 
       <div id="payment-element"><div class="pe-loading">Chargement du paiement sécurisé…</div></div>
+
+      <label class="waiver" id="waiver" hidden>
+        <input type="checkbox" id="waiver-chk">
+        <span id="waiver-txt">Je demande l’accès immédiat à Studio Social et je reconnais perdre mon droit de rétractation de 14 jours dès le début de l’exécution (<a href="loiapplicablemcp.html#cgv" target="_blank" rel="noopener">CGV</a>).</span>
+      </label>
 
       <button class="pay-btn" type="button" id="pay-btn" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
@@ -840,10 +853,33 @@
     setTimeout(function(){ window.scrollTo({ top: forfait.getBoundingClientRect().top + window.pageYOffset - 20, behavior:'smooth' }); }, 60);
   });
 
+  /* ---------- Studio Social : renonciation au droit de rétractation (contenu numérique fourni tout de suite) ---------- */
+  var studioSecret = '', studioKind = '';
+  function waiverShow(kind){
+    studioKind = kind; var w=$('#waiver'); if(!w) return; w.hidden = false;
+    if(kind==='recharge') $('#waiver-txt').innerHTML = 'Je demande que mes tokens soient crédités immédiatement et je reconnais perdre mon droit de rétractation de 14 jours une fois la recharge créditée (<a href="loiapplicablemcp.html#cgv" target="_blank" rel="noopener">CGV</a>).';
+  }
+  async function waiverRecord(){
+    try{
+      var sb=getSB(), s=sb && await sb.auth.getSession(), tok=s && s.data && s.data.session && s.data.session.access_token;
+      if(!tok || !studioSecret) return;
+      await Promise.race([
+        fetch(MARSHALL_API + '/stripe/waiver', { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+tok, 'apikey':SUPABASE_ANON },
+          body: JSON.stringify({ client_secret: studioSecret, kind: studioKind }) }),
+        new Promise(function(r){ setTimeout(r, 4000); })
+      ]);
+    }catch(e){}
+  }
+
   /* ---------- Payer ---------- */
   $('#pay-btn').addEventListener('click', async function(){
     if(!stripe || !elements) return;
     clearNotice('#pay-notice');
+    if(studioKind){
+      var chk=$('#waiver-chk');
+      if(!chk || !chk.checked){ showNotice('#pay-notice', 'Coche la case ci-dessus pour démarrer ton '+(studioKind==='recharge'?'achat de tokens':'abonnement')+' tout de suite.'); var w=$('#waiver'); if(w){ w.classList.add('shake'); setTimeout(function(){ w.classList.remove('shake'); },500); } return; }
+      await waiverRecord();
+    }
     var btn=$('#pay-btn'); btn.setAttribute('disabled','disabled'); var lbl=$('#pay-btn-label'); var prev=lbl.textContent; lbl.textContent='Paiement…';
     var ret = location.origin + location.pathname + '?status=success' + aboReturnParams;
     try{
@@ -944,6 +980,7 @@
       reqMode = true;
       aboReturnParams = '&abo='+encodeURIComponent(plan)+'&retour='+encodeURIComponent(aboRetour);
       currentOrder = { offerId:'abo_'+plan, offerName: P.nom+' (mensuel)', unit: P.prix, qty:1, total: P.prix, name: nom, abo: plan };
+      studioSecret = data.clientSecret; waiverShow('abonnement');
       try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
       elements = stripe.elements({ clientSecret: data.clientSecret,
         appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
@@ -988,6 +1025,7 @@
       reqMode = true;
       aboReturnParams = '&recharge='+encodeURIComponent(packId)+'&retour='+encodeURIComponent(aboRetour);
       currentOrder = { offerId:'topup_'+packId, offerName: P.nom, unit: P.prix, qty:1, total: P.prix, name: nom, topup: packId };
+      studioSecret = data.clientSecret; waiverShow('recharge');
       try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
       elements = stripe.elements({ clientSecret: data.clientSecret,
         appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
