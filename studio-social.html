@@ -793,6 +793,10 @@
   #view-pilote .plx-check{ display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:13.5px; }
   #view-pilote .plx-btn2{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; border:1.5px solid #f0dcc6; border-radius:999px; background:#fff; padding:6px 14px; font:inherit; font-size:13px; font-weight:600; }
   #view-pilote .plx-btn2:hover{ border-color:#f5b07a; }
+  #view-pilote .plx-mascot.plx-anim{ background:linear-gradient(180deg,#fff,#FFF1E2); }
+  #view-pilote .plx-mascot.plx-anim img{ width:100%; height:auto; margin:6px 0 0; }
+  #view-pilote .plx-anim-ordi{ width:92px; height:auto; flex:0 0 auto; }
+  #view-pilote .plx-anim-bravo{ width:84px; height:auto; flex:0 0 auto; margin:-10px 0 -6px; }
   @media (max-width:1000px){ #view-pilote .plx-steps{ grid-template-columns:1fr; } }
   @media (max-width:640px){ #view-pilote .plx-hero{ flex-wrap:wrap; padding:16px; gap:12px; } #view-pilote .plx-mascot{ width:72px; height:72px; border-width:3px; } #view-pilote .plx-mascot img{ width:108px; height:108px; margin:-3px 0 0 -18px; } #view-pilote .plx-hello{ flex:1 1 180px; }
     #view-pilote .plx-switch{ width:100%; box-sizing:border-box; } #view-pilote .plx-hello h1{ font-size:19px; } #view-pilote .plx-go{ width:100%; justify-content:center; font-size:17px; padding:13px 20px; } #view-pilote .plx-more-body{ grid-template-columns:1fr; } }
@@ -1327,6 +1331,10 @@
   .ed-rmbg-pill:hover{ background:#e0661a; }
   #mcd-pub-ov{ position:fixed; inset:0; z-index:10050; display:flex; align-items:center; justify-content:center; background:rgba(255,248,240,.28); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); opacity:0; transition:opacity .25s ease; }
   #mcd-pub-ov.show{ opacity:1; }
+  #mcd-pub-ov .mpo-stage{ position:relative; display:flex; flex-direction:column; align-items:center; }
+  #mcd-pub-ov .mpo-marshall{ position:absolute; left:50%; bottom:calc(100% - 30px); width:190px; height:auto; transform:translateX(-50%); z-index:2; pointer-events:none; filter:drop-shadow(0 10px 14px rgba(90,40,0,.18)); }
+  #mcd-pub-ov .mpo-stage:has(.mpo-marshall){ margin-top:150px; }
+  #mcd-pub-ov .mpo-label{ margin:22px 0 0; font:600 16px Fredoka,system-ui,sans-serif; color:#2b2118; background:rgba(255,255,255,.85); padding:8px 16px; border-radius:999px; box-shadow:0 6px 18px rgba(90,40,0,.12); }
   #mcd-pub-ov .mpo-box{ width:118px; height:118px; border-radius:30px; background:linear-gradient(180deg,#FF9C46,#F3852B); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 0 #C7620E,0 22px 50px rgba(243,133,43,.4); transform:scale(.85); transition:transform .35s cubic-bezier(.34,1.56,.64,1), background .3s, box-shadow .3s; }
   #mcd-pub-ov.show .mpo-box{ transform:scale(1); }
   #mcd-pub-ov .mpo-spin{ width:54px; height:54px; }
@@ -1699,6 +1707,8 @@
     box-shadow:0 14px 30px rgba(0,0,0,0.35); transition:opacity .25s, transform .25s; max-width:90vw; text-align:center; }
   #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
   #toast.err{ background:#c0341a; }
+  #toast{ z-index:10060; } @media (max-width:760px){ #toast{ bottom:calc(110px + env(safe-area-inset-bottom)); } }
+  #toast.show.tap{ pointer-events:auto; cursor:pointer; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; } #toast.show.tap:hover{ filter:brightness(1.08); } @media (max-width:600px){ #toast.show.tap{ white-space:normal; font-size:13px; padding:11px 16px; width:max-content; max-width:calc(100vw - 32px); box-sizing:border-box; } }
 
   .banner{ display:flex; gap:12px; align-items:flex-start; background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.3);
     border-radius:16px; padding:14px 18px; margin-bottom:22px; color:#fff; font-size:13.5px; line-height:1.5; }
@@ -2727,6 +2737,14 @@ html:has(#view-composer.active),body:has(#view-composer.active){height:100%;over
 #acct-pop .ap-btn{font-family:var(--studio-font)!important;border:1px solid #e6e6e2!important;border-radius:8px!important;box-shadow:none!important;transform:none!important;text-shadow:none!important;background:#f7f7f5!important;color:#252525!important}
 .mpl-upgrade{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px 0 11px;margin-right:8px;border:0;border-radius:999px;background:var(--bg,#6EC1F0);color:#fff;font:700 13px/1 inherit;letter-spacing:.01em;cursor:pointer;box-shadow:0 4px 12px rgba(40,120,170,.28);transition:transform .2s,box-shadow .2s;white-space:nowrap}.mpl-upgrade:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(40,120,170,.36)}.mpl-upgrade:focus-visible{outline:3px solid rgba(110,193,240,.5);outline-offset:2px}.mpl-upgrade svg{width:16px;height:16px;fill:#FFD66B;stroke:#fff;stroke-width:1.4;stroke-linejoin:round}.mpl-upgrade svg path+path{fill:none;stroke:#FFD66B;stroke-width:2;stroke-linecap:round}.mpl-upgrade[hidden]{display:none}
 @media (max-width:520px){.mpl-upgrade span{display:none}.mpl-upgrade{padding:0 10px}}
+#fan-wrap #mpl-upgrade{flex:0 0 auto;margin:0 10px 0 0;background:#6EC1F0;color:#fff;animation:mplPop .6s cubic-bezier(.34,1.56,.64,1) both,mplBump 7s ease-in-out 2.5s infinite}
+#fan-wrap #mpl-upgrade[hidden]{display:none!important}
+#fan-wrap #mpl-upgrade:hover{animation-play-state:paused;background:#5bb5e8}
+@keyframes mplPop{0%{opacity:0;transform:scale(.4)}100%{opacity:1;transform:scale(1)}}
+@keyframes mplBump{0%,86%,100%{transform:scale(1)}89%{transform:scale(1.1) translateY(-2px)}92%{transform:scale(.96)}95%{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){#fan-wrap #mpl-upgrade{animation:none}}
+@media (max-width:1500px){#fan-wrap #mpl-upgrade span{display:none}#fan-wrap #mpl-upgrade{padding:0 10px}#app #side .fan-wrap{justify-content:flex-start!important}}
+@media (max-width:1400px){#app #side .fan-wrap .nav-item svg{display:none}}
 #view-composer .hdr-actions #mpl-upgrade{background:#6EC1F0!important;color:#fff!important;border:0!important;border-radius:999px!important;height:34px!important;width:auto!important;padding:0 14px 0 11px!important;opacity:1!important;font-weight:700!important;box-shadow:0 4px 12px rgba(40,120,170,.28)!important}#view-composer .hdr-actions #mpl-upgrade:hover{background:#5bb5e8!important}#view-composer .hdr-actions #mpl-upgrade[hidden]{display:none!important}
 #studio-profile{position:relative}
 #studio-profile-toggle{width:36px;height:36px;padding:0!important;display:flex;align-items:center;justify-content:center;border:0!important;border-radius:0!important;background:transparent!important;color:#252525;box-shadow:none!important;cursor:pointer}
@@ -3905,7 +3923,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     <section class="view active" id="view-composer">
       <div class="topbar">
         <div class="hdr-actions">
-          <button type="button" id="mpl-upgrade" class="mpl-upgrade" hidden aria-label="Mise à niveau de ma formule Studio Social"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5l4.6 4 4.4-6.5 4.4 6.5 4.6-4-1.8 10.5H4.8L3 7.5z"/><path d="M5 20.5h14"/></svg><span>Mise à niveau</span></button>
+          <button type="button" id="mpl-upgrade" class="mpl-upgrade" hidden title="Mise à niveau" aria-label="Mise à niveau de ma formule Studio Social"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5l4.6 4 4.4-6.5 4.4 6.5 4.6-4-1.8 10.5H4.8L3 7.5z"/><path d="M5 20.5h14"/></svg><span>Mise à niveau</span></button>
           <div id="studio-profile">
             <button type="button" id="studio-profile-toggle" aria-label="Mon profil" aria-expanded="false" aria-controls="studio-profile-card" title="Mon espace compte"><img id="studio-profile-logo" src="boutonespacelog-trim.png" alt=""><span id="studio-profile-initial" hidden>●</span></button>
             <section id="studio-profile-card" aria-label="Mon profil" hidden>
@@ -4369,7 +4387,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var $ = function(s,r){ return (r||document).querySelector(s); };
   var $all = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-  function toast(m, err){ var t=$('#toast'); t.textContent=m; t.classList.toggle('err', !!err); t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); },3200); }
+  function toast(m, err, ms, onTap){ var t=$('#toast'); t.textContent=m; t.classList.toggle('err', !!err); t.classList.toggle('tap', !!onTap); t.onclick=onTap?function(){ t.classList.remove('show'); onTap(); }:null; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); },ms||3200); }
 
   /* ===== Icônes réseaux ===== */
   var IG='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.9.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.86s0 3.6-.07 4.86c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.9.07s-3.6 0-4.86-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.2 15.6 2.2 15.2 2.2 12s0-3.6.07-4.86c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.4 2.2 8.8 2.2 12 2.2Zm0 3.06A6.74 6.74 0 1 0 18.74 12 6.74 6.74 0 0 0 12 5.26Zm0 11.12A4.38 4.38 0 1 1 16.38 12 4.38 4.38 0 0 1 12 16.38Zm6.9-11.44a1.58 1.58 0 1 1-1.58-1.57 1.58 1.58 0 0 1 1.58 1.57Z"/></svg>';
@@ -4830,7 +4848,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
   /* ============ STORE ============ */
   function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LS_KEY())||'[]'); }catch(e){ return []; } }
-  function saveLocal(){ try{ localStorage.setItem(LS_KEY(), JSON.stringify(posts)); }catch(e){ if(!saveLocal.warned&&/quota/i.test(String(e&&(e.name+' '+e.message)))){ saveLocal.warned=true; setTimeout(function(){ try{ toast('Mémoire de cet appareil pleine : supprime d’anciens brouillons ou reconnecte-toi pour que tout soit gardé en ligne.',true); }catch(_){} },2600); } } }
+  function saveLocal(){ try{ localStorage.setItem(LS_KEY(), JSON.stringify(posts)); }catch(e){ if(!saveLocal.warned&&/quota/i.test(String(e&&(e.name+' '+e.message)))){ saveLocal.warned=true; setTimeout(function(){ try{ toast('Mémoire du navigateur pleine · Pour libérer : touche ici et supprime d’anciens brouillons',true,10000,function(){ try{ mcdGoView('drafts'); }catch(_){ var n=document.querySelector('.nav-item[data-view="drafts"]'); if(n) n.click(); } }); }catch(_){} },2600); } } }
 
   async function loadPosts(){
     if(window.MCD_DEMO){storeMode='local';posts=loadLocal();return;}   // démo locale : jamais de lecture ni d’écriture en base
@@ -5035,7 +5053,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
      Chaque semaine, Marshall prépare la semaine complète (idées, légendes, hashtags, visuels, Reels, vidéo parlée).
      Validation manuelle : « Valider » programme la publication dans le calendrier (le planificateur serveur publie à l'heure).
      Validation automatique : le serveur publie lui-même à l'heure prévue. */
-  var PILOTE={cfg:null,plans:[],loaded:false,busy:false,timer:null,avatarPhoto:'',avatarSample:'',avatarSampleName:''};
+  var PILOTE={cfg:null,plans:[],loaded:false,busy:false,timer:null,avatarPhoto:'',avatarSample:'',avatarSampleName:'',waved:false,celebrate:false};
+  /* Animations de Marshall (générées avec le moteur vidéo, fond détouré) */
+  var MARSHALL_ANIM={coucou:'marshall-coucou.webp',coucouFin:'marshall-coucou-fin.png',ordi:'marshall-ordi.webp',bravo:'marshall-bravo.webp'};
+  function marshallAnimPreload(){ if(marshallAnimPreload.done) return; marshallAnimPreload.done=true; ['ordi','bravo'].forEach(function(k){ var i=new Image(); i.src=MARSHALL_ANIM[k]; }); }
+  function marshallMascotHTML(){ var first=!PILOTE.waved; PILOTE.waved=true; return '<span class="plx-mascot plx-anim"><img src="'+(first?MARSHALL_ANIM.coucou+'?v='+Date.now():MARSHALL_ANIM.coucouFin)+'" alt="Marshall" onerror="this.onerror=null;this.src=\'avatarchatbot.png\';this.parentNode.classList.remove(\'plx-anim\')"></span>'; }
   var PILOTE_NETS=[['instagram','Instagram'],['facebook','Facebook'],['tiktok','TikTok'],['linkedin','LinkedIn']];
   var PILOTE_JOURS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
   function piloteIsAdmin(){ try{ var em=String((authUser&&authUser.email)||'').toLowerCase(); if(ADMIN_EMAILS.indexOf(em)!==-1) return true; return marshallStudioIsAdmin(); }catch(e){ return false; } }
@@ -5064,6 +5086,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function piloteOpen(){
     var v=$('#view-pilote'); if(!v) return;
     if(!piloteIsAdmin()){ v.innerHTML='<div class="plx"><section class="plx-hero"><span class="plx-mascot"><img src="avatarchatbot.png" alt="Marshall"></span><div class="plx-hello"><h1>Le Pilote automatique arrive bientôt</h1><p>Bientôt, je préparerai <b>tous tes posts de la semaine</b> pendant que tu t’occupes de ton activité.</p></div></section></div>'; return; }
+    marshallAnimPreload();
     if(!PILOTE.loaded){ v.innerHTML='<div class="plx"><div class="plx-card"><span class="plx-bounce" style="display:inline-flex">'+plxIc('calendar')+'</span><div><b>Ouverture du Pilote…</b></div></div></div>'; await piloteLoad(); }
     piloteRender(); piloteWatch();
   }
@@ -5071,7 +5094,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     clearTimeout(PILOTE.timer);
     var gen=(PILOTE.plans[0]||{}).status==='generating';
     if(!gen||!$('#view-pilote.active')) return;
-    PILOTE.timer=setTimeout(async function(){ await piloteLoad(); if($('#view-pilote.active')){ piloteRenderPlans(); } piloteWatch(); },8000);
+    PILOTE.timer=setTimeout(async function(){ await piloteLoad(); if((PILOTE.plans[0]||{}).status==='ready') PILOTE.celebrate=true; if($('#view-pilote.active')){ piloteRenderPlans(); } piloteWatch(); },8000);
   }
   function piloteChip(name,val,label,on){ return '<button type="button" class="pl-chip'+(on?' on':'')+'" data-pl-set="'+name+'" data-v="'+esc(String(val))+'">'+esc(label)+'</button>'; }
   /* Icônes cartoon du Pilote : [formes avec contour, détails sans contour] */
@@ -5114,7 +5137,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var tile=function(k,val,ic,t,sub,on,tag){ return '<button type="button" class="plx-tile'+(on?' on':'')+'" data-pl-set="'+k+'" data-v="'+esc(String(val))+'">'+(tag?'<i class="plx-tag">'+tag+'</i>':'')+plxIc(ic)+'<span class="plx-tt"><b>'+t+'</b><small>'+sub+'</small></span></button>'; };
     var manual=c.validation!=='auto';
     v.innerHTML='<div class="plx">'
-      +'<section class="plx-hero"><span class="plx-mascot"><img src="avatarchatbot.png" alt="Marshall"></span>'
+      +'<section class="plx-hero">'+marshallMascotHTML()
       +'<div class="plx-hello"><h1>Bonjour'+(prenom?' '+esc(prenom):'')+', je suis Marshall.</h1>'
       +'<p>Je prépare <b>tous tes posts de la semaine</b> : idées, textes, hashtags et visuels. Tu n’as plus qu’à valider.</p></div>'
       +'<label class="plx-switch"><input type="checkbox" data-pl-active'+(c.active?' checked':'')+'><span></span><div><b>'+(c.active?'Activé':'Désactivé')+'</b><em>Chaque semaine, automatiquement</em></div></label></section>'
@@ -5161,10 +5184,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var box=$('#pl-plans'); if(!box) return;
     var plan=PILOTE.plans[0];
     if(!plan){ box.innerHTML='<div class="plx-card plx-empty">'+plxIc('mailbox')+'<div><b>Ta semaine n’est pas encore préparée</b><p>Choisis tes 3 réglages ci-dessus puis lance Marshall : tes posts apparaîtront ici, prêts à valider.</p></div></div>'; return; }
-    if(plan.status==='generating'){ box.innerHTML='<div class="plx-card"><span class="plx-bounce" style="display:inline-flex">'+plxIc('pot')+'</span><div><b>Marshall prépare ta semaine…</b><p>'+esc((plan.log||[]).slice(-1)[0]||'Choix des sujets et des horaires')+'</p><div class="plx-bar"><i></i></div><small>Compte quelques minutes. Tu peux continuer à travailler, tes posts apparaîtront ici.</small></div></div>'; return; }
+    if(plan.status==='generating'){ box.innerHTML='<div class="plx-card"><img class="plx-anim-ordi" src="'+MARSHALL_ANIM.ordi+'" alt="" onerror="this.outerHTML=plxIc(\'pot\')"><div><b>Marshall prépare ta semaine…</b><p>'+esc((plan.log||[]).slice(-1)[0]||'Choix des sujets et des horaires')+'</p><div class="plx-bar"><i></i></div><small>Compte quelques minutes. Tu peux continuer à travailler, tes posts apparaîtront ici.</small></div></div>'; return; }
     if(plan.status==='error'){ box.innerHTML='<div class="plx-card plx-empty">'+plxIc('warn')+'<div><b>La préparation n’a pas abouti</b><p>'+esc(plan.error||'La préparation a échoué')+' · Relance « Préparer ma semaine » pour réessayer.</p></div></div>'; return; }
     var items=plan.items||[], todo=items.filter(function(x){ return x.status==='proposed'; }).length;
-    box.innerHTML='<div class="plx-plan-head"><div><h2>'+plxIc('party')+'Ta semaine est prête</h2><small>Préparée le '+new Date((plan.created||0)*1000).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+(todo?' · '+todo+' post'+(todo>1?'s':'')+' à valider':'')+'</small></div>'
+    var cel=PILOTE.celebrate; PILOTE.celebrate=false;
+    box.innerHTML='<div class="plx-plan-head">'+(cel?'<img class="plx-anim-bravo" src="'+MARSHALL_ANIM.bravo+'?v='+Date.now()+'" alt="" onerror="this.remove()">':'')+'<div style="flex:1"><h2>'+plxIc('party')+'Ta semaine est prête</h2><small>Préparée le '+new Date((plan.created||0)*1000).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+(todo?' · '+todo+' post'+(todo>1?'s':'')+' à valider':'')+'</small></div>'
       +(todo?'<button type="button" class="plx-go plx-go-sm pl-ok" data-pl-act="approveall">'+plxIc('check')+'Tout valider en 1 clic ('+todo+')</button>':'<span class="plx-done">'+plxIc('check')+'Tout est traité</span>')+'</div>'
       +'<div class="pl-items">'+items.map(function(it){ return piloteItemHTML(plan,it); }).join('')+'</div>';
   }
@@ -5235,8 +5259,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(act==='sample'){ v.querySelector('[data-pl-sample]').click(); return; }
     if(act==='gen'){
       if(PILOTE.busy) return; PILOTE.busy=true; b.disabled=true;
-      try{ if(!(await piloteSave(true))) return; await piloteApi('/pilote/generate',{}); await piloteLoad(); piloteRenderPlans(); piloteWatch(); toast('✨ Marshall prépare ta semaine…'); }
-      catch(x){ toast('Pilote : '+(x&&x.message||x),true); }
+      var t0=Date.now(), ovOn=false;
+      try{ if(!(await piloteSave(true))) return;
+        mcdPubOverlay('show',{marshall:MARSHALL_ANIM.ordi,label:'Marshall prépare ta semaine…'}); ovOn=true;
+        await piloteApi('/pilote/generate',{}); await piloteLoad();
+        await new Promise(function(r){ setTimeout(r,Math.max(0,3500-(Date.now()-t0))); });
+        mcdPubOverlay('hide'); ovOn=false;
+        piloteRenderPlans(); piloteWatch(); toast('✨ Marshall prépare ta semaine…'); }
+      catch(x){ if(ovOn){ mcdPubOverlay('fail'); ovOn=false; } toast('Pilote : '+(x&&x.message||x),true); }
       finally{ PILOTE.busy=false; var g=v.querySelector('[data-pl-act="gen"]'); if(g) g.disabled=false; }
       return;
     }
@@ -11095,8 +11125,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{if(t.id==='calv-approve')calendarValidationClose();}catch(_e){}
     marshallPaywallOpen('complet');
   },true);
+  /* Sur ordinateur, « Mise à niveau » se place à gauche de « Composer » dans la barre de navigation. */
+  function marshallUpgradePlace(){
+    var b=$('#mpl-upgrade'),fw=$('#fan-wrap'),home=$('#view-composer .hdr-actions');if(!b||!fw||!home)return;
+    if(window.matchMedia('(min-width:761px)').matches){if(b.parentNode!==fw)fw.insertBefore(b,fw.firstChild);}
+    else if(b.parentNode!==home)home.insertBefore(b,home.firstChild);
+  }
+  try{window.matchMedia('(min-width:761px)').addEventListener('change',marshallUpgradePlace);}catch(e){}
   function marshallUpgradeRender(){
     var b=$('#mpl-upgrade');if(!b)return;
+    try{marshallUpgradePlace();}catch(e){}
     if(!b.dataset.bound){b.dataset.bound='1';b.addEventListener('click',function(){marshallPaywallOpen(marshallPlan()==='complet'?'hyper':'complet');});}
     b.hidden=!authUser||!!actingAs||marshallIsStaff()||marshallPlan()==='hyper';
     try{marshallPublishLockRender();}catch(e){}
@@ -16856,12 +16894,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     +'<rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2"><animate id="mpoS1" fill="freeze" attributeName="x" begin="0;mpoS12.end" dur="0.2s" values="1;13"/><animate id="mpoS2" fill="freeze" attributeName="y" begin="mpoS9.end" dur="0.2s" values="1;13"/><animate id="mpoS3" fill="freeze" attributeName="x" begin="mpoS10.end" dur="0.2s" values="13;1"/><animate id="mpoS4" fill="freeze" attributeName="y" begin="mpoS11.end" dur="0.2s" values="13;1"/></rect>'
     +'<rect width="10" height="10" x="1" y="13" fill="currentColor" rx="2"><animate id="mpoS5" fill="freeze" attributeName="y" begin="mpoS1.end" dur="0.2s" values="13;1"/><animate id="mpoS6" fill="freeze" attributeName="x" begin="mpoS2.end" dur="0.2s" values="1;13"/><animate id="mpoS7" fill="freeze" attributeName="y" begin="mpoS3.end" dur="0.2s" values="1;13"/><animate id="mpoS8" fill="freeze" attributeName="x" begin="mpoS4.end" dur="0.2s" values="13;1"/></rect>'
     +'<rect width="10" height="10" x="13" y="13" fill="currentColor" rx="2"><animate id="mpoS9" fill="freeze" attributeName="x" begin="mpoS5.end" dur="0.2s" values="13;1"/><animate id="mpoS10" fill="freeze" attributeName="y" begin="mpoS6.end" dur="0.2s" values="13;1"/><animate id="mpoS11" fill="freeze" attributeName="x" begin="mpoS7.end" dur="0.2s" values="1;13"/><animate id="mpoS12" fill="freeze" attributeName="y" begin="mpoS8.end" dur="0.2s" values="1;13"/></rect></svg>';
-  function mcdPubOverlay(state){
-    var ov=document.getElementById('mcd-pub-ov');
+  function mcdPubOverlay(state,opt){
+    var ov=document.getElementById('mcd-pub-ov'); opt=opt||{};
     if(state==='show'){
       if(ov) ov.remove();
-      ov=document.createElement('div'); ov.id='mcd-pub-ov'; ov.setAttribute('role','status'); ov.setAttribute('aria-label','Publication en cours');
-      ov.innerHTML='<div class="mpo-box">'+MCD_PUB_SVG+'</div>';
+      ov=document.createElement('div'); ov.id='mcd-pub-ov'; ov.setAttribute('role','status'); ov.setAttribute('aria-label',opt.label||'Publication en cours');
+      ov.innerHTML='<div class="mpo-stage">'+(opt.marshall?'<img class="mpo-marshall" src="'+opt.marshall+'" alt="" onerror="this.remove()">':'')+'<div class="mpo-box">'+MCD_PUB_SVG+'</div>'+(opt.label?'<p class="mpo-label">'+esc(opt.label)+'</p>':'')+'</div>';
       document.body.appendChild(ov); void ov.offsetWidth; ov.classList.add('show');
       return Promise.resolve();
     }
