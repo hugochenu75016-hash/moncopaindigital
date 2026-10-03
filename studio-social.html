@@ -2895,6 +2895,13 @@ html body .sai-root .sai-go1 small{background:rgba(255,255,255,.2);padding:4px 9
 html body .madock-note{background:#f6f6f2;border:0;border-radius:7px;color:#818178;font:400 10px/1.5 var(--studio-font);padding:10px 12px}
 html body .madock-section-label{font:500 11px var(--studio-font);letter-spacing:0;text-transform:none;color:#76766d;padding:3px 0}
 html body .madock-pill{background:#fff;border:1px solid #ededE7;border-radius:8px;padding:10px;box-shadow:none;grid-template-columns:32px 1fr 12px;transform:none}.madock-pill-copy b{font:500 12px var(--studio-font)!important}.madock-pill-copy small{font:400 10px var(--studio-font)!important;color:#8a8a81!important}.madock-pill.active{background:#f8eee7!important;border-color:#dcbfab!important}
+html body .madock-body{overflow:hidden!important}html body .madock-detail{flex:1 1 auto!important;min-height:0!important;overflow:auto!important}
+html body .madock-chat{flex:0 0 auto!important;min-height:0!important}html body .madock-thread{min-height:56px!important;max-height:170px!important}
+.madock-more{position:absolute;z-index:5;width:34px;height:34px;border-radius:50%;border:0;padding:0;display:flex;align-items:center;justify-content:center;background:#F3852B;color:#fff;cursor:pointer;box-shadow:0 6px 16px rgba(243,133,43,.45);opacity:0;pointer-events:none;transition:opacity .2s}
+.madock-more.show{opacity:1;pointer-events:auto;animation:madockBob 1.6s ease-in-out infinite}.madock-more:hover{background:#e0661a}
+.madock-more svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+@keyframes madockBob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+@media (prefers-reduced-motion:reduce){.madock-more.show{animation:none}}
 html body .madock-chat{flex:1;min-height:260px;border:1px solid #e9e9e3;border-radius:9px;box-shadow:none;background:#fff}.madock-chat-head{background:#fafaf7!important;border-color:#e9e9e3!important;padding:11px 13px!important}.madock-chat-head b{font:500 11px var(--studio-font)!important;color:#77776e!important}.madock-thread{flex:1;background:#fff!important;min-height:210px!important;max-height:none!important;font:400 12px/1.6 var(--studio-font)!important;color:#78786e!important}
 html body .madock-msg{border-radius:8px;border-color:#e6e6df;background:#f7f7f3;color:#4e4e46;font:400 12px/1.6 var(--studio-font)}.madock-msg.user{background:#eeeeE8!important;color:#67675f!important}.madock-msg.error{background:#fff4f2!important;color:#9f3c2d!important;border-color:#efdbd5!important}
 /* Main assistant retains its own conversation, visually aligned with Studio. */
@@ -8644,6 +8651,23 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       </div>';
     document.body.appendChild(dock);
     dock.classList.remove('open'); dock.classList.remove('min');
+    (function(){
+      /* La fiche est parfois reconstruite : on retrouve toujours la zone actuelle. */
+      function sync(){
+        var det=dock.querySelector('#marshall-agent-dock-detail'); if(!det) return;
+        var a=dock.querySelector(':scope > .madock-more');   // posée sur la fiche (hors de son contenu, qui est reconstruit)
+        if(!a){ a=document.createElement('button'); a.type='button'; a.className='madock-more'; a.title='Voir la suite'; a.setAttribute('aria-label','Voir la suite');
+          a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+          a.addEventListener('click',function(){ var d=dock.querySelector('#marshall-agent-dock-detail'); if(d) d.scrollBy({top:Math.round(d.clientHeight*.7),behavior:'smooth'}); }); dock.appendChild(a); }
+        var r=det.getBoundingClientRect(), R=dock.getBoundingClientRect();
+        a.style.left=Math.round(r.left-R.left+r.width/2-17)+'px'; a.style.top=Math.round(r.bottom-R.top-42)+'px';
+        a.classList.toggle('show',r.height>0&&det.scrollHeight-det.scrollTop-det.clientHeight>24);
+      }
+      var queued=false; function soon(){ if(queued) return; queued=true; setTimeout(function(){ queued=false; sync(); },60); }
+      dock.addEventListener('scroll',soon,true); window.addEventListener('resize',soon);
+      new MutationObserver(function(ms){ if(ms.some(function(m){ return !(m.target&&m.target.classList&&m.target.classList.contains('madock-more'))&&!Array.prototype.some.call(m.addedNodes,function(n){ return n.classList&&n.classList.contains('madock-more'); }); })) soon(); }).observe(dock,{childList:true,subtree:true});
+      setTimeout(sync,300);
+    })();
     var pin=dock.querySelector('#marshall-agent-dock-pin');
     if(pin){pin.title='Fermer la fiche agent';pin.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>';pin.addEventListener('click',function(){dock.classList.remove('open');marshallAgentRightRailSync();});}
     return dock;
@@ -11217,6 +11241,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var b=$('#mpl-upgrade'),fw=$('#fan-wrap'),home=$('#view-composer .hdr-actions');if(!b||!fw||!home)return;
     if(window.matchMedia('(min-width:761px)').matches){if(b.parentNode!==fw)fw.insertBefore(b,fw.firstChild);}
     else if(b.parentNode!==home)home.insertBefore(b,home.firstChild);
+    var g=document.getElementById('mcd-gift');
+    if(!g){g=document.createElement('button');g.type='button';g.id='mcd-gift';g.title='Inviter un ami';g.setAttribute('aria-label','Inviter un commerçant ou un ami');g.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M12 7.2C10.6 4.3 7.2 3.4 6.6 5.5 6.1 7.3 9.6 7.4 12 7.2z" fill="#FFD23F"/><path d="M12 7.2c1.4-2.9 4.8-3.8 5.4-1.7.5 1.8-3 1.9-5.4 1.7z" fill="#FFD23F"/><rect x="3.6" y="11" width="16.8" height="10" rx="2" fill="#FF5A4E"/><rect x="2.6" y="7.4" width="18.8" height="4.2" rx="1.4" fill="#FF7F72"/><rect x="10.5" y="7.4" width="3" height="13.6" fill="#FFD23F"/></g></svg>';g.addEventListener('click',function(e){e.stopPropagation();mcdGiftToggle(g);});}
+    if(g.previousElementSibling!==b||g.parentNode!==b.parentNode)b.parentNode.insertBefore(g,b.nextSibling);
   }
   try{window.matchMedia('(min-width:761px)').addEventListener('change',marshallUpgradePlace);}catch(e){}
   /* La barre de navigation garde la même position dans tous les onglets et se resserre si la place manque :
@@ -18717,6 +18744,51 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     else if(e.target.closest('#mbb-brand-linkbio'))mcdLinkBioOpen();
   });
   /* ===== Parrainage : lien d’invitation personnel (copier, partager, QR code) ===== */
+  function mcdGiftToggle(btn){
+    var old=document.getElementById('mcd-gift-pop'); if(old){ old.remove(); return; }
+    var ok=!window.MCD_DEMO&&authUser&&authUser.id, link=ok?mcdInviteLink():'';
+    var msg='Je crée mes posts Instagram et Facebook avec Studio Social (Mon Copain Digital), c’est simple et pensé pour les commerçants. Essaie gratuitement : '+link;
+    var pop=document.createElement('div'); pop.id='mcd-gift-pop'; pop.setAttribute('role','dialog'); pop.setAttribute('aria-label','Inviter un commerçant ou un ami');
+    pop.innerHTML='<div class="gp-head"><span class="gp-ic"><svg viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M12 7.2C10.6 4.3 7.2 3.4 6.6 5.5 6.1 7.3 9.6 7.4 12 7.2z" fill="#FFD23F"/><path d="M12 7.2c1.4-2.9 4.8-3.8 5.4-1.7.5 1.8-3 1.9-5.4 1.7z" fill="#FFD23F"/><rect x="3.6" y="11" width="16.8" height="10" rx="2" fill="#FF5A4E"/><rect x="2.6" y="7.4" width="18.8" height="4.2" rx="1.4" fill="#FF7F72"/><rect x="10.5" y="7.4" width="3" height="13.6" fill="#FFD23F"/></g></svg></span><div><b>Tu aimes Studio Social&nbsp;?</b><span>Invite un commerçant ou un ami avec ton lien personnel.</span></div><button type="button" class="gp-x" aria-label="Fermer">✕</button></div>'
+      +'<ol class="gp-steps"><li><i>1</i><span><b>Copie ton lien</b> personnel ci-dessous.</span></li><li><i>2</i><span><b>Envoie-le</b> par WhatsApp, e-mail, SMS ou sur tes réseaux.</span></li><li><i>3</i><span>Ton ami arrive <b>directement sur l’inscription</b> et on sait que c’est toi qui l’as invité.</span></li></ol>'
+      +(ok?'<div class="gp-link"><input readonly value="'+esc(link)+'" aria-label="Ton lien d’invitation"><button type="button" class="gp-copy">Copier</button></div>'
+        +'<div class="gp-acts">'+(navigator.share?'<button type="button" class="gp-share">Partager…</button>':'')+'<a target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(msg)+'">WhatsApp</a><a href="mailto:?subject='+encodeURIComponent('Je te conseille Studio Social')+'&body='+encodeURIComponent(msg)+'">E-mail</a></div>'
+        :'<p class="gp-note">Ton lien d’invitation est disponible dès que tu as un compte Studio Social.</p>');
+    document.body.appendChild(pop);
+    var r=btn.getBoundingClientRect(), w=pop.offsetWidth;
+    pop.style.top=Math.round(r.bottom+12)+'px'; pop.style.left=Math.round(Math.max(12,Math.min(window.innerWidth-w-12,r.left+r.width/2-w/2)))+'px';
+    pop.style.setProperty('--gp-arrow',Math.round(r.left+r.width/2-parseFloat(pop.style.left))+'px');
+    function close(){ pop.remove(); document.removeEventListener('mousedown',out,true); document.removeEventListener('keydown',key,true); }
+    function out(e){ if(!pop.contains(e.target)&&!btn.contains(e.target)) close(); }
+    function key(e){ if(e.key==='Escape'){ e.preventDefault(); close(); } }
+    document.addEventListener('mousedown',out,true); document.addEventListener('keydown',key,true);
+    pop.querySelector('.gp-x').addEventListener('click',close);
+    var cp=pop.querySelector('.gp-copy'); if(cp) cp.addEventListener('click',async function(){ try{ await navigator.clipboard.writeText(link); cp.textContent='Copié ✓'; setTimeout(function(){ cp.textContent='Copier'; },1800); }catch(e){ var i=pop.querySelector('.gp-link input'); i.select(); toast('Sélectionne le lien puis copie-le (Ctrl+C).'); } });
+    var sh=pop.querySelector('.gp-share'); if(sh) sh.addEventListener('click',function(){ navigator.share({title:'Studio Social',text:msg,url:link}).catch(function(){}); });
+  }
+  (function(){
+    var st=document.createElement('style'); st.id='mcd-gift-style';
+    st.textContent='#mcd-gift{flex:0 0 auto;width:38px;height:38px;margin:0 10px 0 -2px;padding:0;border:0;border-radius:12px;background:rgba(255,255,255,.95);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(120,50,0,.22);animation:mplPop .6s cubic-bezier(.34,1.56,.64,1) .15s both,mplBump 7s ease-in-out 6s infinite}'
+      +'#mcd-gift svg{width:24px;height:24px}#mcd-gift:hover{animation-play-state:paused;transform:translateY(-1px) rotate(-6deg)}'
+      +'.hdr-actions #mcd-gift{margin:0 8px 0 0;width:34px;height:34px}'
+      +'@media (prefers-reduced-motion:reduce){#mcd-gift{animation:none}}'
+      +'#mcd-gift-pop{position:fixed;z-index:100040;width:min(400px,calc(100vw - 24px));box-sizing:border-box;background:#fff;border-radius:20px;padding:16px 16px 14px;box-shadow:0 24px 60px rgba(40,20,0,.28);border:1px solid #f0e2d2;font-family:Nunito,system-ui,sans-serif;color:#2b2118;animation:gpIn .22s ease-out}'
+      +'#mcd-gift-pop::before{content:"";position:absolute;top:-7px;left:calc(var(--gp-arrow,50%) - 7px);width:14px;height:14px;background:#fff;border-left:1px solid #f0e2d2;border-top:1px solid #f0e2d2;transform:rotate(45deg)}'
+      +'@keyframes gpIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}'
+      +'#mcd-gift-pop .gp-head{display:flex;align-items:center;gap:12px;padding:4px 2px 12px;border-bottom:1px solid #f3e8dc}'
+      +'#mcd-gift-pop .gp-ic{flex:0 0 auto;width:48px;height:48px;border-radius:14px;background:linear-gradient(180deg,#FFF6EC,#FFE7D1);display:flex;align-items:center;justify-content:center}#mcd-gift-pop .gp-ic svg{width:32px;height:32px}'
+      +'#mcd-gift-pop .gp-head b{display:block;font:600 16px Fredoka,system-ui,sans-serif}#mcd-gift-pop .gp-head span{font-size:13px;color:#6b5848;line-height:1.4}'
+      +'#mcd-gift-pop .gp-x{margin-left:auto;align-self:flex-start;border:0;background:#f4efe8;width:28px;height:28px;border-radius:50%;cursor:pointer;color:#6b5848}'
+      +'#mcd-gift-pop .gp-steps{list-style:none;margin:12px 0;padding:0;display:flex;flex-direction:column;gap:9px}'
+      +'#mcd-gift-pop .gp-steps li{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45}'
+      +'#mcd-gift-pop .gp-steps i{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:#F3852B;color:#fff;font:700 12px/22px Fredoka,sans-serif;text-align:center;font-style:normal}'
+      +'#mcd-gift-pop .gp-link{display:flex;gap:6px;margin:4px 0 10px}#mcd-gift-pop .gp-link input{flex:1;min-width:0;border:1.5px solid #f0dcc6;border-radius:10px;padding:8px 10px;font:inherit;font-size:12.5px;color:#4a3a2a;background:#fffaf5}'
+      +'#mcd-gift-pop .gp-copy{border:0;border-radius:10px;padding:0 14px;background:#F3852B;color:#fff;font:600 13px Fredoka,system-ui,sans-serif;cursor:pointer}'
+      +'#mcd-gift-pop .gp-acts{display:flex;gap:6px;flex-wrap:wrap}#mcd-gift-pop .gp-acts a,#mcd-gift-pop .gp-acts button{flex:1;text-align:center;text-decoration:none;border:1.5px solid #f0dcc6;border-radius:999px;padding:7px 10px;background:#fff;color:#2b2118;font:600 12.5px Fredoka,system-ui,sans-serif;cursor:pointer}'
+      +'#mcd-gift-pop .gp-acts a:hover,#mcd-gift-pop .gp-acts button:hover{border-color:#F3852B;color:#C7620E}'
+      +'#mcd-gift-pop .gp-note{margin:4px 0 0;font-size:12.5px;color:#8a7562;background:#fffaf5;border-radius:10px;padding:9px 11px}';
+    document.head.appendChild(st);
+  })();
   function mcdInviteLink(){return location.origin+location.pathname+'?parrain='+encodeURIComponent(String(authUser&&authUser.id||''));}
   async function mcdInviteOpen(){
     if(window.MCD_DEMO||!authUser||!authUser.id){toast('Le lien d’invitation est disponible avec un compte Studio Social.');return;}
