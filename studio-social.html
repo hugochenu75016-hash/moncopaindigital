@@ -795,6 +795,10 @@
   #view-pilote .plx-btn2:hover{ border-color:#f5b07a; }
   #view-pilote .plx-mascot.plx-anim{ background:linear-gradient(180deg,#fff,#FFF1E2); }
   #view-pilote .plx-mascot.plx-anim img{ width:100%; height:auto; margin:6px 0 0; }
+  #view-pilote .pl-tools{ position:absolute; top:8px; right:8px; display:flex; gap:6px; }
+  #view-pilote .pl-tools .icon-btn{ width:32px; height:32px; border-radius:10px; border:0; background:rgba(255,255,255,.92); color:#4a3a2a; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.15); padding:0; }
+  #view-pilote .pl-tools .icon-btn svg{ width:16px; height:16px; } #view-pilote .pl-tools .icon-btn:hover{ background:#fff; color:#F3852B; }
+  #view-pilote .pl-tools [data-pl-act="delete"]:hover{ color:#c0392b; }
   #view-pilote .plx-anim-ordi{ width:92px; height:auto; flex:0 0 auto; }
   #view-pilote .plx-anim-bravo{ width:84px; height:auto; flex:0 0 auto; margin:-10px 0 -6px; }
   @media (max-width:1000px){ #view-pilote .plx-steps{ grid-template-columns:1fr; } }
@@ -5169,16 +5173,44 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     piloteRenderPlans();
   }
   function piloteItemHTML(plan,it){
+    var lp=it.post_id?findPost(it.post_id):null;   // publication programmée : on affiche sa version à jour (modifiée dans le Composer)
+    if(lp){ it=Object.assign({},it,{caption:mcdSigStrip(lp.caption||''),tags:lp.tags||'',when:lp.scheduled_at?new Date(lp.scheduled_at).getTime()/1000:it.when});
+      var m0=(lp.media||[])[0]; if(m0&&m0.url) it.media_url=m0.url, it.media_type=m0.type==='video'?'video':'image'; }
     var d=new Date((it.when||0)*1000), st=it.status||'proposed';
     var badge={proposed:'À valider',scheduled:'✓ Programmé',approved_auto:'🤖 Publication auto',publishing:'Publication…',published:'✓ Publié',rejected:'Refusé',error:'⚠ Erreur'}[st]||st;
     var media=it.media_url?(it.media_type==='video'?'<video src="'+esc(it.media_url)+'#t=0.5" muted playsinline preload="metadata" controls></video>':'<img src="'+esc(it.media_url)+'" alt="" loading="lazy">'):'<div class="pl-nomedia">Pas de visuel</div>';
-    var edit=st==='proposed';
-    return '<div class="pl-item st-'+st+'" data-pl-plan="'+esc(plan.id)+'" data-pl-item="'+esc(it.id)+'"><div class="pl-media">'+media+(it.kind==='avatar'?'<span class="pl-tag">'+plxIc('talk')+'Vidéo parlée</span>':'')+'</div>'
+    var edit=st==='proposed'||st==='approved_auto', canOpen=st==='scheduled'&&lp;
+    var tools='<div class="pl-tools">'+(canOpen?'<button type="button" class="icon-btn" data-pl-act="open" title="Modifier (texte, visuel, date)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>':'')
+      +'<button type="button" class="icon-btn" data-pl-act="delete" title="'+(st==='published'?'Retirer de cette liste':'Supprimer')+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button></div>';
+    return '<div class="pl-item st-'+st+'" data-pl-plan="'+esc(plan.id)+'" data-pl-item="'+esc(it.id)+'"><div class="pl-media">'+media+(it.kind==='avatar'?'<span class="pl-tag">'+plxIc('talk')+'Vidéo parlée</span>':'')+tools+'</div>'
       +'<div class="pl-body"><div class="pl-meta"><b>'+esc(d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'short'}))+' · '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+'</b><span class="pl-fmt">'+esc(it.format||'Post')+'</span><span class="pl-badge">'+badge+'</span></div>'
       +'<div class="pl-title">'+esc(it.title||'')+'</div>'
       +(edit?'<textarea class="pl-cap" data-pl-cap rows="4">'+esc(it.caption||'')+'</textarea><input class="pl-tags" data-pl-tags value="'+esc(it.tags||'')+'">':'<p class="pl-captxt">'+esc(it.caption||'')+'</p>'+(it.tags?'<small class="pl-tagtxt">'+esc(it.tags)+'</small>':''))
       +(it.error?'<small class="pl-err">'+esc(it.error)+'</small>':'')
-      +'<div class="pl-iacts">'+(edit?'<button type="button" class="pl-btn pl-ok" data-pl-act="approve">'+plxIc('check')+'Je valide</button><button type="button" class="pl-btn3" data-pl-act="reject">Pas celui-là</button>':(st==='rejected'?'<button type="button" class="pl-btn3" data-pl-act="restore">Remettre</button>':''))+'</div></div></div>';
+      +'<div class="pl-iacts">'+(st==='proposed'?'<button type="button" class="pl-btn pl-ok" data-pl-act="approve">'+plxIc('check')+'Je valide</button><button type="button" class="pl-btn3" data-pl-act="reject">Pas celui-là</button>':(st==='rejected'?'<button type="button" class="pl-btn3" data-pl-act="restore">Remettre</button>':(st==='approved_auto'?'<button type="button" class="pl-btn" data-pl-act="saveedit">Enregistrer le texte</button>':(canOpen?'<button type="button" class="pl-btn" data-pl-act="open">Modifier</button>':''))))+'</div></div></div>';
+  }
+  async function piloteItemTool(el,act){
+    var card=el.closest('[data-pl-item]'), plan=PILOTE.plans[0]; if(!card||!plan) return;
+    var it=(plan.items||[]).find(function(x){ return x.id===card.getAttribute('data-pl-item'); }); if(!it) return;
+    var lp=it.post_id?findPost(it.post_id):null;
+    if(act==='open'){ if(lp){ loadIntoComposer(lp.id); toast('Publication programmée ouverte : modifie puis clique sur « Programmer ».'); } return; }
+    if(act==='saveedit'){
+      var cap=card.querySelector('[data-pl-cap]'), tg=card.querySelector('[data-pl-tags]'); el.disabled=true;
+      try{ var d1=await piloteApi('/pilote/item',{plan:plan.id,item:it.id,action:'edit',caption:cap?cap.value:it.caption,tags:tg?tg.value:it.tags}); PILOTE.plans[0]=d1.plan; toast('Texte enregistré ✓'); piloteRenderPlans(); }
+      catch(e){ el.disabled=false; toast('Pilote : '+(e&&e.message||e),true); } return;
+    }
+    var q=it.status==='scheduled'?'Supprimer cette publication ? Elle sera aussi retirée de ton calendrier et ne sera pas publiée.':(it.status==='published'?'Retirer cette publication de la liste du Pilote ? (Elle reste dans ton historique.)':(it.status==='approved_auto'?'Supprimer cette publication ? Marshall ne la publiera pas.':'Supprimer cette publication proposée ?'));
+    if(!confirm(q)) return;
+    el.disabled=true;
+    try{
+      if(it.status==='scheduled'&&it.post_id){ await removePost(it.post_id); try{ mcdRerenderLists(); }catch(e){} }
+      var d=await piloteApi('/pilote/item',{plan:plan.id,item:it.id,action:'delete'}); PILOTE.plans[0]=d.plan; piloteRenderPlans(); toast('Publication supprimée');
+    }catch(e){ el.disabled=false; toast('Pilote : '+(e&&e.message||e),true); }
+  }
+  /* Une publication du Pilote supprimée ailleurs (Historique, Calendrier) disparaît aussi de la liste du Pilote. */
+  function piloteForgetPost(p){
+    var ref=p&&p.results&&p.results.pilote; if(!ref||!ref.plan||!ref.item) return;
+    piloteApi('/pilote/item',{plan:ref.plan,item:ref.item,action:'delete'}).then(function(d){ if(PILOTE.plans[0]&&PILOTE.plans[0].id===ref.plan){ PILOTE.plans[0]=d.plan; if($('#view-pilote.active')) piloteRenderPlans(); } }).catch(function(){});
   }
   function piloteRenderPlans(){
     var box=$('#pl-plans'); if(!box) return;
@@ -5276,6 +5308,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       piloteRenderPlans(); if(ok) toast('✅ '+ok+' publication'+(ok>1?'s programmées':' programmée')+' dans ton calendrier'); return;
     }
     if(act==='approve'||act==='reject'||act==='restore'){ piloteItemAction(b,act); }
+    if(act==='open'||act==='delete'||act==='saveedit'){ piloteItemTool(b,act); }
   });
   document.addEventListener('change',function(e){
     var v=$('#view-pilote'); if(!v||!v.contains(e.target)) return; var t=e.target;
@@ -17035,7 +17068,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function isRepPost(p){ return !!(p&&p.results&&(p.results.marshall_repetition||p.results.repetition_id)); }
   var histFilter='all';
   function renderHistory(){
-    var all=posts.filter(function(p){ return ['published','failed','pending_config','publishing'].indexOf(p.status)!==-1; });
+    var all=posts.filter(function(p){ return ['published','failed','pending_config','publishing'].indexOf(p.status)!==-1||(p.status==='scheduled'&&p.results&&p.results.pilote); });
     var repCount=all.filter(isRepPost).length, nEl=$('#hist-rep-n'); if(nEl) nEl.textContent=repCount?String(repCount):'';
     var rows=all.filter(function(p){ return histFilter==='all'||(histFilter==='rep')===isRepPost(p); });
     var el=$('#history-list');
@@ -17047,7 +17080,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return '<div class="item" style="flex-wrap:wrap;"><div class="ithumb'+(p.media&&p.media[0]?' zoom':'')+'" data-hview="'+p.id+'" title="Voir en grand">'+thumbHtml(p)+'</div>'+
         '<div class="imain"><div class="it1">'+esc(excerpt(p))+'</div>'+
         '<div class="it2">'+netDots(p.nets)+(rep?'<span class="pill rep">🔁 Marshall'+(fmt?' · '+esc(fmt):'')+'</span>':'<span>'+esc(p.author_name||'')+'</span><span>·</span>')+'<span>'+fmtDate(p.created_at)+'</span></div></div>'+
-        '<div class="iend">'+statusPill(p)+
+        '<div class="iend">'+statusPill(p)+(p.status==='scheduled'?'<button class="icon-btn" data-edit="'+p.id+'" title="Modifier"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>':'')+
           '<button class="icon-btn" data-dup="'+p.id+'" title="Dupliquer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>'+
           '<button class="icon-btn" data-del="'+p.id+'" title="Supprimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>'+
         '</div>'+(errs?'<div style="flex:1 0 100%;">'+errs+'</div>':'')+'</div>';
@@ -18443,7 +18476,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function mcdRerenderLists(){updateBadges();try{renderHistory();}catch(e){}try{renderDrafts();}catch(e){}try{renderCalendar();}catch(e){}}
   async function mcdFinalizeDelete(){
     var pd=mcdPendingDelete;if(!pd)return;mcdPendingDelete=null;clearTimeout(pd.t);clearInterval(pd.iv);if(pd.bar)pd.bar.remove();
-    var ok=await removePost(pd.p.id);mcdRerenderLists();
+    var ok=await removePost(pd.p.id);mcdRerenderLists();try{piloteForgetPost(pd.p);}catch(e){}
     if(!ok)toast('Publication retirée de cet appareil. La suppression sera confirmée sur le serveur dès le retour du réseau.');
   }
   function mcdSoftDelete(id){
