@@ -2928,6 +2928,81 @@ html body :is(.pub-card,.cal-cell,.history-item,.draft-item,.conn-card,.gate-car
 html body :is(.net-chip,.fmt-chip,.tab-btn,.pill,.cal-nav button,.btn-sm){background:#fff!important;border:1px solid #e1e1d8!important;color:#6b6b61!important;box-shadow:none!important;border-radius:7px!important}
 html body :is(.net-chip.on,.fmt-chip.active,.tab-btn.active){background:#eeeeE8!important;color:#292924!important;border-color:#cfcfc4!important}
 html body :is(.pub-card,.perm-sheet,.topbar,.conn-card,.gate-card) :is(span,b,label,p,button,h2,h3,small){font-family:var(--studio-font)!important}
+/* ===== Agents IA v7 : fiche fluide, Marshall animé dans le rôle de chaque agent ===== */
+html body #marshall-agent-dock{border-radius:24px!important;border:1px solid #f0e2d2!important;box-shadow:0 28px 70px rgba(60,30,0,.18),0 2px 6px rgba(60,30,0,.06)!important;background:#fff!important;overflow:hidden}
+html body #marshall-agent-dock .madock-body{padding:14px 14px 16px!important;gap:14px!important}
+/* En-tête : Marshall animé + nom + rôle */
+html body #marshall-agent-dock .madock-detail-head.mag-has-hero{position:relative;display:grid!important;grid-template-columns:112px 1fr;align-items:center;gap:14px!important;padding:12px 14px 12px 12px!important;border-radius:20px!important;border:1px solid #f6dcc0!important;background:radial-gradient(130% 160% at 0% 0%,#FFF1E1 0%,#FFF8F0 45%,#fff 100%)!important;box-shadow:0 1px 0 #fff inset,0 10px 26px rgba(243,133,43,.10)!important;overflow:hidden}
+html body #marshall-agent-dock .madock-detail-head.mag-has-hero::after{content:'';position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(243,133,43,.14),rgba(243,133,43,0) 70%);pointer-events:none}
+html body #marshall-agent-dock .madock-detail-head.mag-has-hero > .madock-pill-icon{display:none!important}
+html body #marshall-agent-dock .madock-detail-head.mag-has-hero .madock-meta{display:none!important}
+.mag-hero{position:relative;width:112px;height:128px;padding:6px 4px 0;box-sizing:border-box;border-radius:20px;overflow:hidden;background:radial-gradient(120% 90% at 50% 15%,#fff 0%,#FFE9D2 70%,#FFD9B5 100%);box-shadow:inset 0 0 0 1px rgba(243,133,43,.18),0 8px 18px rgba(243,133,43,.18);display:flex;align-items:flex-end;justify-content:center}
+.mag-hero img{width:100%;height:100%;max-width:none;object-fit:contain;object-position:center bottom;margin:0;filter:drop-shadow(0 6px 8px rgba(90,40,0,.16));animation:magIn .5s cubic-bezier(.2,1.2,.4,1) both}
+.mag-hero .mag-badge{position:absolute;left:6px;bottom:6px;width:24px;height:24px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 3px 8px rgba(0,0,0,.18)}
+.mag-hero .mag-badge svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+html body #marshall-agent-dock .mag-has-hero .madock-detail-copy b{font:700 18px/1.2 var(--studio-font)!important;color:#2a1d12!important;letter-spacing:-.01em}
+html body #marshall-agent-dock .mag-has-hero .madock-detail-copy p{margin:6px 0 0!important;font:400 12.5px/1.55 var(--studio-font)!important;color:#7d6d5e!important}
+.mag-tag{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:3px 9px;border-radius:999px;background:#fff;border:1px solid #f3d9bd;font:700 10.5px/1.2 var(--studio-font);color:#C7620E;letter-spacing:.02em}
+.mag-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#2fbf6b;box-shadow:0 0 0 3px rgba(47,191,107,.18)}
+@keyframes magIn{from{transform:translateY(10px) scale(.94)}to{transform:none}}
+/* Entrée fluide du contenu à chaque changement d'agent */
+#marshall-agent-dock-detail.mag-enter > *{animation:magFade .42s cubic-bezier(.2,.9,.3,1) both}
+#marshall-agent-dock-detail.mag-enter > *:nth-child(2){animation-delay:.04s}#marshall-agent-dock-detail.mag-enter > *:nth-child(3){animation-delay:.08s}
+#marshall-agent-dock-detail.mag-enter .sai-root > *{animation:magFade .42s cubic-bezier(.2,.9,.3,1) both}
+#marshall-agent-dock-detail.mag-enter .sai-root > *:nth-child(2){animation-delay:.03s}#marshall-agent-dock-detail.mag-enter .sai-root > *:nth-child(3){animation-delay:.06s}#marshall-agent-dock-detail.mag-enter .sai-root > *:nth-child(4){animation-delay:.09s}#marshall-agent-dock-detail.mag-enter .sai-root > *:nth-child(5){animation-delay:.12s}#marshall-agent-dock-detail.mag-enter .sai-root > *:nth-child(n+6){animation-delay:.15s}
+@keyframes magFade{from{opacity:.35;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* Libellés de section */
+html body #marshall-agent-dock .sai-root .sai-lbl{margin:6px 2px -4px!important;font:700 10.5px/1 var(--studio-font)!important;letter-spacing:.09em!important;color:#9a6a42!important}
+/* Sélecteurs (IA, qualité, mode) : piste douce + pastille blanche qui glisse */
+html body #marshall-agent-dock .sai-root .lgt{background:#F6EFE7!important;box-shadow:inset 0 1px 2px rgba(80,40,0,.06)!important;padding:4px!important;border-radius:16px!important}
+html body #marshall-agent-dock .sai-root .lgt-thumb{top:4px;bottom:4px;transition:transform .45s cubic-bezier(.35,1.35,.45,1)!important}
+html body #marshall-agent-dock .sai-root .lgt-thumb i{border-radius:12px!important;background:#fff!important;box-shadow:0 2px 10px rgba(80,40,0,.12),0 0 0 1px rgba(243,133,43,.22)!important}
+html body #marshall-agent-dock .sai-root .lgt-thumb i::after{display:none!important}
+html body #marshall-agent-dock .sai-root .lgt button{border-radius:12px!important;padding:9px 6px!important;color:#8a7562!important;transition:color .25s ease,transform .15s ease!important}
+html body #marshall-agent-dock .sai-root .lgt button:hover{color:#3b2a1c!important}
+html body #marshall-agent-dock .sai-root .lgt button:active{transform:scale(.97)}
+html body #marshall-agent-dock .sai-root .lgt button.on{color:#2a1d12!important}
+html body #marshall-agent-dock .sai-root .lgt button.on b{color:#C7620E}
+html body #marshall-agent-dock .sai-root .lgt button b{font:700 12.5px/1.25 var(--studio-font)!important}
+html body #marshall-agent-dock .sai-root .lgt button small{font:500 10.5px/1.3 var(--studio-font)!important;opacity:.75!important;margin-top:2px}
+html body #marshall-agent-dock .sai-root .lgt button.locked{color:#b9a898!important}
+html body #marshall-agent-dock .sai-root .lgt button.locked::before{inset:3px!important;border-radius:10px!important;background:repeating-linear-gradient(135deg,rgba(185,168,152,.08) 0 6px,transparent 6px 12px)!important;border:1px dashed rgba(185,168,152,.5)!important}
+/* Zone d'import */
+html body #marshall-agent-dock .sai-root .sai-drop{border:1.5px dashed #ebcfb2!important;border-radius:18px!important;background:linear-gradient(180deg,#fffcf8,#fff5ea)!important;transition:border-color .2s,box-shadow .2s,transform .2s,background .2s!important}
+html body #marshall-agent-dock .sai-root .sai-drop:hover{border-color:#F3852B!important;box-shadow:0 10px 24px rgba(243,133,43,.14)!important;transform:translateY(-1px)}
+html body #marshall-agent-dock .sai-root .sai-drop-ico{transition:transform .3s cubic-bezier(.3,1.4,.5,1)}
+html body #marshall-agent-dock .sai-root .sai-drop:hover .sai-drop-ico{transform:translateY(-3px) scale(1.06)}
+/* Champs de texte */
+html body #marshall-agent-dock .sai-root .sai-prompt,html body #marshall-agent-dock .sai-root textarea,html body #marshall-agent-dock .sai-root input[type=text],html body #marshall-agent-dock .sai-root input[type=url]{border:1.5px solid #eadccc!important;border-radius:14px!important;background:#fff!important;transition:border-color .2s,box-shadow .2s!important}
+html body #marshall-agent-dock .sai-root .sai-prompt:focus,html body #marshall-agent-dock .sai-root textarea:focus,html body #marshall-agent-dock .sai-root input[type=text]:focus,html body #marshall-agent-dock .sai-root input[type=url]:focus{border-color:#F3852B!important;box-shadow:0 0 0 4px rgba(243,133,43,.13)!important;outline:none}
+/* Durées */
+html body #marshall-agent-dock .sai-root .sai-secs{gap:6px}
+html body #marshall-agent-dock .sai-root .sai-secs button{border:1.5px solid #eadccc!important;background:#fff!important;border-radius:999px!important;color:#6b5848!important;transition:all .2s ease!important}
+html body #marshall-agent-dock .sai-root .sai-secs button:hover{border-color:#f5b07a!important;transform:translateY(-1px)}
+html body #marshall-agent-dock .sai-root .sai-secs button.on{border-color:#F3852B!important;background:#F3852B!important;color:#fff!important;box-shadow:0 6px 14px rgba(243,133,43,.3)}
+/* Bouton principal : dégradé, ombre douce, reflet qui passe */
+html body #marshall-agent-dock .sai-go1{position:relative;overflow:hidden;border-radius:16px!important;padding:14px 18px!important;background:linear-gradient(135deg,#FF9F4A 0%,#F3852B 55%,#E06A12 100%)!important;box-shadow:0 10px 24px rgba(243,133,43,.35)!important;transition:transform .2s ease,box-shadow .2s ease,filter .2s!important}
+html body #marshall-agent-dock .sai-go1::after{content:'';position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(105deg,rgba(255,255,255,0),rgba(255,255,255,.35),rgba(255,255,255,0));transform:skewX(-18deg);transition:left .6s ease}
+html body #marshall-agent-dock .sai-go1:hover{transform:translateY(-2px)!important;box-shadow:0 14px 30px rgba(243,133,43,.42)!important}
+html body #marshall-agent-dock .sai-go1:hover::after{left:120%}
+html body #marshall-agent-dock .sai-go1:active{transform:translateY(1px)!important;box-shadow:0 5px 14px rgba(243,133,43,.35)!important}
+html body #marshall-agent-dock .sai-go1:disabled{filter:saturate(.6);opacity:.75}
+html body #marshall-agent-dock .sai-go1 span{font:700 15.5px/1.2 var(--studio-font)!important}
+/* Fonctions des agents « conseil » */
+html body #marshall-agent-dock .madock-actions-grid{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+html body #marshall-agent-dock .madock-action{position:relative;min-height:46px!important;padding:11px 14px!important;text-align:left;border:1px solid #efe3d6!important;border-radius:14px!important;background:#fff!important;color:#2b2118!important;font:600 13px/1.35 var(--studio-font)!important;box-shadow:0 1px 0 rgba(80,40,0,.03)!important;transition:border-color .2s,box-shadow .2s,transform .2s,background .2s!important}
+html body #marshall-agent-dock .madock-action em{color:#F3852B!important;font-style:normal;transition:transform .2s;display:inline-block}
+html body #marshall-agent-dock .madock-action:hover{border-color:#F3852B!important;background:#FFF8F0!important;box-shadow:0 8px 20px rgba(243,133,43,.14)!important;transform:translateY(-1px)}
+html body #marshall-agent-dock .madock-action:hover em{transform:translateX(3px)}
+/* Colonne des agents : portraits de Marshall dans son rôle */
+html body .ed-agent-tool{transition:background .2s,transform .2s,box-shadow .2s!important}
+html body .ed-agent-tool:hover{transform:translateX(-2px)}
+html body .ed-agent-tool-icon.mag-has-thumb{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 50% 15%,#fff 0%,#FFE9D2 70%,#FFD9B5 100%)!important}
+html body .ed-agent-tool-icon.mag-has-thumb svg{opacity:0}
+html body .ed-agent-tool-icon .mag-thumb{position:absolute;left:50%;top:0;width:150%;max-width:none;height:auto;transform:translateX(-50%);opacity:0;transition:opacity .3s}html body .ed-agent-tool-icon.mag-has-thumb .mag-thumb{opacity:1}
+.mag-ei{display:inline-flex;width:1.3em;height:1.3em;vertical-align:-.3em;margin-right:.15em}.mag-ei svg{width:100%;height:100%}
+.sai-drop-ico .mag-ei{width:34px;height:34px;margin:0}
+@media (prefers-reduced-motion:reduce){.mag-hero img,#marshall-agent-dock-detail.mag-enter > *,#marshall-agent-dock-detail.mag-enter .sai-root > *{animation:none!important}html body #marshall-agent-dock .sai-go1::after{display:none}}
 </style>
 
 <style id="mcd-marshall-header-cleanup">
@@ -8817,7 +8892,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallAgentRightRailInit(){
     var rail=document.getElementById('ed-agent-rail'); if(!rail)return;
     var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','avatar','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
-    rail.innerHTML='<div class="ed-agent-rail-title">Agents IA</div>'+order.map(function(key){var a=data[key];var lk=marshallAgentLocked(key);return '<button type="button" class="ed-agent-tool'+(lk?' locked':'')+'" data-agent-rail="'+key+'" title="'+esc(lk?a.name+' · Bientôt disponible':a.name)+'"'+(lk?' aria-disabled="true"':'')+'>'+(lk?MARSHALL_LOCK_HTML:'')+'<span class="ed-agent-tool-icon" style="background:'+a.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="ed-agent-tool-copy"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></span></button>';}).join('');
+    rail.innerHTML='<div class="ed-agent-rail-title">Agents IA</div>'+order.map(function(key){var a=data[key];var lk=marshallAgentLocked(key);return '<button type="button" class="ed-agent-tool'+(lk?' locked':'')+'" data-agent-rail="'+key+'" title="'+esc(lk?a.name+' · Bientôt disponible':a.name)+'"'+(lk?' aria-disabled="true"':'')+'>'+(lk?MARSHALL_LOCK_HTML:'')+'<span class="ed-agent-tool-icon" style="background:'+a.color+'">'+marshallAgentLogoSVG(key)+'<img class="mag-thumb" src="agents/ag-'+key+'-thumb.png" alt="" onload="this.parentNode.classList.add(\'mag-has-thumb\')" onerror="this.remove()"></span><span class="ed-agent-tool-copy"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></span></button>';}).join('');
     $all('[data-agent-rail]',rail).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-agent-rail')||'marshall';if(marshallAgentLocked(key)){toast('🔒 '+((marshallAgentShowcaseData()[key]||{}).name||'Cet agent')+' : bientôt disponible.');return;}var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected=key;marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();});});
     marshallAgentRightRailSync();
   }
@@ -9515,6 +9590,63 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     marshallAgentRightRailSync();
   }
 
+  /* ===== Agents IA v7 : Marshall animé (Wan 2.2) dans le rôle de chaque agent ===== */
+  var MAG_KEYS=['marshall','studio','genjutsu','avatar','clipper','nation','voice','social','story','brand','campaign','image','visual','testing','audit','team'];
+  function marshallAgentHero(key,animate){
+    var det=document.getElementById('marshall-agent-dock-detail');if(!det)return;
+    var head=det.querySelector('.madock-detail-head');
+    if(head&&MAG_KEYS.indexOf(key)>=0&&!head.querySelector('.mag-hero')){
+      var prof=marshallAgentShowcaseData()[key]||{},h=document.createElement('span');h.className='mag-hero';
+      h.innerHTML='<img src="agents/ag-'+key+'.webp" alt="Marshall · '+esc(prof.name||'')+'" onerror="var h=this.parentNode;if(h&&h.parentNode)h.parentNode.classList.remove(\'mag-has-hero\');if(h)h.remove();">';
+      head.insertBefore(h,head.firstChild);head.classList.add('mag-has-hero');
+      var cp=head.querySelector('.madock-detail-copy'),b=cp&&cp.querySelector('b');
+      if(b&&prof.tag&&!cp.querySelector('.mag-tag')){var t=document.createElement('span');t.className='mag-tag';t.textContent=prof.tag;b.insertAdjacentElement('afterend',t);}
+    }
+    if(animate&&document.visibilityState==='visible'){det.classList.remove('mag-enter');void det.offsetWidth;det.classList.add('mag-enter');setTimeout(function(){det.classList.remove('mag-enter');},900);}
+    if(!det.dataset.magObs){det.dataset.magObs='1';new MutationObserver(function(){try{marshallAgentHero(window.marshallAgentDockSelected||'marshall',false);}catch(e){}}).observe(det,{childList:true});}
+  }
+  /* Fiches agents : les emojis deviennent des icônes SVG cartoon (même trait que la barre de navigation) */
+  var MAG_EMOJI_SVG={
+    '\u{1F5BC}':['<rect x="3" y="4.5" width="18" height="15" rx="3" fill="#8FBFFF"/><path d="M3.6 17.2l5.4-5.6 3.6 3.6 2.6-2.6 5.2 4.8v.6a1.9 1.9 0 0 1-1.9 1.9H5.5a1.9 1.9 0 0 1-1.9-1.9z" fill="#7ED957"/>','<circle cx="16.4" cy="8.9" r="1.9" fill="#FFD23F"/>'],
+    '\u270D':['<path d="M15.4 3.8l4.8 4.8L9.1 19.7l-5.6 1.1 1.1-5.6z" fill="#FFD23F"/><path d="M13.6 5.6l4.8 4.8" fill="none"/><path d="M15.4 3.8l1.4-1.4a1.9 1.9 0 0 1 2.7 0l2.1 2.1a1.9 1.9 0 0 1 0 2.7l-1.4 1.4z" fill="#FF7FA8"/>',''],
+    '\u{1F331}':['<path d="M7 14h10l-1.4 6.2a1.6 1.6 0 0 1-1.6 1.3h-4a1.6 1.6 0 0 1-1.6-1.3z" fill="#FF8A5B"/><path d="M12 14V9.5" fill="none"/><path d="M12 10.4C12 6.4 9 4.4 4.8 4.8c0 4 3 6 7.2 5.6z" fill="#7ED957"/><path d="M12 9.4c0-3 2.4-5 6.2-4.6 0 3.4-2.4 5.2-6.2 4.6z" fill="#7ED957"/>',''],
+    '\u{1F3AC}':['<rect x="3" y="9.5" width="18" height="11" rx="2.4" fill="#FF7A3D"/><path d="M3.4 9.5 19.3 4.9l1 3.4L4.4 12.9z" fill="#fff"/><path d="M8 8.1l1.5 3.2M12.6 6.8l1.5 3.2M17.1 5.5l1.5 3.2" fill="none"/>',''],
+    '\u23F1':['<path d="M10 2.8h4M12 2.8v3" fill="none"/><circle cx="12" cy="13.6" r="7.6" fill="#7FD3FF"/><circle cx="12" cy="13.6" r="5.3" fill="#fff"/><path d="M12 10.6v3.3l2.1 1.3" fill="none" stroke-width="1.9"/>',''],
+    '\u{1F9D1}':['<path d="M4.5 20.6c0-4.1 3.4-6.9 7.5-6.9s7.5 2.8 7.5 6.9z" fill="#8FBFFF"/><circle cx="12" cy="8.6" r="4.2" fill="#FBE3C4"/><path d="M7.9 8c.2-2.6 2-4.2 4.3-4.2 2.4 0 4 1.5 4.2 4-1.6-.1-3.6-.8-4.6-2-1 1.3-2.4 2-3.9 2.2z" fill="#8a5a3c"/>',''],
+    '\u{1F3AD}':['<path d="M3.6 4.6h9.2v5.4a4.6 4.6 0 0 1-9.2 0z" fill="#fff"/><path d="M11.2 9.6h9.2V15a4.6 4.6 0 0 1-9.2 0z" fill="#FFD23F"/>','<circle cx="6.4" cy="8.4" r=".9" fill="#4a2a10"/><circle cx="10" cy="8.4" r=".9" fill="#4a2a10"/><circle cx="14" cy="13.4" r=".9" fill="#4a2a10"/><circle cx="17.6" cy="13.4" r=".9" fill="#4a2a10"/><path d="M6.6 11.4c.9.8 2.3.8 3.2 0M14.2 17c.9-.8 2.3-.8 3.2 0" fill="none" stroke="#4a2a10" stroke-width="1.3" stroke-linecap="round"/>'],
+    '\u{1F5E3}':['<circle cx="9" cy="8.6" r="4" fill="#FBE3C4"/><path d="M2.6 20.6c0-3.8 2.9-6.4 6.4-6.4s6.4 2.6 6.4 6.4z" fill="#8FBFFF"/>','<path d="M17.2 6.6a4 4 0 0 1 0 5M19.6 4.4a7 7 0 0 1 0 9.4" fill="none" stroke="#FF7FA8" stroke-width="1.9" stroke-linecap="round"/>'],
+    '\u{1F517}':['', '<path d="M9.4 16.4 8 17.8a3.3 3.3 0 0 1-4.7-4.7l3-3a3.3 3.3 0 0 1 4.7 0" fill="none" stroke="#4a2a10" stroke-width="3.6" stroke-linecap="round"/><path d="M14.6 7.6 16 6.2a3.3 3.3 0 0 1 4.7 4.7l-3 3a3.3 3.3 0 0 1-4.7 0" fill="none" stroke="#4a2a10" stroke-width="3.6" stroke-linecap="round"/><path d="M9.4 16.4 8 17.8a3.3 3.3 0 0 1-4.7-4.7l3-3a3.3 3.3 0 0 1 4.7 0M14.6 7.6 16 6.2a3.3 3.3 0 0 1 4.7 4.7l-3 3a3.3 3.3 0 0 1-4.7 0" fill="none" stroke="#5B8DEF" stroke-width="1.8" stroke-linecap="round"/><path d="M9.6 14.4l4.8-4.8" fill="none" stroke="#4a2a10" stroke-width="1.8" stroke-linecap="round"/>'],
+    '\u{1F4C1}':['<path d="M3 7.5a2 2 0 0 1 2-2h4.4l2 2.2H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="#FFB547"/><path d="M3 10.6h18" fill="none"/>',''],
+    '\u{1F3AF}':['<circle cx="11" cy="13" r="8" fill="#FF5A4E"/><circle cx="11" cy="13" r="5.2" fill="#fff"/><circle cx="11" cy="13" r="2.4" fill="#FF5A4E"/><path d="M11 13 19.5 4.5M17 4.2l2.6.3.3 2.6" fill="none"/>',''],
+    '\u2702':['<circle cx="6.5" cy="17.6" r="2.8" fill="#FF7A3D"/><circle cx="17.5" cy="17.6" r="2.8" fill="#FF7A3D"/><path d="M8.5 15.6 17.2 4M15.5 15.6 6.8 4" fill="none" stroke-width="1.9"/>','']
+  };
+  var MAG_EMOJI_RE=new RegExp('('+Object.keys(MAG_EMOJI_SVG).join('|')+')\\uFE0F?','gu');
+  function magEmojiSVG(ch){var d=MAG_EMOJI_SVG[ch]||['',''];return '<span class="mag-ei" aria-hidden="true"><svg viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">'+d[0]+'</g>'+d[1]+'</svg></span>';}
+  function magEmojiSwap(root){
+    if(!root)return;
+    var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(n){var p=n.parentNode;if(!p||/^(TEXTAREA|INPUT|SCRIPT|STYLE|OPTION)$/.test(p.nodeName))return NodeFilter.FILTER_REJECT;MAG_EMOJI_RE.lastIndex=0;return MAG_EMOJI_RE.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;}}),list=[];
+    while(w.nextNode())list.push(w.currentNode);
+    list.forEach(function(n){var span=document.createElement('span');MAG_EMOJI_RE.lastIndex=0;
+      span.innerHTML=esc(n.nodeValue).replace(MAG_EMOJI_RE,function(m,ch){return magEmojiSVG(ch);});
+      var frag=document.createDocumentFragment();while(span.firstChild)frag.appendChild(span.firstChild);n.parentNode.replaceChild(frag,n);});
+  }
+  (function(){var t=0;function swap(){magEmojiSwap(document.getElementById('marshall-agent-dock-detail'));}
+    function go(){var dock=document.getElementById('marshall-agent-dock');if(!dock)return;swap();
+      if(!dock.dataset.magEmo){dock.dataset.magEmo='1';new MutationObserver(function(ms){
+        /* Remplacement immédiat (avant l'affichage) des seuls nœuds ajoutés ou modifiés */
+        ms.forEach(function(m){
+          if(m.type==='characterData'){if(m.target.parentNode)magEmojiSwap(m.target.parentNode);return;}
+          Array.prototype.forEach.call(m.addedNodes,function(n){if(n.nodeType===3){if(n.parentNode)magEmojiSwap(n.parentNode);}else if(n.nodeType===1&&!(n.classList&&n.classList.contains('mag-ei')))magEmojiSwap(n);});
+        });
+      }).observe(dock,{childList:true,subtree:true,characterData:true});}}
+    document.addEventListener('click',function(){setTimeout(go,60);setTimeout(go,600);},true);setTimeout(go,1500);
+    setInterval(function(){var d=document.getElementById('marshall-agent-dock');if(d&&d.classList.contains('open'))swap();},1500);})();
+  var marshallAgentDockRender0=marshallAgentDockRender,marshallAgentHeroLast='';
+  marshallAgentDockRender=function(k){
+    var r=marshallAgentDockRender0.apply(this,arguments),key=window.marshallAgentDockSelected||k||'marshall';
+    try{marshallAgentHero(key,key!==marshallAgentHeroLast);marshallAgentHeroLast=key;}catch(e){}
+    return r;
+  };
   function marshallUIV5Copy(text,button){
     text=String(text||'');if(!text)return;
     function ok(){if(!button)return;var old=button.innerHTML;button.innerHTML='✓';setTimeout(function(){button.innerHTML=old;},900);}
