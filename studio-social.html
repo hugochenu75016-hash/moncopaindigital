@@ -2757,14 +2757,14 @@ html:has(#view-composer.active),body:has(#view-composer.active){height:100%;over
 #acct-pop .ap-btn{font-family:var(--studio-font)!important;border:1px solid #e6e6e2!important;border-radius:8px!important;box-shadow:none!important;transform:none!important;text-shadow:none!important;background:#f7f7f5!important;color:#252525!important}
 .mpl-upgrade{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px 0 11px;margin-right:8px;border:0;border-radius:999px;background:var(--bg,#6EC1F0);color:#fff;font:700 13px/1 inherit;letter-spacing:.01em;cursor:pointer;box-shadow:0 4px 12px rgba(40,120,170,.28);transition:transform .2s,box-shadow .2s;white-space:nowrap}.mpl-upgrade:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(40,120,170,.36)}.mpl-upgrade:focus-visible{outline:3px solid rgba(110,193,240,.5);outline-offset:2px}.mpl-upgrade svg{width:16px;height:16px;fill:#FFD66B;stroke:#fff;stroke-width:1.4;stroke-linejoin:round}.mpl-upgrade svg path+path{fill:none;stroke:#FFD66B;stroke-width:2;stroke-linecap:round}.mpl-upgrade[hidden]{display:none}
 @media (max-width:520px){.mpl-upgrade span{display:none}.mpl-upgrade{padding:0 10px}}
-#fan-wrap #mpl-upgrade{flex:0 0 auto;margin:0 10px 0 0;background:#6EC1F0;color:#fff;animation:mplPop .6s cubic-bezier(.34,1.56,.64,1) both,mplBump 7s ease-in-out 2.5s infinite}
+#fan-wrap #mpl-upgrade{flex:0 0 auto;margin:0 10px 0 0;background:#6EC1F0;color:#fff;font-size:13px!important;font-weight:700!important;line-height:1!important;height:34px;animation:mplPop .6s cubic-bezier(.34,1.56,.64,1) both,mplBump 7s ease-in-out 2.5s infinite}
 #fan-wrap #mpl-upgrade[hidden]{display:none!important}
 #fan-wrap #mpl-upgrade:hover{animation-play-state:paused;background:#5bb5e8}
 @keyframes mplPop{0%{opacity:0;transform:scale(.4)}100%{opacity:1;transform:scale(1)}}
 @keyframes mplBump{0%,86%,100%{transform:scale(1)}89%{transform:scale(1.1) translateY(-2px)}92%{transform:scale(.96)}95%{transform:scale(1.04)}}
 @media (prefers-reduced-motion:reduce){#fan-wrap #mpl-upgrade{animation:none}}
-@media (max-width:1500px){#fan-wrap #mpl-upgrade span{display:none}#fan-wrap #mpl-upgrade{padding:0 10px}#app #side .fan-wrap{justify-content:flex-start!important}}
-@media (max-width:1400px){#app #side .fan-wrap .nav-item svg{display:none}}
+html.nav-c1 #fan-wrap #mpl-upgrade span{display:none}html.nav-c1 #fan-wrap #mpl-upgrade{padding:0 10px}
+html.nav-c2 #app #side .fan-wrap .nav-item svg{display:none}
 #view-composer .hdr-actions #mpl-upgrade{background:#6EC1F0!important;color:#fff!important;border:0!important;border-radius:999px!important;height:34px!important;width:auto!important;padding:0 14px 0 11px!important;opacity:1!important;font-weight:700!important;box-shadow:0 4px 12px rgba(40,120,170,.28)!important}#view-composer .hdr-actions #mpl-upgrade:hover{background:#5bb5e8!important}#view-composer .hdr-actions #mpl-upgrade[hidden]{display:none!important}
 #studio-profile{position:relative}
 #studio-profile-toggle{width:36px;height:36px;padding:0!important;display:flex;align-items:center;justify-content:center;border:0!important;border-radius:0!important;background:transparent!important;color:#252525;box-shadow:none!important;cursor:pointer}
@@ -11219,9 +11219,27 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     else if(b.parentNode!==home)home.insertBefore(b,home.firstChild);
   }
   try{window.matchMedia('(min-width:761px)').addEventListener('change',marshallUpgradePlace);}catch(e){}
+  /* La barre de navigation s'arrête avant les boutons de droite (réglages, cloche, profil…) et se resserre si la place manque :
+     d'abord « Mise à niveau » en icône seule, puis les onglets sans icône. */
+  function mcdNavFit(){
+    var fw=document.getElementById('fan-wrap'),h=document.documentElement;if(!fw)return;
+    if(window.innerWidth<1101){fw.style.removeProperty('right');h.classList.remove('nav-c1','nav-c2');return;}
+    var r=fw.getBoundingClientRect();if(!r.height)return;var y=r.top+r.height/2,mid=window.innerWidth/2,edge=window.innerWidth;
+    for(var x=Math.round(mid);x<window.innerWidth-4;x+=6){
+      var hit=document.elementsFromPoint(x,y).find(function(el){return !fw.contains(el)&&el.closest&&el.closest('button,a,[role=button],img,#studio-profile,.hdr-actions > *');});
+      if(hit){edge=x;break;}
+    }
+    fw.style.setProperty('right',Math.max(120,window.innerWidth-edge+14)+'px','important');
+    h.classList.remove('nav-c1','nav-c2');
+    var need=function(){var w=0;Array.prototype.forEach.call(fw.children,function(c){if(c.offsetParent)w+=c.offsetWidth+parseFloat(getComputedStyle(c).marginLeft||0)+parseFloat(getComputedStyle(c).marginRight||0)+6;});return w>fw.clientWidth;};
+    if(need()){h.classList.add('nav-c1');if(need())h.classList.add('nav-c2');}
+  }
+  var mcdNavFitT=0;function mcdNavFitSoon(){clearTimeout(mcdNavFitT);mcdNavFitT=setTimeout(mcdNavFit,120);}
+  window.addEventListener('resize',mcdNavFitSoon);document.addEventListener('click',function(){setTimeout(mcdNavFitSoon,400);},true);
+  setTimeout(mcdNavFit,1500);try{document.fonts&&document.fonts.ready.then(mcdNavFitSoon);}catch(e){}
   function marshallUpgradeRender(){
     var b=$('#mpl-upgrade');if(!b)return;
-    try{marshallUpgradePlace();}catch(e){}
+    try{marshallUpgradePlace();}catch(e){}mcdNavFitSoon();
     if(!b.dataset.bound){b.dataset.bound='1';b.addEventListener('click',function(){marshallPaywallOpen(marshallPlan()==='complet'?'hyper':'complet');});}
     b.hidden=!authUser||!!actingAs||marshallIsStaff()||marshallPlan()==='hyper';
     try{marshallPublishLockRender();}catch(e){}
