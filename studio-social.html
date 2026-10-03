@@ -5051,7 +5051,18 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         }
       }, 700);
     }
-    function disconnectNetwork(id){ if(actingAs){ toast('Seul le client peut déconnecter son propre compte.', true); return; } connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' d\u00e9connect\u00e9.'); }
+    /* Déconnexion : le jeton d'accès est effacé de nos serveurs (et révoqué chez le réseau quand c'est possible) avant d'afficher « déconnecté ». */
+    async function disconnectNetwork(id){
+      if(actingAs){ toast('Seul le client peut déconnecter son propre compte.', true); return; }
+      if(!window.MCD_DEMO&&authUser){
+        try{
+          var r=await fetch(SUPABASE_URL+'/functions/v1/social-status',{method:'POST',headers:await authHeaders(),body:JSON.stringify({disconnect:id})});
+          var d=await r.json().catch(function(){ return {}; });
+          if(!r.ok||!d.ok) throw Error(d.error||('Serveur HTTP '+r.status));
+        }catch(e){ toast('Déconnexion impossible pour le moment ('+(e&&e.message||e)+'). Réessaie dans un instant.',true); try{ renderConnexions(); renderHubNetworks(); }catch(_){} return; }
+      }
+      connections[id]={ connected:false, account:'' }; saveConns(); renderConnexions(); toast(net(id).name+' déconnecté : l’accès a été supprimé de nos serveurs.');
+    }
 
   /* ============ NAV ============ */
   $all('.nav-item').forEach(function(n){ n.addEventListener('click', function(){ switchView(n.getAttribute('data-view')); var s=$('#side'); if(s) s.classList.remove('fan-open'); }); });
