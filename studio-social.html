@@ -2771,6 +2771,7 @@ html.nav-c2 #app #side .fan-wrap .nav-item svg{display:none}
 #studio-profile-toggle img{width:36px;height:36px;object-fit:contain;display:block}
 #studio-profile-card{position:absolute;top:46px;right:0;width:280px;max-width:calc(100vw - 24px);padding:20px;background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);border:1px solid rgba(255,255,255,.32);border-radius:14px;box-shadow:0 16px 42px rgba(105,39,0,.3);color:#fff;font-family:var(--studio-font);z-index:10001;overflow-wrap:anywhere}
 #studio-profile-card[hidden]{display:none}
+#studio-profile-tokens{margin:2px 0 12px}#studio-profile-tokens[hidden]{display:none}#studio-profile-tokens .spt-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;color:#fff}#studio-profile-tokens .spt-top b{font-size:15px;color:#fff!important}#studio-profile-tokens .spt-bar{height:8px;margin:6px 0 5px;border-radius:999px;background:rgba(255,255,255,.95);overflow:hidden;box-shadow:inset 0 1px 2px rgba(120,50,0,.2)}#studio-profile-tokens .spt-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#F3852B,#C7620E);transition:width .4s ease}#studio-profile-tokens .spt-bar.low i{background:linear-gradient(90deg,#ff8a7a,#e5484d)}#studio-profile-tokens small{display:block;font-size:11px;color:rgba(255,255,255,.88)}
 #studio-profile-photo{width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:12px}
 #studio-profile-photo[hidden]{display:none}
 #studio-profile-photo-initial{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.2);color:#fff;display:grid;place-items:center;font-size:22px;margin-bottom:12px}
@@ -3959,6 +3960,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
               <strong id="studio-profile-name">Mon compte</strong>
               <p id="studio-profile-email"></p>
               <p id="studio-profile-role"></p>
+              <div id="studio-profile-tokens" hidden></div>
               <a href="espace-compte.html">Ouvrir ma bulle ↗</a>
               <button type="button" id="studio-profile-logout">Se déconnecter</button>
             </section>
@@ -4753,7 +4755,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   (function(){
     var root=$('#studio-profile'),btn=$('#studio-profile-toggle'),card=$('#studio-profile-card'),logo=$('#studio-profile-logo');
     function close(){card.hidden=true;btn.setAttribute('aria-expanded','false');}
-    btn.addEventListener('click',function(){studioProfileSync();card.hidden=!card.hidden;btn.setAttribute('aria-expanded',String(!card.hidden));if(!card.hidden)studioProfileLoad();});
+    btn.addEventListener('click',function(){studioProfileSync();card.hidden=!card.hidden;btn.setAttribute('aria-expanded',String(!card.hidden));if(!card.hidden){studioProfileLoad();try{marshallProfileTokensRender();marshallTokensRefresh();}catch(e){}}});
     $('#studio-profile-photo').addEventListener('error',function(){this.hidden=true;$('#studio-profile-photo-initial').hidden=false;});
     $('#acct-profile-photo').addEventListener('error',function(){this.hidden=true;$('#acct-profile-initial').hidden=false;});
     document.addEventListener('studio-profile-open',function(){studioProfileSync();studioProfileLoad();});
@@ -11381,7 +11383,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var MARSHALL_TOKEN_FALLBACK_PRICES={genjutsu_second:516,avatar_second:387,wan_hd_second:52,wan_second:26,captions:13,voiceover:39,chat:3,qwen_image:13,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
   function marshallTokenPrice(kind,units){var p=(marshallTokenState.st&&marshallTokenState.st.prices)||MARSHALL_TOKEN_FALLBACK_PRICES;return Math.ceil((p[kind]||MARSHALL_TOKEN_FALLBACK_PRICES[kind]||1)*(units||1));}
   function marshallTokenFmt(n){return Number(n||0).toLocaleString('fr-FR');}
-  function marshallTokensUpdate(st){if(st&&typeof st==='object'&&st.limit!=null){marshallTokenState.st=st;marshallTokenState.at=Date.now();try{marshallTokensRender();}catch(e){}try{marshallPlanRender();}catch(e){}}}
+  /* Fiche profil : petite barre orange + tokens restants */
+  function marshallProfileTokensRender(){
+    var box=document.getElementById('studio-profile-tokens'),st=marshallTokenState&&marshallTokenState.st;if(!box)return;
+    if(!st||window.MCD_DEMO){box.hidden=true;return;}
+    box.hidden=false;
+    if(st.unlimited){box.innerHTML='<div class="spt-top"><span>Tokens</span><b>Illimités</b></div><div class="spt-bar"><i style="width:100%"></i></div>';return;}
+    var left=st.quota_left!=null?st.quota_left:Math.max(0,(st.limit||0)-(st.used||0)),top=st.topup_left||0,pct=Math.max(0,Math.min(100,Math.round(left/Math.max(1,st.limit||1)*100)));
+    box.innerHTML='<div class="spt-top"><span>Tokens restants</span><b>'+marshallTokenFmt(left+top)+'</b></div><div class="spt-bar'+(pct<15?' low':'')+'" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'" aria-label="Tokens restants ce mois-ci"><i style="width:'+pct+'%"></i></div>'
+      +'<small>'+marshallTokenFmt(left)+' sur '+marshallTokenFmt(st.limit||0)+' ce mois-ci'+(top?' · + '+marshallTokenFmt(top)+' de recharge':'')+'</small>';
+  }
+  function marshallTokensUpdate(st){if(st&&typeof st==='object'&&st.limit!=null){marshallTokenState.st=st;marshallTokenState.at=Date.now();try{marshallProfileTokensRender();}catch(e){}try{marshallTokensRender();}catch(e){}try{marshallPlanRender();}catch(e){}}}
   async function marshallTokensRefresh(force){
     if(actingAs||!authUser)return null;
     if(!force&&marshallTokenState.st&&Date.now()-marshallTokenState.at<60000)return marshallTokenState.st;
