@@ -3184,7 +3184,7 @@
       usg.loading=false;
     }
     var d=usg.data||{rows:{},labels:{}}, rows=[];
-    aboClients().forEach(function(c){ var u=d.rows[c.id]; if(u) rows.push({c:c,u:u}); });
+    aboClients().forEach(function(c){ var u=d.rows[c.id]; if(u){ u.est_eur=u.cost_eur; if(u.real_cost_eur!=null) u.cost_eur=u.real_cost_eur; rows.push({c:c,u:u}); } });
     var active=rows.filter(function(x){ return x.u.used>0; });
     var tot={used:0,cost:0,rev:0,paid:0,ref:0}, kinds={};
     rows.forEach(function(x){ tot.used+=x.u.used; tot.cost+=x.u.cost_eur; tot.rev+=x.u.revenue_eur; if(x.u.source==='stripe') tot.paid++; tot.ref+=x.u.ref_paid;
@@ -3196,14 +3196,14 @@
     var kindHtml=Object.keys(kinds).sort(function(a,b){ return kinds[b]-kinds[a]; }).slice(0,8).map(function(k){
       return '<div class="usg-k"><span>'+esc((d.labels||{})[k]||k)+'</span><i style="width:'+Math.max(3,Math.round(kinds[k]/kmax*100))+'%"></i><b>'+usgEur(kinds[k]/tpe)+'</b></div>'; }).join('')||'<p class="sub">Aucune création ce mois-ci.</p>';
     var body=list.map(function(x){ var m=x.u.revenue_eur-x.u.cost_eur, c=x.c;
-      return '<tr><td><b>'+esc(c.nom||'Client')+'</b><small>'+esc(c.email||'')+'</small></td><td>'+aboPill({plan:x.u.plan,source:x.u.source})+'</td><td>'+x.u.used.toLocaleString('fr-FR')+'</td><td>'+usgEur(x.u.cost_eur)+'</td><td>'+usgEur(x.u.revenue_eur)+'</td><td class="'+(m<0?'neg':'pos')+'">'+usgEur(m)+'</td></tr>'; }).join('');
+      return '<tr><td><b>'+esc(c.nom||'Client')+'</b><small>'+esc(c.email||'')+'</small></td><td>'+aboPill({plan:x.u.plan,source:x.u.source})+'</td><td>'+x.u.used.toLocaleString('fr-FR')+'</td><td>'+usgEur(x.u.cost_eur)+'<small>estimé '+usgEur(x.u.est_eur)+(x.u.gpu_jobs?' · '+x.u.gpu_jobs+' calcul'+(x.u.gpu_jobs>1?'s':'')+' GPU mesuré'+(x.u.gpu_jobs>1?'s':''):'')+'</small></td><td>'+usgEur(x.u.revenue_eur)+'</td><td class="'+(m<0?'neg':'pos')+'">'+usgEur(m)+'</td></tr>'; }).join('');
     var marge=tot.rev-tot.cost;
     el.innerHTML='<div class="card usg">'+
-      '<div class="card-title-row"><div><h2>Tableau de bord Studio Social</h2><p class="sub" style="margin:2px 0 0;">Coût réel estimé d’après le barème tokens (1 € = '+tpe.toLocaleString('fr-FR')+' tokens). Revenu = abonnements Stripe en cours + recharges du mois.</p></div>'+
+      '<div class="card-title-row"><div><h2>Tableau de bord Studio Social</h2><p class="sub" style="margin:2px 0 0;">Coût réel : temps de calcul GPU mesuré pour chaque vidéo, Genjutsu, avatar et clip (veille de la machine comprise), + les autres actions au barème (1 € = '+tpe.toLocaleString('fr-FR')+' tokens). Revenu = abonnements Stripe en cours + recharges du mois.</p></div>'+
         '<div class="usg-ctl"><select id="usg-month">'+usgMonths().map(function(m){ return '<option value="'+m+'"'+(m===usg.month?' selected':'')+'>'+new Date(m+'-01T12:00:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'})+'</option>'; }).join('')+'</select><button class="glass-btn" id="usg-refresh" style="padding:10px 18px;color:#6b3410;">Actualiser</button></div></div>'+
       (usg.err?'<p class="sub" style="color:#b23a3e;font-weight:700;">⚠ '+esc(usg.err)+'</p>':'')+
       '<div class="usg-kpis"><div><b>'+active.length+'</b><span>clients actifs<small>sur '+rows.length+' comptes</small></span></div><div><b>'+tot.paid+'</b><span>abonnés payants</span></div><div><b>'+tot.used.toLocaleString('fr-FR')+'</b><span>tokens consommés</span></div>'+
-        '<div><b>'+usgEur(tot.cost)+'</b><span>coût réel estimé</span></div><div><b>'+usgEur(tot.rev)+'</b><span>revenu</span></div><div class="'+(marge<0?'neg':'pos')+'"><b>'+usgEur(marge)+'</b><span>marge</span></div></div>'+
+        '<div><b>'+usgEur(tot.cost)+'</b><span>coût réel</span></div><div><b>'+usgEur(tot.rev)+'</b><span>revenu</span></div><div class="'+(marge<0?'neg':'pos')+'"><b>'+usgEur(marge)+'</b><span>marge</span></div></div>'+
       '<div class="usg-grid"><div><h3 class="prr-h">Où part le coût</h3>'+kindHtml+'<p class="sub" style="margin-top:10px">'+tot.ref+' filleul'+(tot.ref>1?'s':'')+' abonné'+(tot.ref>1?'s':'')+' grâce au parrainage (total).</p></div>'+
         '<div><div class="usg-sort"><h3 class="prr-h">Clients actifs</h3><span>Trier :</span>'+[['cost','Coût'],['rev','Revenu'],['marge','Marge (pire d’abord)'],['used','Tokens']].map(function(o){ return '<button type="button" data-usg-sort="'+o[0]+'" class="'+(usg.sort===o[0]?'on':'')+'">'+o[1]+'</button>'; }).join('')+'</div>'+
         (list.length?'<div class="usg-tw"><table><thead><tr><th>Client</th><th>Formule</th><th>Tokens</th><th>Coût</th><th>Revenu</th><th>Marge</th></tr></thead><tbody>'+body+'</tbody></table></div>':'<p class="sub">Aucun client actif ce mois-ci.</p>')+'</div></div></div>';
