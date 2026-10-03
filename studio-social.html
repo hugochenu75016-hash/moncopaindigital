@@ -11219,17 +11219,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     else if(b.parentNode!==home)home.insertBefore(b,home.firstChild);
   }
   try{window.matchMedia('(min-width:761px)').addEventListener('change',marshallUpgradePlace);}catch(e){}
-  /* La barre de navigation s'arrête avant les boutons de droite (réglages, cloche, profil…) et se resserre si la place manque :
+  /* La barre de navigation garde la même position dans tous les onglets et se resserre si la place manque :
      d'abord « Mise à niveau » en icône seule, puis les onglets sans icône. */
   function mcdNavFit(){
     var fw=document.getElementById('fan-wrap'),h=document.documentElement;if(!fw)return;
     if(window.innerWidth<1101){fw.style.removeProperty('right');h.classList.remove('nav-c1','nav-c2');return;}
-    var r=fw.getBoundingClientRect();if(!r.height)return;var y=r.top+r.height/2,mid=window.innerWidth/2,edge=window.innerWidth;
-    for(var x=Math.round(mid);x<window.innerWidth-4;x+=6){
-      var hit=document.elementsFromPoint(x,y).find(function(el){return !fw.contains(el)&&el.closest&&el.closest('button,a,[role=button],img,#studio-profile,.hdr-actions > *');});
-      if(hit){edge=x;break;}
-    }
-    fw.style.setProperty('right',Math.max(120,window.innerWidth-edge+14)+'px','important');
+    if(!fw.getBoundingClientRect().height)return;
+    /* Même place réservée à droite dans tous les onglets (celle des boutons du Composer) : la barre ne bouge plus d'un onglet à l'autre. */
+    fw.style.setProperty('right','480px','important');
     h.classList.remove('nav-c1','nav-c2');
     var need=function(){var w=0;Array.prototype.forEach.call(fw.children,function(c){if(c.offsetParent)w+=c.offsetWidth+parseFloat(getComputedStyle(c).marginLeft||0)+parseFloat(getComputedStyle(c).marginRight||0)+6;});return w>fw.clientWidth;};
     if(need()){h.classList.add('nav-c1');if(need())h.classList.add('nav-c2');}
