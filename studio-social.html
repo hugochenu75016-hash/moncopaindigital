@@ -11269,8 +11269,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var fw=document.getElementById('fan-wrap'),h=document.documentElement;if(!fw)return;
     if(window.innerWidth<1101){fw.style.removeProperty('right');h.classList.remove('nav-c1','nav-c2');return;}
     if(!fw.getBoundingClientRect().height)return;
-    /* Même place réservée à droite dans tous les onglets (celle des boutons du Composer) : la barre ne bouge plus d'un onglet à l'autre. */
-    fw.style.setProperty('right','480px','important');
+    /* Même place réservée à droite dans tous les onglets : la largeur réelle des boutons du Composer (les plus nombreux),
+       mesurée quand ils sont visibles et mémorisée ; la barre ne bouge plus d'un onglet à l'autre, quel que soit le zoom. */
+    var ha=document.querySelector('#view-composer .hdr-actions'),res=0;
+    if(ha&&ha.offsetParent){var kids=Array.prototype.filter.call(ha.children,function(c){return c.offsetParent&&c.getBoundingClientRect().width>0;});
+      if(kids.length){res=Math.round(window.innerWidth-Math.min.apply(null,kids.map(function(c){return c.getBoundingClientRect().left;})));}}
+    if(res>60&&res<900){mcdNavFit.res=res;try{localStorage.setItem('mcd_nav_reserve',String(res));}catch(e){}}
+    else{res=mcdNavFit.res||0;if(!res){try{res=+localStorage.getItem('mcd_nav_reserve')||0;}catch(e){}}if(!res)res=400;}
+    fw.style.setProperty('right',(res+16)+'px','important');
     h.classList.remove('nav-c1','nav-c2');
     var need=function(){var w=0;Array.prototype.forEach.call(fw.children,function(c){if(c.offsetParent)w+=c.offsetWidth+parseFloat(getComputedStyle(c).marginLeft||0)+parseFloat(getComputedStyle(c).marginRight||0)+6;});return w>fw.clientWidth;};
     if(need()){h.classList.add('nav-c1');if(need())h.classList.add('nav-c2');}
