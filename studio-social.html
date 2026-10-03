@@ -18571,6 +18571,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   })();
   /* ===== Mode démo local (?demo=1 sur localhost) : ouvrir le studio sans compte pour tester ; rien n’est publié ni enregistré en base ===== */
   /* Parrainage : ?parrain=<id> est mémorisé (enregistré à l’inscription) et ouvre l’inscription avec un mot d’accueil */
+  /* Lien « Créer mon compte » de la page de présentation : ?inscription=1 ouvre directement l'inscription (si pas déjà connecté). */
+  (function(){try{if(new URLSearchParams(location.search).get('inscription')){setTimeout(function(){if(typeof authUser!=='undefined'&&authUser)return;var t=document.querySelector('[data-tab="signup"]');if(t)t.click();},0);}}catch(e){}})();
   (function(){try{var r=new URLSearchParams(location.search).get('parrain');if(r&&/^[a-z0-9-]{8,40}$/i.test(r)){localStorage.setItem('mcd_ref',r);setTimeout(function(){var t=document.querySelector('[data-tab="signup"]');if(t)t.click();var f=document.getElementById('signup-form');if(f&&!document.getElementById('mcd-ref-note')){var n=document.createElement('div');n.id='mcd-ref-note';n.style.cssText='margin:0 0 12px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font:600 13px Fredoka,system-ui,sans-serif';n.textContent='🎁 Un ami t’invite sur Studio Social : crée ton compte gratuit pour commencer.';f.insertBefore(n,f.firstChild);}},0);}}catch(e){}})();
   /* ?inscription : ouvre directement l’onglet « Créer un compte » (lien depuis la démo) */
   setTimeout(function(){try{if(new URLSearchParams(location.search).has('inscription')){var t=document.querySelector('[data-tab="signup"]');if(t)t.click();}}catch(e){}},0);
