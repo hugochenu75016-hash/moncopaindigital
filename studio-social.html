@@ -17231,6 +17231,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function mcdPubOverlay(state,opt){
     var ov=document.getElementById('mcd-pub-ov'); opt=opt||{};
     if(state==='show'){
+      // Par défaut (publication) : Marshall assis sur le carré, à l'ordinateur.
+      if(opt.marshall===undefined){ opt.marshall=MARSHALL_ANIM.ordi; opt.label=opt.label||'Marshall publie ton post…'; try{ marshallAnimPreload(); }catch(e){} }
       if(ov) ov.remove();
       ov=document.createElement('div'); ov.id='mcd-pub-ov'; ov.setAttribute('role','status'); ov.setAttribute('aria-label',opt.label||'Publication en cours');
       ov.innerHTML='<div class="mpo-stage">'+(opt.marshall?'<img class="mpo-marshall" src="'+opt.marshall+'" alt="" onerror="this.remove()">':'')+'<div class="mpo-box">'+MCD_PUB_SVG+'</div>'+(opt.label?'<p class="mpo-label">'+esc(opt.label)+'</p>':'')+'</div>';
@@ -17241,10 +17243,13 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(state==='hide'){ ov.classList.remove('show'); setTimeout(function(){ ov.remove(); },260); return Promise.resolve(); }
     var box=ov.querySelector('.mpo-box'), ok=state==='ok';
     box.classList.add(ok?'ok':'fail'); ov.setAttribute('aria-label',ok?'Publication réussie':'Publication refusée');
+    var mi=ov.querySelector('.mpo-marshall'), lb=ov.querySelector('.mpo-label');
+    if(mi&&ok) mi.src=MARSHALL_ANIM.bravo;
+    if(lb) lb.textContent=ok?'C’est fait !':'Oups, ça n’a pas marché';
     box.innerHTML=ok?'<svg class="mpo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
                     :'<svg class="mpo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
     return new Promise(function(done){
-      setTimeout(function(){ ov.classList.remove('show'); setTimeout(function(){ ov.remove(); done(); },260); },1300);
+      setTimeout(function(){ ov.classList.remove('show'); setTimeout(function(){ ov.remove(); done(); },260); },(mi&&ok)?2200:1300);
     });
   }
   function mcdPubFinish(ok){
