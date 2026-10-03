@@ -8797,7 +8797,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
 
   /* Agents verrouillés (« Bientôt disponible ») : tout sauf Marshall pour les clients ; tout reste ouvert pour l'admin. */
+  /* Tous les agents IA sont ouverts à tous (octobre 2026) : chaque fonction reste contrôlée par la formule et les tokens côté serveur.
+     Pour en refermer un, ajouter sa clé ici, ex. MARSHALL_AGENTS_LOCKED=['genjutsu']. */
+  var MARSHALL_AGENTS_LOCKED=[];
   function marshallAgentLocked(key){
+    if(MARSHALL_AGENTS_LOCKED.indexOf(key)===-1) return false;
     if(key==='marshall') return false;
     var em=String((authUser&&authUser.email)||'').toLowerCase();
     if(ADMIN_EMAILS.indexOf(em)!==-1) return false;
