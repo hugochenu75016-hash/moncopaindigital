@@ -3278,6 +3278,21 @@ html body .ed-rail .ed-tool.ed-tool-ai.on{box-shadow:0 0 0 3px #fff,0 0 0 5px #f
 html body .ed-rail .ed-tool.ed-tool-ai .ed-ai-avatar{display:block;width:38px;height:38px;border-radius:50%;background:#fff3e6;object-fit:cover;object-position:50% 4%;border:2px solid rgba(255,255,255,.9);box-shadow:0 2px 6px rgba(120,50,0,.25)}
 html body .ed-rail .ed-tool.ed-tool-ai span{color:#fff!important;font-weight:800!important}
 @media (max-width:760px){html body .ed-rail .ed-tool.ed-tool-ai .ed-ai-avatar{width:30px;height:30px}}
+
+/* « Le résultat te plaît ? » : insérer ou relancer (moins cher tant que la machine est chaude) */
+.mfb{margin-top:10px;padding:11px 12px;border-radius:14px;background:#fff8ef;border:1.5px solid #f6d3b2}
+.mfb-q{display:block;font:700 14px Fredoka,system-ui,sans-serif;color:#3b2a1c;margin:8px 0 8px}.mfb .mfb-q{margin-top:0}
+.mfb-acts{display:flex;gap:8px;flex-wrap:wrap}
+.mfb-acts button,.clp-acts .mfb-re{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:1;min-width:130px;border:0;border-radius:12px;padding:9px 12px;cursor:pointer;font:700 13px Fredoka,system-ui,sans-serif;transition:transform .15s}
+.mfb-ok{background:linear-gradient(180deg,#FF9C46,#F3852B);color:#fff;box-shadow:0 3px 0 #C7620E}
+.mfb-re{background:#fff;color:#7a4416;border:1.5px solid #f0cfae!important;box-shadow:0 3px 0 #f1c79f}
+.mfb-acts button:hover:not(:disabled),.clp-acts .mfb-re:hover:not(:disabled){transform:translateY(-1px)}
+.mfb-acts button:disabled{opacity:.6;cursor:default}
+.mfb-re small{font:500 11px system-ui,sans-serif;color:#8a6a4c}.mfb-re small s{opacity:.6}.mfb-re small em{font-style:normal;color:#1f7a3a;font-weight:700}
+.mfb-re small.hot{color:#1f7a3a}.mfb-re:has(small.hot){border-color:#7fd29b!important;box-shadow:0 3px 0 #b9e7c7;animation:mfbGlow 1.6s ease-in-out infinite}
+@keyframes mfbGlow{50%{box-shadow:0 3px 0 #b9e7c7,0 0 0 4px rgba(46,204,113,.18)}}
+.mfb-tip{display:block;margin-top:7px;font-size:11.5px;color:#8a6a4c}
+@media (prefers-reduced-motion:reduce){.mfb-re{animation:none!important}}
 /* Barre d'outils : boutons Marshall et Publier redessinés (carte claire + avatar vivant ; bouton orange 3D + avion cartoon) */
 html body .ed-rail .ed-tool.ed-tool-ai{background:linear-gradient(180deg,#FF9C46,#F3852B)!important;color:#fff!important;border:0!important;box-shadow:0 3px 0 #C7620E,0 8px 16px rgba(243,133,43,.3)!important;padding:7px 4px 6px!important;overflow:visible}
 html body .ed-rail .ed-tool.ed-tool-ai:hover{transform:translateY(-2px);box-shadow:0 5px 0 #C7620E,0 12px 20px rgba(243,133,43,.38)!important}
@@ -9261,7 +9276,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         if(kind==='t2i') marshallStudioStatus('🖼️ Création de l’image…');
         var img=await marshallStudioImage(hp?hp.image_prompt:prompt,kind==='t2v');
         if(!img) throw Error('image non générée');
-        if(kind==='t2i'){ marshallStudioResult('<b>🖼️ Image prête · '+(S.iEngine==='nano'?'Nano Banana':'Qwen')+' '+(S.iQuality==='hd'?'HD':'Éco')+'</b><img src="'+esc(img)+'" alt="" style="display:block;width:100%;border-radius:12px;margin-top:6px">'); marshallStudioImageToCanvas(img); toast('🖼️ Image créée sur un nouveau canva.'); return; }
+        if(kind==='t2i'){ var _ik=S.iEngine==='nano'?(S.iQuality==='hd'?'image_pro':'image'):'qwen_image';
+          marshallStudioResult('<b>🖼️ Image prête · '+(S.iEngine==='nano'?'Nano Banana':'Qwen')+' '+(S.iQuality==='hd'?'HD':'Éco')+'</b><img src="'+esc(img)+'" alt="" style="display:block;width:100%;border-radius:12px;margin-top:6px">'
+            +marshallFeedbackHTML({kind:_ik,base:marshallTokenPrice(_ik),insert:function(){ marshallStudioImageToCanvas(img); toast('🖼️ Image posée sur un nouveau canva.'); },retry:function(){ marshallStudioRun('t2i',prompt); }}));
+          return; }
         image=img;
       }
       marshallStudioStatus('🎬 Lancement de la vidéo…');
@@ -9270,10 +9288,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var url=await marshallStudioAnimate(image,hp?hp.video_prompt:(prompt||''),hp&&hp.segments&&hp.segments.length>1&&S.vEngine==='wan'?hp.segments:null);
       marshallStudioResult('<b>🎬 Vidéo prête · '+(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' '+(S.vQuality==='pro'?'Pro':(S.vQuality==='hd'?'HD':'Éco'))+'</b>'
         +(hp?'<div class="sp-res"><span class="sp-cam">🎥 '+esc(hp.camera)+'</span>'+(hp.segments&&hp.segments.length>1?'<ol class="sp-segs">'+hp.segments.map(function(x){ return '<li>'+esc(x)+'</li>'; }).join('')+'</ol>':'<small>'+esc(hp.video_prompt)+'</small>')+'</div>':'')
-        +'<video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:420px;border-radius:12px;margin-top:6px;background:#000"></video>');
-      try{ marshallFreshReset(); }catch(e){}
-      marshallVideoToCanvas(url,(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' · Studio IA',{});
-      toast('🎬 Vidéo créée sur un nouveau canva.');
+        +'<video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:420px;border-radius:12px;margin-top:6px;background:#000"></video>'
+        +marshallFeedbackHTML((function(){ var vk=S.vEngine==='veo'?(S.vQuality==='hd'?'veo_fast_second':'veo_lite_second'):(S.vQuality==='pro'?'wan_pro_second':(S.vQuality==='hd'?'wan_hd_second':'wan_second')), vlab=(S.vEngine==='veo'?'Google Veo':'Wan 2.2')+' · Studio IA', rk=kind, rp=prompt;
+          return {kind:vk,base:marshallTokenPrice(vk,+S.seconds||5),insert:function(){ try{ marshallFreshReset(); }catch(e){} marshallVideoToCanvas(url,vlab,{}); toast('🎬 Vidéo posée sur un nouveau canva.'); },retry:function(){ marshallStudioRun(rk,rp); }}; })()));
+      try{ marshallTokensRefresh(true); }catch(e){}
     }catch(e){ try{ marshallAgentDockChatAdd('error','Création impossible : '+(e&&e.message?e.message:e),false); }catch(x){} toast('Création impossible : '+(e&&e.message?e.message:e),true); }
     finally{ S.busy=false; S.pipe=null; marshallStudioStatus(''); marshallAgentDockSetBusy(false); var d2=document.getElementById('marshall-agent-dock-detail'); if(d2&&window.marshallAgentDockSelected==='studio') marshallStudioRefresh(d2,false); }
   }
@@ -9396,7 +9414,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(G.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,G.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(G.msg||'Préparation…')+'</small><small class="gj-wait">Compte environ 7 min pour 5 s, 12 min pour 10 s et 22 min pour 20 s : tu peux continuer à travailler, la vidéo arrivera ici.</small></div>';
     if(G.error) return '<div class="clp-err">⚠ '+esc(G.error)+'</div>';
     if(!G.url) return '';
-    return '<div class="gj-result"><video src="'+esc(G.url)+'" controls playsinline></video><div class="clp-acts"><button type="button" data-gj="canvas">🎬 Sur un canva</button><a href="'+esc(G.url)+'" download="genjutsu.mp4" target="_blank" rel="noopener">⬇ Télécharger</a></div></div>';
+    return '<div class="gj-result"><video src="'+esc(G.url)+'" controls playsinline></video><span class="mfb-q">Le résultat te plaît&nbsp;?</span><div class="clp-acts"><button type="button" data-gj="canvas">✅ Insérer sur le canva</button><button type="button" class="mfb-re" data-gj="retry">🔄 Relancer<small data-mwarm="genjutsu_second" data-base="'+marshallTokenPrice('genjutsu_second',+MARSHALL_GENJUTSU.seconds||10)+'">'+marshallWarmLabel('genjutsu_second',marshallTokenPrice('genjutsu_second',+MARSHALL_GENJUTSU.seconds||10))+'</small></button><a href="'+esc(G.url)+'" download="genjutsu.mp4" target="_blank" rel="noopener">⬇ Télécharger</a></div></div>';
   }
   function marshallGjPanelHTML(prof){
     var G=MARSHALL_GENJUTSU;
@@ -9443,6 +9461,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(act==='rmx'){ G.extras.splice(+a.getAttribute('data-i'),1); marshallGenjutsuRender(detail,prof()); return; }
       if(act==='go'){ marshallGenjutsuRun(); return; }
       if(act==='canvas'&&G.url){ try{ marshallFreshReset(); }catch(x){} marshallVideoToCanvas(G.url,'Genjutsu',{}); toast('🎬 Vidéo posée sur un nouveau canva.'); }
+      if(act==='retry'){ marshallGenjutsuRun(); return; }
     });
     detail.addEventListener('change',function(e){
       var t=e.target; if(!t.hasAttribute) return;
@@ -9502,7 +9521,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         marshallGjRefresh();
       }
       if(!G.url) throw Error('la génération prend trop de temps, réessaie plus tard.');
-      try{ marshallAgentDockChatAdd('assistant','🎭 Genjutsu terminé : ta vidéo est prête.',true); }catch(e){}
+      try{ marshallAgentDockChatAdd('assistant','🎭 Genjutsu terminé : ta vidéo est prête. Le résultat te plaît ? Insère-la sur le canva ou relance à prix réduit.',true); }catch(e){}
+      try{ marshallTokensRefresh(true); }catch(e){}
       toast('🎭 Genjutsu terminé !');
     }catch(e){ G.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Genjutsu : '+G.error,false); }catch(x){} }
     finally{ G.busy=false; marshallGjRefresh(); }
@@ -9516,7 +9536,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(A.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,A.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(A.msg||'Préparation…')+'</small><small class="gj-wait">Compte quelques minutes : tu peux continuer à travailler, la vidéo arrivera ici.</small></div>';
     if(A.error) return '<div class="clp-err">⚠ '+esc(A.error)+'</div>';
     if(!A.url) return '';
-    return '<div class="gj-result"><video src="'+esc(A.url)+'" controls playsinline></video><div class="clp-acts"><button type="button" data-av="canvas">🎬 Sur un canva</button><a href="'+esc(A.url)+'" download="avatar-parlant.mp4" target="_blank" rel="noopener">⬇ Télécharger</a></div></div>';
+    return '<div class="gj-result"><video src="'+esc(A.url)+'" controls playsinline></video><span class="mfb-q">Le résultat te plaît&nbsp;?</span><div class="clp-acts"><button type="button" data-av="canvas">✅ Insérer sur le canva</button><button type="button" class="mfb-re" data-av="retry">🔄 Relancer<small data-mwarm="avatar_second" data-base="'+marshallTokenPrice('avatar_second',marshallAvSeconds())+'">'+marshallWarmLabel('avatar_second',marshallTokenPrice('avatar_second',marshallAvSeconds()))+'</small></button><a href="'+esc(A.url)+'" download="avatar-parlant.mp4" target="_blank" rel="noopener">⬇ Télécharger</a></div></div>';
   }
   function marshallAvPanelHTML(prof){
     var A=MARSHALL_AVATAR;
@@ -9567,6 +9587,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(act==='picka'){ root.querySelector('[data-av-audio]').click(); return; }
       if(act==='go'){ marshallAvatarRun(); return; }
       if(act==='canvas'&&A.url){ try{ marshallFreshReset(); }catch(x){} marshallVideoToCanvas(A.url,'Avatar parlant',{}); toast('🎬 Vidéo posée sur un nouveau canva.'); }
+      if(act==='retry'){ marshallAvatarRun(); return; }
     });
     detail.addEventListener('input',function(e){
       var t=e.target; if(!t.hasAttribute||!t.hasAttribute('data-av-text')) return;
@@ -9612,7 +9633,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         marshallAvRefresh();
       }
       if(!A.url) throw Error('la génération prend trop de temps, réessaie plus tard.');
-      try{ marshallAgentDockChatAdd('assistant','🗣️ Ta vidéo qui parle est prête.',true); }catch(e){}
+      try{ marshallAgentDockChatAdd('assistant','🗣️ Ta vidéo qui parle est prête. Le résultat te plaît ? Insère-la sur le canva ou relance à prix réduit.',true); }catch(e){}
+      try{ marshallTokensRefresh(true); }catch(e){}
       toast('🗣️ Avatar parlant terminé !');
     }catch(e){ A.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Avatar parlant : '+A.error,false); }catch(x){} }
     finally{ A.busy=false; marshallAvRefresh(); }
@@ -11582,6 +11604,33 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var MARSHALL_TOKEN_FALLBACK_PRICES={genjutsu_second:581,avatar_second:387,wan_hd_second:78,wan_second:65,wan_pro_second:78,captions:13,voiceover:39,chat:3,qwen_image:65,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
   function marshallTokenPrice(kind,units){var p=(marshallTokenState.st&&marshallTokenState.st.prices)||MARSHALL_TOKEN_FALLBACK_PRICES;return Math.ceil((p[kind]||MARSHALL_TOKEN_FALLBACK_PRICES[kind]||1)*(units||1));}
   function marshallTokenFmt(n){return Number(n||0).toLocaleString('fr-FR');}
+  /* Machine encore chaude : relancer tout de suite coûte moins (le GPU n'a pas à redémarrer). Le serveur fait foi. */
+  function marshallWarm(kind){
+    var st=marshallTokenState.st||{},w=(st.warm||{})[kind];if(!w)return null;
+    var now=(+st.server_time||Date.now()/1000)+(Date.now()-(marshallTokenState.at||Date.now()))/1000,left=Math.round(w.until-now);
+    return left>0?{left:left,pct:+w.pct||0}:null;
+  }
+  function marshallWarmLabel(kind,base){
+    var w=marshallWarm(kind);if(!w)return marshallTokenFmt(base)+' tokens';
+    var m=Math.floor(w.left/60),sc=w.left%60;
+    return '<s>'+marshallTokenFmt(base)+'</s> <b>'+marshallTokenFmt(Math.max(1,Math.round(base*(100-w.pct)/100)))+' tokens</b> <em>−'+w.pct+' % · encore '+m+':'+(sc<10?'0':'')+sc+'</em>';
+  }
+  setInterval(function(){var els=document.querySelectorAll('[data-mwarm]');for(var i=0;i<els.length;i++){var e=els[i],h=marshallWarmLabel(e.getAttribute('data-mwarm'),+e.getAttribute('data-base')||0);if(e._h!==h){e._h=h;e.innerHTML=h;e.classList.toggle('hot',!!marshallWarm(e.getAttribute('data-mwarm')));}}},1000);
+  var MFB_CB={},mfbN=0;
+  function marshallFeedbackHTML(o){
+    var id='mfb'+(++mfbN);MFB_CB[id]=o;
+    return '<div class="mfb" id="'+id+'"><span class="mfb-q">Le résultat te plaît&nbsp;?</span><div class="mfb-acts">'+
+      '<button type="button" class="mfb-ok" data-mfb="insert">✅ Insérer sur le canva</button>'+
+      '<button type="button" class="mfb-re" data-mfb="retry">🔄 Relancer<small data-mwarm="'+esc(o.kind||'')+'" data-base="'+(+o.base||0)+'">'+marshallWarmLabel(o.kind||'',+o.base||0)+'</small></button></div>'+
+      '<small class="mfb-tip">Relancer dans la foulée coûte moins cher : la machine est encore allumée.</small></div>';
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest&&e.target.closest('.mfb [data-mfb]');if(!b)return;
+    var box=b.closest('.mfb'),o=MFB_CB[box.id];if(!o)return;
+    if(b.getAttribute('data-mfb')==='insert'){try{o.insert();}catch(x){console.warn(x);}b.textContent='✓ Inséré sur le canva';b.disabled=true;var q=box.querySelector('.mfb-q');if(q)q.textContent='Super, c’est sur ton canva !';return;}
+    box.querySelectorAll('button').forEach(function(x){x.disabled=true;});var q2=box.querySelector('.mfb-q');if(q2)q2.textContent='🔄 Je relance…';
+    try{o.retry();}catch(x){console.warn(x);}
+  });
   /* Fiche profil : petite barre orange + tokens restants */
   function marshallProfileTokensRender(){
     var box=document.getElementById('studio-profile-tokens'),st=marshallTokenState&&marshallTokenState.st;if(!box)return;
