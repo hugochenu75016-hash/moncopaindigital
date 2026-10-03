@@ -14181,12 +14181,18 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallClipCard(url,sec,mode,count,file){
     var th=marshallChatThread();if(!th)return null;
-    var st={file:file||null,sourceId:'',blocked:false,sec:sec||15,mode:mode||'best',count:Math.max(1,Math.min(3,+count||3)),captions:true,rights:false,busy:false,task:null,res:null,progress:0,msg:''};
+    var st={file:file||null,sourceId:'',blocked:false,sec:sec||15,mode:mode||'best',count:Math.max(1,Math.min(3,+count||3)),captions:true,rights:false,busy:false,task:null,res:null,progress:0,msg:'',dur:0};
     var box=document.createElement('div');box.className='mv4-msg assistant mrv-card mclip-card';
+    /* Durée de la vidéo importée (lue dans le navigateur) : le curseur ne dépasse jamais la vidéo */
+    function probe(f){try{var v=document.createElement('video'),u=URL.createObjectURL(f);v.preload='metadata';v.muted=true;
+      v.onloadedmetadata=function(){st.dur=isFinite(v.duration)?v.duration:0;URL.revokeObjectURL(u);if(!st.busy)render();};v.onerror=function(){URL.revokeObjectURL(u);};v.src=u;}catch(e){}}
+    if(st.file)probe(st.file);
     var host='';try{host=new URL(url).hostname.replace(/^www\./,'');}catch(e){}
     var isYT=/(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/.test(host);if(isYT)st.blocked=true;
     function render(){
       var cost='';try{cost='≈ '+marshallTokenPrice('clip',st.count)+' tokens · ';}catch(e){}
+      var smax=st.dur?Math.max(1,Math.min(30,Math.floor(st.dur))):30,smin=Math.min(5,smax);
+      if(st.sec>smax)st.sec=smax;if(st.sec<smin)st.sec=smin;
       var res=st.res;
       var fileRow=st.file?'<div class="mclip-file">📁 <b>'+esc(st.file.name)+'</b> <em>'+Math.max(1,Math.round(st.file.size/1048576))+' Mo</em><button type="button" data-act="unfile" aria-label="Retirer la vidéo importée">✕</button></div>':'';
       box.innerHTML='<div class="mrv-title">✂️ Clip depuis ta vidéo</div>'+(st.file?fileRow:(!url?'<div class="mrv-sub">📁 Aucune vidéo : importe un fichier ci-dessous.</div>':'<div class="mrv-sub">🔗 '+esc(host||url)+(isYT?' · import du fichier requis':'')+'</div>'))+
@@ -14196,7 +14202,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         '<div class="mclip-tip">💡 <b>Conseil :</b> une vidéo de <b>2 à 3 minutes</b> donne les clips les plus percutants et le montage le plus rapide (≈ 1 min). Au-delà de 20 min, compte plusieurs minutes.</div>'+
         '<div class="mclip-count"><b>Nombre de clips</b>'+[1,2,3].map(function(n){return '<button type="button" data-count="'+n+'" class="'+(st.count===n?'on':'')+'">'+n+'</button>';}).join('')+'<small>'+(st.count>1?'→ un clip par canvas (1'+(st.count>2?'-2-3':'-2')+')':'→ sur le canvas 1')+'</small></div>'+
         (st.count===1?'<div class="mclip-seg"><button type="button" data-mode="best" class="'+(st.mode==='best'?'on':'')+'">⭐ Meilleurs moments<small>1 à 3 extraits enchaînés</small></button><button type="button" data-mode="single" class="'+(st.mode==='single'?'on':'')+'">🎯 1 moment fort<small>un passage continu</small></button></div>':'<div class="mclip-hint">🎯 '+st.count+' moments forts différents, un par canvas.</div>')+
-        '<div class="mrv-slider"><div class="mrv-slider-top"><b>Durée du clip</b><output>'+st.sec+' s</output></div><input type="range" min="5" max="30" step="1" value="'+st.sec+'" aria-label="Durée du clip en secondes"><div class="mrv-scale"><span>5 s</span><span>30 s</span></div><small>'+cost+'montage 9:16 automatique</small></div>'+
+        '<div class="mrv-slider"><div class="mrv-slider-top"><b>Durée du clip</b><output>'+st.sec+' s</output></div><input type="range" min="'+smin+'" max="'+smax+'" step="1" value="'+st.sec+'" aria-label="Durée du clip en secondes"'+(smin===smax?' disabled':'')+'><div class="mrv-scale"><span>'+smin+' s</span><span>'+smax+' s</span></div><small>'+cost+'montage 9:16 automatique'+(st.dur&&st.dur<30?' · ta vidéo dure '+(Math.round(st.dur*10)/10).toString().replace('.',',')+' s':'')+'</small></div>'+
         '<label class="mclip-chk"><input type="checkbox" data-k="captions"'+(st.captions?' checked':'')+'> 💬 Sous-titres qui suivent la voix (mot par mot)</label>'+
         '<label class="mclip-chk"><input type="checkbox" data-k="rights"'+(st.rights?' checked':'')+'> ✅ C’est ma vidéo ou j’ai le droit de la réutiliser</label>')+
         (st.task&&!(res&&res.video_url)?'<div class="mclip-prog"><div class="mclip-bar"><span style="width:'+Math.max(4,st.progress|0)+'%"></span></div><small>'+esc(st.msg||'…')+(st.t0?' · depuis '+marshallThinkFmt(Date.now()-st.t0):'')+'</small></div>':'')+
@@ -14209,8 +14215,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       $all('[data-mode]',box).forEach(function(b){b.disabled=st.busy;b.addEventListener('click',function(){st.mode=b.getAttribute('data-mode');render();});});
       $all('[data-count]',box).forEach(function(b){b.disabled=st.busy;b.addEventListener('click',function(){st.count=+b.getAttribute('data-count');render();});});
       var pl=box.querySelector('[data-act="place"]');if(pl)pl.addEventListener('click',function(){marshallClipsToCanvases(st.res);});
-      var fi=box.querySelector('.mclip-upbtn input');if(fi)fi.addEventListener('change',function(){var f=fi.files&&fi.files[0];if(!f)return;if(f.size>1024*1048576){st.state='⚠ Vidéo trop lourde (1 Go maximum).';render();return;}st.file=f;st.sourceId='';st.blocked=false;st.state='';render();});
-      var uf=box.querySelector('[data-act="unfile"]');if(uf)uf.addEventListener('click',function(){st.file=null;st.sourceId='';render();});
+      var fi=box.querySelector('.mclip-upbtn input');if(fi)fi.addEventListener('change',function(){var f=fi.files&&fi.files[0];if(!f)return;if(f.size>1024*1048576){st.state='⚠ Vidéo trop lourde (1 Go maximum).';render();return;}st.file=f;st.sourceId='';st.blocked=false;st.state='';st.dur=0;render();probe(f);});
+      var uf=box.querySelector('[data-act="unfile"]');if(uf)uf.addEventListener('click',function(){st.file=null;st.sourceId='';st.dur=0;render();});
       $all('.mclip-chk input',box).forEach(function(c){c.disabled=st.busy;c.addEventListener('change',function(){st[c.getAttribute('data-k')]=c.checked;});});
       var go=box.querySelector('[data-act="go"]');if(go)go.addEventListener('click',launch);
       var ag=box.querySelector('[data-act="again"]');if(ag)ag.addEventListener('click',function(){st.res=null;st.task=null;st.mode=st.mode==='best'?'single':'best';st.state='';render();});
