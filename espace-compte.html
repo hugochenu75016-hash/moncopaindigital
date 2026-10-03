@@ -783,6 +783,33 @@
 .ec-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 <style id="abo-admin-style">
+
+  /* Parrainage (client) */
+  .prr-hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.prr-hero h2{margin:0}
+  .prr-kpis,.usg-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+  .usg-kpis{grid-template-columns:repeat(6,1fr)}
+  .prr-kpis>div,.usg-kpis>div{background:#fff8ef;border:1px solid #f0dcc6;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column}
+  .prr-kpis b,.usg-kpis b{font:700 24px 'Fredoka',sans-serif;color:#3b2a1c}.prr-kpis span,.usg-kpis span{font-size:12.5px;color:#8a6a4c}.usg-kpis small{display:block;font-size:11px;color:#b09474}
+  .prr-kpis .hot,.usg-kpis .pos{background:linear-gradient(135deg,#FFF1E2,#FFE2C6);border-color:#FBD3AE}.prr-kpis .hot b{color:#E2701A}.usg-kpis .pos b{color:#1f7a3a}.usg-kpis .neg{background:#fdeceb;border-color:#f5c3c0}.usg-kpis .neg b{color:#b23a3e}
+  .prr-link{display:flex;gap:8px;flex-wrap:wrap}.prr-link input{flex:1;min-width:200px;border:1px solid #E6D6C3;border-radius:12px;padding:10px 12px;font:500 13px 'Fredoka',sans-serif;background:#FFF8EF;color:#3B2A1C}
+  .prr-link button,.prr-link a{border:0;border-radius:999px;background:#F3852B;color:#fff;font:700 13px 'Fredoka',sans-serif;padding:10px 18px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}.prr-link a{background:#25D366}
+  .prr-h{font:700 15px 'Fredoka',sans-serif;margin:20px 0 10px;color:#3b2a1c}
+  .prr-list{display:flex;flex-direction:column;gap:8px}
+  .prr-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid #f0dcc6;border-radius:14px;background:#fff}
+  .prr-ava{flex:none;width:38px;height:38px;border-radius:50%;background:#FFE7D1;color:#C7620E;font:700 16px/38px 'Fredoka',sans-serif;text-align:center}
+  .prr-who{flex:1;min-width:0;display:flex;flex-direction:column}.prr-who small{color:#8a6a4c;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .prr-st{flex:none;text-align:right;font:700 13px 'Fredoka',sans-serif;display:flex;flex-direction:column}.prr-st small{font:500 11px Arial,sans-serif;color:#8a6a4c}.prr-st.ok{color:#1f7a3a}.prr-st.wait{color:#C7620E}
+  .prr-empty{padding:16px;border:1.5px dashed #f0cfae;border-radius:14px;color:#6b5848;font-size:14px;background:#fffaf5}
+  /* Tableau de bord Studio (admin) */
+  .usg-ctl{display:flex;gap:8px;align-items:center}.usg-ctl select{border:1px solid #E6D6C3;border-radius:12px;padding:9px 12px;font:600 13px 'Fredoka',sans-serif;background:#fff;color:#3b2a1c}
+  .usg-grid{display:grid;grid-template-columns:minmax(240px,.8fr) 2fr;gap:22px;align-items:start}
+  .usg-k{display:grid;grid-template-columns:1fr 70px;gap:2px 8px;margin-bottom:9px;font-size:12.5px;color:#6b5848}.usg-k i{grid-column:1;height:7px;border-radius:9px;background:linear-gradient(90deg,#FF9C46,#F3852B)}.usg-k b{grid-column:2;grid-row:1/3;align-self:center;text-align:right;color:#3b2a1c;font-size:12.5px}
+  .usg-sort{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.usg-sort .prr-h{margin:0 auto 0 0}.usg-sort span{font-size:12px;color:#8a6a4c}
+  .usg-sort button{border:1px solid #f0dcc6;background:#fff;border-radius:999px;padding:5px 11px;font:600 12px 'Fredoka',sans-serif;color:#6b5848;cursor:pointer}.usg-sort button.on{background:#F3852B;border-color:#F3852B;color:#fff}
+  .usg-tw{overflow-x:auto;margin-top:10px}.usg table{width:100%;border-collapse:collapse;font-size:13px}.usg th{text-align:left;font:700 11.5px 'Fredoka',sans-serif;color:#8a6a4c;padding:8px;border-bottom:1px solid #f0dcc6}
+  .usg td{padding:9px 8px;border-bottom:1px solid #f6ebe0;white-space:nowrap}.usg td small{display:block;color:#a08a74;font-size:11.5px}.usg td.pos{color:#1f7a3a;font-weight:700}.usg td.neg{color:#b23a3e;font-weight:700}
+  @media (max-width:980px){.usg-kpis{grid-template-columns:repeat(3,1fr)}.usg-grid{grid-template-columns:1fr}}
+  @media (max-width:560px){.prr-kpis,.usg-kpis{grid-template-columns:repeat(2,1fr)}.prr-row{flex-wrap:wrap}.prr-st{text-align:left}}
   #aview-abos .abo-wrap{display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,1.1fr);gap:18px;align-items:start}
   #aview-abos .abo-list{display:flex;flex-direction:column;gap:8px;max-height:560px;overflow:auto;padding:2px 4px 4px 0}
   #aview-abos .abo-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;border:2px solid transparent;background:rgba(255,255,255,.55);border-radius:14px;padding:10px 12px;font:inherit;color:#6b3410;transition:transform .15s,border-color .15s,background .15s}
@@ -1151,6 +1178,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Mon profil
       </a>
+      <a class="nav-item" data-view="parrain">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>
+        Mes gains de parrainage
+      </a>
       <a class="nav-item" data-view="avis">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 7.1-1.01z"/></svg>
         Laisser un retour
@@ -1336,6 +1367,7 @@
       </section>
 
       <!-- ===== Vue : Retours ===== -->
+      <section class="view" id="view-parrain"></section>
       <section class="view" id="view-avis">
         <div class="card" id="avis-card">
           <div class="card-title-row">
@@ -1391,6 +1423,10 @@
       <a class="nav-item" data-aview="abos" id="adm-nav-abos" style="display:none;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8l4 10h12l4-10-6 4-4-7-4 7z"/><path d="M6 21h12"/></svg>
         Abonnements
+      </a>
+      <a class="nav-item" data-aview="usage" id="adm-nav-usage" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+        Tableau Studio
       </a>
       <a class="nav-item" data-aview="rdv">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -1516,6 +1552,7 @@
 
       <!-- ===== Abonnements Studio Social (admin) ===== -->
       <section class="aview" id="aview-abos"></section>
+      <section class="aview" id="aview-usage"></section>
 
       <!-- ===== Fiche client ===== -->
       <section class="aview" id="aview-client"></section>
@@ -2009,7 +2046,8 @@
     msg: ['Messagerie', 'Vos messages'],
     factures: ['Documents', 'Factures'],
     profil: ['Compte', 'Mon profil'],
-    avis: ['Espace client', 'Laisser un retour']
+    avis: ['Espace client', 'Laisser un retour'],
+    parrain: ['Studio Social', 'Mes gains de parrainage']
   };
   function switchView(name){
     $all('.nav-item').forEach(function(n){ n.classList.toggle('active', n.dataset.view===name); });
@@ -2019,6 +2057,7 @@
     $('#tb-title').textContent = (name==='dash' && current) ? ('Bonjour ' + current.nom.split(' ')[0]) : meta[1];
     closeSide();
     if(name==='msg'){ markMessagesRead(); renderChat(); scrollChat(); }
+    if(name==='parrain') renderParrain();
   }
   $all('[data-view]').forEach(function(el){
     el.addEventListener('click', function(e){ e.preventDefault(); switchView(el.dataset.view); });
@@ -3094,8 +3133,86 @@
       if(!remove&&body.send_email&&em&&!em.sent){ var mm=$('#abo-msg'); if(mm) mm.textContent='Abonnement offert, mais e-mail non envoyé : '+(em.reason||'erreur'); }
     }catch(e){ if(msg) msg.textContent='⚠ '+(e&&e.message?e.message:'Erreur'); if(go) go.disabled=false; }
   }
-  (function(){ var t=setInterval(function(){ var n=document.getElementById('adm-nav-abos'); if(!n) return; if(typeof authUser!=='undefined' && authUser){ n.style.display=isAdmin()?'':'none'; } },800); })();
-  var ADM_TITLES = { abos:['Studio Social','Gérer les abonnements'], overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], regler:['Encaissement','Faire régler'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'], 'paie-coach':['Encaissements','Paiements par commercial'] };
+
+  /* ===== Parrainage : le client voit ses filleuls et ses tokens gagnés ===== */
+  var parr={loaded:false,loading:false,data:null,err:''};
+  function parrLink(){ return location.origin+location.pathname.replace(/[^\/]*$/,'')+'studio-social.html?parrain='+encodeURIComponent(String(authUser&&authUser.id||'')); }
+  function parrDate(ts){ return ts? new Date(ts*1000).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : ''; }
+  async function renderParrain(force){
+    var el=$('#view-parrain'); if(!el) return;
+    if(!authUser){ el.innerHTML='<div class="card"><p class="sub">Connecte-toi pour voir tes gains.</p></div>'; return; }
+    if((!parr.loaded||force)&&!parr.loading){
+      parr.loading=true; if(!parr.data) el.innerHTML='<div class="card"><p class="sub">Chargement de tes gains…</p></div>';
+      try{ var r=await fetch(MARSHALL_API+'/referral/me',{headers:await aboHeaders()}); var d=await r.json(); if(!r.ok||!d.ok) throw Error(d&&d.error||'Serveur indisponible'); parr.data=d; parr.err=''; }
+      catch(e){ parr.err='Impossible de charger tes gains : '+(e&&e.message?e.message:'erreur'); }
+      parr.loading=false; parr.loaded=true;
+    }
+    var d=parr.data||{reward:1000,joined:0,paid:0,tokens:0,friends:[]}, link=parrLink(), fr=d.friends||[];
+    var rows=fr.length? fr.map(function(f){
+      var ini=esc(String(f.name||f.email||'?').trim().charAt(0).toUpperCase()||'?');
+      return '<div class="prr-row"><span class="prr-ava">'+ini+'</span><span class="prr-who"><b>'+esc(f.name||'Ton ami')+'</b><small>'+esc(f.email||'')+' · inscrit le '+parrDate(f.at)+'</small></span>'+
+        (f.paid_at?'<span class="prr-st ok">+'+Number(f.tokens||d.reward).toLocaleString('fr-FR')+' tokens<small>abonné le '+parrDate(f.paid_at)+'</small></span>':'<span class="prr-st wait">En attente<small>tokens dès son abonnement</small></span>')+'</div>';
+    }).join('') : '<div class="prr-empty">🎁 Aucun filleul pour l’instant. Partage ton lien ci-dessus : dès qu’un ami prend une formule Complet ou Hyper, tu gagnes <b>'+Number(d.reward).toLocaleString('fr-FR')+' tokens</b>.</div>';
+    el.innerHTML='<div class="card prr">'+
+      '<div class="prr-hero"><div><h2>Gagne '+Number(d.reward).toLocaleString('fr-FR')+' tokens par ami abonné</h2><p class="sub">Invite un commerçant ou un ami avec ton lien. Les tokens gagnés s’ajoutent à tes recharges et n’expirent pas.</p></div><button class="glass-btn" id="prr-refresh" style="padding:11px 20px;color:#6b3410;">Actualiser</button></div>'+
+      (parr.err?'<p class="sub" style="color:#b23a3e;font-weight:700;">⚠ '+esc(parr.err)+'</p>':'')+
+      '<div class="prr-kpis"><div><b>'+d.joined+'</b><span>ami'+(d.joined>1?'s':'')+' inscrit'+(d.joined>1?'s':'')+'</span></div><div><b>'+d.paid+'</b><span>ami'+(d.paid>1?'s':'')+' abonné'+(d.paid>1?'s':'')+'</span></div><div class="hot"><b>'+Number(d.tokens).toLocaleString('fr-FR')+'</b><span>tokens gagnés</span></div></div>'+
+      '<div class="prr-link"><input readonly id="prr-url" aria-label="Ton lien d’invitation"><button type="button" id="prr-copy">Copier mon lien</button>'+
+        '<a target="_blank" rel="noopener" id="prr-wa">WhatsApp</a></div>'+
+      '<h3 class="prr-h">Mes filleuls</h3><div class="prr-list">'+rows+'</div></div>';
+    var inp=$('#prr-url'); inp.value=link;
+    var msg='Je crée mes posts Instagram et Facebook avec Studio Social (Mon Copain Digital), c’est simple et pensé pour les commerçants. Essaie gratuitement : '+link;
+    $('#prr-wa').href='https://wa.me/?text='+encodeURIComponent(msg);
+    $('#prr-copy').addEventListener('click',async function(){ try{ await navigator.clipboard.writeText(link); flashToast('Lien copié ✓'); }catch(e){ inp.select(); flashToast('Sélectionne le lien puis Ctrl+C'); } });
+    $('#prr-refresh').addEventListener('click',function(){ renderParrain(true); });
+  }
+
+  /* ===== Tableau de bord Studio (admin) : clients actifs, tokens, coût réel estimé, revenu, marge ===== */
+  var usg={month:'',loading:false,data:null,err:'',sort:'cost'};
+  function usgMonths(){ var out=[],d=new Date(); d.setDate(1); for(var i=0;i<6;i++){ out.push(d.toISOString().slice(0,7)); d.setMonth(d.getMonth()-1); } return out; }
+  function usgEur(v){ return Number(v||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+  async function renderAdminUsage(force){
+    var el=$('#aview-usage'); if(!el) return;
+    if(!isAdmin()){ el.innerHTML='<div class="card"><p class="sub">Réservé à l’administrateur.</p></div>'; return; }
+    if(!usg.month) usg.month=usgMonths()[0];
+    if((!usg.data||force)&&!usg.loading){
+      usg.loading=true; el.innerHTML='<div class="card"><p class="sub">Chargement du tableau de bord…</p></div>';
+      try{ var ids=aboClients().map(function(c){ return c.id; });
+        var r=await fetch(MARSHALL_API+'/admin/usage',{method:'POST',headers:await aboHeaders(),body:JSON.stringify({user_ids:ids,month:usg.month})}); var d=await r.json();
+        if(!r.ok||!d.ok) throw Error(d&&d.error||'Serveur indisponible'); usg.data=d; usg.err=''; }
+      catch(e){ usg.err='Impossible de lire l’utilisation : '+(e&&e.message?e.message:'erreur'); usg.data={rows:{},labels:{}}; }
+      usg.loading=false;
+    }
+    var d=usg.data||{rows:{},labels:{}}, rows=[];
+    aboClients().forEach(function(c){ var u=d.rows[c.id]; if(u) rows.push({c:c,u:u}); });
+    var active=rows.filter(function(x){ return x.u.used>0; });
+    var tot={used:0,cost:0,rev:0,paid:0,ref:0}, kinds={};
+    rows.forEach(function(x){ tot.used+=x.u.used; tot.cost+=x.u.cost_eur; tot.rev+=x.u.revenue_eur; if(x.u.source==='stripe') tot.paid++; tot.ref+=x.u.ref_paid;
+      Object.keys(x.u.by_kind||{}).forEach(function(k){ kinds[k]=(kinds[k]||0)+x.u.by_kind[k]; }); });
+    var key={cost:function(x){ return x.u.cost_eur; },rev:function(x){ return x.u.revenue_eur; },marge:function(x){ return x.u.revenue_eur-x.u.cost_eur; },used:function(x){ return x.u.used; }}[usg.sort];
+    var list=active.slice().sort(function(a,b){ return key(b)-key(a); });
+    if(usg.sort==='marge') list.reverse();
+    var tpe=d.tokens_per_eur||1500, kmax=Math.max.apply(null,[1].concat(Object.keys(kinds).map(function(k){ return kinds[k]; })));
+    var kindHtml=Object.keys(kinds).sort(function(a,b){ return kinds[b]-kinds[a]; }).slice(0,8).map(function(k){
+      return '<div class="usg-k"><span>'+esc((d.labels||{})[k]||k)+'</span><i style="width:'+Math.max(3,Math.round(kinds[k]/kmax*100))+'%"></i><b>'+usgEur(kinds[k]/tpe)+'</b></div>'; }).join('')||'<p class="sub">Aucune création ce mois-ci.</p>';
+    var body=list.map(function(x){ var m=x.u.revenue_eur-x.u.cost_eur, c=x.c;
+      return '<tr><td><b>'+esc(c.nom||'Client')+'</b><small>'+esc(c.email||'')+'</small></td><td>'+aboPill({plan:x.u.plan,source:x.u.source})+'</td><td>'+x.u.used.toLocaleString('fr-FR')+'</td><td>'+usgEur(x.u.cost_eur)+'</td><td>'+usgEur(x.u.revenue_eur)+'</td><td class="'+(m<0?'neg':'pos')+'">'+usgEur(m)+'</td></tr>'; }).join('');
+    var marge=tot.rev-tot.cost;
+    el.innerHTML='<div class="card usg">'+
+      '<div class="card-title-row"><div><h2>Tableau de bord Studio Social</h2><p class="sub" style="margin:2px 0 0;">Coût réel estimé d’après le barème tokens (1 € = '+tpe.toLocaleString('fr-FR')+' tokens). Revenu = abonnements Stripe en cours + recharges du mois.</p></div>'+
+        '<div class="usg-ctl"><select id="usg-month">'+usgMonths().map(function(m){ return '<option value="'+m+'"'+(m===usg.month?' selected':'')+'>'+new Date(m+'-01T12:00:00').toLocaleDateString('fr-FR',{month:'long',year:'numeric'})+'</option>'; }).join('')+'</select><button class="glass-btn" id="usg-refresh" style="padding:10px 18px;color:#6b3410;">Actualiser</button></div></div>'+
+      (usg.err?'<p class="sub" style="color:#b23a3e;font-weight:700;">⚠ '+esc(usg.err)+'</p>':'')+
+      '<div class="usg-kpis"><div><b>'+active.length+'</b><span>clients actifs<small>sur '+rows.length+' comptes</small></span></div><div><b>'+tot.paid+'</b><span>abonnés payants</span></div><div><b>'+tot.used.toLocaleString('fr-FR')+'</b><span>tokens consommés</span></div>'+
+        '<div><b>'+usgEur(tot.cost)+'</b><span>coût réel estimé</span></div><div><b>'+usgEur(tot.rev)+'</b><span>revenu</span></div><div class="'+(marge<0?'neg':'pos')+'"><b>'+usgEur(marge)+'</b><span>marge</span></div></div>'+
+      '<div class="usg-grid"><div><h3 class="prr-h">Où part le coût</h3>'+kindHtml+'<p class="sub" style="margin-top:10px">'+tot.ref+' filleul'+(tot.ref>1?'s':'')+' abonné'+(tot.ref>1?'s':'')+' grâce au parrainage (total).</p></div>'+
+        '<div><div class="usg-sort"><h3 class="prr-h">Clients actifs</h3><span>Trier :</span>'+[['cost','Coût'],['rev','Revenu'],['marge','Marge (pire d’abord)'],['used','Tokens']].map(function(o){ return '<button type="button" data-usg-sort="'+o[0]+'" class="'+(usg.sort===o[0]?'on':'')+'">'+o[1]+'</button>'; }).join('')+'</div>'+
+        (list.length?'<div class="usg-tw"><table><thead><tr><th>Client</th><th>Formule</th><th>Tokens</th><th>Coût</th><th>Revenu</th><th>Marge</th></tr></thead><tbody>'+body+'</tbody></table></div>':'<p class="sub">Aucun client actif ce mois-ci.</p>')+'</div></div></div>';
+    $('#usg-month').addEventListener('change',function(){ usg.month=this.value; renderAdminUsage(true); });
+    $('#usg-refresh').addEventListener('click',function(){ renderAdminUsage(true); });
+    $all('#aview-usage [data-usg-sort]').forEach(function(b){ b.addEventListener('click',function(){ usg.sort=b.getAttribute('data-usg-sort'); renderAdminUsage(); }); });
+  }
+  (function(){ var t=setInterval(function(){ var n=document.getElementById('adm-nav-abos'); if(!n) return; if(typeof authUser!=='undefined' && authUser){ n.style.display=isAdmin()?'':'none'; var u=document.getElementById('adm-nav-usage'); if(u) u.style.display=isAdmin()?'':'none'; } },800); })();
+  var ADM_TITLES = { usage:['Studio Social','Tableau de bord Studio'], abos:['Studio Social','Gérer les abonnements'], overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], regler:['Encaissement','Faire régler'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'], 'paie-coach':['Encaissements','Paiements par commercial'] };
   function closeAdmSide(){ var s=$('#adm-side'); if(s) s.classList.remove('open'); var sc=$('#adm-scrim'); if(sc) sc.classList.remove('show'); }
   function switchAdminView(name){
     admin.view=name;
@@ -3116,6 +3233,7 @@
     else if(name==='direction') renderDirection();
     else if(name==='profil') renderAdminProfil();
     else if(name==='abos') renderAdminAbos();
+    else if(name==='usage') renderAdminUsage();
   }
 
   function avSpan(cls, url, ini){ return url ? '<span class="'+cls+'" style="background-image:url('+url+');background-size:cover;background-position:center;"></span>' : '<span class="'+cls+'">'+ini+'</span>'; }
