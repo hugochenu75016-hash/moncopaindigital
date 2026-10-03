@@ -5861,8 +5861,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function autoRun(){
     if(!autoGate()) return;
     var err=autoCheck(AUTO.cur.pieces); if(err){toast(err,true);return;}
-    var hasSched=AUTO.cur.pieces.some(function(p){return p.type==='schedule';});
-    await mcdPubOverlay('show');
+    var hasSched=AUTO.cur.pieces.some(function(p){return p.type==='schedule';}), t0=Date.now();
+    try{ marshallAnimPreload(); }catch(e){}
+    await mcdPubOverlay('show',{marshall:MARSHALL_ANIM.ordi,label:'Marshall lance ton automatisation…'});
     try{
       var pay=autoPayload(); pay.active=hasSched;
       var r=await fetch(MARSHALL_CREWAI_BASE+'/auto/save',{method:'POST',headers:await authHeaders(),body:JSON.stringify(pay)});
@@ -5872,6 +5873,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var r2=await fetch(MARSHALL_CREWAI_BASE+'/auto/run',{method:'POST',headers:await authHeaders(),body:JSON.stringify(pay)});
       var d2=await r2.json().catch(function(){return {};});
       if(!r2.ok||!d2.ok) throw Error(d2.error||('erreur '+r2.status));
+      await new Promise(function(res){ setTimeout(res,Math.max(0,3000-(Date.now()-t0))); });   // on laisse le temps de voir Marshall au travail
       await mcdPubOverlay('ok');
       // Le puzzle redevient vierge ; l'automatisation part travailler dans « Mes automatisations ».
       AUTO.cur=autoBlank(); AUTO.sel=-1; AUTO.view=pay.id; AUTO.run=null;
