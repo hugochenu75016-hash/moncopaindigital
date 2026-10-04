@@ -51,6 +51,15 @@
   .nav a{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;position:relative}
   .nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-3px;height:2px;background:currentColor;transition:right .3s}
   .nav a:hover::after{right:0}
+  .home-ico{display:block;flex:none;width:30px;height:30px;margin-right:-10px;transform:translateY(-2px);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+  .home-ico svg{width:100%;height:100%;overflow:visible}
+  .home-ico .smoke{animation:smoke 2.6s ease-in-out infinite}
+  @keyframes smoke{0%{opacity:0;transform:translateY(4px)}40%{opacity:.9}100%{opacity:0;transform:translateY(-6px)}}
+  .home-ico:hover{transform:translateY(-5px) rotate(-6deg) scale(1.08)}
+  .app-link{display:inline-flex;align-items:center;gap:8px;border:1px solid currentColor;border-radius:999px;padding:8px 16px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;white-space:nowrap;transition:background .25s,color .25s}
+  .app-link svg{width:15px;height:15px;transition:transform .25s}
+  .app-link:hover{background:#fff;color:#000}
+  .app-link:hover svg{transform:translateX(3px)}
   .clock{display:inline-flex;align-items:center;gap:8px;border:1px solid currentColor;padding:8px 12px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px}
   .clock i{width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 1.6s infinite}
   @keyframes blink{50%{opacity:.25}}
@@ -61,21 +70,9 @@
   .menu a{font-size:clamp(54px,16vw,120px)}
   .menu a:hover{color:var(--or)}
   .menu .x{position:absolute;top:18px;right:var(--pad);color:#fff}
-  @media (max-width:900px){.nav,.clock{display:none}.burger{display:flex;margin-left:auto}}
+  @media (max-width:900px){.nav,.clock{display:none}.app-link{margin-left:auto}.burger{display:flex;margin-left:6px}}
+  @media (max-width:420px){.top{gap:10px}.logo{font-size:21px}.home-ico{width:26px;height:26px;margin-right:-4px}.app-link{padding:7px 11px;font-size:12px}.app-link svg{display:none}}
 
-  /* ---------- Pilule « Accéder à l'app » : orange liquide ---------- */
-  .app-pill{position:fixed;top:18px;right:var(--pad);z-index:61;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px 0 20px;border-radius:999px;overflow:hidden;isolation:isolate;
-    color:#fff;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;letter-spacing:.02em;white-space:nowrap;
-    background:radial-gradient(120% 140% at 30% 0%,#ffb066 0%,#ff8a2a 38%,#f06d0c 72%,#d9560a 100%);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -6px 12px rgba(150,45,0,.35),0 8px 22px rgba(243,133,43,.45);
-    transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
-  .app-pill::before{content:"";position:absolute;left:10%;right:10%;top:2px;height:45%;border-radius:999px;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0));z-index:-1}
-  .app-pill::after{content:"";position:absolute;inset:-40% auto -40% -60%;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:liquid 3.2s ease-in-out infinite;z-index:-1}
-  @keyframes liquid{0%,55%{left:-60%}100%{left:130%}}
-  .app-pill svg{width:16px;height:16px;transition:transform .3s}
-  .app-pill:hover{transform:translateY(-2px) scale(1.04);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(150,45,0,.35),0 12px 28px rgba(243,133,43,.6)}
-  .app-pill:hover svg{transform:translateX(3px)}
-  @media (max-width:520px){.app-pill{height:36px;padding:0 14px;font-size:12.5px}.app-pill svg{display:none}}
   /* ---------- Héros ---------- */
   .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:110px var(--pad) 110px;text-align:center}
   .hero h1{font-size:clamp(60px,9.6vw,210px)}
@@ -236,11 +233,6 @@
   .bigword em{color:var(--or)}
   @media (max-width:900px){.fgrid{grid-template-columns:1fr}.fbot small{text-align:left}}
 
-  /* ---------- Mini Marshall qui accompagne la visite ---------- */
-  .buddy{position:fixed;right:18px;bottom:16px;z-index:55;display:flex;align-items:flex-end;gap:8px;pointer-events:none}
-  .buddy img{width:86px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.35))}
-  .buddy .say{background:#fff;color:var(--ink);padding:10px 14px;font-size:14px;font-weight:700;border-radius:14px 14px 2px 14px;max-width:220px;box-shadow:0 10px 24px rgba(0,0,0,.25);margin-bottom:60px}
-  @media (max-width:700px){.buddy img{width:58px}.buddy .say{display:none}}
 
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -248,6 +240,14 @@
 <body>
 
 <header class="top" id="top">
+  <a class="home-ico" href="index.html" aria-label="Accueil Mon Copain Digital" title="Accueil Mon Copain Digital"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+    <path class="smoke" d="M33 8c-2-2 1-4-1-6" stroke-width="2"/>
+    <path d="M30 18v-7.5h6V23"/>
+    <path d="M10 23v18.5a2.5 2.5 0 0 0 2.5 2.5h23a2.5 2.5 0 0 0 2.5-2.5V23"/>
+    <path d="M5.5 25 24 8.5 42.5 25" stroke-width="3.4"/>
+    <path d="M20 44V32.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2V44"/>
+    <rect x="12.5" y="25.5" width="6" height="6" rx="1.2"/><rect x="29.5" y="25.5" width="6" height="6" rx="1.2"/>
+  </svg></a>
   <a class="logo" href="index.html" aria-label="Mon Copain Digital · accueil">Studio Social</a>
   <nav class="nav" aria-label="Navigation">
     <a href="#metiers">Métiers</a>
@@ -256,10 +256,10 @@
     <a href="#offres">Offres</a>
     <a href="#faq">FAQ</a>
   </nav>
+  <a class="app-link" href="studio-social.html">Accéder à l’app <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
   <span class="clock" aria-label="Marshall est en ligne"><i></i>Marshall en ligne · <span id="clock">--:--</span></span>
   <button class="burger" type="button" aria-label="Ouvrir le menu" id="burger"><span></span><span></span><span></span></button>
 </header>
-<a class="app-pill" id="app-pill" href="studio-social.html"><span>Accéder à l’app</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 <nav class="menu" id="menu" aria-label="Menu">
   <button class="sq x" type="button" id="menu-x" aria-label="Fermer le menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
   <a class="disp" href="#metiers">Métiers</a>
@@ -397,7 +397,296 @@
   <div class="bigword disp" aria-hidden="true">Studio <em>Social</em></div>
 </footer>
 
-<div class="buddy" id="buddy" aria-hidden="true"><span class="say" id="buddy-say">Coucou&nbsp;! Je te fais visiter 👋</span><img src="avatarchatbot.png" alt=""></div>
+<style>
+  /* ——— Marshall : habillage marque (Fredoka + orange bonbon) ——— */
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;900&family=Nunito:wght@400;600;700&display=swap');
+  .mcd-chat, .mcd-chat * { box-sizing: border-box; }
+
+  .mcd-chat {
+    --orange: #F3852B;
+    --orange-clair: #FF9C46;
+    --orange-fonce: #C7620E;
+    --encre: #3B2A1C;
+    --gris: #A08A76;
+    --creme: #FFF8EF;
+    --creme-2: #FFF1E2;
+    font-family: 'Nunito', system-ui, sans-serif;
+    position: fixed;
+    left: clamp(16px, 4vw, 48px);
+    top: calc(clamp(14px, 2.4vw, 26px) + 66px);
+    z-index: 9990;
+  }
+
+  /* Lanceur */
+  .mcd-lanceur {
+    width: 62px; height: 62px; padding: 0;
+    border: none; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(to bottom, #ffb066, #ef7d21);
+    cursor: pointer; font-size: 0;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 6px 0 #b8520f, 0 14px 24px rgba(150,62,22,.24);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .mcd-lanceur img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; transform: scale(1.55); transform-origin: 50% 8%; display: block; }
+  .mcd-lanceur:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 8px 0 #b8520f, 0 18px 28px rgba(150,62,22,.28); }
+  .mcd-lanceur:active { transform: translateY(3px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.6), 0 3px 0 #b8520f; }
+  .mcd-lanceur:focus-visible { outline: 3px solid var(--orange-fonce); outline-offset: 3px; }
+
+  /* Fenêtre */
+  .mcd-fenetre {
+    display: none;
+    position: absolute; left: 0; top: 78px;
+    width: 392px; max-width: calc(100vw - 32px);
+    height: 540px; max-height: calc(100vh - 190px);
+    background: var(--creme);
+    border-radius: 30px;
+    box-shadow: 0 24px 48px rgba(150,62,22,.26), inset 0 2px 0 rgba(255,255,255,.9);
+    overflow: hidden;
+    flex-direction: column;
+  }
+  .mcd-chat[data-ouvert="true"] .mcd-fenetre { display: flex; }
+
+  .mcd-entete {
+    background: linear-gradient(to bottom, var(--orange-clair), var(--orange));
+    box-shadow: 0 4px 0 var(--orange-fonce);
+    color: #FFF7DB;
+    padding: 18px 20px;
+    display: flex; align-items: center; gap: 13px;
+  }
+  .mcd-avatar {
+    width: 46px; height: 46px; flex: none; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(to bottom, #ffb066, #ef7d21);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.55), 0 3px 6px rgba(150,62,22,.28);
+  }
+  .mcd-avatar img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 10%; transform: scale(1.55); transform-origin: 50% 8%; display: block; }
+  .mcd-entete h2 { margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 900; font-size: 19px; line-height: 1.1; color: #FFF7DB; text-shadow: 0 2px 0 rgba(150,70,0,.32); }
+  .mcd-entete p  { margin: 3px 0 0; font-size: 12.5px; font-weight: 600; color: #FFEFDA; }
+  .mcd-fermer {
+    margin-left: auto; width: 32px; height: 32px; flex: none;
+    background: rgba(255,255,255,.24); border: none; border-radius: 50%;
+    color: #FFF7DB; font-size: 17px; line-height: 1; cursor: pointer;
+  }
+  .mcd-fermer:hover { background: rgba(255,255,255,.4); }
+  .mcd-fermer:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  .mcd-fil {
+    flex: 1; overflow-y: auto;
+    padding: 20px 18px; display: flex; flex-direction: column; gap: 14px;
+    background: linear-gradient(180deg, var(--creme), var(--creme-2));
+  }
+
+  .mcd-bulle {
+    max-width: 80%;
+    padding: 12px 15px;
+    font-size: 14.5px; line-height: 1.5;
+    white-space: pre-wrap; word-wrap: break-word;
+  }
+  .mcd-bulle.assistant {
+    align-self: flex-start;
+    background: #fff; color: var(--encre);
+    border-radius: 20px 20px 20px 6px;
+    box-shadow: 0 3px 0 rgba(199,98,14,.16), 0 8px 18px rgba(150,62,22,.12);
+  }
+  .mcd-bulle.visiteur {
+    align-self: flex-end; font-weight: 600;
+    background: linear-gradient(to bottom, var(--orange-clair), var(--orange));
+    color: #FFF7DB;
+    border-radius: 20px 20px 6px 20px;
+    box-shadow: 0 3px 0 var(--orange-fonce);
+  }
+  .mcd-bulle.erreur { align-self: center; background: #FDECEC; color: #92312F; font-size: 13px; border-radius: 16px; }
+  .mcd-bulle a { color: var(--orange-fonce); }
+
+  /* Indicateur d'écriture */
+  .mcd-points { display: inline-flex; gap: 5px; align-items: center; height: 9px; }
+  .mcd-points i {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--orange);
+    animation: mcd-saut 1.2s infinite ease-in-out;
+  }
+  .mcd-points i:nth-child(2) { animation-delay: .15s; }
+  .mcd-points i:nth-child(3) { animation-delay: .3s; }
+  @keyframes mcd-saut { 0%,60%,100% { transform: translateY(0); opacity:.45 } 30% { transform: translateY(-5px); opacity:1 } }
+
+  /* Suggestions */
+  .mcd-suggestions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 18px 14px; background: var(--creme-2); }
+  .mcd-suggestions button {
+    font-family: 'Nunito', sans-serif; font-weight: 700;
+    background: #fff; border: none; color: var(--orange-fonce);
+    border-radius: 999px; padding: 8px 14px; font-size: 12.5px; cursor: pointer;
+    box-shadow: 0 3px 0 rgba(199,98,14,.2);
+    transition: transform .16s ease, background .16s ease;
+  }
+  .mcd-suggestions button:hover { background: #fff6ec; transform: translateY(-1px); }
+  .mcd-suggestions button:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(199,98,14,.2); }
+
+  /* Saisie */
+  .mcd-saisie { display: flex; gap: 10px; align-items: center; padding: 14px 16px 10px; background: #fff; box-shadow: 0 -3px 0 rgba(199,98,14,.1); }
+  .mcd-saisie textarea {
+    flex: 1; resize: none; border: none; border-radius: 24px;
+    background: #FFF3E6; box-shadow: inset 0 2px 4px rgba(199,98,14,.14);
+    padding: 13px 17px; font: inherit; font-size: 14.5px; max-height: 90px;
+    color: var(--encre);
+  }
+  .mcd-saisie textarea::placeholder { color: var(--gris); }
+  .mcd-saisie textarea:focus { outline: 2px solid var(--orange); outline-offset: 1px; }
+  .mcd-envoyer {
+    width: 50px; height: 50px; flex: none; padding: 0;
+    border: none; border-radius: 18px;
+    background: linear-gradient(to bottom, var(--orange-clair), var(--orange));
+    box-shadow: 0 4px 0 var(--orange-fonce), 0 8px 16px rgba(150,62,22,.22);
+    color: #FFF7E6; cursor: pointer;
+    display: grid; place-items: center;
+    transition: transform .16s ease, box-shadow .16s ease;
+  }
+  .mcd-envoyer:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--orange-fonce), 0 12px 20px rgba(150,62,22,.26); }
+  .mcd-envoyer:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--orange-fonce); }
+  .mcd-envoyer:disabled { opacity: .45; cursor: default; transform: none; }
+
+  .mcd-mention { text-align: center; font-size: 11.5px; color: var(--gris); padding: 6px 16px 14px; margin: 0; background: #fff; }
+
+  @media (max-width: 520px) {
+    .mcd-chat { left: 12px; }
+    .mcd-fenetre { width: calc(100vw - 24px); border-radius: 26px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mcd-lanceur, .mcd-points i, .mcd-envoyer, .mcd-suggestions button { transition: none; animation: none; }
+  }
+</style>
+
+<div class="mcd-chat" data-ouvert="false" id="mcdChat">
+  <div class="mcd-fenetre" role="dialog" aria-label="Assistant Marshall">
+    <div class="mcd-entete">
+      <span class="mcd-avatar"><img src="avatarchatbot.png" alt="Marshall"></span>
+      <div>
+        <h2>Marshall</h2>
+        <p>Une Question ? je suis la pour y répondre !</p>
+      </div>
+      <button class="mcd-fermer" id="mcdFermer" aria-label="Fermer la conversation">&times;</button>
+    </div>
+
+    <div class="mcd-fil" id="mcdFil" aria-live="polite"></div>
+
+    <div class="mcd-suggestions" id="mcdSuggestions">
+      <button type="button">Quelles sont vos offres ?</button>
+      <button type="button">C'est quoi Social Studio ?</button>
+      <button type="button">Comment prendre rendez-vous ?</button>
+    </div>
+
+    <div class="mcd-saisie">
+      <textarea id="mcdTexte" rows="1" placeholder="Écrivez votre question…" aria-label="Votre message"></textarea>
+      <button class="mcd-envoyer" id="mcdEnvoyer" aria-label="Envoyer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFF7E6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg></button>
+    </div>
+    <p class="mcd-mention">Assistant automatique. Pour un devis, prenez rendez-vous.</p>
+  </div>
+
+  <button class="mcd-lanceur" id="mcdLanceur" aria-label="Ouvrir l'assistant"><img src="avatarchatbot.png" alt=""></button>
+</div>
+
+<script>
+(function () {
+  // ⚠️ SEULE LIGNE À MODIFIER : l'adresse de ta fonction serverless
+  const ENDPOINT = 'https://copain-api.vercel.app/api/chat';
+
+  const chat   = document.getElementById('mcdChat');
+  const fil    = document.getElementById('mcdFil');
+  const texte  = document.getElementById('mcdTexte');
+  const envoi  = document.getElementById('mcdEnvoyer');
+  const sugg   = document.getElementById('mcdSuggestions');
+
+  const historique = [];
+  let occupe = false;
+
+  const ACCUEIL = "Bonjour 👋 Je réponds à vos questions sur nos offres, le Social Studio ou la prise de rendez-vous. Que puis-je pour vous ?";
+
+  function bulle(role, contenu) {
+    const el = document.createElement('div');
+    el.className = 'mcd-bulle ' + role;
+    // Transforme les liens internes en liens cliquables, sans injecter de HTML brut
+    el.textContent = contenu;
+    el.innerHTML = el.innerHTML.replace(
+      /(\/[a-zA-Z0-9\-_]+\.html)/g,
+      '<a href="$1">$1</a>'
+    );
+    fil.appendChild(el);
+    fil.scrollTop = fil.scrollHeight;
+    return el;
+  }
+
+  function ouvrir() {
+    chat.dataset.ouvert = 'true';
+    if (!fil.children.length) bulle('assistant', ACCUEIL);
+  }
+  function fermer() { chat.dataset.ouvert = 'false'; }
+
+  async function envoyer(message) {
+    if (occupe || !message.trim()) return;
+    occupe = true;
+    envoi.disabled = true;
+    sugg.style.display = 'none';
+
+    bulle('visiteur', message);
+    historique.push({ role: 'user', content: message });
+    texte.value = '';
+    texte.style.height = 'auto';
+
+    const attente = bulle('assistant', '');
+    attente.innerHTML = '<span class="mcd-points"><i></i><i></i><i></i></span>';
+
+    try {
+      const r = await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: historique }),
+      });
+      const data = await r.json();
+      attente.remove();
+
+      if (!r.ok) {
+        bulle('erreur', data.error || "L'assistant est momentanément indisponible.");
+        return;
+      }
+      bulle('assistant', data.reply);
+      historique.push({ role: 'assistant', content: data.reply });
+    } catch (e) {
+      attente.remove();
+      bulle('erreur', "Connexion impossible. Réessayez, ou écrivez-nous depuis la page Contact.");
+    } finally {
+      occupe = false;
+      envoi.disabled = false;
+      texte.focus();
+    }
+  }
+
+  document.getElementById('mcdLanceur').addEventListener('click', () =>
+    chat.dataset.ouvert === 'true' ? fermer() : ouvrir()
+  );
+  document.getElementById('mcdFermer').addEventListener('click', fermer);
+  envoi.addEventListener('click', () => envoyer(texte.value));
+
+  texte.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyer(texte.value); }
+  });
+  texte.addEventListener('input', () => {
+    texte.style.height = 'auto';
+    texte.style.height = Math.min(texte.scrollHeight, 90) + 'px';
+  });
+
+  sugg.addEventListener('click', (e) => {
+    if (e.target.tagName === 'BUTTON') envoyer(e.target.textContent);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && chat.dataset.ouvert === 'true') fermer();
+  });
+})();
+</script>
+<style id="mcd-chat-studio">
+  /* Sur la page Studio Social : Marshall en bas à droite, la conversation s'ouvre vers le haut */
+  .mcd-chat{left:auto!important;right:clamp(14px,2vw,26px);top:auto!important;bottom:clamp(14px,2vw,24px);z-index:99990}
+  .mcd-chat[data-ouvert="true"]{z-index:999999}
+  .mcd-fenetre{left:auto;right:0;top:auto;bottom:78px;max-height:calc(100vh - 120px)}
+  @media (max-width:520px){.mcd-chat{right:12px;bottom:12px}.mcd-lanceur{width:54px;height:54px}.mcd-fenetre{bottom:68px;width:calc(100vw - 24px)}}
+</style>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -409,16 +698,6 @@
   function tick(){ var d = new Date(); ck.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
   tick(); setInterval(tick, 15000);
 
-  /* ---------- Pilule « Accéder à l'app » : collée à gauche de l'horloge / du menu ---------- */
-  var appPill = document.getElementById('app-pill');
-  function placePill(){
-    var ref = [document.querySelector('.clock'), document.getElementById('burger')].filter(function(e){ return e && e.offsetWidth; })[0];
-    if (!ref) return;
-    var r = ref.getBoundingClientRect();
-    appPill.style.right = (document.documentElement.clientWidth - r.left + 12) + 'px';
-    appPill.style.top = (r.top + r.height / 2 - appPill.offsetHeight / 2) + 'px';
-  }
-  placePill(); window.addEventListener('resize', placePill); if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePill);
 
   /* ---------- Menu mobile ---------- */
   var menu = document.getElementById('menu');
@@ -528,8 +807,8 @@
     .from('#scroll-hint', { opacity:0, y:10, duration:.6 }, .9);
   gsap.to('#pill img', { rotate:4, y:-3, duration:1.4, repeat:-1, yoyo:true, ease:'sine.inOut' });
 
-  /* ---------- Tout le reste avance AU DÉFILEMENT (et recule si on remonte) ----------
-     l'écran tremble → chute des lettres → Marshall court et tire → « HELLO MARSHALL » → la pilule remplit l'écran → les 3 exemples */
+  /* ---------- À l'ouverture, tout seul : l'écran tremble → chute des lettres → Marshall court et tire → « HELLO MARSHALL »
+     Ensuite, AU DÉFILEMENT : la pilule remplit l'écran → les 3 exemples ---------- */
   var fill = document.createElement('div'); fill.className = 'pill-fill'; hero.insertBefore(fill, hero.firstChild);
   function pr(k){
     var h = hero.getBoundingClientRect(), p = document.getElementById('pill').getBoundingClientRect();
@@ -538,12 +817,13 @@
   var topBar = document.getElementById('top'), orHero = false, orReel = false;
   function topColor(){ topBar.classList.toggle('on-or', orHero || orReel); }
 
-  var F = 3.15;   // début du remplissage orange (en « temps » du défilement)
+  var F = 0;      // le défilement commence directement par le remplissage orange
   var bob = function(n){ var k = []; for (var i = 0; i < n; i++) k.push({ y:i % 2 ? 0 : -16 }); k.push({ y:0 }); return k; };
-  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=370%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
+  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=120%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
       onUpdate:function(t){ var o = t.isActive && t.animation.time() > F + .15; if (o !== orHero) { orHero = o; topColor(); } },
       onLeave:function(){ orHero = true; topColor(); }, onEnterBack:function(t){ orHero = t.animation.time() > F + .15; topColor(); } } });
-  st.to('#scroll-hint', { autoAlpha:0, duration:.15 }, 0)
+  var it = gsap.timeline({ paused:true, defaults:{ ease:'none' } });   // l'intro, jouée automatiquement
+  it.to('#scroll-hint', { autoAlpha:0, duration:.15 }, 0)
     // 1. À l'arrivée : l'écran tremble…
     .to('#hero-title', { keyframes:[{ x:-16, y:7 }, { x:14, y:-6 }, { x:-11, y:5 }, { x:8, y:-3 }, { x:-4, y:2 }, { x:0, y:0 }], duration:.35 }, .05)
     .to(chars, { keyframes:[{ y:7, rotate:-3 }, { y:-3, rotate:2 }, { y:0, rotate:0 }], duration:.3, stagger:{ each:.01, from:'random' } }, .05)
@@ -552,11 +832,11 @@
     .set(rates, { overflow:'visible' }, 'chute');
   var order = chars.map(function(c, i){ return i; }).sort(function(){ return Math.random() - .5; });
   order.forEach(function(ci, k){
-    st.to(chars[ci], { x:gsap.utils.random(-30, 30), y:G.floor - G.chars[ci].bottom, rotate:gsap.utils.random(-50, 50), duration:.35, ease:'bounce.out' }, 'chute+=' + (k * .0245));   // 30 % plus rapide
+    it.to(chars[ci], { x:gsap.utils.random(-30, 30), y:G.floor - G.chars[ci].bottom, rotate:gsap.utils.random(-50, 50), duration:.35, ease:'bounce.out' }, 'chute+=' + (k * .0245));   // 30 % plus rapide
   });
   // 3. Marshall arrive en courant depuis la droite…
   var target = Math.min(G.pile - G.rw * .22, G.hw - G.rw * .85);
-  st.set(runner, { visibility:'visible' }, 1.03)
+  it.set(runner, { visibility:'visible' }, 1.03)
     .to(runner, { x:target, duration:.42, ease:'power1.in' }, 1.03)
     .to(runImg, { keyframes:bob(8), duration:.42 }, 1.03)
     // 4. … et dégage les lettres d'un coup de pied
@@ -564,10 +844,10 @@
     .set(runImg, { autoAlpha:0 }, 'tir').set(kickImg, { autoAlpha:1 }, 'tir')
     .to(runner, { keyframes:[{ rotate:-6 }, { rotate:0 }], transformOrigin:'50% 100%', duration:.105 }, 'tir');
   chars.forEach(function(c, i){
-    st.to(c, { x:'-=' + (G.chars[i].right + 260 + Math.random() * 300), y:'-=' + gsap.utils.random(120, 460), rotate:'+=' + gsap.utils.random(-540, 540), duration:.315, ease:'power2.in' }, 'tir+=' + (i * .007));
+    it.to(c, { x:'-=' + (G.chars[i].right + 260 + Math.random() * 300), y:'-=' + gsap.utils.random(120, 460), rotate:'+=' + gsap.utils.random(-540, 540), duration:.315, ease:'power2.in' }, 'tir+=' + (i * .007));
   });
   // 5. Il repart en courant, la ligne se resserre et « HELLO MARSHALL » remonte en grand
-  st.set(chars, { autoAlpha:0 }, 1.84)                                  // lettres sorties de l'écran : on les cache (la ligne va se resserrer)
+  it.set(chars, { autoAlpha:0 }, 1.84)                                  // lettres sorties de l'écran : on les cache (la ligne va se resserrer)
     .set(kickImg, { autoAlpha:0 }, 1.73).set(runImg, { autoAlpha:1 }, 1.73)
     .to(runner, { x:-G.rw - 60, duration:.42, ease:'power1.in' }, 1.73)
     .to(runImg, { keyframes:bob(8), duration:.42 }, 1.73)
@@ -577,8 +857,9 @@
     .fromTo('#row2', { scale:.72 }, { scale:1, duration:.6, ease:'back.out(1.5)' }, 2.05)
     .to('#pill', { width:G.pillW, duration:.5, ease:'expo.inOut' }, 2.1)
     .to('#pill img', { yPercent:0, duration:.4, ease:'back.out(1.6)' }, 2.4)
-    // 6. La pilule orange grandit jusqu'à remplir l'écran (Marshall et sa pilule s'effacent sur les 10 premiers %)
-    .fromTo(fill, { left:function(){ return pr('l'); }, top:function(){ return pr('t'); }, width:function(){ return pr('w'); }, height:function(){ return pr('h'); },
+    .to('#scroll-hint', { autoAlpha:1, duration:.3 }, 2.7);           // l'intro finie, on invite à défiler
+  // 6. AU DÉFILEMENT : la pilule orange grandit jusqu'à remplir l'écran (Marshall et sa pilule s'effacent sur les 10 premiers %)
+  st.fromTo(fill, { left:function(){ return pr('l'); }, top:function(){ return pr('t'); }, width:function(){ return pr('w'); }, height:function(){ return pr('h'); },
                     borderRadius:function(){ return pr('h') / 2; }, autoAlpha:1 },
                   { left:0, top:0, width:function(){ return hero.offsetWidth; }, height:function(){ return hero.offsetHeight; }, borderRadius:0, autoAlpha:1, ease:'power2.inOut', duration:.5, immediateRender:false }, F)
     .set(fill, { autoAlpha:1 }, F)
@@ -591,6 +872,15 @@
     .to('#wall-cap', { autoAlpha:1, y:0, duration:.12 }, F + 1.08)
     .set('#wall', { pointerEvents:'auto' }, F + 1.08)
     .set({}, {}, F + 1.45);
+  st.to('#scroll-hint', { autoAlpha:0, duration:.1 }, 0);
+  var root = document.documentElement;
+  function lockScroll(on){ root.style.overflow = on ? 'hidden' : ''; if (window.lenis) { if (on) lenis.stop(); else lenis.start(); } }
+  function blockKeys(e){ if (['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' ','Spacebar'].indexOf(e.key) >= 0) e.preventDefault(); }
+  if (window.scrollY < 10) {
+    lockScroll(true); window.addEventListener('keydown', blockKeys);
+    it.timeScale(.8).eventCallback('onComplete', function(){ lockScroll(false); window.removeEventListener('keydown', blockKeys); ScrollTrigger.refresh(); });
+    gsap.delayedCall(1.1, function(){ it.play(); });
+  } else { it.progress(1); }                                           // page rechargée plus bas : on saute l'intro
   ScrollTrigger.create({ trigger:'#metiers', start:'top 70px',
     onEnter:function(){ orHero = false; orReel = false; topColor(); },
     onLeaveBack:function(){ orReel = true; topColor(); } });
@@ -732,22 +1022,6 @@
   }});
   gsap.from('.bigword', { yPercent:40, opacity:0, duration:1.2, ease:'expo.out', scrollTrigger:{ trigger:'.bigword', start:'top 95%' } });
 
-  /* ---------- Mini Marshall : il commente chaque partie de la visite ---------- */
-  var say = document.getElementById('buddy-say'), buddy = document.getElementById('buddy');
-  gsap.from(buddy, { y:140, duration:1, ease:'back.out(1.6)', delay:2.2 });
-  var LINES = { hero:'Coucou&nbsp;! Je te fais visiter 👋', metiers:'Passe la souris sur mes métiers 👀', apropos:'16 agents… et un seul copain 😎',
-                creations:'Monte le son sur mes reportages 🔊', offres:'Tu peux commencer gratuitement ✅', faq:'Une question&nbsp;? Je réponds 💬', final:'Alors, on bosse ensemble&nbsp;? 🙌' };
-  Object.keys(LINES).forEach(function(id){
-    var el = document.getElementById(id); if (!el) return;
-    ScrollTrigger.create({ trigger:el, start:'top 55%', end:'bottom 55%', onToggle:function(st){
-      if (!st.isActive) return;
-      gsap.timeline().to(say, { scale:0, transformOrigin:'100% 100%', duration:.18, ease:'back.in(2)' })
-        .add(function(){ say.innerHTML = LINES[id]; }).to(say, { scale:1, duration:.4, ease:'back.out(3)' });
-    }});
-  });
-  gsap.to('#buddy img', { y:-6, rotate:-4, duration:1.2, repeat:-1, yoyo:true, ease:'sine.inOut' });
-  // Marshall se cache à la fin (la grande scène est déjà à lui)
-  ScrollTrigger.create({ trigger:'#final', start:'top 60%', end:'bottom 40%', onToggle:function(st){ gsap.to(buddy, { y:st.isActive ? 160 : 0, duration:.5 }); } });
 })();
 </script>
 </body>
