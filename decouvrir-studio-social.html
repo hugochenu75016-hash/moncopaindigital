@@ -1,607 +1,542 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Studio Social · Ton copain digital pour tes réseaux | Mon Copain Digital</title>
-<meta name="description" content="Studio Social : Marshall, ton assistant IA, crée tes posts, stories et vidéos Instagram, Facebook et TikTok, les programme et les publie pour toi. Pensé pour les commerçants. Essai gratuit.">
-<meta property="og:title" content="Studio Social · Marshall crée tes posts pendant que tu bosses">
-<meta property="og:description" content="Posts, stories, vidéos IA et publication automatique pour les commerçants. Gratuit pour commencer.">
+<title>Studio Social · Bye bye posts ratés, hello Marshall | Mon Copain Digital</title>
+<meta name="description" content="Studio Social : Marshall, ton copain digital, crée tes posts, stories, vidéos IA et reportages pour Instagram, Facebook et TikTok, puis les publie pour toi. Pensé pour les commerçants. Gratuit pour commencer.">
+<meta property="og:title" content="Studio Social · Bye bye posts ratés, hello Marshall">
+<meta property="og:description" content="Posts, vidéos IA, reportages et publication automatique pour les commerçants. Gratuit pour commencer.">
 <meta property="og:image" content="https://moncopaindigital.fr/marshall-coucou-fin.png">
 <link rel="icon" href="/favicons/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=Space+Grotesk:wght@500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="marshall-coucou.webp">
 <style>
   :root{
-    --or:#F3852B; --or2:#FF9C46; --orf:#C7620E; --ink:#3B2A1C; --mut:#7a6250; --cream:#FFF8EF; --cream2:#FFF1E2;
-    --line:#f0dcc6; --sky:#8FC9E8; --green:#1f9d55;
+    --ink:#0a0a0a; --paper:#f5f5f5; --or:#F3852B; --or2:#FF9C46; --orf:#C7620E; --blue:#6EC1F0; --mut:#8a8a8a;
+    --pad:clamp(16px,2.2vw,32px);
   }
   *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;background:var(--cream);color:var(--ink);font-family:Nunito,system-ui,sans-serif;font-size:16px;line-height:1.55;overflow-x:hidden}
-  img{max-width:100%;display:block}
-  a{color:inherit}
-  h1,h2,h3{font-family:Fredoka,system-ui,sans-serif;line-height:1.12;margin:0}
-  .wrap{width:min(1140px,100% - 32px);margin:0 auto}
-  .btn{display:inline-flex;align-items:center;gap:10px;border:0;border-radius:999px;padding:15px 28px;font:700 17px Fredoka,system-ui,sans-serif;text-decoration:none;cursor:pointer;transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
-  .btn-go{background:linear-gradient(180deg,var(--or2),var(--or));color:#fff;box-shadow:0 5px 0 var(--orf),0 14px 30px rgba(243,133,43,.35)}
-  .btn-go:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--orf),0 18px 36px rgba(243,133,43,.42)}
-  .btn-go:active{transform:translateY(3px);box-shadow:0 2px 0 var(--orf)}
-  .btn-ghost{background:#fff;color:var(--ink);box-shadow:0 0 0 2px var(--line) inset}
-  .btn-ghost:hover{transform:translateY(-2px);box-shadow:0 0 0 2px var(--or) inset}
-  .kicker{display:inline-block;font:700 12.5px 'Space Grotesk',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--orf);background:#fff;border:1.5px solid var(--line);padding:6px 12px;border-radius:999px}
-  .ic{width:42px;height:42px;flex:none}
+  html,body{margin:0}
+  html{overflow-x:hidden}
+  body{background:var(--ink);color:var(--paper);font-family:Archivo,system-ui,sans-serif;font-size:16px;line-height:1.45;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  img,video{display:block;max-width:100%}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit}
+  .disp{font-family:Archivo,system-ui,sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.84;letter-spacing:-.005em;margin:0}
+  .disp i,.disp em{font-style:italic;font-weight:800}
+  .lbl{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.02em}
+  .sq{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;border:1px solid currentColor;background:transparent;cursor:pointer;transition:background .25s,color .25s}
+  .sq:hover{background:var(--or);border-color:var(--or);color:#fff}
+  .sq svg{width:20px;height:20px}
+  .btn{display:inline-flex;align-items:center;gap:12px;padding:16px 22px;border:1px solid currentColor;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:17px;letter-spacing:.02em;cursor:pointer;background:transparent;transition:background .25s,color .25s,border-color .25s}
+  .btn:hover{background:var(--or);border-color:var(--or);color:#fff}
+  .btn.fill{background:var(--or);border-color:var(--or);color:#fff}
+  .btn.fill:hover{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+  .light{background:var(--paper);color:var(--ink)}
+  .dark{background:var(--ink);color:var(--paper)}
+  .mask{display:block;overflow:hidden;padding-bottom:.04em}
+  .mask > span{display:inline-block}
 
   /* ---------- En-tête ---------- */
-  .top{position:fixed;inset:0 0 auto;z-index:50;padding:14px 0;transition:background .3s,box-shadow .3s}
-  .top.scrolled{background:rgba(255,248,239,.92);backdrop-filter:blur(10px);box-shadow:0 6px 24px rgba(120,60,0,.1)}
-  .top .wrap{display:flex;align-items:center;gap:16px}
-  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 19px Fredoka,sans-serif;color:var(--ink)}
-  .brand img{width:40px;height:40px;border-radius:50%;background:#ffe7d1;object-fit:cover;object-position:50% 8%;border:2.5px solid var(--or)}
-  .brand small{display:block;font:600 11.5px Nunito,sans-serif;color:var(--mut)}
-  .nav{margin-left:auto;display:flex;gap:4px;align-items:center}
-  .nav a{text-decoration:none;font:600 15px Fredoka,sans-serif;padding:9px 14px;border-radius:999px;color:var(--ink)}
-  .nav a:hover{background:#fff}
-  .nav .btn{padding:10px 18px;font-size:15px}
-  @media (max-width:820px){.nav a:not(.btn){display:none}}
+  .top{position:fixed;inset:0 0 auto;z-index:60;display:flex;align-items:center;gap:20px;padding:18px var(--pad);color:#fff;mix-blend-mode:difference;pointer-events:none}
+  .top > *{pointer-events:auto}
+  .logo{font-stretch:62%;font-weight:900;font-size:26px;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
+  .nav{margin:0 auto;display:flex;gap:22px}
+  .nav a{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;position:relative}
+  .nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-3px;height:2px;background:currentColor;transition:right .3s}
+  .nav a:hover::after{right:0}
+  .clock{display:inline-flex;align-items:center;gap:8px;border:1px solid currentColor;padding:8px 12px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px}
+  .clock i{width:8px;height:8px;border-radius:50%;background:#fff;animation:blink 1.6s infinite}
+  @keyframes blink{50%{opacity:.25}}
+  .burger{display:none;width:44px;height:30px;border:0;background:none;cursor:pointer;flex-direction:column;justify-content:space-between;padding:6px 4px}
+  .burger span{height:2px;background:#fff;display:block}
+  .menu{position:fixed;inset:0;z-index:70;background:var(--ink);display:flex;flex-direction:column;justify-content:center;padding:var(--pad);gap:6px;transform:translateY(-100%);transition:transform .55s cubic-bezier(.76,0,.24,1)}
+  .menu.open{transform:none}
+  .menu a{font-size:clamp(54px,16vw,120px)}
+  .menu a:hover{color:var(--or)}
+  .menu .x{position:absolute;top:18px;right:var(--pad);color:#fff}
+  @media (max-width:900px){.nav,.clock{display:none}.burger{display:flex;margin-left:auto}}
 
   /* ---------- Héros ---------- */
-  .hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:110px 0 70px;background:radial-gradient(1100px 600px at 75% 40%,#d9effa 0%,rgba(217,239,250,0) 70%),linear-gradient(180deg,#fff8ef,#ffefdc)}
-  .hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center}
-  .hero h1{font-size:clamp(38px,5.6vw,68px);letter-spacing:-.01em;margin:18px 0 18px}
-  .hero h1 .hl{color:var(--or);position:relative;white-space:nowrap}
-  .hero h1 .hl svg{position:absolute;left:0;right:0;bottom:-10px;width:100%;height:16px;overflow:visible}
-  .w{display:inline-block}
-  .hero p.lead{font-size:clamp(17px,1.6vw,20px);color:var(--mut);max-width:540px;margin:0 0 28px}
-  .hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
-  .hero .proof{display:flex;gap:18px;margin-top:26px;flex-wrap:wrap;color:var(--mut);font-size:14px;font-weight:700}
-  .hero .proof span{display:inline-flex;align-items:center;gap:7px}
-  .hero .proof i{width:20px;height:20px;border-radius:50%;background:#dff5e7;color:var(--green);display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:12px}
-  .stage{position:relative;height:min(620px,72vh);display:flex;align-items:flex-end;justify-content:center}
-  .stage .halo{position:absolute;width:78%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff 0%,#ffe3c6 55%,rgba(255,227,198,0) 72%);bottom:6%;left:11%}
-  .stage .marshall{position:relative;z-index:3;width:min(360px,70%);filter:drop-shadow(0 26px 30px rgba(120,60,0,.25))}
-  .card-post{position:absolute;z-index:4;background:#fff;border-radius:18px;box-shadow:0 18px 40px rgba(120,60,0,.18);padding:10px;width:150px;font-size:12px}
-  .card-post .ph{height:96px;border-radius:12px;margin-bottom:8px;position:relative;overflow:hidden}
-  .card-post b{display:block;font:600 13px Fredoka,sans-serif}
-  .card-post small{color:var(--mut)}
-  .card-post .net{position:absolute;right:8px;top:8px;width:22px;height:22px}
-  .cp1{left:2%;top:12%}.cp2{right:0;top:4%}.cp3{right:4%;bottom:12%;width:170px}
-  .bubble{position:absolute;z-index:5;left:6%;bottom:30%;background:var(--ink);color:#fff;border-radius:18px 18px 18px 4px;padding:12px 16px;font:600 15px Fredoka,sans-serif;max-width:220px;box-shadow:0 12px 26px rgba(0,0,0,.2)}
-  .sparkle{position:absolute;z-index:2;width:26px;height:26px}
-  @media (max-width:900px){.hero .wrap{grid-template-columns:1fr}.stage{height:460px}.cp2{display:none}.hero{min-height:auto}}
+  .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:110px var(--pad) 110px;text-align:center}
+  .hero h1{font-size:clamp(60px,9.6vw,210px)}
+  .hero h1 .row{display:flex;justify-content:center;align-items:center;gap:.22em;flex-wrap:wrap}
+  .pill{display:inline-block;position:relative;width:1.55em;height:.78em;border-radius:.4em;overflow:hidden;background:linear-gradient(160deg,var(--or2),var(--or));vertical-align:middle;flex:none}
+  .pill img{position:absolute;left:50%;bottom:-.28em;width:1.08em;transform:translateX(-50%);max-width:none}
+  .hero .base{position:absolute;left:var(--pad);right:var(--pad);bottom:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;text-align:left}
+  .hero .base p{margin:0;max-width:440px;font-size:15px;color:#cfcfcf}
+  .hero .base b{color:#fff}
+  @media (max-width:700px){.hero{justify-content:flex-start;padding-top:120px;padding-bottom:40px}.hero h1 .row{flex-direction:column;gap:0}.pill{width:1.8em;height:.9em;margin:.06em 0}.hero .base{position:static;margin-top:44px;padding:0}.hero .base p{font-size:14px}}
 
-  /* ---------- Bandeau défilant ---------- */
-  .ticker{background:var(--ink);color:#fff;overflow:hidden;padding:16px 0;transform:rotate(-1.2deg);margin:-14px -10px 0;position:relative;z-index:6}
-  .ticker .track{display:flex;gap:46px;white-space:nowrap;font:600 20px Fredoka,sans-serif;width:max-content}
-  .ticker span{display:inline-flex;align-items:center;gap:12px}
-  .ticker span::after{content:"✦";color:var(--or2);margin-left:34px}
+  /* ---------- Vitrine (showreel) ---------- */
+  .reel{position:relative;height:100svh;overflow:hidden;background:#111}
+  .reel .wall{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px}
+  .reel .wall video,.reel .wall .tile{width:100%;height:100%;object-fit:cover;border-radius:4px;background:#1a1a1a}
+  .reel .tile{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 70%,#ffb469,var(--or) 60%,#b9560a)}
+  .reel .tile img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:78%;max-width:none}
+  .reel .tile .say{position:absolute;left:8%;right:8%;top:10%;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(26px,3.6vw,56px);line-height:.9;color:#fff;text-align:center}
+  .reel .play{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);z-index:3;background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .reel .cap{position:absolute;left:var(--pad);bottom:40px;z-index:3;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;background:rgba(10,10,10,.6);padding:8px 12px}
+  @media (max-width:700px){.reel .wall{grid-template-columns:1fr 1fr}.reel .wall > :nth-child(3){display:none}.reel .cap{display:none}}
 
-  /* ---------- Sections ---------- */
-  section.blk{padding:110px 0}
-  .head{text-align:center;max-width:720px;margin:0 auto 56px}
-  .head h2{font-size:clamp(30px,4vw,48px);margin:14px 0 12px}
-  .head p{color:var(--mut);font-size:18px;margin:0}
+  /* ---------- Métiers ---------- */
+  .jobs{padding:120px var(--pad) 130px;position:relative}
+  .jobs .lbl{display:block;margin-bottom:26px}
+  .jlist{list-style:none;margin:0;padding:0;border-top:1px solid rgba(10,10,10,.18)}
+  .jlist li{border-bottom:1px solid rgba(10,10,10,.18)}
+  .jlist a{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:.06em 0}
+  .jlist .disp{font-size:clamp(34px,10.2vw,190px);transition:color .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
+  .jlist small{font-stretch:62%;font-weight:700;text-transform:uppercase;font-size:15px;max-width:260px;text-align:right;opacity:.55;transition:opacity .3s}
+  .jlist a:hover .disp{color:var(--or);font-style:italic;transform:translateX(.08em)}
+  .jlist a:hover small{opacity:1}
+  .follow{position:fixed;left:0;top:0;z-index:40;width:240px;height:300px;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.6)}
+  .follow .bg{position:absolute;inset:0;border-radius:6px;background:radial-gradient(circle at 50% 70%,#ffd0a0,var(--or) 70%)}
+  .follow img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:94%;max-width:none}
+  .why{margin-top:110px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end}
+  .why p{margin:0;font-size:clamp(28px,3.4vw,54px);line-height:1.08;font-weight:500;letter-spacing:-.01em;max-width:1100px}
+  .why p b{font-weight:800;color:var(--or)}
+  @media (max-width:800px){.jlist small{display:none}.why{grid-template-columns:1fr}.follow{display:none}}
 
-  /* Comment ça marche : Marshall suit les étapes */
-  .how{position:relative;background:#fff}
-  .steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
-  .step{position:relative;background:var(--cream);border:1.5px solid var(--line);border-radius:26px;padding:30px 24px 26px}
-  .step .n{width:46px;height:46px;border-radius:50%;background:var(--or);color:#fff;font:700 20px Fredoka,sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 var(--orf);margin-bottom:16px}
-  .step h3{font-size:22px;margin:0 0 8px}
-  .step p{margin:0;color:var(--mut)}
-  .step .ic{position:absolute;right:20px;top:24px}
-  .path{position:absolute;left:8%;right:8%;top:52px;height:6px;z-index:0}
-  .path svg{width:100%;height:30px;overflow:visible}
-  .walker{position:absolute;top:-150px;left:0;width:120px;z-index:5;pointer-events:none}
-  @media (max-width:860px){.steps{grid-template-columns:1fr}.path,.walker{display:none}}
+  /* ---------- À propos ---------- */
+  .about{position:relative;padding:40px var(--pad) 140px;overflow:hidden}
+  .about .lbl{display:block;margin-bottom:22px}
+  .agrid{display:grid;grid-template-columns:1.45fr 1fr;gap:50px;align-items:end}
+  .about h2{font-size:clamp(46px,8.4vw,150px)}
+  .about h2 em{color:var(--or)}
+  .about .txt p{margin:0 0 26px;font-size:19px;line-height:1.5;max-width:460px}
+  .about .peek{position:absolute;right:4%;bottom:-6px;width:min(220px,26vw)}
+  @media (max-width:900px){.agrid{grid-template-columns:1fr}.about .peek{position:relative;right:auto;margin:30px 0 -140px auto;width:160px}}
 
-  /* Agents */
-  .agents{background:linear-gradient(180deg,#fff,var(--cream))}
-  .agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-  .agent{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:26px;padding:18px 18px 22px;display:grid;grid-template-columns:110px 1fr;gap:14px;align-items:center;overflow:hidden;transition:transform .25s,box-shadow .25s}
-  .agent:hover{transform:translateY(-6px);box-shadow:0 22px 40px rgba(120,60,0,.14)}
-  .agent .pic{height:132px;border-radius:20px;background:linear-gradient(180deg,#d9effa,#bfe2f5);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
-  .agent .pic img{height:100%;width:100%;object-fit:contain;object-position:50% 100%}
-  .agent h3{font-size:20px;margin:0 0 4px}
-  .agent .tag{display:inline-block;font:700 11.5px 'Space Grotesk',sans-serif;color:var(--orf);background:var(--cream2);border-radius:999px;padding:3px 9px;margin-bottom:8px}
-  .agent p{margin:0;color:var(--mut);font-size:14.5px}
-  .chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:34px}
-  .chip{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 14px 6px 6px;font:600 14px Fredoka,sans-serif}
-  .chip img{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:50% 10%;background:#d9effa}
-  @media (max-width:960px){.agrid{grid-template-columns:repeat(2,1fr)}}
-  @media (max-width:620px){.agrid{grid-template-columns:1fr}}
+  /* ---------- Créations ---------- */
+  .work{padding:130px var(--pad) 120px}
+  .work .whead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;border-bottom:1px solid rgba(245,245,245,.2);padding-bottom:22px;margin-bottom:46px;flex-wrap:wrap}
+  .work h2{font-size:clamp(46px,13vw,240px)}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tabs button{border:1px solid rgba(245,245,245,.35);background:none;padding:9px 14px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;cursor:pointer}
+  .tabs button.on,.tabs button:hover{background:var(--paper);color:var(--ink)}
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);column-gap:var(--pad);row-gap:80px}
+  .card:nth-child(even){margin-top:160px}
+  .card .media{position:relative;aspect-ratio:4/5;overflow:hidden;background:#151515;border-radius:4px}
+  .card .media video,.card .media > img.cover{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+  .card:hover .media video,.card:hover .media > img.cover{transform:scale(1.04)}
+  .card .media.art{background:radial-gradient(circle at 50% 75%,var(--c1),var(--c2) 72%)}
+  .card .media.art img{position:absolute;left:50%;bottom:0;width:62%;transform:translateX(-50%);max-width:none;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+  .card:hover .media.art img{transform:translateX(-50%) translateY(-12px) scale(1.04)}
+  .card .snd{position:absolute;right:14px;bottom:14px;width:46px;height:46px;background:var(--paper);color:var(--ink);border:0;cursor:pointer;font-size:18px}
+  .card h3{margin:18px 0 6px;font-size:clamp(34px,4vw,62px)}
+  .card p{margin:0;color:#bdbdbd;font-size:15.5px}
+  .card p b{color:var(--paper);font-weight:700}
+  .card.hide{display:none}
+  .work .more{margin-top:90px;text-align:center}
+  @media (max-width:760px){.cards{grid-template-columns:1fr;row-gap:56px}.card:nth-child(even){margin-top:0}}
+  @media (min-width:1100px){.cards{grid-template-columns:repeat(3,1fr);row-gap:90px}.card:nth-child(even){margin-top:0}.card:nth-child(3n+2){margin-top:140px}}
 
-  /* Pilote automatique : la semaine se remplit */
-  .pilot{background:var(--ink);color:#fff;overflow:hidden}
-  .pilot .head p{color:#e7d6c6}
-  .pilot .kicker{background:transparent;color:var(--or2);border-color:rgba(255,255,255,.2)}
-  .pgrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center}
-  .pilot ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:16px}
-  .pilot li{display:flex;gap:14px;align-items:flex-start;font-size:17px}
-  .pilot li b{font-family:Fredoka,sans-serif;font-weight:600}
-  .pilot li .ic{width:38px;height:38px}
-  .week{background:#fff;color:var(--ink);border-radius:26px;padding:20px;box-shadow:0 30px 60px rgba(0,0,0,.35);position:relative}
-  .week .days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
-  .day{background:var(--cream);border-radius:14px;min-height:150px;padding:8px 6px;display:flex;flex-direction:column;gap:6px}
-  .day b{font:700 12px 'Space Grotesk',sans-serif;text-align:center;color:var(--mut)}
-  .slot{border-radius:10px;padding:6px;font-size:11px;font-weight:700;color:#fff;line-height:1.25}
-  .slot.ig{background:linear-gradient(135deg,#f58529,#dd2a7b)}.slot.fb{background:#1877f2}.slot.tt{background:#111}
-  .week .pm{position:absolute;right:-30px;bottom:-40px;width:150px;filter:drop-shadow(0 18px 20px rgba(0,0,0,.35))}
-  .week .ok{position:absolute;left:20px;top:-18px;background:var(--green);color:#fff;font:700 13px Fredoka,sans-serif;padding:7px 14px;border-radius:999px;box-shadow:0 8px 18px rgba(31,157,85,.4)}
-  @media (max-width:900px){.pgrid{grid-template-columns:1fr}.week .pm{display:none}.day{min-height:120px}}
+  /* ---------- Offres ---------- */
+  .offers{padding:130px var(--pad)}
+  .offers .lbl{display:block;margin-bottom:26px}
+  .olist{border-top:1px solid rgba(10,10,10,.18)}
+  .orow{display:grid;grid-template-columns:1.2fr 1.4fr auto;gap:30px;align-items:center;padding:26px 0;border-bottom:1px solid rgba(10,10,10,.18);transition:background .3s,padding .3s}
+  .orow:hover{background:#fff;padding-left:18px;padding-right:18px}
+  .orow .disp{font-size:clamp(56px,8vw,140px)}
+  .orow .disp sup{font-size:.32em;vertical-align:top;margin-left:.1em;color:var(--or)}
+  .orow ul{list-style:none;margin:0;padding:0;columns:2;column-gap:24px;font-size:15px}
+  .orow li{break-inside:avoid;padding:3px 0 3px 18px;position:relative}
+  .orow li::before{content:"";position:absolute;left:0;top:11px;width:8px;height:8px;background:var(--or)}
+  .orow .best{display:inline-block;background:var(--or);color:#fff;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:13px;padding:4px 8px;margin-bottom:8px}
+  .offers .fine{margin-top:22px;font-size:14px;color:#666}
+  .offers .fine a{text-decoration:underline}
+  @media (max-width:900px){.orow{grid-template-columns:1fr;gap:14px}.orow ul{columns:1}}
 
-  /* Créations */
-  .make{background:var(--cream)}
-  .mgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-  .mk{background:#fff;border:1.5px solid var(--line);border-radius:24px;padding:22px;transition:transform .25s}
-  .mk:hover{transform:translateY(-5px) rotate(-.5deg)}
-  .mk h3{font-size:19px;margin:12px 0 6px}
-  .mk p{margin:0;color:var(--mut);font-size:14.5px}
-  .mk .ic{width:52px;height:52px}
-  @media (max-width:960px){.mgrid{grid-template-columns:repeat(2,1fr)}}
-  @media (max-width:560px){.mgrid{grid-template-columns:1fr}}
+  /* ---------- FAQ ---------- */
+  .faq{padding:0 var(--pad) 140px}
+  .faq .lbl{display:block;margin-bottom:22px}
+  .faq details{border-bottom:1px solid rgba(10,10,10,.18)}
+  .faq details:first-of-type{border-top:1px solid rgba(10,10,10,.18)}
+  .faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 0;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(24px,2.6vw,40px);line-height:1}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";font-size:1.2em;transition:transform .3s;color:var(--or)}
+  .faq details[open] summary::after{transform:rotate(45deg)}
+  .faq details p{margin:0 0 24px;max-width:760px;font-size:17px;color:#333}
 
-  /* Offres */
-  .offers{background:#fff}
-  .ogrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
-  .offer{position:relative;background:var(--cream);border:2px solid var(--line);border-radius:28px;padding:30px 26px;display:flex;flex-direction:column}
-  .offer.best{background:#fff;border-color:var(--or);box-shadow:0 26px 50px rgba(243,133,43,.22);transform:translateY(-10px)}
-  .offer .badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--or);color:#fff;font:700 13px Fredoka,sans-serif;padding:6px 14px;border-radius:999px;box-shadow:0 4px 0 var(--orf);white-space:nowrap}
-  .offer h3{font-size:24px}
-  .price{display:flex;align-items:baseline;gap:4px;margin:10px 0 18px}
-  .price b{font:700 46px Fredoka,sans-serif}
-  .price span{color:var(--mut);font-weight:700}
-  .offer ul{list-style:none;padding:0;margin:0 0 24px;display:flex;flex-direction:column;gap:9px;flex:1}
-  .offer li{display:flex;gap:9px;font-size:15px}
-  .offer li::before{content:"";flex:none;width:20px;height:20px;margin-top:1px;border-radius:50%;background:#dff5e7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231f9d55' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/12px no-repeat}
-  .offer .btn{justify-content:center}
-  .note{text-align:center;color:var(--mut);font-size:14px;margin-top:26px}
-  @media (max-width:900px){.ogrid{grid-template-columns:1fr}.offer.best{transform:none}}
+  /* ---------- On s'y met ---------- */
+  .touch{position:relative;padding:140px var(--pad) 120px;overflow:hidden;text-align:center}
+  .touch .lbl{display:block;margin-bottom:20px;color:var(--or)}
+  .touch h2{font-size:clamp(56px,17vw,320px)}
+  .touch h2 em{color:var(--or)}
+  .touch .go{margin-top:46px}
+  .touch .bravo{position:absolute;right:5%;bottom:0;width:min(260px,28vw);pointer-events:none}
+  .touch .bravo2{position:absolute;left:5%;bottom:0;width:min(200px,22vw);transform:scaleX(-1);pointer-events:none}
+  .confetti{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;pointer-events:none}
+  @media (max-width:700px){.touch .bravo{width:130px;right:-10px}.touch .bravo2{display:none}}
 
-  /* Parrainage */
-  .refer{padding:0 0 110px;background:#fff}
-  .rbox{display:grid;grid-template-columns:auto 1fr auto;gap:26px;align-items:center;background:linear-gradient(135deg,#FFF1E2,#FFE2C6);border:2px solid #FBD3AE;border-radius:30px;padding:26px 32px}
-  .rbox .big{font:700 52px Fredoka,sans-serif;color:#E2701A;line-height:1}
-  .rbox h3{font-size:24px;margin-bottom:4px}
-  .rbox p{margin:0;color:var(--mut)}
-  .gift{width:86px;height:86px}
-  @media (max-width:760px){.rbox{grid-template-columns:1fr;text-align:center}.gift{margin:0 auto}}
+  /* ---------- Pied de page ---------- */
+  .foot{padding:90px var(--pad) 30px;overflow:hidden}
+  .fgrid{display:grid;grid-template-columns:1.2fr 1fr;gap:60px}
+  .foot h3{font-size:clamp(40px,5vw,84px);margin-bottom:22px}
+  .foot h3 em{color:var(--or)}
+  .ref{display:flex;gap:0;max-width:560px}
+  .ref span{flex:1;border:1px solid var(--ink);padding:16px 18px;font-size:15px;background:#fff}
+  .ref a{border:1px solid var(--ink);border-left:0}
+  .ntabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
+  .ntabs button{border:1px solid var(--ink);background:none;padding:9px 14px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;cursor:pointer}
+  .ntabs button.on,.ntabs button:hover{background:var(--ink);color:var(--paper)}
+  .ndet .lbl{display:block;margin-bottom:8px;color:var(--orf)}
+  .ndet p{margin:0;font-size:17px;max-width:440px}
+  .fbot{margin-top:90px;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;border-top:1px solid rgba(10,10,10,.18);padding-top:24px}
+  .flinks{display:flex;gap:22px;flex-wrap:wrap}
+  .flinks a{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px}
+  .flinks a:hover{color:var(--orf)}
+  .fbot small{color:#666;font-size:13.5px;text-align:right}
+  .bigword{margin-top:40px;font-size:13.4vw;line-height:.8;white-space:nowrap;text-align:center}
+  .bigword em{color:var(--or)}
+  @media (max-width:900px){.fgrid{grid-template-columns:1fr}.fbot small{text-align:left}}
 
-  /* FAQ */
-  .faq{background:var(--cream)}
-  .qa{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-  details{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:0 20px}
-  summary{cursor:pointer;list-style:none;padding:18px 0;font:600 18px Fredoka,sans-serif;display:flex;justify-content:space-between;gap:16px;align-items:center}
-  summary::-webkit-details-marker{display:none}
-  summary::after{content:"+";flex:none;width:30px;height:30px;border-radius:50%;background:var(--cream2);color:var(--orf);display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .25s}
-  details[open] summary::after{transform:rotate(45deg)}
-  details p{margin:0 0 18px;color:var(--mut)}
+  /* ---------- Mini Marshall qui accompagne la visite ---------- */
+  .buddy{position:fixed;right:18px;bottom:16px;z-index:55;display:flex;align-items:flex-end;gap:8px;pointer-events:none}
+  .buddy img{width:86px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.35))}
+  .buddy .say{background:#fff;color:var(--ink);padding:10px 14px;font-size:14px;font-weight:700;border-radius:14px 14px 2px 14px;max-width:220px;box-shadow:0 10px 24px rgba(0,0,0,.25);margin-bottom:60px}
+  @media (max-width:700px){.buddy img{width:58px}.buddy .say{display:none}}
 
-  /* Fin */
-  .final{position:relative;background:linear-gradient(135deg,#ff9a2e,#ef6a05);color:#fff;text-align:center;padding:100px 0 0;overflow:hidden}
-  .final h2{font-size:clamp(32px,4.4vw,54px);margin:0 auto 14px;max-width:760px}
-  .final p{font-size:19px;margin:0 auto 30px;max-width:560px;opacity:.95}
-  .final .btn-go{background:#fff;color:var(--orf);box-shadow:0 5px 0 #b44f08,0 16px 34px rgba(0,0,0,.2)}
-  .final .bravo{width:min(300px,62%);margin:34px auto 0;filter:drop-shadow(0 -6px 30px rgba(0,0,0,.18))}
-  .confetti{position:absolute;width:12px;height:18px;border-radius:3px;top:-30px;pointer-events:none}
-
-  /* Pied de page (charte du site) */
-  .foot{background:#2d1f14;color:#e9d9c9;padding:46px 0 26px;font-size:14px}
-  .foot .wrap{display:grid;grid-template-columns:1.2fr 1fr 1fr 1fr;gap:26px}
-  .foot h4{font:600 15px Fredoka,sans-serif;color:#fff;margin:0 0 12px}
-  .foot ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-  .foot a{text-decoration:none;color:#e9d9c9}.foot a:hover{color:var(--or2)}
-  .foot .legal{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.12);padding-top:18px;color:#b39c86;font-size:13px}
-  .foot .fb{font:700 22px Fredoka,sans-serif;color:#fff;line-height:1.1}
-  @media (max-width:760px){.foot .wrap{grid-template-columns:1fr 1fr}}
-
-  /* Barre mobile */
-  .mbar{position:fixed;left:12px;right:12px;bottom:12px;z-index:60;display:none}
-  .mbar .btn{width:100%;justify-content:center}
-  @media (max-width:700px){.mbar{display:block}.foot{padding-bottom:90px}}
-
-  html{overflow-x:hidden}
-  /* Fond bleu du Studio (le même que derrière le canva) ; les cartes restent blanches */
-  :root{--blue:#6EC1F0;--blue2:#8FD0F5;--onblue:#1d3a4e}
-  body{background:var(--blue)}
-  .hero{background:radial-gradient(900px 560px at 72% 46%,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 62%),linear-gradient(180deg,var(--blue2),var(--blue))}
-  .hero p.lead,.hero .proof{color:var(--onblue)}
-  .hero .proof i{background:#fff}
-  .stage .halo{background:radial-gradient(circle,#fff 0%,rgba(255,255,255,.55) 50%,rgba(255,255,255,0) 72%)}
-  .how,.agents,.make,.offers,.refer,.faq{background:var(--blue)}
-  .agents,.offers{background:linear-gradient(180deg,var(--blue),var(--blue2) 50%,var(--blue))}
-  .head p,.note{color:var(--onblue)}
-  .note a{color:#fff;font-weight:700}
-  .step{background:#fff;border-color:#fff;box-shadow:0 14px 34px rgba(20,70,110,.16)}
-  .agent,.mk,details{border-color:#fff;box-shadow:0 12px 28px rgba(20,70,110,.14)}
-  .offer{background:#fff;border-color:#fff}
-  .offer.best{border-color:var(--or)}
-  .chip{border-color:#fff}
-  .path svg path{stroke:#fff}
-  .top.scrolled{background:rgba(110,193,240,.92);box-shadow:0 6px 24px rgba(20,70,110,.18)}
-  .top.scrolled .nav a:not(.btn):hover{background:rgba(255,255,255,.35)}
-  .brand small{color:var(--onblue)}
-  /* Les fonds sombres passent en blanc, textes en orange */
-  .ticker{background:#fff;color:var(--or);box-shadow:0 10px 26px rgba(20,70,110,.16)}
-  .ticker span::after{color:var(--blue)}
-  .bubble{background:#fff;color:var(--orf);box-shadow:0 12px 26px rgba(20,70,110,.22)}
-  .pilot{background:#fff;color:var(--ink)}
-  .pilot h2{color:var(--or)}
-  .pilot li b{color:var(--orf)}
-  .pilot li span{color:var(--mut)}
-  .pilot .kicker{background:var(--cream2);color:var(--orf);border-color:var(--line)}
-  .week{background:var(--cream);box-shadow:0 26px 50px rgba(120,60,0,.16);border:1.5px solid var(--line)}
-  .day{background:#fff}
-  .foot{background:#fff;color:var(--mut);border-top:4px solid var(--or)}
-  .foot h4,.foot .fb{color:var(--or)}
-  .foot a{color:var(--mut)}.foot a:hover{color:var(--orf)}
-  .foot .legal{border-top-color:var(--line);color:var(--orf)}
-  .how .head{margin-bottom:130px}   /* place pour Marshall qui travaille au-dessus des étapes */
-  @media (max-width:860px){.how .head{margin-bottom:46px}}
-  @media (max-width:700px){
-    .nav .btn,.brand small{display:none}
-    .hero{padding-top:90px}
-    .stage{height:430px}
-    .stage .marshall{width:66%}
-    .card-post{width:116px;padding:7px;font-size:11px}.card-post .ph{height:66px}.card-post b{font-size:12px}
-    .cp1{left:0;top:2%}.cp3{right:0;bottom:16%;width:124px}
-    .bubble{left:0;bottom:46%;font-size:13px;max-width:165px;padding:9px 12px}
-  }
-  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
-<!-- Icônes cartoon (même trait que le Studio) -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="i-spark" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round"><path d="M11 2.8l2 5.6 5.6 2-5.6 2-2 5.6-2-5.6-5.6-2 5.6-2z" fill="#FFE27A"/><path d="M18.4 14.6l.9 2.2 2.2.9-2.2.9-.9 2.2-.9-2.2-2.2-.9 2.2-.9z" fill="#fff"/></g></symbol>
-    <symbol id="i-chat" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 4v-4h0A2.5 2.5 0 0 1 4 13.5z" fill="#7FD3FF"/><circle cx="9" cy="9.6" r="1" fill="#4a2a10"/><circle cx="12" cy="9.6" r="1" fill="#4a2a10"/><circle cx="15" cy="9.6" r="1" fill="#4a2a10"/></g></symbol>
-    <symbol id="i-wand" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 20 15.5 8.5" fill="none" stroke-width="3.4"/><path d="M4 20 15.5 8.5" fill="none" stroke="#C9A0FF" stroke-width="1.8"/><path d="M17 2.5l.9 2.4 2.4.9-2.4.9-.9 2.4-.9-2.4-2.4-.9 2.4-.9z" fill="#FFD23F"/><path d="M20.5 11l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3-1.3-.5 1.3-.5z" fill="#FF7FA8"/></g></symbol>
-    <symbol id="i-cal" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="3.2" y="4.6" width="17.6" height="15.6" rx="3" fill="#fff"/><path d="M3.2 9.4V7.6a3 3 0 0 1 3-3h11.6a3 3 0 0 1 3 3v1.8z" fill="#FF7A3D"/><path d="M8 2.8v3.6M16 2.8v3.6" fill="none"/><path d="M8.2 14.6l2.4 2.4 5-5" fill="none" stroke="#1f9d55" stroke-width="2"/></g></symbol>
-    <symbol id="i-rocket" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M7 13l-2.6 2.4 1 3.6 3.9-3z" fill="#FF5A4E"/><path d="M17 13l2.6 2.4-1 3.6-3.9-3z" fill="#FF5A4E"/><path d="M10 16.5c-.4 2.2.4 3.8 2 5 1.6-1.2 2.4-2.8 2-5z" fill="#FFD23F"/><path d="M12 2.5c3.6 2.2 5.4 5.8 5 10.5l-2.4 3.4H9.4L7 13c-.4-4.7 1.4-8.3 5-10.5z" fill="#fff"/><circle cx="12" cy="9.2" r="2.2" fill="#7FD3FF"/></g></symbol>
-    <symbol id="i-img" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3" fill="#8FBFFF"/><path d="M3.6 17.2l5.4-5.6 3.6 3.6 2.6-2.6 5.2 4.8v.6a1.9 1.9 0 0 1-1.9 1.9H5.5a1.9 1.9 0 0 1-1.9-1.9z" fill="#7ED957"/><circle cx="16.4" cy="8.9" r="1.9" fill="#FFD23F"/></g></symbol>
-    <symbol id="i-film" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="9.5" width="18" height="11" rx="2.4" fill="#FF7A3D"/><path d="M3.4 9.5 19.3 4.9l1 3.4L4.4 12.9z" fill="#fff"/><path d="M8 8.1l1.5 3.2M12.6 6.8l1.5 3.2M17.1 5.5l1.5 3.2" fill="none"/><path d="M10 13.2v4.6l4-2.3z" fill="#fff"/></g></symbol>
-    <symbol id="i-mask" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round"><path d="M3.6 4.6h9.2v5.4a4.6 4.6 0 0 1-9.2 0z" fill="#fff"/><path d="M11.2 9.6h9.2V15a4.6 4.6 0 0 1-9.2 0z" fill="#FFD23F"/></g><circle cx="6.4" cy="8.4" r=".9" fill="#4a2a10"/><circle cx="10" cy="8.4" r=".9" fill="#4a2a10"/><circle cx="14" cy="13.4" r=".9" fill="#4a2a10"/><circle cx="17.6" cy="13.4" r=".9" fill="#4a2a10"/></symbol>
-    <symbol id="i-talk" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round"><circle cx="9" cy="8.6" r="4" fill="#FBE3C4"/><path d="M2.6 20.6c0-3.8 2.9-6.4 6.4-6.4s6.4 2.6 6.4 6.4z" fill="#8FBFFF"/></g><path d="M17.2 6.6a4 4 0 0 1 0 5M19.6 4.4a7 7 0 0 1 0 9.4" fill="none" stroke="#FF7FA8" stroke-width="1.9" stroke-linecap="round"/></symbol>
-    <symbol id="i-scis" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><circle cx="6.5" cy="17.6" r="2.8" fill="#FF7A3D"/><circle cx="17.5" cy="17.6" r="2.8" fill="#FF7A3D"/><path d="M8.5 15.6 17.2 4M15.5 15.6 6.8 4" fill="none" stroke-width="1.9"/></g></symbol>
-    <symbol id="i-robot" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M12 7.5V4.6" fill="none"/><circle cx="12" cy="3.8" r="1.4" fill="#FF5A4E"/><rect x="4.5" y="7.5" width="15" height="12.5" rx="4" fill="#7FD3FF"/><rect x="7.4" y="11" width="9.2" height="5.4" rx="2.7" fill="#fff"/></g><circle cx="10.1" cy="13.7" r="1.1" fill="#4a2a10"/><circle cx="13.9" cy="13.7" r="1.1" fill="#4a2a10"/></symbol>
-    <symbol id="i-gift" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M12 7.2C10.6 4.3 7.2 3.4 6.6 5.5 6.1 7.3 9.6 7.4 12 7.2z" fill="#FFD23F"/><path d="M12 7.2c1.4-2.9 4.8-3.8 5.4-1.7.5 1.8-3 1.9-5.4 1.7z" fill="#FFD23F"/><rect x="3.6" y="11" width="16.8" height="10" rx="2" fill="#FF5A4E"/><rect x="2.6" y="7.4" width="18.8" height="4.2" rx="1.4" fill="#FF7F72"/><rect x="10.5" y="7.4" width="3" height="13.6" fill="#FFD23F"/></g></symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><circle cx="12" cy="12" r="8.8" fill="#7FD3FF"/><circle cx="12" cy="12" r="6.2" fill="#fff"/><path d="M12 8.4V12l2.6 1.7" fill="none" stroke-width="1.9"/></g></symbol>
-    <symbol id="i-ig" viewBox="0 0 24 24"><defs><radialGradient id="igg" cx="30%" cy="107%" r="150%"><stop offset="0" stop-color="#fdf497"/><stop offset=".45" stop-color="#fd5949"/><stop offset=".6" stop-color="#d6249f"/><stop offset=".9" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igg)"/><rect x="6.5" y="6.5" width="11" height="11" rx="3.5" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="12" cy="12" r="2.7" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="16.6" cy="7.4" r="1" fill="#fff"/></symbol>
-    <symbol id="i-fb" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#1877F2"/><path d="M13.3 20v-6.3h2.1l.3-2.5h-2.4V9.7c0-.7.2-1.2 1.2-1.2h1.3V6.3a17 17 0 0 0-1.9-.1c-1.9 0-3.1 1.1-3.1 3.2v1.8H8.7v2.5h2.1V20z" fill="#fff"/></symbol>
-    <symbol id="i-tt" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#111"/><path d="M14.6 5.5c.3 1.6 1.4 2.8 3 3v2.3a5.7 5.7 0 0 1-3-.9v4.6a4.2 4.2 0 1 1-4.2-4.2v2.4a1.8 1.8 0 1 0 1.8 1.8V5.5z" fill="#fff"/></symbol>
-  </defs>
-</svg>
-
 <header class="top" id="top">
-  <div class="wrap">
-    <a class="brand" href="index.html"><img src="avatarchatbot.png" alt=""><span>Studio Social<small>par Mon Copain Digital</small></span></a>
-    <nav class="nav" aria-label="Navigation">
-      <a href="#comment">Comment ça marche</a>
-      <a href="#agents">Les agents</a>
-      <a href="#offres">Offres</a>
-      <a href="index.html">Mon Copain Digital</a>
-      <a class="btn btn-go" href="studio-social.html?inscription=1">Essayer gratuitement</a>
-    </nav>
-  </div>
+  <a class="logo" href="index.html" aria-label="Mon Copain Digital · accueil">Studio Social</a>
+  <nav class="nav" aria-label="Navigation">
+    <a href="#metiers">Métiers</a>
+    <a href="#apropos">À propos</a>
+    <a href="#creations">Créations</a>
+    <a href="#offres">Offres</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <span class="clock" aria-label="Marshall est en ligne"><i></i>Marshall en ligne · <span id="clock">--:--</span></span>
+  <button class="burger" type="button" aria-label="Ouvrir le menu" id="burger"><span></span><span></span><span></span></button>
 </header>
+<nav class="menu" id="menu" aria-label="Menu">
+  <button class="sq x" type="button" id="menu-x" aria-label="Fermer le menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+  <a class="disp" href="#metiers">Métiers</a>
+  <a class="disp" href="#apropos">À propos</a>
+  <a class="disp" href="#creations">Créations</a>
+  <a class="disp" href="#offres">Offres</a>
+  <a class="disp" href="studio-social.html?inscription=1" style="color:var(--or)">Essayer</a>
+</nav>
 
 <main>
 <!-- ================= HÉROS ================= -->
-<section class="hero" id="hero">
-  <div class="wrap">
-    <div>
-      <span class="kicker hx">Pour les commerçants et indépendants</span>
-      <h1 class="hx" id="hero-title"><span class="w">Ton</span> <span class="w">copain</span> <span class="w">digital</span> <span class="w">crée</span> <span class="w">tes</span> <span class="w hl">posts<svg viewBox="0 0 200 16" preserveAspectRatio="none" aria-hidden="true"><path id="hl-line" d="M2 11 C 50 2, 120 2, 198 9" fill="none" stroke="#FFC48A" stroke-width="7" stroke-linecap="round"/></svg></span> <span class="w">pendant</span> <span class="w">que</span> <span class="w">tu</span> <span class="w">bosses.</span></h1>
-      <p class="lead hx">Marshall, ton assistant IA, imagine tes posts, stories et vidéos pour Instagram, Facebook et TikTok, puis les programme et les publie à ta place. Toi, tu valides d’un clic.</p>
-      <div class="ctas hx">
-        <a class="btn btn-go" href="studio-social.html?inscription=1">Créer mon compte gratuit <span aria-hidden="true">→</span></a>
-        <a class="btn btn-ghost" href="studio-social.html?demo=1">Voir la démo</a>
-      </div>
-      <div class="proof hx"><span><i>✓</i>Gratuit pour commencer</span><span><i>✓</i>Sans carte bancaire</span><span><i>✓</i>Résiliable à tout moment</span></div>
-    </div>
-    <div class="stage" id="stage">
-      <div class="halo"></div>
-      <svg class="sparkle sp1" style="left:14%;top:30%"><use href="#i-spark"/></svg>
-      <svg class="sparkle sp2" style="right:12%;top:40%"><use href="#i-spark"/></svg>
-      <svg class="sparkle sp3" style="left:46%;top:6%"><use href="#i-spark"/></svg>
-      <div class="card-post cp1"><div class="ph" style="background:linear-gradient(135deg,#ffd9a8,#ff9c46)"><svg class="net"><use href="#i-ig"/></svg></div><b>Croissants du jour 🥐</b><small>Publié · 9h00</small></div>
-      <div class="card-post cp2"><div class="ph" style="background:linear-gradient(135deg,#ffc9de,#ff7fa8)"><svg class="net"><use href="#i-tt"/></svg></div><b>Les coulisses</b><small>Programmé · jeudi</small></div>
-      <div class="card-post cp3"><div class="ph" style="background:linear-gradient(135deg,#bfe2f5,#5b8def)"><svg class="net"><use href="#i-fb"/></svg></div><b>-20 % ce week-end</b><small>❤️ 128 · 💬 14</small></div>
-      <div class="bubble" id="bubble">Coucou ! Je m’occupe de tes réseaux 👋</div>
-      <img class="marshall" id="hero-marshall" src="marshall-coucou.webp" alt="Marshall, l’assistant IA de Studio Social, fait coucou" width="300" height="410">
-    </div>
+<section class="hero dark" id="hero">
+  <h1 class="disp" id="hero-title">
+    <span class="row"><span class="mask"><span>Bye bye</span></span> <span class="mask"><span><i>posts ratés…</i></span></span></span>
+    <span class="row"><span class="mask"><span><i>Hello</i></span></span><span class="pill" id="pill"><img src="marshall-coucou.webp" alt="Marshall fait coucou"></span><span class="mask"><span>Marshall</span></span></span>
+  </h1>
+  <div class="base">
+    <p>Ton <b>copain digital</b> crée tes posts, stories, vidéos et reportages pour <b>Instagram, Facebook et TikTok</b>, puis les publie pour toi. Pour les commerçants de Paris, Lyon, Marseille, Bordeaux &amp; partout en France.</p>
+    <a class="sq" href="#reel" aria-label="Descendre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16M5 13l7 7 7-7"/></svg></a>
   </div>
 </section>
 
-<div class="ticker" aria-hidden="true"><div class="track" id="ticker">
-  <span>Posts Instagram</span><span>Stories</span><span>Vidéos IA</span><span>TikTok</span><span>Facebook</span><span>Programmation</span><span>Avis Google</span><span>Clips viraux</span><span>Voix off</span><span>Pilote automatique</span>
-  <span>Posts Instagram</span><span>Stories</span><span>Vidéos IA</span><span>TikTok</span><span>Facebook</span><span>Programmation</span><span>Avis Google</span><span>Clips viraux</span><span>Voix off</span><span>Pilote automatique</span>
-</div></div>
-
-<!-- ================= COMMENT ÇA MARCHE ================= -->
-<section class="blk how" id="comment">
-  <div class="wrap">
-    <div class="head rv"><span class="kicker">Simple comme bonjour</span><h2>Trois étapes, et tes réseaux tournent</h2><p>Pas besoin d’être doué en marketing ni en design : Marshall s’en occupe.</p></div>
-    <div class="steps" id="steps">
-      <div class="path" aria-hidden="true"><svg viewBox="0 0 1000 30" preserveAspectRatio="none"><path id="path-line" d="M0 15 C 200 -5, 300 35, 500 15 S 800 -5, 1000 15" fill="none" stroke="#FBD3AE" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round"/></svg></div>
-      <img class="walker" id="walker" src="marshall-ordi.webp" alt="" aria-hidden="true" loading="lazy">
-      <div class="step"><svg class="ic"><use href="#i-chat"/></svg><div class="n">1</div><h3>Tu lui parles de ton commerce</h3><p>Ton site, ton Instagram, tes avis Google : Marshall analyse ta marque et retient ton style.</p></div>
-      <div class="step"><svg class="ic"><use href="#i-wand"/></svg><div class="n">2</div><h3>Il crée tout pour toi</h3><p>Textes, hashtags, visuels, stories animées et vidéos IA, aux couleurs de ta marque.</p></div>
-      <div class="step"><svg class="ic"><use href="#i-cal"/></svg><div class="n">3</div><h3>Tu valides, il publie</h3><p>Un clic pour approuver : il programme aux meilleurs horaires sur Instagram, Facebook et TikTok.</p></div>
-    </div>
+<!-- ================= VITRINE ================= -->
+<section class="reel" id="reel" aria-label="Ce que Marshall crée">
+  <div class="wall" id="wall">
+    <video src="reportage-sahara.mp4" poster="reportage-sahara.jpg" muted loop playsinline preload="metadata" aria-label="Reportage : un chien retrouvé dans le Sahara"></video>
+    <div class="tile"><span class="say">Je bosse,<br>tu valides.</span><img src="marshall-ordi.webp" alt="Marshall travaille sur son ordinateur" loading="lazy"></div>
+    <video src="reportage-commerce.mp4" poster="reportage-commerce.jpg" muted loop playsinline preload="metadata" aria-label="Reportage sur un fleuriste"></video>
   </div>
+  <span class="cap">Fait par Marshall · reportages, posts, vidéos IA</span>
+  <button class="sq play" type="button" id="reel-snd" aria-label="Activer le son"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button>
 </section>
 
-<!-- ================= AGENTS ================= -->
-<section class="blk agents" id="agents">
-  <div class="wrap">
-    <div class="head rv"><span class="kicker">Une équipe complète</span><h2>16 agents IA, tous joués par Marshall</h2><p>Chaque agent a son métier. Tu choisis, il s’y met.</p></div>
-    <div class="agrid" id="agrid">
-      <div class="agent"><div class="pic"><img src="agents/ag-studio.webp" alt="" loading="lazy"></div><div><span class="tag">Image &amp; vidéo IA</span><h3>Studio IA</h3><p>Une idée, une photo : il en fait une image pro ou une vidéo de 5 à 20 secondes.</p></div></div>
-      <div class="agent"><div class="pic"><img src="agents/ag-genjutsu.webp" alt="" loading="lazy"></div><div><span class="tag">Toi dans la vidéo</span><h3>Genjutsu</h3><p>Tu remplaces la personne d’une vidéo par toi, avec les mêmes gestes et le même décor.</p></div></div>
-      <div class="agent"><div class="pic"><img src="agents/ag-avatar.webp" alt="" loading="lazy"></div><div><span class="tag">Ta photo qui parle</span><h3>Avatar parlant</h3><p>Une photo + un texte : la personne parle face caméra, avec ta voix si tu veux.</p></div></div>
-      <div class="agent"><div class="pic"><img src="agents/ag-clipper.webp" alt="" loading="lazy"></div><div><span class="tag">Clips viraux</span><h3>Clippeur</h3><p>Ta longue vidéo devient jusqu’à 10 clips verticaux sous-titrés, notés selon leur potentiel.</p></div></div>
-      <div class="agent"><div class="pic"><img src="agents/ag-story.webp" alt="" loading="lazy"></div><div><span class="tag">Story virale</span><h3>Viral Story Agent</h3><p>Des stories qui racontent une histoire, écran par écran, prêtes à publier.</p></div></div>
-      <div class="agent"><div class="pic"><img src="agents/ag-nation.webp" alt="" loading="lazy"></div><div><span class="tag">Infos en temps réel</span><h3>Journaliste Pays</h3><p>Il suit l’actualité de ta ville et de ton secteur pour publier au bon moment.</p></div></div>
-    </div>
-    <div class="chips rv" id="chips">
-      <span class="chip"><img src="agents/ag-marshall-thumb.png" alt="" loading="lazy">Superviseur</span>
-      <span class="chip"><img src="agents/ag-voice-thumb.png" alt="" loading="lazy">Voix off</span>
-      <span class="chip"><img src="agents/ag-social-thumb.png" alt="" loading="lazy">Design social</span>
-      <span class="chip"><img src="agents/ag-brand-thumb.png" alt="" loading="lazy">Positionnement</span>
-      <span class="chip"><img src="agents/ag-campaign-thumb.png" alt="" loading="lazy">Campagne</span>
-      <span class="chip"><img src="agents/ag-image-thumb.png" alt="" loading="lazy">Direction artistique</span>
-      <span class="chip"><img src="agents/ag-visual-thumb.png" alt="" loading="lazy">Contrôle qualité</span>
-      <span class="chip"><img src="agents/ag-testing-thumb.png" alt="" loading="lazy">Variantes A/B</span>
-      <span class="chip"><img src="agents/ag-audit-thumb.png" alt="" loading="lazy">Audit 360°</span>
-      <span class="chip"><img src="agents/ag-team-thumb.png" alt="" loading="lazy">Équipe multi-agents</span>
-    </div>
+<!-- ================= MÉTIERS ================= -->
+<section class="jobs light" id="metiers">
+  <span class="lbl">Ses métiers</span>
+  <ul class="jlist" id="jlist">
+    <li><a href="#creations" data-img="agents/ag-studio.webp"><span class="disp">Studio IA</span><small>Une idée, une photo : une image pro ou une vidéo de 5 à 20 s</small></a></li>
+    <li><a href="#creations" data-img="agents/ag-nation.webp"><span class="disp">Journaliste</span><small>Un reportage télé sur l’info du jour ou ton commerce</small></a></li>
+    <li><a href="#creations" data-img="agents/ag-genjutsu.webp"><span class="disp">Genjutsu</span><small>Toi à la place de la star, même décor, mêmes gestes</small></a></li>
+    <li><a href="#creations" data-img="agents/ag-avatar.webp"><span class="disp">Avatar</span><small>Ta photo parle face caméra, avec ta voix</small></a></li>
+    <li><a href="#creations" data-img="agents/ag-clipper.webp"><span class="disp">Clippeur</span><small>Une longue vidéo devient 10 clips sous-titrés</small></a></li>
+    <li><a href="#creations" data-img="agents/ag-campaign.webp"><span class="disp">Pilote</span><small>Ta semaine de posts prête lundi matin</small></a></li>
+    <li><a href="#creations" data-img="agents/ag-team.webp"><span class="disp">Automatisations</span><small>Un puzzle à assembler, et tout tourne seul</small></a></li>
+  </ul>
+  <div class="why">
+    <p>Il existe des centaines d’outils pour gérer ses réseaux. Quand on tient un commerce, choisir le bon (et trouver le temps de s’en servir) ressemble à un deuxième métier. <b>Alors, pourquoi Marshall&nbsp;?</b></p>
+    <a class="btn" href="#apropos">Voilà pourquoi <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
   </div>
+  <div class="follow" id="follow" aria-hidden="true"><div class="bg"></div><img id="follow-img" src="agents/ag-studio.webp" alt=""></div>
 </section>
 
-<!-- ================= PILOTE ================= -->
-<section class="blk pilot" id="pilote">
-  <div class="wrap pgrid">
-    <div>
-      <span class="kicker rv">Pilote automatique</span>
-      <h2 class="rv" style="font-size:clamp(30px,4vw,46px);margin:14px 0 18px">Ta semaine de posts, prête lundi matin</h2>
-      <ul class="rv-list">
-        <li><svg class="ic"><use href="#i-clock"/></svg><span><b>Tu choisis le rythme</b><br>3 posts par semaine, 5, ou un par jour.</span></li>
-        <li><svg class="ic"><use href="#i-robot"/></svg><span><b>Marshall prépare tout</b><br>Idées, textes, visuels et vidéos, avec la qualité de ton choix.</span></li>
-        <li><svg class="ic"><use href="#i-cal"/></svg><span><b>Tu valides ou il publie seul</b><br>À toi de choisir : garder la main, ou zéro effort.</span></li>
-      </ul>
-      <p class="rv" style="margin-top:26px"><a class="btn btn-go" href="studio-social.html?inscription=1">Lancer mon pilote</a></p>
-    </div>
-    <div class="week" id="week">
-      <span class="ok" id="week-ok">✓ Semaine prête</span>
-      <div class="days">
-        <div class="day"><b>LUN</b><span class="slot ig">Croissants du jour</span></div>
-        <div class="day"><b>MAR</b></div>
-        <div class="day"><b>MER</b><span class="slot tt">Les coulisses</span><span class="slot fb">Avis client ⭐</span></div>
-        <div class="day"><b>JEU</b></div>
-        <div class="day"><b>VEN</b><span class="slot ig">Promo week-end</span></div>
-        <div class="day"><b>SAM</b><span class="slot tt">Vidéo IA</span></div>
-        <div class="day"><b>DIM</b></div>
-      </div>
-      <img class="pm" src="marshall-ordi.webp" alt="" loading="lazy">
+<!-- ================= À PROPOS ================= -->
+<section class="about light" id="apropos">
+  <span class="lbl">À propos</span>
+  <div class="agrid">
+    <h2 class="disp" id="about-title"><span class="mask"><span>Le copain</span></span><span class="mask"><span>digital des</span></span><span class="mask"><span><em>commerçants</em></span></span><span class="mask"><span>qui veulent</span></span><span class="mask"><span>briller</span></span></h2>
+    <div class="txt">
+      <p>Marshall, c’est <b id="count16">16</b> agents IA réunis dans un seul copain. Il analyse ta marque (ton site, ton Instagram, tes avis Google), imagine tes posts, tourne tes vidéos et les publie aux meilleurs horaires.</p>
+      <p>Toi, tu valides d’un clic. Ou tu le laisses piloter seul. Gratuit pour commencer, sans carte bancaire.</p>
+      <a class="btn" href="studio-social.html?inscription=1">Rencontrer Marshall <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
     </div>
   </div>
+  <img class="peek" id="peek" src="marshall-coucou.webp" alt="Marshall fait coucou" loading="lazy">
 </section>
 
 <!-- ================= CRÉATIONS ================= -->
-<section class="blk make" id="creer">
-  <div class="wrap">
-    <div class="head rv"><span class="kicker">Tout ce qu’il sait faire</span><h2>De l’idée à la vidéo, sans rien installer</h2><p>Tout se passe dans ton navigateur, sur ordinateur comme sur téléphone.</p></div>
-    <div class="mgrid" id="mgrid">
-      <div class="mk"><svg class="ic"><use href="#i-img"/></svg><h3>Posts &amp; visuels</h3><p>Des images pro générées par IA, avec ton texte et tes couleurs.</p></div>
-      <div class="mk"><svg class="ic"><use href="#i-film"/></svg><h3>Vidéos IA</h3><p>Ta photo prend vie en vidéo de qualité cinéma, jusqu’à 20 secondes.</p></div>
-      <div class="mk"><svg class="ic"><use href="#i-scis"/></svg><h3>Clips &amp; sous-titres</h3><p>Découpe automatique et sous-titres animés pour Reels et TikTok.</p></div>
-      <div class="mk"><svg class="ic"><use href="#i-talk"/></svg><h3>Voix off</h3><p>Une voix naturelle en français qui raconte ta vidéo.</p></div>
-      <div class="mk"><svg class="ic"><use href="#i-mask"/></svg><h3>Genjutsu</h3><p>Deviens la star de n’importe quelle vidéo, en gardant le décor.</p></div>
-      <div class="mk"><svg class="ic"><use href="#i-chat"/></svg><h3>Avis Google</h3><p>Tes meilleurs avis transformés en posts qui donnent confiance.</p></div>
-      <div class="mk"><svg class="ic"><use href="#i-rocket"/></svg><h3>Campagnes</h3><p>Une mini-campagne complète sur plusieurs posts en une seule demande.</p></div>
-      <div class="mk"><svg class="ic"><use href="#i-cal"/></svg><h3>Calendrier</h3><p>Tout est programmé et visible dans ton calendrier éditorial.</p></div>
+<section class="work dark" id="creations">
+  <div class="whead">
+    <h2 class="disp">Créations</h2>
+    <div class="tabs" id="tabs" role="group" aria-label="Filtrer les créations">
+      <button type="button" class="on" data-f="all">Tout</button>
+      <button type="button" data-f="video">Vidéos</button>
+      <button type="button" data-f="post">Posts</button>
+      <button type="button" data-f="auto">Pilote</button>
     </div>
   </div>
+  <div class="cards" id="cards">
+    <article class="card" data-k="video">
+      <div class="media"><video src="reportage-sahara.mp4" poster="reportage-sahara.jpg" muted loop playsinline preload="none"></video><button type="button" class="snd" aria-label="Activer le son">🔇</button></div>
+      <h3 class="disp">Le chien du Sahara</h3><p><b>Journaliste</b> | L’info du jour devient un reportage télé de 20 s, Marshall face caméra</p>
+    </article>
+    <article class="card" data-k="video">
+      <div class="media"><video src="reportage-commerce.mp4" poster="reportage-commerce.jpg" muted loop playsinline preload="none"></video><button type="button" class="snd" aria-label="Activer le son">🔇</button></div>
+      <h3 class="disp">Fleurs de Léa</h3><p><b>Reportage commerce</b> | La nouvelle collection présentée en direct de la boutique</p>
+    </article>
+    <article class="card" data-k="auto">
+      <div class="media art" style="--c1:#ffe2bf;--c2:#F3852B"><img src="agents/ag-campaign.webp" alt="" loading="lazy"></div>
+      <h3 class="disp">La semaine prête</h3><p><b>Pilote</b> | Cinq posts imaginés, rédigés et programmés pour lundi matin</p>
+    </article>
+    <article class="card" data-k="video">
+      <div class="media art" style="--c1:#d8c7ff;--c2:#7c4dff"><img src="agents/ag-genjutsu.webp" alt="" loading="lazy"></div>
+      <h3 class="disp">Toi, la star</h3><p><b>Genjutsu</b> | Tu prends la place de la personne d’une vidéo, même décor, mêmes gestes</p>
+    </article>
+    <article class="card" data-k="post">
+      <div class="media art" style="--c1:#c9ecff;--c2:#6EC1F0"><img src="agents/ag-studio.webp" alt="" loading="lazy"></div>
+      <h3 class="disp">Croissants du jour</h3><p><b>Studio IA</b> | Une photo de vitrine devient un post pro, texte et hashtags compris</p>
+    </article>
+    <article class="card" data-k="video">
+      <div class="media art" style="--c1:#ffd1e0;--c2:#ff5f8f"><img src="agents/ag-clipper.webp" alt="" loading="lazy"></div>
+      <h3 class="disp">10 clips en 1</h3><p><b>Clippeur</b> | Ta longue vidéo découpée en clips verticaux, sous-titrés et notés</p>
+    </article>
+    <article class="card" data-k="post">
+      <div class="media art" style="--c1:#d6f5d0;--c2:#3fb950"><img src="agents/ag-avatar.webp" alt="" loading="lazy"></div>
+      <h3 class="disp">Ta photo parle</h3><p><b>Avatar parlant</b> | Une photo et un texte : tu parles face caméra, avec ta voix</p>
+    </article>
+    <article class="card" data-k="auto">
+      <div class="media art" style="--c1:#fff1b8;--c2:#f2b705"><img src="agents/ag-team.webp" alt="" loading="lazy"></div>
+      <h3 class="disp">Le puzzle</h3><p><b>Automatisations</b> | À heure fixe → actu → reportage → légende → publication, tout seul</p>
+    </article>
+  </div>
+  <div class="more"><a class="btn" href="studio-social.html?demo=1">Voir Marshall en action <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
 </section>
 
 <!-- ================= OFFRES ================= -->
-<section class="blk offers" id="offres">
-  <div class="wrap">
-    <div class="head rv"><span class="kicker">Nos offres</span><h2>Commence gratuitement, évolue quand tu veux</h2><p>Sans engagement : tu changes ou tu résilies en un clic.</p></div>
-    <div class="ogrid" id="ogrid">
-      <div class="offer"><h3>Gratuit</h3><div class="price"><b>0 €</b></div>
-        <ul><li>1 500 tokens par mois</li><li>Marshall en mode Léger</li><li>Stories et posts éditables</li><li>Images IA Qwen</li><li>Vidéo Motion à partir de tes stories</li></ul>
-        <a class="btn btn-ghost" href="studio-social.html?inscription=1">Commencer gratuitement</a></div>
-      <div class="offer best"><span class="badge">⭐ Le plus choisi</span><h3>Complet</h3><div class="price"><b>29 €</b><span>/mois</span></div>
-        <ul><li>10 500 tokens par mois (≈ 150 créations)</li><li>Publication et programmation sur tes réseaux</li><li>Pilote automatique de la semaine</li><li>Analyse de marque (site, Instagram, avis)</li><li>Équipe d’agents Marshall</li><li>Vidéos IA Wan 2.2</li></ul>
-        <a class="btn btn-go" href="studio-social.html?inscription=1&amp;plan=complet">Choisir Complet</a></div>
-      <div class="offer"><h3>Hyper ⚡</h3><div class="price"><b>59 €</b><span>/mois</span></div>
-        <ul><li>22 500 tokens par mois</li><li>Tout le Complet</li><li>Images Google Nano Banana 2</li><li>Genjutsu et Avatar parlant</li><li>Vidéos IA qualité Pro</li><li>Le meilleur moteur de création</li></ul>
-        <a class="btn btn-ghost" href="studio-social.html?inscription=1&amp;plan=hyper">Choisir Hyper</a></div>
-    </div>
-    <p class="note">🔒 Paiement sécurisé par Stripe · abonnement mensuel, résiliable à tout moment · <a href="loiapplicablemcp.html#cgv">CGV</a></p>
+<section class="offers light" id="offres">
+  <span class="lbl">Offres · sans engagement</span>
+  <div class="olist">
+    <div class="orow"><h3 class="disp">Gratuit<sup>0 €</sup></h3><ul><li>1 500 tokens par mois</li><li>Marshall en mode Léger</li><li>Stories et posts éditables</li><li>Images IA Qwen</li></ul><a class="btn" href="studio-social.html?inscription=1">Commencer</a></div>
+    <div class="orow"><div><span class="best">Le plus choisi</span><h3 class="disp">Complet<sup>29 €</sup></h3></div><ul><li>10 500 tokens par mois</li><li>Publication et programmation</li><li>Pilote automatique</li><li>Analyse de marque</li><li>Équipe d’agents Marshall</li><li>Vidéos IA Wan 2.2</li></ul><a class="btn fill" href="studio-social.html?inscription=1&amp;plan=complet">Choisir Complet</a></div>
+    <div class="orow"><h3 class="disp">Hyper<sup>59 €</sup></h3><ul><li>22 500 tokens par mois</li><li>Tout le Complet</li><li>Images Nano Banana 2</li><li>Genjutsu et Avatar parlant</li><li>Reportages Journaliste</li><li>Vidéos IA qualité Pro</li></ul><a class="btn" href="studio-social.html?inscription=1&amp;plan=hyper">Choisir Hyper</a></div>
   </div>
-</section>
-
-<!-- ================= PARRAINAGE ================= -->
-<section class="refer">
-  <div class="wrap">
-    <div class="rbox rv" id="rbox">
-      <svg class="gift" id="gift"><use href="#i-gift"/></svg>
-      <div><h3>Invite un ami commerçant, gagne 1 000 tokens</h3><p>Dès qu’il prend une formule Complet ou Hyper, tu reçois 1 000 tokens. Sans limite : plus tu invites, plus tu gagnes.</p></div>
-      <div class="big" id="big1000">+1 000</div>
-    </div>
-  </div>
+  <p class="fine">Prix par mois, TTC. Paiement sécurisé par Stripe, résiliable à tout moment. <a href="loiapplicablemcp.html">CGV</a></p>
 </section>
 
 <!-- ================= FAQ ================= -->
-<section class="blk faq" id="faq">
-  <div class="wrap">
-    <div class="head rv"><span class="kicker">Questions fréquentes</span><h2>On répond à tout</h2></div>
-    <div class="qa rv-list">
-      <details><summary>C’est quoi, un token&nbsp;?</summary><p>C’est la monnaie de Studio Social. Chaque création coûte un petit nombre de tokens, toujours affiché avant de la lancer. Ta formule t’en donne chaque mois, et tu peux en recharger si besoin.</p></details>
-      <details><summary>Est-ce que je garde le contrôle de ce qui est publié&nbsp;?</summary><p>Oui. Par défaut, rien n’est publié sans ton accord : tu valides chaque post d’un clic. Si tu préfères, tu peux laisser Marshall publier seul aux meilleurs horaires.</p></details>
-      <details><summary>Sur quels réseaux Studio Social publie-t-il&nbsp;?</summary><p>Instagram, Facebook et TikTok, via leurs outils officiels. Tu relies tes comptes en quelques clics et tu peux les déconnecter quand tu veux.</p></details>
-      <details><summary>Je ne suis pas à l’aise avec la technologie, c’est pour moi&nbsp;?</summary><p>C’est justement pour toi. Tu parles à Marshall comme à un copain, et une présentation te guide à ta première visite. Et si tu bloques, on est là.</p></details>
-      <details><summary>Que deviennent mes photos et mes données&nbsp;?</summary><p>Elles restent à toi et ne servent qu’à faire fonctionner le service. Tout est expliqué simplement dans <a href="loiapplicablemcp.html#studio-social">Studio Social — vos données</a>.</p></details>
-      <details><summary>Je peux arrêter quand je veux&nbsp;?</summary><p>Oui, la résiliation se fait en un clic depuis l’application. Tu gardes l’accès jusqu’à la fin du mois déjà payé.</p></details>
-    </div>
-  </div>
+<section class="faq light" id="faq">
+  <span class="lbl">Questions fréquentes</span>
+  <details><summary>C’est quoi, un token&nbsp;?</summary><p>C’est la monnaie de Studio Social. Chaque création en consomme un peu selon sa taille : un post coûte quelques dizaines de tokens, une vidéo IA davantage. Ta formule te donne des tokens chaque mois, et tu peux en recharger à tout moment.</p></details>
+  <details><summary>Je garde le contrôle de ce qui est publié&nbsp;?</summary><p>Oui. Par défaut, Marshall prépare et tu valides d’un clic. Si tu préfères zéro effort, active le Pilote automatique : il publie seul, au rythme que tu as choisi.</p></details>
+  <details><summary>Sur quels réseaux&nbsp;?</summary><p>Instagram, Facebook et TikTok. Tu relies tes comptes une fois, Marshall s’occupe du reste.</p></details>
+  <details><summary>Je ne suis pas à l’aise avec la technique</summary><p>C’est fait pour toi : tu parles à Marshall comme à un copain, en français, et il s’occupe de tout. Rien à installer, ça marche dans ton navigateur, sur ordinateur comme sur téléphone.</p></details>
+  <details><summary>Que deviennent mes photos et mes données&nbsp;?</summary><p>Elles servent uniquement à créer tes contenus et ne sont jamais revendues. Le détail est dans nos <a href="loiapplicablemcp.html" style="text-decoration:underline">conditions et notre politique de confidentialité</a>.</p></details>
+  <details><summary>Je peux arrêter quand je veux&nbsp;?</summary><p>Oui, l’abonnement est sans engagement. Tu changes de formule ou tu résilies en un clic depuis ton espace compte.</p></details>
 </section>
 
-<!-- ================= FIN ================= -->
-<section class="final" id="final">
-  <div class="wrap">
-    <h2 class="rv">Prêt à laisser Marshall s’occuper de tes réseaux&nbsp;?</h2>
-    <p class="rv">Crée ton compte en 2 minutes. Ta première semaine de posts t’attend.</p>
-    <a class="btn btn-go rv" href="studio-social.html?inscription=1">Créer mon compte gratuit <span aria-hidden="true">→</span></a>
-    <img class="bravo" id="bravo" src="marshall-bravo.webp" alt="Marshall applaudit" loading="lazy">
-  </div>
+<!-- ================= ON S'Y MET ================= -->
+<section class="touch dark" id="final">
+  <span class="lbl">On s’y met&nbsp;?</span>
+  <h2 class="disp" id="touch-title"><span class="mask"><span>Bosse</span></span><span class="mask"><span><em>avec</em></span></span><span class="mask"><span>Marshall</span></span></h2>
+  <div class="go"><a class="btn fill" href="studio-social.html?inscription=1">Créer mon compte gratuit <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
+  <img class="bravo2" src="marshall-coucou.webp" alt="" loading="lazy">
+  <img class="bravo" id="bravo" src="marshall-bravo.webp" alt="Marshall applaudit" loading="lazy">
 </section>
 </main>
 
-<footer class="foot">
-  <div class="wrap">
-    <div><div class="fb">Mon Copain<br>Digital</div><p style="margin:12px 0 0">Votre accompagnement numérique.</p></div>
-    <div><h4>Le site</h4><ul><li><a href="index.html">Accueil</a></li><li><a href="Nosoffres.html">Nos offres</a></li><li><a href="qui-suis-je.html">Qui suis-je ?</a></li><li><a href="rendez-vous.html">Rendez-vous</a></li><li><a href="studio-social.html">Ouvrir Studio Social</a></li></ul></div>
-    <div><h4>Rester en lien</h4><ul><li><a href="contact.html">Contact</a></li><li><a href="espace-compte.html">Votre Bulle · Espace client</a></li><li><a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener">Instagram</a></li></ul></div>
-    <div><h4>Loi applicable</h4><ul><li><a href="loiapplicablemcp.html#mentions-legales">Mentions légales</a></li><li><a href="loiapplicablemcp.html#studio-social">Studio Social — vos données</a></li><li><a href="loiapplicablemcp.html#cgv">CGV</a></li><li><a href="loiapplicablemcp.html#cgu">CGU</a></li></ul></div>
-    <div class="legal">© 2026 Mon Copain Digital</div>
+<!-- ================= PIED DE PAGE ================= -->
+<footer class="foot light">
+  <div class="fgrid">
+    <div>
+      <h3 class="disp">Invite un ami,<br><em>gagne 1 000 tokens</em></h3>
+      <div class="ref"><span>Dès qu’un ami commerçant prend Complet ou Hyper, 1 000 tokens pour toi. Sans limite.</span><a class="sq" href="studio-social.html" aria-label="Récupérer mon lien de parrainage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
+    </div>
+    <div>
+      <div class="ntabs" id="ntabs" role="tablist">
+        <button type="button" class="on" data-n="0">Instagram</button><button type="button" data-n="1">Facebook</button><button type="button" data-n="2">TikTok</button><button type="button" data-n="3">Google</button>
+      </div>
+      <div class="ndet" id="ndet"><span class="lbl">Détails</span><p></p></div>
+    </div>
   </div>
+  <div class="fbot">
+    <div class="flinks"><a href="studio-social.html">Le Studio</a><a href="#offres">Offres</a><a href="espace-compte.html">Mon compte</a><a href="index.html">Mon Copain Digital</a><a href="loiapplicablemcp.html">CGV &amp; mentions</a></div>
+    <small>© 2026 Mon Copain Digital<br>Studio Social, fait avec Marshall</small>
+  </div>
+  <div class="bigword disp" aria-hidden="true">Studio <em>Social</em></div>
 </footer>
 
-<div class="mbar"><a class="btn btn-go" href="studio-social.html?inscription=1">Essayer gratuitement</a></div>
+<div class="buddy" id="buddy" aria-hidden="true"><span class="say" id="buddy-say">Coucou&nbsp;! Je te fais visiter 👋</span><img src="avatarchatbot.png" alt=""></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
 <script>
 (function(){
-  var top = document.getElementById('top');
-  window.addEventListener('scroll', function(){ top.classList.toggle('scrolled', window.scrollY > 30); }, {passive:true});
+  /* ---------- Horloge « Marshall en ligne » ---------- */
+  var ck = document.getElementById('clock');
+  function tick(){ var d = new Date(); ck.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+  tick(); setInterval(tick, 15000);
 
-  // Le coucou de Marshall se joue une fois, puis il garde la pose finale
-  var hm = document.getElementById('hero-marshall');
-  setTimeout(function(){ var fin = new Image(); fin.onload = function(){ hm.src = fin.src; }; fin.src = 'marshall-coucou-fin.png'; }, 6200);
+  /* ---------- Menu mobile ---------- */
+  var menu = document.getElementById('menu');
+  document.getElementById('burger').onclick = function(){ menu.classList.add('open'); };
+  document.getElementById('menu-x').onclick = function(){ menu.classList.remove('open'); };
+  menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ menu.classList.remove('open'); }); });
 
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (!window.gsap || reduce) return;           // sans GSAP ou mouvement réduit : la page reste complète, sans animation
+  /* ---------- Son des vidéos ---------- */
+  function soundToggle(btn, vids){
+    btn.addEventListener('click', function(){
+      var on = vids[0].muted;
+      document.querySelectorAll('video').forEach(function(v){ v.muted = true; });
+      document.querySelectorAll('.card .snd').forEach(function(b){ b.textContent = '🔇'; });
+      vids.forEach(function(v, i){ v.muted = !on || i > 0; if (on && i === 0) { v.currentTime = 0; v.play().catch(function(){}); } });
+      if (btn.classList.contains('snd')) btn.textContent = on ? '🔊' : '🔇';
+    });
+  }
+  soundToggle(document.getElementById('reel-snd'), [].slice.call(document.querySelectorAll('#wall video')));
+  document.querySelectorAll('.card .snd').forEach(function(b){ soundToggle(b, [b.parentNode.querySelector('video')]); });
+  // Les vidéos ne tournent que lorsqu'elles sont visibles
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ var v = e.target; if (e.isIntersecting) { v.play().catch(function(){}); } else { v.pause(); } }); }, { threshold:.25 });
+  document.querySelectorAll('video').forEach(function(v){ io.observe(v); });
+
+  /* ---------- Filtres des créations ---------- */
+  var tabs = document.getElementById('tabs');
+  tabs.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    tabs.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    var f = b.getAttribute('data-f');
+    document.querySelectorAll('#cards .card').forEach(function(c){ c.classList.toggle('hide', f !== 'all' && c.getAttribute('data-k') !== f); });
+    if (window.ScrollTrigger) ScrollTrigger.refresh();
+  });
+
+  /* ---------- Onglets du pied de page ---------- */
+  var NETS = [
+    'Posts, carrousels, stories et Reels publiés aux meilleurs horaires, avec tes hashtags.',
+    'Tes posts et vidéos sur ta page Facebook, programmés en même temps qu’Instagram.',
+    'Vidéos verticales, clips sous-titrés et reportages, avec la visibilité de ton choix.',
+    'Tes meilleurs avis Google transformés en posts qui donnent confiance.'
+  ];
+  var nt = document.getElementById('ntabs'), nd = document.querySelector('#ndet p');
+  nd.textContent = NETS[0];
+  nt.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return;
+    nt.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    nd.textContent = NETS[+b.getAttribute('data-n')];
+  });
+
+  if (!window.gsap) return;
   gsap.registerPlugin(ScrollTrigger);
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- Héros : Marshall arrive et anime la scène ---------- */
-  var tl = gsap.timeline({ defaults:{ ease:'power3.out' } });
-  tl.from('.hero .kicker', { y:20, opacity:0, duration:.5 })
-    .from('#hero-title .w', { y:60, opacity:0, rotate:4, duration:.7, stagger:.06 }, '-=.2')
-    .from('.hero .lead', { y:20, opacity:0, duration:.6 }, '-=.5')
-    .from('.hero .ctas .btn', { y:20, opacity:0, scale:.9, duration:.5, stagger:.1, ease:'back.out(2)' }, '-=.4')
-    .from('.hero .proof span', { opacity:0, x:-10, stagger:.08, duration:.4 }, '-=.3')
-    .from('.halo', { scale:.4, opacity:0, duration:1, ease:'elastic.out(1,.6)' }, .2)
-    .from('#hero-marshall', { y:160, opacity:0, scale:.8, duration:1.1, ease:'back.out(1.4)' }, .35)
-    .from('.card-post', { scale:0, opacity:0, rotate:function(i){ return [-25,20,-15][i]; }, duration:.7, stagger:.15, ease:'back.out(2.2)' }, .9)
-    .from('#bubble', { scale:0, transformOrigin:'0% 100%', duration:.5, ease:'back.out(3)' }, 1.4)
-    .from('.sparkle', { scale:0, rotate:-180, duration:.6, stagger:.1, ease:'back.out(3)' }, 1.2);
-  // Le trait sous « posts » se dessine
-  var hl = document.getElementById('hl-line'); var L = hl.getTotalLength();
-  gsap.fromTo(hl, { strokeDasharray:L, strokeDashoffset:L }, { strokeDashoffset:0, duration:.9, delay:.9, ease:'power2.inOut' });
+  /* ---------- Défilement doux ---------- */
+  if (window.Lenis && !reduce) {
+    var lenis = new Lenis({ lerp:.1 });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function(t){ lenis.raf(t * 1000); });
+    gsap.ticker.lagSmoothing(0);
+    document.querySelectorAll('a[href^="#"]').forEach(function(a){
+      a.addEventListener('click', function(e){ var t = document.querySelector(a.getAttribute('href')); if (t) { e.preventDefault(); lenis.scrollTo(t); } });
+    });
+  }
+  if (reduce) return;
 
-  // Les cartes flottent, les étincelles scintillent, la scène suit la souris
-  gsap.utils.toArray('.card-post').forEach(function(c, i){
-    gsap.to(c, { y:i % 2 ? 12 : -12, rotate:i % 2 ? 3 : -3, duration:2.4 + i * .4, repeat:-1, yoyo:true, ease:'sine.inOut', delay:1.6 });
+  /* ---------- Héros : les mots montent, la pastille s'ouvre, Marshall fait coucou ---------- */
+  var tl = gsap.timeline({ defaults:{ ease:'expo.out' } });
+  tl.from('#hero-title .mask > span', { yPercent:110, duration:1.2, stagger:.09 })
+    .from('#pill', { width:0, duration:1, ease:'expo.inOut' }, .35)
+    .from('#pill img', { yPercent:80, duration:.9, ease:'back.out(1.6)' }, '-=.35')
+    .from('.hero .base > *', { y:20, opacity:0, duration:.8, stagger:.1 }, '-=.6');
+  gsap.to('#pill img', { rotate:4, y:-3, duration:1.4, repeat:-1, yoyo:true, ease:'sine.inOut', delay:2 });
+  gsap.to('#hero-title', { yPercent:-18, opacity:.25, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
+
+  /* ---------- Vitrine : les écrans s'ouvrent en grand ---------- */
+  gsap.fromTo('#wall', { scale:.72, borderRadius:24 }, { scale:1, borderRadius:0, ease:'none', scrollTrigger:{ trigger:'#reel', start:'top bottom', end:'top top', scrub:true } });
+  gsap.from('#wall > *', { yPercent:function(i){ return [16, -10, 22][i]; }, ease:'none', scrollTrigger:{ trigger:'#reel', start:'top bottom', end:'bottom top', scrub:true } });
+
+  /* ---------- Métiers : lignes qui glissent + Marshall agent qui suit la souris ---------- */
+  gsap.utils.toArray('#jlist li').forEach(function(li, i){
+    gsap.from(li.querySelector('.disp'), { yPercent:100, opacity:0, duration:1, ease:'expo.out', scrollTrigger:{ trigger:li, start:'top 92%' } });
   });
-  gsap.to('.sparkle', { scale:1.3, opacity:.5, duration:1, repeat:-1, yoyo:true, stagger:.3, ease:'sine.inOut', delay:2 });
-  var stage = document.getElementById('stage');
-  stage.addEventListener('mousemove', function(e){
-    var r = stage.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-    gsap.to('#hero-marshall', { x:x * 18, y:y * 10, duration:.6 });
-    gsap.to('.card-post', { x:function(i){ return x * (30 + i * 12); }, duration:.8 });
-  });
-  // La bulle de Marshall change de message
-  var msgs = ['Coucou ! Je m’occupe de tes réseaux 👋', 'Ta semaine de posts est prête ✅', 'J’ai trouvé une super idée de vidéo 🎬', 'Ton post a fait 128 j’aime ❤️'], mi = 0, bub = document.getElementById('bubble');
-  setInterval(function(){
-    mi = (mi + 1) % msgs.length;
-    gsap.timeline().to(bub, { scale:0, duration:.25, ease:'back.in(2)' }).add(function(){ bub.textContent = msgs[mi]; }).to(bub, { scale:1, duration:.45, ease:'back.out(3)' });
-  }, 3800);
-  // Au défilement, Marshall s'éloigne doucement
-  gsap.to('#hero-marshall', { yPercent:18, scale:.92, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
-
-  /* ---------- Bandeau défilant ---------- */
-  var track = document.getElementById('ticker');
-  gsap.to(track, { xPercent:-50, ease:'none', duration:28, repeat:-1 });
-
-  /* ---------- Apparitions au défilement ---------- */
-  gsap.utils.toArray('.rv').forEach(function(el){
-    gsap.from(el, { y:40, opacity:0, duration:.8, ease:'power3.out', scrollTrigger:{ trigger:el, start:'top 85%' } });
-  });
-  gsap.utils.toArray('.rv-list').forEach(function(el){
-    gsap.from(el.children, { y:30, opacity:0, duration:.6, stagger:.12, ease:'power3.out', scrollTrigger:{ trigger:el, start:'top 82%' } });
-  });
-
-  /* ---------- Comment ça marche : Marshall à l'ordi parcourt les étapes ---------- */
-  var mm = gsap.matchMedia();
-  mm.add('(min-width: 861px)', function(){
-    gsap.from('.step', { y:60, opacity:0, duration:.7, stagger:.18, ease:'back.out(1.6)', scrollTrigger:{ trigger:'#steps', start:'top 75%' } });
-    var steps = document.getElementById('steps'), walker = document.getElementById('walker');
-    gsap.fromTo(walker, { x:0 }, { x:function(){ return steps.offsetWidth - walker.offsetWidth; }, ease:'none',
-      scrollTrigger:{ trigger:'#comment', start:'top 60%', end:'bottom 70%', scrub:1, invalidateOnRefresh:true } });
-    var pl = document.getElementById('path-line');
-    gsap.fromTo(pl, { strokeDashoffset:600 }, { strokeDashoffset:0, ease:'none', scrollTrigger:{ trigger:'#comment', start:'top 70%', end:'bottom 60%', scrub:true } });
-    gsap.utils.toArray('.step .n').forEach(function(n, i){
-      gsap.fromTo(n, { scale:.6, background:'#f6c79d' }, { scale:1, background:'#F3852B', ease:'back.out(3)', duration:.5,
-        scrollTrigger:{ trigger:'#comment', start:function(){ return 'top+=' + (i * 160) + ' 55%'; }, toggleActions:'play none none reverse' } });
+  var fol = document.getElementById('follow'), fimg = document.getElementById('follow-img');
+  var fx = gsap.quickTo(fol, 'x', { duration:.5, ease:'power3' }), fy = gsap.quickTo(fol, 'y', { duration:.5, ease:'power3' });
+  var jl = document.getElementById('jlist');
+  jl.addEventListener('mousemove', function(e){ fx(e.clientX); fy(e.clientY); });
+  jl.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('mouseenter', function(){
+      if (fimg.getAttribute('src') !== a.dataset.img) fimg.setAttribute('src', a.dataset.img);
+      gsap.to(fol, { opacity:1, scale:1, rotate:gsap.utils.random(-6, 6), duration:.45, ease:'back.out(2)' });
     });
   });
-  mm.add('(max-width: 860px)', function(){
-    gsap.from('.step', { x:-40, opacity:0, duration:.6, stagger:.15, scrollTrigger:{ trigger:'#steps', start:'top 80%' } });
+  jl.addEventListener('mouseleave', function(){ gsap.to(fol, { opacity:0, scale:.6, duration:.3 }); });
+  gsap.from('.why > *', { y:50, opacity:0, duration:1, stagger:.12, ease:'expo.out', scrollTrigger:{ trigger:'.why', start:'top 85%' } });
+
+  /* ---------- À propos : le titre se révèle, le compteur monte, Marshall passe la tête ---------- */
+  gsap.from('#about-title .mask > span', { yPercent:110, duration:1.1, stagger:.08, ease:'expo.out', scrollTrigger:{ trigger:'#apropos', start:'top 75%' } });
+  var c16 = { v:0 }, n16 = document.getElementById('count16');
+  gsap.to(c16, { v:16, duration:1.6, ease:'power2.out', snap:{ v:1 }, onUpdate:function(){ n16.textContent = Math.round(c16.v); }, scrollTrigger:{ trigger:'#apropos', start:'top 70%' } });
+  gsap.fromTo('#peek', { yPercent:100 }, { yPercent:8, ease:'back.out(1.4)', duration:1.1, scrollTrigger:{ trigger:'#apropos', start:'top 55%' } });
+
+  /* ---------- Créations : cartes qui montent avec un léger décalage ---------- */
+  gsap.utils.toArray('#cards .card').forEach(function(c, i){
+    gsap.from(c, { y:120, opacity:0, duration:1.2, ease:'expo.out', scrollTrigger:{ trigger:c, start:'top 92%' } });
+    gsap.to(c.querySelector('.media'), { yPercent:i % 2 ? -6 : 6, ease:'none', scrollTrigger:{ trigger:c, start:'top bottom', end:'bottom top', scrub:true } });
   });
 
-  /* ---------- Agents : entrée en cascade + petit sautillement au survol ---------- */
-  gsap.from('#agrid .agent', { y:70, opacity:0, rotate:function(i){ return i % 2 ? 3 : -3; }, duration:.8, stagger:.12, ease:'back.out(1.4)', scrollTrigger:{ trigger:'#agrid', start:'top 80%' } });
-  gsap.from('#chips .chip', { scale:0, opacity:0, duration:.45, stagger:.05, ease:'back.out(3)', scrollTrigger:{ trigger:'#chips', start:'top 90%' } });
-  gsap.utils.toArray('.agent').forEach(function(a){
-    var img = a.querySelector('.pic img');
-    a.addEventListener('mouseenter', function(){ gsap.fromTo(img, { y:0 }, { y:-10, duration:.25, yoyo:true, repeat:1, ease:'power2.out' }); });
-  });
+  /* ---------- Offres et FAQ ---------- */
+  gsap.from('.orow', { y:60, opacity:0, duration:1, stagger:.12, ease:'expo.out', scrollTrigger:{ trigger:'.olist', start:'top 85%' } });
+  gsap.from('.faq details', { y:30, opacity:0, duration:.8, stagger:.06, ease:'expo.out', scrollTrigger:{ trigger:'.faq', start:'top 85%' } });
 
-  /* ---------- Pilote : la semaine se remplit une case après l'autre ---------- */
-  var wk = gsap.timeline({ scrollTrigger:{ trigger:'#week', start:'top 75%' } });
-  wk.from('#week', { y:60, rotate:-3, opacity:0, duration:.8, ease:'back.out(1.4)' })
-    .from('#week .pm', { x:120, opacity:0, duration:.7, ease:'back.out(1.6)' }, '-=.3')
-    .from('#week .slot', { scale:0, opacity:0, transformOrigin:'50% 0%', duration:.4, stagger:.28, ease:'back.out(2.6)' })
-    .from('#week-ok', { scale:0, rotate:-10, duration:.5, ease:'back.out(3)' });
-
-  /* ---------- Créations ---------- */
-  gsap.from('#mgrid .mk', { y:50, opacity:0, duration:.6, stagger:{ each:.08, grid:'auto', from:'start' }, ease:'power3.out', scrollTrigger:{ trigger:'#mgrid', start:'top 82%' } });
-  gsap.utils.toArray('#mgrid .ic').forEach(function(ic, i){
-    gsap.to(ic, { rotate:i % 2 ? 8 : -8, y:-4, duration:1.4 + (i % 3) * .3, repeat:-1, yoyo:true, ease:'sine.inOut' });
-  });
-
-  /* ---------- Offres : la carte du milieu ressort ---------- */
-  gsap.from('#ogrid .offer', { y:80, opacity:0, duration:.8, stagger:.15, ease:'back.out(1.3)', scrollTrigger:{ trigger:'#ogrid', start:'top 80%' } });
-  gsap.fromTo('.offer.best .badge', { scale:.9 }, { scale:1.06, duration:.9, repeat:-1, yoyo:true, ease:'sine.inOut' });
-
-  /* ---------- Parrainage : le cadeau bondit et le compteur monte ---------- */
-  var cnt = { v:0 }, big = document.getElementById('big1000');
-  gsap.timeline({ scrollTrigger:{ trigger:'#rbox', start:'top 80%' } })
-    .from('#gift', { y:-60, rotate:-30, scale:.4, duration:.8, ease:'bounce.out' })
-    .to(cnt, { v:1000, duration:1.4, ease:'power2.out', onUpdate:function(){ big.textContent = '+' + Math.round(cnt.v).toLocaleString('fr-FR'); } }, '-=.4');
-  gsap.to('#gift', { rotate:6, duration:.18, repeat:-1, yoyo:true, repeatDelay:2.4, ease:'sine.inOut', delay:3 });
-
-  /* ---------- Fin : Marshall applaudit sous les confettis ---------- */
-  ScrollTrigger.create({ trigger:'#final', start:'top 70%', once:true, onEnter:function(){
-    gsap.from('#bravo', { y:200, duration:1, ease:'back.out(1.4)' });
-    var colors = ['#fff','#FFD23F','#7FD3FF','#FF7FA8','#7ED957'], fin = document.getElementById('final');
-    for (var i = 0; i < 40; i++) {
+  /* ---------- Fin : le titre claque, Marshall applaudit sous les confettis ---------- */
+  ScrollTrigger.create({ trigger:'#final', start:'top 65%', once:true, onEnter:function(){
+    gsap.from('#touch-title .mask > span', { yPercent:110, duration:1.1, stagger:.1, ease:'expo.out' });
+    gsap.from('#bravo', { yPercent:100, duration:1.1, ease:'back.out(1.4)', delay:.3 });
+    gsap.from('.bravo2', { yPercent:100, duration:1.1, ease:'back.out(1.4)', delay:.5 });
+    var colors = ['#F3852B','#FFD23F','#6EC1F0','#FF7FA8','#7ED957','#f5f5f5'], fin = document.getElementById('final');
+    for (var i = 0; i < 46; i++) {
       var c = document.createElement('i'); c.className = 'confetti'; c.style.background = colors[i % colors.length]; c.style.left = (Math.random() * 100) + '%';
       fin.appendChild(c);
-      gsap.to(c, { y:fin.offsetHeight + 60, x:'+=' + (Math.random() * 160 - 80), rotate:Math.random() * 720, duration:2.4 + Math.random() * 2, delay:Math.random() * .8, ease:'power1.in', onComplete:function(){ this.targets()[0].remove(); } });
+      gsap.to(c, { y:fin.offsetHeight + 60, x:'+=' + (Math.random() * 180 - 90), rotate:Math.random() * 720, duration:2.4 + Math.random() * 2, delay:.3 + Math.random() * .8, ease:'power1.in', onComplete:function(){ this.targets()[0].remove(); } });
     }
   }});
+  gsap.from('.bigword', { yPercent:40, opacity:0, duration:1.2, ease:'expo.out', scrollTrigger:{ trigger:'.bigword', start:'top 95%' } });
+
+  /* ---------- Mini Marshall : il commente chaque partie de la visite ---------- */
+  var say = document.getElementById('buddy-say'), buddy = document.getElementById('buddy');
+  gsap.from(buddy, { y:140, duration:1, ease:'back.out(1.6)', delay:2.2 });
+  var LINES = { hero:'Coucou&nbsp;! Je te fais visiter 👋', reel:'Tout ça, c’est moi qui l’ai fait 🎬', metiers:'Passe la souris sur mes métiers 👀', apropos:'16 agents… et un seul copain 😎',
+                creations:'Monte le son sur mes reportages 🔊', offres:'Tu peux commencer gratuitement ✅', faq:'Une question&nbsp;? Je réponds 💬', final:'Alors, on bosse ensemble&nbsp;? 🙌' };
+  Object.keys(LINES).forEach(function(id){
+    var el = document.getElementById(id); if (!el) return;
+    ScrollTrigger.create({ trigger:el, start:'top 55%', end:'bottom 55%', onToggle:function(st){
+      if (!st.isActive) return;
+      gsap.timeline().to(say, { scale:0, transformOrigin:'100% 100%', duration:.18, ease:'back.in(2)' })
+        .add(function(){ say.innerHTML = LINES[id]; }).to(say, { scale:1, duration:.4, ease:'back.out(3)' });
+    }});
+  });
+  gsap.to('#buddy img', { y:-6, rotate:-4, duration:1.2, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  // Marshall se cache à la fin (la grande scène est déjà à lui)
+  ScrollTrigger.create({ trigger:'#final', start:'top 60%', end:'bottom 40%', onToggle:function(st){ gsap.to(buddy, { y:st.isActive ? 160 : 0, duration:.5 }); } });
 })();
 </script>
 </body>
