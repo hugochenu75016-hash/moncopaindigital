@@ -39,12 +39,13 @@
   .btn.fill:hover{background:var(--paper);border-color:var(--paper);color:var(--ink)}
   .light{background:var(--paper);color:var(--ink)}
   .dark{background:var(--ink);color:var(--paper)}
-  .mask{display:block;overflow:hidden;padding-bottom:.04em}
+  .mask{display:block;overflow:hidden;padding:.16em 0 .04em;margin-top:-.16em}
   .mask > span{display:inline-block}
 
   /* ---------- En-tête ---------- */
   .top{position:fixed;inset:0 0 auto;z-index:60;display:flex;align-items:center;gap:20px;padding:18px var(--pad);color:#fff;mix-blend-mode:difference;pointer-events:none}
   .top > *{pointer-events:auto}
+  .top.on-or{mix-blend-mode:normal;color:#fff}   /* sur l'orange : en-tête blanc (et non bleu)*/
   .logo{font-stretch:62%;font-weight:900;font-size:26px;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
   .nav{margin:0 auto;display:flex;gap:22px}
   .nav a{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;position:relative}
@@ -62,27 +63,58 @@
   .menu .x{position:absolute;top:18px;right:var(--pad);color:#fff}
   @media (max-width:900px){.nav,.clock{display:none}.burger{display:flex;margin-left:auto}}
 
+  /* ---------- Pilule « Accéder à l'app » : orange liquide ---------- */
+  .app-pill{position:fixed;top:18px;right:var(--pad);z-index:61;display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px 0 20px;border-radius:999px;overflow:hidden;isolation:isolate;
+    color:#fff;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;letter-spacing:.02em;white-space:nowrap;
+    background:radial-gradient(120% 140% at 30% 0%,#ffb066 0%,#ff8a2a 38%,#f06d0c 72%,#d9560a 100%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -6px 12px rgba(150,45,0,.35),0 8px 22px rgba(243,133,43,.45);
+    transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
+  .app-pill::before{content:"";position:absolute;left:10%;right:10%;top:2px;height:45%;border-radius:999px;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,0));z-index:-1}
+  .app-pill::after{content:"";position:absolute;inset:-40% auto -40% -60%;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);animation:liquid 3.2s ease-in-out infinite;z-index:-1}
+  @keyframes liquid{0%,55%{left:-60%}100%{left:130%}}
+  .app-pill svg{width:16px;height:16px;transition:transform .3s}
+  .app-pill:hover{transform:translateY(-2px) scale(1.04);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -6px 12px rgba(150,45,0,.35),0 12px 28px rgba(243,133,43,.6)}
+  .app-pill:hover svg{transform:translateX(3px)}
+  @media (max-width:520px){.app-pill{height:36px;padding:0 14px;font-size:12.5px}.app-pill svg{display:none}}
   /* ---------- Héros ---------- */
   .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:110px var(--pad) 110px;text-align:center}
   .hero h1{font-size:clamp(60px,9.6vw,210px)}
   .hero h1 .row{display:flex;justify-content:center;align-items:center;gap:.22em;flex-wrap:wrap}
-  .pill{display:inline-block;position:relative;width:1.55em;height:.78em;border-radius:.4em;overflow:hidden;background:linear-gradient(160deg,var(--or2),var(--or));vertical-align:middle;flex:none}
-  .pill img{position:absolute;left:50%;bottom:-.28em;width:1.08em;transform:translateX(-50%);max-width:none}
+  .pill{display:inline-block;position:relative;width:1.08em;height:.78em;border-radius:.4em;overflow:hidden;background:linear-gradient(160deg,var(--or2),var(--or));vertical-align:middle;flex:none}
+  .pill img{position:absolute;left:50%;bottom:-16%;height:116%;width:auto;transform:translateX(-50%);max-width:none}
+  .hero{overflow:hidden}
+  .hero .ch{display:inline-block;will-change:transform}
+  #rates i{white-space:nowrap}
+  .pill-fill{position:absolute;z-index:0;left:0;top:0;width:0;height:0;background:var(--or);pointer-events:none;visibility:hidden}
+  .hero h1,.hero .base{position:relative;z-index:1}
+  .crack{position:absolute;z-index:4;pointer-events:none;overflow:visible}
+  .runner{position:absolute;left:0;top:0;z-index:5;height:min(42vh,380px,52vw);pointer-events:none;visibility:hidden}
+  .runner img{position:absolute;right:0;bottom:0;height:100%;width:auto;max-width:none;display:block;filter:drop-shadow(0 18px 18px rgba(0,0,0,.45))}
+  .scroll-hint{position:absolute;left:50%;bottom:22px;z-index:3;transform:translateX(-50%);font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.12em;color:#bbb;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+  .scroll-hint i{width:2px;height:26px;background:linear-gradient(#fff,transparent);animation:hint 1.4s infinite}
+  @keyframes hint{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
   .hero .base{position:absolute;left:var(--pad);right:var(--pad);bottom:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;text-align:left}
   .hero .base p{margin:0;max-width:440px;font-size:15px;color:#cfcfcf}
   .hero .base b{color:#fff}
-  @media (max-width:700px){.hero{justify-content:flex-start;padding-top:120px;padding-bottom:40px}.hero h1 .row{flex-direction:column;gap:0}.pill{width:1.8em;height:.9em;margin:.06em 0}.hero .base{position:static;margin-top:44px;padding:0}.hero .base p{font-size:14px}}
+  @media (max-width:700px){.hero{justify-content:flex-start;padding-top:120px;padding-bottom:40px}.hero h1 .row{flex-direction:column;gap:0}.pill{width:1.3em;height:.9em;margin:.06em 0}.hero .base{position:static;margin-top:44px;padding:0}.hero .base p{font-size:14px}}
 
-  /* ---------- Vitrine (showreel) ---------- */
-  .reel{position:relative;height:100svh;overflow:hidden;background:#111}
-  .reel .wall{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:10px}
-  .reel .wall video,.reel .wall .tile{width:100%;height:100%;object-fit:cover;border-radius:4px;background:#1a1a1a}
-  .reel .tile{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 70%,#ffb469,var(--or) 60%,#b9560a)}
-  .reel .tile img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:78%;max-width:none}
-  .reel .tile .say{position:absolute;left:8%;right:8%;top:10%;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(26px,3.6vw,56px);line-height:.9;color:#fff;text-align:center}
-  .reel .play{position:absolute;left:50%;bottom:32px;transform:translateX(-50%);z-index:3;background:var(--paper);color:var(--ink);border-color:var(--paper)}
-  .reel .cap{position:absolute;left:var(--pad);bottom:40px;z-index:3;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;background:rgba(10,10,10,.6);padding:8px 12px}
-  @media (max-width:700px){.reel .wall{grid-template-columns:1fr 1fr}.reel .wall > :nth-child(3){display:none}.reel .cap{display:none}}
+  /* ---------- Vitrine : les 3 exemples arrivent sur l'orange, dans le héros épinglé ---------- */
+  .hwall{position:absolute;inset:0;z-index:2;display:flex;justify-content:center;align-items:center;gap:clamp(14px,2.6vw,40px);padding:90px var(--pad) 100px;pointer-events:none}
+  .hwall > *{position:relative;flex:none;height:min(62vh,560px);width:auto;aspect-ratio:9/16;object-fit:cover;border-radius:18px;background:#1a1a1a;box-shadow:0 30px 60px rgba(90,30,0,.35);visibility:hidden}
+  .hwall > :nth-child(2){height:min(68vh,610px)}
+  .hwall .tile{overflow:visible;background:none;box-shadow:none;border-radius:0}   /* Marshall et sa phrase posés directement sur l'orange, sans carte */
+  .hwall .tile img{filter:drop-shadow(0 22px 26px rgba(90,30,0,.35))}
+  .hwall .tile img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:78%;max-width:none}
+  .hwall .tile .say{position:absolute;left:8%;right:8%;top:10%;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(22px,2.6vw,42px);line-height:.9;color:#fff;text-align:center}
+  .hwall .vcard{overflow:hidden;border:5px solid #fff}   /* contour blanc autour des 2 reportages */
+  .hwall .vcard video{width:100%;height:100%;object-fit:cover;display:block}
+  .spk{position:absolute;right:12px;top:12px;z-index:2;width:42px;height:42px;border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;
+       background:rgba(10,10,10,.55);color:#fff;cursor:pointer;backdrop-filter:blur(6px);transition:transform .2s,background .2s}
+  .spk svg{width:20px;height:20px}
+  .spk:hover{transform:scale(1.1);background:var(--or)}
+  .spk[aria-pressed="true"]{background:var(--or)}
+  .hero .cap{position:absolute;left:var(--pad);bottom:36px;z-index:3;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;color:#fff;background:rgba(10,10,10,.35);padding:8px 12px;visibility:hidden}
+  @media (max-width:700px){.hwall{padding:84px 12px 96px;gap:12px}.hwall > *{height:auto;width:44vw}.hwall > .tile{display:none}.hero .cap{display:none}}
 
   /* ---------- Métiers ---------- */
   .jobs{padding:120px var(--pad) 130px;position:relative}
@@ -104,14 +136,22 @@
   @media (max-width:800px){.jlist small{display:none}.why{grid-template-columns:1fr}.follow{display:none}}
 
   /* ---------- À propos ---------- */
-  .about{position:relative;padding:40px var(--pad) 140px;overflow:hidden}
+  .about{position:relative;padding:40px var(--pad) 140px;overflow:hidden;background:var(--or);color:#fff}   /* fond orange, textes blancs, accents noirs */
   .about .lbl{display:block;margin-bottom:22px}
-  .agrid{display:grid;grid-template-columns:1.45fr 1fr;gap:50px;align-items:end}
-  .about h2{font-size:clamp(46px,8.4vw,150px)}
-  .about h2 em{color:var(--or)}
-  .about .txt p{margin:0 0 26px;font-size:19px;line-height:1.5;max-width:460px}
-  .about .peek{position:absolute;right:4%;bottom:-6px;width:min(220px,26vw)}
-  @media (max-width:900px){.agrid{grid-template-columns:1fr}.about .peek{position:relative;right:auto;margin:30px 0 -140px auto;width:160px}}
+  .agrid{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(16px,2.6vw,46px);align-items:end}
+  .aswap{position:relative}
+  #about-cta{margin-top:40px}
+  .presente{position:relative;z-index:0;align-self:end;margin-bottom:-140px;pointer-events:none;display:flex;justify-content:center}
+  .presente img{flex:none;width:auto;max-width:none;height:min(100vh,980px);filter:drop-shadow(0 26px 30px rgba(0,0,0,.14))}
+  .about h2,.about .txt{position:relative;z-index:1}
+  .presente .glow{position:absolute;left:22%;right:22%;bottom:-1%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(120,40,0,.3),rgba(120,40,0,0))}
+  .about h2{font-size:clamp(46px,7.6vw,140px)}
+  .about h2 em{color:var(--ink)}
+  .about #about-cta{background:var(--ink);border-color:var(--ink);color:#fff}
+  .about #about-cta:hover{background:#fff;border-color:#fff;color:var(--ink)}
+  .top.on-or2{mix-blend-mode:normal;color:#fff}
+  .about .txt p{margin:0 0 26px;font-size:18px;line-height:1.5;max-width:460px}
+  @media (max-width:900px){.agrid{grid-template-columns:1fr}.presente{order:3;margin:20px auto -140px}.presente img{height:min(78vh,620px)}}
 
   /* ---------- Créations ---------- */
   .work{padding:130px var(--pad) 120px}
@@ -122,7 +162,7 @@
   .tabs button.on,.tabs button:hover{background:var(--paper);color:var(--ink)}
   .cards{display:grid;grid-template-columns:repeat(2,1fr);column-gap:var(--pad);row-gap:80px}
   .card:nth-child(even){margin-top:160px}
-  .card .media{position:relative;aspect-ratio:4/5;overflow:hidden;background:#151515;border-radius:4px}
+  .card .media{position:relative;aspect-ratio:9/16;overflow:hidden;background:#151515;border-radius:4px}
   .card .media video,.card .media > img.cover{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
   .card:hover .media video,.card:hover .media > img.cover{transform:scale(1.04)}
   .card .media.art{background:radial-gradient(circle at 50% 75%,var(--c1),var(--c2) 72%)}
@@ -170,10 +210,9 @@
   .touch h2{font-size:clamp(56px,17vw,320px)}
   .touch h2 em{color:var(--or)}
   .touch .go{margin-top:46px}
-  .touch .bravo{position:absolute;right:5%;bottom:0;width:min(260px,28vw);pointer-events:none}
-  .touch .bravo2{position:absolute;left:5%;bottom:0;width:min(200px,22vw);transform:scaleX(-1);pointer-events:none}
+  .touch .bravo{position:absolute;right:5%;bottom:-9%;width:min(260px,28vw);pointer-events:none}
   .confetti{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;pointer-events:none}
-  @media (max-width:700px){.touch .bravo{width:130px;right:-10px}.touch .bravo2{display:none}}
+  @media (max-width:700px){.touch .bravo{width:130px;right:-10px}}
 
   /* ---------- Pied de page ---------- */
   .foot{padding:90px var(--pad) 30px;overflow:hidden}
@@ -220,6 +259,7 @@
   <span class="clock" aria-label="Marshall est en ligne"><i></i>Marshall en ligne · <span id="clock">--:--</span></span>
   <button class="burger" type="button" aria-label="Ouvrir le menu" id="burger"><span></span><span></span><span></span></button>
 </header>
+<a class="app-pill" id="app-pill" href="studio-social.html"><span>Accéder à l’app</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
 <nav class="menu" id="menu" aria-label="Menu">
   <button class="sq x" type="button" id="menu-x" aria-label="Fermer le menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
   <a class="disp" href="#metiers">Métiers</a>
@@ -233,24 +273,21 @@
 <!-- ================= HÉROS ================= -->
 <section class="hero dark" id="hero">
   <h1 class="disp" id="hero-title">
-    <span class="row"><span class="mask"><span>Bye bye</span></span> <span class="mask"><span><i>posts ratés…</i></span></span></span>
-    <span class="row"><span class="mask"><span><i>Hello</i></span></span><span class="pill" id="pill"><img src="marshall-coucou.webp" alt="Marshall fait coucou"></span><span class="mask"><span>Marshall</span></span></span>
+    <span class="row"><span class="mask"><span>Bye bye</span></span> <span class="mask" id="rates"><span><i>posts ratés…</i></span></span></span>
+    <span class="row" id="row2"><span class="mask"><span><i>Hello</i></span></span><span class="pill" id="pill"><img src="marshall-coucou.webp" alt="Marshall fait coucou"></span><span class="mask"><span>Marshall</span></span></span>
   </h1>
+  <div class="scroll-hint" id="scroll-hint">Défile<i></i></div>
+  <div class="runner" id="runner" aria-hidden="true"><img id="runner-run" src="marshall-court.webp" alt=""><img id="runner-kick" src="marshall-shoot.webp" alt=""></div>
   <div class="base">
     <p>Ton <b>copain digital</b> crée tes posts, stories, vidéos et reportages pour <b>Instagram, Facebook et TikTok</b>, puis les publie pour toi. Pour les commerçants de Paris, Lyon, Marseille, Bordeaux &amp; partout en France.</p>
-    <a class="sq" href="#reel" aria-label="Descendre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16M5 13l7 7 7-7"/></svg></a>
+    <a class="sq" href="#metiers" aria-label="Descendre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16M5 13l7 7 7-7"/></svg></a>
   </div>
-</section>
-
-<!-- ================= VITRINE ================= -->
-<section class="reel" id="reel" aria-label="Ce que Marshall crée">
-  <div class="wall" id="wall">
-    <video src="reportage-sahara.mp4" poster="reportage-sahara.jpg" muted loop playsinline preload="metadata" aria-label="Reportage : un chien retrouvé dans le Sahara"></video>
+  <div class="hwall" id="wall" aria-label="Ce que Marshall crée">
+    <div class="vcard"><video src="reportage-sahara.mp4" poster="reportage-sahara.jpg" muted loop playsinline preload="metadata" aria-label="Reportage : un chien retrouvé dans le Sahara"></video><button type="button" class="spk" aria-label="Activer le son" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg></button></div>
     <div class="tile"><span class="say">Je bosse,<br>tu valides.</span><img src="marshall-ordi.webp" alt="Marshall travaille sur son ordinateur" loading="lazy"></div>
-    <video src="reportage-commerce.mp4" poster="reportage-commerce.jpg" muted loop playsinline preload="metadata" aria-label="Reportage sur un fleuriste"></video>
+    <div class="vcard"><video src="reportage-commerce.mp4" poster="reportage-commerce.jpg" muted loop playsinline preload="metadata" aria-label="Reportage sur un fleuriste"></video><button type="button" class="spk" aria-label="Activer le son" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg></button></div>
   </div>
-  <span class="cap">Fait par Marshall · reportages, posts, vidéos IA</span>
-  <button class="sq play" type="button" id="reel-snd" aria-label="Activer le son"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button>
+  <span class="cap" id="wall-cap">Fait par Marshall · reportages, posts, vidéos IA</span>
 </section>
 
 <!-- ================= MÉTIERS ================= -->
@@ -273,62 +310,36 @@
 </section>
 
 <!-- ================= À PROPOS ================= -->
-<section class="about light" id="apropos">
+<section class="about" id="apropos">
   <span class="lbl">À propos</span>
   <div class="agrid">
-    <h2 class="disp" id="about-title"><span class="mask"><span>Le copain</span></span><span class="mask"><span>digital des</span></span><span class="mask"><span><em>commerçants</em></span></span><span class="mask"><span>qui veulent</span></span><span class="mask"><span>briller</span></span></h2>
-    <div class="txt">
-      <p>Marshall, c’est <b id="count16">16</b> agents IA réunis dans un seul copain. Il analyse ta marque (ton site, ton Instagram, tes avis Google), imagine tes posts, tourne tes vidéos et les publie aux meilleurs horaires.</p>
-      <p>Toi, tu valides d’un clic. Ou tu le laisses piloter seul. Gratuit pour commencer, sans carte bancaire.</p>
-      <a class="btn" href="studio-social.html?inscription=1">Rencontrer Marshall <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    <div class="aleft">
+      <div class="aswap">
+        <h2 class="disp" id="about-title"><span class="mask"><span>Le copain</span></span><span class="mask"><span>digital des</span></span><span class="mask"><span><em>commerçants</em></span></span><span class="mask"><span>qui veulent</span></span><span class="mask"><span>briller</span></span></h2>
+      </div>
+      <a class="btn fill" id="about-cta" href="studio-social.html?inscription=1">Rencontrer Marshall <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
     </div>
+    <div class="presente" id="presente"><span class="glow"></span><img id="presente-img" src="marshall-presente-anim.webp" width="540" height="905" alt="Marshall présente, son téléphone à la main"></div>
   </div>
-  <img class="peek" id="peek" src="marshall-coucou.webp" alt="Marshall fait coucou" loading="lazy">
 </section>
 
 <!-- ================= CRÉATIONS ================= -->
 <section class="work dark" id="creations">
   <div class="whead">
     <h2 class="disp">Créations</h2>
-    <div class="tabs" id="tabs" role="group" aria-label="Filtrer les créations">
-      <button type="button" class="on" data-f="all">Tout</button>
-      <button type="button" data-f="video">Vidéos</button>
-      <button type="button" data-f="post">Posts</button>
-      <button type="button" data-f="auto">Pilote</button>
-    </div>
   </div>
   <div class="cards" id="cards">
-    <article class="card" data-k="video">
+    <article class="card">
       <div class="media"><video src="reportage-sahara.mp4" poster="reportage-sahara.jpg" muted loop playsinline preload="none"></video><button type="button" class="snd" aria-label="Activer le son">🔇</button></div>
       <h3 class="disp">Le chien du Sahara</h3><p><b>Journaliste</b> | L’info du jour devient un reportage télé de 20 s, Marshall face caméra</p>
     </article>
-    <article class="card" data-k="video">
+    <article class="card">
+      <div class="media"><video src="creation-banane.mp4" poster="creation-banane.jpg" muted loop playsinline preload="none"></video></div>
+      <h3 class="disp">La banane en balade</h3><p><b>Studio IA</b> | Une idée en une phrase devient une vidéo IA de 15 s</p>
+    </article>
+    <article class="card">
       <div class="media"><video src="reportage-commerce.mp4" poster="reportage-commerce.jpg" muted loop playsinline preload="none"></video><button type="button" class="snd" aria-label="Activer le son">🔇</button></div>
       <h3 class="disp">Fleurs de Léa</h3><p><b>Reportage commerce</b> | La nouvelle collection présentée en direct de la boutique</p>
-    </article>
-    <article class="card" data-k="auto">
-      <div class="media art" style="--c1:#ffe2bf;--c2:#F3852B"><img src="agents/ag-campaign.webp" alt="" loading="lazy"></div>
-      <h3 class="disp">La semaine prête</h3><p><b>Pilote</b> | Cinq posts imaginés, rédigés et programmés pour lundi matin</p>
-    </article>
-    <article class="card" data-k="video">
-      <div class="media art" style="--c1:#d8c7ff;--c2:#7c4dff"><img src="agents/ag-genjutsu.webp" alt="" loading="lazy"></div>
-      <h3 class="disp">Toi, la star</h3><p><b>Genjutsu</b> | Tu prends la place de la personne d’une vidéo, même décor, mêmes gestes</p>
-    </article>
-    <article class="card" data-k="post">
-      <div class="media art" style="--c1:#c9ecff;--c2:#6EC1F0"><img src="agents/ag-studio.webp" alt="" loading="lazy"></div>
-      <h3 class="disp">Croissants du jour</h3><p><b>Studio IA</b> | Une photo de vitrine devient un post pro, texte et hashtags compris</p>
-    </article>
-    <article class="card" data-k="video">
-      <div class="media art" style="--c1:#ffd1e0;--c2:#ff5f8f"><img src="agents/ag-clipper.webp" alt="" loading="lazy"></div>
-      <h3 class="disp">10 clips en 1</h3><p><b>Clippeur</b> | Ta longue vidéo découpée en clips verticaux, sous-titrés et notés</p>
-    </article>
-    <article class="card" data-k="post">
-      <div class="media art" style="--c1:#d6f5d0;--c2:#3fb950"><img src="agents/ag-avatar.webp" alt="" loading="lazy"></div>
-      <h3 class="disp">Ta photo parle</h3><p><b>Avatar parlant</b> | Une photo et un texte : tu parles face caméra, avec ta voix</p>
-    </article>
-    <article class="card" data-k="auto">
-      <div class="media art" style="--c1:#fff1b8;--c2:#f2b705"><img src="agents/ag-team.webp" alt="" loading="lazy"></div>
-      <h3 class="disp">Le puzzle</h3><p><b>Automatisations</b> | À heure fixe → actu → reportage → légende → publication, tout seul</p>
     </article>
   </div>
   <div class="more"><a class="btn" href="studio-social.html?demo=1">Voir Marshall en action <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
@@ -361,7 +372,6 @@
   <span class="lbl">On s’y met&nbsp;?</span>
   <h2 class="disp" id="touch-title"><span class="mask"><span>Bosse</span></span><span class="mask"><span><em>avec</em></span></span><span class="mask"><span>Marshall</span></span></h2>
   <div class="go"><a class="btn fill" href="studio-social.html?inscription=1">Créer mon compte gratuit <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
-  <img class="bravo2" src="marshall-coucou.webp" alt="" loading="lazy">
   <img class="bravo" id="bravo" src="marshall-bravo.webp" alt="Marshall applaudit" loading="lazy">
 </section>
 </main>
@@ -399,6 +409,17 @@
   function tick(){ var d = new Date(); ck.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
   tick(); setInterval(tick, 15000);
 
+  /* ---------- Pilule « Accéder à l'app » : collée à gauche de l'horloge / du menu ---------- */
+  var appPill = document.getElementById('app-pill');
+  function placePill(){
+    var ref = [document.querySelector('.clock'), document.getElementById('burger')].filter(function(e){ return e && e.offsetWidth; })[0];
+    if (!ref) return;
+    var r = ref.getBoundingClientRect();
+    appPill.style.right = (document.documentElement.clientWidth - r.left + 12) + 'px';
+    appPill.style.top = (r.top + r.height / 2 - appPill.offsetHeight / 2) + 'px';
+  }
+  placePill(); window.addEventListener('resize', placePill); if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePill);
+
   /* ---------- Menu mobile ---------- */
   var menu = document.getElementById('menu');
   document.getElementById('burger').onclick = function(){ menu.classList.add('open'); };
@@ -411,25 +432,26 @@
       var on = vids[0].muted;
       document.querySelectorAll('video').forEach(function(v){ v.muted = true; });
       document.querySelectorAll('.card .snd').forEach(function(b){ b.textContent = '🔇'; });
+      document.querySelectorAll('#wall .spk').forEach(function(x){ x.innerHTML = SPK_OFF; x.setAttribute('aria-pressed', 'false'); });
       vids.forEach(function(v, i){ v.muted = !on || i > 0; if (on && i === 0) { v.currentTime = 0; v.play().catch(function(){}); } });
       if (btn.classList.contains('snd')) btn.textContent = on ? '🔊' : '🔇';
     });
   }
-  soundToggle(document.getElementById('reel-snd'), [].slice.call(document.querySelectorAll('#wall video')));
+  // Petit haut-parleur sur chaque vidéo de la vitrine : un seul son à la fois
+  var SPK_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19.5 5.5a9 9 0 0 1 0 13"/></svg>', SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+  document.querySelectorAll('#wall .spk').forEach(function(b){
+    b.addEventListener('click', function(){
+      var v = b.parentNode.querySelector('video'), on = v.muted;
+      document.querySelectorAll('video').forEach(function(x){ x.muted = true; });
+      document.querySelectorAll('#wall .spk').forEach(function(x){ x.innerHTML = SPK_OFF; x.setAttribute('aria-pressed', 'false'); x.setAttribute('aria-label', 'Activer le son'); });
+      document.querySelectorAll('.card .snd').forEach(function(x){ x.textContent = '🔇'; });
+      if (on) { v.muted = false; v.currentTime = 0; v.play().catch(function(){}); b.innerHTML = SPK_ON; b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-label', 'Couper le son'); }
+    });
+  });
   document.querySelectorAll('.card .snd').forEach(function(b){ soundToggle(b, [b.parentNode.querySelector('video')]); });
   // Les vidéos ne tournent que lorsqu'elles sont visibles
   var io = new IntersectionObserver(function(es){ es.forEach(function(e){ var v = e.target; if (e.isIntersecting) { v.play().catch(function(){}); } else { v.pause(); } }); }, { threshold:.25 });
   document.querySelectorAll('video').forEach(function(v){ io.observe(v); });
-
-  /* ---------- Filtres des créations ---------- */
-  var tabs = document.getElementById('tabs');
-  tabs.addEventListener('click', function(e){
-    var b = e.target.closest('button'); if (!b) return;
-    tabs.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
-    var f = b.getAttribute('data-f');
-    document.querySelectorAll('#cards .card').forEach(function(c){ c.classList.toggle('hide', f !== 'all' && c.getAttribute('data-k') !== f); });
-    if (window.ScrollTrigger) ScrollTrigger.refresh();
-  });
 
   /* ---------- Onglets du pied de page ---------- */
   var NETS = [
@@ -462,18 +484,124 @@
   }
   if (reduce) return;
 
-  /* ---------- Héros : les mots montent, la pastille s'ouvre, Marshall fait coucou ---------- */
-  var tl = gsap.timeline({ defaults:{ ease:'expo.out' } });
-  tl.from('#hero-title .mask > span', { yPercent:110, duration:1.2, stagger:.09 })
-    .from('#pill', { width:0, duration:1, ease:'expo.inOut' }, .35)
-    .from('#pill img', { yPercent:80, duration:.9, ease:'back.out(1.6)' }, '-=.35')
-    .from('.hero .base > *', { y:20, opacity:0, duration:.8, stagger:.1 }, '-=.6');
-  gsap.to('#pill img', { rotate:4, y:-3, duration:1.4, repeat:-1, yoyo:true, ease:'sine.inOut', delay:2 });
-  gsap.to('#hero-title', { yPercent:-18, opacity:.25, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
+  /* ---------- Héros : « POSTS RATÉS… » se fissure, les lettres tombent, Marshall les dégage d'un coup de pied,
+     puis « HELLO MARSHALL » remonte en grand ---------- */
+  var hero = document.getElementById('hero'), rates = document.getElementById('rates'), runner = document.getElementById('runner');
+  var runImg = document.getElementById('runner-run'), kickImg = document.getElementById('runner-kick');
+  var word = rates.querySelector('i');
+  word.innerHTML = word.textContent.split('').map(function(c){ return c === ' ' ? ' ' : '<span class="ch">' + c + '</span>'; }).join('');
+  var chars = [].slice.call(word.querySelectorAll('.ch'));
+  var row2 = '#row2 .mask > span';
 
-  /* ---------- Vitrine : les écrans s'ouvrent en grand ---------- */
-  gsap.fromTo('#wall', { scale:.72, borderRadius:24 }, { scale:1, borderRadius:0, ease:'none', scrollTrigger:{ trigger:'#reel', start:'top bottom', end:'top top', scrub:true } });
-  gsap.from('#wall > *', { yPercent:function(i){ return [16, -10, 22][i]; }, ease:'none', scrollTrigger:{ trigger:'#reel', start:'top bottom', end:'bottom top', scrub:true } });
+  // Cachés dès le départ (avant même la construction de la scène)
+  gsap.set(row2, { yPercent:110 }); gsap.set('#pill img', { yPercent:80 });
+  var pillEl = document.getElementById('pill'), pillW0 = pillEl.offsetWidth; gsap.set(pillEl, { width:0 });
+  gsap.set('#wall > *', { autoAlpha:0, yPercent:70, scale:.82, rotate:function(i){ return [-6, 4, 7][i]; } });
+  gsap.set('#wall-cap', { autoAlpha:0, y:20 });
+  function buildHero(){
+  // Mesures prises une fois, page au repos et police chargée (tout est relatif au héros)
+  var G = {};
+  function measure(){
+    var hr = hero.getBoundingClientRect(), r = rates.getBoundingClientRect();
+    G.hw = hero.offsetWidth; G.hh = Math.min(hero.offsetHeight, innerHeight);
+    G.floor = G.hh - 6;
+    G.cx = r.left - hr.left + r.width / 2; G.cy = r.top - hr.top + r.height * .52;
+    G.W = Math.min(r.width * .74, hr.width * .84);
+    G.ratesW = r.width; G.ratesH = rates.offsetHeight;
+    G.col = getComputedStyle(rates.parentNode).flexDirection === 'column';   // mobile : lignes empilées
+    G.chars = chars.map(function(c){ var b = c.getBoundingClientRect(); return { bottom:b.bottom - hr.top, right:b.right - hr.left }; });
+    G.pile = Math.max.apply(null, G.chars.map(function(c){ return c.right; })) + 20;
+    G.rh = runner.offsetHeight; G.rw = G.rh * 523 / 560;
+    runner.style.width = G.rw + 'px';
+    gsap.set(pillEl, { clearProps:'width' }); G.pillW = pillEl.offsetWidth || pillW0; gsap.set(pillEl, { width:0 });
+  }
+  measure();
+
+
+  // État de départ
+  gsap.set(runner, { visibility:'hidden', x:G.hw + 40, y:G.floor + 4 - G.rh }); gsap.set(kickImg, { autoAlpha:0 });
+
+  // Au chargement : seule la première ligne apparaît, puis on invite à défiler
+  gsap.timeline({ defaults:{ ease:'expo.out' } })
+    .from('#hero-title .row:first-child .mask > span', { yPercent:110, duration:.8, stagger:.08 })
+    .from('.hero .base > *', { y:20, opacity:0, duration:.8, stagger:.1 }, .5)
+    .from('#scroll-hint', { opacity:0, y:10, duration:.6 }, .9);
+  gsap.to('#pill img', { rotate:4, y:-3, duration:1.4, repeat:-1, yoyo:true, ease:'sine.inOut' });
+
+  /* ---------- Tout le reste avance AU DÉFILEMENT (et recule si on remonte) ----------
+     l'écran tremble → chute des lettres → Marshall court et tire → « HELLO MARSHALL » → la pilule remplit l'écran → les 3 exemples */
+  var fill = document.createElement('div'); fill.className = 'pill-fill'; hero.insertBefore(fill, hero.firstChild);
+  function pr(k){
+    var h = hero.getBoundingClientRect(), p = document.getElementById('pill').getBoundingClientRect();
+    return { l:p.left - h.left, t:p.top - h.top, w:p.width, h:p.height }[k];
+  }
+  var topBar = document.getElementById('top'), orHero = false, orReel = false;
+  function topColor(){ topBar.classList.toggle('on-or', orHero || orReel); }
+
+  var F = 3.15;   // début du remplissage orange (en « temps » du défilement)
+  var bob = function(n){ var k = []; for (var i = 0; i < n; i++) k.push({ y:i % 2 ? 0 : -16 }); k.push({ y:0 }); return k; };
+  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=370%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
+      onUpdate:function(t){ var o = t.isActive && t.animation.time() > F + .15; if (o !== orHero) { orHero = o; topColor(); } },
+      onLeave:function(){ orHero = true; topColor(); }, onEnterBack:function(t){ orHero = t.animation.time() > F + .15; topColor(); } } });
+  st.to('#scroll-hint', { autoAlpha:0, duration:.15 }, 0)
+    // 1. À l'arrivée : l'écran tremble…
+    .to('#hero-title', { keyframes:[{ x:-16, y:7 }, { x:14, y:-6 }, { x:-11, y:5 }, { x:8, y:-3 }, { x:-4, y:2 }, { x:0, y:0 }], duration:.35 }, .05)
+    .to(chars, { keyframes:[{ y:7, rotate:-3 }, { y:-3, rotate:2 }, { y:0, rotate:0 }], duration:.3, stagger:{ each:.01, from:'random' } }, .05)
+    // 2. … et les lettres tombent tout en bas de l'écran
+    .addLabel('chute', .4)
+    .set(rates, { overflow:'visible' }, 'chute');
+  var order = chars.map(function(c, i){ return i; }).sort(function(){ return Math.random() - .5; });
+  order.forEach(function(ci, k){
+    st.to(chars[ci], { x:gsap.utils.random(-30, 30), y:G.floor - G.chars[ci].bottom, rotate:gsap.utils.random(-50, 50), duration:.35, ease:'bounce.out' }, 'chute+=' + (k * .0245));   // 30 % plus rapide
+  });
+  // 3. Marshall arrive en courant depuis la droite…
+  var target = Math.min(G.pile - G.rw * .22, G.hw - G.rw * .85);
+  st.set(runner, { visibility:'visible' }, 1.03)
+    .to(runner, { x:target, duration:.42, ease:'power1.in' }, 1.03)
+    .to(runImg, { keyframes:bob(8), duration:.42 }, 1.03)
+    // 4. … et dégage les lettres d'un coup de pied
+    .addLabel('tir', 1.45)
+    .set(runImg, { autoAlpha:0 }, 'tir').set(kickImg, { autoAlpha:1 }, 'tir')
+    .to(runner, { keyframes:[{ rotate:-6 }, { rotate:0 }], transformOrigin:'50% 100%', duration:.105 }, 'tir');
+  chars.forEach(function(c, i){
+    st.to(c, { x:'-=' + (G.chars[i].right + 260 + Math.random() * 300), y:'-=' + gsap.utils.random(120, 460), rotate:'+=' + gsap.utils.random(-540, 540), duration:.315, ease:'power2.in' }, 'tir+=' + (i * .007));
+  });
+  // 5. Il repart en courant, la ligne se resserre et « HELLO MARSHALL » remonte en grand
+  st.set(chars, { autoAlpha:0 }, 1.84)                                  // lettres sorties de l'écran : on les cache (la ligne va se resserrer)
+    .set(kickImg, { autoAlpha:0 }, 1.73).set(runImg, { autoAlpha:1 }, 1.73)
+    .to(runner, { x:-G.rw - 60, duration:.42, ease:'power1.in' }, 1.73)
+    .to(runImg, { keyframes:bob(8), duration:.42 }, 1.73)
+    .set(runner, { visibility:'hidden' }, 2.15)
+    .fromTo(rates, { width:G.ratesW, height:G.ratesH }, G.col ? { width:0, height:0, paddingTop:0, duration:.4, ease:'power3.inOut' } : { width:0, marginLeft:'-.22em', duration:.4, ease:'power3.inOut' }, 1.85)
+    .to(row2, { yPercent:0, duration:.5, stagger:.06, ease:'expo.out' }, 2.05)
+    .fromTo('#row2', { scale:.72 }, { scale:1, duration:.6, ease:'back.out(1.5)' }, 2.05)
+    .to('#pill', { width:G.pillW, duration:.5, ease:'expo.inOut' }, 2.1)
+    .to('#pill img', { yPercent:0, duration:.4, ease:'back.out(1.6)' }, 2.4)
+    // 6. La pilule orange grandit jusqu'à remplir l'écran (Marshall et sa pilule s'effacent sur les 10 premiers %)
+    .fromTo(fill, { left:function(){ return pr('l'); }, top:function(){ return pr('t'); }, width:function(){ return pr('w'); }, height:function(){ return pr('h'); },
+                    borderRadius:function(){ return pr('h') / 2; }, autoAlpha:1 },
+                  { left:0, top:0, width:function(){ return hero.offsetWidth; }, height:function(){ return hero.offsetHeight; }, borderRadius:0, autoAlpha:1, ease:'power2.inOut', duration:.5, immediateRender:false }, F)
+    .set(fill, { autoAlpha:1 }, F)
+    .to('#hero-title .row:first-child, #row2 .mask', { opacity:0, y:-50, stagger:.05, ease:'power1.in', duration:.55 }, F)
+    .to('.hero .base', { opacity:0, duration:.35 }, F)
+    .to('#pill img', { opacity:0, duration:.145 }, F)
+    .to('#pill', { opacity:0, duration:.145 }, F)
+    // 7. Les 3 exemples arrivent un par un sur l'orange
+    .to('#wall > *', { autoAlpha:1, yPercent:0, scale:1, rotate:0, duration:.32, stagger:.18, ease:'back.out(1.4)' }, F + .48)
+    .to('#wall-cap', { autoAlpha:1, y:0, duration:.12 }, F + 1.08)
+    .set('#wall', { pointerEvents:'auto' }, F + 1.08)
+    .set({}, {}, F + 1.45);
+  ScrollTrigger.create({ trigger:'#metiers', start:'top 70px',
+    onEnter:function(){ orHero = false; orReel = false; topColor(); },
+    onLeaveBack:function(){ orReel = true; topColor(); } });
+  ScrollTrigger.refresh();
+  }
+  // La scène est mesurée une fois la police Archivo chargée (sinon les lettres sont mal placées)
+  var built = false;
+  function buildOnce(){ if (built) return; built = true; buildHero(); }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildOnce);
+  setTimeout(buildOnce, 2500);
+
 
   /* ---------- Métiers : lignes qui glissent + Marshall agent qui suit la souris ---------- */
   gsap.utils.toArray('#jlist li').forEach(function(li, i){
@@ -482,14 +610,25 @@
   var fol = document.getElementById('follow'), fimg = document.getElementById('follow-img');
   var fx = gsap.quickTo(fol, 'x', { duration:.5, ease:'power3' }), fy = gsap.quickTo(fol, 'y', { duration:.5, ease:'power3' });
   var jl = document.getElementById('jlist');
-  jl.addEventListener('mousemove', function(e){ fx(e.clientX); fy(e.clientY); });
+  // Règle : la carte n'existe que dans « Ses métiers ». Dès que la section du dessus ou du dessous
+  // occupe 20 % de l'écran, ou que la souris n'est plus sur la liste (même sans bouger, au défilement), elle disparaît.
+  var jobsOn = false, mx = -1, my = -1;
+  function folHide(){ gsap.to(fol, { opacity:0, scale:.6, duration:.3, overwrite:'auto' }); }
+  ScrollTrigger.create({ trigger:'#metiers', start:'top 80%', end:'bottom 20%', onToggle:function(st){ jobsOn = st.isActive; if (!jobsOn) folHide(); } });
+  window.addEventListener('scroll', function(){
+    if (mx < 0) return;
+    var el = document.elementFromPoint(mx, my);
+    if (!jobsOn || !el || !el.closest('#jlist a')) folHide();
+  }, { passive:true });
+  jl.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; fx(e.clientX); fy(e.clientY); });
   jl.querySelectorAll('a').forEach(function(a){
     a.addEventListener('mouseenter', function(){
+      if (!jobsOn) return;
       if (fimg.getAttribute('src') !== a.dataset.img) fimg.setAttribute('src', a.dataset.img);
       gsap.to(fol, { opacity:1, scale:1, rotate:gsap.utils.random(-6, 6), duration:.45, ease:'back.out(2)' });
     });
   });
-  jl.addEventListener('mouseleave', function(){ gsap.to(fol, { opacity:0, scale:.6, duration:.3 }); });
+  jl.addEventListener('mouseleave', function(){ mx = -1; folHide(); });
   // Le texte s'allume mot après mot au fil du défilement
   var wp = document.querySelector('.why p');
   (function split(node){
@@ -510,11 +649,65 @@
     .to('.why .wd', { opacity:1, stagger:.1, ease:'none' })
     .from('.why .btn', { y:40, opacity:0, duration:.6, ease:'power2.out' });
 
-  /* ---------- À propos : le titre se révèle, le compteur monte, Marshall passe la tête ---------- */
-  gsap.from('#about-title .mask > span', { yPercent:110, duration:1.1, stagger:.08, ease:'expo.out', scrollTrigger:{ trigger:'#apropos', start:'top 75%' } });
-  var c16 = { v:0 }, n16 = document.getElementById('count16');
-  gsap.to(c16, { v:16, duration:1.6, ease:'power2.out', snap:{ v:1 }, onUpdate:function(){ n16.textContent = Math.round(c16.v); }, scrollTrigger:{ trigger:'#apropos', start:'top 70%' } });
-  gsap.fromTo('#peek', { yPercent:100 }, { yPercent:8, ease:'back.out(1.4)', duration:1.1, scrollTrigger:{ trigger:'#apropos', start:'top 55%' } });
+  /* ---------- À propos : le titre se révèle, puis ses lettres se brouillent (tableau d'affichage) et se figent sur le 2e texte ---------- */
+  document.querySelectorAll('#about-title .mask > span').forEach(function(sp){ var o = document.createElement('span'); o.className = 'out'; o.style.display = 'inline-block'; sp.parentNode.insertBefore(o, sp); o.appendChild(sp); });
+  gsap.from('#about-title .mask > .out > span', { yPercent:110, duration:1.1, stagger:.08, ease:'expo.out', scrollTrigger:{ trigger:'#apropos', start:'top 75%' } });
+  gsap.set('#about-cta', { autoAlpha:0, y:24 });
+  var aTitle = document.getElementById('about-title'), aLines = [].slice.call(aTitle.querySelectorAll('.mask > .out > span'));
+  function L(){ var out = []; for (var i = 0; i < arguments.length; i++) { var a = arguments[i], em = typeof a !== 'string'; (em ? a.em : a).split('').forEach(function(c){ out.push({ c:c, em:em }); }); } return out; }
+  var TXT1 = [L('Le copain'), L('digital des'), L({ em:'commerçants' }), L('qui veulent'), L('briller')];
+  var TXT2 = [L('Marshall, c’est'), L({ em:'16 agents IA' }), L('dans un seul'), L('copain. Toi, tu'), L({ em:'valides' }, ' d’un clic.')];
+  var GLY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$*+?';
+  var FS1 = parseFloat(getComputedStyle(aTitle).fontSize), FS2 = FS1 * .83;   // le 2e texte, plus long, un peu plus petit
+  var scr = { p:0 }, lastP = -1;
+  function esc(c){ return c === '<' ? '&lt;' : c === '&' ? '&amp;' : c; }
+  function renderScramble(){
+    var p = scr.p; if (p === lastP) return; lastP = p;
+    aTitle.style.fontSize = p <= 0 ? '' : (FS1 + (FS2 - FS1) * Math.min(1, p * 1.4)) + 'px';
+    aLines.forEach(function(el, i){
+      var a = TXT1[i], b = TXT2[i], n = Math.max(a.length, b.length), lp = Math.max(0, Math.min(1, (p - i * .09) / .64)), html = '', cur = null, buf = '';
+      for (var j = 0; j < n; j++) {
+        var thr = j / n * .7, ch, em;
+        if (lp >= thr + .3) { ch = b[j] ? b[j].c : ''; em = b[j] && b[j].em; }                                  // figée sur le nouveau texte
+        else if (lp > thr) { ch = (a[j] || b[j]).c === ' ' ? ' ' : GLY[(Math.random() * GLY.length) | 0]; em = (b[j] || a[j]).em; }   // ça défile
+        else { ch = a[j] ? a[j].c : ''; em = a[j] && a[j].em; }                                                  // encore l'ancien texte
+        if (em !== cur) { if (buf) html += cur ? '<em>' + buf + '</em>' : buf; buf = ''; cur = em; }
+        buf += esc(ch);
+      }
+      if (buf) html += cur ? '<em>' + buf + '</em>' : buf;
+      el.innerHTML = html;
+    });
+    aTitle.setAttribute('aria-label', p >= 1 ? 'Marshall, c’est 16 agents IA dans un seul copain. Toi, tu valides d’un clic.' : 'Le copain digital des commerçants qui veulent briller');
+  }
+  var mmA = gsap.matchMedia();
+  mmA.add('(min-width: 901px)', function(){
+    // La section reste bloquée jusqu'à la fin de son défilement ; le brouillage suit la molette et est TERMINÉ à 50 %
+    var sw = gsap.timeline({ defaults:{ ease:'none' } })
+      .fromTo(scr, { p:0 }, { p:1, duration:.26, onUpdate:renderScramble, immediateRender:false }, .22)
+      .fromTo('#about-cta', { autoAlpha:0, y:24 }, { autoAlpha:1, y:0, duration:.06 }, .44)
+      .set({}, {}, 1);
+    var t = ScrollTrigger.create({ trigger:'#apropos', start:'top top', end:'+=100%', pin:true, anticipatePin:1, scrub:.5, animation:sw });
+    return function(){ t.kill(); sw.kill(); };
+  });
+  mmA.add('(max-width: 900px)', function(){
+    var tw = gsap.timeline({ paused:true })
+      .to(scr, { p:1, duration:1.4, ease:'none', onUpdate:renderScramble })
+      .to('#about-cta', { autoAlpha:1, y:0, duration:.5, ease:'back.out(2)' }, '-=.3');
+    var t = ScrollTrigger.create({ trigger:'#apropos', start:'top 20%', onEnter:function(){ tw.play(); }, onLeaveBack:function(){ tw.reverse(); } });
+    return function(){ t.kill(); tw.kill(); };
+  });
+  // En-tête blanc tant qu'il est au-dessus de la section orange (créé APRÈS l'épinglage de la section, pour des positions justes)
+  var hdr = document.getElementById('top');
+  function headH(){ return 'top ' + (hdr.offsetHeight + 4) + 'px'; }
+  ScrollTrigger.create({ trigger:'#apropos', start:headH, invalidateOnRefresh:true,
+    onEnter:function(){ hdr.classList.add('on-or2'); }, onLeaveBack:function(){ hdr.classList.remove('on-or2'); } });
+  ScrollTrigger.create({ trigger:'#creations', start:headH, invalidateOnRefresh:true,
+    onEnter:function(){ hdr.classList.remove('on-or2'); }, onLeaveBack:function(){ hdr.classList.add('on-or2'); } });
+  // Grand Marshall : il arrive d'en bas, puis respire et se balance doucement en présentant le titre
+  gsap.from('#presente-img', { yPercent:60, opacity:0, rotate:4, duration:1.3, ease:'back.out(1.3)', scrollTrigger:{ trigger:'#apropos', start:'top 60%' } });
+  gsap.from('#presente .glow', { scale:0, opacity:0, duration:1, ease:'expo.out', delay:.4, scrollTrigger:{ trigger:'#apropos', start:'top 60%' } });
+  gsap.to('#presente', { y:-10, rotate:-1.2, transformOrigin:'50% 100%', duration:2.2, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  gsap.to('#presente', { yPercent:-6, ease:'none', scrollTrigger:{ trigger:'#apropos', start:'top bottom', end:'bottom top', scrub:true } });
 
   /* ---------- Créations : cartes qui montent avec un léger décalage ---------- */
   gsap.utils.toArray('#cards .card').forEach(function(c, i){
@@ -530,7 +723,6 @@
   ScrollTrigger.create({ trigger:'#final', start:'top 65%', once:true, onEnter:function(){
     gsap.from('#touch-title .mask > span', { yPercent:110, duration:1.1, stagger:.1, ease:'expo.out' });
     gsap.from('#bravo', { yPercent:100, duration:1.1, ease:'back.out(1.4)', delay:.3 });
-    gsap.from('.bravo2', { yPercent:100, duration:1.1, ease:'back.out(1.4)', delay:.5 });
     var colors = ['#F3852B','#FFD23F','#6EC1F0','#FF7FA8','#7ED957','#f5f5f5'], fin = document.getElementById('final');
     for (var i = 0; i < 46; i++) {
       var c = document.createElement('i'); c.className = 'confetti'; c.style.background = colors[i % colors.length]; c.style.left = (Math.random() * 100) + '%';
@@ -543,7 +735,7 @@
   /* ---------- Mini Marshall : il commente chaque partie de la visite ---------- */
   var say = document.getElementById('buddy-say'), buddy = document.getElementById('buddy');
   gsap.from(buddy, { y:140, duration:1, ease:'back.out(1.6)', delay:2.2 });
-  var LINES = { hero:'Coucou&nbsp;! Je te fais visiter 👋', reel:'Tout ça, c’est moi qui l’ai fait 🎬', metiers:'Passe la souris sur mes métiers 👀', apropos:'16 agents… et un seul copain 😎',
+  var LINES = { hero:'Coucou&nbsp;! Je te fais visiter 👋', metiers:'Passe la souris sur mes métiers 👀', apropos:'16 agents… et un seul copain 😎',
                 creations:'Monte le son sur mes reportages 🔊', offres:'Tu peux commencer gratuitement ✅', faq:'Une question&nbsp;? Je réponds 💬', final:'Alors, on bosse ensemble&nbsp;? 🙌' };
   Object.keys(LINES).forEach(function(id){
     var el = document.getElementById(id); if (!el) return;
