@@ -8148,7 +8148,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           <div class="set-field"><label>Objectif</label><select id="ai-goal"><option value="Vente">Vente</option><option value="Engagement">Engagement</option><option value="Notoriété">Notoriété</option><option value="Lancement produit">Lancement produit</option></select></div>
           <div class="set-field"><label>Plateforme</label><select id="ai-platform"><option value="Instagram">Instagram</option><option value="TikTok">TikTok</option><option value="Facebook">Facebook</option><option value="X">X</option><option value="Snapchat">Snapchat</option><option value="LinkedIn">LinkedIn</option></select></div>
           <div class="set-field full"><label>Style créatif</label><select id="marshall-style"><option value="auto">Automatique</option><option value="modern">Moderne</option><option value="premium">Premium</option><option value="bold">Bold social media</option><option value="ugc">UGC / natif</option></select></div>
-          <div class="set-field full"><label>Outil vidéo Marshall</label><select id="marshall-story-render"><option value="auto">Vidéo Motion locale (gratuit)</option><option value="veo-lite">Motion + vidéo IA Google Veo 3.1 Lite (≈ 470 tokens)</option><option value="veo-fast">Motion + vidéo IA Veo 3.1 Fast · premium (≈ 1 550 tokens)</option><option value="video">Motion + vidéo IA Wan 2.2 (open source)</option><option value="static">Outil vidéo désactivé</option></select></div>
+          <div class="set-field full"><label>Outil vidéo Marshall</label><select id="marshall-story-render"><option value="auto">Vidéo Motion locale (gratuit)</option><option value="video">Motion + vidéo IA Wan 2.2 (open source)</option><option value="static">Outil vidéo désactivé</option></select></div>
           <div class="set-field full"><label>Moteur d’images en mode Hyper</label><select id="marshall-image-engine"><option value="auto">Nano Banana 2 · Google (recommandé, ≈ 87 tokens/image)</option><option value="pro">Nano Banana Pro · qualité max (≈ 173 tokens/image)</option><option value="qwen">Qwen-Image · Modal (économique, ≈ 13 tokens)</option></select></div>
         </div></div></div>
         <div class="set2-pane" data-pane="account">
@@ -8679,7 +8679,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       avatar:{name:'Avatar parlant',tag:'Ta photo qui parle',icon:'🗣️',color:'linear-gradient(135deg,#0ea5e9,#6366f1)',desc:'Une photo + un texte : la personne parle face caméra, lèvres synchronisées, avec la voix de Marshall ou ta propre voix (clonée avec ton accord).',logic:['Ta photo + ton texte (ou un audio)','Marshall prépare la voix puis anime le visage','Donc → une vidéo où tu parles face caméra'],actions:[]},
       genjutsu:{name:'Genjutsu',tag:'Toi dans la vidéo',icon:'🎭',color:'linear-gradient(135deg,#7c3aed,#ec4899)',desc:'Importe une vidéo et une photo : Marshall met la personne de la photo à la place de celle de la vidéo, en gardant ses gestes, ses expressions, la lumière et le décor.',logic:['Ta vidéo + la photo de la personne','Marshall détecte le mouvement et le visage','Donc → la vidéo rejouée avec la nouvelle personne'],actions:[]},
       clipper:{name:'Clippeur',tag:'Clips viraux',icon:'✂️',color:'linear-gradient(135deg,#10b981,#0ea5e9)',desc:'Colle le lien d’une vidéo longue (ou importe-la) : Marshall trouve les meilleurs moments, les recadre en 9:16 sur la personne qui parle, ajoute les sous-titres et note chaque clip.',logic:['Tu donnes ta vidéo longue','Marshall écoute, choisit et recadre','Donc → clips 9:16 classés par score viral'],actions:[]},
-      studio:{name:'Studio IA',tag:'Image & vidéo IA',icon:'🎬',color:'linear-gradient(135deg,#8b5cf6,#ec4899)',desc:'Crée une vidéo à partir d’une image, une image à partir d’un texte, ou une vidéo à partir d’un texte. Tu choisis le moteur (Wan 2.2 ou Google Veo) et la qualité.',logic:['Tu choisis le moteur et la qualité','Tu décris ce que tu veux (et l’image de départ)','Donc → image ou vidéo posée sur un nouveau canva'],actions:[]},
+      studio:{name:'Studio IA',tag:'Image & vidéo IA',icon:'🎬',color:'linear-gradient(135deg,#8b5cf6,#ec4899)',desc:'Crée une vidéo à partir d’une image, une image à partir d’un texte, ou une vidéo à partir d’un texte. Avec Wan 2.2, tu choisis la qualité (Éco, HD ou Pro).',logic:['Tu choisis le moteur et la qualité','Tu décris ce que tu veux (et l’image de départ)','Donc → image ou vidéo posée sur un nouveau canva'],actions:[]},
       nation:{name:'Journaliste Pays',tag:'Infos en temps réel',icon:'🌍',color:'linear-gradient(135deg,#1fb6ff,#0b6fd6)',desc:'Cherche en temps réel toutes les infos sur un pays (actualités, économie, tendances réseaux, fiche pays) et te garde les 3 plus importantes, avec les sources.',logic:['Tu donnes un pays','Il cherche sur le web en direct','Donc → 3 infos clés + fiche pays + sources'],actions:[
         {label:'Briefing d’un pays',mission:'nation_brief',prompt:'Briefing en temps réel sur le pays : '},
         {label:'Économie d’un pays',mission:'nation_brief',prompt:'Économie et derniers chiffres du pays : '},
@@ -9051,10 +9051,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return '<div class="sai-lbl">IA utilisée</div>'+marshallLgToggle('iEngine',[{v:'qwen',label:'🌱 Qwen',sub:'Open source'},{v:'nano',label:'🍌 Nano Banana',sub:nano?'Google':'Offre Hyper',locked:!nano,tip:'Disponible avec l’offre Hyper'}],S.iEngine)
         +'<div class="sai-lbl">Qualité</div>'+marshallLgToggle('iQuality',[{v:'eco',label:'Éco',sub:S.iEngine==='nano'?'Nano Banana 2':'Standard'},{v:'hd',label:'HD',sub:S.iEngine==='nano'?'Nano Banana Pro':'Grande taille'}],S.iQuality);
     }
-    if(!admin&&S.vEngine==='veo') S.vEngine='wan';
+    S.vEngine='wan';
     var veo=S.vEngine==='veo';
     if((!pro||veo)&&S.vQuality==='pro') S.vQuality='hd';
-    return '<div class="sai-lbl">IA utilisée</div>'+marshallLgToggle('vEngine',[{v:'wan',label:'🌱 Wan 2.2',sub:'Open source'},{v:'veo',label:'🎬 Google Veo',sub:admin?'Qualité ciné':'Bientôt disponible',locked:!admin,tip:'Bientôt disponible'}],S.vEngine)
+    return '<div class="sai-lbl">IA utilisée</div>'+marshallLgToggle('vEngine',[{v:'wan',label:'🌱 Wan 2.2',sub:'Open source'}],S.vEngine)
       +'<div class="sai-lbl">Qualité</div>'+marshallLgToggle('vQuality',[{v:'eco',label:'Éco',sub:veo?'Veo Lite':'480p · rapide'},{v:'hd',label:'HD',sub:veo?'Veo Fast':'720p · plus net'},{v:'pro',label:'Pro',sub:'A14B · Lightning',locked:!pro||veo,tip:veo?'Disponible avec Wan 2.2':'Réservé à la formule Hyper'}],S.vQuality);
   }
   function marshallStudioPanelHTML(){
@@ -10646,7 +10646,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       marshallLastDeepAnalysis=a;return a;
     }catch(e){console.warn('Marshall deep analysis fallback',e);marshallLastDeepAnalysis=marshallLocalStrategicAnalysis(prompt);return marshallLastDeepAnalysis;}
   }
-  function marshallVideoReply(p){if(p&&p.needHyper)return 'Pour créer une vraie vidéo de zéro, j’utilise Google Veo, disponible en mode Hyper. Choisis juste en dessous : passer en Hyper, ou une vidéo gratuite à partir de ta Story.';return 'Avec plaisir 🎬 Règle d’abord la durée de ta vidéo avec le curseur (5 à 10 secondes), puis j’écris le script. Tu pourras le relire et le modifier : rien n’est lancé avant que tu cliques « Créer la vidéo ».';}
+  function marshallVideoReply(p){if(p&&p.needHyper)return 'Pour créer une vraie vidéo de zéro, j’utilise Wan 2.2, disponible en mode Hyper. Choisis juste en dessous : passer en Hyper, ou une vidéo gratuite à partir de ta Story.';return 'Avec plaisir 🎬 Règle d’abord la durée de ta vidéo avec le curseur (5 à 10 secondes), puis j’écris le script. Tu pourras le relire et le modifier : rien n’est lancé avant que tu cliques « Créer la vidéo ».';}
   function marshallActionReply(intent,ok){
     if(!ok)return window.MCD_DEMO?"En démo, cette action a besoin de l’IA complète de Marshall, désactivée ici. Crée un compte gratuit pour l’essayer pour de vrai ✨":"Je n’ai pas réussi cette action. Réessaie dans quelques secondes.";
     if(intent==='image_generate')return 'C’est fait ✨ J’ai généré l’image et je l’ai ajoutée au canvas comme calque éditable.';
@@ -11437,7 +11437,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var MARSHALL_PLANS={
     gratuit:{name:'Gratuit',price:'0 €',per:'',power:'leger',perks:['1 500 tokens / mois','Marshall en mode Léger','Stories et posts éditables (brouillons)','Images Qwen gratuites','Vidéo Motion à partir de tes Stories']},
     complet:{name:'Complet',price:'29 €',per:'/mois',power:'normal',perks:['10 500 tokens / mois (≈ 150 créations)','Tout le Gratuit','Publication et programmation sur tes réseaux','Marshall en mode Normal','Analyse de marque (site, Instagram, avis)','Équipe d’agents Marshall','Vidéo IA Wan 2.2']},
-    hyper:{name:'Hyper',price:'59 €',per:'/mois',power:'hyper',perks:['22 500 tokens / mois','Tout le Complet','Mode ⚡ Hyper','Images Google Nano Banana 2','Vraies vidéos Google Veo 3.1','Le meilleur moteur de création']}
+    hyper:{name:'Hyper',price:'59 €',per:'/mois',power:'hyper',perks:['22 500 tokens / mois','Tout le Complet','Mode ⚡ Hyper','Images Google Nano Banana 2','Vidéos IA Wan 2.2 Pro','Le meilleur moteur de création']}
   };
   var MARSHALL_PLAN_RANK={gratuit:0,complet:1,hyper:2},MARSHALL_POWER_NEED={leger:'gratuit',normal:'complet',hyper:'hyper'};
   function marshallIsStaff(){var st=marshallTokenState&&marshallTokenState.st;return !!(st&&st.unlimited)||!!(me&&me.isTeam);}
@@ -11587,7 +11587,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var MARSHALL_POWER={
     leger:{label:'Léger',hint:'Inclus dans toutes les formules : images Qwen, vidéo Motion locale, rapide.'},
     normal:{label:'Normal',hint:'Formule Complet : images Qwen, analyse de marque, équipe d’agents, vidéo Wan 2.2.'},
-    hyper:{label:'Hyper',hint:'Formule Hyper : images Google Nano Banana 2 et vraies vidéos Veo 3.1 (utilise tes tokens).'}
+    hyper:{label:'Hyper',hint:'Formule Hyper : images Google Nano Banana 2 et vidéos IA Wan 2.2 Pro (utilise tes tokens).'}
   };
   function marshallPower(){var p=marshallSetting('power','normal');if(!MARSHALL_POWER[p])p='normal';if(!marshallPowerAllowed(p))p=marshallPowerAllowed('normal')?'normal':'leger';return p;}
   function marshallPowerSet(p){if(!MARSHALL_POWER[p])return;if(!marshallPowerAllowed(p)){marshallPaywallOpen(MARSHALL_POWER_NEED[p]);return;}var x=marshallSettingsGet();x.power=p;marshallWriteLocal(MARSHALL_SETTINGS_KEY,x);try{marshallPersistAccountPrefs();}catch(e){}marshallPowerRender();edAIStatus('Mode '+MARSHALL_POWER[p].label+' : '+MARSHALL_POWER[p].hint);}
@@ -11596,8 +11596,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var s=marshallSetting('storyRender','auto'),p=marshallPower();
     if(s==='static')return 'static';
     if(p==='leger')return 'auto';
-    if(p==='normal')return (s==='veo-lite'||s==='veo-fast')?'video':s;
-    return s==='veo-fast'?'veo-fast':'veo-lite';
+    return (s==='veo-lite'||s==='veo-fast')?'video':s;
   }
   function marshallPowerThumb(t,animate){
     var th=t.querySelector('.mpw-thumb'),b=t.querySelector('button.on');if(!th||!b)return;
@@ -11635,7 +11634,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallVideoNeedsHyperCard(prompt){
     var th=marshallChatThread();if(!th)return;
     var box=document.createElement('div');box.className='mv4-msg assistant mrv-card';
-    box.innerHTML='<div class="mrv-title">🎬 Vraie vidéo IA</div><div class="mrv-ask">Les vidéos créées de zéro utilisent Google Veo, disponible en mode <b>Hyper</b> (elles consomment tes tokens). En mode '+esc(MARSHALL_POWER[marshallPower()].label)+', je peux transformer gratuitement ta Story en vidéo Motion.</div><div class="mrv-actions"><button type="button" class="mrv-btn ghost" data-act="motion">Vidéo gratuite depuis ma Story</button><button type="button" class="mrv-btn" data-act="hyper">⚡ Passer en Hyper et continuer</button></div><div class="mrv-state"></div>';
+    box.innerHTML='<div class="mrv-title">🎬 Vraie vidéo IA</div><div class="mrv-ask">Les vidéos créées de zéro utilisent Wan 2.2, disponible en mode <b>Hyper</b> (elles consomment tes tokens). En mode '+esc(MARSHALL_POWER[marshallPower()].label)+', je peux transformer gratuitement ta Story en vidéo Motion.</div><div class="mrv-actions"><button type="button" class="mrv-btn ghost" data-act="motion">Vidéo gratuite depuis ma Story</button><button type="button" class="mrv-btn" data-act="hyper">⚡ Passer en Hyper et continuer</button></div><div class="mrv-state"></div>';
     th.appendChild(box);th.scrollTop=th.scrollHeight;
     box.querySelector('[data-act="hyper"]').addEventListener('click',function(){if(!marshallPowerAllowed('hyper')){marshallPaywallOpen('hyper');return;}marshallPowerSet('hyper');box.querySelector('.mrv-state').textContent='Mode Hyper activé.';marshallCreateRealVideo(prompt).catch(function(e){box.querySelector('.mrv-state').textContent='⚠ '+(e&&e.message?e.message:'Réessaie.');});});
     box.querySelector('[data-act="motion"]').addEventListener('click',function(){var st=box.querySelector('.mrv-state');st.textContent='Montage de ta Story en vidéo…';marshallRunStoryVideoTool('Transforme les canvases de ma Story active en une vidéo Motion.').then(function(){st.textContent='✓ Vidéo Motion prête.';}).catch(function(e){st.textContent='⚠ '+(e&&e.message?e.message:'Crée d’abord une Story.');});});
@@ -14678,8 +14677,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var th=marshallChatThread();if(!th)return null;
     opt=opt||{};
     var tier=marshallEffectiveRender()==='veo-fast'?'fast':'lite',sec=8,plan=null,busy=false,veoOk=opt.veoOk!==false;
-    var engine='veo';try{var _le=marshallReadLocal('marshall_video_engine_v1');if(_le==='wan'||_le==='veo')engine=_le;}catch(e){}
-    if(!veoOk)engine='wan';
+    var engine='wan';
     function costLine(s2){return '≈ '+marshallVideoCost(s2,tier,engine)+' tokens · '+marshallVideoEngineLabel(engine,tier)+' · voix off '+marshallVideoDur(s2).words+' mots max';}
     var maxSec=marshallVideoMaxSec(!!opt.hyper);
     try{var last=+marshallReadLocal('marshall_video_seconds_v1');if(last>=5&&last<=maxSec)sec=last;}catch(e){}
@@ -14693,7 +14691,6 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         (news?'<div class="mrv-news"><b>📰 '+esc(news.country||'')+'</b> '+esc(news.item.title||'')+'</div>':'')+
         (plan?'<div class="mrv-sub">'+esc(plan.concept||'')+'</div><div class="mrv-ask">Voici mon idée. Tu peux modifier les phrases directement, ajuster la durée, puis valider.</div>':'<div class="mrv-ask">'+(news?'J’imagine une vidéo de 10 s qui raconte cette info. Choisis l’IA, puis j’écris le script.':'Quelle durée pour ta vidéo ? Règle le curseur, puis j’écris le script adapté.')+'</div>')+
         '<div class="mrv-eng" role="radiogroup" aria-label="IA qui crée la vidéo">'+
-          '<button type="button" role="radio" data-eng="veo" class="'+(engine==='veo'?'on':'')+'" aria-checked="'+(engine==='veo')+'"><b>🎬 Google Veo 3.1</b><small>'+(veoOk?'Qualité ciné · 1 à 3 min':(opt.hyper?'Indisponible pour le moment':'Offre Hyper'))+'</small></button>'+
           '<button type="button" role="radio" data-eng="wan" class="'+(engine==='wan'?'on':'')+'" aria-checked="'+(engine==='wan')+'"><b>🌱 Wan 2.2</b><small>Éco · open source · 3 à 8 min</small></button>'+
         '</div>'+
         '<div class="mrv-slider mrv-slider2"><div class="mrv-slider-top"><b>Durée</b><output>'+d.sec+' s</output><em class="mrv-plans">'+d.n+' plans</em></div>'+
@@ -14736,7 +14733,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   /* Étape 2 (après validation) : images clés → Veo → montage. */
   async function marshallLaunchRealVideo(prompt,plan,sec,tier,box,say,engine){
-    engine=engine==='wan'?'wan':'veo';
+    engine='wan';
     var _d=marshallVideoDur(sec);await marshallTokensCheck((engine==='wan'?marshallTokenPrice('wan_second',_d.n*_d.wan):marshallTokenPrice(tier==='fast'?'veo_fast_second':'veo_lite_second',_d.n*_d.veo))+_d.n*marshallTokenPrice(marshallSetting('imageEngine','auto')==='pro'?'image_pro':'image'));
     var photos=plan&&plan._news?[]:marshallRealPhotos(),dims={width:768,height:1360},shots=plan.shots;   // vidéo « info » : pas de photos de la marque
     for(var i=0;i<shots.length;i++){
