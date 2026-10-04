@@ -452,7 +452,7 @@
 
   /* ---------- Défilement doux ---------- */
   if (window.Lenis && !reduce) {
-    var lenis = new Lenis({ lerp:.1 });
+    var lenis = window.lenis = new Lenis({ lerp:.1 });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add(function(t){ lenis.raf(t * 1000); });
     gsap.ticker.lagSmoothing(0);
@@ -505,8 +505,10 @@
       } else if (n.nodeType === 1) split(n);
     });
   })(wp);
-  gsap.to('.why .wd', { opacity:1, stagger:.1, ease:'none', scrollTrigger:{ trigger:'.why', start:'top 80%', end:'bottom 45%', scrub:true } });
-  gsap.from('.why .btn', { y:40, opacity:0, duration:1, ease:'expo.out', scrollTrigger:{ trigger:'.why', start:'bottom 70%' } });
+  // La section reste en place le temps que la phrase s'écrive (défilement plus long, uniquement ici)
+  gsap.timeline({ scrollTrigger:{ trigger:'.why', start:function(){ return document.querySelector('.why').offsetHeight > innerHeight * .7 ? 'top 90px' : 'center 55%'; }, end:'+=140%', invalidateOnRefresh:true, scrub:1, pin:true, anticipatePin:1 } })
+    .to('.why .wd', { opacity:1, stagger:.1, ease:'none' })
+    .from('.why .btn', { y:40, opacity:0, duration:.6, ease:'power2.out' });
 
   /* ---------- À propos : le titre se révèle, le compteur monte, Marshall passe la tête ---------- */
   gsap.from('#about-title .mask > span', { yPercent:110, duration:1.1, stagger:.08, ease:'expo.out', scrollTrigger:{ trigger:'#apropos', start:'top 75%' } });
