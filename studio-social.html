@@ -3280,6 +3280,23 @@ html body .ed-rail .ed-tool.ed-tool-ai span{color:#fff!important;font-weight:800
 @media (max-width:760px){html body .ed-rail .ed-tool.ed-tool-ai .ed-ai-avatar{width:30px;height:30px}}
 
 
+
+/* Reportage sur mon commerce */
+#mshop{position:fixed;inset:0;z-index:100050;background:rgba(40,28,18,.5);display:flex;align-items:center;justify-content:center;padding:14px}
+#mshop .msh-box{position:relative;width:min(560px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px;padding:20px 20px 16px;box-shadow:0 26px 70px rgba(0,0,0,.3);font-family:Nunito,system-ui,sans-serif;color:#3b2a1c}
+#mshop .msh-x{position:absolute;right:12px;top:12px;border:0;background:#f4efe8;width:32px;height:32px;border-radius:50%;cursor:pointer}
+#mshop .msh-head{display:flex;gap:12px;align-items:center;margin:0 34px 6px 0}#mshop .msh-head img{width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:50% 8%;background:#ffe7d1;border:2.5px solid #F3852B}
+#mshop .msh-head b{display:block;font:700 18px Fredoka,system-ui,sans-serif}#mshop .msh-head span{font-size:13px;color:#7a6250;line-height:1.4}
+#mshop .msh-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+#mshop label{display:flex;flex-direction:column;gap:4px;font:700 11.5px Fredoka,system-ui,sans-serif;color:#8a6a4c;text-transform:uppercase;letter-spacing:.03em}
+#mshop .msh-full{margin-top:8px}
+#mshop input,#mshop textarea{font:500 14px Nunito,system-ui,sans-serif;text-transform:none;letter-spacing:0;color:#3b2a1c;border:1.5px solid #f0dcc6;border-radius:12px;padding:9px 11px;background:#fffaf5;resize:vertical}
+#mshop .msh-photos{display:flex;gap:8px;flex-wrap:wrap}
+#mshop .msh-ph{position:relative;width:76px;height:96px;border-radius:12px;overflow:hidden;border:1.5px solid #f0dcc6}#mshop .msh-ph img{width:100%;height:100%;object-fit:cover}
+#mshop .msh-ph button{position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:11px;cursor:pointer}
+#mshop .msh-add{width:76px;height:96px;border-radius:12px;border:1.5px dashed #f3a25c;background:#fff8ef;color:#C7620E;font:700 13px Fredoka,system-ui,sans-serif;cursor:pointer}
+#mshop .mrep-go{margin-top:14px}
+@media (max-width:520px){#mshop .msh-row{grid-template-columns:1fr}}
 /* Reportage avec journaliste (Journaliste Pays) */
 .mnat-btn.rep{background:linear-gradient(180deg,#ff6b5e,#e5372b)!important;color:#fff!important;border-color:transparent!important}
 .mrep-opts{margin-top:10px;padding:12px;border-radius:14px;background:#fff8ef;border:1.5px solid #f6d3b2}
@@ -8667,7 +8684,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         {label:'Briefing d’un pays',mission:'nation_brief',prompt:'Briefing en temps réel sur le pays : '},
         {label:'Économie d’un pays',mission:'nation_brief',prompt:'Économie et derniers chiffres du pays : '},
         {label:'Tendances réseaux d’un pays',mission:'nation_brief',prompt:'Tendances réseaux sociaux du moment dans le pays : '},
-        {label:'Briefing France',mission:'nation_brief',prompt:'Briefing en temps réel sur la France'}
+        {label:'Briefing France',mission:'nation_brief',prompt:'Briefing en temps réel sur la France'},
+        {label:'🏪 Reportage sur mon commerce',mission:'shop_report',prompt:'Reportage sur mon commerce'}
       ]},
       voice:{name:'Voice Director',tag:'Voix off vidéo',icon:'🎙️',color:'linear-gradient(135deg,#ff7a45,#f3852b)',desc:'Regarde ta vidéo, écrit un texte qui la décrit et la met en valeur, puis ajoute une voix off naturelle dans ta langue.',logic:['Tu sélectionnes une vidéo sur le canvas','Il la regarde et écrit le texte','Donc → vidéo avec voix off, prête à publier'],actions:[
         {label:'Voix off féminine',mission:'video_voiceover',prompt:'Ajoute une voix off féminine chaleureuse à ma vidéo.'},
@@ -8908,6 +8926,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   async function marshallAgentDockExecute(agentKey,mission,prompt,label){
     if(marshallAgentDockBusy||marshallChatBusy){edAIStatus('Une action est déjà en cours. Attends sa fin.');return;}
+    if(mission==='shop_report'){marshallShopReportOpen();return;}
     var data=marshallAgentShowcaseData(),prof=data[agentKey]||data.marshall;
     prompt=String(prompt||'').trim();if(!prompt)return;
     if(/:\s*$/.test(prompt)){
@@ -14346,14 +14365,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     };
     pan.onchange=function(e){if(e.target.type==='checkbox')R.hd=e.target.checked;};
   }
-  async function marshallReportRun(it,country,o){
+  async function marshallReportRun(it,country,o,extra){
     if(!authUser){toast('Connecte-toi pour créer un reportage.',true);return;}
     var box=marshallNationCard();if(!box)return;
     var who={marshall:'Marshall',femme:'une journaliste',homme:'un journaliste'}[o.journalist]||'le journaliste';
     function show(pct,msg){box.innerHTML='<div class="mrep-run"><b>🎙️ Reportage en cours</b><span>'+esc(it.title||'')+'</span><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,pct))+'%"></span></div><small><span class="vp-spin"></span>'+esc(msg)+'</small></div>';}
     show(2,'Envoi de l’info à Marshall…');
     try{
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/report',{method:'POST',headers:await authHeaders(),body:JSON.stringify({item:it,country:country,journalist:o.journalist,seconds:o.seconds,hd:o.hd})});
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/report',{method:'POST',headers:await authHeaders(),body:JSON.stringify(Object.assign({item:it,country:country,journalist:o.journalist,seconds:o.seconds,hd:o.hd},extra||{}))});
       var d=await r.json().catch(function(){return {};});
       try{marshallTokensFromResponse(d);}catch(e){}
       if(d&&d.need_plan){try{marshallPaywallOpen(d.need_plan);}catch(e){}}
@@ -14372,12 +14391,63 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         '<video src="'+esc(url)+'" controls playsinline style="display:block;width:100%;max-height:520px;border-radius:12px;margin-top:8px;background:#000"></video>'+
         (st.script?'<details class="mrep-script"><summary>Texte du journaliste</summary><p>'+esc(st.script)+'</p></details>':'')+
         marshallFeedbackHTML({kind:'report_second',base:marshallTokenPrice('report_second',o.seconds),
-          insert:function(){try{marshallFreshReset();}catch(e){}marshallVideoToCanvas(url,'Reportage · '+(country||'Journaliste Pays'),{});toast('🎙️ Reportage posé sur un nouveau canva.');},
-          retry:function(){marshallReportRun(it,country,o);}});
+          insert:function(){try{marshallFreshReset();}catch(e){}marshallVideoToCanvas(url,'Reportage · '+((extra&&extra.shop&&extra.shop.name)||country||'Journaliste Pays'),{});toast('🎙️ Reportage posé sur un nouveau canva.');},
+          retry:function(){marshallReportRun(it,country,o,extra);}});
       try{marshallTokensRefresh(true);}catch(e){}
       toast('🎙️ Ton reportage est prêt !');
     }catch(err){box.innerHTML='<div class="mrep-run err">⚠ Reportage : '+esc(err&&err.message?err.message:String(err))+'</div>';}
     var th=marshallChatThread();if(th)th.scrollTop=th.scrollHeight;
+  }
+
+  /* ===== Reportage sur mon commerce : même format que le Journaliste, Marshall présente une nouveauté, une offre ou un événement ===== */
+  var MARSHALL_SHOP={kind:'nouveaute',name:'',city:'',text:'',price:'',dates:'',photos:[],journalist:'marshall',seconds:20};
+  function marshallShopReportOpen(){
+    var S=MARSHALL_SHOP;
+    if(!S.name){try{S.name=String((me&&me.nom)||'');}catch(e){}}
+    if(!S.city){try{var md=(authUser&&authUser.user_metadata)||{};S.city=String(md.ville||'');}catch(e){}}
+    var ov=document.getElementById('mshop');if(ov)ov.remove();
+    ov=document.createElement('div');ov.id='mshop';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');
+    function cost(){return marshallTokenPrice('report_second',S.seconds);}
+    function draw(){
+      ov.innerHTML='<div class="msh-box"><button type="button" class="msh-x" aria-label="Fermer">✕</button>'+
+        '<div class="msh-head"><img src="avatarchatbot.png" alt=""><div><b>Reportage sur ton commerce</b><span>Marshall présente ta nouveauté face caméra, devant ta boutique, avec tes photos animées et un bandeau flash.</span></div></div>'+
+        '<div class="mrep-l">Tu veux présenter</div><div class="mrep-seg" data-s="kind">'+[['nouveaute','🆕 Une nouveauté'],['offre','🏷️ Une offre'],['evenement','🎉 Un événement']].map(function(o){return '<button type="button" data-v="'+o[0]+'" class="'+(S.kind===o[0]?'on':'')+'">'+o[1]+'</button>';}).join('')+'</div>'+
+        '<div class="msh-row"><label>Nom du commerce<input data-f="name" maxlength="80" value="'+esc(S.name)+'" placeholder="Ex. Boulangerie Léa"></label><label>Ville<input data-f="city" maxlength="60" value="'+esc(S.city)+'" placeholder="Ex. Lyon"></label></div>'+
+        '<label class="msh-full">Ce que tu annonces<textarea data-f="text" rows="3" maxlength="600" placeholder="Ex. Notre nouveau croissant à la pistache, fait maison chaque matin, en vente à partir de samedi.">'+esc(S.text)+'</textarea></label>'+
+        '<div class="msh-row"><label>Prix ou offre (facultatif)<input data-f="price" maxlength="80" value="'+esc(S.price)+'" placeholder="Ex. 2,40 € · -20 %"></label><label>Dates / horaires (facultatif)<input data-f="dates" maxlength="80" value="'+esc(S.dates)+'" placeholder="Ex. dès samedi 9 h"></label></div>'+
+        '<div class="mrep-l">Tes photos (1 à 3 : produit, vitrine, boutique)</div><div class="msh-photos">'+S.photos.map(function(u,i){return '<span class="msh-ph"><img src="'+u+'" alt=""><button type="button" data-rm="'+i+'" aria-label="Retirer">✕</button></span>';}).join('')+
+          (S.photos.length<3?'<button type="button" class="msh-add" data-add>＋ Ajouter</button>':'')+'<input type="file" accept="image/*" multiple hidden data-file></div>'+
+        '<div class="mrep-l">Le journaliste</div><div class="mrep-seg" data-s="journalist">'+[['marshall','<img src="avatarchatbot.png" alt="">Marshall'],['femme','👩🏻‍💼 Une journaliste'],['homme','👨🏽‍💼 Un journaliste']].map(function(o){return '<button type="button" data-v="'+o[0]+'" class="'+(S.journalist===o[0]?'on':'')+'">'+o[1]+'</button>';}).join('')+'</div>'+
+        '<div class="mrep-l">Durée</div><div class="mrep-seg" data-s="seconds">'+[15,20,30].map(function(v){return '<button type="button" data-v="'+v+'" class="'+(S.seconds===v?'on':'')+'">'+v+' s</button>';}).join('')+'</div>'+
+        '<button type="button" class="mrep-go" data-go>🎬 Lancer le reportage · '+marshallTokenFmt(cost())+' tokens</button>'+
+        '<small class="mrep-n">Tes photos sont animées telles quelles (ton vrai produit, ta vraie boutique). Marshall n’invente aucun prix ni date. Compte environ 10 min · formule Hyper.</small></div>';
+    }
+    draw();document.body.appendChild(ov);
+    function close(){ov.remove();}
+    ov.addEventListener('input',function(e){var f=e.target.getAttribute&&e.target.getAttribute('data-f');if(f)S[f]=e.target.value;});
+    ov.addEventListener('change',async function(e){
+      if(!e.target.hasAttribute('data-file'))return;
+      var files=[].slice.call(e.target.files||[]).slice(0,3-S.photos.length);
+      for(var i=0;i<files.length;i++){var u=await marshallGjShrink(files[i]);if(u)S.photos.push(u);}
+      draw();
+    });
+    ov.addEventListener('click',function(e){
+      if(e.target===ov||e.target.closest('.msh-x')){close();return;}
+      var b=e.target.closest('button');if(!b)return;
+      var seg=b.parentNode.getAttribute('data-s');
+      if(seg){S[seg]=seg==='seconds'?+b.getAttribute('data-v'):b.getAttribute('data-v');draw();return;}
+      if(b.hasAttribute('data-add')){ov.querySelector('[data-file]').click();return;}
+      if(b.hasAttribute('data-rm')){S.photos.splice(+b.getAttribute('data-rm'),1);draw();return;}
+      if(b.hasAttribute('data-go')){
+        if(!S.name.trim()){toast('Indique le nom de ton commerce.',true);return;}
+        if(S.text.trim().length<10){toast('Décris ce que tu veux annoncer (une phrase suffit).',true);return;}
+        if(!S.photos.length&&!confirm('Sans photo, Marshall imaginera ta boutique et ton produit. Continuer quand même ?'))return;
+        close();
+        try{var dock=document.getElementById('marshall-agent-dock');if(dock&&!dock.classList.contains('open'))marshallAgentDockOpen&&marshallAgentDockOpen();}catch(x){}
+        marshallReportRun({title:S.name+' : '+S.text.slice(0,90)},S.city,{journalist:S.journalist,seconds:S.seconds,hd:false},
+          {mode:'commerce',shop:{kind:S.kind,name:S.name.trim(),city:S.city.trim(),text:S.text.trim(),price:S.price.trim(),dates:S.dates.trim()},photos:S.photos.slice(0,3)});
+      }
+    });
   }
   function marshallNationList(arr,n){return (Array.isArray(arr)?arr:[]).filter(Boolean).slice(0,n||6);}
   function marshallNationRender(box,res,country,focus){
