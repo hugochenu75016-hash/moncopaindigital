@@ -9449,8 +9449,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     finally{ C.busy=false; marshallClipperRefreshResults(); }
   }
   /* ===== Agent « Genjutsu » : ta photo remplace la personne d'une vidéo (mouvement, expressions et décor gardés) ===== */
-  var MARSHALL_GENJUTSU={file:null,image:'',extras:[],mode:'face',seconds:'10',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:''};
+  var MARSHALL_GENJUTSU={file:null,image:'',extras:[],mode:'person',tool:'person',seconds:'10',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:''};
+  var MARSHALL_OBJECT_REPLACE={file:null,videoUrl:'',image:'',imageName:'',transparent:false,corners:[],seconds:'5',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:''};
   function marshallGjCost(){ return marshallTokenFmt(marshallTokenPrice('genjutsu_second',+MARSHALL_GENJUTSU.seconds||10)); }
+  function marshallGjToolSwitch(active){ return '<div class="lgt" style="display:flex;gap:4px"><button type="button" data-gj-tool="person" style="flex:1;border:0;border-radius:12px;padding:9px;background:'+(active==='person'?'#fff':'transparent')+';font-weight:800;cursor:pointer">👤 Personne entière</button><button type="button" data-gj-tool="object" style="flex:1;border:0;border-radius:12px;padding:9px;background:'+(active==='object'?'#fff':'transparent')+';font-weight:800;cursor:pointer">📱 Remplacer un objet</button></div>'; }
   function marshallGjResultHTML(){
     var G=MARSHALL_GENJUTSU;
     if(G.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,G.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(G.msg||'Préparation…')+'</small><small class="gj-wait">Compte environ 7 min pour 5 s, 12 min pour 10 s et 22 min pour 20 s : tu peux continuer à travailler, la vidéo arrivera ici.</small></div>';
@@ -9460,13 +9462,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallGjPanelHTML(prof){
     var G=MARSHALL_GENJUTSU;
+    if(G.tool==='object') return marshallGjObjectPanelHTML(prof);
     var vid='<div class="sai-drop'+(G.file?' has-file':'')+'" data-gj="pickv" tabindex="0" role="button"><div class="sai-drop-empty"><span class="sai-drop-ico">🎬</span>'+(G.file?'<b>'+esc(G.file.name)+'</b><span>'+Math.max(1,Math.round(G.file.size/1048576))+' Mo · clique pour changer</span>':'<b>Ta vidéo</b><span>Une personne bien visible (jusqu’à 20 s utilisées selon la durée choisie)</span>')+'</div></div><input type="file" accept="video/*" data-gj-video hidden>';
     var img='<div class="sai-drop gj-photo'+(G.image?' has-file':'')+'" data-gj="picki" tabindex="0" role="button">'+(G.image?'<img src="'+esc(G.image)+'" alt="">':'<div class="sai-drop-empty"><span class="sai-drop-ico">🧑</span><b>La photo de la personne</b><span>Visage net, de face, bien éclairé (jusqu’à la taille idéalement)</span></div>')+'</div><input type="file" accept="image/*" data-gj-image hidden>';
     var ext='<div class="gj-angles">'+G.extras.map(function(u,i){ return '<div class="gj-angle"><img src="'+esc(u)+'" alt="Angle '+(i+2)+'"><button type="button" data-gj="rmx" data-i="'+i+'" aria-label="Retirer cette photo">✕</button></div>'; }).join('')
       +(G.extras.length<4?'<button type="button" class="gj-angle gj-angle-add" data-gj="pickx" aria-label="Ajouter une photo d’un autre angle"><span>＋</span><small>Autre angle</small></button>':'')
       +'</div><input type="file" accept="image/*" multiple data-gj-extra hidden><p class="gj-angles-tip">Optionnel : 3/4, profil… (4 max). Genjutsu choisit automatiquement la photo qui colle le mieux à l’angle du visage, séquence par séquence.</p>';
-    return '<div class="sai-root gj-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('genjutsu')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'
-      +'<div class="sai-lbl">Mode de remplacement</div>'+marshallLgToggle('mode',[{v:'person',label:'Personne entière',sub:'visage, corps et tenue'},{v:'face',label:'Visage uniquement',sub:'le reste reste inchangé'}],G.mode)
+    return '<div class="sai-root gj-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('genjutsu')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'+marshallGjToolSwitch('person')
+      +'<p style="margin:0;color:#7d6d5e;font-size:12px">Remplacement de la personne entière : visage, corps et tenue.</p>'
       +'<div class="sai-lbl">1. La vidéo</div>'+vid
       +'<div class="sai-lbl">2. Qui apparaît à la place</div>'+img
       +'<div class="sai-lbl">Autres angles du visage</div>'+ext
@@ -9475,13 +9478,53 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       +'<button type="button" class="sai-go1" data-gj="go"'+(G.busy?' disabled':'')+'><span>🎭 Lancer Genjutsu</span><small>≈ '+marshallGjCost()+' tokens</small></button>'
       +'<div class="gj-results">'+marshallGjResultHTML()+'</div></div>';
   }
+  function marshallGjObjectResultHTML(){
+    var O=MARSHALL_OBJECT_REPLACE;
+    if(O.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,O.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(O.msg||'Suivi de l’objet…')+'</small></div>';
+    if(O.error) return '<div class="clp-err">⚠ '+esc(O.error)+'</div>';
+    if(!O.url) return '';
+    return '<div class="gj-result"><video src="'+esc(O.url)+'" controls playsinline></video><span class="mfb-q">Le résultat te plaît&nbsp;?</span><div class="clp-acts"><button type="button" data-gjo="canvas">✅ Insérer sur le canva</button><button type="button" class="mfb-re" data-gjo="retry">🔄 Relancer<small>'+marshallTokenFmt(marshallTokenPrice('object_replace_second',+O.seconds||5))+' tokens</small></button><a href="'+esc(O.url)+'" download="objet-remplace.mp4" target="_blank" rel="noopener">⬇ Télécharger</a></div></div>';
+  }
+  function marshallGjObjectPanelHTML(prof){
+    var O=MARSHALL_OBJECT_REPLACE, video=O.videoUrl?'<div style="position:relative;width:100%;overflow:hidden;border-radius:14px;background:#171717"><video data-gjo-preview muted playsinline preload="metadata" src="'+esc(O.videoUrl)+'" style="display:block;width:100%;height:auto"></video><canvas data-gjo-canvas style="position:absolute;inset:0;width:100%;height:100%;cursor:crosshair"></canvas></div>':'<div class="sai-drop" data-gjo="pickv" tabindex="0" role="button"><div class="sai-drop-empty"><span class="sai-drop-ico">🎬</span><b>Ta vidéo</b><span>Choisis un extrait court où l’objet est visible dès la première image.</span></div></div>';
+    var photo=O.image?'<button type="button" data-gjo="picki" class="sai-drop has-file" style="min-height:120px"><img src="'+esc(O.image)+'" alt="" style="max-width:100%;max-height:130px;object-fit:contain"><b>'+esc(O.imageName||'Photo de remplacement')+'</b><span>'+(O.transparent?'Fond transparent ✓':'Fond à détourer · cliquer pour changer')+'</span></button>':'<div class="sai-drop" data-gjo="picki" tabindex="0" role="button"><div class="sai-drop-empty"><span class="sai-drop-ico">📦</span><b>La photo du nouvel objet</b><span>Photo nette, de face, si possible sur fond uni.</span></div></div>';
+    var ready=!!(O.file&&O.image&&O.transparent&&O.corners.length===4&&O.rights&&!O.busy);
+    return '<div class="sai-root gj-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('genjutsu')+'</span><div class="madock-detail-copy"><b>Remplacer un objet</b><p>Remplace une surface visible en suivant son mouvement dans la vidéo.</p></div></div>'+marshallGjToolSwitch('object')
+      +'<div class="sai-lbl">1. Ta vidéo</div>'+(O.file?'<button type="button" data-gjo="pickv" class="sai-drop has-file" style="min-height:48px;padding:10px">🎬 '+esc(O.file.name)+' · changer</button>':video)+'<input type="file" accept="video/*" data-gjo-video hidden>'
+      +(O.file?'<p style="margin:0;color:#7d6d5e;font-size:11px">Pause à la première image : clique les 4 coins de la face de l’objet dans le sens horaire. L’objet doit rester visible et ne pas trop tourner.</p>'+video+'<small style="color:#9b7f66">Coins sélectionnés : '+O.corners.length+' / 4</small><button type="button" data-gjo="clear">Effacer les coins</button>':'')
+      +'<div class="sai-lbl">2. La photo qui remplace l’objet</div>'+photo+'<input type="file" accept="image/*" data-gjo-image hidden>'
+      +(O.image&&!O.transparent?'<button type="button" data-gjo="detach"'+(O.busy?' disabled':'')+'>✂️ Détourer la photo · ≈ '+marshallTokenFmt(marshallTokenPrice('remove_bg',1))+' tokens</button>':'')
+      +'<div class="sai-lbl">3. Durée traitée</div>'+marshallLgToggle('seconds',[{v:'5',label:'5 s',sub:'extrait court'},{v:'10',label:'10 s',sub:''},{v:'20',label:'20 s',sub:''}],O.seconds)
+      +'<label class="clp-rights"><input type="checkbox" data-gjo-rights'+(O.rights?' checked':'')+'> J’ai le droit d’utiliser cette vidéo et cette photo</label>'
+      +'<button type="button" class="sai-go1" data-gjo="go"'+(ready?'':' disabled')+'><span>📱 Remplacer l’objet</span><small>≈ '+marshallTokenFmt(marshallTokenPrice('object_replace_second',+O.seconds||5))+' tokens</small></button>'
+      +'<p style="margin:0;color:#8a7a6c;font-size:10.5px">Pour le premier essai, choisis une coque tenue assez stable et une photo détourée de la nouvelle coque. Le suivi fonctionne mieux sur une face plane texturée.</p>'
+      +'<div class="gj-results">'+marshallGjObjectResultHTML()+'</div></div>';
+  }
   function marshallGenjutsuRender(detail,prof){
     detail.innerHTML=marshallGjPanelHTML(prof);
     if(!detail._gjBound){ detail._gjBound=true; marshallGjBind(detail); }
+    var pv=detail.querySelector('[data-gjo-preview]'); if(pv){ pv.addEventListener('loadedmetadata',function(){ var c=detail.querySelector('[data-gjo-canvas]'); if(c){c.width=pv.videoWidth||1;c.height=pv.videoHeight||1;marshallGjObjectDraw(detail);} }); pv.addEventListener('loadeddata',function(){marshallGjObjectDraw(detail);}); }
+    marshallGjObjectDraw(detail); marshallGjObjectRefresh();
   }
   function marshallGjRefresh(){
     var box=document.querySelector('#marshall-agent-dock-detail .gj-results'); if(box) box.innerHTML=marshallGjResultHTML();
     var go=document.querySelector('#marshall-agent-dock-detail .gj-root .sai-go1'); if(go) go.disabled=!!MARSHALL_GENJUTSU.busy;
+  }
+  function marshallGjObjectRefresh(){
+    var root=document.querySelector('#marshall-agent-dock-detail .gj-root'); if(!root||MARSHALL_GENJUTSU.tool!=='object')return;
+    var box=root.querySelector('.gj-results'); if(box)box.innerHTML=marshallGjObjectResultHTML();
+    var go=root.querySelector('[data-gjo="go"]'); if(go){var O=MARSHALL_OBJECT_REPLACE;go.disabled=!!O.busy||!O.file||!O.image||!O.transparent||O.corners.length!==4||!O.rights;}
+    marshallGjObjectDraw(root);
+  }
+  function marshallGjObjectDraw(root){
+    if(!root)return; var c=root.querySelector('[data-gjo-canvas]'),v=root.querySelector('[data-gjo-preview]'); if(!c||!v)return;
+    if(v.videoWidth&&c.width!==v.videoWidth){c.width=v.videoWidth;c.height=v.videoHeight;}
+    if(!c.width||!c.height)return; var x=c.getContext('2d'); if(!x)return; x.clearRect(0,0,c.width,c.height);
+    var p=MARSHALL_OBJECT_REPLACE.corners; if(!p.length)return;
+    x.lineWidth=Math.max(3,c.width/220); x.strokeStyle='#ff8a00'; x.fillStyle='rgba(255,138,0,.18)'; x.beginPath();
+    p.forEach(function(q,i){var px=q[0]*c.width,py=q[1]*c.height;if(i===0)x.moveTo(px,py);else x.lineTo(px,py);});
+    if(p.length===4){x.closePath();x.fill();} x.stroke();
+    p.forEach(function(q,i){var px=q[0]*c.width,py=q[1]*c.height;x.beginPath();x.arc(px,py,Math.max(6,c.width/100),0,Math.PI*2);x.fillStyle='#ff8a00';x.fill();x.fillStyle='#fff';x.font='bold '+Math.max(12,c.width/45)+'px Arial';x.textAlign='center';x.textBaseline='middle';x.fillText(String(i+1),px,py);});
   }
   function marshallGjBind(detail){
     var prof=function(){ return marshallAgentShowcaseData().genjutsu; };
@@ -9495,6 +9538,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     detail.addEventListener('click',function(e){
       var root=e.target.closest('.gj-root'); if(!root) return;
       var G=MARSHALL_GENJUTSU, tb=e.target.closest('.lgt button');
+      var tool=e.target.closest('[data-gj-tool]'); if(tool){ G.tool=tool.getAttribute('data-gj-tool'); marshallGenjutsuRender(detail,prof()); return; }
+      if(G.tool==='object'){
+        if(tb){ var ov=tb.getAttribute('data-v'); MARSHALL_OBJECT_REPLACE.seconds=ov; marshallGenjutsuRender(detail,prof()); return; }
+        var oa=e.target.closest('[data-gjo]'); if(oa){ var actO=oa.getAttribute('data-gjo'), O=MARSHALL_OBJECT_REPLACE;
+          if(actO==='pickv'){root.querySelector('[data-gjo-video]').click();return;} if(actO==='picki'){root.querySelector('[data-gjo-image]').click();return;}
+          if(actO==='clear'){O.corners=[];marshallGenjutsuRender(detail,prof());return;} if(actO==='detach'){marshallGjObjectDetach();return;}
+          if(actO==='go'||actO==='retry'){marshallGjObjectRun();return;} if(actO==='canvas'&&O.url){try{marshallFreshReset();}catch(x){} marshallVideoToCanvas(O.url,'Remplacement objet',{});toast('🎬 Vidéo posée sur un nouveau canva.');return;}
+        }
+        if(e.target.closest('[data-gjo-canvas]')){var cv=e.target.closest('[data-gjo-canvas]'),rc=cv.getBoundingClientRect(),p=MARSHALL_OBJECT_REPLACE.corners;if(p.length>=4)p=[];p.push([Math.max(0,Math.min(1,(e.clientX-rc.left)/rc.width)),Math.max(0,Math.min(1,(e.clientY-rc.top)/rc.height))]);MARSHALL_OBJECT_REPLACE.corners=p;marshallGjObjectRefresh();return;}
+        return;
+      }
       if(tb){ var tg=tb.parentNode, k=tg.getAttribute('data-k'), v=tb.getAttribute('data-v'); if(G[k]===v) return; G[k]=v; marshallStudioSlide(tg,v); var go=root.querySelector('.sai-go1 small'); if(go) go.textContent='≈ '+marshallGjCost()+' tokens'; return; }
       var a=e.target.closest('[data-gj]'); if(!a) return;
       var act=a.getAttribute('data-gj');
@@ -9508,6 +9562,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     });
     detail.addEventListener('change',function(e){
       var t=e.target; if(!t.hasAttribute) return;
+      if(t.hasAttribute('data-gjo-rights')){MARSHALL_OBJECT_REPLACE.rights=!!t.checked;marshallGjObjectRefresh();return;}
+      if(t.hasAttribute('data-gjo-video')){var vf=t.files&&t.files[0];if(!vf)return;var O=MARSHALL_OBJECT_REPLACE;O.file=vf;O.videoUrl=URL.createObjectURL(vf);O.corners=[];O.url='';O.error='';marshallGenjutsuRender(detail,prof());return;}
+      if(t.hasAttribute('data-gjo-image')){var imf=t.files&&t.files[0];if(!imf)return;if(imf.size>10*1024*1024){toast('Photo trop lourde (10 Mo max).',true);return;}var rd=new FileReader();rd.onload=function(){var O=MARSHALL_OBJECT_REPLACE;O.image=rd.result;O.imageName=imf.name;O.transparent=false;O.error='';var img=new Image();img.onload=function(){try{var c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;var x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0);var d=x.getImageData(0,0,c.width,c.height).data,alpha=false;for(var i=3;i<d.length;i+=4)if(d[i]<250){alpha=true;break;}O.transparent=alpha;}catch(e){} marshallGenjutsuRender(detail,prof());};img.src=O.image;};rd.readAsDataURL(imf);return;}
       if(t.hasAttribute('data-gj-rights')){ MARSHALL_GENJUTSU.rights=!!t.checked; return; }
       if(t.hasAttribute('data-gj-video')){ setVideo(t.files&&t.files[0]); return; }
       if(t.hasAttribute('data-gj-image')){ setImage(t.files&&t.files[0]); }
@@ -9516,6 +9573,21 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     detail.addEventListener('dragover',function(e){ var z=e.target.closest&&e.target.closest('.gj-root .sai-drop'); if(!z) return; e.preventDefault(); z.classList.add('over'); });
     detail.addEventListener('dragleave',function(e){ var z=e.target.closest&&e.target.closest('.gj-root .sai-drop'); if(z) z.classList.remove('over'); });
     detail.addEventListener('drop',function(e){ var z=e.target.closest&&e.target.closest('.gj-root .sai-drop'); if(!z) return; e.preventDefault(); var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(!f) return; if(z.classList.contains('gj-photo')) setImage(f); else setVideo(f); });
+  }
+  async function marshallGjObjectDetach(){
+    var O=MARSHALL_OBJECT_REPLACE;if(O.busy||!O.image)return;O.busy=true;O.error='';marshallGjObjectRefresh();
+    try{var h=await authHeaders(),r=await fetch(MARSHALL_CREWAI_BASE+'/image/remove-bg',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},h),body:JSON.stringify({image:O.image})}),d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'Détourage impossible');O.image=d.image||d.image_data_url||d.data_url||O.image;O.transparent=true;try{if(d.tokens_left!=null)marshallTokensFromResponse(d);}catch(e){}toast('Photo détourée. Vérifie le résultat avant de lancer.');}
+    catch(e){O.error=e.message||'Détourage impossible.';}finally{O.busy=false;var dt=document.querySelector('#marshall-agent-dock-detail');if(dt)marshallGenjutsuRender(dt,marshallAgentShowcaseData().genjutsu);}
+  }
+  async function marshallGjObjectRun(){
+    var O=MARSHALL_OBJECT_REPLACE;if(O.busy)return;if(!authUser){toast('Connecte-toi pour continuer.',true);return;}if(!O.file||!O.image||!O.transparent||O.corners.length!==4||!O.rights){toast('Complète les étapes avant de lancer.',true);return;}
+    O.busy=true;O.url='';O.error='';O.progress=1;O.msg='Envoi de la vidéo…';marshallGjObjectRefresh();
+    try{var hd=await authHeaders(),sid=await new Promise(function(resolve,reject){var x=new XMLHttpRequest();x.open('POST',MARSHALL_CREWAI_BASE+'/video/clip/upload');Object.keys(hd).forEach(function(k){if(k.toLowerCase()!=='content-type')x.setRequestHeader(k,hd[k]);});x.setRequestHeader('Content-Type',O.file.type||'application/octet-stream');x.upload.onprogress=function(ev){if(ev.lengthComputable){O.progress=Math.max(2,Math.round(10*ev.loaded/ev.total));O.msg='Envoi de la vidéo…';marshallGjObjectRefresh();}};x.onload=function(){var d={};try{d=JSON.parse(x.responseText||'{}');}catch(e){}if(x.status>=200&&x.status<300&&d.ok&&d.source_id)resolve(d.source_id);else reject(Error(d.error||'Envoi refusé ('+x.status+')'));};x.onerror=function(){reject(Error('Envoi de la vidéo interrompu.'));};x.send(O.file);});
+      var response=await fetch(MARSHALL_CREWAI_BASE+'/video/object-replace',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},hd),body:JSON.stringify({source_id:sid,image:O.image,corners:O.corners,seconds:+O.seconds,rights:O.rights})}),d=await response.json();if(!response.ok||!d.ok)throw Error(d.error||'Lancement refusé');O.task=d.task_id;try{if(d.tokens)marshallTokensFromResponse(d);}catch(e){}
+      while(O.busy){await new Promise(function(r){setTimeout(r,2500);});var s=await fetch(MARSHALL_CREWAI_BASE+'/video/object-replace/'+encodeURIComponent(O.task),{headers:await authHeaders()}),st=await s.json();if(!s.ok||!st.ok)throw Error(st.error||'Suivi indisponible');O.progress=st.progress||O.progress;O.msg=st.message||'Suivi de l’objet…';marshallGjObjectRefresh();if(st.failed)throw Error(st.error||'Le suivi de l’objet a échoué.');if(st.done){O.url=st.video_url;O.busy=false;O.progress=100;O.msg='Terminé';break;}}
+      if(!O.url)throw Error('Aucune vidéo résultat reçue.');try{mcdLibrarySaveUrl(O.url,'video','Remplacement objet');}catch(e){}toast('Remplacement terminé.');
+    }catch(e){O.error=e.message||'Échec du remplacement.';try{var fres=await fetch(MARSHALL_CREWAI_BASE+'/video/object-replace/'+encodeURIComponent(O.task||''),{headers:await authHeaders()}),fd=await fres.json();if(fd.tokens)marshallTokensFromResponse(fd);}catch(x){}}
+    finally{O.busy=false;marshallGjObjectRefresh();}
   }
   // Photo réduite (1600 px max, JPEG) pour garder un envoi léger : largement assez pour le visage
   function marshallGjShrink(f){
@@ -9547,7 +9619,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         x.onerror=function(){ reject(Error('Envoi de la vidéo interrompu.')); };
         x.send(G.file);
       });
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,images:G.extras.slice(0,4),mode:G.mode==='face'?'face':'person',seconds:+G.seconds||10,rights:true})});
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,images:G.extras.slice(0,4),mode:'person',seconds:+G.seconds||10,rights:true})});
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
       if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
@@ -11645,7 +11717,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   /* ===== Tokens : 1 € dépensé = 1 500 tokens · 1 500 tokens / jour · admin et commerciaux illimités (contrôlé par le serveur) ===== */
   var marshallTokenState={st:null,at:0,pending:null};
-  var MARSHALL_TOKEN_FALLBACK_PRICES={genjutsu_second:581,avatar_second:91,wan_hd_second:78,wan_second:65,wan_pro_second:78,report_second:129,captions:13,voiceover:39,chat:3,qwen_image:65,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
+  var MARSHALL_TOKEN_FALLBACK_PRICES={genjutsu_second:581,object_replace_second:13,remove_bg:4,avatar_second:91,wan_hd_second:78,wan_second:65,wan_pro_second:78,report_second:129,captions:13,voiceover:39,chat:3,qwen_image:65,image:87,image_pro:173,veo_lite_second:39,veo_fast_second:129,crew:26,analysis:13,clip:78,nation:52};
   function marshallTokenPrice(kind,units){var p=(marshallTokenState.st&&marshallTokenState.st.prices)||MARSHALL_TOKEN_FALLBACK_PRICES;return Math.ceil((p[kind]||MARSHALL_TOKEN_FALLBACK_PRICES[kind]||1)*(units||1));}
   function marshallTokenFmt(n){return Number(n||0).toLocaleString('fr-FR');}
   /* Machine encore chaude : relancer tout de suite coûte moins (le GPU n'a pas à redémarrer). Le serveur fait foi. */
