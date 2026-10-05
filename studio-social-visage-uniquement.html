@@ -9513,7 +9513,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallGjObjectRefresh(){
     var root=document.querySelector('#marshall-agent-dock-detail .gj-root'); if(!root||MARSHALL_GENJUTSU.tool!=='object')return;
     var box=root.querySelector('.gj-results'); if(box)box.innerHTML=marshallGjObjectResultHTML();
-    var go=root.querySelector('[data-gjo="go"]'); if(go){var O=MARSHALL_OBJECT_REPLACE;go.disabled=!!O.busy||!O.file||!O.image||!O.transparent||O.corners.length!==4||!O.rights;}
+    var O=MARSHALL_OBJECT_REPLACE;root.querySelectorAll('[data-gjo]').forEach(function(a){if('disabled' in a)a.disabled=!!O.busy;});
+    var go=root.querySelector('[data-gjo="go"]'); if(go)go.disabled=!!O.busy||!O.file||!O.image||!O.transparent||O.corners.length!==4||!O.rights;
     marshallGjObjectDraw(root);
   }
   function marshallGjObjectDraw(root){
@@ -9540,6 +9541,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var G=MARSHALL_GENJUTSU, tb=e.target.closest('.lgt button');
       var tool=e.target.closest('[data-gj-tool]'); if(tool){ G.tool=tool.getAttribute('data-gj-tool'); marshallGenjutsuRender(detail,prof()); return; }
       if(G.tool==='object'){
+        if(MARSHALL_OBJECT_REPLACE.busy)return;
         if(tb){ var ov=tb.getAttribute('data-v'); MARSHALL_OBJECT_REPLACE.seconds=ov; marshallGenjutsuRender(detail,prof()); return; }
         var oa=e.target.closest('[data-gjo]'); if(oa){ var actO=oa.getAttribute('data-gjo'), O=MARSHALL_OBJECT_REPLACE;
           if(actO==='pickv'){root.querySelector('[data-gjo-video]').click();return;} if(actO==='picki'){root.querySelector('[data-gjo-image]').click();return;}
@@ -9575,9 +9577,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     detail.addEventListener('drop',function(e){ var z=e.target.closest&&e.target.closest('.gj-root .sai-drop'); if(!z) return; e.preventDefault(); var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(!f) return; if(z.classList.contains('gj-photo')) setImage(f); else setVideo(f); });
   }
   async function marshallGjObjectDetach(){
-    var O=MARSHALL_OBJECT_REPLACE;if(O.busy||!O.image)return;O.busy=true;O.error='';marshallGjObjectRefresh();
-    try{var h=await authHeaders(),r=await fetch(MARSHALL_CREWAI_BASE+'/image/remove-bg',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},h),body:JSON.stringify({image:O.image})}),d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'Détourage impossible');O.image=d.image||d.image_data_url||d.data_url||O.image;O.transparent=true;try{if(d.tokens_left!=null)marshallTokensFromResponse(d);}catch(e){}toast('Photo détourée. Vérifie le résultat avant de lancer.');}
-    catch(e){O.error=e.message||'Détourage impossible.';}finally{O.busy=false;var dt=document.querySelector('#marshall-agent-dock-detail');if(dt)marshallGenjutsuRender(dt,marshallAgentShowcaseData().genjutsu);}
+    var O=MARSHALL_OBJECT_REPLACE;if(O.busy||!O.image)return;O.busy=true;O.error='';O.progress=3;O.msg='Envoi de la photo…';marshallGjObjectRefresh();
+    try{var h=await authHeaders(),r=await fetch(MARSHALL_CREWAI_BASE+'/image/remove-bg/start',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},h),body:JSON.stringify({image:O.image})}),d=await r.json();if(!r.ok||!d.ok)throw Error(d.error||'Impossible de démarrer le détourage');if(d.tokens)marshallTokensFromResponse(d);var task=d.task_id;if(!task)throw Error('Identifiant de détourage manquant');
+      O.msg='Détourage de la photo…';O.progress=10;marshallGjObjectRefresh();
+      while(O.busy){await new Promise(function(r){setTimeout(r,1800);});var sr=await fetch(MARSHALL_CREWAI_BASE+'/image/remove-bg/status/'+encodeURIComponent(task),{headers:await authHeaders()}),st=await sr.json();if(!sr.ok||!st.ok)throw Error(st.error||'Suivi du détourage indisponible');O.msg=st.message||'Détourage de la photo…';O.progress=Math.max(O.progress,st.progress||0);marshallGjObjectRefresh();if(st.failed)throw Error(st.error||'Détourage échoué');if(st.done){if(!st.image)throw Error('Le détourage est terminé mais aucune image n’a été reçue');O.image=st.image;O.transparent=true;if(st.tokens)marshallTokensFromResponse(st);O.progress=100;break;}}
+      toast('Photo détourée. Vérifie le résultat avant de lancer.');
+    }catch(e){O.error=e.message||'Détourage impossible.';}finally{O.busy=false;var dt=document.querySelector('#marshall-agent-dock-detail');if(dt)marshallGenjutsuRender(dt,marshallAgentShowcaseData().genjutsu);}
   }
   async function marshallGjObjectRun(){
     var O=MARSHALL_OBJECT_REPLACE;if(O.busy)return;if(!authUser){toast('Connecte-toi pour continuer.',true);return;}if(!O.file||!O.image||!O.transparent||O.corners.length!==4||!O.rights){toast('Complète les étapes avant de lancer.',true);return;}
