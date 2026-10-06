@@ -3418,8 +3418,8 @@
     m.style.top=(r.bottom+8)+'px';
   }
   function refreshDownloadOptions(){
-    var b=$('#dl-video'), m=firstMedia();
-    if(b) b.style.display=(m && m.type==='video')?'flex':'none';
+    var b=$('#dl-video'), m=videoMedia();
+    if(b) b.style.display=m?'flex':'none';
   }
   function shareUrl(){
     var m=comp.media[0];
@@ -3477,7 +3477,7 @@
       return;
     }
     if(a==='video'){
-      var vm=firstMedia();
+      var vm=videoMedia();
       if(!vm || vm.type!=='video' || !vm.url){ toast('Aucune vidéo montée à télécharger.', true); return; }
       var original=String(vm.name||'video.mp4');
       var base=original.replace(/\.[^.]+$/,'')||'video';
@@ -3895,6 +3895,7 @@
   function connBg(id){ return id==='instagram'?'linear-gradient(45deg,#f09433,#dc2743,#bc1888)':bg(id); }
   function initials(n){ return (String(n||'M').trim().split(/\s+/).map(function(w){return w[0];}).join('').slice(0,2)||'M').toUpperCase(); }
   function firstMedia(){ return comp.media[0]||null; }
+  function videoMedia(){ return comp.media.filter(function(m){ return m && m.type==='video' && m.url; })[0]||null; }
   function mediaHtml(m){ if(!m) return ''; var st=cropStyle(); return m.type==='video'?('<video src="'+m.url+'" muted style="'+st+'"></video>'):('<img src="'+m.url+'" alt="" style="'+st+'">'); }
   function ratioNum(r){ return ({'1:1':1,'4:5':0.8,'1.91:1':1.91,'9:16':0.5625,'original':0})[r]||1; }
   // Recadre réellement une image (JPEG) selon le format + position, en restant dans les limites Instagram (0.8–1.91)
