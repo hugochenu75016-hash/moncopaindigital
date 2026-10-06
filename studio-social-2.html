@@ -6514,6 +6514,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function edPolyCss(p){ return 'polygon('+p.split(',').map(function(pt){ var a=pt.trim().split(/\s+/); return a[0]+'% '+a[1]+'%'; }).join(',')+')'; }
 
   var ed={ fmt:'1:1', bg:'#ffffff', layers:[], sel:null, seq:0, hist:[], hi:-1, viewZoom:1, safeZones:false, preview:false, pageMotion:{duration:3.8,stagger:0.12,transition:'fade',autoplay:false} };
+  var edExportVideoEl=null, edExportVideoBusy=false;
 
   function edW(){ return ED_FMT[ed.fmt][0]; }
   function edH(){ return ED_FMT[ed.fmt][1]; }
@@ -16774,7 +16775,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         g.clip(); g.drawImage(l._img,dx,dy,dw,dh);
       }
       else if(l.type==='video'){
-        var vEl=document.querySelector('#ed-page .ed-layer[data-lid="'+l.id+'"] video');
+        var vEl=edExportVideoEl||document.querySelector('#ed-page .ed-layer[data-lid="'+l.id+'"] video');
         g.beginPath(); g.rect(bx,by,bw,bh); g.clip(); g.fillStyle='#000'; g.fillRect(bx,by,bw,bh);
         if(vEl&&vEl.readyState>=2&&vEl.videoWidth){ var vw=vEl.videoWidth, vh=vEl.videoHeight, vs=Math.max(bw/vw,bh/vh); try{ g.drawImage(vEl,bx+(bw-vw*vs)/2,by+(bh-vh*vs)/2,vw*vs,vh*vs); }catch(e){} }
       }
@@ -16841,6 +16842,49 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function refreshDownloadOptions(){
     // L’option reste visible : l’export vidéo peut être produit au moment du clic.
   }
+  async function edExportComposedVideo(){
+    if(edExportVideoBusy)return;
+    var vl=(ed.layers||[]).find(function(l){return l&&l.type==='video'&&l.url;});
+    if(!vl){ toast('Ajoutez d’abord une vidéo sur le canvas.', true); return; }
+    if(typeof MediaRecorder==='undefined'||!HTMLCanvasElement.prototype.captureStream){
+      toast('Export vidéo non supporté par ce navigateur. Utilisez Chrome ou Edge récent.', true); return;
+    }
+    edExportVideoBusy=true;
+    var src=edVideoOut(vl), v=document.createElement('video'), audioCtx=null;
+    v.crossOrigin='anonymous'; v.playsInline=true; v.preload='auto'; v.muted=false; v.src=src;
+    try{
+      await new Promise(function(resolve,reject){
+        v.onloadedmetadata=resolve; v.onerror=function(){reject(Error('Vidéo source illisible'));}; v.load();
+      });
+      var W=edW(), H=edH(), cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+      var ctx=cv.getContext('2d'), stream=cv.captureStream(30);
+      try{
+        audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+        var asrc=audioCtx.createMediaElementSource(v), audioDest=audioCtx.createMediaStreamDestination();
+        asrc.connect(audioDest); audioDest.stream.getAudioTracks().forEach(function(t){stream.addTrack(t);});
+        await audioCtx.resume();
+      }catch(e){ console.warn('Audio export vidéo',e); }
+      var mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(function(m){return MediaRecorder.isTypeSupported(m);})||'';
+      var rec=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:8000000}:{videoBitsPerSecond:8000000}), chunks=[];
+      rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};
+      var done=new Promise(function(resolve,reject){rec.onstop=function(){resolve(new Blob(chunks,{type:mime||'video/webm'}));};rec.onerror=function(e){reject(e.error||Error('Erreur export vidéo'));};});
+      var duration=Number.isFinite(v.duration)&&v.duration>0?v.duration:10;
+      edExportVideoEl=v; rec.start(250); await v.play();
+      toast('Export vidéo avec texte en cours…');
+      await new Promise(function(resolve){
+        function draw(){
+          var frame=edBuildCanvas(); if(frame)ctx.drawImage(frame,0,0,W,H);
+          if(v.ended||v.currentTime>=duration-.04){resolve();return;}
+          requestAnimationFrame(draw);
+        }
+        requestAnimationFrame(draw);
+      });
+      v.pause(); rec.stop(); var blob=await done;
+      var url=URL.createObjectURL(blob); dlBlob(url,'studiosocial.webm');
+      setTimeout(function(){URL.revokeObjectURL(url);},30000); toast('Vidéo montée téléchargée 🎬');
+    }catch(e){ console.error('Export vidéo montée',e); toast('Export vidéo impossible : '+(e&&e.message?e.message:'erreur'),true); }
+    finally{ edExportVideoEl=null; if(audioCtx)try{await audioCtx.close();}catch(e){} edExportVideoBusy=false; }
+  }
   function shareUrl(){
     var m=comp.media[0];
     if(m && /^https?:/.test(m.url)) return m.url;
@@ -16897,17 +16941,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return;
     }
     if(a==='video'){
-      var vm=videoMedia();
-      if(!vm && typeof edExportToMedia==='function'){
-        try{ edExportToMedia(); }catch(e){ console.warn('Export vidéo',e); }
-        vm=videoMedia();
-      }
-      if(!vm){ toast('Aucune vidéo montée à télécharger.', true); return; }
-      var original=String(vm.name||'video.webm');
-      var base=original.replace(/\.[^.]+$/,'')||'video';
-      var ext=(original.match(/\.([a-z0-9]+)$/i)||[])[1]||'webm';
-      dlBlob(vm.url, base+'.'+ext);
-      toast('Vidéo téléchargée 🎬');
+      edExportComposedVideo();
       return;
     }
     var cvx=edBuildCanvas();
