@@ -2503,6 +2503,7 @@
     }).join('');
     $all('#media-thumbs .rm').forEach(function(b){ b.addEventListener('click', function(){ comp.media.splice(+b.getAttribute('data-i'),1); renderThumbs(); renderPreview(); }); });
     renderCrop();
+    if(typeof refreshDownloadOptions==='function') refreshDownloadOptions();
   }
 
   // planification
@@ -3276,6 +3277,10 @@
 
   /* --- export : aplatit la page en image --- */
   function edExportToMedia(){
+    // Une vidéo montée doit rester le média exporté : ne pas l’aplatir en image
+    // lorsque l’utilisateur passe de l’éditeur au panneau de publication.
+    var existingVideo=comp.media.filter(function(m){ return m && m.type==='video' && m.url; })[0];
+    if(existingVideo){ renderThumbs(); return; }
     var cvx=edBuildCanvas(); if(!cvx) return;
     comp.media=[{ type:'image', url:cvx.toDataURL('image/png'), name:'creation.png' }];
     renderThumbs();
