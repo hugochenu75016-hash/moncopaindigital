@@ -2810,8 +2810,8 @@ html.scl-lock,html.scl-lock body{overflow:hidden}
 .scl-tools{flex-shrink:0;display:flex;flex-wrap:wrap;gap:8px;padding:6px 18px}
 .scl-search{flex:1 1 220px;min-width:0;height:40px;padding:0 14px;border:2px solid #e6dccf;border-radius:12px;font:inherit;font-size:14px;outline:none}
 .scl-search:focus{border-color:#3B2A1C}
-.scl-seg{display:inline-flex;background:#f3eee8;border-radius:12px;padding:3px}
-.scl-seg button{border:0;background:transparent;padding:0 12px;height:34px;border-radius:9px;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer;color:#5b4a3a;white-space:nowrap}
+.scl-seg{flex-shrink:0;display:flex;gap:2px;margin:4px 18px 0;background:#f3eee8;border-radius:12px;padding:3px;overflow-x:auto;scrollbar-width:none}.scl-seg::-webkit-scrollbar{display:none}
+.scl-seg button{flex:0 0 auto;border:0;background:transparent;padding:0 12px;height:34px;border-radius:9px;font-weight:600;font-size:13px;font-family:inherit;cursor:pointer;color:#5b4a3a;white-space:nowrap}
 .scl-seg button.on{background:#fff;color:#3B2A1C;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .scl-met{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#7a6b5d}
 .scl-met select{height:40px;border:2px solid #e6dccf;border-radius:12px;padding:0 10px;font:inherit;font-size:13.5px;background:#fff;max-width:190px}
@@ -2838,9 +2838,9 @@ html.scl-lock,html.scl-lock body{overflow:hidden}
 .scl-actions .scl-main{background:#3B2A1C;border-color:#3B2A1C;color:#fff}
 .scl-actions .scl-ai{background:linear-gradient(135deg,#f3ecff,#fff);border-color:#d8c8f4;color:#5d2caa}
 .scl-actions button:disabled{opacity:.6;cursor:wait}
-.scl-empty{padding:40px 16px;text-align:center;color:#8a7a6a}
+.scl-credits{margin:6px 2px 0;font-size:10.5px;color:#a89888}.scl-empty{padding:40px 16px;text-align:center;color:#8a7a6a}
 #view-composer .hdr-actions #hdr-books{cursor:pointer!important}
-@media (max-width:600px){#scl-pop{padding:0;align-items:flex-end}.scl-sheet{max-height:92dvh;border-radius:22px 22px 0 0;border-bottom:0;box-shadow:0 -10px 40px rgba(0,0,0,.25)}.scl-met{flex:1 1 100%}.scl-met select{flex:1;max-width:none}.scl-seg{flex:1 1 100%}.scl-seg button{flex:1}.scl-actions button{flex:1 1 auto}}
+@media (max-width:600px){#scl-pop{padding:0;align-items:flex-end}.scl-sheet{max-height:92dvh;border-radius:22px 22px 0 0;border-bottom:0;box-shadow:0 -10px 40px rgba(0,0,0,.25)}.scl-met{flex:1 1 100%}.scl-met select{flex:1;max-width:none}.scl-actions button{flex:1 1 auto}}
 #view-composer .hdr-actions .hdr-books{width:36px!important;min-width:36px!important;height:36px!important;padding:0!important;justify-content:center!important;cursor:default!important}
 #view-composer .hdr-actions .hdr-books svg{width:18px;height:18px;display:block}
 #view-composer .hdr-actions .hdr-books:hover{background:#fff!important;color:#474742!important}
@@ -17036,87 +17036,113 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   })();
 
 
-  /* ============ BIBLIOTHÈQUE DE SCRIPTS (icône livres de l'en-tête) ============ */
+  /* ============ BIBLIOTHÈQUE DE SCRIPTS ET DE PROMPTS (icône livres de l'en-tête) — une fichier par langue ============ */
   var SCL={type:'tous',obj:'tous',met:'tous',q:'',open:null,adapted:{},busy:{}};
   function sclLoad(){
     if(window.MCD_SCRIPTS)return Promise.resolve();
-    return new Promise(function(res,rej){var s=document.createElement('script');s.src='studio-scripts.js?v=1';s.onload=res;s.onerror=function(){rej(Error('Bibliothèque introuvable'));};document.head.appendChild(s);});
+    var lang=window.MCD_LANG||'fr';
+    function add(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=res;s.onerror=function(){s.remove();rej(Error('library'));};document.head.appendChild(s);});}
+    return (lang==='fr'?add('studio-scripts.js?v=2'):add('studio-scripts-'+lang+'.js?v=2').catch(function(){return add('studio-scripts.js?v=2');}));
   }
+  function sclU(k,n){var u=((window.MCD_SCRIPTS_META||{}).ui||{})[k]||k;return n!=null?u.replace('{n}',n):u;}
   function sclNorm(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');}
-  function sclList(){
-    var q=sclNorm(SCL.q).split(/\s+/).filter(Boolean);
+  function sclBase(){
     return (window.MCD_SCRIPTS||[]).map(function(x,i){x.i=i;return x;}).filter(function(x){
       if(SCL.type!=='tous'&&x.t!==SCL.type)return false;
-      if(SCL.obj!=='tous'&&x.o!==SCL.obj)return false;
       if(SCL.met!=='tous'&&x.s!==SCL.met&&x.s!=='tous')return false;
+      return true;
+    });
+  }
+  function sclList(base){
+    var q=sclNorm(SCL.q).split(/\s+/).filter(Boolean);
+    return base.filter(function(x){
+      if(SCL.obj!=='tous'&&x.o!==SCL.obj)return false;
       if(q.length){var h=sclNorm(x.n+' '+x.x);if(!q.every(function(w){return h.indexOf(w)>=0;}))return false;}
       return true;
-    }).sort(function(a,b){return (SCL.met!=='tous'?((b.s===SCL.met)-(a.s===SCL.met)):0);});
+    }).sort(function(a,b){return SCL.met!=='tous'?((b.s===SCL.met)-(a.s===SCL.met)):0;});
   }
-  function sclChips(key,map,withAll){
-    var h=withAll?'<button type="button" class="scl-chip'+(SCL[key]==='tous'?' on':'')+'" data-scl-'+key+'="tous">Tout</button>':'';
-    Object.keys(map).forEach(function(k){if(key==='met'&&k==='tous')return;h+='<button type="button" class="scl-chip'+(SCL[key]===k?' on':'')+'" data-scl-'+key+'="'+k+'">'+esc(map[k])+'</button>';});
-    return h;
-  }
+  function sclKind(x){return {video:sclU('kVideo'),post:sclU('kPost'),img:sclU('kImg'),vid:sclU('kVid')}[x.t]||'';}
+  function sclIcon(x){return {video:'🎬',post:'✍️',img:'🖼️',vid:'🎥'}[x.t]||'•';}
   function sclRender(){
-    var box=document.getElementById('scl-pop');if(!box)return;var M=window.MCD_SCRIPTS_META||{objectifs:{},metiers:{}};
-    var items=sclList();
-    var head='<div class="scl-head"><div><h2>📚 Bibliothèque de scripts</h2><p>'+(window.MCD_SCRIPTS||[]).length+' scripts vidéo et légendes testés. Remplace les [crochets] ou laisse Marshall l’adapter à ta marque.</p></div><button type="button" class="scl-x" data-scl-close aria-label="Fermer">✕</button></div>'
-      +'<div class="scl-tools"><input type="search" class="scl-search" placeholder="Rechercher : avant/après, concours, recrutement…" value="'+esc(SCL.q)+'">'
-      +'<div class="scl-seg">'+[['tous','Tout'],['video','🎬 Vidéos'],['post','✍️ Légendes']].map(function(t){return '<button type="button" class="'+(SCL.type===t[0]?'on':'')+'" data-scl-type="'+t[0]+'">'+t[1]+'</button>';}).join('')+'</div>'
-      +'<label class="scl-met">Métier <select data-scl-met-sel>'+Object.keys(M.metiers).map(function(k){return '<option value="'+k+'"'+(SCL.met===k?' selected':'')+'>'+esc(M.metiers[k])+'</option>';}).join('')+'</select></label></div>'
-      +'<div class="scl-chips">'+sclChips('obj',M.objectifs,true)+'</div>';
+    var box=document.getElementById('scl-pop');if(!box)return;var M=window.MCD_SCRIPTS_META||{objectifs:{},metiers:{},types:{}};
+    var base=sclBase(),present={};base.forEach(function(x){present[x.o]=1;});
+    if(SCL.obj!=='tous'&&!present[SCL.obj])SCL.obj='tous';
+    var items=sclList(base),objs={};Object.keys(M.objectifs).forEach(function(k){if(present[k])objs[k]=M.objectifs[k];});
+    var head='<div class="scl-head"><div><h2>📚 '+esc(sclU('title'))+'</h2><p>'+esc(sclU('lead',(window.MCD_SCRIPTS||[]).length))+'</p></div><button type="button" class="scl-x" data-scl-close aria-label="'+esc(sclU('close'))+'">✕</button></div>'
+      +'<div class="scl-tools"><input type="search" class="scl-search" placeholder="'+esc(sclU('search'))+'" value="'+esc(SCL.q)+'">'
+      +'<label class="scl-met">'+esc(sclU('metier'))+' <select data-scl-met-sel>'+Object.keys(M.metiers).map(function(k){return '<option value="'+k+'"'+(SCL.met===k?' selected':'')+'>'+esc(M.metiers[k])+'</option>';}).join('')+'</select></label></div>'
+      +'<div class="scl-seg">'+Object.keys(M.types).map(function(k){return '<button type="button" class="'+(SCL.type===k?'on':'')+'" data-scl-type="'+k+'">'+esc(M.types[k])+'</button>';}).join('')+'</div>'
+      +'<div class="scl-chips"><button type="button" class="scl-chip'+(SCL.obj==='tous'?' on':'')+'" data-scl-obj="tous">'+esc(sclU('all'))+'</button>'+Object.keys(objs).map(function(k){return '<button type="button" class="scl-chip'+(SCL.obj===k?' on':'')+'" data-scl-obj="'+k+'">'+esc(objs[k])+'</button>';}).join('')+'</div>';
     var list=items.length?items.map(function(x){
-      var open=SCL.open===x.i,ad=SCL.adapted[x.i],txt=ad||x.x;
-      return '<article class="scl-card'+(open?' open':'')+'" data-scl-i="'+x.i+'"><button type="button" class="scl-card-head" data-scl-toggle="'+x.i+'"><span class="scl-ic">'+(x.t==='video'?'🎬':'✍️')+'</span><span class="scl-ttl"><b>'+esc(x.n)+'</b><small>'+(x.t==='video'?'Script vidéo · '+esc(x.d||''):'Légende')+' · '+esc((M.objectifs[x.o]||x.o).replace(/^\S+\s/,''))+(x.s!=='tous'?' · '+esc(M.metiers[x.s]||x.s):'')+'</small></span><span class="scl-chev">'+(open?'▴':'▾')+'</span></button>'
-        +(open?'<div class="scl-body">'+(ad?'<div class="scl-adapted">✨ Version adaptée par Marshall <button type="button" data-scl-orig="'+x.i+'">voir l’original</button></div>':'')+'<pre class="scl-text">'+esc(txt)+'</pre><div class="scl-actions"><button type="button" class="scl-main" data-scl-insert="'+x.i+'">⬇ Insérer dans la légende</button><button type="button" data-scl-copy="'+x.i+'">📋 Copier</button><button type="button" class="scl-ai" data-scl-adapt="'+x.i+'"'+(SCL.busy[x.i]?' disabled':'')+'>'+(SCL.busy[x.i]?'✨ Marshall écrit…':'✨ '+(ad?'Autre version':'Adapter avec Marshall'))+'</button></div></div>':'<p class="scl-peek">'+esc(x.x.split('\n').filter(function(l){return l.trim()&&!/^(🎬|📍|👉)/.test(l);})[0]||'')+'</p>')
+      var open=SCL.open===x.i,ad=SCL.adapted[x.i],txt=ad||x.x,gen=x.t==='img'||x.t==='vid';
+      var peek=x.x.split('\n').filter(function(l){return l.trim()&&!/^(🎬|📍|👉)/.test(l);})[0]||'';
+      var acts=gen?'<button type="button" class="scl-main" data-scl-create="'+x.i+'">'+esc(sclU('create'))+'</button>':'<button type="button" class="scl-main" data-scl-insert="'+x.i+'">'+esc(sclU('insert'))+'</button>';
+      acts+='<button type="button" data-scl-copy="'+x.i+'">'+esc(sclU('copy'))+'</button><button type="button" class="scl-ai" data-scl-adapt="'+x.i+'"'+(SCL.busy[x.i]?' disabled':'')+'>'+esc(SCL.busy[x.i]?sclU('busy'):(ad?sclU('again'):sclU('adapt')))+'</button>';
+      return '<article class="scl-card'+(open?' open':'')+'" data-scl-i="'+x.i+'"><button type="button" class="scl-card-head" data-scl-toggle="'+x.i+'"><span class="scl-ic">'+sclIcon(x)+'</span><span class="scl-ttl"><b>'+esc(x.n)+'</b><small>'+esc(sclKind(x))+(x.d?' · '+esc(x.d):'')+' · '+esc(String(M.objectifs[x.o]||x.o).replace(/^\S+\s/,''))+(x.s!=='tous'?' · '+esc(M.metiers[x.s]||x.s):'')+'</small></span><span class="scl-chev">'+(open?'▴':'▾')+'</span></button>'
+        +(open?'<div class="scl-body">'+(ad?'<div class="scl-adapted">'+esc(sclU('adapted'))+' <button type="button" data-scl-orig="'+x.i+'">'+esc(sclU('orig'))+'</button></div>':'')+'<pre class="scl-text">'+esc(txt)+'</pre><div class="scl-actions">'+acts+'</div></div>':'<p class="scl-peek">'+esc(peek)+'</p>')
         +'</article>';
-    }).join(''):'<div class="scl-empty">Aucun script ne correspond. Essaie un autre mot ou « Tout ».</div>';
+    }).join('')+(SCL.type==='img'||SCL.type==='vid'?'<p class="scl-credits">'+esc(sclU('credits'))+'</p>':''):'<div class="scl-empty">'+esc(sclU('empty'))+'</div>';
     var keep=box.querySelector('.scl-list'),st=keep?keep.scrollTop:0,focus=document.activeElement&&document.activeElement.classList.contains('scl-search');
-    box.innerHTML='<section class="scl-sheet" role="dialog" aria-modal="true" aria-label="Bibliothèque de scripts">'+head+'<div class="scl-count">'+items.length+' script'+(items.length>1?'s':'')+'</div><div class="scl-list">'+list+'</div></section>';
+    box.innerHTML='<section class="scl-sheet notranslate" translate="no" lang="'+esc(M.lang||'fr')+'" role="dialog" aria-modal="true" aria-label="'+esc(sclU('title'))+'">'+head+'<div class="scl-count">'+esc(sclU(items.length>1?'countN':'count1',items.length))+'</div><div class="scl-list">'+list+'</div></section>';
     var nl=box.querySelector('.scl-list');if(nl)nl.scrollTop=st;
+    var seg=box.querySelector('.scl-seg .on');if(seg&&seg.scrollIntoView)try{seg.scrollIntoView({block:'nearest',inline:'nearest'});}catch(_){}
     if(focus){var s=box.querySelector('.scl-search');s.focus();s.setSelectionRange(s.value.length,s.value.length);}
   }
   function sclText(i){return SCL.adapted[i]||(window.MCD_SCRIPTS[i]||{}).x||'';}
   function sclInsert(i){
-    var cap=$('#cap');if(!cap){toast('Ouvre d’abord le Composer',true);return;}
+    var cap=$('#cap');if(!cap){toast(sclU('noComposer'),true);return;}
     var before=cap.value;cap.value=sclText(i);cap.dispatchEvent(new Event('input',{bubbles:true}));
     sclClose();
-    toast(before.trim()?'Script inséré dans la légende · touche pour annuler':'Script inséré dans la légende ✓',false,before.trim()?6000:3200,before.trim()?function(){cap.value=before;cap.dispatchEvent(new Event('input',{bubbles:true}));}:null);
+    toast(before.trim()?sclU('insertedUndo'):sclU('inserted'),false,before.trim()?6000:3200,before.trim()?function(){cap.value=before;cap.dispatchEvent(new Event('input',{bubbles:true}));}:null);
   }
   function sclCopy(i){
     var t=sclText(i);
-    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('Script copié ✓');}).catch(function(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('Script copié ✓');}catch(e){toast('Copie impossible',true);}a.remove();});
+    (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast(sclU('copied'));}).catch(function(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast(sclU('copied'));}catch(e){toast(sclU('copyFail'),true);}a.remove();});
+  }
+  function sclCreate(i){
+    var x=window.MCD_SCRIPTS[i];if(!x)return;var t=sclText(i),S=MARSHALL_STUDIO;
+    if(x.t==='img'){S.mode='t2i';S.draftI=t;}else{S.mode='t2v';S.draftV=t;}
+    sclClose();
+    try{
+      if(marshallAgentLocked('studio')){var b=document.querySelector('[data-agent-rail="studio"]');if(b)b.click();return;}
+      var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected='studio';marshallAgentDockRender('studio');dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();
+      setTimeout(function(){var ta=document.querySelector('#marshall-agent-dock .sai-prompt');if(ta){ta.value=t;try{ta.focus({preventScroll:true});}catch(_){}}},60);
+      toast(sclU('sent'));
+    }catch(e){sclCopy(i);}
   }
   async function sclAdapt(i){
     var x=window.MCD_SCRIPTS[i];if(!x||SCL.busy[i])return;SCL.busy[i]=1;sclRender();
+    var L=(window.MCD_LANGS||{})[(window.MCD_SCRIPTS_META||{}).lang||window.MCD_LANG||'fr']||'Français';
+    var what={video:'script vidéo court (Reels/TikTok)',post:'légende de post réseaux sociaux',img:'prompt de génération d’image IA',vid:'prompt de génération de vidéo IA (plan de 5 secondes, Wan 2.2)'}[x.t];
     try{
       var r=await marshallRemoteJSONRetry([
-        'Tu es le copywriter social media de Marshall. Tu adaptes un modèle de '+(x.t==='video'?'script vidéo court (Reels/TikTok)':'légende de post')+' à la marque de l’utilisateur.',
+        'Tu es le directeur de création de Marshall. Tu adaptes un modèle de '+what+' à la marque de l’utilisateur.',
         marshallBrandContext(),
         'Objectif marketing par défaut : '+marshallSetting('goal','Vente')+'.',
-        'Règles : garde EXACTEMENT la structure du modèle'+(x.t==='video'?' (ACCROCHE, [À l’écran : …], DÉROULÉ minuté, APPEL À L’ACTION, mêmes émojis de section)':' (sauts de ligne, puces, émojis)')+'. Remplace chaque [crochet] par du contenu concret tiré de la marque.',
-        'N’invente AUCUN prix, chiffre, date, avis, nom de client ou certification absents du contexte : dans ce cas, laisse un [crochet] court à compléter. Français naturel, ton de la marque, phrases courtes.',
+        'Règles : garde EXACTEMENT la structure, les sauts de ligne et les émojis du modèle. Remplace chaque [crochet] par du contenu concret tiré de la marque (produits, lieu, couleurs, ton).',
+        (x.t==='img'||x.t==='vid')?'Pour un prompt : décris précisément sujet, action, décor, lumière, cadrage'+(x.t==='vid'?', mouvement de caméra':'')+' et format ; aucun texte écrit dans l’image ; rien d’invraisemblable.':'N’invente AUCUN prix, chiffre, date, avis, nom de client ou certification absents du contexte : dans ce cas, laisse un [crochet] court à compléter.',
+        'LANGUE DE SORTIE OBLIGATOIRE : '+L+' (la langue du modèle), même si le contexte de marque est dans une autre langue. Ton naturel, phrases courtes.',
         'Réponds UNIQUEMENT en JSON : {"text":"…"}'
       ].join('\n'),JSON.stringify({modele:x.x,titre:x.n}));
-      var t=r&&String(r.text||'').trim();if(!t)throw Error('réponse vide');
+      var t=r&&String(r.text||'').trim();if(!t)throw Error('—');
       SCL.adapted[i]=t;
-    }catch(e){toast('Marshall n’a pas pu adapter ce script : '+(e&&e.message||'réessaie'),true);}
+    }catch(e){toast(sclU('adaptFail')+(e&&e.message||''),true);}
     delete SCL.busy[i];SCL.open=i;sclRender();
   }
   function sclClose(){var b=document.getElementById('scl-pop');if(b)b.hidden=true;document.documentElement.classList.remove('scl-lock');}
   function sclOpen(){
     var box=document.getElementById('scl-pop');
     if(!box){
-      box=document.createElement('div');box.id='scl-pop';document.body.appendChild(box);
+      box=document.createElement('div');box.id='scl-pop';box.className='notranslate';box.setAttribute('translate','no');document.body.appendChild(box);
       box.addEventListener('click',function(e){
-        var t=e.target.closest('button,[data-scl-close]');if(e.target===box){sclClose();return;}if(!t)return;
-        var d=t.dataset;
+        if(e.target===box){sclClose();return;}
+        var t=e.target.closest('button');if(!t)return;var d=t.dataset;
         if('sclClose' in d)sclClose();
         else if(d.sclType){SCL.type=d.sclType;SCL.open=null;sclRender();}
         else if(d.sclObj){SCL.obj=d.sclObj;SCL.open=null;sclRender();}
         else if(d.sclToggle!=null){var i=+d.sclToggle;SCL.open=SCL.open===i?null:i;sclRender();}
         else if(d.sclInsert!=null)sclInsert(+d.sclInsert);
+        else if(d.sclCreate!=null)sclCreate(+d.sclCreate);
         else if(d.sclCopy!=null)sclCopy(+d.sclCopy);
         else if(d.sclAdapt!=null)sclAdapt(+d.sclAdapt);
         else if(d.sclOrig!=null){delete SCL.adapted[+d.sclOrig];sclRender();}
@@ -17127,8 +17153,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       try{var m=localStorage.getItem('mcd_scl_met');if(m)SCL.met=m;}catch(_){}
     }
     box.hidden=false;document.documentElement.classList.add('scl-lock');
-    box.innerHTML='<section class="scl-sheet"><div class="scl-empty">Chargement de la bibliothèque…</div></section>';
-    sclLoad().then(sclRender).catch(function(e){box.innerHTML='<section class="scl-sheet"><div class="scl-empty">⚠ '+esc(e.message)+'</div></section>';});
+    if(!window.MCD_SCRIPTS)box.innerHTML='<section class="scl-sheet"><div class="scl-empty">⏳</div></section>';
+    sclLoad().then(sclRender).catch(function(){box.innerHTML='<section class="scl-sheet"><div class="scl-empty">⚠</div></section>';});
   }
   (function(){var b=$('#hdr-books');if(b)b.addEventListener('click',function(e){e.stopPropagation();sclOpen();});})();
 

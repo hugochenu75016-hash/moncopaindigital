@@ -3,10 +3,15 @@
    Les [crochets] sont à remplacer, ou à faire remplir par Marshall (« Adapter avec Marshall »). */
 (function(){
   var L=[];
+  /* Libellés des sections d'un script vidéo (à traduire) */
+  var LB={hook:'🎬 ACCROCHE (0–3 s)',screen:'À l’écran',body:'📍 DÉROULÉ',cta:'👉 APPEL À L’ACTION',q1:'« ',q2:' »'};
   function V(o,s,n,d,hook,ecran,steps,cta){
-    L.push({t:'video',o:o,s:s,n:n,d:d,x:'🎬 ACCROCHE (0–3 s)\n« '+hook+' »\n[À l’écran : '+ecran+']\n\n📍 DÉROULÉ\n'+steps.join('\n')+'\n\n👉 APPEL À L’ACTION\n« '+cta+' »'});
+    L.push({t:'video',o:o,s:s,n:n,d:d,x:LB.hook+'\n'+LB.q1+hook+LB.q2+'\n['+LB.screen+' : '+ecran+']\n\n'+LB.body+'\n'+steps.join('\n')+'\n\n'+LB.cta+'\n'+LB.q1+cta+LB.q2});
   }
   function P(o,s,n,txt){ L.push({t:'post',o:o,s:s,n:n,x:txt}); }
+  /* Prompts de création : I = image, W = vidéo (Wan 2.2 / Veo). Écrits dans la langue de l'app ; Marshall les réécrit en prompt pro avant génération. */
+  function I(o,s,n,txt){ L.push({t:'img',o:o,s:s,n:n,x:txt}); }
+  function W(o,s,n,d,txt){ L.push({t:'vid',o:o,s:s,n:n,d:d,x:txt}); }
 
   /* =================================================================== SCRIPTS VIDÉO — TOUS MÉTIERS */
   V('vente','tous','Le problème → la solution','30 s',
@@ -396,9 +401,158 @@
   P('coulisses','services','Les coulisses d’un projet',
 'Ce que mes clients ne voient pas (et c’est normal) 👇\n\n• [Étape invisible 1]\n• [Étape invisible 2]\n• [Étape invisible 3]\n\nC’est 80 % du travail pour 20 % de ce qui se voit. Et c’est là que se joue la qualité.');
 
+
+  /* =================================================================== PROMPTS IMAGE — TOUS MÉTIERS */
+  I('produit','tous','Packshot studio fond uni',
+'Photo produit professionnelle de [produit], posé au centre sur un fond uni [couleur de la marque], éclairage studio doux avec une légère ombre portée au sol, reflets nets sur la matière, mise au point parfaite sur le logo, beaucoup d’espace vide en haut pour ajouter un texte. Style catalogue haut de gamme, format carré.');
+  I('produit','tous','Produit en situation',
+'[Produit] utilisé par une personne dans [lieu de vie réaliste : cuisine, bureau, salle de bain…], lumière naturelle de fin de matinée par une fenêtre, mains visibles en train de [geste], arrière-plan légèrement flou, couleurs chaudes et naturelles. Photo authentique façon lifestyle, pas posée. Format vertical 4:5.');
+  I('produit','tous','Flat lay vu du dessus',
+'Composition à plat vue du dessus : [produit principal] au centre, entouré de [3 à 5 objets ou ingrédients liés] disposés avec soin, sur une surface en [bois clair / marbre / lin], ombres douces, palette [couleurs], beaucoup d’air entre les objets. Style magazine épuré. Format carré.');
+  I('produit','tous','Lévitation dynamique',
+'[Produit] qui flotte dans les airs, entouré de [éléments qui l’évoquent : éclaboussures, fruits, feuilles, poudre] figés en plein mouvement, fond dégradé [couleur], éclairage contrasté, ultra net, effet publicité premium. Format vertical 9:16.');
+  I('produit','tous','Gamme alignée',
+'Les [nombre] produits de la gamme [nom] alignés de gauche à droite sur une étagère minimaliste, du plus petit au plus grand, fond [couleur], éclairage homogène, étiquettes lisibles, rendu photo e-commerce propre. Format paysage 16:9.');
+  I('pub','tous','Visuel promo avec place pour le texte',
+'Visuel publicitaire pour [offre] : [produit ou service] mis en valeur sur la moitié droite de l’image, la moitié gauche est un aplat [couleur] vide pour y poser un titre, ambiance énergique, couleurs vives de la marque, lumière nette. Ne pas écrire de texte dans l’image. Format 4:5.');
+  I('pub','tous','Avant / après côte à côte',
+'Image coupée verticalement en deux : à gauche [état avant, terne et réaliste], à droite [état après, net et lumineux], même cadrage et même angle des deux côtés, fine ligne blanche au milieu, éclairage identique. Photo réaliste, aucune retouche exagérée. Format carré.');
+  I('pub','tous','Affiche événement',
+'Affiche pour [événement] : scène illustrant [ambiance de l’événement] au premier plan, grand espace libre en haut pour le titre et en bas pour la date, couleurs [palette], style [graphique moderne / rétro / élégant]. Pas de texte généré dans l’image. Format vertical 9:16.');
+  I('pub','tous','Fond de story avec zone de texte',
+'Fond vertical pour story Instagram : [texture ou scène liée à la marque] floutée et douce, un grand rectangle clair semi-transparent au centre pour y écrire un message, couleurs [palette de la marque], ambiance calme et lisible. Format 9:16.');
+  I('lieu','tous','Façade accueillante',
+'Façade de [type de commerce] [nom] en fin de journée, vitrine éclairée de l’intérieur avec une lumière chaude, enseigne bien visible, trottoir propre, quelques passants flous, ciel bleu crépuscule. Photo d’architecture réaliste et accueillante. Format 4:5.');
+  I('lieu','tous','Intérieur chaleureux',
+'Intérieur de [lieu : boutique, salon, cabinet, atelier] vide et parfaitement rangé, lumière naturelle douce, plantes vertes, matériaux [bois, lin, métal], perspective grand-angle depuis l’entrée, ambiance accueillante et premium. Photo d’intérieur réaliste. Format paysage 3:2.');
+  I('personnes','tous','Portrait du gérant',
+'Portrait professionnel de [description : âge, style] dans son [lieu de travail], souriant, regard caméra, tenue [tenue], arrière-plan du lieu légèrement flou, lumière douce latérale, ambiance authentique et confiante. Photo portrait réaliste, objectif 85 mm. Format 4:5.');
+  I('personnes','tous','L’équipe en action',
+'Photo de [nombre] personnes de l’équipe en train de [activité du métier] ensemble, moment naturel et complice, quelques sourires, lumière naturelle, couleurs chaudes, cadrage reportage pris sur le vif. Photo réaliste, pas posée. Format paysage 3:2.');
+  I('personnes','tous','Mains au travail',
+'Gros plan sur des mains expertes en train de [geste précis du métier], outils et matière bien visibles, profondeur de champ très courte, lumière rasante qui révèle les textures, ambiance artisanale et soignée. Format carré.');
+  I('saison','tous','Ambiance de saison',
+'[Produit ou lieu] décoré pour [saison ou fête : Noël, été, rentrée, Saint-Valentin…], éléments de décor discrets et élégants ([décors]), lumière [chaude / fraîche], couleurs de saison, ambiance festive mais haut de gamme. Format 4:5.');
+  I('saison','tous','Fond festif pour annonce',
+'Fond graphique festif pour [fête], [éléments : confettis, guirlandes, flocons, feuilles] sur les bords, centre dégagé et uni pour y écrire une annonce, couleurs [palette], rendu net et moderne. Pas de texte. Format carré.');
+
+  /* =================================================================== PROMPTS IMAGE — PAR MÉTIER */
+  I('produit','resto','Plat signature en gros plan',
+'Gros plan appétissant de [plat], dressé dans une assiette [style d’assiette] sur une table en bois, vapeur légère, sauce brillante, herbes fraîches, lumière naturelle latérale, arrière-plan de salle de restaurant flou et chaleureux. Photo culinaire professionnelle. Format 4:5.');
+  I('produit','resto','Table partagée vue du dessus',
+'Vue du dessus d’une table garnie de [plats et boissons] partagés entre amis, mains qui se servent, nappe [matière], lumière douce, couleurs chaudes, ambiance conviviale et généreuse. Photo culinaire lifestyle. Format carré.');
+  I('ambiance','resto','Terrasse au coucher du soleil',
+'Terrasse de [restaurant / café] au coucher du soleil, tables dressées, guirlandes lumineuses allumées, verres qui scintillent, quelques clients flous en train de rire, lumière dorée. Photo d’ambiance réaliste. Format 4:5.');
+  I('produit','resto','Viennoiseries au comptoir',
+'Comptoir de boulangerie garni de [viennoiseries / pains] dorés et croustillants, gros plan sur la texture feuilletée, lumière du matin, farine légère sur le bois, ambiance artisanale. Format 4:5.');
+  I('produit','beaute','Flacon de soin premium',
+'[Produit de beauté] posé sur une pierre [couleur] humide, gouttes d’eau sur le flacon, feuilles de [plante] autour, lumière douce et diffuse, palette [couleurs], esthétique spa haut de gamme. Format 4:5.');
+  I('personnes','beaute','Résultat coiffure',
+'Portrait de dos et de trois-quarts d’une cliente avec [coupe / couleur réalisée], cheveux brillants et en mouvement, lumière douce de salon, arrière-plan du salon flou, rendu réaliste et naturel. Format 4:5.');
+  I('lieu','beaute','Cabine de soin apaisante',
+'Cabine de soin vide et prête : table de massage avec serviettes pliées, bougies allumées, plantes, lumière tamisée chaude, matières naturelles, ambiance zen et propre. Format 4:5.');
+  I('produit','artisan','Réalisation finie',
+'Photo de [réalisation : cuisine, salle de bain, terrasse, meuble] terminée, lignes droites, finitions nettes, lumière naturelle, pièce rangée et mise en scène simplement, perspective grand-angle. Photo d’architecture intérieure réaliste. Format paysage 3:2.');
+  I('personnes','artisan','Artisan sur le chantier',
+'[Métier] en tenue de travail propre sur un chantier de [type de travaux], concentré sur [geste], outils professionnels, casque ou équipement de sécurité, lumière du jour, photo reportage réaliste et valorisante. Format 4:5.');
+  I('produit','commerce','Vitrine de la nouveauté',
+'[Article] mis en scène dans la vitrine de la boutique, présentoir élégant, accessoires assortis, éclairage de vitrine chaud, reflets légers sur la vitre, ambiance shopping de centre-ville. Format 4:5.');
+  I('produit','commerce','Tenue portée en extérieur',
+'Personne portant [vêtement / accessoire] dans une rue [type de ville], pose naturelle en marchant, lumière de fin d’après-midi, arrière-plan flou, style photo de mode lifestyle. Format 4:5.');
+  I('lieu','sante','Cabinet rassurant',
+'Cabinet de [discipline] lumineux et rassurant, fauteuil confortable, plantes, couleurs douces [palette], lumière naturelle, aucune personne, sensation de calme et de propreté. Format paysage 3:2.');
+  I('ambiance','sante','Visuel bien-être',
+'Scène apaisante liée au bien-être : [élément : tasse de tisane, galets, feuille, eau calme] en gros plan, lumière douce du matin, palette [couleurs], beaucoup d’espace vide pour un texte. Format carré.');
+  I('personnes','coach','Séance en plein effort',
+'Personne en plein [exercice] dans [salle / extérieur], sueur légère, muscles engagés, lumière contrastée, cadrage dynamique en contre-plongée, ambiance motivante et énergique. Photo sport réaliste. Format 4:5.');
+  I('pub','coach','Visuel défi sportif',
+'Visuel sportif pour un défi de [durée] : équipement de [sport] posé au sol (gourde, serviette, chaussures), lumière du matin, fond [couleur], grand espace libre en haut pour un titre. Pas de texte. Format 4:5.');
+  I('lieu','immo','Séjour lumineux',
+'Séjour de [type de bien] baigné de lumière naturelle, grandes fenêtres, décoration neutre et moderne, perspective grand-angle depuis l’entrée, lignes verticales droites, rendu photo immobilière professionnelle. Format paysage 3:2.');
+  I('lieu','immo','Home staging virtuel',
+'La même pièce [description de la pièce vide] meublée en style [scandinave / contemporain / bohème] : canapé, tapis, luminaires, plantes, lumière naturelle, rendu réaliste fidèle aux murs et aux fenêtres d’origine. Format paysage 3:2.');
+  I('pub','services','Visuel expertise',
+'Image conceptuelle pour [service] : bureau épuré avec ordinateur portable, carnet et café, écran montrant [type de tableau ou graphique], lumière naturelle, palette [couleurs de la marque], ambiance professionnelle et sereine. Format 4:5.');
+  I('personnes','services','Rendez-vous client',
+'Deux personnes en rendez-vous professionnel autour d’une table, échange souriant, documents et ordinateur, lumière naturelle de bureau, arrière-plan flou, ambiance de confiance. Photo corporate réaliste. Format paysage 3:2.');
+
+  /* =================================================================== PROMPTS VIDÉO — TOUS MÉTIERS */
+  W('produit','tous','Rotation produit 360°','5 s',
+'[Produit] posé sur un socle qui tourne lentement sur lui-même, fond uni [couleur], éclairage studio doux avec reflets qui glissent sur la matière, caméra fixe légèrement en plongée, mouvement fluide et régulier. Format 9:16.');
+  W('produit','tous','Travelling révélation','5 s',
+'La caméra avance lentement depuis un gros plan flou sur [détail du produit] jusqu’à révéler [produit] en entier, mise au point progressive, lumière chaude latérale, poussières qui flottent dans la lumière. Format 9:16.');
+  W('produit','tous','Produit en action','5 s',
+'Des mains [geste : ouvrent, versent, appliquent, assemblent] [produit] en gros plan, mouvement naturel et précis, lumière naturelle, arrière-plan flou du [lieu], caméra fixe à hauteur de table. Format 9:16.');
+  W('produit','tous','Ingrédients qui tombent au ralenti','5 s',
+'[Ingrédients ou éléments] tombent au ralenti autour de [produit] et rebondissent légèrement, fond [couleur], éclairage contrasté, caméra fixe, effet publicité premium. Format 9:16.');
+  W('ambiance','tous','Ambiance du lieu','5 s',
+'Lent travelling latéral dans [lieu : boutique, salle, atelier] vide et parfaitement rangé, lumière douce de fin de journée, petites lumières qui scintillent, profondeur de champ courte, ambiance chaleureuse et accueillante. Format 9:16.');
+  W('ambiance','tous','Ouverture du matin','5 s',
+'Une main retourne le panneau « ouvert » sur la porte vitrée de [commerce], la lumière du matin entre dans la pièce, caméra fixe depuis l’intérieur, mouvement naturel, ambiance de début de journée. Format 9:16.');
+  W('personnes','tous','Accueil souriant','5 s',
+'[Personne] derrière son comptoir lève les yeux, sourit et fait un petit signe de la main vers la caméra, lumière naturelle douce, arrière-plan du [lieu] flou, mouvement naturel et chaleureux. Format 9:16.');
+  W('personnes','tous','Geste de métier au ralenti','5 s',
+'Gros plan au ralenti sur des mains qui [geste précis du métier], outils et matière bien visibles, lumière rasante qui révèle les textures, caméra fixe, ambiance artisanale. Format 9:16.');
+  W('pub','tous','Avant → après en transition','5 s',
+'Plan fixe de [lieu ou objet] dans son état avant, puis un balayage lumineux traverse l’image de gauche à droite et révèle l’état après, même cadrage, transition fluide, rendu réaliste. Format 9:16.');
+  W('pub','tous','Zoom final sur le logo','5 s',
+'La caméra recule doucement depuis [élément de la marque : enseigne, sac, tablier, packaging] pour révéler la scène autour, lumière chaude, mouvement lent et assuré, fin du plan stable pour ajouter un texte. Format 9:16.');
+  W('saison','tous','Ambiance de fête','5 s',
+'[Lieu ou produit] décoré pour [fête], guirlandes lumineuses qui scintillent, [neige / confettis / pétales] qui tombent doucement, caméra qui avance lentement, ambiance festive et douce. Format 9:16.');
+  W('ambiance','tous','Time-lapse de journée','5 s',
+'Time-lapse de [lieu] du matin au soir, lumière qui passe du jour doré au bleu du soir, silhouettes de clients floues qui vont et viennent, caméra fixe. Format 9:16.');
+
+  /* =================================================================== PROMPTS VIDÉO — PAR MÉTIER */
+  W('produit','resto','Plat qui fume','5 s',
+'Gros plan sur [plat] tout juste dressé, vapeur qui s’élève doucement, une cuillère verse [sauce] en filet, lumière chaude latérale, arrière-plan de salle flou, caméra fixe légèrement en plongée. Format 9:16.');
+  W('produit','resto','Verre qui se remplit','5 s',
+'[Boisson] versée au ralenti dans un verre [type], bulles et glaçons qui tournent, gouttes de condensation, lumière de comptoir chaude, caméra fixe au niveau du verre. Format 9:16.');
+  W('coulisses','resto','Le chef en cuisine','5 s',
+'Un chef fait sauter [ingrédients] dans une poêle, flamme vive, vapeur, mouvement rapide et maîtrisé, cuisine professionnelle en arrière-plan, lumière contrastée, caméra fixe de trois-quarts. Format 9:16.');
+  W('produit','resto','Pain qui sort du four','5 s',
+'Un boulanger sort du four une plaque de [pains / viennoiseries] dorés, vapeur chaude, croûte qui craque, lumière du four orangée, caméra fixe à hauteur du four. Format 9:16.');
+  W('pub','beaute','Révélation de la coupe','5 s',
+'Une cliente se retourne lentement vers la caméra en secouant légèrement ses cheveux [coupe / couleur], cheveux brillants en mouvement, lumière douce de salon, arrière-plan flou, sourire naturel. Format 9:16.');
+  W('produit','beaute','Texture de soin','5 s',
+'Gros plan au ralenti : une noisette de [crème / sérum] tombe sur une surface en verre et s’étale doucement, texture onctueuse, lumière diffuse, fond [couleur pastel], caméra fixe. Format 9:16.');
+  W('ambiance','beaute','Moment de détente','5 s',
+'Une personne allongée les yeux fermés pendant un soin du visage, mains de l’esthéticienne qui massent lentement, bougies et lumière tamisée, caméra qui avance très doucement. Format 9:16.');
+  W('coulisses','artisan','Outil en action','5 s',
+'Gros plan sur [outil : ponceuse, truelle, scie, pinceau] en action sur [matériau], poussière ou copeaux qui volent dans la lumière, mains gantées, lumière du jour, caméra fixe. Format 9:16.');
+  W('pub','artisan','Pièce terminée','5 s',
+'Lent travelling dans [pièce rénovée] terminée, lumière naturelle qui entre par la fenêtre, finitions nettes, sol propre, mouvement de caméra fluide de l’entrée vers le fond de la pièce. Format 9:16.');
+  W('produit','commerce','Emballage cadeau','5 s',
+'Des mains emballent [article] dans du papier [couleur] et nouent un ruban, gros plan vu du dessus, mouvements soignés, lumière douce, comptoir en bois, caméra fixe. Format 9:16.');
+  W('produit','commerce','Défilé de nouveautés','5 s',
+'Caméra qui glisse lentement le long d’un portant ou d’une étagère de [articles] nouvellement arrivés, couleurs harmonieuses, lumière de boutique chaude, profondeur de champ courte. Format 9:16.');
+  W('ambiance','sante','Respiration calme','5 s',
+'Une personne assise en tailleur près d’une fenêtre inspire et expire lentement, épaules qui se relâchent, lumière douce du matin, plante qui bouge légèrement, caméra fixe. Format 9:16.');
+  W('pedagogie','sante','Démonstration d’exercice','5 s',
+'[Praticien] montre lentement [exercice ou étirement] dans un cabinet lumineux, mouvement contrôlé et fluide, caméra fixe en plan large, lumière naturelle douce. Format 9:16.');
+  W('pub','coach','Effort explosif','5 s',
+'Ralenti d’une personne qui réalise [exercice explosif : saut, sprint, soulevé], poussière ou gouttes de sueur dans la lumière, contre-jour marqué, caméra fixe en contre-plongée. Format 9:16.');
+  W('personnes','coach','Coach qui encourage','5 s',
+'Un coach applaudit et encourage [élève] qui termine sa série, sourire et tape dans la main, salle de sport lumineuse, caméra fixe à hauteur d’épaule. Format 9:16.');
+  W('pub','immo','Visite fluide','5 s',
+'Travelling fluide qui avance depuis l’entrée de [type de bien] jusqu’au séjour lumineux, lignes verticales droites, lumière naturelle, décoration neutre, mouvement lent et stable comme un stabilisateur. Format 9:16.');
+  W('pub','immo','Vue extérieure au drone','5 s',
+'Vue aérienne qui s’élève lentement au-dessus de [maison / immeuble] et révèle [jardin, quartier, vue], lumière dorée de fin de journée, mouvement fluide. Format 9:16.');
+  W('pub','services','Écran qui s’anime','5 s',
+'Gros plan sur un écran d’ordinateur où [graphique / tableau de bord] se remplit progressivement, reflets doux, bureau épuré, caméra qui avance lentement, ambiance professionnelle. Format 9:16.');
+  W('personnes','services','Poignée de main','5 s',
+'Deux personnes se serrent la main au-dessus d’un bureau en souriant, documents signés au premier plan, lumière naturelle de bureau, caméra fixe de trois-quarts, mouvement naturel. Format 9:16.');
+
   window.MCD_SCRIPTS=L;
   window.MCD_SCRIPTS_META={
-    objectifs:{vente:'💰 Vendre',engagement:'💬 Engagement',pedagogie:'🎓 Conseils',coulisses:'🎬 Coulisses',temoignage:'⭐ Avis clients',lancement:'🚀 Lancement',evenement:'📅 Événement',fidelite:'🎁 Fidélité',recrutement:'🤝 Recrutement'},
-    metiers:{tous:'Tous métiers',resto:'Restaurant & café',beaute:'Beauté & coiffure',artisan:'Artisan & travaux',commerce:'Boutique',sante:'Santé & bien-être',coach:'Coach & sport',immo:'Immobilier',services:'Services & B2B'}
+    lang:'fr',
+    types:{tous:'Tout',video:'🎬 Scripts vidéo',post:'✍️ Légendes',img:'🖼️ Prompts image',vid:'🎥 Prompts vidéo'},
+    objectifs:{vente:'💰 Vendre',engagement:'💬 Engagement',pedagogie:'🎓 Conseils',coulisses:'🎬 Coulisses',temoignage:'⭐ Avis clients',lancement:'🚀 Lancement',evenement:'📅 Événement',fidelite:'🎁 Fidélité',recrutement:'🤝 Recrutement',produit:'📦 Produit',ambiance:'✨ Ambiance',pub:'📣 Pub & promo',lieu:'🏠 Lieu',personnes:'🙂 Personnes',saison:'🎄 Saison & fêtes'},
+    metiers:{tous:'Tous métiers',resto:'Restaurant & café',beaute:'Beauté & coiffure',artisan:'Artisan & travaux',commerce:'Boutique',sante:'Santé & bien-être',coach:'Coach & sport',immo:'Immobilier',services:'Services & B2B'},
+    ui:{title:'Bibliothèque de scripts',lead:'{n} scripts, légendes et prompts image/vidéo. Remplace les [crochets] ou laisse Marshall les adapter à ta marque.',search:'Rechercher : avant/après, concours, produit…',all:'Tout',metier:'Métier',count1:'{n} élément',countN:'{n} éléments',empty:'Rien ne correspond. Essaie un autre mot ou « Tout ».',loading:'Chargement de la bibliothèque…',
+      kVideo:'Script vidéo',kPost:'Légende',kImg:'Prompt image',kVid:'Prompt vidéo',adapted:'✨ Version adaptée par Marshall',orig:'voir l’original',
+      insert:'⬇ Insérer dans la légende',copy:'📋 Copier',adapt:'✨ Adapter avec Marshall',again:'✨ Autre version',busy:'✨ Marshall écrit…',create:'🪄 Créer avec Studio IA',
+      inserted:'Inséré dans la légende ✓',insertedUndo:'Inséré dans la légende · touche pour annuler',copied:'Copié ✓',copyFail:'Copie impossible',noComposer:'Ouvre d’abord le Composer',
+      sent:'Prompt envoyé dans Studio IA ✓',adaptFail:'Marshall n’a pas pu adapter ce texte : ',close:'Fermer',
+      credits:'Prompts inspirés des structures de awesome-ad-video-prompts (CC BY 4.0) et awesome-nanobanana-pro.'}
   };
 })();
