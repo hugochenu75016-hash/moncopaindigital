@@ -110,34 +110,44 @@
   .spk svg{width:20px;height:20px}
   .spk:hover{transform:scale(1.1);background:var(--or)}
   .spk[aria-pressed="true"]{background:var(--or)}
-  /* « Pendant que tu bosses… » : la journée du commerçant et celle de Marshall, côte à côte */
-  .pq-card .pq-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0}
-  .pq-card .pq-v.on{opacity:1}
-  .pq-who{position:absolute;left:12px;top:12px;z-index:2;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:15px;letter-spacing:.02em;padding:6px 10px;color:#fff;background:var(--or)}
-  .pq-marshall .pq-who{background:var(--blue)}
-  .pq-caps{position:absolute;left:0;right:0;bottom:0;z-index:2;min-height:30%;padding:40px 14px 14px;background:linear-gradient(transparent,rgba(30,12,0,.72))}
-  .pq-c{position:absolute;left:14px;right:14px;bottom:14px;margin:0;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(17px,1.5vw,24px);line-height:.98;color:#fff;text-align:left;opacity:0}
-  .pq-c.on{opacity:1}
-  .hwall .pq-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:clamp(180px,17vw,280px);aspect-ratio:auto}
-  .pq-kick{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(22px,2.3vw,38px);line-height:.92;color:#fff;text-align:center}
-  .pq-clock{width:72%;max-width:190px}
-  .pq-clock svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 18px 24px rgba(90,30,0,.3))}
-  .pq-face{fill:#fff;stroke:var(--blue);stroke-width:5}
-  .pq-ticks line{stroke:var(--or);stroke-width:3;stroke-linecap:round}
-  .pq-hand{stroke:#1a1a1a;stroke-linecap:round}.pq-hand.h{stroke-width:6}.pq-hand.m{stroke-width:4;stroke:var(--or)}
-  .pq-dot{fill:#1a1a1a}
-  .pq-time{font-stretch:62%;font-weight:900;font-size:clamp(40px,4.4vw,74px);line-height:.9;color:#fff;font-variant-numeric:tabular-nums}
-  .hwall .pq-mid .say.pq-end{position:static;opacity:0;font-size:clamp(24px,2.5vw,40px)}
+  /* Marshall chef d'équipe : il reçoit les notifications et envoie un ticket à chaque agent */
+  .dsp{position:absolute;inset:0;z-index:2;pointer-events:none;--h:34vh}
+  .dsp-in{visibility:hidden}
+  .dsp-ag{position:absolute;margin:0;left:calc(var(--x) * 1%);bottom:calc(var(--b) * 1%);height:calc(var(--h) * var(--s));display:block}
+  .dsp-ag img{display:block;margin:0 auto;height:calc(var(--h) * var(--s));width:auto;filter:blur(1.2px) saturate(.75) brightness(.92);opacity:.78;transition:filter .35s,opacity .35s}
+  .dsp-ag figcaption{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap;width:max-content;font-stretch:62%;text-transform:uppercase;line-height:1}
+  .dsp-ag figcaption b{font-weight:900;font-size:clamp(13px,1.05vw,17px);color:#fff}
+  .dsp-ag figcaption span{font-weight:800;font-size:clamp(11px,.85vw,13px);padding:4px 8px;border-radius:20px;background:rgba(255,255,255,.22);color:#fff}
+  .dsp-ag.dsp-work img,.dsp-ag.dsp-done img{filter:blur(0) saturate(1) brightness(1);opacity:1}
+  .dsp-ag.dsp-work figcaption span{background:var(--blue);color:#fff}
+  .dsp-ag.dsp-work figcaption span::before{content:"";display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:#fff;vertical-align:1px;animation:dspBlink 1s infinite}
+  .dsp-ag.dsp-done figcaption span{background:#fff;color:var(--or)}
+  .dsp-ag.dsp-done figcaption span::before{content:"✓ ";animation:none;width:auto;height:auto;background:none;margin:0}
+  @keyframes dspBlink{50%{opacity:.25}}
+  .dsp-boss{position:absolute;left:50%;bottom:0;height:min(74vh,700px);transform-origin:50% 100%}
+  .dsp-boss img{height:100%;width:auto;display:block;filter:drop-shadow(0 26px 30px rgba(90,30,0,.35))}
+  .dsp-notifs{position:absolute;left:50%;top:15%;width:min(380px,84vw);transform:translateX(-50%)}
+  .dsp-n{position:absolute;left:0;right:0;top:0;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 18px 40px rgba(90,30,0,.28);text-align:left;opacity:0;visibility:hidden}
+  .dsp-n i{flex:none;width:40px;height:40px;border-radius:11px;background:var(--or);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:21px}
+  .dsp-n p{margin:0;font-size:15px;line-height:1.25;color:#1a1a1a;font-weight:600}
+  .dsp-n b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--or);font-weight:800;margin-bottom:2px}
+  .dsp-tickets{position:absolute;inset:0}
+  .dsp-t{position:absolute;left:var(--sx,50%);top:var(--sy,40%);transform:translate(-50%,-50%) translate(calc(var(--tx,0px) * var(--p,0)),calc(var(--ty,0px) * var(--p,0) - var(--arc,0) * 90px)) rotate(calc(var(--p,0) * 14deg - 7deg));
+    padding:7px 11px;background:var(--blue);color:#fff;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:14px;white-space:nowrap;box-shadow:0 10px 22px rgba(0,60,100,.3);opacity:0;visibility:hidden;
+    clip-path:polygon(0 0,100% 0,100% 35%,94% 50%,100% 65%,100% 100%,0 100%,0 65%,6% 50%,0 35%)}
+  .dsp-end{position:absolute;left:50%;top:7%;transform:translateX(-50%);margin:0;width:max-content;font-size:clamp(40px,5.2vw,100px);line-height:.86;color:#fff;text-align:center;opacity:0;visibility:hidden}
+  .dsp-end i{color:var(--blue)}
   @media (max-width:700px){
-    .hwall{flex-wrap:wrap;align-content:center;padding:78px 12px 40px;gap:10px}
-    .hwall > .tile.pq-mid{display:flex;order:-1;width:100%;height:auto;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:4px 12px}
-    .pq-kick{width:100%;font-size:24px}
-    .pq-clock{width:46px}
-    .pq-time{font-size:40px}
-    .hwall .pq-mid .say.pq-end{width:100%;font-size:22px;margin-top:-2px}
-    .pq-who{font-size:12px;left:8px;top:8px;padding:4px 7px}
-    .pq-caps{padding:30px 8px 8px}
-    .pq-c{left:8px;right:8px;bottom:8px;font-size:14px}
+    .dsp{--h:24vh}
+    .dsp-ag{left:calc(var(--mx) * 1%);bottom:calc(var(--mb) * 1%);height:calc(var(--h) * var(--ms))}
+    .dsp-ag img{height:calc(var(--h) * var(--ms))}
+    .dsp-ag figcaption{margin-top:3px}
+    .dsp-ag figcaption b{font-size:11px}.dsp-ag figcaption span{font-size:9px;padding:3px 6px}
+    .dsp-boss{height:46vh}
+    .dsp-notifs{top:11%}
+    .dsp-n{padding:9px 11px;gap:9px;border-radius:14px}.dsp-n i{width:32px;height:32px;font-size:17px}.dsp-n p{font-size:13px}
+    .dsp-t{font-size:11px;padding:5px 8px}
+    .dsp-end{top:12%;font-size:13vw}
   }
   .hero .cap{position:absolute;left:var(--pad);bottom:36px;z-index:3;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;color:#fff;background:rgba(110,193,240,.72);padding:8px 12px;visibility:hidden}
   @media (max-width:700px){.hwall{padding:84px 12px 96px;gap:12px}.hwall > *{height:auto;width:44vw}.hwall > .tile{display:none}.hero .cap{display:none}}
@@ -481,47 +491,35 @@
     <p>Ton <b>copain digital</b> crée tes posts, stories, vidéos et reportages pour <b>Instagram, Facebook et TikTok</b>, puis les publie pour toi. Pour les commerçants de Paris, Lyon, Marseille, Bordeaux &amp; partout en France.</p>
     <a class="sq" href="#metiers" aria-label="Descendre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16M5 13l7 7 7-7"/></svg></a>
   </div>
-  <div class="hwall" id="wall" aria-label="Pendant que tu bosses, Marshall bosse pour toi">
-    <div class="vcard pq-card pq-toi">
-      <video class="pq-v on" src="pqtb-1.mp4" poster="pqtb-1.jpg" muted loop playsinline preload="auto" aria-hidden="true"></video>
-      <video class="pq-v" src="pqtb-2.mp4" poster="pqtb-2.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
-      <video class="pq-v" src="pqtb-3.mp4" poster="pqtb-3.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
-      <video class="pq-v" src="pqtb-4.mp4" poster="pqtb-4.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
-      <span class="pq-who">Toi</span>
-      <div class="pq-caps">
-      <p class="pq-c on">Tu lèves le rideau</p>
-      <p class="pq-c">Le rush : tu sers tes clients</p>
-      <p class="pq-c">Tu remplis les rayons</p>
-      <p class="pq-c">Tu fermes… et tu regardes ton téléphone</p>
-      </div>
+  <div class="dsp" id="wall" aria-label="Marshall reçoit tes demandes et les distribue à son équipe">
+    <div class="dsp-team">
+    <figure class="dsp-ag dsp-in" style="--x:10;--b:44;--s:0.8;--mx:13;--mb:47;--ms:0.62"><img src="agents/ag-image.webp" alt="Marshall Studio IA" loading="lazy"><figcaption><b>Studio IA</b><span data-wait="En attente" data-work="Retouche la photo…">En attente</span></figcaption></figure>
+    <figure class="dsp-ag dsp-in" style="--x:22;--b:13;--s:0.9;--mx:38;--mb:52;--ms:0.58"><img src="agents/ag-nation.webp" alt="Marshall Journaliste" loading="lazy"><figcaption><b>Journaliste</b><span data-wait="En attente" data-work="Tourne le reportage…">En attente</span></figcaption></figure>
+    <figure class="dsp-ag dsp-in" style="--x:32;--b:52;--s:0.62;--mx:62;--mb:52;--ms:0.58"><img src="agents/ag-clipper.webp" alt="Marshall Clippeur" loading="lazy"><figcaption><b>Clippeur</b><span data-wait="En attente" data-work="Découpe 10 clips…">En attente</span></figcaption></figure>
+    <figure class="dsp-ag dsp-in" style="--x:68;--b:52;--s:0.62;--mx:87;--mb:47;--ms:0.62"><img src="agents/ag-campaign.webp" alt="Marshall Pilote" loading="lazy"><figcaption><b>Pilote</b><span data-wait="En attente" data-work="Prépare la semaine…">En attente</span></figcaption></figure>
+    <figure class="dsp-ag dsp-in" style="--x:78;--b:13;--s:0.9;--mx:10;--mb:22;--ms:0.72"><img src="agents/ag-voice.webp" alt="Marshall Voix" loading="lazy"><figcaption><b>Voix</b><span data-wait="En attente" data-work="Enregistre l’annonce…">En attente</span></figcaption></figure>
+    <figure class="dsp-ag dsp-in" style="--x:90;--b:44;--s:0.8;--mx:90;--mb:22;--ms:0.72"><img src="agents/ag-story.webp" alt="Marshall Community" loading="lazy"><figcaption><b>Community</b><span data-wait="En attente" data-work="Répond au client…">En attente</span></figcaption></figure>
     </div>
-    <div class="tile pq-mid">
-      <span class="pq-kick">Pendant que tu bosses…</span>
-      <div class="pq-clock" aria-hidden="true">
-        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="pq-face"/>
-          <g class="pq-ticks"><line x1="60" y1="10" x2="60" y2="18" transform="rotate(0 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(30 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(60 60 60)"/><line x1="60" y1="10" x2="60" y2="18" transform="rotate(90 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(120 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(150 60 60)"/><line x1="60" y1="10" x2="60" y2="18" transform="rotate(180 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(210 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(240 60 60)"/><line x1="60" y1="10" x2="60" y2="18" transform="rotate(270 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(300 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(330 60 60)"/></g>
-          <line id="pq-hh" x1="60" y1="60" x2="60" y2="32" class="pq-hand h"/>
-          <line id="pq-mh" x1="60" y1="60" x2="60" y2="18" class="pq-hand m"/>
-          <circle cx="60" cy="60" r="4" class="pq-dot"/></svg>
-      </div>
-      <span class="pq-time" id="pq-time" aria-live="polite">08:00</span>
-      <span class="say pq-end">Je bosse,<br>tu valides.</span>
+    <div class="dsp-boss dsp-in"><img src="marshall-presente-anim.webp" alt="Marshall reçoit les notifications sur son téléphone"></div>
+    <div class="dsp-notifs" aria-hidden="true">
+    <div class="dsp-n"><i>📸</i><p><b>Nouvelle demande</b>Nouvelle photo : les croissants du matin</p></div>
+    <div class="dsp-n"><i>📰</i><p><b>Nouvelle demande</b>Info du jour : fête du pain samedi</p></div>
+    <div class="dsp-n"><i>🎬</i><p><b>Nouvelle demande</b>Vidéo de 20 min reçue</p></div>
+    <div class="dsp-n"><i>📅</i><p><b>Nouvelle demande</b>Ta semaine de posts est vide</p></div>
+    <div class="dsp-n"><i>🎙️</i><p><b>Nouvelle demande</b>Annonce à enregistrer pour la promo</p></div>
+    <div class="dsp-n"><i>⭐</i><p><b>Nouvelle demande</b>Nouvel avis Google ★★★★★</p></div>
     </div>
-    <div class="vcard pq-card pq-marshall">
-      <video class="pq-v on" src="pqtb-5.mp4" poster="pqtb-5.jpg" muted loop playsinline preload="auto" aria-hidden="true"></video>
-      <video class="pq-v" src="pqtb-6.mp4" poster="pqtb-6.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
-      <video class="pq-v" src="pqtb-7.mp4" poster="pqtb-7.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
-      <video class="pq-v" src="pqtb-8.mp4" poster="pqtb-8.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
-      <span class="pq-who">Marshall</span>
-      <div class="pq-caps">
-      <p class="pq-c on">Il trouve l’idée du jour</p>
-      <p class="pq-c">Il crée tes photos et vidéos</p>
-      <p class="pq-c">Il écrit et programme ton post</p>
-      <p class="pq-c">Il publie. Les likes arrivent.</p>
-      </div>
+    <div class="dsp-tickets" aria-hidden="true">
+    <span class="dsp-t">#01 → Studio IA</span>
+    <span class="dsp-t">#02 → Journaliste</span>
+    <span class="dsp-t">#03 → Clippeur</span>
+    <span class="dsp-t">#04 → Pilote</span>
+    <span class="dsp-t">#05 → Voix</span>
+    <span class="dsp-t">#06 → Community</span>
     </div>
+    <p class="dsp-end disp">Je bosse,<br><i>tu valides.</i></p>
   </div>
-  <span class="cap" id="wall-cap">Une journée avec Marshall · défile pour avancer l’heure</span>
+  <span class="cap" id="wall-cap">Marshall reçoit · son équipe s’en occupe</span>
 </section>
 
 <!-- ================= MÉTIERS ================= -->
@@ -976,7 +974,7 @@
   document.querySelectorAll('.card .snd').forEach(function(b){ soundToggle(b, [b.parentNode.querySelector('video')]); });
   // Les vidéos ne tournent que lorsqu'elles sont visibles
   var io = new IntersectionObserver(function(es){ es.forEach(function(e){ var v = e.target; if (e.isIntersecting) { v.play().catch(function(){}); } else { v.pause(); } }); }, { threshold:.25 });
-  document.querySelectorAll('video:not(.pq-v)').forEach(function(v){ io.observe(v); });
+  document.querySelectorAll('video').forEach(function(v){ io.observe(v); });
 
   /* ---------- Onglets du pied de page ---------- */
   var NETS = [
@@ -1021,7 +1019,7 @@
   // Cachés dès le départ (avant même la construction de la scène)
   gsap.set(row2, { yPercent:110 }); gsap.set('#pill img', { yPercent:80 });
   var pillEl = document.getElementById('pill'), pillW0 = pillEl.offsetWidth; gsap.set(pillEl, { width:0 });
-  gsap.set('#wall > *', { autoAlpha:0, yPercent:70, scale:.82, rotate:function(i){ return [-6, 4, 7][i]; } });
+  gsap.set('#wall .dsp-in', { xPercent:-50, autoAlpha:0, yPercent:40, scale:.85 });
   gsap.set('#wall-cap', { autoAlpha:0, y:20 });
   function buildHero(){
   // Mesures prises une fois, page au repos et police chargée (tout est relatif au héros)
@@ -1073,7 +1071,7 @@
 
   var F = 0;      // le défilement commence directement par le remplissage orange
   var bob = function(n){ var k = []; for (var i = 0; i < n; i++) k.push({ y:i % 2 ? 0 : -16 }); k.push({ y:0 }); return k; };
-  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=330%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
+  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=360%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
       onUpdate:function(t){ var o = t.isActive && t.animation.time() > F + .15; if (o !== orHero) { orHero = o; topColor(); } },
       onLeave:function(){ orHero = true; topColor(); }, onEnterBack:function(t){ orHero = t.animation.time() > F + .15; topColor(); } } });
   var it = gsap.timeline({ paused:true, defaults:{ ease:'none' } });   // l'intro, jouée automatiquement
@@ -1123,45 +1121,48 @@
     .to('#pill img', { opacity:0, duration:.145 }, F)
     .to('#pill', { opacity:0, duration:.145 }, F)
     // 7. Les 3 exemples arrivent un par un sur l'orange
-    .to('#wall > *', { autoAlpha:1, yPercent:0, scale:1, rotate:0, duration:.32, stagger:.18, ease:'back.out(1.4)' }, F + .48)
+    .to('#wall .dsp-boss', { autoAlpha:1, yPercent:0, scale:1, duration:.34, ease:'back.out(1.4)' }, F + .45)
+    .to('#wall .dsp-ag', { autoAlpha:1, yPercent:0, scale:1, duration:.26, stagger:.06, ease:'back.out(1.6)' }, F + .62)
     .to('#wall-cap', { autoAlpha:1, y:0, duration:.12 }, F + 1.08)
     .set('#wall', { pointerEvents:'auto' }, F + 1.08)
     .set({}, {}, F + 1.45);
-  // 8. La journée défile : 8 h, 12 h, 16 h, 19 h. Chaque étape change les 2 vidéos, les légendes et l'horloge
-  var PQ_T = ['08:00', '12:00', '16:00', '19:00'], PQ_H = [8, 12, 16, 19], pqAt = F + 1.35, pqStep = .62;
-  var pqToi = [].slice.call(document.querySelectorAll('.pq-toi .pq-v')), pqMar = [].slice.call(document.querySelectorAll('.pq-marshall .pq-v'));
-  var pqCT = [].slice.call(document.querySelectorAll('.pq-toi .pq-c')), pqCM = [].slice.call(document.querySelectorAll('.pq-marshall .pq-c'));
-  var pqCur = -1, pqOn = false;
-  function pqShow(k){
-    if (k === pqCur) return; pqCur = k;
-    [pqToi, pqMar, pqCT, pqCM].forEach(function(list){ list.forEach(function(el, n){ el.classList.toggle('on', n === k); }); });
-    document.getElementById('pq-time').textContent = PQ_T[k];
-    pqPlay();
+  // 8. Les demandes arrivent sur le téléphone de Marshall, il en fait un ticket et l'envoie à l'agent qui s'en charge
+  var dAg = [].slice.call(document.querySelectorAll('#wall .dsp-ag')), dN = [].slice.call(document.querySelectorAll('#wall .dsp-n')),
+      dT = [].slice.call(document.querySelectorAll('#wall .dsp-t')), dBoss = document.querySelector('#wall .dsp-boss'), dWall = document.getElementById('wall');
+  function dAim(){   // départ : le téléphone de Marshall ; arrivée : chaque agent (recalculé à chaque redimensionnement)
+    var w = dWall.getBoundingClientRect(), b = dBoss.getBoundingClientRect();
+    var sx = b.left - w.left + b.width * .74, sy = b.top - w.top + b.height * .25;
+    dT.forEach(function(t, k){
+      var a = dAg[k].getBoundingClientRect();
+      t.style.setProperty('--sx', sx + 'px'); t.style.setProperty('--sy', sy + 'px');
+      t.style.setProperty('--tx', (a.left - w.left + a.width / 2 - sx) + 'px'); t.style.setProperty('--ty', (a.top - w.top + a.height * .35 - sy) + 'px');
+    });
   }
-  function pqPlay(){
-    [pqToi, pqMar].forEach(function(list){ list.forEach(function(v, n){
-      if (pqOn && n === pqCur) { if (v.preload === 'none') v.preload = 'auto'; v.play().catch(function(){}); } else v.pause();
-      if (pqOn && n === pqCur + 1 && v.preload === 'none') { v.preload = 'auto'; try { v.load(); } catch (e) {} }   // la suivante se charge en avance
-    }); });
+  ScrollTrigger.addEventListener('refresh', dAim); dAim();
+  function dState(k, v){
+    var f = dAg[k], sp = f.querySelector('figcaption span');
+    f.classList.toggle('dsp-work', v === 1); f.classList.toggle('dsp-done', v === 2);
+    sp.textContent = v === 2 ? 'C’est prêt' : (v === 1 ? sp.dataset.work : sp.dataset.wait);
   }
-  var pqClock = { h:8 };
-  function pqHands(){ var h = pqClock.h, m = (h % 1) * 60;
-    document.getElementById('pq-hh').setAttribute('transform', 'rotate(' + ((h % 12) * 30 + m / 2) + ' 60 60)');
-    document.getElementById('pq-mh').setAttribute('transform', 'rotate(' + (m * 6) + ' 60 60)'); }
-  pqHands();
-  for (var q = 1; q < 4; q++) {
-    st.to(pqClock, { h:PQ_H[q], duration:.3, ease:'power2.inOut', onUpdate:pqHands }, pqAt + q * pqStep - .3)
-      .call(pqShow, [q - 1], pqAt + q * pqStep - .151).call(pqShow, [q], pqAt + q * pqStep - .15)
-      .fromTo('#wall .pq-card', { scale:1 }, { keyframes:[{ scale:.96, duration:.08 }, { scale:1, duration:.14 }], immediateRender:false }, pqAt + q * pqStep - .15)
-      .fromTo('#pq-time', { scale:1 }, { keyframes:[{ scale:1.18, duration:.08 }, { scale:1, duration:.14 }], immediateRender:false }, pqAt + q * pqStep - .15);
-  }
-  // 9. Fin de journée : « Je bosse, tu valides. »
-  st.to('.pq-mid .pq-end', { opacity:1, y:0, duration:.25 }, pqAt + 3 * pqStep + .25)
-    .fromTo('.pq-mid .pq-end', { y:20 }, { y:0, duration:.25, immediateRender:false }, pqAt + 3 * pqStep + .25)
-    .set({}, {}, pqAt + 3 * pqStep + .75);
-  // Les vidéos ne tournent que pendant que la vitrine est à l'écran
-  ScrollTrigger.create({ trigger:hero, start:'top top', end:'bottom top', onToggle:function(t){ pqOn = t.isActive; pqPlay(); } });
-  pqShow(0);
+  var dA = F + 1.5, dS = .55;
+  dN.forEach(function(n, k){
+    var t0 = dA + k * dS;
+    st.fromTo(n, { autoAlpha:0, y:-50, scale:.9 }, { autoAlpha:1, y:0, scale:1, duration:.12, ease:'back.out(2)', immediateRender:false }, t0)
+      .to(dBoss, { rotate:-2.5, duration:.06 }, t0 + .1).to(dBoss, { rotate:1.5, duration:.06 }, t0 + .16).to(dBoss, { rotate:0, duration:.08 }, t0 + .22)
+      .to(n, { autoAlpha:0, scale:.5, y:90, x:60, duration:.1, ease:'power2.in' }, t0 + .26)
+      .fromTo(dT[k], { autoAlpha:0, '--p':0, '--arc':0 }, { autoAlpha:1, duration:.03, immediateRender:false }, t0 + .33)
+      .to(dT[k], { '--p':1, duration:.17, ease:'power1.inOut' }, t0 + .33)
+      .to(dT[k], { keyframes:[{ '--arc':1, duration:.085, ease:'power1.out' }, { '--arc':0, duration:.085, ease:'power1.in' }] }, t0 + .33)
+      .to(dT[k], { autoAlpha:0, duration:.04 }, t0 + .5)
+      .call(dState, [k, 0], t0 + .499).call(dState, [k, 1], t0 + .5)
+      .to(dAg[k], { scale:1.14, y:-14, duration:.06 }, t0 + .5).to(dAg[k], { scale:1, y:0, duration:.12 }, t0 + .56);
+  });
+  // 9. Tout est prêt : « Je bosse, tu valides. »
+  var dEnd = dA + dN.length * dS + .1;
+  dAg.forEach(function(f, k){ st.call(dState, [k, 1], dEnd - .001).call(dState, [k, 2], dEnd + k * .02); });
+  st.fromTo('#wall .dsp-end', { autoAlpha:0, y:40, scale:.9 }, { autoAlpha:1, y:0, scale:1, duration:.25, ease:'back.out(1.6)', immediateRender:false }, dEnd + .1)
+    .to(dBoss, { rotate:-3, duration:.08 }, dEnd + .1).to(dBoss, { rotate:0, duration:.12 }, dEnd + .18)
+    .set({}, {}, dEnd + .6);
   st.to('#scroll-hint', { autoAlpha:0, duration:.18 }, .18);
   var root = document.documentElement;
   function lockScroll(on){ root.style.overflow = on ? 'hidden' : ''; if (window.lenis) { if (on) lenis.stop(); else lenis.start(); } }
