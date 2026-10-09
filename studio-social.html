@@ -1585,6 +1585,8 @@
   .gj-root .gj-angle-add span{ font-size:20px; line-height:1; } .gj-root .gj-angle-add small{ font-size:10px; }
   .gj-root .gj-angles-tip{ margin:4px 0 0; font-size:11px; color:#7a6a5a; line-height:1.35; }
   .gj-root .gj-photo{ min-height:120px; } .gj-root .gj-photo img{ max-height:170px; max-width:100%; border-radius:12px; display:block; margin:auto; }
+  .gj-root .gj-preserve-note{ display:flex; flex-direction:column; gap:3px; padding:11px 13px; border:1px solid #d8c8f4; border-radius:14px; background:linear-gradient(135deg,#faf7ff,#fff); color:#4c3671; font-size:11.5px; line-height:1.4; }
+  .gj-root .gj-preserve-note b{ font-size:12.5px; color:#5d2caa; }
   .gj-result video{ width:100%; max-height:420px; border-radius:16px; background:#000; display:block; margin-bottom:8px; }
   .gj-wait{ color:#8a7866!important; font-size:11.5px!important; }
   .clp-rights{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:#5b4a3a; cursor:pointer; margin-top:2px; }
@@ -2795,6 +2797,9 @@ html:has(#view-composer.active),body:has(#view-composer.active){height:100%;over
 html.nav-c1 #fan-wrap #mpl-upgrade span{display:none}html.nav-c1 #fan-wrap #mpl-upgrade{padding:0 10px}
 html.nav-c2 #app #side .fan-wrap .nav-item svg{display:none}
 #view-composer .hdr-actions #mpl-upgrade{background:#6EC1F0!important;color:#fff!important;border:0!important;border-radius:999px!important;height:34px!important;width:auto!important;padding:0 14px 0 11px!important;opacity:1!important;font-weight:700!important;box-shadow:0 4px 12px rgba(40,120,170,.28)!important}#view-composer .hdr-actions #mpl-upgrade:hover{background:#5bb5e8!important}#view-composer .hdr-actions #mpl-upgrade[hidden]{display:none!important}
+#view-composer .hdr-actions .hdr-books{width:36px!important;min-width:36px!important;height:36px!important;padding:0!important;justify-content:center!important;cursor:default!important}
+#view-composer .hdr-actions .hdr-books svg{width:23px;height:23px;display:block}
+#view-composer .hdr-actions .hdr-books:hover{background:#fff!important;color:#474742!important}
 #studio-profile{position:relative}
 #studio-profile-toggle{width:36px;height:36px;padding:0!important;display:flex;align-items:center;justify-content:center;border:0!important;border-radius:0!important;background:transparent!important;color:#252525;box-shadow:none!important;cursor:pointer}
 #studio-profile-toggle img{width:36px;height:36px;object-fit:contain;display:block}
@@ -4127,6 +4132,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     <section class="view active" id="view-composer">
       <div class="topbar">
         <div class="hdr-actions">
+          <span class="btn-ghost hdr-ico hdr-books" title="Bibliothèque" aria-label="Bibliothèque" role="img"><svg viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.45" stroke-linejoin="round"><path d="m4.1 7.4 13.2-3.2 1.3 4.6L5.4 12z" fill="#7FD3FF"/><path d="m5 11.6 13.1-3.2 1.4 4.6-13.2 3.2z" fill="#FF7FA8"/><path d="m5.8 15.8 13-3.2 1.4 4.6-13.1 3.2z" fill="#FFD23F"/></g><path d="m7.4 8.4 7.2-1.7M8.1 12.6l7.1-1.7M8.8 16.8l7-1.7" stroke="#fff" stroke-width="1.1" stroke-linecap="round" opacity=".9"/></svg></span>
           <button type="button" id="mpl-upgrade" class="mpl-upgrade" hidden title="Mise à niveau" aria-label="Mise à niveau de ma formule Studio Social"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5l4.6 4 4.4-6.5 4.4 6.5 4.6-4-1.8 10.5H4.8L3 7.5z"/><path d="M5 20.5h14"/></svg><span>Mise à niveau</span></button>
           <div id="studio-profile">
             <button type="button" id="studio-profile-toggle" aria-label="Mon profil" aria-expanded="false" aria-controls="studio-profile-card" title="Mon espace compte"><img id="studio-profile-logo" src="boutonespacelog-trim.png" alt=""><span id="studio-profile-initial" hidden>●</span></button>
@@ -4164,6 +4170,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         <div class="hdr-menu" id="menu-dl">
           <button type="button" data-dl="png"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-4 4 3 3-2 6 5"/></svg><span>Image PNG</span><em>1080 px</em></button>
           <button type="button" data-dl="jpg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 15l3.5-3 3 2.5L17 11"/></svg><span>Image JPG</span></button>
+          <button type="button" data-dl="video" id="dl-video"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="12" height="12" rx="2"/><path d="M15 10l6-3v10l-6-3z"/><path d="M9 10l4 2-4 2z" fill="currentColor" stroke="none"/></svg><span>Vidéo</span><em>Vidéo montée</em></button>
           <button type="button" data-dl="pdf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 15h8M8 18h5"/></svg><span>PDF</span></button>
           <span class="ed-ctx-sep"></span>
           <button type="button" data-dl="txt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Légende (.txt)</span></button>
@@ -6513,6 +6520,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function edPolyCss(p){ return 'polygon('+p.split(',').map(function(pt){ var a=pt.trim().split(/\s+/); return a[0]+'% '+a[1]+'%'; }).join(',')+')'; }
 
   var ed={ fmt:'1:1', bg:'#ffffff', layers:[], sel:null, seq:0, hist:[], hi:-1, viewZoom:1, safeZones:false, preview:false, pageMotion:{duration:3.8,stagger:0.12,transition:'fade',autoplay:false} };
+  var edExportVideoEl=null, edExportVideoBusy=false;
 
   function edW(){ return ED_FMT[ed.fmt][0]; }
   function edH(){ return ED_FMT[ed.fmt][1]; }
@@ -8677,7 +8685,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         {label:'Valider une réponse finale',mission:'auto',prompt:'Contrôle, améliore et valide cette réponse avant envoi en utilisant les informations disponibles sur ma marque.'}
       ]},
       avatar:{name:'Avatar parlant',tag:'Ta photo qui parle',icon:'🗣️',color:'linear-gradient(135deg,#0ea5e9,#6366f1)',desc:'Une photo + un texte : la personne parle face caméra, lèvres synchronisées, avec la voix de Marshall ou ta propre voix (clonée avec ton accord).',logic:['Ta photo + ton texte (ou un audio)','Marshall prépare la voix puis anime le visage','Donc → une vidéo où tu parles face caméra'],actions:[]},
-      genjutsu:{name:'Genjutsu',tag:'Toi dans la vidéo',icon:'🎭',color:'linear-gradient(135deg,#7c3aed,#ec4899)',desc:'Importe une vidéo et une photo : Marshall met la personne de la photo à la place de celle de la vidéo, en gardant ses gestes, ses expressions, la lumière et le décor.',logic:['Ta vidéo + la photo de la personne','Marshall détecte le mouvement et le visage','Donc → la vidéo rejouée avec la nouvelle personne'],actions:[]},
+      genjutsu:{name:'Genjutsu',tag:'Toi dans la vidéo',icon:'🎭',color:'linear-gradient(135deg,#7c3aed,#ec4899)',desc:'Importe une vidéo et une photo : Marshall remplace uniquement la personne, en conservant le décor et tous ses mouvements naturels (porte, coussin, ombres, lumière et caméra).',logic:['Ta vidéo + la photo de la personne','Marshall remplace uniquement le sujet humain','Donc → le décor original et ses mouvements restent visibles'],actions:[]},
       clipper:{name:'Clippeur',tag:'Clips viraux',icon:'✂️',color:'linear-gradient(135deg,#10b981,#0ea5e9)',desc:'Colle le lien d’une vidéo longue (ou importe-la) : Marshall trouve les meilleurs moments, les recadre en 9:16 sur la personne qui parle, ajoute les sous-titres et note chaque clip.',logic:['Tu donnes ta vidéo longue','Marshall écoute, choisit et recadre','Donc → clips 9:16 classés par score viral'],actions:[]},
       studio:{name:'Studio IA',tag:'Image & vidéo IA',icon:'🎬',color:'linear-gradient(135deg,#8b5cf6,#ec4899)',desc:'Crée une vidéo à partir d’une image, une image à partir d’un texte, ou une vidéo à partir d’un texte. Avec Wan 2.2, tu choisis la qualité (Éco, HD ou Pro).',logic:['Tu choisis le moteur et la qualité','Tu décris ce que tu veux (et l’image de départ)','Donc → image ou vidéo posée sur un nouveau canva'],actions:[]},
       nation:{name:'Journaliste Pays',tag:'Infos en temps réel',icon:'🌍',color:'linear-gradient(135deg,#1fb6ff,#0b6fd6)',desc:'Cherche en temps réel toutes les infos sur un pays (actualités, économie, tendances réseaux, fiche pays) et te garde les 3 plus importantes, avec les sources.',logic:['Tu donnes un pays','Il cherche sur le web en direct','Donc → 3 infos clés + fiche pays + sources'],actions:[
@@ -8890,6 +8898,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function marshallAgentDockChatAdd(role,text,stream){
     var th=document.getElementById('marshall-agent-dock-thread');if(!th)return null;
     var items=marshallAgentDockHistoryLoad();items.push({role:role,text:String(text||''),at:Date.now()});marshallAgentDockHistorySave(items);
+    if(role==='assistant'&&text)try{mcdLibrarySaveText(text,(window.marshallAgentDockSelected||'Marshall')+' · réponse');}catch(e){}
     var d=document.createElement('div');d.className='madock-msg '+(role==='user'?'user':role==='error'?'error':'assistant');th.appendChild(d);
     if(role==='assistant'&&stream){
       var raw=String(text||''),idx=0,shown='';d.innerHTML='<span class="madock-stream"></span><span class="madock-caret"></span>';var sp=d.querySelector('.madock-stream');
@@ -9447,8 +9456,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }catch(e){ C.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Clippeur : '+C.error,false); }catch(x){} }
     finally{ C.busy=false; marshallClipperRefreshResults(); }
   }
-  /* ===== Agent « Genjutsu » : ta photo remplace la personne d'une vidéo (mouvement, expressions et décor gardés) ===== */
+  /* ===== Agent « Genjutsu » : remplacement strict de la personne, décor original conservé ===== */
   var MARSHALL_GENJUTSU={file:null,image:'',extras:[],seconds:'10',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:''};
+  var MARSHALL_GENJUTSU_STRICT_PROMPT='Remplace uniquement la personne visible dans la vidéo par la personne de la photo de référence. Conserve pixel par pixel autant que possible tout ce qui n’est pas la personne : décor, arrière-plan, porte, coussin, objets, murs, sol, ombres, reflets, lumière, profondeur, mouvement de caméra et mouvements indépendants des objets. Une porte qui s’ouvre doit continuer à s’ouvrir et un coussin qui bouge doit continuer à bouger exactement comme dans la vidéo source. Ne recrée pas le décor, ne le stabilise pas, ne le nettoie pas, ne change pas les couleurs et n’ajoute aucun objet. Modifie seulement le masque de la personne et ses éléments directement liés (corps, visage, cheveux et vêtements).';
   function marshallGjCost(){ return marshallTokenFmt(marshallTokenPrice('genjutsu_second',+MARSHALL_GENJUTSU.seconds||10)); }
   function marshallGjResultHTML(){
     var G=MARSHALL_GENJUTSU;
@@ -9465,6 +9475,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       +(G.extras.length<4?'<button type="button" class="gj-angle gj-angle-add" data-gj="pickx" aria-label="Ajouter une photo d’un autre angle"><span>＋</span><small>Autre angle</small></button>':'')
       +'</div><input type="file" accept="image/*" multiple data-gj-extra hidden><p class="gj-angles-tip">Optionnel : 3/4, profil… (4 max). Genjutsu choisit automatiquement la photo qui colle le mieux à l’angle du visage, séquence par séquence.</p>';
     return '<div class="sai-root gj-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('genjutsu')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'
+      +'<div class="gj-preserve-note"><b>🛡️ Décor préservé</b><span>Seule la personne est modifiée. Les mouvements de la porte, du coussin, des ombres et de la caméra restent ceux de ta vidéo.</span></div>'
       +'<div class="sai-lbl">1. La vidéo</div>'+vid
       +'<div class="sai-lbl">2. Qui apparaît à la place</div>'+img
       +'<div class="sai-lbl">Autres angles du visage</div>'+ext
@@ -9545,7 +9556,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         x.onerror=function(){ reject(Error('Envoi de la vidéo interrompu.')); };
         x.send(G.file);
       });
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,images:G.extras.slice(0,4),seconds:+G.seconds||10,rights:true})});
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,images:G.extras.slice(0,4),seconds:+G.seconds||10,rights:true,preserve_background:true,edit_scope:'person_only',prompt:MARSHALL_GENJUTSU_STRICT_PROMPT,instructions:MARSHALL_GENJUTSU_STRICT_PROMPT})});
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
       if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
@@ -9558,7 +9569,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         if(!st) continue;
         G.progress=+st.progress||G.progress; G.msg=st.message||G.msg;
         if(st.failed) throw Error(st.error||'Genjutsu a échoué');
-        if(st.done&&st.video_url){ G.url=st.video_url; break; }
+        if(st.done&&st.video_url){ G.url=st.video_url; try{mcdLibrarySaveUrl(G.url,'Vidéo · Genjutsu','Genjutsu');}catch(e){} break; }
         marshallGjRefresh();
       }
       if(!G.url) throw Error('la génération prend trop de temps, réessaie plus tard.');
@@ -9670,7 +9681,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         if(!st) continue;
         A.progress=+st.progress||A.progress; A.msg=st.message||A.msg;
         if(st.failed) throw Error(st.error||'L’avatar parlant a échoué');
-        if(st.done&&st.video_url){ A.url=st.video_url; break; }
+        if(st.done&&st.video_url){ A.url=st.video_url; try{mcdLibrarySaveUrl(A.url,'Vidéo · Avatar parlant','Avatar parlant');}catch(e){} break; }
         marshallAvRefresh();
       }
       if(!A.url) throw Error('la génération prend trop de temps, réessaie plus tard.');
@@ -16773,7 +16784,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         g.clip(); g.drawImage(l._img,dx,dy,dw,dh);
       }
       else if(l.type==='video'){
-        var vEl=document.querySelector('#ed-page .ed-layer[data-lid="'+l.id+'"] video');
+        var vEl=edExportVideoEl||document.querySelector('#ed-page .ed-layer[data-lid="'+l.id+'"] video');
         g.beginPath(); g.rect(bx,by,bw,bh); g.clip(); g.fillStyle='#000'; g.fillRect(bx,by,bw,bh);
         if(vEl&&vEl.readyState>=2&&vEl.videoWidth){ var vw=vEl.videoWidth, vh=vEl.videoHeight, vs=Math.max(bw/vw,bh/vh); try{ g.drawImage(vEl,bx+(bw-vw*vs)/2,by+(bh-vh*vs)/2,vw*vs,vh*vs); }catch(e){} }
       }
@@ -16834,6 +16845,55 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     m.style.left=Math.max(8, Math.min(r.left, window.innerWidth-mr.width-8))+'px';
     m.style.top=(r.bottom+8)+'px';
   }
+  function videoMedia(){
+    return (comp.media||[]).filter(function(m){ return m && m.type==='video' && m.url; })[0]||null;
+  }
+  function refreshDownloadOptions(){
+    // L’option reste visible : l’export vidéo peut être produit au moment du clic.
+  }
+  async function edExportComposedVideo(){
+    if(edExportVideoBusy)return;
+    var vl=(ed.layers||[]).find(function(l){return l&&l.type==='video'&&l.url;});
+    if(!vl){ toast('Ajoutez d’abord une vidéo sur le canvas.', true); return; }
+    if(typeof MediaRecorder==='undefined'||!HTMLCanvasElement.prototype.captureStream){
+      toast('Export vidéo non supporté par ce navigateur. Utilisez Chrome ou Edge récent.', true); return;
+    }
+    edExportVideoBusy=true;
+    var src=edVideoOut(vl), v=document.createElement('video'), audioCtx=null;
+    v.crossOrigin='anonymous'; v.playsInline=true; v.preload='auto'; v.muted=false; v.src=src;
+    try{
+      await new Promise(function(resolve,reject){
+        v.onloadedmetadata=resolve; v.onerror=function(){reject(Error('Vidéo source illisible'));}; v.load();
+      });
+      var W=edW(), H=edH(), cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+      var ctx=cv.getContext('2d'), stream=cv.captureStream(30);
+      try{
+        audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+        var asrc=audioCtx.createMediaElementSource(v), audioDest=audioCtx.createMediaStreamDestination();
+        asrc.connect(audioDest); audioDest.stream.getAudioTracks().forEach(function(t){stream.addTrack(t);});
+        await audioCtx.resume();
+      }catch(e){ console.warn('Audio export vidéo',e); }
+      var mime=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(function(m){return MediaRecorder.isTypeSupported(m);})||'';
+      var rec=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:8000000}:{videoBitsPerSecond:8000000}), chunks=[];
+      rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};
+      var done=new Promise(function(resolve,reject){rec.onstop=function(){resolve(new Blob(chunks,{type:mime||'video/webm'}));};rec.onerror=function(e){reject(e.error||Error('Erreur export vidéo'));};});
+      var duration=Number.isFinite(v.duration)&&v.duration>0?v.duration:10;
+      edExportVideoEl=v; rec.start(250); await v.play();
+      toast('Export vidéo avec texte en cours…');
+      await new Promise(function(resolve){
+        function draw(){
+          var frame=edBuildCanvas(); if(frame)ctx.drawImage(frame,0,0,W,H);
+          if(v.ended||v.currentTime>=duration-.04){resolve();return;}
+          requestAnimationFrame(draw);
+        }
+        requestAnimationFrame(draw);
+      });
+      v.pause(); rec.stop(); var blob=await done;
+      var url=URL.createObjectURL(blob); dlBlob(url,'studiosocial.webm');
+      setTimeout(function(){URL.revokeObjectURL(url);},30000); toast('Vidéo montée téléchargée 🎬');
+    }catch(e){ console.error('Export vidéo montée',e); toast('Export vidéo impossible : '+(e&&e.message?e.message:'erreur'),true); }
+    finally{ edExportVideoEl=null; if(audioCtx)try{await audioCtx.close();}catch(e){} edExportVideoBusy=false; }
+  }
   function shareUrl(){
     var m=comp.media[0];
     if(m && /^https?:/.test(m.url)) return m.url;
@@ -16889,6 +16949,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       dlBlob(URL.createObjectURL(new Blob([t],{type:'text/plain;charset=utf-8'})), 'legende.txt');
       return;
     }
+    if(a==='video'){
+      edExportComposedVideo();
+      return;
+    }
     var cvx=edBuildCanvas();
     if(!cvx){ toast('Ajoutez d’abord des éléments sur la page.', true); return; }
     try{marshallLearnScan('export');}catch(e){}
@@ -16912,7 +16976,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   (function(){
     var shb=$('#hdr-share'), dlb=$('#hdr-dl');
     if(shb) shb.addEventListener('click', function(e){ e.stopPropagation(); hdrMenu('#menu-share', shb); });
-    if(dlb) dlb.addEventListener('click', function(e){ e.stopPropagation(); hdrMenu('#menu-dl', dlb); });
+    if(dlb) dlb.addEventListener('click', function(e){ e.stopPropagation(); refreshDownloadOptions(); hdrMenu('#menu-dl', dlb); });
     $all('#menu-share [data-sh]').forEach(function(b){ b.addEventListener('click', function(){
       $all('.hdr-menu').forEach(function(x){ x.classList.remove('show'); }); doShare(b.getAttribute('data-sh')); }); });
     $all('#menu-share [data-dm]').forEach(function(b){ b.addEventListener('click', function(){
@@ -19403,6 +19467,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var doy=Math.floor((t-new Date(t.getFullYear(),0,0))/86400000),pick=flat[doy%flat.length];
     return {why:pick[0],idea:'un '+fmt+' : '+pick[1],fmt:fmt,hour:hour};
   }
+  /* ===== Bibliothèque locale des créations IA ===== */
+  var MCD_ICON_CHAIN='<svg class="mcd-cartoon-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 14.8 7.1 17a3.7 3.7 0 0 1-5.2-5.2l3.4-3.4a3.7 3.7 0 0 1 5.2 0" fill="none" stroke="#3B2A1C" stroke-width="2.1" stroke-linecap="round"/><path d="m14.8 9.2 2.1-2.1a3.7 3.7 0 0 1 5.2 5.2l-3.4 3.4a3.7 3.7 0 0 1-5.2 0" fill="none" stroke="#3B2A1C" stroke-width="2.1" stroke-linecap="round"/><path d="m8.2 15.8 7.6-7.6" fill="none" stroke="#F3852B" stroke-width="2.3" stroke-linecap="round"/></svg>';
+  var MCD_LIBRARY_DB='studio-social-library-v1';
+  function mcdLibraryOpenDB(){return new Promise(function(resolve,reject){try{var r=indexedDB.open(MCD_LIBRARY_DB,1);r.onupgradeneeded=function(){var db=r.result;if(!db.objectStoreNames.contains('items')){var s=db.createObjectStore('items',{keyPath:'id'});s.createIndex('createdAt','createdAt');}};r.onsuccess=function(){resolve(r.result)};r.onerror=function(){reject(r.error)};}catch(e){reject(e)}});}
+  function mcdLibraryPut(item){return mcdLibraryOpenDB().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction('items','readwrite');tx.objectStore('items').put(item);tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error)};});});}
+  function mcdLibraryAll(){return mcdLibraryOpenDB().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction('items','readonly'),r=tx.objectStore('items').getAll();r.onsuccess=function(){resolve((r.result||[]).sort(function(a,b){return b.createdAt-a.createdAt;}));};r.onerror=function(){reject(r.error)};});});}
+  function mcdLibraryDelete(id){return mcdLibraryOpenDB().then(function(db){return new Promise(function(resolve,reject){var tx=db.transaction('items','readwrite');tx.objectStore('items').delete(id);tx.oncomplete=resolve;tx.onerror=function(){reject(tx.error)};});});}
+  function mcdLibrarySaveText(text,title){if(!text||String(text).length<8)return;mcdLibraryPut({id:'txt_'+Date.now()+'_'+Math.random().toString(16).slice(2),kind:'Réponse',title:title||'Réponse Marshall',text:String(text),createdAt:Date.now()}).catch(function(){});}
+  function mcdLibrarySaveUrl(url,kind,title){if(!url)return;var item={id:'media_'+Date.now()+'_'+Math.random().toString(16).slice(2),kind:kind||'Résultat',title:title||'Résultat IA',url:String(url),createdAt:Date.now()};Promise.resolve(typeof authHeaders==='function'?authHeaders():{}).then(function(h){return fetch(url,{headers:h||{}}).then(function(r){if(!r.ok)throw Error('media');return r.blob();}).then(function(b){item.blob=b;item.url='';return mcdLibraryPut(item);});}).catch(function(){return mcdLibraryPut(item);});}
+  function mcdLibraryEnsure(){var b=document.getElementById('mcd-library');if(!b){b=document.createElement('button');b.type='button';b.id='mcd-library';b.title='Ma bibliothèque';b.setAttribute('aria-label','Ma bibliothèque');b.innerHTML=MCD_ICON_CHAIN;b.addEventListener('click',function(e){e.stopPropagation();mcdLibraryOpen();});}return b;}
+  function mcdLibraryRender(items){var box=document.getElementById('mcd-library-pop');if(!box)return;var html='<div class="mcl-head"><b>🔗 Ma bibliothèque</b><button type="button" class="mcl-x" aria-label="Fermer">✕</button></div><p class="mcl-lead">Tes vidéos, images et réponses IA enregistrées ici, gratuitement sur cet appareil.</p>';if(!items.length)html+='<div class="mcl-empty">Aucune création enregistrée pour le moment.</div>';else html+='<div class="mcl-list">'+items.map(function(x){var stamp=new Date(x.createdAt).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}),media=x.blob?'<span class="mcl-media" data-mcl-id="'+x.id+'"></span>':(x.url?'<a class="mcl-open" href="'+esc(x.url)+'" target="_blank" rel="noopener">Ouvrir le résultat</a>':'');return '<article class="mcl-item"><div class="mcl-item-head"><span><b>'+esc(x.title||x.kind)+'</b><small>'+esc(x.kind)+' · '+stamp+'</small></span><button type="button" data-mcl-del="'+x.id+'" aria-label="Supprimer">✕</button></div>'+media+(x.text?'<div class="mcl-text">'+esc(x.text)+'</div>':'')+'<div class="mcl-actions">'+(x.blob?'<button type="button" data-mcl-dl="'+x.id+'">⬇ Télécharger</button>':'')+'</div></article>';}).join('')+'</div>';box.innerHTML=html;box.querySelector('.mcl-x').onclick=mcdLibraryClose;items.forEach(function(x){if(!x.blob)return;var holder=box.querySelector('[data-mcl-id="'+x.id+'"]');if(!holder)return;var u=URL.createObjectURL(x.blob);if((x.blob.type||'').indexOf('video/')===0)holder.innerHTML='<video controls playsinline src="'+u+'"></video>';else if((x.blob.type||'').indexOf('image/')===0)holder.innerHTML='<img src="'+u+'" alt="">';});box.querySelectorAll('[data-mcl-del]').forEach(function(b){b.onclick=function(){mcdLibraryDelete(b.getAttribute('data-mcl-del')).then(mcdLibraryOpen);};});box.querySelectorAll('[data-mcl-dl]').forEach(function(b){b.onclick=function(){var x=items.filter(function(y){return y.id===b.getAttribute('data-mcl-dl');})[0];if(!x||!x.blob)return;var u=URL.createObjectURL(x.blob),a=document.createElement('a');a.href=u;a.download=(x.title||'studiosocial').replace(/[^a-z0-9_-]+/gi,'-')+'.'+((x.blob.type||'video/mp4').split('/')[1]||'mp4');a.click();setTimeout(function(){URL.revokeObjectURL(u);},1000);};});}
+  function mcdLibraryOpen(){var box=document.getElementById('mcd-library-pop');if(!box){box=document.createElement('div');box.id='mcd-library-pop';document.body.appendChild(box);}box.hidden=false;mcdLibraryAll().then(mcdLibraryRender).catch(function(){mcdLibraryRender([]);});}
+  function mcdLibraryClose(){var box=document.getElementById('mcd-library-pop');if(box)box.hidden=true;}
+  (function(){var st=document.createElement('style');st.textContent='#mcd-library{position:relative;flex:0 0 42px;width:42px;height:42px;padding:0;border:2.5px solid #3B2A1C!important;border-radius:999px;background:#fff!important;box-shadow:0 3px 0 #3B2A1C!important;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .12s,box-shadow .12s}#mcd-library:hover{transform:translateY(-1px) rotate(-4deg)}#mcd-library-pop{position:fixed;z-index:99999;top:72px;right:20px;width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 92px);overflow:auto;padding:15px;background:#fff;border:1px solid #e8e4de;border-radius:18px;box-shadow:0 20px 60px #0003;color:#302c28}#mcd-library-pop[hidden]{display:none}.mcl-head{display:flex;align-items:center;gap:8px;font:700 18px Fredoka,system-ui,sans-serif}.mcl-x{margin-left:auto;border:0;background:#f3f1ed;border-radius:999px;width:30px;height:30px;cursor:pointer}.mcl-lead{font-size:12px;color:#777;margin:8px 0 12px}.mcl-empty{padding:28px 12px;text-align:center;color:#888;background:#faf9f6;border-radius:12px}.mcl-list{display:grid;gap:10px}.mcl-item{padding:10px;border:1px solid #ece7df;border-radius:12px;background:#fffaf5}.mcl-item-head{display:flex;justify-content:space-between;gap:8px}.mcl-item-head b{display:block;font-size:13px}.mcl-item-head small{display:block;color:#888;font-size:10px;margin-top:2px}.mcl-item-head button{border:0;background:transparent;color:#9a3d34;cursor:pointer}.mcl-media video,.mcl-media img{display:block;width:100%;max-height:280px;object-fit:contain;border-radius:9px;margin-top:8px;background:#111}.mcl-text{white-space:pre-wrap;font-size:12px;line-height:1.5;margin-top:8px}.mcl-actions{margin-top:7px}.mcl-actions button,.mcl-open{border:1px solid #e6d9cb;border-radius:8px;background:#fff;padding:6px 9px;color:#7b512e;font-size:11px;text-decoration:none;cursor:pointer}';document.head.appendChild(st);})();
   /* ===== Cloche de notifications (à côté des réglages) : contient les infos de l’accueil ===== */
   function mcdBellPop(){
     var p=document.getElementById('mcd-bell-pop');
@@ -20321,5 +20399,171 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
 })();
 </script>
+<!-- ===== Mobile v2 (Claude) : en-tête, onglets, Composer, listes, accueil ===== -->
+<style id="mcd-mobile-v2">
+@media (max-width:600px){
+  /* --- En-tête : fond orange un peu plus haut, contenu jamais caché dessous --- */
+  html body #app::before{ height:112px!important; }
+  html body #app main{ padding-top:46px!important; }
+
+  /* --- Onglets : une seule ligne qui défile au doigt, l'onglet actif reste visible --- */
+  html body #app #side .fan-wrap{
+    left:0!important; right:0!important; width:auto!important; top:52px!important; height:auto!important; margin:0!important;
+    padding:10px 14px 6px!important; gap:4px!important;
+    display:flex!important; flex-wrap:nowrap!important; justify-content:flex-start!important;
+    overflow-x:auto!important; overflow-y:visible!important; scroll-snap-type:x proximity; scroll-padding:0 14px;
+    -webkit-overflow-scrolling:touch; scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);
+            mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);
+  }
+  html body #app #side .fan-wrap::-webkit-scrollbar{ display:none; }
+  html body #app #side .fan-wrap .nav-item{ flex:0 0 auto!important; scroll-snap-align:start; min-height:38px!important; padding:8px 13px!important; position:relative!important; }
+  html body #app #side .fan-wrap .nav-item:last-child{ margin-right:24px!important; }
+  html body #app #side .fan-wrap .badge{ top:-7px!important; right:-4px!important; left:auto!important; }
+
+  /* --- Composer : les icônes d'en-tête tiennent sur une ligne à droite du bouton Accueil --- */
+  html body:has(#app.show):has(#view-composer.active) #app #side .brand .bt{ display:none!important; }
+  html body #app .hdr-actions{
+    top:10px!important; left:56px!important; right:8px!important; width:auto!important; height:40px!important;
+    display:flex!important; flex-wrap:nowrap!important; align-items:center!important; justify-content:flex-start!important; gap:2px!important;
+    overflow-x:auto!important; overflow-y:hidden!important; scrollbar-width:none;
+  }
+  html body #app .hdr-actions::-webkit-scrollbar{ display:none; }
+  html body #app .hdr-actions > :first-child{ margin-left:auto!important; }
+  html body #app .hdr-actions > *{ flex:0 0 auto!important; width:34px!important; min-width:34px!important; height:34px!important; padding:0!important; margin-top:0!important; margin-bottom:0!important; margin-right:0!important; }
+  html body #app .hdr-actions > :not(:first-child){ margin-left:0!important; }
+  html body #app .hdr-actions #mpl-upgrade, html body #app .hdr-actions #hdr-share, html body #app .hdr-actions #hdr-dl, html body #app .hdr-actions .hdr-books{ width:34px!important; min-width:34px!important; max-width:34px!important; padding:0!important; justify-content:center!important; }
+  html body #app .hdr-actions #mpl-upgrade span{ display:none!important; }
+  html body #app .hdr-actions > * > button,
+  html body #app .hdr-actions > * > .ptab{ width:34px!important; height:34px!important; }
+  html body #app .hdr-actions svg{ max-width:20px!important; max-height:20px!important; }
+  html body #app .hdr-actions .mb-badge{ top:-3px!important; right:-3px!important; }
+
+  /* --- Composer : barre d'outils sur une ligne qui défile, plan de travail pleine largeur --- */
+  html body #app #view-composer .ed-shell .ed-stagewrap{ padding:10px 8px calc(84px + env(safe-area-inset-bottom)) 8px!important; }
+  html body #app #view-composer .ed-stagewrap .ed-toolbar,
+  html body #app #view-composer .ed-stagewrap #ed-multipage.show{ align-self:stretch!important; margin:0 0 10px!important; }
+  html body #app .ed-toolbar{
+    width:100%!important; max-width:100%!important; box-sizing:border-box!important;
+    flex-wrap:nowrap!important; justify-content:flex-start!important; overflow-x:auto!important; overflow-y:hidden!important;
+    padding:6px 8px!important; gap:6px!important; scrollbar-width:none;
+  }
+  html body #app .ed-toolbar::-webkit-scrollbar{ display:none; }
+  html body #app .ed-toolbar > *{ flex:0 0 auto!important; }
+  html body #app .ed-toolbar #ed-format{ width:178px!important; }
+  html body #app .ed-multipage{ max-width:100%!important; overflow-x:auto!important; }
+
+  /* --- Composer : la colonne d'outils devient une barre en bas de l'écran (comme Canva/Instagram) --- */
+  html body #app .ed-rail{
+    position:fixed!important; top:auto!important; left:0!important; right:0!important; bottom:0!important;
+    width:100%!important; height:auto!important; max-height:none!important;
+    flex-direction:row!important; flex-wrap:nowrap!important; justify-content:flex-start!important; align-items:stretch!important;
+    overflow-x:auto!important; overflow-y:hidden!important; gap:2px!important;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom))!important;
+    background:#fff!important; border-top:1px solid rgba(74,42,16,.10)!important; border-radius:0!important;
+    box-shadow:0 -6px 20px rgba(74,42,16,.10)!important; z-index:60!important; scrollbar-width:none;
+  }
+  html body #app .ed-rail::-webkit-scrollbar{ display:none; }
+  html body #app .ed-rail .ed-tool{ flex:0 0 60px!important; width:60px!important; min-height:54px!important; height:auto!important; margin:0!important; }
+  /* « Publier » reste toujours visible à droite de la barre */
+  html body #app .ed-rail #ed-publish{ position:sticky!important; right:0!important; z-index:2!important; box-shadow:-10px 0 12px -6px rgba(74,42,16,.18)!important; border-radius:14px!important; }
+  html body #app .ed-rail .ed-tool span{ white-space:nowrap!important; font-size:10.5px!important; }
+
+  /* Pastille Démo et bouton Agents IA : au-dessus de la barre d'outils du Composer */
+  html body:has(#app.show):has(#view-composer.active) #mcd-demo-bar{ bottom:calc(80px + env(safe-area-inset-bottom))!important; }
+  html body:has(#app.show):has(#view-composer.active) #mob-agents-btn{ bottom:calc(80px + env(safe-area-inset-bottom))!important; }
+  html body:has(#app.show):has(#view-composer.active) .ed-agent-rail.mob-open{ bottom:calc(76px + env(safe-area-inset-bottom))!important; }
+  /* Le bouton Agents IA ne sert que dans le Composer */
+  html body:not(:has(#view-composer.active)) #mob-agents-btn,
+  html body:not(:has(#app.show)) #mob-agents-btn{ display:none!important; }
+
+  /* --- Calendrier : les filtres sur une seule ligne qui défile --- */
+  html body #app .cal-toprow{
+    flex-wrap:nowrap!important; overflow-x:auto!important; gap:8px!important; align-items:center!important;
+    margin-right:-18px!important; padding-right:18px!important; padding-bottom:2px!important; scrollbar-width:none;
+  }
+  html body #app .cal-toprow::-webkit-scrollbar{ display:none; }
+  html body #app .cal-toprow > *{ flex:0 0 auto!important; margin:0!important; white-space:nowrap!important; }
+  html body #app .cal-mode button{ min-height:32px!important; }
+
+  /* --- Historique / Brouillons : la carte passe sur deux lignes, le titre n'est plus écrasé --- */
+  html body #app .list > .item{ flex-wrap:wrap!important; align-items:flex-start!important; gap:10px 12px!important; padding:12px!important; }
+  html body #app .list > .item .ithumb{ flex:0 0 52px!important; }
+  html body #app .list > .item .imain{ flex:1 1 calc(100% - 70px)!important; min-width:0!important; width:auto!important; }
+  html body #app .list > .item .it1{ white-space:normal!important; display:-webkit-box!important; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden!important; text-overflow:clip!important; }
+  html body #app .list > .item .it2{ flex-wrap:wrap!important; }
+  html body #app .list > .item .iend{ flex:1 1 100%!important; width:100%!important; justify-content:flex-end!important; margin:0!important; }
+  html body #app .list > .item .icon-btn{ min-width:40px!important; min-height:40px!important; }
+
+  /* --- Fin de page : rien ne reste caché sous la pastille Démo --- */
+  html body #app .view.active{ padding-bottom:calc(72px + env(safe-area-inset-bottom))!important; }
+  html body #app #view-composer.view.active{ padding-bottom:0!important; }
+
+  /* --- Accueil : le haut n'est plus coupé, la page défile --- */
+  html body #hub.show{ align-items:flex-start!important; justify-content:flex-start!important; overflow-y:auto!important; -webkit-overflow-scrolling:touch; }
+  html body #hub .hub-inner{ margin:0 auto!important; }
+  html[data-demo="1"] body #hub.show{ padding-top:64px!important; }
+}
+@media (max-width:380px){
+  /* Petits téléphones : la pastille Démo passe au-dessus du bouton Agents IA au lieu de le chevaucher */
+  html body:has(#app.show):has(#view-composer.active) #mcd-demo-bar{ bottom:calc(132px + env(safe-area-inset-bottom))!important; }
+}
+</style>
+<script>
+/* Mobile v2 : garde l'onglet actif visible dans la barre d'onglets */
+(function(){
+  function center(){
+    if(window.innerWidth>600)return;
+    var w=document.getElementById('fan-wrap');if(!w)return;
+    var a=w.querySelector('.nav-item.active');if(!a)return;
+    var x=a.offsetLeft-(w.clientWidth-a.offsetWidth)/2;
+    try{w.scrollTo({left:Math.max(0,x),behavior:'smooth'});}catch(e){w.scrollLeft=Math.max(0,x);}
+  }
+  document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#fan-wrap .nav-item'))setTimeout(center,60);});
+  var w0=document.getElementById('fan-wrap');
+  if(w0&&window.MutationObserver)new MutationObserver(function(){setTimeout(center,30);}).observe(w0,{subtree:true,attributes:true,attributeFilter:['class']});
+  window.addEventListener('resize',center);
+})();
+</script>
+
+<!-- ===== Liens depuis l'app mobile (studio-app.html) : ?view=composer · ?agent=genjutsu · ?from=app ===== -->
+<style id="mcd-from-app-style">
+#mcd-back-app{position:fixed;z-index:2147483000;left:12px;bottom:calc(84px + env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 16px 0 12px;border-radius:999px;border:2px solid #fff;background:#3b1d08;color:#fff;font:700 14.5px/1 'Fredoka','Baloo 2',sans-serif;text-decoration:none;box-shadow:0 10px 24px rgba(60,20,0,.35)}
+#mcd-back-app svg{width:18px;height:18px}
+html[data-demo="1"] #mcd-back-app{bottom:calc(136px + env(safe-area-inset-bottom))}
+@media (min-width:601px){#mcd-back-app{bottom:24px}html[data-demo="1"] #mcd-back-app{bottom:80px}}
+</style>
+<script>
+(function(){
+  try{
+    var q=new URLSearchParams(location.search),view=q.get('view'),agent=q.get('agent'),fromApp=q.get('from')==='app';
+    if(fromApp)sessionStorage.setItem('mcd_from_app','1');
+    if(sessionStorage.getItem('mcd_from_app')==='1'){
+      var a=document.createElement('a');a.id='mcd-back-app';a.href='studio-app.html'+(/[?&]demo=/.test(location.search)?'?demo=1':'');
+      a.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 5-7 7 7 7"/></svg>Retour à l’app';
+      var put=function(){if(document.body&&!document.getElementById('mcd-back-app'))document.body.appendChild(a);};
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',put);else put();
+    }
+    if(!view&&!agent)return;
+    var t0=Date.now(),stage=0;
+    var vis=function(el){return !!(el&&(el.offsetParent!==null||getComputedStyle(el).position==='fixed')&&getComputedStyle(el).display!=='none');};
+    var timer=setInterval(function(){
+      if(Date.now()-t0>60000){clearInterval(timer);return;}
+      var hub=document.getElementById('hub'),app=document.getElementById('app');
+      if(stage===0&&hub&&hub.classList.contains('show')){var card=document.querySelector('.hub-card[data-tool="studio"]');if(card){card.click();stage=1;}return;}
+      if(app&&app.classList.contains('show')){
+        var v=view||'composer',nav=[].slice.call(document.querySelectorAll('[data-view="'+v+'"]')).filter(vis)[0]||document.querySelector('[data-view="'+v+'"]');
+        if(nav)nav.click();
+        if(agent){
+          setTimeout(function(){var b=document.querySelector('[data-agent-rail="'+agent+'"]');if(b)b.click();},700);
+        }
+        clearInterval(timer);
+        try{q.delete('view');q.delete('agent');q.delete('from');history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);}catch(e){}
+      }
+    },400);
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
