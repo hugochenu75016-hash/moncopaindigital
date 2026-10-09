@@ -1071,7 +1071,7 @@
 
   var F = 0;      // le défilement commence directement par le remplissage orange
   var bob = function(n){ var k = []; for (var i = 0; i < n; i++) k.push({ y:i % 2 ? 0 : -16 }); k.push({ y:0 }); return k; };
-  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=360%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
+  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=210%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
       onUpdate:function(t){ var o = t.isActive && t.animation.time() > F + .15; if (o !== orHero) { orHero = o; topColor(); } },
       onLeave:function(){ orHero = true; topColor(); }, onEnterBack:function(t){ orHero = t.animation.time() > F + .15; topColor(); } } });
   var it = gsap.timeline({ paused:true, defaults:{ ease:'none' } });   // l'intro, jouée automatiquement
@@ -1125,10 +1125,11 @@
     .to('#wall .dsp-ag', { autoAlpha:1, yPercent:0, scale:1, duration:.26, stagger:.06, ease:'back.out(1.6)' }, F + .62)
     .to('#wall-cap', { autoAlpha:1, y:0, duration:.12 }, F + 1.08)
     .set('#wall', { pointerEvents:'auto' }, F + 1.08)
-    .set({}, {}, F + 1.45);
-  // 8. Les demandes arrivent sur le téléphone de Marshall, il en fait un ticket et l'envoie à l'agent qui s'en charge
+    .set({}, {}, F + 2.4);                                            // la vitrine reste un moment à l'écran pendant que la boucle tourne
+  // 8. En boucle : les demandes arrivent sur le téléphone de Marshall, il en fait un ticket et l'envoie à l'agent qui s'en charge
   var dAg = [].slice.call(document.querySelectorAll('#wall .dsp-ag')), dN = [].slice.call(document.querySelectorAll('#wall .dsp-n')),
-      dT = [].slice.call(document.querySelectorAll('#wall .dsp-t')), dBoss = document.querySelector('#wall .dsp-boss'), dWall = document.getElementById('wall');
+      dT = [].slice.call(document.querySelectorAll('#wall .dsp-t')), dBoss = document.querySelector('#wall .dsp-boss'), dWall = document.getElementById('wall'),
+      dEndEl = document.querySelector('#wall .dsp-end');
   function dAim(){   // départ : le téléphone de Marshall ; arrivée : chaque agent (recalculé à chaque redimensionnement)
     var w = dWall.getBoundingClientRect(), b = dBoss.getBoundingClientRect();
     var sx = b.left - w.left + b.width * .74, sy = b.top - w.top + b.height * .25;
@@ -1138,31 +1139,47 @@
       t.style.setProperty('--tx', (a.left - w.left + a.width / 2 - sx) + 'px'); t.style.setProperty('--ty', (a.top - w.top + a.height * .35 - sy) + 'px');
     });
   }
-  ScrollTrigger.addEventListener('refresh', dAim); dAim();
+  ScrollTrigger.addEventListener('refresh', dAim);
   function dState(k, v){
     var f = dAg[k], sp = f.querySelector('figcaption span');
     f.classList.toggle('dsp-work', v === 1); f.classList.toggle('dsp-done', v === 2);
     sp.textContent = v === 2 ? 'C’est prêt' : (v === 1 ? sp.dataset.work : sp.dataset.wait);
   }
-  var dA = F + 1.5, dS = .55;
+  function dReset(){
+    gsap.set(dN, { autoAlpha:0, x:0, y:0, scale:1 }); gsap.set(dT, { autoAlpha:0, '--p':0, '--arc':0 }); gsap.set(dEndEl, { autoAlpha:0 });
+    dAg.forEach(function(f, k){ dState(k, 0); });
+  }
+  var dS = 1.7, dLoop = gsap.timeline({ paused:true, repeat:-1, defaults:{ ease:'none' } });
+  dLoop.call(dReset, [], 0);
   dN.forEach(function(n, k){
-    var t0 = dA + k * dS;
-    st.fromTo(n, { autoAlpha:0, y:-50, scale:.9 }, { autoAlpha:1, y:0, scale:1, duration:.12, ease:'back.out(2)', immediateRender:false }, t0)
-      .to(dBoss, { rotate:-2.5, duration:.06 }, t0 + .1).to(dBoss, { rotate:1.5, duration:.06 }, t0 + .16).to(dBoss, { rotate:0, duration:.08 }, t0 + .22)
-      .to(n, { autoAlpha:0, scale:.5, y:90, x:60, duration:.1, ease:'power2.in' }, t0 + .26)
-      .fromTo(dT[k], { autoAlpha:0, '--p':0, '--arc':0 }, { autoAlpha:1, duration:.03, immediateRender:false }, t0 + .33)
-      .to(dT[k], { '--p':1, duration:.17, ease:'power1.inOut' }, t0 + .33)
-      .to(dT[k], { keyframes:[{ '--arc':1, duration:.085, ease:'power1.out' }, { '--arc':0, duration:.085, ease:'power1.in' }] }, t0 + .33)
-      .to(dT[k], { autoAlpha:0, duration:.04 }, t0 + .5)
-      .call(dState, [k, 0], t0 + .499).call(dState, [k, 1], t0 + .5)
-      .to(dAg[k], { scale:1.14, y:-14, duration:.06 }, t0 + .5).to(dAg[k], { scale:1, y:0, duration:.12 }, t0 + .56);
+    var t0 = .4 + k * dS;
+    dLoop.fromTo(n, { autoAlpha:0, y:-50, scale:.9 }, { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' }, t0)
+      .to(dBoss, { rotate:-2.5, duration:.12 }, t0 + .3).to(dBoss, { rotate:1.5, duration:.12 }, t0 + .42).to(dBoss, { rotate:0, duration:.16 }, t0 + .54)
+      .to(n, { autoAlpha:0, scale:.5, y:90, x:60, duration:.3, ease:'power2.in' }, t0 + .85)
+      .fromTo(dT[k], { autoAlpha:0, '--p':0, '--arc':0 }, { autoAlpha:1, duration:.06 }, t0 + 1.1)
+      .to(dT[k], { '--p':1, duration:.55, ease:'power1.inOut' }, t0 + 1.1)
+      .to(dT[k], { keyframes:[{ '--arc':1, duration:.275, ease:'power1.out' }, { '--arc':0, duration:.275, ease:'power1.in' }] }, t0 + 1.1)
+      .to(dT[k], { autoAlpha:0, duration:.1 }, t0 + 1.62)
+      .call(dState, [k, 1], t0 + 1.62)
+      .to(dAg[k], { scale:1.14, y:-14, duration:.15, ease:'power2.out' }, t0 + 1.62).to(dAg[k], { scale:1, y:0, duration:.4, ease:'back.out(3)' }, t0 + 1.77);
   });
-  // 9. Tout est prêt : « Je bosse, tu valides. »
-  var dEnd = dA + dN.length * dS + .1;
-  dAg.forEach(function(f, k){ st.call(dState, [k, 1], dEnd - .001).call(dState, [k, 2], dEnd + k * .02); });
-  st.fromTo('#wall .dsp-end', { autoAlpha:0, y:40, scale:.9 }, { autoAlpha:1, y:0, scale:1, duration:.25, ease:'back.out(1.6)', immediateRender:false }, dEnd + .1)
-    .to(dBoss, { rotate:-3, duration:.08 }, dEnd + .1).to(dBoss, { rotate:0, duration:.12 }, dEnd + .18)
-    .set({}, {}, dEnd + .6);
+  // 9. Tout est prêt : « Je bosse, tu valides. », puis on recommence
+  var dEnd = .4 + dN.length * dS + .3;
+  dAg.forEach(function(f, k){ dLoop.call(dState, [k, 2], dEnd + k * .08); });
+  dLoop.fromTo(dEndEl, { autoAlpha:0, y:40, scale:.9 }, { autoAlpha:1, y:0, scale:1, duration:.6, ease:'back.out(1.6)' }, dEnd + .5)
+    .to(dBoss, { rotate:-3, duration:.2 }, dEnd + .5).to(dBoss, { rotate:0, duration:.3 }, dEnd + .7)
+    .to(dEndEl, { autoAlpha:0, y:-20, duration:.4 }, dEnd + 3.4)
+    .set({}, {}, dEnd + 4);
+  // La boucle tourne dès que l'équipe est arrivée à l'écran, et s'arrête quand on quitte la vitrine
+  var dRun = false;
+  function dSync(want){
+    if (want === dRun) return; dRun = want;
+    if (want) { dAim(); dLoop.restart(); } else { dLoop.pause(); dReset(); }
+  }
+  ScrollTrigger.create({ trigger:hero, start:'top top', end:function(){ return st.scrollTrigger.end; },
+    onEnterBack:function(){ dSync(st.time() > F + 1.05); },
+    onLeave:function(){ dSync(false); }, onLeaveBack:function(){ dSync(false); } });
+  st.call(dSync, [false], F + 1.049).call(dSync, [true], F + 1.05);   // l'équipe est arrivée : la boucle démarre (et s'arrête si on remonte)
   st.to('#scroll-hint', { autoAlpha:0, duration:.18 }, .18);
   var root = document.documentElement;
   function lockScroll(on){ root.style.overflow = on ? 'hidden' : ''; if (window.lenis) { if (on) lenis.stop(); else lenis.start(); } }
