@@ -131,6 +131,21 @@
   .why p b{font-weight:800;font-style:italic;color:var(--or)}
   .why .wd{opacity:0;display:inline}
   @media (max-width:800px){.jlist small{display:none}.why{grid-template-columns:1fr}.follow{display:none}}
+  /* Mobile : la scène d'images sous la liste des métiers */
+  .jstage{display:none}
+  @media (max-width:800px){
+    .jobs{padding-top:90px}
+    .jwrap{display:flex;flex-direction:column;min-height:calc(100svh - 70px);padding-bottom:16px}
+    .jwrap .lbl{margin-bottom:14px}
+    .jstage{display:block;position:relative;flex:1;min-height:280px;margin-top:18px;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 78%,#ffd0a0,var(--or) 70%)}
+    .jfig{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden}
+    .jfig.on{opacity:1;visibility:visible}
+    .jfig img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);height:84%;width:auto;max-width:94%;object-fit:contain;object-position:bottom;filter:drop-shadow(0 16px 18px rgba(90,30,0,.3))}
+    .jfig figcaption{position:absolute;left:16px;right:16px;top:14px;z-index:1;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(20px,6vw,28px);line-height:.95;color:#fff}
+    .jnum{position:absolute;left:14px;bottom:12px;z-index:1;font-stretch:62%;font-weight:800;font-size:14px;color:#fff;background:rgba(110,193,240,.72);padding:4px 9px}
+    .jlist .disp{font-size:min(9vw,62px)}
+    .jlist a.on .disp{color:var(--or);font-style:italic;transform:translateX(.08em)}
+  }
 
   /* ---------- À propos ---------- */
   .about{position:relative;padding:40px var(--pad) 140px;overflow:hidden;background:var(--or);color:#fff}   /* fond orange, textes blancs, accents noirs */
@@ -357,17 +372,17 @@
     return Promise.race([p, new Promise(function(resolve){ setTimeout(resolve, ms); })]);
   }
   function waitImages(){
-    return Promise.all([].slice.call(document.images).map(function(img){
+    return Promise.all([].slice.call(document.querySelectorAll('#hero img:not([loading="lazy"])')).map(function(img){
       if(img.complete && img.naturalWidth !== 0) return Promise.resolve();
-      if(img.decode) return waitAsset(img.decode().catch(function(){}), 4000);
+      if(img.decode) return waitAsset(img.decode().catch(function(){}), 2500);
       return waitAsset(new Promise(function(resolve){
         img.addEventListener('load', resolve, { once:true });
         img.addEventListener('error', resolve, { once:true });
-      }), 4000);
+      }), 2500);
     }));
   }
   function waitVideos(){
-    return Promise.all([].slice.call(document.querySelectorAll('video')).map(function(v){
+    return Promise.all([].slice.call(document.querySelectorAll('#wall video')).map(function(v){
       if(v.preload === 'none') return Promise.resolve();
       if(v.readyState >= 2) return Promise.resolve();
       try{ v.load(); }catch(e){}
@@ -375,16 +390,16 @@
         v.addEventListener('loadeddata', resolve, { once:true });
         v.addEventListener('canplay', resolve, { once:true });
         v.addEventListener('error', resolve, { once:true });
-      }), 5000);
+      }), 2500);
     }));
   }
   function onPageLoaded(){
     var fr=(document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
     Promise.all([fr, waitImages(), waitVideos()]).then(doOpen, doOpen);
   }
-  if(document.readyState==='complete') onPageLoaded();
-  else window.addEventListener('load', onPageLoaded);
-  setTimeout(doOpen, 15000);
+  if(document.readyState!=='loading') onPageLoaded();
+  else document.addEventListener('DOMContentLoaded', onPageLoaded);
+  setTimeout(doOpen, 5000);
   window.addEventListener('pageshow', function(ev){
     if(ev.persisted){
       ov.classList.remove('closing');
@@ -447,6 +462,7 @@
 
 <!-- ================= MÉTIERS ================= -->
 <section class="jobs light" id="metiers">
+  <div class="jwrap" id="jwrap">
   <span class="lbl">Ses métiers</span>
   <ul class="jlist" id="jlist">
     <li><a href="#creations" data-img="agents/ag-studio.webp"><span class="disp">Studio IA</span><small>Une idée, une photo : une image pro ou une vidéo de 5 à 20 s</small></a></li>
@@ -457,6 +473,17 @@
     <li><a href="#creations" data-img="agents/ag-campaign.webp"><span class="disp">Pilote</span><small>Ta semaine de posts prête lundi matin</small></a></li>
     <li><a href="#creations" data-img="agents/ag-team.webp"><span class="disp">Automatisations</span><small>Un puzzle à assembler, et tout tourne seul</small></a></li>
   </ul>
+  <div class="jstage" id="jstage" aria-hidden="true">
+    <figure class="jfig on"><figcaption>Une idée, une photo : une image pro ou une vidéo de 5 à 20 s</figcaption><img src="agents/ag-studio.webp" alt="" loading="lazy"></figure>
+    <figure class="jfig"><figcaption>Un reportage télé sur l’info du jour ou ton commerce</figcaption><img src="agents/ag-nation.webp" alt="" loading="lazy"></figure>
+    <figure class="jfig"><figcaption>Toi à la place de la star, même décor, mêmes gestes</figcaption><img src="agents/ag-genjutsu.webp" alt="" loading="lazy"></figure>
+    <figure class="jfig"><figcaption>Ta photo parle face caméra, avec ta voix</figcaption><img src="agents/ag-avatar.webp" alt="" loading="lazy"></figure>
+    <figure class="jfig"><figcaption>Une longue vidéo devient 10 clips sous-titrés</figcaption><img src="agents/ag-clipper.webp" alt="" loading="lazy"></figure>
+    <figure class="jfig"><figcaption>Ta semaine de posts prête lundi matin</figcaption><img src="agents/ag-campaign.webp" alt="" loading="lazy"></figure>
+    <figure class="jfig"><figcaption>Un puzzle à assembler, et tout tourne seul</figcaption><img src="agents/ag-team.webp" alt="" loading="lazy"></figure>
+    <span class="jnum" id="jnum">1 / 7</span>
+  </div>
+  </div>
   <div class="why">
     <p>Il existe des centaines d’outils pour gérer ses réseaux. Quand on tient un commerce, choisir le bon (et trouver le temps de s’en servir) ressemble à un deuxième métier. <b>Alors, pourquoi Marshall&nbsp;?</b></p>
     <a class="btn" href="#apropos">Voilà pourquoi <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
@@ -504,9 +531,9 @@
 <section class="offers light" id="offres">
   <span class="lbl">Offres · sans engagement</span>
   <div class="olist">
-    <div class="orow"><h3 class="disp">Gratuit<sup>0 €</sup></h3><ul><li>1 500 tokens par mois</li><li>Marshall en mode Léger</li><li>Stories et posts éditables</li><li>Images IA Qwen</li></ul><a class="btn" href="studio-social.html?inscription=1">Commencer</a></div>
-    <div class="orow"><div><span class="best">Le plus choisi</span><h3 class="disp">Complet<sup>29 €</sup></h3></div><ul><li>10 500 tokens par mois</li><li>Publication et programmation</li><li>Pilote automatique</li><li>Analyse de marque</li><li>Équipe d’agents Marshall</li><li>Vidéos IA Wan 2.2</li></ul><a class="btn fill" href="studio-social.html?inscription=1&amp;plan=complet">Choisir Complet</a></div>
-    <div class="orow"><h3 class="disp">Hyper<sup>59 €</sup></h3><ul><li>22 500 tokens par mois</li><li>Tout le Complet</li><li>Images Nano Banana 2</li><li>Genjutsu et Avatar parlant</li><li>Reportages Journaliste</li><li>Vidéos IA qualité Pro</li></ul><a class="btn" href="studio-social.html?inscription=1&amp;plan=hyper">Choisir Hyper</a></div>
+    <div class="orow"><h3 class="disp">Gratuit<sup>0 €</sup></h3><ul><li>1 500 tokens par mois</li><li>Marshall en mode Léger</li><li>Stories et posts éditables</li><li>Images IA</li></ul><a class="btn" href="studio-social.html?inscription=1">Commencer</a></div>
+    <div class="orow"><div><span class="best">Le plus choisi</span><h3 class="disp">Complet<sup>29 €</sup></h3></div><ul><li>10 500 tokens par mois</li><li>Publication et programmation</li><li>Pilote automatique</li><li>Analyse de marque</li><li>Équipe d’agents Marshall</li><li>Vidéos IA</li></ul><a class="btn fill" href="studio-social.html?inscription=1&amp;plan=complet">Choisir Complet</a></div>
+    <div class="orow"><h3 class="disp">Hyper<sup>59 €</sup></h3><ul><li>22 500 tokens par mois</li><li>Tout le Complet</li><li>Images IA haute qualité</li><li>Genjutsu et Avatar parlant</li><li>Reportages Journaliste</li><li>Vidéos IA qualité Pro</li></ul><a class="btn" href="studio-social.html?inscription=1&amp;plan=hyper">Choisir Hyper</a></div>
   </div>
   <p class="fine">Prix par mois, TTC. Paiement sécurisé par Stripe, résiliable à tout moment. <a href="loiapplicablemcp.html">CGV</a></p>
 </section>
@@ -540,7 +567,7 @@
     </div>
     <div>
       <div class="ntabs" id="ntabs" role="tablist">
-        <button type="button" class="on" data-n="0">Instagram</button><button type="button" data-n="1">Facebook</button><button type="button" data-n="2">TikTok</button><button type="button" data-n="3">Google</button>
+        <button type="button" class="on" data-n="0">Instagram</button><button type="button" data-n="1">Facebook</button><button type="button" data-n="2">TikTok</button><button type="button" data-n="3">Avis Google</button>
       </div>
       <div class="ndet" id="ndet"><span class="lbl">Détails</span><p></p></div>
     </div>
@@ -713,7 +740,7 @@
       <span class="mcd-avatar"><img src="avatarchatbot.png" alt="Marshall"></span>
       <div>
         <h2>Marshall</h2>
-        <p>Une Question ? je suis la pour y répondre !</p>
+        <p>Une question ? Je suis là pour y répondre !</p>
       </div>
       <button class="mcd-fermer" id="mcdFermer" aria-label="Fermer la conversation">&times;</button>
     </div>
@@ -721,16 +748,16 @@
     <div class="mcd-fil" id="mcdFil" aria-live="polite"></div>
 
     <div class="mcd-suggestions" id="mcdSuggestions">
-      <button type="button">Quelles sont vos offres ?</button>
-      <button type="button">C'est quoi Social Studio ?</button>
-      <button type="button">Comment prendre rendez-vous ?</button>
+      <button type="button">C’est combien ?</button>
+      <button type="button">C’est quoi Studio Social ?</button>
+      <button type="button">Je peux essayer gratuitement ?</button>
     </div>
 
     <div class="mcd-saisie">
-      <textarea id="mcdTexte" rows="1" placeholder="Écrivez votre question…" aria-label="Votre message"></textarea>
+      <textarea id="mcdTexte" rows="1" placeholder="Écris ta question…" aria-label="Ton message"></textarea>
       <button class="mcd-envoyer" id="mcdEnvoyer" aria-label="Envoyer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFF7E6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"></path><path d="M5 12l7-7 7 7"></path></svg></button>
     </div>
-    <p class="mcd-mention">Assistant automatique. Pour un devis, prenez rendez-vous.</p>
+    <p class="mcd-mention">Assistant automatique. Il peut se tromper, vérifie les infos importantes.</p>
   </div>
 
   <button class="mcd-lanceur" id="mcdLanceur" aria-label="Ouvrir l'assistant"><img src="avatarchatbot.png" alt=""></button>
@@ -750,7 +777,7 @@
   const historique = [];
   let occupe = false;
 
-  const ACCUEIL = "Bonjour 👋 Je réponds à vos questions sur nos offres, le Social Studio ou la prise de rendez-vous. Que puis-je pour vous ?";
+  const ACCUEIL = "Salut 👋 Moi c’est Marshall ! Pose-moi tes questions sur Studio Social, les offres ou comment démarrer. Je t’écoute !";
 
   function bulle(role, contenu) {
     const el = document.createElement('div');
@@ -796,14 +823,14 @@
       attente.remove();
 
       if (!r.ok) {
-        bulle('erreur', data.error || "L'assistant est momentanément indisponible.");
+        bulle('erreur', data.error || "Marshall fait une petite pause, réessaie dans un instant.");
         return;
       }
       bulle('assistant', data.reply);
       historique.push({ role: 'assistant', content: data.reply });
     } catch (e) {
       attente.remove();
-      bulle('erreur', "Connexion impossible. Réessayez, ou écrivez-nous depuis la page Contact.");
+      bulle('erreur', "Connexion impossible. Vérifie ta connexion et réessaie.");
     } finally {
       occupe = false;
       envoi.disabled = false;
@@ -1084,6 +1111,31 @@
     });
   });
   jl.addEventListener('mouseleave', function(){ mx = -1; folHide(); });
+  // Mobile : la liste reste en place ; au défilement, chaque métier s'allume et son image apparaît dans l'espace du dessous
+  var mmJ = gsap.matchMedia();
+  mmJ.add('(max-width: 800px)', function(){
+    var links = [].slice.call(jl.querySelectorAll('a')), figs = [].slice.call(document.querySelectorAll('#jstage .jfig')),
+        num = document.getElementById('jnum'), n = links.length, cur = -1;
+    function show(i){
+      if (i === cur) return;
+      var prev = cur, down = i > prev; cur = i;
+      links.forEach(function(a, k){ a.classList.toggle('on', k === i); });
+      if (prev >= 0) { figs[prev].classList.remove('on'); gsap.fromTo(figs[prev], { autoAlpha:1, y:0 }, { autoAlpha:0, y:down ? -40 : 40, duration:.3, ease:'power2.in', overwrite:true }); }
+      figs[i].classList.add('on');
+      gsap.fromTo(figs[i], { autoAlpha:0, y:down ? 60 : -60, scale:.94 }, { autoAlpha:1, y:0, scale:1, duration:.5, ease:'back.out(1.6)', overwrite:true });
+      num.textContent = (i + 1) + ' / ' + n;
+    }
+    show(0);
+    var t = ScrollTrigger.create({ trigger:'#jwrap', start:'top 70px', end:'+=' + (n * 45) + '%', pin:true, anticipatePin:1,
+      onUpdate:function(st){ show(Math.min(n - 1, Math.floor(st.progress * n))); } });
+    return function(){
+      t.kill(); cur = -1;
+      links.forEach(function(a){ a.classList.remove('on'); });
+      figs.forEach(function(f, k){ gsap.set(f, { clearProps:'all' }); f.classList.toggle('on', k === 0); });
+      num.textContent = '1 / ' + n;
+    };
+  });
+
   // Le texte s'allume mot après mot au fil du défilement
   var wp = document.querySelector('.why p');
   (function split(node){
