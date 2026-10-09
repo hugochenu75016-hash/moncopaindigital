@@ -20565,5 +20565,46 @@ html[data-demo="1"] #mcd-back-app{bottom:calc(136px + env(safe-area-inset-bottom
 })();
 </script>
 
+<!-- ===== Boutons du canvas (« Voix IA sur ce canva », détourage…) : jamais au-dessus d'un panneau ouvert ===== -->
+<style id="mcd-side-tools-occlusion-style">#ed-side-tools.mcd-covered{visibility:hidden!important;pointer-events:none!important}</style>
+<script id="mcd-side-tools-occlusion">
+(function(){
+  /* Les pastilles du canvas sont posées sur <body> (position fixe) pour sortir de la zone de travail.
+     Dès qu'un panneau, une fenêtre, un menu ou une feuille recouvre l'endroit où elles se trouvent,
+     on les masque ; elles réapparaissent quand le panneau se ferme. */
+  var last=0;
+  function covered(bar,stage){
+    var pts=[];
+    Array.prototype.forEach.call(bar.children,function(c){
+      var r=c.getBoundingClientRect(); if(r.width<2||r.height<2) return;
+      pts.push([r.left+4,r.top+4],[r.right-4,r.top+4],[r.left+r.width/2,r.top+r.height/2],[r.left+4,r.bottom-4],[r.right-4,r.bottom-4]);
+    });
+    for(var i=0;i<pts.length;i++){
+      var x=pts[i][0],y=pts[i][1];
+      if(x<0||y<0||x>innerWidth-1||y>innerHeight-1) continue;
+      var list=document.elementsFromPoint(x,y);
+      for(var j=0;j<list.length;j++){
+        var el=list[j];
+        if(bar.contains(el)) continue;               /* la pastille elle-même */
+        if(stage.contains(el)||el.contains(stage)) break; /* le canvas ou son fond : rien ne la recouvre ici */
+        return true;                                  /* autre chose est au-dessus : panneau, fenêtre, menu… */
+      }
+    }
+    return false;
+  }
+  function check(){
+    var bar=document.getElementById('ed-side-tools'),stage=document.getElementById('ed-stage');
+    if(!bar||!stage) return;
+    if(!bar.children.length||getComputedStyle(bar).display==='none'){ bar.classList.remove('mcd-covered'); return; }
+    bar.classList.remove('mcd-covered');
+    bar.classList.toggle('mcd-covered',covered(bar,stage));
+  }
+  function tick(t){
+    if(t-last>180){ last=t; try{ check(); }catch(e){} }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
 </body>
 </html>
