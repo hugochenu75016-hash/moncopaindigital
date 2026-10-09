@@ -110,6 +110,35 @@
   .spk svg{width:20px;height:20px}
   .spk:hover{transform:scale(1.1);background:var(--or)}
   .spk[aria-pressed="true"]{background:var(--or)}
+  /* « Pendant que tu bosses… » : la journée du commerçant et celle de Marshall, côte à côte */
+  .pq-card .pq-v{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;opacity:0}
+  .pq-card .pq-v.on{opacity:1}
+  .pq-who{position:absolute;left:12px;top:12px;z-index:2;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:15px;letter-spacing:.02em;padding:6px 10px;color:#fff;background:var(--or)}
+  .pq-marshall .pq-who{background:var(--blue)}
+  .pq-caps{position:absolute;left:0;right:0;bottom:0;z-index:2;min-height:30%;padding:40px 14px 14px;background:linear-gradient(transparent,rgba(30,12,0,.72))}
+  .pq-c{position:absolute;left:14px;right:14px;bottom:14px;margin:0;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(17px,1.5vw,24px);line-height:.98;color:#fff;text-align:left;opacity:0}
+  .pq-c.on{opacity:1}
+  .hwall .pq-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:clamp(180px,17vw,280px);aspect-ratio:auto}
+  .pq-kick{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(22px,2.3vw,38px);line-height:.92;color:#fff;text-align:center}
+  .pq-clock{width:72%;max-width:190px}
+  .pq-clock svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 18px 24px rgba(90,30,0,.3))}
+  .pq-face{fill:#fff;stroke:var(--blue);stroke-width:5}
+  .pq-ticks line{stroke:var(--or);stroke-width:3;stroke-linecap:round}
+  .pq-hand{stroke:#1a1a1a;stroke-linecap:round}.pq-hand.h{stroke-width:6}.pq-hand.m{stroke-width:4;stroke:var(--or)}
+  .pq-dot{fill:#1a1a1a}
+  .pq-time{font-stretch:62%;font-weight:900;font-size:clamp(40px,4.4vw,74px);line-height:.9;color:#fff;font-variant-numeric:tabular-nums}
+  .hwall .pq-mid .say.pq-end{position:static;opacity:0;font-size:clamp(24px,2.5vw,40px)}
+  @media (max-width:700px){
+    .hwall{flex-wrap:wrap;align-content:center;padding:78px 12px 40px;gap:10px}
+    .hwall > .tile.pq-mid{display:flex;order:-1;width:100%;height:auto;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:4px 12px}
+    .pq-kick{width:100%;font-size:24px}
+    .pq-clock{width:46px}
+    .pq-time{font-size:40px}
+    .hwall .pq-mid .say.pq-end{width:100%;font-size:22px;margin-top:-2px}
+    .pq-who{font-size:12px;left:8px;top:8px;padding:4px 7px}
+    .pq-caps{padding:30px 8px 8px}
+    .pq-c{left:8px;right:8px;bottom:8px;font-size:14px}
+  }
   .hero .cap{position:absolute;left:var(--pad);bottom:36px;z-index:3;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;color:#fff;background:rgba(110,193,240,.72);padding:8px 12px;visibility:hidden}
   @media (max-width:700px){.hwall{padding:84px 12px 96px;gap:12px}.hwall > *{height:auto;width:44vw}.hwall > .tile{display:none}.hero .cap{display:none}}
 
@@ -452,12 +481,47 @@
     <p>Ton <b>copain digital</b> crée tes posts, stories, vidéos et reportages pour <b>Instagram, Facebook et TikTok</b>, puis les publie pour toi. Pour les commerçants de Paris, Lyon, Marseille, Bordeaux &amp; partout en France.</p>
     <a class="sq" href="#metiers" aria-label="Descendre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16M5 13l7 7 7-7"/></svg></a>
   </div>
-  <div class="hwall" id="wall" aria-label="Ce que Marshall crée">
-    <div class="vcard"><video src="reportage-sahara.mp4" poster="reportage-sahara.jpg" muted loop playsinline preload="metadata" aria-label="Reportage : un chien retrouvé dans le Sahara"></video><button type="button" class="spk" aria-label="Activer le son" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg></button></div>
-    <div class="tile"><span class="say">Je bosse,<br>tu valides.</span><img src="marshall-ordi.webp" alt="Marshall travaille sur son ordinateur" loading="lazy"></div>
-    <div class="vcard"><video src="reportage-commerce.mp4?v=20261005-0345" poster="reportage-commerce.jpg?v=20261005-0345" muted loop playsinline preload="metadata" aria-label="Reportage sur un fleuriste"></video><button type="button" class="spk" aria-label="Activer le son" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg></button></div>
+  <div class="hwall" id="wall" aria-label="Pendant que tu bosses, Marshall bosse pour toi">
+    <div class="vcard pq-card pq-toi">
+      <video class="pq-v on" src="pqtb-1.mp4" poster="pqtb-1.jpg" muted loop playsinline preload="auto" aria-hidden="true"></video>
+      <video class="pq-v" src="pqtb-2.mp4" poster="pqtb-2.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <video class="pq-v" src="pqtb-3.mp4" poster="pqtb-3.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <video class="pq-v" src="pqtb-4.mp4" poster="pqtb-4.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <span class="pq-who">Toi</span>
+      <div class="pq-caps">
+      <p class="pq-c on">Tu lèves le rideau</p>
+      <p class="pq-c">Le rush : tu sers tes clients</p>
+      <p class="pq-c">Tu remplis les rayons</p>
+      <p class="pq-c">Tu fermes… et tu regardes ton téléphone</p>
+      </div>
+    </div>
+    <div class="tile pq-mid">
+      <span class="pq-kick">Pendant que tu bosses…</span>
+      <div class="pq-clock" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="pq-face"/>
+          <g class="pq-ticks"><line x1="60" y1="10" x2="60" y2="18" transform="rotate(0 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(30 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(60 60 60)"/><line x1="60" y1="10" x2="60" y2="18" transform="rotate(90 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(120 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(150 60 60)"/><line x1="60" y1="10" x2="60" y2="18" transform="rotate(180 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(210 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(240 60 60)"/><line x1="60" y1="10" x2="60" y2="18" transform="rotate(270 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(300 60 60)"/><line x1="60" y1="10" x2="60" y2="14" transform="rotate(330 60 60)"/></g>
+          <line id="pq-hh" x1="60" y1="60" x2="60" y2="32" class="pq-hand h"/>
+          <line id="pq-mh" x1="60" y1="60" x2="60" y2="18" class="pq-hand m"/>
+          <circle cx="60" cy="60" r="4" class="pq-dot"/></svg>
+      </div>
+      <span class="pq-time" id="pq-time" aria-live="polite">08:00</span>
+      <span class="say pq-end">Je bosse,<br>tu valides.</span>
+    </div>
+    <div class="vcard pq-card pq-marshall">
+      <video class="pq-v on" src="pqtb-5.mp4" poster="pqtb-5.jpg" muted loop playsinline preload="auto" aria-hidden="true"></video>
+      <video class="pq-v" src="pqtb-6.mp4" poster="pqtb-6.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <video class="pq-v" src="pqtb-7.mp4" poster="pqtb-7.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <video class="pq-v" src="pqtb-8.mp4" poster="pqtb-8.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <span class="pq-who">Marshall</span>
+      <div class="pq-caps">
+      <p class="pq-c on">Il trouve l’idée du jour</p>
+      <p class="pq-c">Il crée tes photos et vidéos</p>
+      <p class="pq-c">Il écrit et programme ton post</p>
+      <p class="pq-c">Il publie. Les likes arrivent.</p>
+      </div>
+    </div>
   </div>
-  <span class="cap" id="wall-cap">Fait par Marshall · reportages, posts, vidéos IA</span>
+  <span class="cap" id="wall-cap">Une journée avec Marshall · défile pour avancer l’heure</span>
 </section>
 
 <!-- ================= MÉTIERS ================= -->
@@ -912,7 +976,7 @@
   document.querySelectorAll('.card .snd').forEach(function(b){ soundToggle(b, [b.parentNode.querySelector('video')]); });
   // Les vidéos ne tournent que lorsqu'elles sont visibles
   var io = new IntersectionObserver(function(es){ es.forEach(function(e){ var v = e.target; if (e.isIntersecting) { v.play().catch(function(){}); } else { v.pause(); } }); }, { threshold:.25 });
-  document.querySelectorAll('video').forEach(function(v){ io.observe(v); });
+  document.querySelectorAll('video:not(.pq-v)').forEach(function(v){ io.observe(v); });
 
   /* ---------- Onglets du pied de page ---------- */
   var NETS = [
@@ -1009,7 +1073,7 @@
 
   var F = 0;      // le défilement commence directement par le remplissage orange
   var bob = function(n){ var k = []; for (var i = 0; i < n; i++) k.push({ y:i % 2 ? 0 : -16 }); k.push({ y:0 }); return k; };
-  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=120%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
+  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=330%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
       onUpdate:function(t){ var o = t.isActive && t.animation.time() > F + .15; if (o !== orHero) { orHero = o; topColor(); } },
       onLeave:function(){ orHero = true; topColor(); }, onEnterBack:function(t){ orHero = t.animation.time() > F + .15; topColor(); } } });
   var it = gsap.timeline({ paused:true, defaults:{ ease:'none' } });   // l'intro, jouée automatiquement
@@ -1063,6 +1127,41 @@
     .to('#wall-cap', { autoAlpha:1, y:0, duration:.12 }, F + 1.08)
     .set('#wall', { pointerEvents:'auto' }, F + 1.08)
     .set({}, {}, F + 1.45);
+  // 8. La journée défile : 8 h, 12 h, 16 h, 19 h. Chaque étape change les 2 vidéos, les légendes et l'horloge
+  var PQ_T = ['08:00', '12:00', '16:00', '19:00'], PQ_H = [8, 12, 16, 19], pqAt = F + 1.35, pqStep = .62;
+  var pqToi = [].slice.call(document.querySelectorAll('.pq-toi .pq-v')), pqMar = [].slice.call(document.querySelectorAll('.pq-marshall .pq-v'));
+  var pqCT = [].slice.call(document.querySelectorAll('.pq-toi .pq-c')), pqCM = [].slice.call(document.querySelectorAll('.pq-marshall .pq-c'));
+  var pqCur = -1, pqOn = false;
+  function pqShow(k){
+    if (k === pqCur) return; pqCur = k;
+    [pqToi, pqMar, pqCT, pqCM].forEach(function(list){ list.forEach(function(el, n){ el.classList.toggle('on', n === k); }); });
+    document.getElementById('pq-time').textContent = PQ_T[k];
+    pqPlay();
+  }
+  function pqPlay(){
+    [pqToi, pqMar].forEach(function(list){ list.forEach(function(v, n){
+      if (pqOn && n === pqCur) { if (v.preload === 'none') v.preload = 'auto'; v.play().catch(function(){}); } else v.pause();
+      if (pqOn && n === pqCur + 1 && v.preload === 'none') { v.preload = 'auto'; try { v.load(); } catch (e) {} }   // la suivante se charge en avance
+    }); });
+  }
+  var pqClock = { h:8 };
+  function pqHands(){ var h = pqClock.h, m = (h % 1) * 60;
+    document.getElementById('pq-hh').setAttribute('transform', 'rotate(' + ((h % 12) * 30 + m / 2) + ' 60 60)');
+    document.getElementById('pq-mh').setAttribute('transform', 'rotate(' + (m * 6) + ' 60 60)'); }
+  pqHands();
+  for (var q = 1; q < 4; q++) {
+    st.to(pqClock, { h:PQ_H[q], duration:.3, ease:'power2.inOut', onUpdate:pqHands }, pqAt + q * pqStep - .3)
+      .call(pqShow, [q - 1], pqAt + q * pqStep - .151).call(pqShow, [q], pqAt + q * pqStep - .15)
+      .fromTo('#wall .pq-card', { scale:1 }, { keyframes:[{ scale:.96, duration:.08 }, { scale:1, duration:.14 }], immediateRender:false }, pqAt + q * pqStep - .15)
+      .fromTo('#pq-time', { scale:1 }, { keyframes:[{ scale:1.18, duration:.08 }, { scale:1, duration:.14 }], immediateRender:false }, pqAt + q * pqStep - .15);
+  }
+  // 9. Fin de journée : « Je bosse, tu valides. »
+  st.to('.pq-mid .pq-end', { opacity:1, y:0, duration:.25 }, pqAt + 3 * pqStep + .25)
+    .fromTo('.pq-mid .pq-end', { y:20 }, { y:0, duration:.25, immediateRender:false }, pqAt + 3 * pqStep + .25)
+    .set({}, {}, pqAt + 3 * pqStep + .75);
+  // Les vidéos ne tournent que pendant que la vitrine est à l'écran
+  ScrollTrigger.create({ trigger:hero, start:'top top', end:'bottom top', onToggle:function(t){ pqOn = t.isActive; pqPlay(); } });
+  pqShow(0);
   st.to('#scroll-hint', { autoAlpha:0, duration:.18 }, .18);
   var root = document.documentElement;
   function lockScroll(on){ root.style.overflow = on ? 'hidden' : ''; if (window.lenis) { if (on) lenis.stop(); else lenis.start(); } }
