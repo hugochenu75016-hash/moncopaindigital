@@ -9457,8 +9457,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     finally{ C.busy=false; marshallClipperRefreshResults(); }
   }
   /* ===== Agent « Genjutsu » : remplacement strict de la personne, décor original conservé ===== */
-  var MARSHALL_GENJUTSU={file:null,image:'',extras:[],seconds:'10',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:''};
+  var MARSHALL_GENJUTSU={file:null,image:'',extras:[],seconds:'10',scope:'head',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:''};
   var MARSHALL_GENJUTSU_STRICT_PROMPT='Remplace uniquement la personne visible dans la vidéo par la personne de la photo de référence. Conserve pixel par pixel autant que possible tout ce qui n’est pas la personne : décor, arrière-plan, porte, coussin, objets, murs, sol, ombres, reflets, lumière, profondeur, mouvement de caméra et mouvements indépendants des objets. Une porte qui s’ouvre doit continuer à s’ouvrir et un coussin qui bouge doit continuer à bouger exactement comme dans la vidéo source. Ne recrée pas le décor, ne le stabilise pas, ne le nettoie pas, ne change pas les couleurs et n’ajoute aucun objet. Modifie seulement le masque de la personne et ses éléments directement liés (corps, visage, cheveux et vêtements).';
+  var MARSHALL_GENJUTSU_HEAD_PROMPT='Remplace UNIQUEMENT la tête entière de la personne visible dans la vidéo (visage, cheveux, oreilles et le haut du cou jusqu’au col) par la tête de la personne de la photo de référence. Le corps doit rester STRICTEMENT identique à la vidéo source : silhouette, morphologie, carrure, épaules, bras, mains, peau du corps, vêtements, accessoires, posture et chaque mouvement du corps. Ne change pas les vêtements, ne change pas la carrure, ne retouche pas les mains, n’échange pas le corps entier. Garde les expressions, les mouvements de bouche, le clignement des yeux, la direction du regard et l’orientation de la tête de la vidéo source, et raccorde naturellement la tête au cou et au col (teinte de peau, lumière, ombres). Conserve pixel par pixel tout le reste : décor, arrière-plan, objets, ombres, reflets, lumière, mouvement de caméra et mouvements indépendants des objets. Ne recrée pas le décor et n’ajoute aucun objet. Modifie seulement le masque de la tête.';
   function marshallGjCost(){ return marshallTokenFmt(marshallTokenPrice('genjutsu_second',+MARSHALL_GENJUTSU.seconds||10)); }
   function marshallGjResultHTML(){
     var G=MARSHALL_GENJUTSU;
@@ -9475,7 +9476,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       +(G.extras.length<4?'<button type="button" class="gj-angle gj-angle-add" data-gj="pickx" aria-label="Ajouter une photo d’un autre angle"><span>＋</span><small>Autre angle</small></button>':'')
       +'</div><input type="file" accept="image/*" multiple data-gj-extra hidden><p class="gj-angles-tip">Optionnel : 3/4, profil… (4 max). Genjutsu choisit automatiquement la photo qui colle le mieux à l’angle du visage, séquence par séquence.</p>';
     return '<div class="sai-root gj-root"><div class="madock-detail-head"><span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG('genjutsu')+'</span><div class="madock-detail-copy"><b>'+esc(prof.name)+'</b><p>'+esc(prof.desc)+'</p></div></div>'
-      +'<div class="gj-preserve-note"><b>🛡️ Décor préservé</b><span>Seule la personne est modifiée. Les mouvements de la porte, du coussin, des ombres et de la caméra restent ceux de ta vidéo.</span></div>'
+      +'<div class="gj-preserve-note"><b>🛡️ '+(G.scope==='person'?'Décor préservé':'Corps et décor préservés')+'</b><span>'+(G.scope==='person'?'Seule la personne est modifiée. Les mouvements de la porte, du coussin, des ombres et de la caméra restent ceux de ta vidéo.':'Seule la tête est remplacée (visage, cheveux, oreilles). Le corps, les vêtements, les mains, les gestes et le décor restent ceux de ta vidéo.')+'</span></div>'+'<div class="sai-lbl">Ce qui change</div>'+marshallLgToggle('scope',[{v:'head',label:'🙂 Tête seulement',sub:'corps gardé'},{v:'person',label:'🧍 Toute la personne',sub:'corps compris'}],G.scope)
       +'<div class="sai-lbl">1. La vidéo</div>'+vid
       +'<div class="sai-lbl">2. Qui apparaît à la place</div>'+img
       +'<div class="sai-lbl">Autres angles du visage</div>'+ext
@@ -9504,7 +9505,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     detail.addEventListener('click',function(e){
       var root=e.target.closest('.gj-root'); if(!root) return;
       var G=MARSHALL_GENJUTSU, tb=e.target.closest('.lgt button');
-      if(tb){ var tg=tb.parentNode, k=tg.getAttribute('data-k'), v=tb.getAttribute('data-v'); if(G[k]===v) return; G[k]=v; marshallStudioSlide(tg,v); var go=root.querySelector('.sai-go1 small'); if(go) go.textContent='≈ '+marshallGjCost()+' tokens'; return; }
+      if(tb){ var tg=tb.parentNode, k=tg.getAttribute('data-k'), v=tb.getAttribute('data-v'); if(G[k]===v) return; G[k]=v; marshallStudioSlide(tg,v); if(k==='scope'){ marshallGenjutsuRender(detail,prof()); return; } var go=root.querySelector('.sai-go1 small'); if(go) go.textContent='≈ '+marshallGjCost()+' tokens'; return; }
       var a=e.target.closest('[data-gj]'); if(!a) return;
       var act=a.getAttribute('data-gj');
       if(act==='pickv'){ root.querySelector('[data-gj-video]').click(); return; }
@@ -9556,7 +9557,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         x.onerror=function(){ reject(Error('Envoi de la vidéo interrompu.')); };
         x.send(G.file);
       });
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,images:G.extras.slice(0,4),seconds:+G.seconds||10,rights:true,preserve_background:true,edit_scope:'person_only',prompt:MARSHALL_GENJUTSU_STRICT_PROMPT,instructions:MARSHALL_GENJUTSU_STRICT_PROMPT})});
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,images:G.extras.slice(0,4),seconds:+G.seconds||10,rights:true,preserve_background:true,edit_scope:(G.scope==='person'?'person_only':'head_only'),mode:(G.scope==='person'?'person':'head'),replace:(G.scope==='person'?'person':'head'),preserve_body:G.scope!=='person',preserve_clothes:G.scope!=='person',prompt:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT),instructions:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT)})});
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
       if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
