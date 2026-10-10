@@ -6659,6 +6659,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   function edRender(){
     var page=$('#ed-page'); if(!page) return;
     var _pw=page.offsetWidth; if(_pw>0) ed._pxW=_pw;
+    var _edVidKeep={}; $all('.ed-layer.vid video',page).forEach(function(v){ var d=v.closest('.ed-layer'); if(d) _edVidKeep[d.getAttribute('data-lid')+'|'+v.getAttribute('data-vsrc')]=v; });
     page.innerHTML = ed.layers.map(function(l){
       marshallMotionEnsureLayer(l);
       var s=edBoxStyle(l), sel=(l.id===ed.sel?'sel':'');
@@ -6668,7 +6669,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
       if(l.type==='video'){
         return '<div class="ed-layer vid '+sel+'" data-lid="'+l.id+'" style="'+s+' border-radius:'+(l.rad||0)+'px;overflow:hidden;background:#000;">'+
-          '<video src="'+esc(l.url)+'" crossorigin="anonymous" muted loop autoplay playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;pointer-events:none;display:block;"></video>'+(ED_VUP[l.id]?'<div class="ed-vid-loading" aria-label="Chargement"><span></span></div>':'')+edHandles(l.id)+'</div>';
+          '<video data-vsrc="'+esc(l.url)+'" crossorigin="anonymous" muted loop autoplay playsinline preload="auto" style="width:100%;height:100%;object-fit:cover;pointer-events:none;display:block;"></video>'+(ED_VUP[l.id]?'<div class="ed-vid-loading" aria-label="Chargement"><span></span></div>':'')+edHandles(l.id)+'</div>';
       }
       if(l.type==='text'){
         var ts=s+' font-family:\''+l.font+'\',sans-serif; font-size:'+l.size+'px; color:'+l.color+
@@ -6697,6 +6698,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       }
       return '<div class="ed-layer shp '+sel+'" data-lid="'+l.id+'" style="'+st+'">'+inner+edHandles(l.id)+'</div>';
     }).join('');
+    /* Économie de bande passante : on remet les <video> déjà chargées au lieu d'en recréer (sinon chaque re-rendu re-télécharge toute la vidéo depuis Supabase) */
+    $all('.ed-layer.vid video',page).forEach(function(nv){ var d=nv.closest('.ed-layer'), ov=_edVidKeep[(d&&d.getAttribute('data-lid'))+'|'+nv.getAttribute('data-vsrc')]; if(!ov){ nv.src=nv.getAttribute('data-vsrc'); return; } if(ov){ ov.setAttribute('style',nv.getAttribute('style')||''); nv.replaceWith(ov); if(ov.paused){ try{ ov.play().catch(function(){}); }catch(e){} } } });
     /* Pilule « ☁️ Supprimer le fond » sur l'image sélectionnée (détourage par le serveur Marshall). */
     // Placée à gauche du canvas, sur le fond bleu (colonne #ed-side-tools, positionnée par edPlaceSideTools).
     var stage=$('#ed-stage'), bar=document.getElementById('ed-side-tools');
@@ -7293,7 +7296,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function edUploadBlob(blob){
     var type=blob.type||'video/mp4', ext=(/webm/.test(type)?'webm':'mp4');
     var path=(effectiveUid()||'anon')+'/video-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-    var up=await sb.storage.from('media').upload(path, blob, { contentType:type });
+    var up=await sb.storage.from('media').upload(path, blob, { contentType:type, cacheControl:'31536000' });
     if(up.error) throw Error(up.error.message||'stockage indisponible');
     var pu=sb.storage.from('media').getPublicUrl(path); return pu&&pu.data&&pu.data.publicUrl;
   }
@@ -7958,7 +7961,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var type=fileOrBlob.type||'video/mp4';
       var ext=(/quicktime/.test(type)?'mov':(/webm/.test(type)?'webm':'mp4'));
       var path=(effectiveUid()||'anon')+'/video-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-      var up=await sb.storage.from('media').upload(path, fileOrBlob, { contentType:type });
+      var up=await sb.storage.from('media').upload(path, fileOrBlob, { contentType:type, cacheControl:'31536000' });
       if(up.error){
         var m=String(up.error.message||'stockage indisponible');
         if(/mime|type/i.test(m)) m='le stockage refuse ce format de vidéo ('+type+')';
@@ -15796,7 +15799,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(storeMode==='db'){
       try{
         var blob=await (await fetch(dataUrl)).blob(),path=(effectiveUid()||'anon')+'/photos/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
-        var up=await sb.storage.from('media').upload(path,blob,{contentType:'image/jpeg'});
+        var up=await sb.storage.from('media').upload(path,blob,{contentType:'image/jpeg',cacheControl:'31536000'});
         if(!up.error){var pu=sb.storage.from('media').getPublicUrl(path);if(pu&&pu.data&&pu.data.publicUrl)return pu.data.publicUrl;}
       }catch(e){console.warn('Upload photo',e);}
     }
@@ -17638,7 +17641,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var blob=await (await fetch(dataUrl)).blob();
       var ctype=/^image\/(jpeg|png|webp)$/.test(blob.type)?blob.type:'image/jpeg', ext=ctype==='image/png'?'png':(ctype==='image/webp'?'webp':'jpg');
       var path=(effectiveUid()||'anon')+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-      var up=await sb.storage.from('media').upload(path, blob, { contentType:ctype });
+      var up=await sb.storage.from('media').upload(path, blob, { contentType:ctype, cacheControl:'31536000' });
       if(up.error){ window.__mcdUpErr=(up.error.message||JSON.stringify(up.error)); return null; }
       var pu=sb.storage.from('media').getPublicUrl(path);
       return (pu && pu.data && pu.data.publicUrl) || null;
