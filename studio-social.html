@@ -18966,20 +18966,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   setTimeout(function(){try{if(new URLSearchParams(location.search).has('inscription')){var t=document.querySelector('[data-tab="signup"]');if(t)t.click();}}catch(e){}},0);
   /* Accès de secours admin (Supabase bloqué jusqu'au 04/11/2026) : un seul accès, clé vérifiée par Marshall, rien n'est lu ni écrit dans Supabase */
   function mcdSecoursKey(){
-    try{ if(Date.now()>Date.UTC(2026,10,5,23,0))return ''; var k=localStorage.getItem('mcd_secours_key')||''; return /^[0-9a-f]{24}$/.test(k)?k:''; }catch(e){ return ''; }
+    try{ if(Date.now()>Date.UTC(2026,10,5,23,0))return ''; var k=localStorage.getItem('mcd_secours_key')||''; return (k.length>=3&&k.length<=128)?k:''; }catch(e){ return ''; }
   }
   function mcdSecoursPrompt(){
     if(window.mcdDoorsOpen) try{window.mcdDoorsOpen();}catch(e){}
     var o=document.createElement('div');o.id='mcd-secours';
     o.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(40,22,8,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Fredoka,system-ui,sans-serif';
-    o.innerHTML='<form style="width:min(380px,100%);background:#fff;color:#3B2A1C;border:2.5px solid #3B2A1C;border-radius:20px;box-shadow:0 6px 0 #3B2A1C;padding:20px"><h2 style="margin:0 0 6px;font-size:20px">🛟 Accès de secours</h2><p style="margin:0 0 12px;font-size:13px;line-height:1.4;color:#6b5c4d">Accès admin unique pendant la pause Supabase (jusqu’au 04/11). Colle la clé de <b>acces-secours-studio.txt</b>.</p><input name="k" autocomplete="off" spellcheck="false" placeholder="Clé de secours" style="width:100%;height:44px;border:2px solid #e6dccf;border-radius:12px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box"><button style="margin-top:12px;width:100%;height:44px;border:0;border-radius:999px;background:#3B2A1C;color:#fff;font:inherit;font-weight:700;font-size:15px;cursor:pointer">Entrer</button><p data-err style="margin:10px 0 0;font-size:12.5px;color:#b3261e;min-height:1em"></p></form>';
+    o.innerHTML='<form style="width:min(380px,100%);background:#fff;color:#3B2A1C;border:2.5px solid #3B2A1C;border-radius:20px;box-shadow:0 6px 0 #3B2A1C;padding:20px"><h2 style="margin:0 0 6px;font-size:20px">🛟 Accès de secours</h2><p style="margin:0 0 12px;font-size:13px;line-height:1.4;color:#6b5c4d">Accès admin unique pendant la pause Supabase (jusqu’au 04/11). Entre ton mot de passe de secours.</p><input name="k" type="password" autocomplete="current-password" spellcheck="false" placeholder="Mot de passe" style="width:100%;height:44px;border:2px solid #e6dccf;border-radius:12px;padding:0 12px;font:inherit;font-size:15px;box-sizing:border-box"><button style="margin-top:12px;width:100%;height:44px;border:0;border-radius:999px;background:#3B2A1C;color:#fff;font:inherit;font-weight:700;font-size:15px;cursor:pointer">Entrer</button><p data-err style="margin:10px 0 0;font-size:12.5px;color:#b3261e;min-height:1em"></p></form>';
     document.body.appendChild(o);
     var f=o.querySelector('form'),err=o.querySelector('[data-err]');f.k.focus();
     f.addEventListener('submit',async function(e){
-      e.preventDefault();var k=String(f.k.value||'').trim().toLowerCase();err.textContent='Vérification…';
+      e.preventDefault();var k=String(f.k.value||'').trim();err.textContent='Vérification…';
       try{
         var r=await fetch(MARSHALL_CREWAI_BASE+'/secours/check',{headers:{'x-marshall-secours':k}});var j=await r.json().catch(function(){return {};});
-        if(!r.ok||!j.ok)throw Error(j.error||('HTTP '+r.status));
+        if(r.status===404)throw Error('Marshall n’est pas encore à jour : déploie-le puis réessaie');if(!r.ok||!j.ok)throw Error(r.status===403?'mot de passe incorrect':(j.error||('HTTP '+r.status)));
         localStorage.setItem('mcd_secours_key',k);var u=new URL(location.href);u.searchParams.delete('secours');location.replace(u.href);
       }catch(x){err.textContent='Refusé : '+(x&&x.message||'clé invalide');}
     });
