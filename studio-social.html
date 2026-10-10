@@ -19018,7 +19018,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     };
     try{var xo=XMLHttpRequest.prototype.open,xs=XMLHttpRequest.prototype.send;
       XMLHttpRequest.prototype.open=function(m,u){this.__mcdUrl=String(u||'');return xo.apply(this,arguments);};
-      XMLHttpRequest.prototype.send=function(){if(!allowed(this.__mcdUrl)){var self=this;setTimeout(function(){try{self.dispatchEvent(new ProgressEvent('error'));}catch(e){}if(typeof self.onerror==='function')try{self.onerror(new ProgressEvent('error'));}catch(e){}},0);return;}return xs.apply(this,arguments);};
+      XMLHttpRequest.prototype.send=function(){if(window.MCD_SECOURS&&/modal\.run|vercel\.app/.test(this.__mcdUrl)){if(/modal\.run/.test(this.__mcdUrl))try{this.setRequestHeader('x-marshall-secours',mcdSecoursKey());}catch(e){}return xs.apply(this,arguments);}if(!allowed(this.__mcdUrl)){var self=this;setTimeout(function(){try{self.dispatchEvent(new ProgressEvent('error'));}catch(e){}if(typeof self.onerror==='function')try{self.onerror(new ProgressEvent('error'));}catch(e){}},0);return;}return xs.apply(this,arguments);};
     }catch(e){}
     try{if(navigator.sendBeacon){var sbn=navigator.sendBeacon.bind(navigator);navigator.sendBeacon=function(u,d){return allowed(u)?sbn(u,d):false;};}}catch(e){}
   }
