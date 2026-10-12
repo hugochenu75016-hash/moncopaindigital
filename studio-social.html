@@ -9554,17 +9554,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   // Maquette Genjutsu : Marshall dessine la personne de face, de profil, de dos et de 3/4 (Nano Banana 2).
   // Le client la valide ou demande une correction ; les maquettes validées restent dans son compte.
+  function marshallGjKind(){ return MARSHALL_GENJUTSU.scope==='person'?'corps':'tete'; }
   function marshallGjMaquetteHTML(){
-    var G=MARSHALL_GENJUTSU, M=G.mq, prix=marshallTokenFmt(marshallTokenPrice('image',1));
-    var list=(G.mqList||[]).length?'<div class="gj-mq-list" aria-label="Tes maquettes">'+G.mqList.map(function(x){ return '<button type="button" data-gj="mqpick" data-id="'+esc(x.id)+'" class="'+(M.id===x.id?'on':'')+'" title="Utiliser cette maquette"><img src="'+esc(x.image)+'" alt=""></button>'; }).join('')+'</div>':'';
+    var G=MARSHALL_GENJUTSU, prix=marshallTokenFmt(marshallTokenPrice('image',1)), kind=marshallGjKind();
+    if(G.mq.kind&&G.mq.kind!==kind) G.mq={id:'',img:'',valide:false,busy:false,err:'',kind:kind};   // la maquette suit le mode choisi
+    var M=G.mq, mine=(G.mqList||[]).filter(function(x){ return (x.kind||'tete')===kind; });
+    var list=mine.length?'<div class="gj-mq-list" aria-label="Tes maquettes">'+mine.map(function(x){ return '<button type="button" data-gj="mqpick" data-id="'+esc(x.id)+'" class="'+(M.id===x.id?'on':'')+'" title="Utiliser cette maquette"><img src="'+esc(x.image)+'" alt=""></button>'; }).join('')+'</div>':'';
     var h='<div class="gj-mq">';
     if(M.busy) return h+'<p class="gj-mq-intro"><span class="vp-spin"></span> Marshall dessine ta maquette… (≈ 15 s)</p></div>';
     if(M.img&&M.valide) return h+'<img class="gj-mq-img" src="'+esc(M.img)+'" alt="Maquette validée"><div class="gj-mq-ok"><span>✅ Maquette validée : Genjutsu s’en sert pour ta vidéo</span><button type="button" data-gj="mqclear">Changer</button></div>'+list+'</div>';
     if(M.img) return h+'<img class="gj-mq-img" src="'+esc(M.img)+'" alt="Maquette à valider"><p class="gj-mq-intro">Elle te ressemble sous tous les angles&nbsp;?</p>'
       +'<div class="gj-mq-acts"><button type="button" class="ok" data-gj="mqok">✅ Oui, je valide</button><button type="button" data-gj="mqnew">🔄 Refaire de zéro <small>≈ '+prix+'</small></button></div>'
-      +'<div class="gj-mq-fix"><input type="text" maxlength="300" data-gj-mqask placeholder="Non : ex. « refais bien mon nez »" value="'+esc(G.mqAsk||'')+'"><button type="button" data-gj="mqfix">✏️ Corriger</button></div>'
+      +'<div class="gj-mq-fix"><input type="text" maxlength="300" data-gj-mqask placeholder="'+(kind==='corps'?'Non : ex. « refais bien mes chaussures »':'Non : ex. « refais bien mon nez »')+'" value="'+esc(G.mqAsk||'')+'"><button type="button" data-gj="mqfix">✏️ Corriger</button></div>'
       +(M.err?'<div class="gj-mq-err">⚠ '+esc(M.err)+'</div>':'')+'</div>';
-    return h+'<p class="gj-mq-intro">Pour un rendu fidèle quand la personne tourne la tête ou se retourne, Marshall crée sa maquette à partir de ta photo. Tu la valides, et elle reste dans ton compte pour tes prochaines vidéos.</p>'
+    return h+'<p class="gj-mq-intro">'+(kind==='corps'?'Pour un rendu fidèle de la tête aux pieds, même de dos, Marshall dessine la personne en pied (face, profil, dos, 3/4) avec sa tenue, à partir de ta photo. Une photo en pied donne le meilleur résultat.':'Pour un rendu fidèle quand la personne tourne la tête ou se retourne, Marshall crée sa maquette à partir de ta photo.')+' Tu la valides, et elle reste dans ton compte pour tes prochaines vidéos.</p>'
       +'<div class="gj-mq-acts"><button type="button" data-gj="mqnew"'+(G.image?'':' disabled')+'>✨ Créer ma maquette <small>≈ '+prix+'</small></button></div>'
       +(list?'<p class="gj-mq-intro">Ou reprends une maquette déjà validée :</p>'+list:'')
       +(M.err?'<div class="gj-mq-err">⚠ '+esc(M.err)+'</div>':'')+'</div>';
@@ -9584,12 +9587,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!G.image){ toast('Ajoute d’abord la photo de la personne.',true); return; }
     M.busy=true; M.err=''; marshallGjRerender();
     try{
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu/maquette',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:G.image,demande:demande||'',base_id:demande?M.id:''})});
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu/maquette',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:G.image,demande:demande||'',base_id:demande?M.id:'',kind:marshallGjKind()})});
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
       if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
       if(!r.ok||!d.ok) throw Error(d.error||('Serveur HTTP '+r.status));
-      M.id=d.id; M.img=d.image; M.valide=false; G.mqAsk='';
+      M.id=d.id; M.img=d.image; M.valide=false; M.kind=marshallGjKind(); G.mqAsk='';
     }catch(e){ M.err=e.message||'Maquette impossible pour l’instant.'; }
     M.busy=false; marshallGjRerender();
   }
@@ -9600,7 +9603,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var d=await r.json().catch(function(){ return {}; });
       if(!r.ok||!d.ok) throw Error(d.error||('Serveur HTTP '+r.status));
       M.valide=true;
-      G.mqList=[{id:M.id,image:M.img}].concat((G.mqList||[]).filter(function(x){ return x.id!==M.id; })).slice(0,12);
+      G.mqList=[{id:M.id,image:M.img,kind:M.kind||marshallGjKind()}].concat((G.mqList||[]).filter(function(x){ return x.id!==M.id; })).slice(0,12);
       toast('✅ Maquette validée et gardée dans ton compte.');
     }catch(e){ M.err=e.message||'Validation impossible.'; }
     marshallGjRerender();
@@ -9617,7 +9620,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       +'<div class="sai-lbl">1. La vidéo</div>'+vid
       +'<div class="sai-lbl">2. Qui apparaît à la place</div>'+img
       +(G.scope==='person'?'':'<ul class="gj-tips"><li>📸 Photo nette, de face, éclairée comme ta vidéo</li><li>🎥 Vidéo stable, visage bien visible, pas de mèche ou de main devant</li><li>🔄 La personne tourne la tête ou se retourne ? Crée sa maquette ci-dessous</li><li>✂️ Pas besoin de recadrer : Genjutsu zoome tout seul sur la tête</li></ul>')
-      +(G.scope==='person'?'<div class="sai-lbl">Autres angles du visage</div>'+ext:'<div class="sai-lbl">3. Ta maquette (face, profil, dos)</div>'+marshallGjMaquetteHTML())
+      +(G.scope==='person'?'<div class="sai-lbl">3. Ta maquette corps entier (face, profil, dos)</div>'+marshallGjMaquetteHTML()+'<div class="sai-lbl">Autres angles du visage</div>'+ext
+                            :'<div class="sai-lbl">3. Ta maquette (face, profil, dos)</div>'+marshallGjMaquetteHTML())
       +'<div class="sai-lbl">Durée traitée</div>'+(G.scope==='person'?marshallLgToggle('seconds',[{v:'5',label:'5 s',sub:'≈ 7 min'},{v:'10',label:'10 s',sub:'≈ 12 min'},{v:'20',label:'20 s',sub:'≈ 22 min'}],G.seconds):marshallLgToggle('seconds',[{v:'5',label:'5 s',sub:'≈ 12 min'},{v:'10',label:'10 s',sub:'≈ 20 min'},{v:'20',label:'20 s',sub:'≈ 22 min'},{v:'30',label:'30 s',sub:'≈ 24 min'},{v:'60',label:'60 s',sub:'≈ 30 min'}],G.seconds))
       +'<label class="clp-rights"><input type="checkbox" data-gj-rights'+(G.rights?' checked':'')+'> Cette vidéo m’appartient et la personne de la photo a donné son accord</label>'
       +'<button type="button" class="sai-go1" data-gj="go"'+(G.busy?' disabled':'')+'><span>🎭 Lancer Genjutsu</span><small>≈ '+marshallGjCost()+' tokens</small></button>'
@@ -9625,7 +9629,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallGenjutsuRender(detail,prof){
     detail.innerHTML=marshallGjPanelHTML(prof);
-    if(MARSHALL_GENJUTSU.scope!=='person') marshallGjMaquettesLoad();
+    marshallGjMaquettesLoad();
     if(!detail._gjBound){ detail._gjBound=true; marshallGjBind(detail); }
   }
   function marshallGjRefresh(){
@@ -9656,8 +9660,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(act==='mqnew'){ marshallGjMaquette(''); return; }
       if(act==='mqfix'){ var q=(G.mqAsk||'').trim(); if(!q){ toast('Écris ce qu’il faut corriger, ex. « refais bien mon nez ».',true); return; } marshallGjMaquette(q); return; }
       if(act==='mqok'){ marshallGjMaquetteValider(); return; }
-      if(act==='mqclear'){ G.mq={id:'',img:'',valide:false,busy:false,err:''}; marshallGenjutsuRender(detail,prof()); return; }
-      if(act==='mqpick'){ var id=a.getAttribute('data-id'), it=(G.mqList||[]).filter(function(x){ return x.id===id; })[0]; if(it){ G.mq={id:it.id,img:it.image,valide:true,busy:false,err:''}; marshallGenjutsuRender(detail,prof()); } return; }
+      if(act==='mqclear'){ G.mq={id:'',img:'',valide:false,busy:false,err:'',kind:marshallGjKind()}; marshallGenjutsuRender(detail,prof()); return; }
+      if(act==='mqpick'){ var id=a.getAttribute('data-id'), it=(G.mqList||[]).filter(function(x){ return x.id===id; })[0]; if(it){ G.mq={id:it.id,img:it.image,valide:true,busy:false,err:'',kind:it.kind||'tete'}; marshallGenjutsuRender(detail,prof()); } return; }
       if(act==='go'){ marshallGenjutsuRun(); return; }
       if(act==='canvas'&&G.url){ try{ marshallFreshReset(); }catch(x){} marshallVideoToCanvas(G.url,'Genjutsu',{}); toast('🎬 Vidéo posée sur un nouveau canva.'); }
       if(act==='retry'){ marshallGenjutsuRun(); return; }
@@ -9690,7 +9694,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var G=MARSHALL_GENJUTSU; if(G.busy) return;
     if(!authUser){ toast('Connecte-toi pour lancer Genjutsu.',true); return; }
     if(!G.file){ toast('Importe ta vidéo.',true); return; }
-    var mqId=(G.scope!=='person'&&G.mq.valide)?G.mq.id:'';
+    var mqId=(G.mq.valide&&(G.mq.kind||'tete')===marshallGjKind())?G.mq.id:'';
     if(!G.image&&!mqId){ toast('Ajoute la photo de la personne.',true); return; }
     if(!G.rights){ toast('Coche « Cette vidéo m’appartient et la personne de la photo a donné son accord ».',true); return; }
     G.busy=true; G.error=''; G.url=''; G.progress=2; G.msg='Envoi de ta vidéo…'; marshallGjRefresh();
@@ -9708,15 +9712,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       });
       G.srcId=sourceId; G.srcFor=G.file;
       var secs=Math.min(+G.seconds||10,G.scope==='person'?20:60);
-      if(G.scope!=='person'&&!(G.check&&G.check.src===sourceId&&G.check.secs===secs)){
+      if(!(G.check&&G.check.src===sourceId&&G.check.secs===secs&&G.check.mode===G.scope)){
         G.progress=7; G.msg='Marshall regarde ta vidéo avant de lancer… (gratuit)'; marshallGjRefresh();
-        var an=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu/analyse',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,seconds:secs})}).then(function(x){ return x.json(); }).catch(function(){ return null; });
-        G.check=(an&&an.ok)?{src:sourceId,secs:secs,data:an,awaiting:false}:null;
+        var an=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu/analyse',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,seconds:secs,mode:G.scope==='person'?'person':'head'})}).then(function(x){ return x.json(); }).catch(function(){ return null; });
+        G.check=(an&&an.ok)?{src:sourceId,secs:secs,mode:G.scope,data:an,awaiting:false}:null;
       }
       if(G.check&&G.check.data.warnings.length&&!G.checkOk){ G.check.awaiting=true; return; }   // le client décide avant tout paiement
       if(G.check&&!G.check.data.warnings.length){ G.msg='✅ Analyse : rien à signaler, lancement…'; marshallGjRefresh(); }
       var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,maquette_id:mqId,
-        analyse:(G.scope!=='person'&&G.check&&G.check.src===sourceId)?{segments:G.check.data.segments,calm:G.check.data.calm}:null,images:(G.scope==='person'?G.extras.slice(0,4):[]),seconds:Math.min(+G.seconds||10,G.scope==='person'?20:60),rights:true,preserve_background:true,edit_scope:(G.scope==='person'?'person_only':'head_only'),mode:(G.scope==='person'?'person':'head'),replace:(G.scope==='person'?'person':'head'),preserve_body:G.scope!=='person',preserve_clothes:G.scope!=='person',prompt:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT),instructions:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT)})});
+        analyse:(G.check&&G.check.src===sourceId)?{segments:G.check.data.segments,calm:G.check.data.calm}:null,images:(G.scope==='person'?G.extras.slice(0,4):[]),seconds:Math.min(+G.seconds||10,G.scope==='person'?20:60),rights:true,preserve_background:true,edit_scope:(G.scope==='person'?'person_only':'head_only'),mode:(G.scope==='person'?'person':'head'),replace:(G.scope==='person'?'person':'head'),preserve_body:G.scope!=='person',preserve_clothes:G.scope!=='person',prompt:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT),instructions:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT)})});
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
       if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
