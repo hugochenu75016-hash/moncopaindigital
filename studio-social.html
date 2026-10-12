@@ -1578,6 +1578,15 @@
   .av-root .av-text:focus{ outline:none; border-color:#6366f1; box-shadow:0 0 0 3px rgba(99,102,241,.15); }
   .av-root .av-count{ display:block; margin-top:4px; font-size:11px; color:#7a6a5a; }
   .gj-root .gj-angles{ display:flex; flex-wrap:wrap; gap:8px; }
+.gj-check{ display:grid; gap:8px; padding:13px 14px; border-radius:16px; background:#fff8ec; border:1px solid #f0c98a; color:#6b4a14; font-size:12.5px; line-height:1.4; }
+.gj-check b{ font-size:13.5px; color:#4a3008; }
+.gj-check ul{ margin:0; padding-left:2px; list-style:none; display:grid; gap:5px; }
+.gj-check li{ display:flex; gap:7px; }
+.gj-check .t{ flex:0 0 auto; font-weight:700; color:#c26a12; }
+.gj-check .tip{ background:#f3ecfc; border-radius:10px; padding:7px 9px; color:#4c3671; }
+.gj-check .acts{ display:flex; flex-wrap:wrap; gap:7px; }
+.gj-check .acts button{ flex:1 1 auto; border:0; border-radius:12px; padding:10px 12px; font:inherit; font-weight:700; cursor:pointer; background:#f1ebfb; color:#4c3671; }
+.gj-check .acts button.ok{ background:linear-gradient(180deg,#ff9f45,#F3852B); color:#fff; }
 .gj-mq{ display:grid; gap:9px; padding:12px; border:1px solid #d8c8f4; border-radius:16px; background:linear-gradient(135deg,#faf7ff,#fff); }
 .gj-mq-intro{ margin:0; color:#4c3671; font-size:11.5px; line-height:1.4; }
 .gj-mq-img{ width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#eee; display:block; }
@@ -9522,12 +9531,22 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   /* ===== Agent « Genjutsu » : remplacement strict de la personne, décor original conservé ===== */
   var MARSHALL_GENJUTSU={file:null,image:'',extras:[],seconds:'10',scope:'head',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:'',
-    mq:{id:'',img:'',valide:false,busy:false,err:''},mqAsk:'',mqList:null};
+    mq:{id:'',img:'',valide:false,busy:false,err:''},mqAsk:'',mqList:null,
+    srcId:'',srcFor:null,check:null,checkOk:false};
   var MARSHALL_GENJUTSU_STRICT_PROMPT='Remplace uniquement la personne visible dans la vidéo par la personne de la photo de référence. Conserve pixel par pixel autant que possible tout ce qui n’est pas la personne : décor, arrière-plan, porte, coussin, objets, murs, sol, ombres, reflets, lumière, profondeur, mouvement de caméra et mouvements indépendants des objets. Une porte qui s’ouvre doit continuer à s’ouvrir et un coussin qui bouge doit continuer à bouger exactement comme dans la vidéo source. Ne recrée pas le décor, ne le stabilise pas, ne le nettoie pas, ne change pas les couleurs et n’ajoute aucun objet. Modifie seulement le masque de la personne et ses éléments directement liés (corps, visage, cheveux et vêtements).';
   var MARSHALL_GENJUTSU_HEAD_PROMPT='Remplace UNIQUEMENT la tête entière de la personne visible dans la vidéo (visage, cheveux, oreilles et le haut du cou jusqu’au col) par la tête de la personne de la photo de référence. Le corps doit rester STRICTEMENT identique à la vidéo source : silhouette, morphologie, carrure, épaules, bras, mains, peau du corps, vêtements, accessoires, posture et chaque mouvement du corps. Ne change pas les vêtements, ne change pas la carrure, ne retouche pas les mains, n’échange pas le corps entier. Garde les expressions, les mouvements de bouche, le clignement des yeux, la direction du regard et l’orientation de la tête de la vidéo source, et raccorde naturellement la tête au cou et au col (teinte de peau, lumière, ombres). Conserve pixel par pixel tout le reste : décor, arrière-plan, objets, ombres, reflets, lumière, mouvement de caméra et mouvements indépendants des objets. Ne recrée pas le décor et n’ajoute aucun objet. Modifie seulement le masque de la tête.';
   function marshallGjCost(){ return marshallTokenFmt(marshallTokenPrice('genjutsu_second',Math.min(+MARSHALL_GENJUTSU.seconds||10,MARSHALL_GENJUTSU.scope==='person'?20:60))); }
+  function marshallGjCheckHTML(){
+    var C=MARSHALL_GENJUTSU.check, D=C&&C.data; if(!C||!C.awaiting||!D) return '';
+    var fmt=function(t){ return (t==null?'':'<span class="t">'+(Math.round(t*10)/10)+' s</span>'); };
+    var h='<div class="gj-check"><b>🔍 Marshall a regardé ta vidéo</b>'+(D.summary?'<span>'+esc(D.summary)+'</span>':'')
+      +'<ul>'+D.warnings.map(function(w){ return '<li>'+fmt(w.t)+'<span>'+esc(w.message)+'</span></li>'; }).join('')+'</ul>';
+    if(D.back_view&&!MARSHALL_GENJUTSU.mq.valide) h+='<div class="tip">💡 La personne se retourne : crée sa maquette (bloc 3) pour un dos fidèle à ta photo.</div>';
+    return h+'<div class="acts"><button type="button" class="ok" data-gj="gjok">✅ Lancer quand même</button><button type="button" data-gj="gjno">✏️ Je modifie</button></div><small>Rien n’a été facturé pour l’instant.</small></div>';
+  }
   function marshallGjResultHTML(){
     var G=MARSHALL_GENJUTSU;
+    if(G.check&&G.check.awaiting) return marshallGjCheckHTML();
     if(G.busy) return '<div class="clp-prog"><div class="clp-bar"><span style="width:'+Math.max(3,Math.min(100,G.progress||0))+'%"></span></div><small><span class="vp-spin"></span>'+esc(G.msg||'Préparation…')+'</small><small class="gj-wait">'+(G.scope==='person'?'Compte environ 7 min pour 5 s, 12 min pour 10 s et 22 min pour 20 s':'Compte environ 12 min pour 5 s, 20 min pour 10 s et 22 à 30 min au-delà')+' : tu peux continuer à travailler, la vidéo arrivera ici.</small></div>';
     if(G.error) return '<div class="clp-err">⚠ '+esc(G.error)+'</div>';
     if(!G.url) return '';
@@ -9615,7 +9634,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallGjBind(detail){
     var prof=function(){ return marshallAgentShowcaseData().genjutsu; };
-    var setVideo=function(f){ if(!f||!/^video\//.test(f.type||'')){ toast('Choisis un fichier vidéo.',true); return; } if(f.size>900*1024*1024){ toast('Vidéo trop lourde (900 Mo max).',true); return; } MARSHALL_GENJUTSU.file=f; marshallGenjutsuRender(detail,prof()); };
+    var setVideo=function(f){ if(!f||!/^video\//.test(f.type||'')){ toast('Choisis un fichier vidéo.',true); return; } if(f.size>900*1024*1024){ toast('Vidéo trop lourde (900 Mo max).',true); return; } MARSHALL_GENJUTSU.file=f; MARSHALL_GENJUTSU.check=null; MARSHALL_GENJUTSU.checkOk=false; marshallGenjutsuRender(detail,prof()); };
     var setImage=function(f){ if(!f||!/^image\//.test(f.type||'')){ toast('Choisis une photo.',true); return; } if(f.size>12*1024*1024){ toast('Photo trop lourde (12 Mo max).',true); return; } var r=new FileReader(); r.onload=function(){ MARSHALL_GENJUTSU.image=r.result; if(!MARSHALL_GENJUTSU.mq.valide) MARSHALL_GENJUTSU.mq={id:'',img:'',valide:false,busy:false,err:''}; marshallGenjutsuRender(detail,prof()); }; r.readAsDataURL(f); };
     var addExtras=function(list){
       var fs=Array.prototype.slice.call(list||[]).filter(function(f){ return /^image\//.test(f.type||'')&&f.size<=12*1024*1024; });
@@ -9632,6 +9651,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(act==='picki'){ root.querySelector('[data-gj-image]').click(); return; }
       if(act==='pickx'){ root.querySelector('[data-gj-extra]').click(); return; }
       if(act==='rmx'){ G.extras.splice(+a.getAttribute('data-i'),1); marshallGenjutsuRender(detail,prof()); return; }
+      if(act==='gjok'){ if(G.check) G.check.awaiting=false; G.checkOk=true; marshallGenjutsuRun(); return; }
+      if(act==='gjno'){ if(G.check) G.check.awaiting=false; marshallGjRefresh(); return; }
       if(act==='mqnew'){ marshallGjMaquette(''); return; }
       if(act==='mqfix'){ var q=(G.mqAsk||'').trim(); if(!q){ toast('Écris ce qu’il faut corriger, ex. « refais bien mon nez ».',true); return; } marshallGjMaquette(q); return; }
       if(act==='mqok'){ marshallGjMaquetteValider(); return; }
@@ -9676,7 +9697,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{ marshallAgentDockChatAdd('user','🎭 Genjutsu · '+G.file.name,false); }catch(e){}
     try{
       var hd=await authHeaders();
-      var sourceId=await new Promise(function(resolve,reject){
+      var sourceId=(G.srcFor===G.file&&G.srcId)?G.srcId:await new Promise(function(resolve,reject){
         var x=new XMLHttpRequest(); x.open('POST',MARSHALL_CREWAI_BASE+'/video/clip/upload');
         Object.keys(hd).forEach(function(k){ if(k.toLowerCase()!=='content-type') x.setRequestHeader(k,hd[k]); });
         x.setRequestHeader('Content-Type',G.file.type||'application/octet-stream');
@@ -9685,12 +9706,22 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         x.onerror=function(){ reject(Error('Envoi de la vidéo interrompu.')); };
         x.send(G.file);
       });
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,maquette_id:mqId,images:(G.scope==='person'?G.extras.slice(0,4):[]),seconds:Math.min(+G.seconds||10,G.scope==='person'?20:60),rights:true,preserve_background:true,edit_scope:(G.scope==='person'?'person_only':'head_only'),mode:(G.scope==='person'?'person':'head'),replace:(G.scope==='person'?'person':'head'),preserve_body:G.scope!=='person',preserve_clothes:G.scope!=='person',prompt:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT),instructions:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT)})});
+      G.srcId=sourceId; G.srcFor=G.file;
+      var secs=Math.min(+G.seconds||10,G.scope==='person'?20:60);
+      if(G.scope!=='person'&&!(G.check&&G.check.src===sourceId&&G.check.secs===secs)){
+        G.progress=7; G.msg='Marshall regarde ta vidéo avant de lancer… (gratuit)'; marshallGjRefresh();
+        var an=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu/analyse',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,seconds:secs})}).then(function(x){ return x.json(); }).catch(function(){ return null; });
+        G.check=(an&&an.ok)?{src:sourceId,secs:secs,data:an,awaiting:false}:null;
+      }
+      if(G.check&&G.check.data.warnings.length&&!G.checkOk){ G.check.awaiting=true; return; }   // le client décide avant tout paiement
+      if(G.check&&!G.check.data.warnings.length){ G.msg='✅ Analyse : rien à signaler, lancement…'; marshallGjRefresh(); }
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu',{method:'POST',headers:hd,body:JSON.stringify({source_id:sourceId,image:G.image,maquette_id:mqId,
+        analyse:(G.scope!=='person'&&G.check&&G.check.src===sourceId)?{segments:G.check.data.segments,calm:G.check.data.calm}:null,images:(G.scope==='person'?G.extras.slice(0,4):[]),seconds:Math.min(+G.seconds||10,G.scope==='person'?20:60),rights:true,preserve_background:true,edit_scope:(G.scope==='person'?'person_only':'head_only'),mode:(G.scope==='person'?'person':'head'),replace:(G.scope==='person'?'person':'head'),preserve_body:G.scope!=='person',preserve_clothes:G.scope!=='person',prompt:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT),instructions:(G.scope==='person'?MARSHALL_GENJUTSU_STRICT_PROMPT:MARSHALL_GENJUTSU_HEAD_PROMPT)})});
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
       if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
       if(!r.ok||!d.ok) throw Error(d.error||('Serveur HTTP '+r.status));
-      G.task=d.task_id; try{ marshallTokensRefresh(true); }catch(e){}
+      G.task=d.task_id; G.checkOk=false; try{ marshallTokensRefresh(true); }catch(e){}
       var started=Date.now();
       while(Date.now()-started<120*60000){
         await new Promise(function(res){ setTimeout(res,8000); });
