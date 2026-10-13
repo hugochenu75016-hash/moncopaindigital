@@ -3083,14 +3083,14 @@ function start() {
           // échelle : il grandit à l'écran en section 2 (la planète, elle, rétrécit),
           // réévaluée à chaque frame car la caméra zoome sur plusieurs frames
           if (standingBig && !window.__cineOwnsChar && window.__chairTune) {
-            var st = Object.assign({}, STAND_CT, { rotY: -world.rotation.y });
+            var st = Object.assign({}, STAND_CT, { rotY: window.__charYawAbs != null ? window.__charYawAbs : -world.rotation.y });
             st.scale = fitStandScale(Object.assign({}, st, { scale: STAND_CT.scale / worldK })) * STAND_SHRINK;
             st.y = (STAND_CT.y || 0) + hangY +
                    (window.__planetFallLocal ? window.__planetFallLocal() : 0);   // saut, suspension, plan&egrave;te qui tombe
             window.__chairTune(st);
           } else if (!window.__cineOwnsChar && window.__chairTune) {
             // il garde la face vers nous même quand la planète tourne
-            window.__chairTune(Object.assign({}, SIT_CT, { rotY: -world.rotation.y }));
+            window.__chairTune(Object.assign({}, SIT_CT, { rotY: window.__charYawAbs != null ? window.__charYawAbs : -world.rotation.y }));   // __charYawAbs : tour de la planète
           }
         };
 
@@ -4258,6 +4258,202 @@ function start() {
 
 
 
+    /* ===== TOUR DE LA PLANÈTE : 4 étapes avant le pied de page =====
+       Chaque cran de défilement fait marcher le personnage jusqu'à l'étape suivante
+       (Studio Social, offres, qui suis-je, contact) pendant que la planète tourne
+       pour garder la scène face à nous. Piloté par window.__tourDrive (défilement). */
+    (function planetTour(){
+      const TOUR_LAT = 62;                         // sentier où marche le personnage
+      const SPOT_LAT = 50;                         // décor de chaque étape, un peu plus bas
+      const LON0 = 90 + rotY * 180 / Math.PI;      // face visible au lancement
+      const STOPS = [0, 1, 2, 3].map(i => LON0 + i * 90);
+      const WALK_MS = 2300;
+      const T = window.__tour = { idx: 0, from: null, to: null, t0: 0, busy: false, acc: 0, lat: 90, lon: LON0, yaw: 0, props: [] };
+
+      const mat = (c, o) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.75, metalness: 0.02 }, o || {}));
+      const ORANGE = mat(0xf3852b), ORANGE_D = mat(0xd0671a), CREAM = mat(0xfff3e2), WOOD = mat(0x9b6b43),
+            DARK = mat(0x2b2f36, { roughness: 0.5 }), BLUE = mat(0x6ec1f0), RED = mat(0xe2463b), WHITE = mat(0xffffff);
+      const box = (g, w, h, d, x, y, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); g.add(b); return b; };
+      const cyl = (g, r1, r2, h, x, y, z, m, s) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, s || 16), m); c.position.set(x, y, z); g.add(c); return c; };
+
+      // écran « Studio Social » : texture dessinée (titre + bouton lecture + Marshall)
+      const screenTex = (() => {
+        const cv = document.createElement('canvas'); cv.width = 512; cv.height = 320;
+        const tex = new THREE.CanvasTexture(cv);
+        const draw = (img) => {
+          const c = cv.getContext('2d');
+          const gr = c.createLinearGradient(0, 0, 512, 320); gr.addColorStop(0, '#ff9f45'); gr.addColorStop(1, '#e8691c');
+          c.fillStyle = gr; c.fillRect(0, 0, 512, 320);
+          if (img) c.drawImage(img, 300, 40, 190, 270);
+          c.fillStyle = '#fff'; c.font = '700 54px Fredoka, Arial, sans-serif'; c.fillText('Studio', 34, 112); c.fillText('Social', 34, 170);
+          c.beginPath(); c.arc(80, 238, 36, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,.95)'; c.fill();
+          c.beginPath(); c.moveTo(68, 218); c.lineTo(68, 258); c.lineTo(102, 238); c.closePath(); c.fillStyle = '#e8691c'; c.fill();
+          tex.needsUpdate = true;
+        };
+        draw(null);
+        const im = new Image(); im.onload = () => draw(im); im.src = 'marshall-coucou.webp';
+        return tex;
+      })();
+
+      const builds = [
+        () => {   // 1. Studio Social : grand écran sur pieds
+          const g = new THREE.Group();
+          cyl(g, 0.07, 0.07, 1.3, -0.95, 0.65, 0, DARK); cyl(g, 0.07, 0.07, 1.3, 0.95, 0.65, 0, DARK);
+          const tv = new THREE.Group(); tv.position.set(0, 1.25, 0); tv.rotation.x = -0.85; g.add(tv);   // incliné vers la caméra (vue de haut)
+          box(tv, 2.5, 1.6, 0.16, 0, 0.8, 0, ORANGE_D);
+          const s = new THREE.Mesh(new THREE.PlaneGeometry(2.3, 1.44), new THREE.MeshBasicMaterial({ map: screenTex }));
+          s.position.set(0, 0.8, 0.085); tv.add(s);
+          return g;
+        },
+        () => {   // 2. Nos offres : pile de cadeaux
+          const g = new THREE.Group();
+          const gift = (w, x, y, z, m, rib, ry) => {
+            const b = new THREE.Group(); b.position.set(x, y, z); b.rotation.y = ry || 0; g.add(b);
+            box(b, w, w, w, 0, w / 2, 0, m); box(b, w * 1.02, w * 1.01, w * 0.16, 0, w / 2, 0, rib); box(b, w * 0.16, w * 1.01, w * 1.02, 0, w / 2, 0, rib);
+            const k1 = box(b, w * 0.34, w * 0.16, w * 0.16, -w * 0.15, w + w * 0.07, 0, rib); k1.rotation.z = 0.5;
+            const k2 = box(b, w * 0.34, w * 0.16, w * 0.16, w * 0.15, w + w * 0.07, 0, rib); k2.rotation.z = -0.5;
+          };
+          gift(1.0, -0.45, 0, 0, ORANGE, CREAM, 0.2); gift(0.75, 0.6, 0, 0.2, BLUE, WHITE, -0.3); gift(0.6, -0.35, 1.0, 0, CREAM, ORANGE, 0.5);
+          return g;
+        },
+        () => {   // 3. Qui suis-je : maisonnette
+          const g = new THREE.Group();
+          box(g, 1.6, 1.1, 1.3, 0, 0.55, 0, CREAM);
+          const roof = new THREE.Mesh(new THREE.ConeGeometry(1.25, 0.85, 4), ORANGE); roof.position.set(0, 1.52, 0); roof.rotation.y = Math.PI / 4; roof.scale.set(1.05, 1, 0.9); g.add(roof);
+          box(g, 0.38, 0.62, 0.05, 0, 0.31, 0.66, WOOD);
+          box(g, 0.34, 0.3, 0.05, -0.48, 0.66, 0.66, BLUE); box(g, 0.34, 0.3, 0.05, 0.48, 0.66, 0.66, BLUE);
+          box(g, 0.22, 0.5, 0.22, 0.45, 1.75, -0.2, ORANGE_D);
+          return g;
+        },
+        () => {   // 4. Contact : boîte aux lettres + drapeau
+          const g = new THREE.Group();
+          box(g, 0.14, 1.1, 0.14, 0, 0.55, 0, WOOD);
+          box(g, 0.62, 0.48, 0.95, 0, 1.3, 0, BLUE);
+          const top = cyl(g, 0.31, 0.31, 0.95, 0, 1.54, 0, BLUE, 20); top.rotation.x = Math.PI / 2; top.scale.set(1, 1, 0.8);
+          box(g, 0.5, 0.36, 0.03, 0, 1.3, 0.49, WHITE);
+          box(g, 0.05, 0.62, 0.05, 0.36, 1.55, -0.1, DARK); box(g, 0.05, 0.22, 0.3, 0.36, 1.8, 0.05, RED);
+          return g;
+        },
+      ];
+
+      // grands monuments du village (tour Eiffel, Colisée…) : les décors les évitent
+      const tmpBox = new THREE.Box3(), tmpC = new THREE.Vector3(), tmpS = new THREE.Vector3();
+      world.updateMatrixWorld(true);
+      const bigs = [];
+      world.children.forEach(o => {
+        if (o === land || o === cut) return;
+        tmpBox.setFromObject(o); if (tmpBox.isEmpty()) return;
+        tmpBox.getSize(tmpS); const L = tmpS.length();
+        if (L > 3.4 && L < 9) bigs.push(world.worldToLocal(tmpBox.getCenter(new THREE.Vector3())));
+      });
+      // décors posés à droite du personnage, face à la caméra quand l'étape est devant
+      const spots = STOPS.map((lon, i) => {
+        let best = null, bestD = -1;
+        [[-17, SPOT_LAT], [-23, SPOT_LAT], [-12, SPOT_LAT - 4], [-28, SPOT_LAT - 3], [-20, SPOT_LAT + 3]].forEach(([dl, la]) => {
+          const q = posOnSphere(la, lon + dl, R);
+          const d = bigs.length ? Math.min.apply(null, bigs.map(b => b.distanceTo(q))) : 99;
+          if (d > bestD){ bestD = d; best = [la, lon + dl]; }
+        });
+        const g = builds[i]();
+        g.scale.setScalar(2.4);
+        placeFacing(g, best[0], best[1], Math.PI);
+        T.props.push(g);
+        return posOnSphere(best[0], best[1], R);
+      });
+
+      // on dégage les maisons du village sous les décors et sur le sentier
+      const ring = [];
+      for (let lon = STOPS[0]; lon <= STOPS[3] + 12; lon += 4) ring.push(posOnSphere(TOUR_LAT, lon, R));
+      for (let lat = TOUR_LAT; lat <= 86; lat += 4) ring.push(posOnSphere(lat, STOPS[0], R));
+      world.updateMatrixWorld(true);
+      world.children.slice().forEach(o => {
+        if (o === land || o === cut || T.props.includes(o)) return;
+        let skinned = false; o.traverse(m => { if (m.isSkinnedMesh) skinned = true; });
+        if (skinned) return;
+        tmpBox.setFromObject(o); if (tmpBox.isEmpty()) return;
+        tmpBox.getSize(tmpS); if (tmpS.length() > 3.4) return;          // routes, rivières : on garde
+        world.worldToLocal(tmpBox.getCenter(tmpC));
+        if (spots.some(p => p.distanceTo(tmpC) < 3.4) || ring.some(p => p.distanceTo(tmpC) < 1.05)) o.visible = false;
+      });
+      // sentier de terre : du sommet jusqu'à l'étape 1, puis d'étape en étape
+      const dirt = new THREE.MeshStandardMaterial({ color: 0xd9bf8f, roughness: 1 });
+      const wp = [];
+      for (let lat = 84; lat > TOUR_LAT; lat -= 4) wp.push([lat, STOPS[0]]);
+      for (let lon = STOPS[0]; lon <= STOPS[3] + 6; lon += 10) wp.push([TOUR_LAT, lon]);
+      buildPath(wp, 0.55, dirt, 0.03);
+
+      // ----- marche du personnage -----
+      const where = i => i === 0 ? { lat: 90, lon: STOPS[0] } : { lat: TOUR_LAT, lon: STOPS[i - 1] + 7 };
+      const front = i => (STOPS[Math.max(0, i - 1)] - 90) * Math.PI / 180;
+      const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const UPV = new THREE.Vector3(0, 1, 0), FWD = new THREE.Vector3(0, 0, 1), qT = new THREE.Quaternion();
+      const yawFor = (pos, dir) => {           // angle de rotation autour de la normale pour regarder « dir »
+        const n = pos.clone().normalize();
+        qT.setFromUnitVectors(UPV, n);
+        const f0 = FWD.clone().applyQuaternion(qT);
+        const d = dir.clone().addScaledVector(n, -dir.dot(n)); if (d.lengthSq() < 1e-8) return null;
+        d.normalize();
+        return Math.atan2(new THREE.Vector3().crossVectors(f0, d).dot(n), f0.dot(d));
+      };
+      const angLerp = (a, b, k) => a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * k;
+      const card = () => document.getElementById('mcd-tour');
+      const showCard = (i) => {
+        const el = card(); if (!el) return;
+        el.querySelectorAll('.tour-card').forEach(c => c.classList.toggle('on', +c.dataset.i === i));
+        el.querySelectorAll('.tour-dots i').forEach((d, k) => d.classList.toggle('on', k === i - 1));
+        el.classList.toggle('show', i > 0);
+        const sh = document.getElementById('scroll-hint'); if (sh) sh.classList.toggle('mcd-hidden', i > 0 && i < 4);
+      };
+      const go = (i) => {
+        i = Math.max(0, Math.min(4, i));
+        if (i === T.idx || !window.__chairTune || !window.__charGrp) return false;
+        T.from = { lat: T.lat, lon: T.lon, rot: rotY }; T.to = where(i); T.t0 = performance.now(); T.busy = true; T.target = i;
+        T.toRot = front(i);
+        showCard(-1);
+        if (window.__charWalk) window.__charWalk(true);
+        return true;
+      };
+      window.__tourGo = go;
+      window.__tourReset = () => { if (T.idx !== 0 || T.busy) go(0); };
+      window.__tourDrive = (px) => {
+        if (!window.__charGrp || (typeof CINE !== 'undefined' && CINE.on)) return false;
+        if (T.busy) return true;                         // il marche : on avale le geste
+        if (px > 0 && T.idx >= 4) return false;          // dernière étape : le pied de page prend la suite
+        if (px < 0 && T.idx <= 0) return false;
+        T.acc += px;
+        if (Math.abs(T.acc) >= 110){ const d = T.acc > 0 ? 1 : -1; T.acc = 0; go(T.idx + d); }
+        return true;
+      };
+      const _cl = new THREE.Vector3();
+      window.__tourTick = (now) => {
+        if (!window.__charGrp) return;
+        let moving = false, p0 = null;
+        if (T.busy){
+          const k = Math.min(1, (now - T.t0) / WALK_MS), e = ease(k);
+          p0 = posOnSphere(T.lat, T.lon, R);
+          T.lat = T.from.lat + (T.to.lat - T.from.lat) * e;
+          T.lon = T.from.lon + (T.to.lon - T.from.lon) * e;
+          rotY = tRotY = T.from.rot + (T.toRot - T.from.rot) * e;   // la planète tourne au rythme de ses pas
+          moving = true;
+          if (k >= 1){
+            T.busy = false; T.idx = T.target; T.acc = 0;
+            if (window.__charWalk) window.__charWalk(false);
+            showCard(T.idx);
+            if (T.idx > 0 && window.__charWave) setTimeout(() => window.__charWave(), 250);
+          }
+        }
+        if (T.idx === 0 && !T.busy){ window.__charYawAbs = null; return; }   // au sommet : comportement d'origine
+        const pos = posOnSphere(T.lat, T.lon, R);
+        let dir;
+        if (moving && p0 && pos.distanceToSquared(p0) > 1e-8) dir = pos.clone().sub(p0);
+        else { _cl.copy(camera.position); world.worldToLocal(_cl); dir = _cl.sub(pos); }   // à l'arrêt : il nous regarde
+        const y = yawFor(pos, dir);
+        if (y !== null) T.yaw = window.__charYawAbs == null ? y : angLerp(T.yaw, y, moving ? 0.25 : 0.12);
+        window.__charYawAbs = T.yaw;
+        window.__chairTune({ lat: T.lat, lon: T.lon });
+      };
+    })();
+
     const animate = () => {
       requestAnimationFrame(animate);
       var __now = performance.now();
@@ -4277,6 +4473,7 @@ function start() {
       world.position.x = quakeAmp > 0.002 ? Math.sin(qs * 47) * 0.7 * quakeAmp : 0;
       world.position.y = fallY + (quakeAmp > 0.002 ? Math.sin(qs * 61) * 0.6 * quakeAmp : 0);
       if (window.__charTick){ window.__charTick(__now); }
+      if (window.__tourTick){ window.__tourTick(__now); }
       rotZ += (tRotZ - rotZ) * 0.08;
       rotY += (tRotY - rotY) * 0.08;
       rotX += (tRotX - rotX) * 0.08;
@@ -4398,6 +4595,57 @@ start();
 })();
 </script>
 <!-- ===== Fin widget Espace compte ===== -->
+
+<!-- ===== Tour de la planète : cartes des 4 étapes ===== -->
+<style>
+  #mcd-tour{ position:fixed; left:clamp(18px,5vw,72px); top:50%; transform:translateY(-50%); z-index:9001; width:min(340px,30vw);
+    pointer-events:none; font-family:'Fredoka','Helvetica Neue',sans-serif; }
+  #mcd-tour .tour-card{ position:absolute; left:0; top:50%; width:100%; opacity:0; transform:translate(-26px,-50%);
+    transition:opacity .45s ease, transform .6s cubic-bezier(.19,1,.22,1); pointer-events:none; box-sizing:border-box;
+    padding:22px 22px 20px; border-radius:26px; color:#fff7ec;
+    background:linear-gradient(160deg,rgba(255,255,255,.34),rgba(255,255,255,.12));
+    border:1px solid rgba(255,255,255,.55); box-shadow:inset 0 1.5px 1px rgba(255,255,255,.8), 0 18px 40px rgba(20,70,120,.22);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+  #mcd-tour.show .tour-card.on{ opacity:1; transform:translate(0,-50%); pointer-events:auto; }
+  #mcd-tour .tour-step{ font-size:12px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:#fff; opacity:.85; }
+  #mcd-tour h3{ margin:6px 0 8px; font-family:'Lilita One','Fredoka',sans-serif; font-weight:400; font-size:clamp(26px,2.4vw,34px); line-height:1.02;
+    color:#fff; text-shadow:0 2px 8px rgba(20,70,120,.25); }
+  #mcd-tour p{ margin:0 0 16px; font-size:15px; line-height:1.4; color:#fff; text-shadow:0 1px 4px rgba(20,70,120,.3); }
+  #mcd-tour .tour-btns{ display:flex; flex-wrap:wrap; gap:8px; }
+  #mcd-tour a{ display:inline-flex; align-items:center; gap:6px; padding:11px 18px; border-radius:999px; text-decoration:none;
+    font-weight:700; font-size:14px; color:#fff; background:linear-gradient(180deg,#ff9f45,#F3852B);
+    box-shadow:0 4px 0 #d0671a, 0 10px 20px rgba(243,133,43,.3); transition:transform .15s; }
+  #mcd-tour a.alt{ background:#fff; color:#d0671a; box-shadow:0 4px 0 rgba(0,0,0,.08), 0 10px 20px rgba(20,70,120,.15); }
+  #mcd-tour a:hover{ transform:translateY(-2px); }
+  #mcd-tour .tour-dots{ position:absolute; left:2px; top:calc(50% + 150px); display:flex; gap:7px; opacity:0; transition:opacity .4s; }
+  #mcd-tour.show .tour-dots{ opacity:1; }
+  #mcd-tour .tour-dots i{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.45); transition:all .3s; }
+  #mcd-tour .tour-dots i.on{ width:22px; border-radius:6px; background:#fff; }
+  @media (max-width:760px){
+    #mcd-tour{ left:16px; right:16px; width:auto; top:calc(150px + env(safe-area-inset-top,0px)); transform:none; }
+    #mcd-tour .tour-card{ top:0; transform:translate(0,-14px); padding:14px 16px; border-radius:20px; }
+    #mcd-tour.show .tour-card.on{ transform:translate(0,0); }
+    #mcd-tour h3{ font-size:24px; margin:4px 0 6px; }
+    #mcd-tour p{ font-size:13.5px; margin-bottom:10px; }
+    #mcd-tour a{ padding:9px 14px; font-size:13px; }
+    #mcd-tour .tour-dots{ top:-14px; left:50%; transform:translateX(-50%); }
+  }
+</style>
+<div id="mcd-tour" aria-live="polite">
+  <div class="tour-card" data-i="1"><div class="tour-step">Étape 1 / 4</div><h3>Studio Social</h3>
+    <p>Marshall, ton copain IA, crée tes posts, stories et vidéos. Toi, tu valides d’un clic.</p>
+    <div class="tour-btns"><a href="decouvrir-studio-social.html" onclick="if(window.mcdGo){event.preventDefault();mcdGo('decouvrir-studio-social.html');}">Découvrir Studio Social →</a></div></div>
+  <div class="tour-card" data-i="2"><div class="tour-step">Étape 2 / 4</div><h3>Nos offres</h3>
+    <p>Sites, réseaux sociaux, vidéos IA : des formules claires, pensées pour les petites entreprises.</p>
+    <div class="tour-btns"><a href="Nosoffres.html" onclick="if(window.mcdGo){event.preventDefault();mcdGo('Nosoffres.html');}">Voir les offres →</a></div></div>
+  <div class="tour-card" data-i="3"><div class="tour-step">Étape 3 / 4</div><h3>Qui suis-je ?</h3>
+    <p>Derrière Mon Copain Digital, il y a un vrai copain. Découvre qui je suis et comment je travaille.</p>
+    <div class="tour-btns"><a href="qui-suis-je.html" onclick="if(window.mcdGo){event.preventDefault();mcdGo('qui-suis-je.html');}">Faire connaissance →</a></div></div>
+  <div class="tour-card" data-i="4"><div class="tour-step">Étape 4 / 4</div><h3>On en parle ?</h3>
+    <p>Un projet, une question ? Écris-moi ou réserve directement un rendez-vous.</p>
+    <div class="tour-btns"><a href="contact.html" onclick="if(window.mcdGo){event.preventDefault();mcdGo('contact.html');}">Me contacter</a><a class="alt" href="rendez-vous.html" onclick="if(window.mcdGo){event.preventDefault();mcdGo('rendez-vous.html');}">Prendre rendez-vous</a></div></div>
+  <div class="tour-dots"><i></i><i></i><i></i><i></i></div>
+</div>
 
 <!-- ===== Indice de défilement (hero, bas droite) ===== -->
 <style>
@@ -4859,6 +5107,7 @@ start();
     if (!footer) return;
     if (fsT <= 0){
       if (px > 0 && cineBusy()) return;             // séquence caméra pas terminée
+      if (window.__tourDrive && window.__tourDrive(px)) return;   // tour de la planète avant le pied de page
     }
     var n = fsT + px / (window.innerHeight * 0.85);
     fsT = Math.max(0, Math.min(1, n));
@@ -4879,7 +5128,7 @@ start();
   window.__fsDebug = function(){
     return { gap: Math.round(fsGap / (window.innerHeight * 0.7) * 100), footer: Math.round(fsP * 100) };
   };
-  window.mcdToHero = function(){ fsSet(0); fsGap = 0; lgSet(false); dvP = 0; if (window.__dive) window.__dive(0); };
+  window.mcdToHero = function(){ if (window.__tourReset) window.__tourReset(); fsSet(0); fsGap = 0; lgSet(false); dvP = 0; if (window.__dive) window.__dive(0); };
   window.mcdToFooter = function(){ lgSet(true); fsSet(1); };
 
   window.addEventListener('wheel', function(e){

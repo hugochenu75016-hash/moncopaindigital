@@ -1604,6 +1604,12 @@
 .gj-mq-list button.on{ border-color:#7b4fd0; }
 .gj-mq-list img{ width:100%; height:100%; object-fit:cover; display:block; }
 .gj-mq-err{ color:#b3261e; font-size:11.5px; }
+.gj-tenue{ display:grid; gap:7px; padding:10px 11px; border-radius:13px; background:#fff; border:1px solid #e6dcf6; }
+.gj-tenue b{ font-size:12.5px; color:#4c3671; }
+.gj-tenue-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.gj-tenue-chips button{ border:1.5px solid #e1d5f5; background:#faf7ff; color:#4c3671; border-radius:999px; padding:6px 11px; font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+.gj-tenue-chips button.on{ background:#7b4fd0; border-color:#7b4fd0; color:#fff; }
+.gj-tenue input{ border:1.5px solid #e1d5f5; border-radius:11px; padding:8px 10px; font:inherit; font-size:12.5px; }
   .gj-root .gj-angle{ position:relative; width:64px; height:64px; border-radius:12px; overflow:hidden; border:1.5px solid rgba(0,0,0,.1); background:#fff; padding:0; }
   .gj-root .gj-angle img{ width:100%; height:100%; object-fit:cover; display:block; }
   .gj-root .gj-angle button{ position:absolute; top:3px; right:3px; width:20px; height:20px; border-radius:50%; border:0; background:rgba(0,0,0,.6); color:#fff; font-size:11px; line-height:20px; cursor:pointer; padding:0; }
@@ -9532,7 +9538,21 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* ===== Agent « Genjutsu » : remplacement strict de la personne, décor original conservé ===== */
   var MARSHALL_GENJUTSU={file:null,image:'',extras:[],seconds:'10',scope:'head',rights:false,busy:false,task:null,progress:0,msg:'',url:'',error:'',
     mq:{id:'',img:'',valide:false,busy:false,err:''},mqAsk:'',mqList:null,
-    srcId:'',srcFor:null,check:null,checkOk:false};
+    srcId:'',srcFor:null,check:null,checkOk:false,mqTenue:'photo',mqTenueTxt:''};
+  // Tenue de la maquette corps entier : choix rapides (texte transmis tel quel à Nano Banana)
+  var MARSHALL_GJ_TENUES=[
+    {v:'photo',label:'👕 Comme sur la photo',txt:''},
+    {v:'decontracte',label:'Décontractée',txt:'tenue décontractée : jean, t-shirt, baskets blanches'},
+    {v:'chic',label:'Chic',txt:'tenue chic et élégante : robe ou costume bien coupé, chaussures élégantes'},
+    {v:'sport',label:'Sport',txt:'tenue de sport : legging ou jogging, haut de sport, baskets de running'},
+    {v:'pro',label:'Pro',txt:'tenue professionnelle : blazer, chemise, pantalon, chaussures de ville'},
+    {v:'soiree',label:'Soirée',txt:'tenue de soirée : robe de soirée ou smoking, chaussures habillées'}
+  ];
+  function marshallGjTenueTexte(){
+    var G=MARSHALL_GENJUTSU, t=(MARSHALL_GJ_TENUES.filter(function(x){ return x.v===G.mqTenue; })[0]||{}).txt||'', p=(G.mqTenueTxt||'').trim();
+    if(!t&&!p) return '';
+    return (t?t:'tenue de la photo')+(p?(' ; précisions : '+p):'');
+  }
   var MARSHALL_GENJUTSU_STRICT_PROMPT='Remplace uniquement la personne visible dans la vidéo par la personne de la photo de référence. Conserve pixel par pixel autant que possible tout ce qui n’est pas la personne : décor, arrière-plan, porte, coussin, objets, murs, sol, ombres, reflets, lumière, profondeur, mouvement de caméra et mouvements indépendants des objets. Une porte qui s’ouvre doit continuer à s’ouvrir et un coussin qui bouge doit continuer à bouger exactement comme dans la vidéo source. Ne recrée pas le décor, ne le stabilise pas, ne le nettoie pas, ne change pas les couleurs et n’ajoute aucun objet. Modifie seulement le masque de la personne et ses éléments directement liés (corps, visage, cheveux et vêtements).';
   var MARSHALL_GENJUTSU_HEAD_PROMPT='Remplace UNIQUEMENT la tête entière de la personne visible dans la vidéo (visage, cheveux, oreilles et le haut du cou jusqu’au col) par la tête de la personne de la photo de référence. Le corps doit rester STRICTEMENT identique à la vidéo source : silhouette, morphologie, carrure, épaules, bras, mains, peau du corps, vêtements, accessoires, posture et chaque mouvement du corps. Ne change pas les vêtements, ne change pas la carrure, ne retouche pas les mains, n’échange pas le corps entier. Garde les expressions, les mouvements de bouche, le clignement des yeux, la direction du regard et l’orientation de la tête de la vidéo source, et raccorde naturellement la tête au cou et au col (teinte de peau, lumière, ombres). Conserve pixel par pixel tout le reste : décor, arrière-plan, objets, ombres, reflets, lumière, mouvement de caméra et mouvements indépendants des objets. Ne recrée pas le décor et n’ajoute aucun objet. Modifie seulement le masque de la tête.';
   function marshallGjCost(){ return marshallTokenFmt(marshallTokenPrice('genjutsu_second',Math.min(+MARSHALL_GENJUTSU.seconds||10,MARSHALL_GENJUTSU.scope==='person'?20:60))); }
@@ -9568,6 +9588,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       +'<div class="gj-mq-fix"><input type="text" maxlength="300" data-gj-mqask placeholder="'+(kind==='corps'?'Non : ex. « refais bien mes chaussures »':'Non : ex. « refais bien mon nez »')+'" value="'+esc(G.mqAsk||'')+'"><button type="button" data-gj="mqfix">✏️ Corriger</button></div>'
       +(M.err?'<div class="gj-mq-err">⚠ '+esc(M.err)+'</div>':'')+'</div>';
     return h+'<p class="gj-mq-intro">'+(kind==='corps'?'Pour un rendu fidèle de la tête aux pieds, même de dos, Marshall dessine la personne en pied (face, profil, dos, 3/4) avec sa tenue, à partir de ta photo. Une photo en pied donne le meilleur résultat.':'Pour un rendu fidèle quand la personne tourne la tête ou se retourne, Marshall crée sa maquette à partir de ta photo.')+' Tu la valides, et elle reste dans ton compte pour tes prochaines vidéos.</p>'
+      +(kind==='corps'?'<div class="gj-tenue"><b>Comment veux-tu qu’elle soit habillée ?</b><div class="gj-tenue-chips">'+MARSHALL_GJ_TENUES.map(function(x){ return '<button type="button" data-gj="mqtenue" data-v="'+x.v+'" class="'+(G.mqTenue===x.v?'on':'')+'">'+esc(x.label)+'</button>'; }).join('')+'</div>'
+        +'<input type="text" maxlength="200" data-gj-mqtenue placeholder="Précise (facultatif) : couleurs, chaussures, accessoires, coiffure…" value="'+esc(G.mqTenueTxt||'')+'"></div>':'')
       +'<div class="gj-mq-acts"><button type="button" data-gj="mqnew"'+(G.image?'':' disabled')+'>✨ Créer ma maquette <small>≈ '+prix+'</small></button></div>'
       +(list?'<p class="gj-mq-intro">Ou reprends une maquette déjà validée :</p>'+list:'')
       +(M.err?'<div class="gj-mq-err">⚠ '+esc(M.err)+'</div>':'')+'</div>';
@@ -9587,7 +9609,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!G.image){ toast('Ajoute d’abord la photo de la personne.',true); return; }
     M.busy=true; M.err=''; marshallGjRerender();
     try{
-      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu/maquette',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:G.image,demande:demande||'',base_id:demande?M.id:'',kind:marshallGjKind()})});
+      var r=await fetch(MARSHALL_CREWAI_BASE+'/video/genjutsu/maquette',{method:'POST',headers:await authHeaders(),body:JSON.stringify({image:G.image,demande:demande||'',base_id:demande?M.id:'',kind:marshallGjKind(),tenue:(!demande&&marshallGjKind()==='corps')?marshallGjTenueTexte():''})});
       var d=await r.json().catch(function(){ return {}; });
       try{ marshallTokensFromResponse(d); }catch(e){}
       if(d&&d.need_plan){ try{ marshallPaywallOpen(d.need_plan); }catch(e){} }
@@ -9657,6 +9679,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(act==='rmx'){ G.extras.splice(+a.getAttribute('data-i'),1); marshallGenjutsuRender(detail,prof()); return; }
       if(act==='gjok'){ if(G.check) G.check.awaiting=false; G.checkOk=true; marshallGenjutsuRun(); return; }
       if(act==='gjno'){ if(G.check) G.check.awaiting=false; marshallGjRefresh(); return; }
+      if(act==='mqtenue'){ G.mqTenue=a.getAttribute('data-v'); marshallGenjutsuRender(detail,prof()); return; }
       if(act==='mqnew'){ marshallGjMaquette(''); return; }
       if(act==='mqfix'){ var q=(G.mqAsk||'').trim(); if(!q){ toast('Écris ce qu’il faut corriger, ex. « refais bien mon nez ».',true); return; } marshallGjMaquette(q); return; }
       if(act==='mqok'){ marshallGjMaquetteValider(); return; }
@@ -9666,7 +9689,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(act==='canvas'&&G.url){ try{ marshallFreshReset(); }catch(x){} marshallVideoToCanvas(G.url,'Genjutsu',{}); toast('🎬 Vidéo posée sur un nouveau canva.'); }
       if(act==='retry'){ marshallGenjutsuRun(); return; }
     });
-    detail.addEventListener('input',function(e){ var t=e.target; if(t&&t.hasAttribute&&t.hasAttribute('data-gj-mqask')) MARSHALL_GENJUTSU.mqAsk=t.value; });
+    detail.addEventListener('input',function(e){ var t=e.target; if(t&&t.hasAttribute&&t.hasAttribute('data-gj-mqask')) MARSHALL_GENJUTSU.mqAsk=t.value; if(t&&t.hasAttribute&&t.hasAttribute('data-gj-mqtenue')) MARSHALL_GENJUTSU.mqTenueTxt=t.value; });
     detail.addEventListener('keydown',function(e){ var t=e.target; if(e.key==='Enter'&&t&&t.hasAttribute&&t.hasAttribute('data-gj-mqask')){ e.preventDefault(); var b=t.parentNode.querySelector('[data-gj="mqfix"]'); if(b) b.click(); } });
     detail.addEventListener('change',function(e){
       var t=e.target; if(!t.hasAttribute) return;
@@ -10286,6 +10309,148 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function marshallRemoteJSON(system,user){
     var raw=await marshallRemoteReply([{role:'system',content:system},{role:'user',content:user}]);
     return edAIExtractJSON(raw);
+  }
+
+  /* ===== Cerveau de Marshall : Claude réfléchit, choisit l'angle puis utilise les outils du studio =====
+     Le serveur (copain-api, body.agent) renvoie les blocs de Claude ; ici on exécute les outils demandés
+     avec les fonctions existantes et on renvoie leurs résultats, jusqu'à la réponse finale. */
+  var MARSHALL_BRAIN_ON=true;
+  var MARSHALL_BRAIN_SYSTEM=[
+    'Tu es Marshall, l’assistant IA de Social Studio (Mon Copain Digital). Tu parles à un commerçant, un artisan, un indépendant ou à l’équipe : tu es son directeur créatif et son stratège social media, et tu as les mains sur tout le studio grâce à tes outils.',
+    'Ta façon de travailler :',
+    '- Avant de créer, réfléchis comme un stratège : objectif réel (vendre, faire venir en boutique, recruter, notoriété), cible précise, plateforme, angle, accroche des 2 premières secondes, preuve, appel à l’action. Appuie-toi sur la mémoire de marque fournie plus bas au lieu de reposer des questions dont tu as déjà la réponse.',
+    '- Si la demande est assez claire ou déductible du contexte, agis tout de suite avec l’outil adapté. Ne pose UNE question courte que s’il manque une information indispensable que tu ne peux pas déduire (par ex. le produit à mettre en avant quand la marque est inconnue). Jamais de questionnaire.',
+    '- Quand tu appelles un outil de création, écris dans « brief » un vrai brief de directeur créatif, pas la phrase brute de l’utilisateur : sujet, cible, angle choisi et pourquoi, accroche, ton, éléments de preuve disponibles, CTA, plateforme et format. C’est ce brief qui guide la production.',
+    '- Tu peux enchaîner plusieurs outils si la demande le justifie (ex. une story puis sa mise en vidéo), mais n’en lance pas un de plus que nécessaire : chaque création consomme des tokens de l’utilisateur.',
+    '- Certains outils affichent une carte où l’utilisateur doit encore choisir (durée de la vidéo, format du clip, type de compte). Dans ce cas dis-lui simplement quoi faire dans la carte ; ne prétends pas que le résultat final est prêt.',
+    '- Après l’action, réponds brièvement : ce que tu as fait, l’angle retenu et pourquoi en une phrase, puis une ou deux suites concrètes (variante, programmation, version vidéo…).',
+    '- Honnêteté : ne dis jamais qu’une chose a été créée, publiée ou programmée si l’outil ne l’a pas confirmé. Si un outil échoue, explique simplement et propose une alternative. N’invente jamais prix, chiffres, avis clients ou résultats.',
+    '- Pour une simple question (conseil, stratégie, explication, idée de business), réponds directement, comme un expert humain chaleureux et direct, sans outil.',
+    '- Tu réponds dans la langue de l’utilisateur (français par défaut), en tutoyant, avec un ton naturel. Réponses courtes et concrètes ; listes seulement quand elles aident.',
+    '- Tu es l’unique interlocuteur : ne présente jamais un spécialiste interne comme l’auteur de la réponse. Ne te présente jamais comme « le Copain ».'
+  ].join('\n');
+  function marshallBrainTool(name,description,props,required){
+    return {name:name,description:description,strict:true,input_schema:{type:'object',properties:props,required:required||Object.keys(props),additionalProperties:false}};
+  }
+  function marshallBrainTools(){
+    var brief={type:'string',description:'Brief de directeur créatif : sujet, cible, angle et pourquoi, accroche, ton, preuves disponibles, CTA, plateforme.'};
+    return [
+      marshallBrainTool('creer_video','Crée une vraie vidéo IA (Wan 2.2) à partir de zéro : affiche une carte où l’utilisateur règle la durée, puis le script est écrit depuis ton brief et validé avant le tournage. Pour une pub, une présentation de produit, un reel.',{brief:brief}),
+      marshallBrainTool('creer_story','Crée une Story verticale 9:16 de 3 à 7 écrans éditables (accroche, tension, solution, preuve, action) sur le canvas.',{brief:brief}),
+      marshallBrainTool('stories_du_mois','Crée une story pour chaque jour d’un mois et les insère dans le calendrier. Coûteux : seulement si l’utilisateur le demande.',{brief:{type:'string',description:'Mois visé, fil rouge, thèmes, heure de publication si connue.'}}),
+      marshallBrainTool('creer_post','Crée un post (visuel social media) en calques éditables sur le canvas.',{brief:brief}),
+      marshallBrainTool('generer_image','Génère une image (Nano Banana) et l’ajoute au canvas comme calque.',{description:{type:'string',description:'Description visuelle précise : sujet, cadrage, lumière, ambiance, style. Pas de texte dans l’image.'}}),
+      marshallBrainTool('creer_campagne','Crée une campagne de plusieurs visuels qui progressent vers le CTA.',{brief:brief}),
+      marshallBrainTool('creer_variantes','Crée 3 variantes vraiment différentes d’un concept pour un A/B test.',{brief:brief}),
+      marshallBrainTool('concepts_creatifs','Propose 3 concepts créatifs complets sur le canvas.',{brief:brief}),
+      marshallBrainTool('corriger_canvas','Audite le canvas actuel (lisibilité, contraste, hiérarchie) et peut appliquer les corrections.',{appliquer:{type:'boolean',description:'true pour appliquer les corrections, false pour seulement analyser.'}}),
+      marshallBrainTool('analyser_image','Analyse l’image présente sur le canvas.',{}),
+      marshallBrainTool('composer_autour_image','Construit un visuel autour de l’image déjà présente sur le canvas.',{brief:brief}),
+      marshallBrainTool('voix_off_video','Écrit et enregistre une voix off sur la vidéo du canvas.',{consigne:{type:'string',description:'Ton de voix, voix féminine ou masculine, message à faire passer.'}}),
+      marshallBrainTool('clip_depuis_lien','Découpe les meilleurs moments d’une vidéo (YouTube, TikTok, Instagram…) en clips 9:16 sous-titrés. La demande doit contenir le lien.',{demande:{type:'string',description:'La demande avec le lien de la vidéo.'}}),
+      marshallBrainTool('story_en_video','Transforme la Story actuelle (ses écrans) en vidéo.',{demande:{type:'string',description:'Consignes de mise en vidéo.'}}),
+      marshallBrainTool('briefing_pays','Recherche en temps réel l’actualité d’un pays (économie, tendances) avec les 3 infos clés et leurs sources.',{demande:{type:'string',description:'Pays et angle de recherche.'}}),
+      marshallBrainTool('ouvrir_agent','Ouvre un outil qui demande des fichiers de l’utilisateur : genjutsu (mettre son visage ou une personne dans une vidéo existante), avatar (avatar parlant à partir d’une photo), clipper (clips depuis une vidéo importée), studio (agent Studio).',{agent:{type:'string',enum:['genjutsu','avatar','clipper','studio']},raison:{type:'string',description:'Ce que l’utilisateur doit importer ou faire dans l’outil.'}}),
+      marshallBrainTool('mission_studio','Confie au studio une mission qui a son propre parcours : programmer ou publier dans le calendrier, répétitions automatiques, QR code, page lien en bio, audit 360° de l’entreprise, réglages de marque. Termine ton tour.',{demande:{type:'string',description:'La demande reformulée clairement, avec dates, heures et liens.'}})
+    ];
+  }
+  function marshallBrainContext(){
+    var out=['Date du jour : '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'.'];
+    [function(){return marshallStudioKnowledgeContext();},
+     function(){return marshallMarketingContext(marshallSetting('goal','Vente'),marshallSetting('platform','Instagram'));},
+     function(){return 'Compte professionnel/personnel renseigné : '+(marshallAccountProfileReady()?'oui':'non (les outils de création l’afficheront)')+'. Mode de puissance : '+marshallPower()+'.';},
+     function(){return marshallBrandContext();},
+     function(){return marshallBrandIntelligenceContext();}
+    ].forEach(function(f){try{var s=f();if(s)out.push(String(s));}catch(e){}});
+    return out.join('\n');
+  }
+  async function marshallBrainCall(messages){
+    var r=await fetch(MARSHALL_CHAT_ENDPOINT,{method:'POST',headers:await authHeaders(),body:JSON.stringify({agent:true,system:[MARSHALL_BRAIN_SYSTEM,marshallBrainContext()],tools:marshallBrainTools(),messages:messages})});
+    var data=null;try{data=await r.json();}catch(e){}
+    if(!r.ok||!data||!Array.isArray(data.content)){var err=Error((data&&data.error)||('Marshall HTTP '+r.status));err.status=r.status;throw err;}
+    return data;
+  }
+  function marshallBrainNeedsAccount(brief){
+    if(marshallAccountProfileReady())return false;
+    marshallChatAccountSetupCard(brief,{});
+    return true;
+  }
+  function marshallBrainQA(intent){
+    var qa=marshallCreationQualityAudit(intent);
+    return qa?' Contrôle qualité automatique : '+qa.score+'/100'+(qa.minScore!=null?' (minimum '+qa.minScore+'/100)':'')+'.':'';
+  }
+  /* Exécute un outil demandé par Claude. Retourne le texte du résultat ; {handoff} pour passer la main au studio. */
+  async function marshallBrainRunTool(name,input){
+    input=input||{};var brief=String(input.brief||input.demande||input.description||input.consigne||'').trim();
+    var ACCOUNT='Carte affichée : l’utilisateur doit d’abord indiquer s’il s’agit d’un compte professionnel ou personnel, puis renvoyer sa demande.';
+    if(name==='creer_video'){var v=await marshallCreateRealVideo(brief);return v&&v.needHyper?'Carte affichée : la vidéo IA demande le mode Hyper ; l’utilisateur choisit entre passer en Hyper ou une vidéo à partir de sa Story.':'Carte vidéo affichée : l’utilisateur règle la durée puis clique « Écrire le script » ; le script suivra ton brief et il pourra le modifier avant « Créer la vidéo ».';}
+    if(name==='creer_story'){if(marshallBrainNeedsAccount(brief))return ACCOUNT;await marshallCreateStory(brief);if(!marshallStoryHasThreeCanvases())throw Error('La Story n’est pas complète (moins de 3 écrans).');return marshallStoryConversationReply(marshallLastStoryPlan)+marshallBrainQA('story');}
+    if(name==='stories_du_mois'){if(marshallBrainNeedsAccount(brief))return ACCOUNT;return marshallMonthlyStoryReply(await marshallCreateMonthlyStories(brief));}
+    if(name==='creer_post'){if(marshallBrainNeedsAccount(brief))return ACCOUNT;await marshallCreateOnCanvas(brief);return 'Post créé sur le canvas en calques éditables.'+marshallBrainQA('canvas');}
+    if(name==='generer_image'){var ok=!!(await marshallGenerateImageFromPrompt(brief));if(!ok)throw Error('la génération d’image n’a rien renvoyé');return 'Image générée et ajoutée au canvas.';}
+    if(name==='creer_campagne'){if(marshallBrainNeedsAccount(brief))return ACCOUNT;await marshallBuildCampaign(brief);return 'Campagne créée sur le canvas.'+marshallBrainQA('campaign');}
+    if(name==='creer_variantes'){if(marshallBrainNeedsAccount(brief))return ACCOUNT;await marshallGenerateVariants(brief);return '3 variantes créées sur le canvas.'+marshallBrainQA('variants');}
+    if(name==='concepts_creatifs'){if(marshallBrainNeedsAccount(brief))return ACCOUNT;await marshallCreativeGenerate(brief);return '3 concepts créés sur le canvas.';}
+    if(name==='corriger_canvas'){var rep=await marshallVisionAnalyze(!!input.appliquer);return rep?String(rep).slice(0,3000):(input.appliquer?'Corrections appliquées au canvas.':'Analyse du canvas affichée.');}
+    if(name==='analyser_image'){var ia=await marshallImageAnalyze();if(!ia)throw Error('aucune image analysable sur le canvas');return typeof ia==='string'?ia.slice(0,3000):'Analyse de l’image affichée.';}
+    if(name==='composer_autour_image'){if(!marshallImageLayer())throw Error('il n’y a pas d’image sur le canvas : l’utilisateur doit en ajouter une');await marshallComposeAroundImage(brief);return 'Visuel construit autour de l’image.'+marshallBrainQA('image_compose');}
+    if(name==='voix_off_video'){var vo=await edVoiceoverFromAgent(brief);if(!vo||!vo.ok)throw Error((vo&&vo.error)||'la voix off n’a pas pu être créée');return 'Voix off ajoutée (bouton « 🔊 Écouter » en haut à gauche du canvas). Texte : « '+vo.script+' »';}
+    if(name==='clip_depuis_lien'){var cp=await marshallCreateClip(brief);return marshallClipReply(cp);}
+    if(name==='story_en_video'){await marshallRunStoryVideoTool(brief);return marshallActionReply('story_video',true);}
+    if(name==='briefing_pays'){var nb=await marshallNationBrief(brief);return nb&&nb.ok?'Briefing '+nb.country+' affiché avec les 3 infos clés et leurs sources.':(nb&&nb.asked?'Carte affichée : l’utilisateur doit préciser le pays.':'Le briefing n’a pas abouti.');}
+    if(name==='ouvrir_agent'){var key=String(input.agent||'');if(marshallAgentLocked(key))throw Error('cet outil n’est pas encore disponible pour ce compte');var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected=key;marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();return 'Outil '+key+' ouvert à côté du chat.';}
+    if(name==='mission_studio')return {handoff:brief};
+    throw Error('outil inconnu : '+name);
+  }
+  /* Renvoie true si le cerveau a traité la demande, false pour laisser l'ancien parcours répondre. */
+  async function marshallBrainRun(prompt,input,b){
+    var hist=(marshallChatHistory||[]).filter(function(m){return m&&(m.role==='user'||m.role==='assistant')&&m.content;}).slice(-10).map(function(m){return {role:m.role,content:String(m.content)};});
+    while(hist.length&&hist[0].role!=='user')hist.shift();
+    var msgs=hist.concat([{role:'user',content:prompt}]);
+    var typing=null,started=false,said=[],handoff=null;
+    marshallChatBusy=true;if(b)b.disabled=true;
+    marshallChatClearInput(input);
+    try{
+      for(var step=0;step<8;step++){
+        typing=typing||marshallChatTyping();
+        if(step===0)await marshallTokensGate('chat');
+        var data;
+        try{data=await marshallBrainCall(msgs);}
+        catch(e){if(!started&&e.status!==402&&e.status!==429){if(typing&&typing.parentNode)typing.remove();console.warn('Cerveau Marshall indisponible, ancien parcours',e);return false;}throw e;}
+        if(!started){started=true;marshallChatBubble('user',prompt);}
+        msgs.push({role:'assistant',content:data.content});
+        var text=data.content.filter(function(x){return x.type==='text';}).map(function(x){return x.text;}).join('\n').trim();
+        var uses=data.content.filter(function(x){return x.type==='tool_use';});
+        if(data.stop_reason==='refusal'){if(typing&&typing.parentNode)typing.remove();marshallChatBubble('assistant',text||'Je ne peux pas t’aider sur cette demande-là. Dis-moi autre chose que tu veux créer.');said.push(text);break;}
+        if(text){if(typing&&typing.parentNode)typing.remove();typing=null;marshallChatBubble('assistant',text);said.push(text);}
+        if(data.stop_reason!=='tool_use'||!uses.length)break;
+        var results=[];
+        for(var i=0;i<uses.length;i++){
+          var u=uses[i];
+          if(handoff){results.push({type:'tool_result',tool_use_id:u.id,content:'Non exécuté : la demande a été confiée au studio.'});continue;}
+          if(typing&&typing.parentNode)typing.remove();typing=null;
+          var mission={creer_video:'video_create',creer_story:'story',stories_du_mois:'monthly_story',creer_post:'canvas',generer_image:'image_generate',creer_campagne:'campaign',creer_variantes:'variants',concepts_creatifs:'creative',corriger_canvas:'vision',analyser_image:'image_analyze',composer_autour_image:'image_compose',voix_off_video:'video_voiceover',clip_depuis_lien:'video_clip',story_en_video:'story_video',briefing_pays:'nation_brief'}[u.name];
+          if(mission){marshallChatAgentPill(mission);marshallSyncCanvasToMission(mission);}
+          try{
+            var out=await marshallBrainRunTool(u.name,u.input);
+            if(out&&out.handoff!=null){handoff=out.handoff||prompt;results.push({type:'tool_result',tool_use_id:u.id,content:'Mission confiée au studio.'});}
+            else results.push({type:'tool_result',tool_use_id:u.id,content:String(out||'Fait.')});
+          }catch(te){console.warn('Outil Marshall '+u.name,te);results.push({type:'tool_result',tool_use_id:u.id,is_error:true,content:'Échec : '+String(te&&te.message?te.message:te)});}
+        }
+        msgs.push({role:'user',content:results});
+        if(handoff)break;
+      }
+      if(typing&&typing.parentNode)typing.remove();
+      marshallChatHistory.push({role:'user',content:prompt},{role:'assistant',content:said.join('\n\n')||'(action lancée dans le studio)'});
+      marshallChatHistory=marshallChatHistory.slice(-12);
+      try{marshallTokensRefresh(true);}catch(e){}
+    }catch(e){
+      console.error('Cerveau Marshall',e);if(typing&&typing.parentNode)typing.remove();
+      if(!started)marshallChatBubble('user',prompt);
+      marshallChatBubble('error','Marshall n’a pas pu répondre : '+String(e&&e.message?e.message:'erreur inconnue').replace(/[.!?…\s]+$/,'')+'.');
+    }finally{marshallChatBusy=false;if(b)b.disabled=false;if(input)input.focus();}
+    if(handoff)await marshallChatSubmit(handoff,{skipUserEcho:true,noBrain:true});
+    return true;
   }
 
 
@@ -11358,6 +11523,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       return;
     }
     marshallCaptureWebsite(prompt);
+    /* Cerveau de Marshall : il comprend la demande, choisit l'angle et lance lui-même les bons outils.
+       L'ancien parcours ci-dessous reste le secours (agent ou mission choisis à la main, cerveau indisponible). */
+    if(MARSHALL_BRAIN_ON&&!opts.forceIntent&&!opts.noBrain&&!opts.photosAsked&&(marshallAgentMode.agent==='marshall'||marshallAgentMode.agent==='auto')&&marshallAgentMode.mission==='auto'&&authUser&&!actingAs&&!window.MCD_DEMO){
+      if(earlyPending)marshallConversationClearPending();
+      if(await marshallBrainRun(prompt,input,b))return;
+    }
     var intent=opts.forceIntent||marshallEffectiveIntent(prompt), workPrompt=prompt, pending=opts.forceIntent?null:marshallConversationPending();
     if(pending && marshallAgentMode.mission==='auto'){
       if(/^(non|annule|annuler|laisse|pas maintenant|stop)\b/i.test(prompt)){
