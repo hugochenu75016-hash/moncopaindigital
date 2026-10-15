@@ -14,6 +14,36 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <script>try{if(window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true)document.documentElement.setAttribute("data-app","1");if(/[?&]demo=/.test(location.search))document.documentElement.setAttribute("data-demo","1");}catch(e){}</script>
+<script>
+/* Journal d'erreurs : plantages et échecs importants envoyés à Marshall (/log/erreur), pour voir les bugs des clients sans qu'ils aient à prévenir.
+   Branché tôt pour attraper aussi les erreurs du chargement ; les envois attendent que le studio donne l'adresse de Marshall (mcdLogSetup). */
+(function(){
+  var V='2026-10-15',base='',uidFn=null,file=[],vus={},envoyes=0;
+  function envoyer(x){
+    if(envoyes>=20||document.documentElement.getAttribute('data-demo'))return;envoyes++;
+    try{x.uid=uidFn?String(uidFn()||''):'';}catch(e){}
+    try{fetch(base+'/log/erreur',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(x),keepalive:true}).catch(function(){});}catch(e){}
+  }
+  window.mcdLogErr=function(kind,err,extra){
+    try{
+      var msg=String((err&&err.message)||err||'').slice(0,600);
+      if(!msg||/^Script error\.?$|ResizeObserver loop|AbortError|The user aborted/i.test(msg))return;
+      var cle=kind+'|'+msg;if(vus[cle])return;vus[cle]=1;
+      var x={kind:String(kind||'erreur'),message:msg,stack:String((err&&err.stack)||'').slice(0,2000),page:location.pathname,v:V,ua:navigator.userAgent.slice(0,200),
+             extra:extra==null?'':(typeof extra==='string'?extra:JSON.stringify(extra)).slice(0,600)};
+      if(extra&&extra.source){x.source=String(extra.source).slice(0,200);x.line=String(extra.line||'');}
+      if(base)envoyer(x);else if(file.length<20)file.push(x);
+    }catch(e){}
+  };
+  window.mcdLogSetup=function(b,f){base=String(b||'').replace(/\/+$/,'');uidFn=f||null;var q=file;file=[];q.forEach(envoyer);};
+  window.addEventListener('error',function(e){
+    if(!e||e.target!==window&&e.target&&e.target.nodeType)return; /* image ou script introuvable : pas un plantage */
+    if(/^(chrome|moz|safari)-extension:/.test(e.filename||''))return;
+    mcdLogErr('plantage',e.error||e.message,{source:e.filename||'',line:(e.lineno||'')+':'+(e.colno||'')});
+  });
+  window.addEventListener('unhandledrejection',function(e){mcdLogErr('promesse',e&&e.reason);});
+})();
+</script>
 <meta name="theme-color" content="#f26c00">
 <script>
 (function(){
@@ -4909,7 +4939,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function mcdSaveSignupProfile(p){
     if(!p||!authUser)return;
     var data=p.data||{},brand=p.brand||'';
-    try{var pr=Object.assign({id:authUser.id,email:authUser.email||null,nom:[data.prenom,data.nom_famille].filter(Boolean).join(' ')||brand,entreprise:data.account_type==='pro'?brand:null,adresse:data.adresse||null,updated_at:new Date().toISOString()},data);delete pr.brand;delete pr.slug;delete pr.nom_famille;var rr=await sb.from('profiles').upsert(pr);if(rr&&rr.error)await sb.from('profiles').upsert({id:authUser.id,email:authUser.email||null,nom:pr.nom,entreprise:pr.entreprise,adresse:pr.adresse});}catch(_e){}
+    try{var pr=Object.assign({id:authUser.id,email:authUser.email||null,nom:[data.prenom,data.nom_famille].filter(Boolean).join(' ')||brand,entreprise:data.account_type==='pro'?brand:null,adresse:data.adresse||null,updated_at:new Date().toISOString()},data);delete pr.brand;delete pr.slug;delete pr.nom_famille;var rr=await sb.from('profiles').upsert(pr);if(rr&&rr.error){var r2=await sb.from('profiles').upsert({id:authUser.id,email:authUser.email||null,nom:pr.nom,entreprise:pr.entreprise,adresse:pr.adresse});if(r2&&r2.error)throw r2.error;}}
+    catch(_e){
+      /* Le compte existe mais le profil n'est pas enregistré : on prévient le client au lieu de le laisser croire que tout est bon. */
+      mcdLogErr('profil',_e,{etape:'inscription'});
+      toast('Ton compte est créé, mais ton nom, ton entreprise et ton adresse n’ont pas pu être enregistrés. Complète-les dans ton profil.',true,8000);
+    }
   }
   function otpCooldown(sec){
     var b=$('#otp-resend');if(!b)return;clearInterval(otpTimer);var left=sec;
@@ -7434,7 +7469,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(meta.err) return 'Vidéo illisible dans le navigateur : réimporte-la (MP4 conseillé).';
     if(isFinite(meta.dur)&&meta.dur>180) return 'Vidéo trop longue ('+Math.floor(meta.dur/60)+' min '+String(Math.round(meta.dur%60)).padStart(2,'0')+') : 3 min maximum pour une voix off.';
     if(isFinite(meta.dur)&&meta.dur<1) return 'Vidéo trop courte pour une voix off.';
-    try{ var need=marshallTokenPrice('voiceover'); if(marshallTokensLeft()<need) return 'Tokens insuffisants ce mois-ci : recharge dans Réglages › Mon utilisation.'; }catch(e){}
+    try{ var need=marshallTokenPrice('voiceover'); if(marshallTokensLeft()<need) return 'Tokens insuffisants ce mois-ci : recharge dans Réglages › Mon utilisation.'; }catch(e){ mcdLogErr('tokens',e,{kind:'voiceover',etape:'verification'}); }
     return '';
   }
   /* Aperçu : « Bonjour, comment tu vas ? » avec la voix et le ton choisis (extrait mis en cache par le serveur). */
@@ -7500,7 +7535,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(!authUser) return 'Connecte-toi pour utiliser la voix IA.';
     if(typeof WebAssembly==='undefined'||typeof Worker==='undefined') return 'Navigateur non compatible : utilise Chrome ou Edge récent.';
     if(!(ed.layers||[]).length) return 'Ton canva est vide : ajoute d’abord ton visuel.';
-    try{ var need=marshallTokenPrice('voiceover'); if(marshallTokensLeft()<need) return 'Tokens insuffisants ce mois-ci : recharge dans Réglages › Mon utilisation.'; }catch(e){}
+    try{ var need=marshallTokenPrice('voiceover'); if(marshallTokensLeft()<need) return 'Tokens insuffisants ce mois-ci : recharge dans Réglages › Mon utilisation.'; }catch(e){ mcdLogErr('tokens',e,{kind:'voiceover',etape:'verification'}); }
     return '';
   }
   function edCanvasVoicePill(){
@@ -8387,6 +8422,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* ===== Marshall V4 : vrai assistant conversationnel + backend existant ===== */
   var MARSHALL_CHAT_ENDPOINT='https://copain-api.vercel.app/api/chat';
   var MARSHALL_CREWAI_BASE='https://gigigagroup--marshall-crewai-web.modal.run';
+  if(window.mcdLogSetup)mcdLogSetup(MARSHALL_CREWAI_BASE,function(){return effectiveUid();});
   var MARSHALL_CREWAI_ENDPOINT=MARSHALL_CREWAI_BASE+'/crew';
   var MARSHALL_BRAND_INTEL_ENDPOINT=MARSHALL_CREWAI_BASE+'/brand-intelligence';
   var MARSHALL_VIDEO_ENDPOINT=MARSHALL_CREWAI_BASE+'/video/story';
@@ -12048,7 +12084,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     await marshallTokensRefresh(false);
     var st=marshallTokenState.st;if(!st||st.unlimited)return;
     var need=marshallTokenPrice(kind);if(marshallTokensLeft()<need)throw marshallTokensError(need);
-    (async function(){try{var r=await fetch(MARSHALL_CREWAI_BASE+'/tokens/charge',{method:'POST',headers:await authHeaders(),body:JSON.stringify({kind:kind})});var d=await r.json();if(d&&d.tokens)marshallTokensUpdate(d.tokens);else marshallTokensUpdate(d);}catch(e){}})();
+    /* Débit attendu AVANT l'action : un refus du serveur (402) bloque. Une panne réseau laisse passer le client mais part au journal d'erreurs. */
+    var r=null,d=null;
+    try{r=await fetch(MARSHALL_CREWAI_BASE+'/tokens/charge',{method:'POST',headers:await authHeaders(),body:JSON.stringify({kind:kind})});}catch(e){mcdLogErr('tokens',e,{kind:kind,etape:'debit'});}
+    if(r){try{d=await r.json();}catch(e){}
+      if(r.status===402){if(d&&d.tokens)marshallTokensUpdate(d.tokens);throw marshallTokensError(need);}
+      if(r.ok&&d){marshallTokensUpdate(d.tokens?d.tokens:d);return;}
+      mcdLogErr('tokens','débit non confirmé (HTTP '+r.status+')',{kind:kind,erreur:d&&d.error||''});
+    }
     if(st.remaining!=null){st.remaining=Math.max(0,st.remaining-need);st.used=(st.used||0)+need;if(st.week_used!=null)st.week_used+=need;try{marshallTokensRender();}catch(e){}}
   }
   /* Avant une action coûteuse : prévenir tout de suite si le solde ne suffit pas. */
@@ -18078,7 +18121,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     p.results = res.results || null;
     if(!res.ok && res.notConfigured) p.status='pending_config';
     await persist(p); updateBadges();
-    if(p.results&&p.results.x&&p.results.x.ok===true&&!actingAs){ (async function(){try{var r=await fetch(MARSHALL_CREWAI_BASE+'/tokens/charge',{method:'POST',headers:await authHeaders(),body:JSON.stringify({kind:'x_post'})});var d=await r.json();marshallTokensUpdate(d&&d.tokens?d.tokens:d);}catch(e){}})(); }
+    /* Le post X est déjà parti : débit réessayé 3 fois (0 s, 5 s, 30 s), puis journalisé s'il n'a jamais été confirmé. */
+    if(p.results&&p.results.x&&p.results.x.ok===true&&!actingAs){ (async function(){var der='';for(var i=0;i<3;i++){if(i)await new Promise(function(ok){setTimeout(ok,i===1?5000:30000);});try{var r=await fetch(MARSHALL_CREWAI_BASE+'/tokens/charge',{method:'POST',headers:await authHeaders(),body:JSON.stringify({kind:'x_post'})});var d=null;try{d=await r.json();}catch(_){}if(r.ok&&d){marshallTokensUpdate(d.tokens?d.tokens:d);return;}if(r.status===402){if(d&&d.tokens)marshallTokensUpdate(d.tokens);mcdLogErr('tokens','post X publié sans tokens suffisants',{post:p.id||''});return;}der='HTTP '+r.status;}catch(e){der=String(e&&e.message||e);}}mcdLogErr('tokens','débit du post X non confirmé ('+der+')',{post:p.id||''});})(); }
     if(res.ok){ toast('Publié sur '+connSel.length+' réseau(x) 🚀'); resetComposer(); mcdPubFinish(true); }
     else if(res.notConfigured){ toast('Enregistré. La fonction « '+PUBLISH_FN+' » n\u2019est pas encore déployée.'); resetComposer(); mcdPubFinish(false); }
     else{ toast('Échec de publication. Voir l\u2019historique.'); $('#publish-label').textContent='Publier'; mcdPubFinish(false); }
