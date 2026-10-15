@@ -9377,17 +9377,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       throw Error((go&&go.error)||('Nano Banana HTTP '+gr.status));
     }
     if(hd){ var k=Math.min(1.4,1536/Math.max(dims.width,dims.height)); dims={width:Math.round(dims.width*k/16)*16,height:Math.round(dims.height*k/16)*16}; }
-    // Le serveur d'images peut couper les 1res requêtes pendant son démarrage : on réessaie (jusqu'à 5 essais).
-    var body=JSON.stringify({prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE}), res=null;
+    // Qwen passe par Marshall (solde vérifié avant, débit seulement si l'image sort). Le serveur d'images peut couper les
+    // 1res requêtes pendant son démarrage : on réessaie (jusqu'à 5 essais) ; un essai raté n'est jamais facturé.
+    var body=JSON.stringify({engine:'qwen',prompt:prompt,width:dims.width,height:dims.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE}), res=null, out=null;
     for(var att=0;att<5;att++){
-      res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:body}).catch(function(){ return null; });
+      res=await fetch(MARSHALL_CREWAI_BASE+'/image/generate',{method:'POST',headers:await authHeaders(),body:body}).catch(function(){ return null; });
       if(res&&res.ok) break;
       if(res&&res.status>=400&&res.status<500) break;
       marshallStudioStatus('🖼️ Le serveur d’images démarre… nouvel essai');
       await new Promise(function(ok){ setTimeout(ok,6000); });
     }
+    if(res){ try{ out=await res.json(); }catch(e){} marshallTokensFromResponse(out); }
+    if(res&&res.status===402) throw Error((out&&out.error)||'Tokens du mois épuisés.');
+    if(res&&res.status===401) throw Error('Reconnecte-toi pour générer des images.');
     if(!res||!res.ok) throw Error('serveur d’images indisponible'+(res?' (HTTP '+res.status+')':'')+', réessaie dans un instant');
-    var out=await res.json();
     if(!out||out.success!==true||!out.image) throw Error((out&&out.error)||'image absente');
     var url='data:'+(out.mime||'image/webp')+';base64,'+out.image; try{ marshallMarkGeneratedImage(url); }catch(e){}
     return url;
@@ -11795,7 +11798,6 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
 
   /* --- Marshall Image Generation : Qwen-Image sur Modal --- */
-  var MARSHALL_IMAGE_ENDPOINT='https://gigigagroup--marshall-image-generate-image.modal.run';
   var marshallImageGenerating=false;
   function marshallImageDimensions(){
     var f=String(ed.fmt||'1:1');
@@ -12160,12 +12162,15 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         }
       }catch(e){if(/tokens/i.test(e&&e.message||''))throw e;console.warn('Nano Banana, secours Qwen',e);}
     }
-    var body2={prompt:prompt,width:d.width,height:d.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE};
+    /* Qwen passe par Marshall : solde vérifié avant, débit seulement si l'image sort (Marshall réessaie lui-même sans négatif/graine). */
+    var body2={engine:'qwen',prompt:prompt,width:d.width,height:d.height,negative_prompt:MARSHALL_IMAGE_NEGATIVE};
     if(opts.seed!=null)body2.seed=opts.seed;
-    var res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body2)});
-    if(!res.ok&&res.status>=400&&res.status<500){res=await fetch(MARSHALL_IMAGE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt,width:d.width,height:d.height})});}
-    if(!res.ok)throw Error('API image HTTP '+res.status);
-    var out=await res.json();
+    var res=await fetch(MARSHALL_CREWAI_BASE+'/image/generate',{method:'POST',headers:await authHeaders(),body:JSON.stringify(body2)});
+    var out=null;try{out=await res.json();}catch(e){}
+    marshallTokensFromResponse(out);
+    if(res.status===402){var te=Error((out&&out.error)||'Tokens du mois épuisés.');te.needTopup=true;throw te;}
+    if(res.status===401)throw Error('Reconnecte-toi pour générer des images.');
+    if(!res.ok)throw Error((out&&out.error)||('API image HTTP '+res.status));
     if(!out||out.success!==true||!out.image)throw Error((out&&out.error)||'Image absente dans la réponse');
     var genUrl='data:'+(out.mime||'image/webp')+';base64,'+out.image;marshallMarkGeneratedImage(genUrl);marshallGenerateImageAsset.lastEngine='Qwen-Image';
     return genUrl;
