@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Journal d'erreurs</title>
+<link rel="icon" type="image/png" href="journal-erreurs-icon.png">
+<!-- Page admin : aucune donnée ici. Les erreurs sont lues en direct chez Marshall (/log/erreurs), réservé à l'admin
+     (session Supabase du site ou mot de passe de secours, le même que dans le studio). -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#fff8f1;--card:#fff;--txt:#2b2118;--mut:#8a7a6c;--line:#f0dcc8;--acc:#f26c00;--red:#dc2626}
+@media (prefers-color-scheme:dark){:root{--bg:#1c1712;--card:#26201a;--txt:#f3e9df;--mut:#a8998b;--line:#3a3028}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header img{width:48px;height:48px;border-radius:12px}
+h1{margin:0;font-size:24px}h2{font-size:17px;margin:28px 0 10px}
+.mut{color:var(--mut)}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-left:auto}
+button,select,input{font:inherit;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);padding:8px 12px}
+button{cursor:pointer}button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:130px}
+.stat b{display:block;font-size:22px;color:var(--acc)}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--mut)}td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.src{color:var(--mut);font-size:12px;word-break:break-all}
+.k{display:inline-block;background:var(--acc);color:#fff;border-radius:999px;padding:1px 8px;font-size:12px;white-space:nowrap}
+.k.tokens,.k.profil{background:var(--red)}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:6px 0}
+summary{cursor:pointer;word-break:break-word}
+pre{white-space:pre-wrap;word-break:break-word;font-size:12px;color:var(--mut);margin:8px 0 0}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:24px;max-width:460px}
+.box form{display:flex;gap:8px;margin-top:12px}.box input{flex:1;min-width:0}
+.msg{margin-top:16px}.err{color:var(--red)}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="journal-erreurs-icon.png" alt="">
+    <div><h1>Journal d'erreurs du Studio</h1><div class="mut" id="maj">Chargement…</div></div>
+    <div class="bar">
+      <select id="jours" aria-label="Période"><option value="1">Aujourd'hui</option><option value="7" selected>7 derniers jours</option><option value="30">30 derniers jours</option></select>
+      <button type="button" class="pri" id="rafraichir">Actualiser</button>
+    </div>
+  </header>
+  <div id="contenu"></div>
+</main>
+<script>
+(function(){
+  var BASE='https://gigigagroup--marshall-crewai-web.modal.run';
+  var SUPABASE_URL='https://nlesboqlnnpnmwlpvhif.supabase.co';
+  var SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sZXNib3Fsbm5wbm13bHB2aGlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTE3NzEsImV4cCI6MjA5ODY4Nzc3MX0.vwu9FGgl4cXZ8KExSeL3IrgWjxIbhvDYKeSWP9sb7X8';
+  var FIN_SECOURS=Date.UTC(2026,10,5,23,0);
+  var sb=null;try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON);}catch(e){}
+  var $=function(s){return document.querySelector(s);};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function cleSecours(){try{if(Date.now()>FIN_SECOURS)return '';return localStorage.getItem('mcd_secours_key')||'';}catch(e){return '';}}
+  async function entetes(){
+    var k=cleSecours();if(k)return {'x-marshall-secours':k};
+    try{var s=sb&&(await sb.auth.getSession());var t=s&&s.data&&s.data.session&&s.data.session.access_token;if(t)return {'Authorization':'Bearer '+t,'apikey':SUPABASE_ANON};}catch(e){}
+    return null;
+  }
+  function jourIso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+  function heure(at){var d=new Date(at);return isNaN(d)?(at||''):d.toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+
+  function connexion(msg){
+    $('#maj').textContent='Réservé à l’admin.';
+    var secours=Date.now()<=FIN_SECOURS;
+    $('#contenu').innerHTML='<div class="box"><b>Connexion admin</b>'+(msg?'<p class="err">'+esc(msg)+'</p>':'')+
+      '<p class="mut">Connecte-toi au <a href="studio-social.html">studio</a> avec ton compte admin, puis reviens ici.'+(secours?' Ou utilise le mot de passe de secours (valable jusqu’au 05/11) :':'')+'</p>'+
+      (secours?'<form id="f-secours"><input type="password" id="mdp" placeholder="Mot de passe de secours" autocomplete="current-password"><button class="pri">Entrer</button></form>':'')+'</div>';
+    var f=$('#f-secours');if(f)f.addEventListener('submit',function(e){e.preventDefault();var v=$('#mdp').value.trim();if(!v)return;try{localStorage.setItem('mcd_secours_key',v);}catch(_){}charger();});
+  }
+
+  var tour=0; /* seule la dernière demande a le droit d'afficher (une réponse lente n'écrase pas une plus récente) */
+  async function charger(){
+    var moi=++tour;
+    var h=await entetes();if(!h)return connexion();
+    var n=+$('#jours').value,jours=[];for(var i=0;i<n;i++){var d=new Date();d.setDate(d.getDate()-i);jours.push(jourIso(d));}
+    $('#maj').textContent='Chargement…';
+    try{
+      var res=await Promise.all(jours.map(function(j){return fetch(BASE+'/log/erreurs?limite=1000&jour='+j,{headers:h}).then(function(r){return r.json().then(function(d){return {st:r.status,d:d};},function(){return {st:r.status,d:null};});});}));
+      if(moi!==tour)return;
+      if(res.some(function(x){return x.st===403||x.st===401;})){try{localStorage.removeItem('mcd_secours_key');}catch(_){}return connexion('Accès refusé : ce compte n’est pas admin, ou le mot de passe est faux.');}
+      var lignes=[],parJour={};
+      res.forEach(function(x,i){var l=(x.d&&x.d.dernieres)||[];parJour[jours[i]]=(x.d&&x.d.total)||0;lignes=lignes.concat(l);});
+      rendu(lignes,jours,parJour);
+    }catch(e){if(moi!==tour)return;$('#maj').textContent='';$('#contenu').innerHTML='<p class="msg err">Marshall ne répond pas ('+esc(e.message||e)+'). Réessaie dans un instant.</p>';}
+  }
+
+  function rendu(lignes,jours,parJour){
+    lignes.sort(function(a,b){return (b.at||'').localeCompare(a.at||'');});
+    var g={},uids={};
+    lignes.forEach(function(x){var c=(x.kind||'')+'\u0001'+(x.message||'');var o=g[c]||(g[c]={kind:x.kind,message:x.message,n:0,der:'',u:{},ex:x});o.n++;if((x.at||'')>o.der)o.der=x.at;if(x.uid){o.u[x.uid]=1;uids[x.uid]=1;}});
+    var top=Object.keys(g).map(function(k){return g[k];}).sort(function(a,b){return b.n-a.n;});
+    var total=jours.reduce(function(s,j){return s+(parJour[j]||0);},0);
+    $('#maj').textContent='Mis à jour le '+new Date().toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    var html='<div class="stats"><div class="stat"><b>'+total+'</b>erreurs</div><div class="stat"><b>'+top.length+'</b>erreurs différentes</div><div class="stat"><b>'+Object.keys(uids).length+'</b>clients touchés</div></div>'+
+      '<div class="mut">Par jour : '+jours.slice().reverse().map(function(j){return j.slice(8,10)+'/'+j.slice(5,7)+' : <b>'+(parJour[j]||0)+'</b>';}).join(' · ')+'</div>';
+    if(!lignes.length){$('#contenu').innerHTML=html+'<p class="msg" style="font-size:18px">Aucune erreur sur la période. 🎉</p>';return;}
+    html+='<h2>Les plus fréquentes</h2><div class="tbl"><table><tr><th>Type</th><th>Message</th><th>Fois</th><th>Clients</th><th>Dernière</th></tr>'+
+      top.map(function(o){return '<tr><td><span class="k '+esc(o.kind)+'">'+esc(o.kind)+'</span></td><td>'+esc(o.message)+'<div class="src">'+esc(o.ex.source||'')+' '+esc(o.ex.line||'')+'</div></td><td class="n">'+o.n+'</td><td class="n">'+(Object.keys(o.u).length||'–')+'</td><td>'+heure(o.der)+'</td></tr>';}).join('')+'</table></div>';
+    html+='<h2>Détail des '+Math.min(lignes.length,200)+' dernières</h2>'+lignes.slice(0,200).map(function(x){
+      return '<details><summary><b>'+heure(x.at)+'</b> <span class="k '+esc(x.kind)+'">'+esc(x.kind)+'</span> '+esc(x.message)+'</summary><pre>'+
+        'page : '+esc(x.page)+'   version : '+esc(x.v)+'   client : '+esc(x.uid||'non connecté')+'\nsource : '+esc(x.source)+' '+esc(x.line)+
+        '\nnavigateur : '+esc(x.ua)+'\ninfos : '+esc(x.extra)+(x.stack?'\n\n'+esc(x.stack):'')+'</pre></details>';}).join('');
+    $('#contenu').innerHTML=html;
+  }
+
+  $('#rafraichir').addEventListener('click',charger);
+  $('#jours').addEventListener('change',charger);
+  charger();
+})();
+</script>
+</body>
+</html>
