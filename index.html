@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="marshall-regard.webp?v=2">
+<link rel="preload" as="image" href="marshall-regard.webp?v=3">
 <style>
   :root{
     --ink:#0a0a0a; --paper:#f5f5f5; --or:#F3852B; --or2:#FF9C46; --orf:#C7620E; --blue:#6EC1F0; --blued:#4AA8DE; --mut:#8a8a8a;
@@ -81,7 +81,8 @@
   .pill img{position:absolute;left:50%;bottom:-16%;height:116%;width:auto;transform:translateX(-50%);max-width:none}
   .hero .sous{position:relative;z-index:2;max-width:640px;margin:20px auto 0;font-size:17px;font-weight:600}
   .scene-hero{position:relative;z-index:1;width:100%;flex:1;display:flex;justify-content:center;align-items:flex-end;min-height:min(50vh,520px);margin-top:10px}
-  .regard{height:min(64vh,660px);aspect-ratio:415/620;background:url(marshall-regard.webp?v=2) 0 0/3200% 100% no-repeat;filter:drop-shadow(0 20px 26px rgba(0,40,70,.28));transform-origin:50% 100%}
+  .regard{position:relative;height:min(64vh,660px);aspect-ratio:415/620;filter:drop-shadow(0 20px 26px rgba(0,40,70,.28));transform-origin:50% 100%}
+  .regard i{position:absolute;inset:0;background:url(marshall-regard.webp?v=3) 0 0/800% 800% no-repeat}
   .choix{position:absolute;left:0;right:0;top:34%;z-index:3;display:flex;justify-content:space-between;gap:14px;pointer-events:none}
   .choix a{pointer-events:auto;display:flex;flex-direction:column;gap:4px;min-width:250px;padding:18px 22px;border:2px solid #fff;text-align:left;transition:background .25s,color .25s,transform .25s}
   .choix a b{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:26px;line-height:1}
@@ -428,7 +429,7 @@
       <a href="#particuliers"><b>Je suis un particulier</b><span>Aide à domicile dès 49 €</span></a>
       <a href="#commercants" class="or"><b>J’ai un commerce</b><span>Studio Social, sites web, Google</span></a>
     </div>
-    <div class="regard" id="regard" role="img" aria-label="Marshall, le copain digital, vous regarde"></div>
+    <div class="regard" id="regard" role="img" aria-label="Marshall, le copain digital, vous regarde"><i id="regard-a"></i><i id="regard-b"></i></div>
   </div>
 </section>
 
@@ -957,20 +958,26 @@
   gsap.to('#regard', { yPercent:18, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
 
   /* ---------- Le regard de Marshall suit la souris : 32 images, de « regarde à gauche » à « regarde à droite », de face au milieu ---------- */
-  var regard = document.getElementById('regard'), NB = 32, FACE = 15.5, vue = { i:FACE }, derniereImg = -1, balade = null;
-  function afficher(){ var k = Math.max(0, Math.min(NB - 1, Math.round(vue.i))); if (k !== derniereImg) { derniereImg = k; regard.style.backgroundPositionX = (k / (NB - 1) * 100) + '%'; } }
-  var versI = gsap.quickTo(vue, 'i', { duration:.35, ease:'power3', onUpdate:afficher });
+  // 62 images en grille 8 x 8 ; deux calques en fondu entre l'image courante et la suivante pour un mouvement continu
+  var regard = document.getElementById('regard'), ca = document.getElementById('regard-a'), cb = document.getElementById('regard-b');
+  var NB = 62, COLS = 8, LIG = 8, FACE = 30.5, vue = { i:FACE }, balade = null;
+  function place(el, k){ el.style.backgroundPosition = ((k % COLS) / (COLS - 1) * 100) + '% ' + (Math.floor(k / COLS) / (LIG - 1) * 100) + '%'; }
+  function afficher(){
+    var i = Math.max(0, Math.min(NB - 1, vue.i)), a = Math.floor(i), b = Math.min(NB - 1, a + 1);
+    place(ca, a); place(cb, b); cb.style.opacity = (i - a).toFixed(3);
+  }
+  var versI = gsap.quickTo(vue, 'i', { duration:.6, ease:'power2.out', onUpdate:afficher });
   addEventListener('mousemove', function(e){
     if (balade) { balade.kill(); balade = null; }
     var r = regard.getBoundingClientRect(), cx = r.left + r.width / 2, dx = (e.clientX - cx) / Math.max(cx, innerWidth - cx);
     dx = Math.max(-1, Math.min(1, dx));
     versI(dx < 0 ? FACE + dx * FACE : FACE + dx * (NB - 1 - FACE));
-    gsap.to(regard, { rotate:dx * 2, y:(e.clientY / innerHeight - .5) * 10, duration:.6, ease:'power3', overwrite:'auto' });
+    gsap.to(regard, { rotate:dx * 2, y:(e.clientY / innerHeight - .5) * 10, duration:.9, ease:'power2.out', overwrite:'auto' });
   });
   afficher();
   // Sur téléphone (pas de souris) : il regarde tranquillement d'un côté puis de l'autre
   if (matchMedia('(hover: none)').matches) gsap.delayedCall(3, function(){
-    balade = gsap.to(vue, { keyframes:[{ i:4, duration:1.6 }, { i:FACE, duration:1.2, delay:.8 }, { i:NB - 5, duration:1.6 }, { i:FACE, duration:1.2, delay:.8 }], repeat:-1, repeatDelay:1.5, ease:'sine.inOut', onUpdate:afficher });
+    balade = gsap.to(vue, { keyframes:[{ i:8, duration:1.8 }, { i:FACE, duration:1.4, delay:.8 }, { i:NB - 9, duration:1.8 }, { i:FACE, duration:1.2, delay:.8 }], repeat:-1, repeatDelay:1.5, ease:'sine.inOut', onUpdate:afficher });
   });
 
   /* ---------- 2. Bandeau : défile tout seul, accélère quand on fait défiler la page ---------- */
