@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="marshall-ordi.webp">
+<link rel="preload" as="image" href="marshall-regard.webp?v=2">
 <style>
   :root{
     --ink:#0a0a0a; --paper:#f5f5f5; --or:#F3852B; --or2:#FF9C46; --orf:#C7620E; --blue:#6EC1F0; --blued:#4AA8DE; --mut:#8a8a8a;
@@ -71,28 +71,28 @@
   @media (max-width:420px){.top{gap:10px}.logo{font-size:19px}.cta-top{padding:7px 11px;font-size:12px}}
 
   /* ---------- 1. Héros : les lettres tombent du ciel, Marshall arrive avec son ordi ---------- */
-  .hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:120px var(--pad) 60px;overflow:hidden}
-  .hero h1{font-size:clamp(54px,9.2vw,190px);position:relative;z-index:2}
+  .hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;text-align:center;padding:110px var(--pad) 0;overflow:hidden}
+  .hero h1{font-size:clamp(44px,6.8vw,130px);position:relative;z-index:2}
   .hero h1 .l{display:block}
   .hero h1 .mot{display:inline-block;white-space:nowrap}
   .hero h1 .pill{vertical-align:-.04em;margin:0 .14em}
-  .hero h1 .l2{padding-left:clamp(0px,8vw,160px)}
   .hero .ch{display:inline-block;will-change:transform}
   .pill{display:inline-block;position:relative;width:1.1em;height:.78em;border-radius:.4em;overflow:hidden;background:linear-gradient(160deg,var(--or2),var(--or));flex:none}
   .pill img{position:absolute;left:50%;bottom:-16%;height:116%;width:auto;transform:translateX(-50%);max-width:none}
-  .hero .sous{position:relative;z-index:2;max-width:520px;margin:34px 0 0;font-size:18px;font-weight:600}
-  .choix{position:relative;z-index:2;display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
-  .choix a{display:flex;flex-direction:column;gap:4px;min-width:250px;padding:18px 22px;border:2px solid #fff;transition:background .25s,color .25s,transform .25s}
+  .hero .sous{position:relative;z-index:2;max-width:640px;margin:20px auto 0;font-size:17px;font-weight:600}
+  .scene-hero{position:relative;z-index:1;width:100%;flex:1;display:flex;justify-content:center;align-items:flex-end;min-height:min(50vh,520px);margin-top:10px}
+  .regard{height:min(64vh,660px);aspect-ratio:415/620;background:url(marshall-regard.webp?v=2) 0 0/3200% 100% no-repeat;filter:drop-shadow(0 20px 26px rgba(0,40,70,.28));transform-origin:50% 100%}
+  .choix{position:absolute;left:0;right:0;top:34%;z-index:3;display:flex;justify-content:space-between;gap:14px;pointer-events:none}
+  .choix a{pointer-events:auto;display:flex;flex-direction:column;gap:4px;min-width:250px;padding:18px 22px;border:2px solid #fff;text-align:left;transition:background .25s,color .25s,transform .25s}
   .choix a b{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:26px;line-height:1}
   .choix a span{font-size:14px;font-weight:600;opacity:.9}
   .choix a:hover{background:#fff;color:var(--blue);transform:translateY(-4px) rotate(-1deg)}
   .choix a.or{background:var(--or);border-color:var(--or)}
   .choix a.or:hover{background:#fff;color:var(--or)}
-  .hero-marshall{position:absolute;right:clamp(0px,4vw,70px);bottom:0;z-index:1;height:min(56vh,520px);width:auto}
   .icones{position:absolute;inset:0;z-index:0;pointer-events:none}
   .icones span{position:absolute;font-size:clamp(28px,3.4vw,54px);opacity:.9;animation:flotte 6s ease-in-out infinite}
   @keyframes flotte{50%{transform:translateY(-18px) rotate(8deg)}}
-  @media (max-width:800px){.hero-marshall{position:relative;right:auto;height:240px;margin:24px auto -60px;align-self:center}.hero h1 .l2{padding-left:0}.choix a{min-width:0;flex:1 1 100%}}
+  @media (max-width:900px){.hero{padding-bottom:30px}.scene-hero{flex-direction:column;align-items:center;min-height:0}.regard{order:-1;height:min(48vh,440px)}.choix{position:static;flex-direction:column;width:100%;max-width:420px;margin:0 auto}.choix a{min-width:0}}
 
   /* ---------- 2. Bandeau qui défile ---------- */
   .bande{overflow:hidden;padding:20px 0;border-top:2px solid rgba(255,255,255,.4);border-bottom:2px solid rgba(255,255,255,.4)}
@@ -423,11 +423,13 @@
     <span class="sr">Mon Copain Digital, coach numérique à Paris</span>
   </h1>
   <p class="sous">Ordinateur, smartphone, démarches en ligne, site web, réseaux sociaux : votre copain digital s’en occupe avec vous. À domicile dans le 16e et alentours, en visio partout en France.</p>
-  <div class="choix">
-    <a href="#particuliers"><b>Je suis un particulier</b><span>Aide à domicile dès 49 €</span></a>
-    <a href="#commercants" class="or"><b>J’ai un commerce</b><span>Studio Social, sites web, Google</span></a>
+  <div class="scene-hero">
+    <div class="choix">
+      <a href="#particuliers"><b>Je suis un particulier</b><span>Aide à domicile dès 49 €</span></a>
+      <a href="#commercants" class="or"><b>J’ai un commerce</b><span>Studio Social, sites web, Google</span></a>
+    </div>
+    <div class="regard" id="regard" role="img" aria-label="Marshall, le copain digital, vous regarde"></div>
   </div>
-  <img class="hero-marshall marshall" id="hero-marshall" src="marshall-ordi.webp" alt="Marshall, assis, travaille sur son ordinateur">
 </section>
 
 <!-- 2. BANDEAU -->
@@ -934,12 +936,12 @@
   });
   var lettres = titre.querySelectorAll('.ch');
   gsap.set(lettres, { y:function(){ return -innerHeight * gsap.utils.random(.6, 1.1); }, rotate:function(){ return gsap.utils.random(-70, 70); }, opacity:0 });
-  gsap.set('#pill', { scale:0 }); gsap.set('#hero-marshall', { x:'60vw', rotate:8 });
+  gsap.set('#pill', { scale:0 }); gsap.set('#regard', { yPercent:105 });
   gsap.set('.hero .sous, .choix a', { y:30, opacity:0 });
   var intro = gsap.timeline({ paused:true })
     .to(lettres, { y:0, rotate:0, opacity:1, duration:1, ease:'bounce.out', stagger:{ each:.035, from:'random' } })
     .to('#pill', { scale:1, duration:.6, ease:'back.out(2.2)' }, '-=.4')
-    .to('#hero-marshall', { x:0, rotate:0, duration:1.1, ease:'expo.out' }, '-=.5')
+    .to('#regard', { yPercent:0, duration:1.1, ease:'back.out(1.2)' }, '-=.5')
     .to('.hero .sous, .choix a', { y:0, opacity:1, duration:.7, stagger:.1, ease:'expo.out' }, '-=.8');
   function quandPortesOuvertes(fn){ if (window.__doorsOpen || !document.getElementById('door-tx')) fn(); else document.addEventListener('mcd-doors-open', fn, { once:true }); }
   quandPortesOuvertes(function(){ gsap.delayedCall(.25, function(){ intro.play(); }); });
@@ -952,7 +954,24 @@
   });
   // En partant, le titre s'incline et s'efface
   gsap.to('#titre', { yPercent:-30, rotate:-3, opacity:0, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
-  gsap.to('#hero-marshall', { yPercent:20, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
+  gsap.to('#regard', { yPercent:18, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
+
+  /* ---------- Le regard de Marshall suit la souris : 32 images, de « regarde à gauche » à « regarde à droite », de face au milieu ---------- */
+  var regard = document.getElementById('regard'), NB = 32, FACE = 15.5, vue = { i:FACE }, derniereImg = -1, balade = null;
+  function afficher(){ var k = Math.max(0, Math.min(NB - 1, Math.round(vue.i))); if (k !== derniereImg) { derniereImg = k; regard.style.backgroundPositionX = (k / (NB - 1) * 100) + '%'; } }
+  var versI = gsap.quickTo(vue, 'i', { duration:.35, ease:'power3', onUpdate:afficher });
+  addEventListener('mousemove', function(e){
+    if (balade) { balade.kill(); balade = null; }
+    var r = regard.getBoundingClientRect(), cx = r.left + r.width / 2, dx = (e.clientX - cx) / Math.max(cx, innerWidth - cx);
+    dx = Math.max(-1, Math.min(1, dx));
+    versI(dx < 0 ? FACE + dx * FACE : FACE + dx * (NB - 1 - FACE));
+    gsap.to(regard, { rotate:dx * 2, y:(e.clientY / innerHeight - .5) * 10, duration:.6, ease:'power3', overwrite:'auto' });
+  });
+  afficher();
+  // Sur téléphone (pas de souris) : il regarde tranquillement d'un côté puis de l'autre
+  if (matchMedia('(hover: none)').matches) gsap.delayedCall(3, function(){
+    balade = gsap.to(vue, { keyframes:[{ i:4, duration:1.6 }, { i:FACE, duration:1.2, delay:.8 }, { i:NB - 5, duration:1.6 }, { i:FACE, duration:1.2, delay:.8 }], repeat:-1, repeatDelay:1.5, ease:'sine.inOut', onUpdate:afficher });
+  });
 
   /* ---------- 2. Bandeau : défile tout seul, accélère quand on fait défiler la page ---------- */
   var rail = document.getElementById('rail');
