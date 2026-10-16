@@ -80,14 +80,6 @@
   .scene-hero{position:relative;z-index:1;width:100%;flex:1;display:flex;justify-content:center;align-items:flex-end;min-height:min(50vh,520px);margin-top:10px}
   .regard{position:relative;height:min(64vh,660px);aspect-ratio:415/620;filter:drop-shadow(0 20px 26px rgba(0,40,70,.28));transform-origin:50% 100%}
   .regard i{position:absolute;inset:0;background:url(marshall-regard.webp?v=3) 0 0/800% 800% no-repeat}
-  .bulles-q{position:absolute;left:50%;bottom:0;z-index:2;width:min(1000px,100%);height:100%;transform:translateX(-50%);pointer-events:none}
-  .bq{position:absolute;max-width:min(240px,42vw);padding:12px 16px;background:#fff;color:var(--blue);border-radius:20px;font-weight:700;font-size:16px;line-height:1.25;text-align:left;box-shadow:0 14px 30px rgba(0,40,70,.18);opacity:0}
-  .bq.g{transform:translateX(-100%);border-bottom-right-radius:5px}
-  .bq.d{border-bottom-left-radius:5px}
-  .bq::after{content:"";position:absolute;bottom:-8px;width:16px;height:16px;background:#fff;clip-path:polygon(0 0,100% 0,100% 100%)}
-  .bq.g::after{right:10px}
-  .bq.d::after{left:10px;transform:scaleX(-1)}
-  @media (max-width:900px){.bq{font-size:13px;padding:9px 12px;max-width:38vw}.bq.m{transform:none}}
   @media (max-width:900px){.hero{padding-bottom:30px}.scene-hero{flex-direction:column;align-items:center;min-height:0}.regard{order:-1;height:min(48vh,440px)}}
 
   /* ---------- 2. Bandeau qui défile ---------- */
@@ -416,7 +408,6 @@
   </h1>
   <p class="sous">Ordinateur, smartphone, démarches en ligne, site web, réseaux sociaux : votre copain digital s’en occupe avec vous.</p>
   <div class="scene-hero">
-    <div class="bulles-q" id="bulles-q" aria-hidden="true"></div>
     <div class="regard" id="regard" role="img" aria-label="Marshall, le copain digital, vous regarde"><i id="regard-a"></i><i id="regard-b"></i></div>
   </div>
 </section>
@@ -955,27 +946,10 @@
     gsap.to(regard, { rotate:dx * 2, y:(e.clientY / innerHeight - .5) * 10, duration:.9, ease:'power2.out', overwrite:'auto' });
   });
   afficher();
-  // Bulles de questions : elles apparaissent une à une autour de Marshall ; s'il n'y a pas de souris (ou qu'elle est immobile), il tourne la tête vers la nouvelle
-  var QUESTIONS = ['Mon wifi coupe tout le temps 😩', 'Comment je fais une visio avec mes petits-enfants ?', 'Il me faut un site pour ma boutique',
-    'J’ai reçu un SMS bizarre, je clique ?', 'Mes posts Instagram… jamais le temps !', 'Ma déclaration d’impôts en ligne, au secours !',
-    'Personne ne me trouve sur Google', 'Mon imprimante ne veut plus imprimer', 'C’est quoi, ChatGPT ?', 'Prendre rendez-vous sur Doctolib, je n’y arrive pas'];
-  // une seule bulle à la fois, toujours à côté de la tête de Marshall (à gauche puis à droite), jamais en dessous
-  var PLACES = [{ x:31, y:12, c:'g' }, { x:69, y:20, c:'d' }, { x:31, y:24, c:'g' }, { x:69, y:10, c:'d' }];
-  var boiteQ = document.getElementById('bulles-q'), nq = 0, np = 0;
-  function bulle(){
-    if (!document.hidden && boiteQ.getBoundingClientRect().bottom > 0) {
-      var mobile = innerWidth <= 900, p = PLACES[np++ % PLACES.length], el = document.createElement('div');
-      el.className = 'bq ' + p.c; el.textContent = QUESTIONS[nq++ % QUESTIONS.length];
-      el.style.top = p.y + '%';
-      if (mobile) { el.classList.add('m'); if (p.c === 'g') el.style.left = '2%'; else el.style.right = '2%'; } else el.style.left = p.x + '%';
-      boiteQ.appendChild(el);
-      gsap.fromTo(el, { opacity:0, scale:.4, y:20 }, { opacity:1, scale:1, y:0, duration:.55, ease:'back.out(2.2)', transformOrigin:p.c === 'g' ? '100% 100%' : '0% 100%' });
-      gsap.to(el, { opacity:0, y:-20, duration:.5, delay:3.4, ease:'power2.in', onComplete:function(){ el.remove(); } });
-      if (Date.now() - derniereSouris > 2500) versI(p.c === 'g' ? 10 : NB - 11);   // il écoute la nouvelle question
-    }
-    gsap.delayedCall(5.2, bulle);
-  }
-  quandPortesOuvertes(function(){ gsap.delayedCall(3.2, bulle); });
+  // Sur écran tactile (pas de souris) : il regarde tranquillement d'un côté puis de l'autre
+  if (matchMedia('(hover: none)').matches) gsap.delayedCall(3, function(){
+    gsap.to(vue, { keyframes:[{ i:12, duration:1.8 }, { i:FACE, duration:1.4, delay:.8 }, { i:NB - 13, duration:1.8 }, { i:FACE, duration:1.2, delay:.8 }], repeat:-1, repeatDelay:1.5, ease:'sine.inOut', onUpdate:afficher });
+  });
 
   /* ---------- 2. Bandeau : défile tout seul, accélère quand on fait défiler la page ---------- */
   var rail = document.getElementById('rail');
