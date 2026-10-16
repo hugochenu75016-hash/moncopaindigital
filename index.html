@@ -201,8 +201,8 @@
   @media (max-width:1000px){.tuiles{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:560px){.tuiles{grid-template-columns:1fr}}
 
-  /* ---------- 8. FAQ : Marshall réagit quand on ouvre une question ---------- */
-  .faq{padding:110px var(--pad);display:grid;grid-template-columns:1fr 280px;gap:40px}
+  /* ---------- 8. FAQ ---------- */
+  .faq{padding:110px var(--pad)}
   .faq h2{font-size:clamp(46px,6vw,110px);margin-bottom:30px}
   .faq details{border-top:2px solid var(--blue);padding:18px 0}
   .faq details:last-of-type{border-bottom:2px solid var(--blue)}
@@ -211,10 +211,6 @@
   .faq summary::after{content:"+";color:var(--or);transition:transform .3s}
   .faq details[open] summary::after{transform:rotate(45deg)}
   .faq details p{margin:12px 0 0;font-size:17px;color:var(--ink);max-width:720px}
-  .faq .reac{position:sticky;top:120px;align-self:start}
-  .faq .reac img{width:100%;height:auto}
-  .faq .reac small{display:block;text-align:center;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:16px;margin-top:6px}
-  @media (max-width:800px){.faq{grid-template-columns:1fr}.faq .reac{display:none}}
 
   /* ---------- 9. Fin : le texte grandit, Marshall fait coucou ---------- */
   .fin{min-height:90vh;padding:120px var(--pad) 0;display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden}
@@ -551,7 +547,6 @@
     <details><summary>Vous créez aussi des sites internet ?</summary><p>Oui, ainsi que le référencement et la fiche Google, sur devis. On commence par l’audit gratuit pour voir ce dont vous avez vraiment besoin.</p></details>
     <details><summary>L’audit gratuit, ça se passe comment ?</summary><p>30 minutes en visio : on regarde ensemble votre site, votre fiche Google et vos réseaux sociaux, et vous repartez avec un plan d’action clair. Sans engagement.</p></details>
   </div>
-  <div class="reac" aria-hidden="true"><img class="marshall" id="reac" src="agents/ag-brand.webp" alt="" loading="lazy"><small id="reac-txt">Une question ?</small></div>
 </section>
 
 <!-- 9. FIN -->
@@ -883,16 +878,6 @@
     top.classList.toggle('on-light', !!(sous && sous.closest('.light')));
   }
   addEventListener('scroll', enTete, { passive:true }); addEventListener('resize', enTete); enTete();
-
-  /* ---------- FAQ : Marshall réagit ---------- */
-  var MOTS = ['Bonne question !', 'Facile.', 'Je vous explique.', 'On y va ?', 'Avec plaisir !', 'C’est parti.'];
-  document.querySelectorAll('.faq details').forEach(function(d, i){
-    d.addEventListener('toggle', function(){
-      if (!d.open) return;
-      document.getElementById('reac-txt').textContent = MOTS[i % MOTS.length];
-      if (window.gsap) gsap.fromTo('#reac', { y:0, rotate:0 }, { keyframes:[{ y:-34, rotate:-6, duration:.22, ease:'power2.out' }, { y:0, rotate:0, duration:.5, ease:'bounce.out' }] });
-    });
-  });
 
   if (!window.gsap) return;
   gsap.registerPlugin(ScrollTrigger);
