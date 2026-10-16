@@ -959,20 +959,21 @@
   var QUESTIONS = ['Mon wifi coupe tout le temps 😩', 'Comment je fais une visio avec mes petits-enfants ?', 'Il me faut un site pour ma boutique',
     'J’ai reçu un SMS bizarre, je clique ?', 'Mes posts Instagram… jamais le temps !', 'Ma déclaration d’impôts en ligne, au secours !',
     'Personne ne me trouve sur Google', 'Mon imprimante ne veut plus imprimer', 'C’est quoi, ChatGPT ?', 'Prendre rendez-vous sur Doctolib, je n’y arrive pas'];
-  var PLACES = [{ x:30, y:6, c:'g' }, { x:70, y:14, c:'d' }, { x:28, y:66, c:'g' }, { x:72, y:58, c:'d' }, { x:31, y:84, c:'g' }, { x:69, y:82, c:'d' }];
+  // une seule bulle à la fois, toujours à côté de la tête de Marshall (à gauche puis à droite), jamais en dessous
+  var PLACES = [{ x:31, y:12, c:'g' }, { x:69, y:20, c:'d' }, { x:31, y:24, c:'g' }, { x:69, y:10, c:'d' }];
   var boiteQ = document.getElementById('bulles-q'), nq = 0, np = 0;
   function bulle(){
     if (!document.hidden && boiteQ.getBoundingClientRect().bottom > 0) {
-      var mobile = innerWidth <= 900, p = PLACES[np++ % (mobile ? 2 : PLACES.length)], el = document.createElement('div');
+      var mobile = innerWidth <= 900, p = PLACES[np++ % PLACES.length], el = document.createElement('div');
       el.className = 'bq ' + p.c; el.textContent = QUESTIONS[nq++ % QUESTIONS.length];
       el.style.top = p.y + '%';
       if (mobile) { el.classList.add('m'); if (p.c === 'g') el.style.left = '2%'; else el.style.right = '2%'; } else el.style.left = p.x + '%';
       boiteQ.appendChild(el);
       gsap.fromTo(el, { opacity:0, scale:.4, y:20 }, { opacity:1, scale:1, y:0, duration:.55, ease:'back.out(2.2)', transformOrigin:p.c === 'g' ? '100% 100%' : '0% 100%' });
-      gsap.to(el, { opacity:0, y:-24, duration:.6, delay:4.6, ease:'power2.in', onComplete:function(){ el.remove(); } });
+      gsap.to(el, { opacity:0, y:-20, duration:.5, delay:3.4, ease:'power2.in', onComplete:function(){ el.remove(); } });
       if (Date.now() - derniereSouris > 2500) versI(p.c === 'g' ? 10 : NB - 11);   // il écoute la nouvelle question
     }
-    gsap.delayedCall(2.6, bulle);
+    gsap.delayedCall(5.2, bulle);
   }
   quandPortesOuvertes(function(){ gsap.delayedCall(3.2, bulle); });
 
