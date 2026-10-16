@@ -868,8 +868,25 @@
   .mcd-chat{left:var(--pad)!important;right:auto;top:82px!important;bottom:auto!important;z-index:59}
   .mcd-chat[data-ouvert="true"]{z-index:999999}
   .mcd-fenetre{left:0;right:auto;bottom:auto;top:72px;max-height:calc(100vh - 170px)}
-  @media (max-width:520px){.mcd-chat{left:12px!important;top:72px!important}.mcd-lanceur{width:52px;height:52px}.mcd-fenetre{top:62px;width:calc(100vw - 24px)}}
+  @media (max-width:520px){.mcd-chat{left:12px!important;top:72px!important}.mcd-lanceur{width:52px;height:52px}.mcd-fenetre{top:62px;width:calc(100vw - 24px)}
+    /* Clavier ouvert : la conversation rétrécit au-dessus du clavier au lieu de faire remonter la page */
+    .mcd-chat[data-ouvert] .mcd-fenetre{height:min(540px,calc(var(--mcd-vh,100dvh) - 146px));max-height:none}
+    .mcd-chat.clavier .mcd-mention,.mcd-chat.clavier .mcd-suggestions{display:none}}
 </style>
+<script>
+/* Sur téléphone, garde la conversation à sa place quand le clavier s'ouvre :
+   hauteur calée sur la zone visible, et compensation si le navigateur fait glisser la page */
+(function(){
+  var vv = window.visualViewport, chat = document.querySelector('.mcd-chat');
+  if (!vv || !chat) return;
+  function cale(){
+    document.documentElement.style.setProperty('--mcd-vh', vv.height + 'px');
+    chat.classList.toggle('clavier', innerWidth <= 520 && vv.height < innerHeight * .8);
+    chat.style.transform = innerWidth <= 520 && vv.offsetTop > 0 ? 'translateY(' + vv.offsetTop + 'px)' : '';
+  }
+  vv.addEventListener('resize', cale); vv.addEventListener('scroll', cale); cale();
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
