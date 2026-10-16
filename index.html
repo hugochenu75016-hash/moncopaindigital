@@ -176,15 +176,25 @@
   .commerce .btn.blanc{border-color:#fff;color:#fff}
   .commerce .btn.blanc:hover{background:#fff;color:var(--or)}
   .tel-zone{position:relative;display:flex;justify-content:center;align-items:flex-end;min-height:520px}
-  .tel{position:relative;width:250px;height:500px;border-radius:38px;background:#111;padding:12px;box-shadow:0 40px 70px rgba(90,30,0,.4);transform:rotate(4deg)}
-  .tel .ecran{width:100%;height:100%;border-radius:28px;background:#fff;overflow:hidden;position:relative}
-  .tel .fil{position:absolute;left:0;right:0;top:0;padding:10px;display:flex;flex-direction:column;gap:10px}
-  .post{border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.12);color:var(--ink)}
-  .post img{width:100%;aspect-ratio:1;object-fit:cover}
-  .post div{padding:8px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
-  .post .coeur{color:#e0245e;font-size:16px;display:inline-block}
+  .conv{position:relative;width:min(380px,100%);margin-left:auto;background:#fff;color:var(--ink);border-radius:26px;box-shadow:0 40px 70px rgba(90,30,0,.35);overflow:hidden;transform:rotate(2deg)}
+  .conv-tete{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--blue);color:#fff}
+  .conv-tete img{width:38px;height:38px;border-radius:50%;background:#fff}
+  .conv-tete b{display:block;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:18px;line-height:1}
+  .conv-tete small{font-size:12px;font-weight:600;opacity:.9}
+  .conv-tete small::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#7CE38B;margin-right:5px;vertical-align:1px}
+  .conv-fil{display:flex;flex-direction:column;gap:10px;padding:16px;min-height:430px;background:#F7FBFE}
+  .msg{max-width:84%;padding:10px 14px;border-radius:18px;font-size:15px;font-weight:600;line-height:1.35}
+  .msg.moi{align-self:flex-end;background:var(--or);color:#fff;border-bottom-right-radius:5px}
+  .msg.lui{align-self:flex-start;background:#fff;border:1.5px solid #D6ECF9;border-bottom-left-radius:5px}
+  .ecrit{align-self:flex-start;display:flex;gap:5px;padding:12px 14px;background:#fff;border:1.5px solid #D6ECF9;border-radius:18px;border-bottom-left-radius:5px}
+  .ecrit i{width:8px;height:8px;border-radius:50%;background:var(--blue);display:block}
+  .apercu{align-self:flex-start;width:78%;border-radius:16px;overflow:hidden;background:#fff;border:1.5px solid #D6ECF9}
+  .apercu img{width:100%;aspect-ratio:4/3;object-fit:cover}
+  .apercu p{margin:0;padding:10px 12px;font-size:13px;font-weight:600}
+  .apercu .publier{margin:0 12px 12px;padding:9px 14px;border:0;background:var(--or);color:#fff;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:15px;cursor:default}
+  .publie{align-self:center;padding:8px 14px;border-radius:999px;background:#E8F8EC;color:#1E7A35;font-weight:800;font-size:14px}
   .tel-marshall{position:absolute;left:-40px;bottom:-30px;height:440px;width:auto;z-index:2}
-  @media (max-width:900px){.commerce{grid-template-columns:1fr}.tel-zone{min-height:460px}.tel{width:210px;height:420px}.tel-marshall{height:320px;left:0}}
+  @media (max-width:900px){.commerce{grid-template-columns:1fr}.tel-zone{min-height:0;padding-bottom:20px}.conv{margin:0 auto}.conv-fil{min-height:400px}.tel-marshall{height:300px;left:-20px;bottom:-20px}}
 
   /* ---------- 7. Pros : les cartes se retournent ---------- */
   .pros{padding:110px var(--pad)}
@@ -510,12 +520,20 @@
     </div>
   </div>
   <div class="tel-zone">
-    <div class="tel"><div class="ecran"><div class="fil" id="fil">
-      <div class="post"><img src="reportage-commerce.jpg" alt="" loading="lazy"><div>fleursdelea <span class="coeur">♥</span></div></div>
-      <div class="post"><img src="creation-banane.jpg" alt="" loading="lazy"><div>studio.ia <span class="coeur">♥</span></div></div>
-      <div class="post"><img src="reportage-sahara.jpg" alt="" loading="lazy"><div>marshall.journal <span class="coeur">♥</span></div></div>
-      <div class="post"><img src="reportage-commerce.jpg" alt="" loading="lazy"><div>fleursdelea <span class="coeur">♥</span></div></div>
-    </div></div></div>
+    <div class="conv" id="conv">
+      <div class="conv-tete"><img src="avatarchatbot.png" alt=""><div><b>Marshall</b><small>en ligne · Studio Social</small></div></div>
+      <div class="conv-fil">
+        <div class="msg moi" data-m>Fais-moi un post pour ma baguette tradition 🥖</div>
+        <div class="ecrit" data-m aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="msg lui" data-m>C’est prêt ! Voilà le visuel et le texte :</div>
+        <div class="apercu" data-m>
+          <img src="post-baguette.jpg" alt="Le post préparé par Marshall : une baguette dorée sur le comptoir de la boulangerie" loading="lazy">
+          <p>🥖 Notre tradition sort du four toutes les heures : croûte qui chante, mie alvéolée. On vous la garde ? #boulangerie #paris16</p>
+          <button type="button" class="publier" tabindex="-1">Publier</button>
+        </div>
+        <div class="publie" data-m>✓ Publié sur Instagram et Facebook</div>
+      </div>
+    </div>
     <img class="tel-marshall marshall" id="tel-marshall" src="marshall-publie.webp" alt="Marshall publie un post depuis son téléphone et se réjouit" loading="lazy">
   </div>
 </section>
@@ -1003,11 +1021,23 @@
     .to('#epingle', { scale:1.25, duration:.1, yoyo:true, repeat:1 }, '<')
     .to('#bulle-dit', { scale:1, duration:.2, ease:'back.out(2.5)' });
 
-  /* ---------- 6. Commerçants : le fil du téléphone défile, les cœurs battent ---------- */
-  var fil = document.getElementById('fil');
-  gsap.to(fil, { yPercent:-50, duration:12, ease:'none', repeat:-1 });
-  gsap.to('#fil .coeur', { scale:1.45, duration:.25, yoyo:true, repeat:-1, repeatDelay:1.4, stagger:{ each:.6, repeat:-1 } });
-  gsap.from('.tel', { y:200, rotate:20, opacity:0, duration:1.2, ease:'expo.out', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
+  /* ---------- 6. Commerçants : la conversation avec Marshall s'écrit toute seule, en boucle ---------- */
+  var m = document.querySelectorAll('#conv [data-m]'), ecrit = document.querySelector('#conv .ecrit');
+  gsap.to('#conv .ecrit i', { y:-5, duration:.3, repeat:-1, yoyo:true, stagger:.12, ease:'sine.inOut' });
+  var conv = gsap.timeline({ paused:true, repeat:-1, repeatDelay:2.5 })
+    .set(m, { autoAlpha:0, y:16, scale:.96, display:'none' })
+    .set('#conv .publier', { scale:1, backgroundColor:'#F3852B' })
+    .set(m[0], { display:'block' }).to(m[0], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' }, '+=.5')
+    .set(ecrit, { display:'flex' }, '+=.5').to(ecrit, { autoAlpha:1, y:0, scale:1, duration:.3 })
+    .set(ecrit, { display:'none' }, '+=1.4')
+    .set(m[2], { display:'block' }).to(m[2], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' })
+    .set(m[3], { display:'block' }, '+=.3').to(m[3], { autoAlpha:1, y:0, scale:1, duration:.5, ease:'back.out(1.6)' })
+    .to('#conv .publier', { scale:.9, duration:.12, yoyo:true, repeat:1 }, '+=1.2')
+    .to('#conv .publier', { backgroundColor:'#1E7A35', duration:.2 })
+    .set(m[4], { display:'block' }).to(m[4], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2.5)' })
+    .to({}, { duration:3 });
+  ScrollTrigger.create({ trigger:'#conv', start:'top 80%', end:'bottom top', onToggle:function(st){ if (st.isActive) conv.play(); else conv.pause(); } });
+  gsap.from('#conv', { y:160, rotate:10, opacity:0, duration:1.1, ease:'expo.out', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
   gsap.from('#tel-marshall', { x:-160, opacity:0, duration:1, delay:.3, ease:'back.out(1.5)', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
   gsap.from('.commerce li', { x:-40, opacity:0, duration:.7, stagger:.1, ease:'expo.out', scrollTrigger:{ trigger:'.commerce ul', start:'top 80%' } });
 
