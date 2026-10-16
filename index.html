@@ -80,13 +80,6 @@
   .scene-hero{position:relative;z-index:1;width:100%;flex:1;display:flex;justify-content:center;align-items:flex-end;min-height:min(50vh,520px);margin-top:10px}
   .regard{position:relative;height:min(64vh,660px);aspect-ratio:415/620;filter:drop-shadow(0 20px 26px rgba(0,40,70,.28));transform-origin:50% 100%}
   .regard i{position:absolute;inset:0;background:url(marshall-regard.webp?v=3) 0 0/800% 800% no-repeat}
-  .choix{position:absolute;left:0;right:0;top:34%;z-index:3;display:flex;justify-content:space-between;gap:14px;pointer-events:none}
-  .choix a{pointer-events:auto;display:flex;flex-direction:column;gap:4px;min-width:250px;padding:18px 22px;border:2px solid #fff;text-align:left;transition:background .25s,color .25s,transform .25s}
-  .choix a b{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:26px;line-height:1}
-  .choix a span{font-size:14px;font-weight:600;opacity:.9}
-  .choix a:hover{background:#fff;color:var(--blue);transform:translateY(-4px) rotate(-1deg)}
-  .choix a.or{background:var(--or);border-color:var(--or)}
-  .choix a.or:hover{background:#fff;color:var(--or)}
   .bulles-q{position:absolute;left:50%;bottom:0;z-index:2;width:min(1000px,100%);height:100%;transform:translateX(-50%);pointer-events:none}
   .bq{position:absolute;max-width:min(240px,42vw);padding:12px 16px;background:#fff;color:var(--blue);border-radius:20px;font-weight:700;font-size:16px;line-height:1.25;text-align:left;box-shadow:0 14px 30px rgba(0,40,70,.18);opacity:0}
   .bq.g{transform:translateX(-100%);border-bottom-right-radius:5px}
@@ -95,7 +88,7 @@
   .bq.g::after{right:10px}
   .bq.d::after{left:10px;transform:scaleX(-1)}
   @media (max-width:900px){.bq{font-size:13px;padding:9px 12px;max-width:38vw}.bq.m{transform:none}}
-  @media (max-width:900px){.hero{padding-bottom:30px}.scene-hero{flex-direction:column;align-items:center;min-height:0}.regard{order:-1;height:min(48vh,440px)}.choix{position:static;flex-direction:column;width:100%;max-width:420px;margin:0 auto}.choix a{min-width:0}}
+  @media (max-width:900px){.hero{padding-bottom:30px}.scene-hero{flex-direction:column;align-items:center;min-height:0}.regard{order:-1;height:min(48vh,440px)}}
 
   /* ---------- 2. Bandeau qui défile ---------- */
   .bande{overflow:hidden;padding:20px 0;border-top:2px solid rgba(255,255,255,.4);border-bottom:2px solid rgba(255,255,255,.4)}
@@ -423,10 +416,6 @@
   </h1>
   <p class="sous">Ordinateur, smartphone, démarches en ligne, site web, réseaux sociaux : votre copain digital s’en occupe avec vous.</p>
   <div class="scene-hero">
-    <div class="choix">
-      <a href="#particuliers"><b>Je suis un particulier</b><span>Aide à domicile dès 49 €</span></a>
-      <a href="#commercants" class="or"><b>J’ai un commerce</b><span>Studio Social, sites web, Google</span></a>
-    </div>
     <div class="bulles-q" id="bulles-q" aria-hidden="true"></div>
     <div class="regard" id="regard" role="img" aria-label="Marshall, le copain digital, vous regarde"><i id="regard-a"></i><i id="regard-b"></i></div>
   </div>
@@ -937,11 +926,11 @@
   var lettres = titre.querySelectorAll('.ch');
   gsap.set(lettres, { y:function(){ return -innerHeight * gsap.utils.random(.6, 1.1); }, rotate:function(){ return gsap.utils.random(-70, 70); }, opacity:0 });
   gsap.set('#regard', { yPercent:105 });
-  gsap.set('.hero .sous, .choix a', { y:30, opacity:0 });
+  gsap.set('.hero .sous', { y:30, opacity:0 });
   var intro = gsap.timeline({ paused:true })
     .to(lettres, { y:0, rotate:0, opacity:1, duration:1, ease:'bounce.out', stagger:{ each:.035, from:'random' } })
     .to('#regard', { yPercent:0, duration:1.1, ease:'back.out(1.2)' }, '-=.5')
-    .to('.hero .sous, .choix a', { y:0, opacity:1, duration:.7, stagger:.1, ease:'expo.out' }, '-=.8');
+    .to('.hero .sous', { y:0, opacity:1, duration:.7, ease:'expo.out' }, '-=.8');
   function quandPortesOuvertes(fn){ if (window.__doorsOpen || !document.getElementById('door-tx')) fn(); else document.addEventListener('mcd-doors-open', fn, { once:true }); }
   quandPortesOuvertes(function(){ gsap.delayedCall(.25, function(){ intro.play(); }); });
   // En partant, le titre s'incline et s'efface
