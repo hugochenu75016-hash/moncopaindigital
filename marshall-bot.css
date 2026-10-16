@@ -24,8 +24,11 @@
 .mcd-chat .mcd-fenetre{
   width:min(370px,calc(100vw - 24px));background:var(--msg-fond);border:0;border-radius:24px;
   box-shadow:0 24px 60px rgba(17,20,24,.25),0 2px 8px rgba(17,20,24,.08);overflow:hidden;
-  display:flex;flex-direction:column;
+  flex-direction:column;
 }
+/* Fermé au lancement et quand on clique sur la croix ; ouvert seulement au clic sur Marshall */
+.mcd-chat:not([data-ouvert="true"]) .mcd-fenetre{display:none}
+.mcd-chat[data-ouvert="true"] .mcd-fenetre{display:flex}
 
 /* En-tête : comme le haut d'une conversation sur téléphone */
 .mcd-chat .mcd-entete{
