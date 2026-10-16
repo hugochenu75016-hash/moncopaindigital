@@ -141,19 +141,31 @@
   .pas p{margin:0;font-size:16px;font-weight:600;max-width:340px}
   @media (max-width:800px){.pas{grid-template-columns:1fr}.chemin{height:150px}}
 
-  /* ---------- 5. Où : la loupe de Marshall passe sur chaque quartier ---------- */
-  .ou{padding:110px var(--pad);display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:center}
+  /* ---------- 5. Où : la tête de Marshall devient l'épingle de la carte et vole de quartier en quartier ---------- */
+  .ou{padding:110px var(--pad);display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:center}
   .ou h2{font-size:clamp(46px,6.2vw,116px)}
   .ou .txt p{font-size:18px;font-weight:600;color:var(--ink);max-width:460px}
-  .carteparis{position:relative;aspect-ratio:1.15;max-width:640px;width:100%;justify-self:center}
-  .seine{position:absolute;inset:0;width:100%;height:100%}
-  .seine path{fill:none;stroke:var(--blue);stroke-width:16;stroke-linecap:round;opacity:.25}
-  .bulle{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;text-align:center;border-radius:50%;background:#fff;border:3px solid var(--blue);color:var(--blue);font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.95;font-size:clamp(14px,1.5vw,20px);padding:8px;transition:background .3s,color .3s}
-  .bulle.vu{background:var(--blue);color:#fff}
-  .bulle.centre{background:var(--or);border-color:var(--or);color:#fff;font-size:clamp(20px,2.4vw,34px)}
-  .loupe{position:absolute;left:0;top:0;height:clamp(150px,19vw,240px);width:auto;transform:translate(-50%,-62%);z-index:4;pointer-events:none}
   .visio{display:inline-block;margin-top:10px;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:20px;color:var(--or)}
-  @media (max-width:900px){.ou{grid-template-columns:1fr}}
+  .plan{position:relative;width:100%;max-width:640px;aspect-ratio:1.1;justify-self:center;border-radius:28px;overflow:hidden;
+        background-color:#E6F4FC;box-shadow:inset 0 0 0 3px var(--blue);
+        background-image:linear-gradient(rgba(110,193,240,.18) 2px,transparent 2px),linear-gradient(90deg,rgba(110,193,240,.18) 2px,transparent 2px);background-size:44px 44px}
+  .plan svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .plan .seine{fill:none;stroke:#A9DBF7;stroke-width:22;stroke-linecap:round;vector-effect:non-scaling-stroke}
+  .plan .fond-trajet{fill:none;stroke:rgba(243,133,43,.35);stroke-width:3;stroke-dasharray:2 10;stroke-linecap:round;vector-effect:non-scaling-stroke}
+  .plan .trajet{fill:none;stroke:var(--or);stroke-width:5;stroke-linecap:round;vector-effect:non-scaling-stroke}
+  .plan .tour{position:absolute;left:58%;top:58%;font-size:clamp(26px,3vw,40px);transform:translate(-50%,-100%)}
+  .plan .zone{position:absolute;left:38%;top:52%;width:46%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(0);background:radial-gradient(circle,rgba(243,133,43,.28),rgba(243,133,43,0) 70%);border:3px dashed rgba(243,133,43,.6)}
+  .quartier{position:absolute;transform:translate(-50%,-50%);padding:8px 12px;background:#fff;border:2px solid var(--blue);color:var(--blue);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(14px,1.4vw,19px);line-height:1;white-space:nowrap;box-shadow:0 6px 14px rgba(0,60,100,.12);transition:background .3s,color .3s}
+  .quartier.vu{background:var(--blue);color:#fff}
+  .quartier.vu::before{content:"✓ "}
+  .quartier.maison{background:var(--or);border-color:var(--or);color:#fff;font-size:clamp(20px,2.2vw,30px);padding:10px 16px}
+  .epingle{position:absolute;left:0;top:0;z-index:5;width:clamp(58px,6.4vw,82px);transform:translate(-50%,-100%);pointer-events:none;filter:drop-shadow(0 12px 12px rgba(0,40,70,.3))}
+  .epingle .tete{display:block;width:100%;aspect-ratio:1;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--or);padding:5px;overflow:hidden}
+  .epingle .tete img{width:100%;height:100%;border-radius:50%;object-fit:cover;transform:rotate(45deg);background:#fff}
+  .ombre{position:absolute;left:0;top:0;width:34px;height:10px;border-radius:50%;background:rgba(0,40,70,.22);transform:translate(-50%,-50%);z-index:4;pointer-events:none}
+  .arrivee{position:absolute;left:74%;bottom:-1%;z-index:6;height:62%;width:auto;transform-origin:50% 100%}
+  .bulle-dit{position:absolute;left:54%;top:30%;z-index:7;padding:12px 16px;background:#fff;color:var(--or);border:3px solid var(--or);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(16px,1.7vw,22px);line-height:1;border-radius:18px 18px 18px 4px;white-space:nowrap}
+  @media (max-width:900px){.ou{grid-template-columns:1fr}.plan{max-width:520px}}
 
   /* ---------- 6. Commerçants : le téléphone de Studio Social ---------- */
   .commerce{padding:110px var(--pad);display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center;overflow:hidden}
@@ -466,15 +478,24 @@
     <p>Je me déplace dans le 16e et les quartiers voisins. Partout ailleurs, la séance se fait en visio, avec le même accompagnement.</p>
     <span class="visio">Ailleurs ? En visio ✦</span>
   </div>
-  <div class="carteparis" id="carteparis">
-    <svg class="seine" viewBox="0 0 100 87" preserveAspectRatio="none" aria-hidden="true"><path d="M95 18 C 78 30, 70 52, 55 58 S 30 50, 22 64 S 18 80, 10 86"/></svg>
-    <span class="bulle" style="left:36%;top:18%;width:24%;aspect-ratio:1" data-b>Neuilly</span>
-    <span class="bulle" style="left:66%;top:18%;width:20%;aspect-ratio:1" data-b>17e</span>
-    <span class="bulle centre" style="left:42%;top:50%;width:34%;aspect-ratio:1" data-b>16e</span>
-    <span class="bulle" style="left:80%;top:46%;width:18%;aspect-ratio:1" data-b>8e</span>
-    <span class="bulle" style="left:68%;top:80%;width:20%;aspect-ratio:1" data-b>15e</span>
-    <span class="bulle" style="left:22%;top:82%;width:26%;aspect-ratio:1" data-b>Boulogne</span>
-    <img class="loupe marshall" id="loupe" src="agents/ag-visual.webp" alt="" aria-hidden="true" loading="lazy">
+  <div class="plan" id="plan">
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path class="seine" d="M104 40 C 86 46, 74 62, 62 62 S 44 66, 34 72 S 18 80, 8 104"/>
+      <path class="fond-trajet" d="M30 16 C 44 6, 56 8, 64 15 S 80 30, 82 40 S 78 70, 66 80 S 34 92, 20 82 S 26 56, 38 50"/>
+      <path class="trajet" id="trajet" d="M30 16 C 44 6, 56 8, 64 15 S 80 30, 82 40 S 78 70, 66 80 S 34 92, 20 82 S 26 56, 38 50"/>
+    </svg>
+    <span class="tour" aria-hidden="true">🗼</span>
+    <span class="zone" id="zone" aria-hidden="true"></span>
+    <span class="quartier" style="left:30%;top:16%" data-q>Neuilly</span>
+    <span class="quartier" style="left:64%;top:15%" data-q>17e</span>
+    <span class="quartier" style="left:82%;top:40%" data-q>8e</span>
+    <span class="quartier" style="left:66%;top:80%" data-q>15e</span>
+    <span class="quartier" style="left:20%;top:82%" data-q>Boulogne</span>
+    <span class="quartier maison" style="left:38%;top:62%" data-q>16e</span>
+    <span class="ombre" id="ombre" aria-hidden="true"></span>
+    <span class="epingle" id="epingle" aria-hidden="true"><span class="tete"><img src="avatarchatbot.png" alt=""></span></span>
+    <img class="arrivee marshall" id="arrivee" src="marshall-arrivee.webp" alt="Marshall arrive, fait coucou et lève le pouce" loading="lazy">
+    <span class="bulle-dit" id="bulle-dit">Je viens chez vous !</span>
   </div>
 </section>
 
@@ -973,18 +994,32 @@
   gsap.to(bond, { p:1, ease:'none', onUpdate:function(){ placer(bond.p); }, scrollTrigger:{ trigger:'#etapes', start:'top 55%', end:'bottom 70%', scrub:.6 } });
   gsap.to(coureur, { y:-10, duration:.18, repeat:-1, yoyo:true, ease:'sine.inOut' });
 
-  /* ---------- 5. Où : la loupe de Marshall passe sur chaque quartier ---------- */
-  var bulles = [].slice.call(document.querySelectorAll('#carteparis [data-b]')), loupe = document.getElementById('loupe'), cp = document.getElementById('carteparis');
-  gsap.from(bulles, { scale:0, duration:.7, stagger:.08, ease:'back.out(2)', scrollTrigger:{ trigger:'#ou', start:'top 65%' } });
-  var ordre = [2, 0, 1, 3, 4, 5, 2];
-  function pos(i){ var b = bulles[i]; return { left:b.offsetLeft, top:b.offsetTop - b.offsetHeight * .1 }; }
-  var visite = gsap.timeline({ scrollTrigger:{ trigger:'#ou', start:'top 50%', end:'bottom 60%', scrub:.8, invalidateOnRefresh:true } });
-  gsap.set(loupe, { left:function(){ return pos(2).left; }, top:function(){ return pos(2).top; } });
-  ordre.forEach(function(i, k){
-    if (k) visite.to(loupe, { left:function(){ return pos(i).left; }, top:function(){ return pos(i).top; }, duration:1, ease:'power1.inOut' });
-    visite.call(function(){ bulles[i].classList.add('vu'); }, [], '>-0.2');
-    visite.to(bulles[i], { scale:1.12, duration:.25, yoyo:true, repeat:1 }, '<');
+  /* ---------- 5. Où : la tête de Marshall vole de quartier en quartier en traçant sa route, puis il arrive dans le 16e ---------- */
+  var plan = document.getElementById('plan'), trajet = document.getElementById('trajet'), epingle = document.getElementById('epingle'), ombre = document.getElementById('ombre');
+  var quartiers = [].slice.call(plan.querySelectorAll('[data-q]')), LT = trajet.getTotalLength();
+  var jalons = quartiers.map(function(q){   // position de chaque quartier le long de la route
+    var qx = parseFloat(q.style.left), qy = parseFloat(q.style.top), best = 0, bd = 1e9;
+    for (var k = 0; k <= 200; k++) { var p = trajet.getPointAtLength(LT * k / 200), d = (p.x - qx) * (p.x - qx) + (p.y - qy) * (p.y - qy); if (d < bd) { bd = d; best = k / 200; } }
+    return best;
   });
+  function poser(p){
+    var pt = trajet.getPointAtLength(LT * p), w = plan.clientWidth / 100, h = plan.clientHeight / 100, saut = Math.abs(Math.sin(p * Math.PI * 10)) * 14;
+    epingle.style.left = (pt.x * w) + 'px'; epingle.style.top = (pt.y * h - 8 - saut) + 'px';
+    ombre.style.left = (pt.x * w) + 'px'; ombre.style.top = (pt.y * h) + 'px';
+    ombre.style.transform = 'translate(-50%,-50%) scale(' + (1 - saut / 30) + ')';
+    trajet.style.strokeDasharray = (LT * p) + ' ' + (LT + 1);
+    quartiers.forEach(function(q, i){ if (!q.classList.contains('maison')) q.classList.toggle('vu', p >= jalons[i] - .01); });
+  }
+  gsap.set('#arrivee', { yPercent:110, scale:.8 }); gsap.set('#bulle-dit', { scale:0, transformOrigin:'0% 100%' });
+  gsap.from('[data-q]', { y:-60, opacity:0, duration:.7, stagger:.07, ease:'bounce.out', scrollTrigger:{ trigger:'#ou', start:'top 65%' } });
+  var vol = { p:0 }; poser(0);
+  addEventListener('resize', function(){ poser(vol.p); });
+  gsap.timeline({ scrollTrigger:{ trigger:'#plan', start:'top 80%', end:'bottom 95%', scrub:.8 } })
+    .to(vol, { p:1, duration:1, ease:'none', onUpdate:function(){ poser(vol.p); } })
+    .to('#zone', { scale:1, duration:.25, ease:'back.out(1.6)' })
+    .to('#epingle', { scale:1.25, duration:.1, yoyo:true, repeat:1 }, '<')
+    .to('#arrivee', { yPercent:0, scale:1, duration:.3, ease:'back.out(1.5)' })
+    .to('#bulle-dit', { scale:1, duration:.2, ease:'back.out(2.5)' });
 
   /* ---------- 6. Commerçants : le fil du téléphone défile, les cœurs battent ---------- */
   var fil = document.getElementById('fil');
