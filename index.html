@@ -6,305 +6,226 @@
 <title>Coach numérique à Paris · Mon Copain Digital</title>
 <link rel="canonical" href="https://moncopaindigital.fr/">
 <meta name="description" content="Votre copain digital à Paris : aide informatique à domicile dans le 16e et alentours, démarches en ligne, sites web, référencement et Studio Social, l'appli IA des commerçants. Audit gratuit.">
-<meta property="og:title" content="Mon Copain Digital · Bye bye galères, hello Marshall">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mon Copain Digital">
+<meta property="og:title" content="Mon Copain Digital · Le numérique sans prise de tête">
 <meta property="og:description" content="Aide numérique à domicile à Paris, sites web, Google et Studio Social : votre copain digital s’occupe de tout avec vous.">
 <meta property="og:image" content="https://moncopaindigital.fr/marshall-coucou-fin.png">
+<meta property="og:locale" content="fr_FR">
 <link rel="icon" href="/favicons/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="marshall-coucou.webp">
+<link rel="preload" as="image" href="marshall-ordi.webp">
 <style>
   :root{
-    --ink:#0a0a0a; --paper:#f5f5f5; --or:#F3852B; --or2:#FF9C46; --orf:#C7620E; --blue:#6EC1F0; --mut:#8a8a8a;
+    --ink:#0a0a0a; --paper:#f5f5f5; --or:#F3852B; --or2:#FF9C46; --orf:#C7620E; --blue:#6EC1F0; --blued:#4AA8DE; --mut:#8a8a8a;
     --pad:clamp(16px,2.2vw,32px);
   }
   *{box-sizing:border-box}
   html,body{margin:0}
   html{overflow-x:hidden}
   body{background:var(--blue);color:#fff;font-family:Archivo,system-ui,sans-serif;font-size:16px;line-height:1.45;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-  img,video{display:block;max-width:100%}
+  img{display:block;max-width:100%}
   a{color:inherit;text-decoration:none}
   button{font:inherit;color:inherit}
   .disp{font-family:Archivo,system-ui,sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.84;letter-spacing:-.005em;margin:0}
   .disp i,.disp em{font-style:italic;font-weight:800}
-  .lbl{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.02em}
-  .sq{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;border:1px solid currentColor;background:transparent;cursor:pointer;transition:background .25s,color .25s}
-  .sq:hover{background:var(--or);border-color:var(--or);color:#fff}
-  .sq svg{width:20px;height:20px}
+  .lbl{display:inline-block;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.02em}
   .btn{display:inline-flex;align-items:center;gap:12px;padding:16px 22px;border:1px solid currentColor;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:17px;letter-spacing:.02em;cursor:pointer;background:transparent;transition:background .25s,color .25s,border-color .25s}
+  .btn svg{width:18px;height:18px;transition:transform .25s}
   .btn:hover{background:var(--or);border-color:var(--or);color:#fff}
+  .btn:hover svg{transform:translateX(4px)}
   .btn.fill{background:var(--or);border-color:var(--or);color:#fff}
   .btn.fill:hover{background:var(--paper);border-color:var(--paper);color:var(--blue)}
   .light{background:var(--paper);color:var(--blue)}
   .dark{background:var(--blue);color:#fff}
-  .mask{display:block;overflow:hidden;padding:.16em 0 .04em;margin-top:-.16em}
-  .mask > span{display:inline-block}
+  .orange{background:var(--or);color:#fff}
+  section{position:relative}
+  .sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  .marshall{filter:drop-shadow(0 18px 22px rgba(0,40,70,.28))}
 
   /* ---------- En-tête ---------- */
-  .top{position:fixed;inset:0 0 auto;z-index:60;display:flex;align-items:center;gap:20px;padding:18px var(--pad);color:#fff;mix-blend-mode:normal;pointer-events:none}
+  .top{position:fixed;inset:0 0 auto;z-index:60;display:flex;align-items:center;gap:20px;padding:18px var(--pad);color:#fff;transition:background .3s,color .3s,padding .3s;pointer-events:none}
   .top > *{pointer-events:auto}
-  .top.on-or{mix-blend-mode:normal;color:#fff}   /* sur l'orange : en-tête blanc (et non bleu)*/
+  .top.solid{background:rgba(110,193,240,.92);backdrop-filter:blur(8px);padding-top:12px;padding-bottom:12px}
+  .top.on-light{color:var(--blue)}
+  .top.on-light.solid{background:rgba(245,245,245,.92)}
   .logo{font-stretch:62%;font-weight:900;font-size:26px;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
   .nav{margin:0 auto;display:flex;gap:22px}
   .nav a{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;position:relative}
   .nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-3px;height:2px;background:currentColor;transition:right .3s}
   .nav a:hover::after{right:0}
-  .home-ico{display:block;flex:none;width:30px;height:30px;margin-right:-10px;transform:translateY(-2px);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
-  .home-ico svg{width:100%;height:100%;overflow:visible}
-  .home-ico .smoke{animation:smoke 2.6s ease-in-out infinite}
-  @keyframes smoke{0%{opacity:0;transform:translateY(4px)}40%{opacity:.9}100%{opacity:0;transform:translateY(-6px)}}
-  .home-ico:hover{transform:translateY(-5px) rotate(-6deg) scale(1.08)}
-  .app-link{display:inline-flex;align-items:center;gap:8px;border:1px solid currentColor;border-radius:999px;padding:8px 16px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;white-space:nowrap;transition:background .25s,color .25s}
-  .app-link svg{width:15px;height:15px;transition:transform .25s}
-  .app-link:hover{background:#fff;color:var(--blue)}
-  .app-link:hover svg{transform:translateX(3px)}
-  .clock{display:inline-flex;align-items:center;gap:8px;border:1px solid currentColor;padding:8px 12px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px}
-  .clock i{width:8px;height:8px;border-radius:50%;background:currentColor;animation:blink 1.6s infinite}
-  @keyframes blink{50%{opacity:.25}}
+  .cta-top{display:inline-flex;align-items:center;gap:8px;border:1px solid currentColor;border-radius:999px;padding:8px 16px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;white-space:nowrap;transition:background .25s,color .25s}
+  .cta-top:hover{background:var(--or);border-color:var(--or);color:#fff}
   .burger{display:none;width:44px;height:30px;border:0;background:none;cursor:pointer;flex-direction:column;justify-content:space-between;padding:6px 4px}
   .burger span{height:2px;background:currentColor;display:block}
-  .menu{position:fixed;inset:0;z-index:70;background:var(--blue);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:var(--pad);gap:6px;transform:translateY(-100%);transition:transform .55s cubic-bezier(.76,0,.24,1)}
+  .menu{position:fixed;inset:0;z-index:70;background:var(--or);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:var(--pad);gap:6px;transform:translateY(-100%);transition:transform .55s cubic-bezier(.76,0,.24,1)}
   .menu.open{transform:none}
-  .menu a{font-size:clamp(54px,16vw,120px)}
-  .menu a:hover{color:var(--or)}
-  .menu .x{position:absolute;top:18px;right:var(--pad);color:#fff}
-  @media (max-width:900px){.nav,.clock{display:none}.app-link{margin-left:auto}.burger{display:flex;margin-left:6px}}
-  @media (max-width:420px){.top{gap:10px}.logo{font-size:21px}.home-ico{width:26px;height:26px;margin-right:-4px}.app-link{padding:7px 11px;font-size:12px}.app-link svg{display:none}}
+  .menu a{font-size:clamp(48px,14vw,110px)}
+  .menu a:hover{color:var(--blue)}
+  .menu .x{position:absolute;top:18px;right:var(--pad);width:52px;height:52px;border:1px solid #fff;background:none;color:#fff;cursor:pointer;font-size:26px}
+  @media (max-width:900px){.nav{display:none}.cta-top{margin-left:auto}.burger{display:flex;margin-left:6px}}
+  @media (max-width:420px){.top{gap:10px}.logo{font-size:19px}.cta-top{padding:7px 11px;font-size:12px}}
 
-  /* ---------- Héros ---------- */
-  .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:110px var(--pad) 110px;text-align:center}
-  .hero h1{font-size:clamp(60px,9.6vw,210px)}
-  .hero h1 .row{display:flex;justify-content:center;align-items:center;gap:.22em;flex-wrap:wrap}
-  .pill{display:inline-block;position:relative;width:1.08em;height:.78em;border-radius:.4em;overflow:hidden;background:linear-gradient(160deg,var(--or2),var(--or));vertical-align:middle;flex:none}
-  .pill img{position:absolute;left:50%;bottom:-16%;height:116%;width:auto;transform:translateX(-50%);max-width:none}
-  .hero{overflow:hidden}
+  /* ---------- 1. Héros : les lettres tombent du ciel, Marshall arrive avec son ordi ---------- */
+  .hero{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:120px var(--pad) 60px;overflow:hidden}
+  .hero h1{font-size:clamp(54px,9.2vw,190px);position:relative;z-index:2}
+  .hero h1 .l{display:block}
+  .hero h1 .mot{display:inline-block;white-space:nowrap}
+  .hero h1 .pill{vertical-align:-.04em;margin:0 .14em}
+  .hero h1 .l2{padding-left:clamp(0px,8vw,160px)}
   .hero .ch{display:inline-block;will-change:transform}
-  #rates i{white-space:nowrap}
-  .pill-fill{position:absolute;z-index:0;left:0;top:0;width:0;height:0;background:var(--or);pointer-events:none;visibility:hidden}
-  .hero h1,.hero .base{position:relative;z-index:1}
-  .crack{position:absolute;z-index:4;pointer-events:none;overflow:visible}
-  .runner{position:absolute;left:0;top:0;z-index:5;height:min(42vh,380px,52vw);pointer-events:none;visibility:hidden}
-  .runner img{position:absolute;right:0;bottom:0;height:100%;width:auto;max-width:none;display:block;filter:drop-shadow(0 18px 18px rgba(0,0,0,.45))}
-  .scroll-hint{position:absolute;left:50%;bottom:58px;z-index:12;transform:translateX(-50%);font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:13px;letter-spacing:.12em;color:var(--or);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
-  .scroll-hint i{width:2px;height:26px;background:linear-gradient(var(--or),transparent);animation:hint 1.4s infinite}
-  @keyframes hint{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-  .hero .base{position:absolute;left:var(--pad);right:var(--pad);bottom:28px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;text-align:left}
-  .hero .base p{margin:0;max-width:440px;font-size:15px;font-weight:700;color:#fff}
-  .hero .base b{color:#fff}
-  @media (max-width:700px){.hero{justify-content:flex-start;padding-top:120px;padding-bottom:40px}.hero h1 .row{flex-direction:column;gap:0}.pill{width:1.3em;height:.9em;margin:.06em 0}.hero .base{position:static;margin-top:44px;padding:0}.hero .base p{font-size:14px}}
+  .pill{display:inline-block;position:relative;width:1.1em;height:.78em;border-radius:.4em;overflow:hidden;background:linear-gradient(160deg,var(--or2),var(--or));flex:none}
+  .pill img{position:absolute;left:50%;bottom:-16%;height:116%;width:auto;transform:translateX(-50%);max-width:none}
+  .hero .sous{position:relative;z-index:2;max-width:520px;margin:34px 0 0;font-size:18px;font-weight:600}
+  .choix{position:relative;z-index:2;display:flex;gap:14px;flex-wrap:wrap;margin-top:28px}
+  .choix a{display:flex;flex-direction:column;gap:4px;min-width:250px;padding:18px 22px;border:2px solid #fff;transition:background .25s,color .25s,transform .25s}
+  .choix a b{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:26px;line-height:1}
+  .choix a span{font-size:14px;font-weight:600;opacity:.9}
+  .choix a:hover{background:#fff;color:var(--blue);transform:translateY(-4px) rotate(-1deg)}
+  .choix a.or{background:var(--or);border-color:var(--or)}
+  .choix a.or:hover{background:#fff;color:var(--or)}
+  .hero-marshall{position:absolute;right:clamp(0px,4vw,70px);bottom:0;z-index:1;height:min(56vh,520px);width:auto}
+  .icones{position:absolute;inset:0;z-index:0;pointer-events:none}
+  .icones span{position:absolute;font-size:clamp(28px,3.4vw,54px);opacity:.9;animation:flotte 6s ease-in-out infinite}
+  @keyframes flotte{50%{transform:translateY(-18px) rotate(8deg)}}
+  @media (max-width:800px){.hero-marshall{position:relative;right:auto;height:240px;margin:24px auto -60px;align-self:center}.hero h1 .l2{padding-left:0}.choix a{min-width:0;flex:1 1 100%}}
 
-  /* ---------- Vitrine : les 3 exemples arrivent sur l'orange, dans le héros épinglé ---------- */
-  .hwall{position:absolute;inset:0;z-index:2;display:flex;justify-content:center;align-items:center;gap:clamp(14px,2.6vw,40px);padding:90px var(--pad) 100px;pointer-events:none}
-  .hwall > *{position:relative;flex:none;height:min(62vh,560px);width:auto;aspect-ratio:9/16;object-fit:cover;border-radius:18px;background:var(--blue);box-shadow:0 30px 60px rgba(90,30,0,.35);visibility:hidden}
-  .hwall > :nth-child(2){height:min(68vh,610px)}
-  .hwall .tile{overflow:visible;background:none;box-shadow:none;border-radius:0}   /* Marshall et sa phrase posés directement sur l'orange, sans carte */
-  .hwall .tile img{filter:drop-shadow(0 22px 26px rgba(90,30,0,.35))}
-  .hwall .tile img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:78%;max-width:none}
-  .hwall .tile .say{position:absolute;left:8%;right:8%;top:10%;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(22px,2.6vw,42px);line-height:.9;color:#fff;text-align:center}
-  .hwall .vcard{overflow:hidden;border:5px solid #fff}   /* contour blanc autour des 2 reportages */
-  .hwall .vcard video{width:100%;height:100%;object-fit:cover;display:block}
-  .spk{position:absolute;right:12px;top:12px;z-index:2;width:42px;height:42px;border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;
-       background:rgba(110,193,240,.72);color:#fff;cursor:pointer;backdrop-filter:blur(6px);transition:transform .2s,background .2s}
-  .spk svg{width:20px;height:20px}
-  .spk:hover{transform:scale(1.1);background:var(--or)}
-  .spk[aria-pressed="true"]{background:var(--or)}
-  /* Marshall chef d'équipe : il reçoit les notifications et envoie un ticket à chaque agent */
-  .dsp{position:absolute;inset:0;z-index:2;pointer-events:none;--h:34vh}
-  .dsp-in{visibility:hidden}
-  .dsp-ag{position:absolute;margin:0;left:calc(var(--x) * 1%);bottom:calc(var(--b) * 1%);height:calc(var(--h) * var(--s));display:block}
-  .dsp-ag img{display:block;margin:0 auto;height:calc(var(--h) * var(--s));width:auto;filter:blur(1.2px) saturate(.75) brightness(.92);opacity:.78;transition:filter .35s,opacity .35s}
-  .dsp-ag figcaption{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap;width:max-content;font-stretch:62%;text-transform:uppercase;line-height:1}
-  .dsp-ag figcaption b{font-weight:900;font-size:clamp(13px,1.05vw,17px);color:#fff}
-  .dsp-ag figcaption span{font-weight:800;font-size:clamp(11px,.85vw,13px);padding:4px 8px;border-radius:20px;background:rgba(255,255,255,.22);color:#fff}
-  .dsp-ag.dsp-work img,.dsp-ag.dsp-done img{filter:blur(0) saturate(1) brightness(1);opacity:1}
-  .dsp-ag.dsp-work figcaption span{background:var(--blue);color:#fff}
-  .dsp-ag.dsp-work figcaption span::before{content:"";display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:#fff;vertical-align:1px;animation:dspBlink 1s infinite}
-  .dsp-ag.dsp-done figcaption span{background:#fff;color:var(--or)}
-  .dsp-ag.dsp-done figcaption span::before{content:"✓ ";animation:none;width:auto;height:auto;background:none;margin:0}
-  @keyframes dspBlink{50%{opacity:.25}}
-  .dsp-boss{position:absolute;left:50%;bottom:0;height:min(74vh,700px);transform-origin:50% 100%}
-  .dsp-boss img{height:100%;width:auto;display:block;filter:drop-shadow(0 26px 30px rgba(90,30,0,.35))}
-  .dsp-notifs{position:absolute;left:50%;top:15%;width:min(380px,84vw);transform:translateX(-50%)}
-  .dsp-n{position:absolute;left:0;right:0;top:0;display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 18px 40px rgba(90,30,0,.28);text-align:left;opacity:0;visibility:hidden}
-  .dsp-n i{flex:none;width:40px;height:40px;border-radius:11px;background:var(--or);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:21px}
-  .dsp-n p{margin:0;font-size:15px;line-height:1.25;color:#1a1a1a;font-weight:600}
-  .dsp-n b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--or);font-weight:800;margin-bottom:2px}
-  .dsp-tickets{position:absolute;inset:0}
-  .dsp-t{position:absolute;left:var(--sx,50%);top:var(--sy,40%);transform:translate(-50%,-50%) translate(calc(var(--tx,0px) * var(--p,0)),calc(var(--ty,0px) * var(--p,0) - var(--arc,0) * 90px)) rotate(calc(var(--p,0) * 14deg - 7deg));
-    padding:7px 11px;background:var(--blue);color:#fff;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:14px;white-space:nowrap;box-shadow:0 10px 22px rgba(0,60,100,.3);opacity:0;visibility:hidden;
-    clip-path:polygon(0 0,100% 0,100% 35%,94% 50%,100% 65%,100% 100%,0 100%,0 65%,6% 50%,0 35%)}
-  .dsp-end{position:absolute;left:50%;top:7%;transform:translateX(-50%);margin:0;width:max-content;font-size:clamp(40px,5.2vw,100px);line-height:.86;color:#fff;text-align:center;opacity:0;visibility:hidden}
-  .dsp-end i{color:var(--blue)}
-  @media (max-width:700px){
-    .dsp{--h:24vh}
-    .dsp-ag{left:calc(var(--mx) * 1%);bottom:calc(var(--mb) * 1%);height:calc(var(--h) * var(--ms))}
-    .dsp-ag img{height:calc(var(--h) * var(--ms))}
-    .dsp-ag figcaption{margin-top:3px}
-    .dsp-ag figcaption b{font-size:11px}.dsp-ag figcaption span{font-size:9px;padding:3px 6px}
-    .dsp-boss{height:46vh}
-    .dsp-notifs{top:11%}
-    .dsp-n{padding:9px 11px;gap:9px;border-radius:14px}.dsp-n i{width:32px;height:32px;font-size:17px}.dsp-n p{font-size:13px}
-    .dsp-t{font-size:11px;padding:5px 8px}
-    .dsp-end{top:12%;font-size:13vw}
-  }
-  .hero .cap{position:absolute;left:var(--pad);bottom:36px;z-index:3;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;color:#fff;background:rgba(110,193,240,.72);padding:8px 12px;visibility:hidden}
-  @media (max-width:700px){.hwall{padding:84px 12px 96px;gap:12px}.hwall > *{height:auto;width:44vw}.hwall > .tile{display:none}.hero .cap{display:none}}
+  /* ---------- 2. Bandeau qui défile ---------- */
+  .bande{overflow:hidden;padding:20px 0;border-top:2px solid rgba(255,255,255,.4);border-bottom:2px solid rgba(255,255,255,.4)}
+  .bande .rail{display:flex;width:max-content;will-change:transform}
+  .bande .rail span{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(34px,5vw,72px);white-space:nowrap;padding-right:.5em}
+  .bande .rail span i{color:var(--blue);font-style:normal;padding:0 .3em}
 
-  /* ---------- Métiers ---------- */
-  .jobs{padding:120px var(--pad) 130px;position:relative}
-  .jobs .lbl{display:block;margin-bottom:26px;color:var(--or)}
-  .jlist{list-style:none;margin:0;padding:0;border-top:1px solid rgba(10,10,10,.18)}
-  .jlist li{border-bottom:1px solid rgba(10,10,10,.18)}
-  .jlist a{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:.06em 0}
-  .jlist .disp{font-size:clamp(34px,10.2vw,190px);transition:color .3s,transform .4s cubic-bezier(.2,.8,.2,1)}
-  .jlist small{font-stretch:62%;font-weight:700;text-transform:uppercase;font-size:15px;max-width:260px;text-align:right;color:var(--or);opacity:1;transition:opacity .3s}
-  .jlist a:hover .disp{color:var(--or);font-style:italic;transform:translateX(.08em)}
-  .jlist a:hover small{opacity:1}
-  .follow{position:fixed;left:0;top:0;z-index:40;width:240px;height:300px;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.6)}
-  .follow .bg{position:absolute;inset:0;border-radius:6px;background:radial-gradient(circle at 50% 70%,#ffd0a0,var(--or) 70%)}
-  .follow img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:94%;max-width:none}
-  .why{margin-top:110px;display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end}
-  .why p{margin:0;font-family:Archivo,system-ui,sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(40px,5.4vw,96px);line-height:.92;letter-spacing:-.005em;max-width:1300px;color:var(--blue)}
-  .why p b{font-weight:800;font-style:italic;color:var(--or)}
-  .why .wd{opacity:0;display:inline}
-  @media (max-width:800px){.jlist small{display:none}.why{grid-template-columns:1fr}.follow{display:none}}
-  /* Mobile : la scène d'images sous la liste des métiers */
-  .jstage{display:none}
+  /* ---------- 3. Particuliers : les cartes défilent à l'horizontale, Marshall coche au passage ---------- */
+  .parti{overflow:hidden}
+  .parti .tete{padding:110px var(--pad) 30px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .parti h2{font-size:clamp(48px,7vw,130px)}
+  .parti .prix{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:22px;background:var(--or);color:#fff;padding:12px 18px;transform:rotate(-3deg)}
+  .parti .scene{position:relative;height:min(64vh,560px);display:flex;align-items:center}
+  .parti .piste{display:flex;gap:18px;padding-left:min(30vw,380px);padding-right:var(--pad);will-change:transform}
+  .carte{flex:none;width:clamp(230px,22vw,300px);min-height:260px;padding:22px;background:#fff;color:var(--ink);border:2px solid var(--blue);display:flex;flex-direction:column;gap:10px;transition:background .3s,color .3s,transform .3s}
+  .carte .ico{font-size:40px;line-height:1}
+  .carte h3{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:28px;line-height:.95;margin:0;color:var(--blue)}
+  .carte p{margin:0;font-size:15px;color:#444}
+  .carte .ok{margin-top:auto;align-self:flex-start;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:14px;padding:6px 10px;background:var(--paper);color:var(--mut)}
+  .carte.on{background:var(--blue);color:#fff;transform:translateY(-10px) rotate(-1.5deg)}
+  .carte.on h3,.carte.on p{color:#fff}
+  .carte.on .ok{background:var(--or);color:#fff}
+  .parti .coach{position:absolute;left:var(--pad);bottom:0;z-index:3;height:min(56vh,470px);width:auto}
+  .parti .pied{padding:30px var(--pad) 90px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .parti .pied p{margin:0 18px 0 0;font-size:17px;font-weight:600;color:var(--ink);max-width:520px}
   @media (max-width:800px){
-    .jobs{padding-top:90px}
-    .jwrap{display:flex;flex-direction:column;min-height:calc(100svh - 70px);padding-bottom:16px}
-    .jwrap .lbl{margin-bottom:14px}
-    .jstage{display:block;position:relative;flex:1;min-height:280px;margin-top:18px;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 78%,#ffd0a0,var(--or) 70%)}
-    .jfig{position:absolute;inset:0;margin:0;opacity:0;visibility:hidden}
-    .jfig.on{opacity:1;visibility:visible}
-    .jfig img{position:absolute;left:50%;bottom:0;transform:translateX(-50%);height:84%;width:auto;max-width:94%;object-fit:contain;object-position:bottom;filter:drop-shadow(0 16px 18px rgba(90,30,0,.3))}
-    .jfig figcaption{position:absolute;left:16px;right:16px;top:14px;z-index:1;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(20px,6vw,28px);line-height:.95;color:#fff}
-    .jnum{position:absolute;left:14px;bottom:12px;z-index:1;font-stretch:62%;font-weight:800;font-size:14px;color:#fff;background:rgba(110,193,240,.72);padding:4px 9px}
-    .jlist .disp{font-size:min(9vw,62px)}
-    .jlist a.on .disp{color:var(--or);font-style:italic;transform:translateX(.08em)}
+    .parti .scene{height:auto;display:block}
+    .parti .piste{flex-direction:column;padding:0 var(--pad);gap:12px}
+    .carte{width:auto;min-height:0}
+    .parti .coach{position:relative;left:auto;height:220px;margin:10px auto 0}
   }
 
-  /* ---------- À propos ---------- */
-  .about{position:relative;padding:40px var(--pad) 140px;overflow:hidden;background:var(--or);color:#fff}   /* fond orange, textes blancs, accents noirs */
-  .about .lbl{display:block;margin-bottom:22px}
-  .agrid{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(16px,2.6vw,46px);align-items:end}
-  .aswap{position:relative}
-  #about-cta{margin-top:40px}
-  .presente{position:relative;z-index:0;align-self:end;margin-bottom:-140px;pointer-events:none;display:flex;justify-content:center}
-  .presente img{flex:none;width:auto;max-width:none;height:min(100vh,980px);filter:drop-shadow(0 26px 30px rgba(0,0,0,.14))}
-  .about h2,.about .txt{position:relative;z-index:1}
-  .presente .glow{position:absolute;left:22%;right:22%;bottom:-1%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(120,40,0,.3),rgba(120,40,0,0))}
-  .about h2{font-size:clamp(46px,7.6vw,140px)}
-  .about h2 em{color:var(--blue)}
-  .about #about-cta{background:var(--blue);border-color:var(--blue);color:#fff}
-  .about #about-cta:hover{background:#fff;border-color:#fff;color:var(--blue)}
-  .top.on-or2{mix-blend-mode:normal;color:#fff}
-  .top.on-light:not(.on-or):not(.on-or2){mix-blend-mode:normal;color:var(--or)}
-  .about .txt p{margin:0 0 26px;font-size:18px;line-height:1.5;max-width:460px}
-  @media (max-width:900px){.agrid{grid-template-columns:1fr}.presente{order:3;margin:20px auto -140px}.presente img{height:min(78vh,620px)}}
+  /* ---------- 4. Comment ça marche : Marshall court le long du chemin ---------- */
+  .etapes{padding:110px var(--pad) 120px;overflow:hidden}
+  .etapes h2{font-size:clamp(46px,6.6vw,120px);max-width:1100px}
+  .chemin{position:relative;margin-top:60px;height:clamp(180px,22vw,300px)}
+  .chemin svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .chemin path{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-dasharray:14 16;opacity:.35}
+  .chemin path.trace{stroke:var(--or);stroke-dasharray:none;opacity:1;stroke-width:8}
+  .coureur{position:absolute;left:0;top:0;height:clamp(110px,13vw,190px);width:auto;transform:translate(-50%,-92%);z-index:3;pointer-events:none}
+  .pas{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px}
+  .pas div{opacity:.35;transform:translateY(20px);transition:opacity .45s,transform .45s}
+  .pas div.on{opacity:1;transform:none}
+  .pas b{display:block;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(28px,3vw,46px);line-height:.95;margin-bottom:8px}
+  .pas b em{color:var(--or);font-style:normal}
+  .pas p{margin:0;font-size:16px;font-weight:600;max-width:340px}
+  @media (max-width:800px){.pas{grid-template-columns:1fr}.chemin{height:150px}}
 
-  /* ---------- Créations ---------- */
-  .work{padding:130px var(--pad) 120px}
-  .work .whead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;border-bottom:1px solid rgba(245,245,245,.2);padding-bottom:22px;margin-bottom:46px;flex-wrap:wrap}
-  .work h2{font-size:clamp(46px,13vw,240px)}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap}
-  .tabs button{border:1px solid rgba(245,245,245,.35);background:none;padding:9px 14px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;cursor:pointer}
-  .tabs button.on,.tabs button:hover{background:var(--paper);color:var(--blue)}
-  .cards{display:grid;grid-template-columns:repeat(2,1fr);column-gap:var(--pad);row-gap:80px}
-  .card:nth-child(even){margin-top:160px}
-  .card .media{position:relative;aspect-ratio:9/16;overflow:hidden;background:var(--blue);border-radius:4px}
-  .card .media video,.card .media > img.cover{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)}
-  .card:hover .media video,.card:hover .media > img.cover{transform:scale(1.04)}
-  .card .media.art{background:radial-gradient(circle at 50% 75%,var(--c1),var(--c2) 72%)}
-  .card .media.art img{position:absolute;left:50%;bottom:0;width:62%;transform:translateX(-50%);max-width:none;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
-  .card:hover .media.art img{transform:translateX(-50%) translateY(-12px) scale(1.04)}
-  .card .snd{position:absolute;right:14px;bottom:14px;width:46px;height:46px;background:var(--paper);color:var(--blue);border:0;cursor:pointer;font-size:18px}
-  .card h3{margin:28px 0 6px;font-size:clamp(34px,4vw,62px)}
-  .card p{margin:0;color:var(--or);font-size:15.5px;font-weight:700}
-  .card p b{color:var(--paper);font-weight:700}
-  .card.hide{display:none}
-  .work .more{margin-top:90px;text-align:center}
-  @media (max-width:760px){.cards{grid-template-columns:1fr;row-gap:56px}.card:nth-child(even){margin-top:0}}
-  @media (min-width:1100px){.cards{grid-template-columns:repeat(3,1fr);row-gap:90px}.card:nth-child(even){margin-top:0}.card:nth-child(3n+2){margin-top:140px}}
+  /* ---------- 5. Où : la loupe de Marshall passe sur chaque quartier ---------- */
+  .ou{padding:110px var(--pad);display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:center}
+  .ou h2{font-size:clamp(46px,6.2vw,116px)}
+  .ou .txt p{font-size:18px;font-weight:600;color:var(--ink);max-width:460px}
+  .carteparis{position:relative;aspect-ratio:1.15;max-width:640px;width:100%;justify-self:center}
+  .seine{position:absolute;inset:0;width:100%;height:100%}
+  .seine path{fill:none;stroke:var(--blue);stroke-width:16;stroke-linecap:round;opacity:.25}
+  .bulle{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;text-align:center;border-radius:50%;background:#fff;border:3px solid var(--blue);color:var(--blue);font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.95;font-size:clamp(14px,1.5vw,20px);padding:8px;transition:background .3s,color .3s}
+  .bulle.vu{background:var(--blue);color:#fff}
+  .bulle.centre{background:var(--or);border-color:var(--or);color:#fff;font-size:clamp(20px,2.4vw,34px)}
+  .loupe{position:absolute;left:0;top:0;height:clamp(150px,19vw,240px);width:auto;transform:translate(-50%,-62%);z-index:4;pointer-events:none}
+  .visio{display:inline-block;margin-top:10px;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:20px;color:var(--or)}
+  @media (max-width:900px){.ou{grid-template-columns:1fr}}
 
-  /* ---------- Offres ---------- */
-  .offers{padding:130px var(--pad)}
-  .offers .lbl{display:block;margin-bottom:26px}
-  .olist{border-top:1px solid rgba(10,10,10,.18)}
-  .orow{display:grid;grid-template-columns:1.2fr 1.4fr auto;gap:30px;align-items:center;padding:26px 0;border-bottom:1px solid rgba(10,10,10,.18);transition:background .3s,padding .3s}
-  .orow:hover{background:#fff;padding-left:18px;padding-right:18px}
-  .orow .disp{font-size:clamp(56px,8vw,140px);color:var(--or)}
-  .orow .disp sup{font-size:.32em;vertical-align:top;margin-left:.1em;color:var(--blue)}
-  .orow ul{list-style:none;margin:0;padding:0;columns:2;column-gap:24px;font-size:15px;color:var(--or)}
-  .orow li{break-inside:avoid;padding:3px 0 3px 18px;position:relative}
-  .orow li::before{content:"";position:absolute;left:0;top:11px;width:8px;height:8px;background:var(--or)}
-  .orow .best{display:inline-block;background:var(--blue);color:#fff;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:13px;padding:4px 8px;margin-bottom:8px}
-  .orow .btn{border-color:var(--or);color:var(--or)}
-  .orow .btn.fill{background:var(--blue);border-color:var(--blue);color:#fff}
-  .orow .btn.fill:hover{background:#fff;border-color:var(--blue);color:var(--blue)}
-  .orow .btn[href*="plan=hyper"]{background:var(--blue);border-color:var(--blue);color:#fff}
-  .orow .btn[href*="plan=hyper"]:hover{background:#fff;border-color:var(--blue);color:var(--blue)}
-  .offers .fine{margin-top:22px;font-size:14px;color:var(--or)}
-  .offers .fine a{text-decoration:underline}
-  @media (max-width:900px){.orow{grid-template-columns:1fr;gap:14px}.orow ul{columns:1}}
+  /* ---------- 6. Commerçants : le téléphone de Studio Social ---------- */
+  .commerce{padding:110px var(--pad);display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center;overflow:hidden}
+  .commerce h2{font-size:clamp(46px,6.4vw,120px)}
+  .commerce ul{list-style:none;padding:0;margin:26px 0;display:grid;gap:10px}
+  .commerce li{font-size:18px;font-weight:700;padding-left:30px;position:relative}
+  .commerce li::before{content:"✦";position:absolute;left:0;color:var(--blue)}
+  .commerce .actions{display:flex;gap:12px;flex-wrap:wrap}
+  .commerce .btn.blanc{border-color:#fff;color:#fff}
+  .commerce .btn.blanc:hover{background:#fff;color:var(--or)}
+  .tel-zone{position:relative;display:flex;justify-content:center;align-items:flex-end;min-height:520px}
+  .tel{position:relative;width:250px;height:500px;border-radius:38px;background:#111;padding:12px;box-shadow:0 40px 70px rgba(90,30,0,.4);transform:rotate(4deg)}
+  .tel .ecran{width:100%;height:100%;border-radius:28px;background:#fff;overflow:hidden;position:relative}
+  .tel .fil{position:absolute;left:0;right:0;top:0;padding:10px;display:flex;flex-direction:column;gap:10px}
+  .post{border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.12);color:var(--ink)}
+  .post img{width:100%;aspect-ratio:1;object-fit:cover}
+  .post div{padding:8px 10px;font-size:12px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+  .post .coeur{color:#e0245e;font-size:16px;display:inline-block}
+  .tel-marshall{position:absolute;left:-20px;bottom:-10px;height:300px;width:auto;z-index:2}
+  @media (max-width:900px){.commerce{grid-template-columns:1fr}.tel-zone{min-height:460px}.tel{width:210px;height:420px}.tel-marshall{height:220px;left:0}}
 
-  /* ---------- FAQ ---------- */
-  .faq{padding:0 var(--pad) 140px}
-  .faq .lbl{display:block;margin-bottom:22px;color:var(--or)}
-  .faq details{border-bottom:1px solid rgba(10,10,10,.18)}
-  .faq details:first-of-type{border-top:1px solid rgba(10,10,10,.18)}
-  .faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 0;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(24px,2.6vw,40px);line-height:1}
+  /* ---------- 7. Pros : les cartes se retournent ---------- */
+  .pros{padding:110px var(--pad)}
+  .pros .tete{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .pros h2{font-size:clamp(46px,6.4vw,120px)}
+  .pros .tete img{height:200px;width:auto}
+  .tuiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px;perspective:1200px}
+  .tuile{padding:26px 22px;min-height:230px;background:rgba(255,255,255,.14);border:2px solid #fff;display:flex;flex-direction:column;gap:12px;transform-origin:50% 0;transition:background .3s,color .3s}
+  .tuile:hover{background:#fff;color:var(--blue)}
+  .tuile b{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:30px;line-height:.95}
+  .tuile p{margin:0;font-size:15px;font-weight:600}
+  .tuile .devis{margin-top:auto;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:14px;color:var(--or)}
+  .pros .bas{margin-top:34px}
+  @media (max-width:1000px){.tuiles{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.tuiles{grid-template-columns:1fr}}
+
+  /* ---------- 8. FAQ : Marshall réagit quand on ouvre une question ---------- */
+  .faq{padding:110px var(--pad);display:grid;grid-template-columns:1fr 280px;gap:40px}
+  .faq h2{font-size:clamp(46px,6vw,110px);margin-bottom:30px}
+  .faq details{border-top:2px solid var(--blue);padding:18px 0}
+  .faq details:last-of-type{border-bottom:2px solid var(--blue)}
+  .faq summary{cursor:pointer;list-style:none;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(22px,2.4vw,32px);display:flex;justify-content:space-between;gap:16px}
   .faq summary::-webkit-details-marker{display:none}
-  .faq summary::after{content:"+";font-size:1.2em;transition:transform .3s;color:var(--or)}
+  .faq summary::after{content:"+";color:var(--or);transition:transform .3s}
   .faq details[open] summary::after{transform:rotate(45deg)}
-  .faq details p{margin:0 0 24px;max-width:760px;font-size:17px;color:var(--or)}
+  .faq details p{margin:12px 0 0;font-size:17px;color:var(--ink);max-width:720px}
+  .faq .reac{position:sticky;top:120px;align-self:start}
+  .faq .reac img{width:100%;height:auto}
+  .faq .reac small{display:block;text-align:center;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:16px;margin-top:6px}
+  @media (max-width:800px){.faq{grid-template-columns:1fr}.faq .reac{display:none}}
 
-  /* ---------- On s'y met ---------- */
-  .touch{position:relative;padding:140px var(--pad) 120px;overflow:hidden;text-align:center}
-  .touch .lbl{display:block;margin-bottom:20px;color:var(--or)}
-  .touch h2{font-size:clamp(56px,17vw,320px)}
-  .touch h2 em{color:var(--or)}
-  .touch .go{margin-top:46px}
-  .touch .bravo{position:absolute;right:5%;bottom:-9%;width:min(260px,28vw);pointer-events:none}
-  .confetti{position:absolute;top:-20px;width:10px;height:16px;border-radius:2px;pointer-events:none}
-  @media (max-width:700px){.touch .bravo{width:130px;right:-10px}}
+  /* ---------- 9. Fin : le texte grandit, Marshall fait coucou ---------- */
+  .fin{min-height:90vh;padding:120px var(--pad) 0;display:flex;flex-direction:column;align-items:center;text-align:center;overflow:hidden}
+  .fin h2{font-size:clamp(60px,11vw,230px)}
+  .fin p{font-size:19px;font-weight:600;max-width:520px;margin:26px 0}
+  .fin .actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .fin .btn.blanc{border-color:#fff;color:#fff}
+  .fin .btn.blanc:hover{background:#fff;color:var(--or)}
+  .fin .coucou{height:min(46vh,400px);width:auto;margin-top:auto}
 
   /* ---------- Pied de page ---------- */
-  .foot{padding:90px var(--pad) 30px;overflow:hidden}
-  .fgrid{display:grid;grid-template-columns:1.2fr 1fr;gap:60px}
-  .foot h3{font-size:clamp(40px,5vw,84px);margin-bottom:22px}
-  .foot h3 em{color:var(--or)}
-  .ref{display:flex;gap:0;max-width:560px}
-  .ref span{flex:1;border:1px solid var(--ink);padding:16px 18px;font-size:15px;background:#fff;color:var(--or)}
-  .ref a{border:1px solid var(--ink);border-left:0}
-  .ntabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
-  .ntabs button{border:1px solid var(--ink);background:none;padding:9px 14px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;cursor:pointer}
-  .ntabs button.on,.ntabs button:hover{background:var(--blue);color:#fff}
-  .ndet .lbl{display:block;margin-bottom:8px;color:var(--or)}
-  .ndet p{margin:0;font-size:17px;max-width:440px;color:var(--or)}
-  .fbot{margin-top:90px;display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;border-top:1px solid rgba(10,10,10,.18);padding-top:24px}
-  .flinks{display:flex;gap:22px;flex-wrap:wrap}
-  .flinks a{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px}
-  .flinks a:hover{color:var(--orf)}
-  .fbot small{color:var(--or);font-size:13.5px;text-align:right}
-  .bigword{margin-top:40px;font-size:13.4vw;line-height:.8;white-space:nowrap;text-align:center}
-  .bigword em{color:var(--or)}
-  .bigword .wordline{display:flex;align-items:center;justify-content:center;gap:.05em}
-  .bigword .brand-tail{display:inline-flex;align-items:center}
-  .bigword .by-mark{display:block;font-family:Archivo,system-ui,sans-serif;font-size:.11em;font-style:normal;font-weight:700;line-height:1;text-transform:lowercase;letter-spacing:.04em;color:var(--or);margin:.2em auto .12em}
-  .bigword .brand-logo{display:block;width:clamp(180px,18vw,340px);height:auto;margin:0 auto}
-  @media (max-width:900px){.fgrid{grid-template-columns:1fr}.fbot small{text-align:left}}
-
-
-  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .pied-page{padding:60px var(--pad) 26px}
+  .pied-page .liens{display:flex;flex-wrap:wrap;gap:12px 26px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px}
+  .pied-page .liens a:hover{color:var(--or)}
+  .pied-page small{display:block;margin-top:18px;color:var(--mut)}
+  .grandmot{margin-top:30px;font-size:12.2vw;white-space:nowrap;text-align:center;line-height:.8}
+  .grandmot span{display:inline-block}
+  .grandmot em{color:var(--or)}
 </style>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": ["Organization", "ProfessionalService"], "@id": "https://moncopaindigital.fr/#organization", "name": "Mon Copain Digital", "url": "https://moncopaindigital.fr/", "logo": "https://moncopaindigital.fr/favicons/favicon-512.png", "image": "https://moncopaindigital.fr/favicons/favicon-512.png", "description": "Votre coach personnel pour apprivoiser le numérique en douceur. Sans jargon, sans stress, à votre rythme.", "telephone": "+33753670195", "priceRange": "€€", "address": {"@type": "PostalAddress", "addressLocality": "Paris", "addressRegion": "Île-de-France", "addressCountry": "FR"}, "areaServed": [{"@type": "AdministrativeArea", "name": "Île-de-France"}, {"@type": "GeoCircle", "geoMidpoint": {"@type": "GeoCoordinates", "latitude": 48.8566, "longitude": 2.3522}, "geoRadius": "70000"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "opens": "08:00", "closes": "20:00"}, {"@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "00:00", "closes": "00:00"}], "sameAs": ["https://www.instagram.com/moncopaindigital.fr/", "https://share.google/fmjos4E8HSBV9qAIa"]}, {"@type": "WebSite", "@id": "https://moncopaindigital.fr/#website", "url": "https://moncopaindigital.fr/", "name": "Mon Copain Digital", "publisher": {"@id": "https://moncopaindigital.fr/#organization"}}, {"@type": "SiteNavigationElement", "position": 1, "name": "Nos offres", "url": "https://moncopaindigital.fr/Nosoffres.html"}, {"@type": "SiteNavigationElement", "position": 2, "name": "Qui suis-je ?", "url": "https://moncopaindigital.fr/qui-suis-je.html"}, {"@type": "SiteNavigationElement", "position": 3, "name": "Rendez-vous", "url": "https://moncopaindigital.fr/rendez-vous.html"}, {"@type": "SiteNavigationElement", "position": 4, "name": "Contact", "url": "https://moncopaindigital.fr/contact.html"}, {"@type": "SiteNavigationElement", "position": 5, "name": "Espace client", "url": "https://moncopaindigital.fr/espace-compte.html"}, {"@type": "SiteNavigationElement", "position": 6, "name": "Studio Social", "url": "https://moncopaindigital.fr/studio-social.html"}, {"@type": "SiteNavigationElement", "position": 7, "name": "Loi applicable", "url": "https://moncopaindigital.fr/loiapplicablemcp.html"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Vous vous déplacez où ?", "acceptedAnswer": {"@type": "Answer", "text": "Dans le 16e et les quartiers voisins : 15e, 17e, 8e, Boulogne-Billancourt et Neuilly-sur-Seine. Ailleurs, on se retrouve en visio, avec le même accompagnement."}}, {"@type": "Question", "name": "Combien coûte une séance ?", "acceptedAnswer": {"@type": "Answer", "text": "Une séance d’une heure coûte à partir de 49 €. Des formules de 3 et 5 heures existent pour avancer sur plusieurs séances : elles sont détaillées sur la page Nos offres."}}, {"@type": "Question", "name": "Je ne suis pas à l’aise avec la technique", "acceptedAnswer": {"@type": "Answer", "text": "C’est justement pour vous. On part de ce que vous savez déjà, sans jargon, et on avance à votre rythme. Aucune question n’est bête."}}, {"@type": "Question", "name": "C’est quoi, Studio Social ?", "acceptedAnswer": {"@type": "Answer", "text": "L’application de Mon Copain Digital pour les commerçants : Marshall, votre copain IA, crée vos posts, stories et vidéos pour Instagram, Facebook et TikTok, puis les publie. C’est gratuit pour commencer."}}, {"@type": "Question", "name": "Vous créez aussi des sites internet ?", "acceptedAnswer": {"@type": "Answer", "text": "Oui, ainsi que le référencement et la fiche Google, sur devis. On commence par l’audit gratuit pour voir ce dont vous avez vraiment besoin."}}, {"@type": "Question", "name": "L’audit gratuit, ça se passe comment ?", "acceptedAnswer": {"@type": "Answer", "text": "30 minutes en visio : on regarde ensemble votre site, votre fiche Google et vos réseaux sociaux, et vous repartez avec un plan d’action clair. Sans engagement."}}]}]}</script>
 </head>
 <body>
-<!-- ===== Transition portes coulissantes (comme l'accueil) ===== -->
 <style id="door-tx-style">
   #door-tx{position:fixed;inset:0;z-index:2147483647;pointer-events:none;overflow:hidden;}
   #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
@@ -449,199 +370,190 @@
   });
 })();
 </script>
-
 <header class="top" id="top">
-  <a class="home-ico" href="index.html" aria-label="Accueil Mon Copain Digital" title="Accueil Mon Copain Digital"><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round">
-    <path class="smoke" d="M34 9c-2.4-1.8.8-4.2-1.7-6" stroke-width="2.2"/>
-    <path d="M30.5 17.5v-7h6v12"/>
-    <path d="M8.5 24.5c0-7.6 6.2-13.8 15.5-13.8s15.5 6.2 15.5 13.8v14.2A4.3 4.3 0 0 1 35.2 43H12.8a4.3 4.3 0 0 1-4.3-4.3Z"/>
-    <path d="M5.5 25.5 24 8.5l18.5 17"/>
-    <path d="M19.5 43V33.5a4.5 4.5 0 0 1 9 0V43"/>
-    <circle cx="15.8" cy="27.8" r="2.7"/><circle cx="32.2" cy="27.8" r="2.7"/>
-  </svg></a>
   <a class="logo" href="index.html" aria-label="Mon Copain Digital · accueil">Mon Copain Digital</a>
   <nav class="nav" aria-label="Navigation">
-    <a href="#metiers">Ce qu’on fait</a>
-    <a href="#apropos">Qui je suis</a>
-    <a href="#creations">Studio Social</a>
-    <a href="#offres">Offres</a>
+    <a href="#particuliers">Particuliers</a>
+    <a href="#commercants">Commerçants</a>
+    <a href="#pros">Pros</a>
     <a href="#faq">FAQ</a>
   </nav>
-  <a class="app-link" href="rendez-vous.html">Audit gratuit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-  <span class="clock" aria-label="Marshall est en ligne"><i></i>Marshall en ligne · <span id="clock">--:--</span></span>
+  <a class="cta-top" href="rendez-vous.html">Audit gratuit</a>
   <button class="burger" type="button" aria-label="Ouvrir le menu" id="burger"><span></span><span></span><span></span></button>
 </header>
 <nav class="menu" id="menu" aria-label="Menu">
-  <button class="sq x" type="button" id="menu-x" aria-label="Fermer le menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
-  <a class="disp" href="#metiers">Ce qu’on fait</a>
-  <a class="disp" href="#apropos">Qui je suis</a>
-  <a class="disp" href="#creations">Studio Social</a>
-  <a class="disp" href="#offres">Offres</a>
-  <a class="disp" href="rendez-vous.html" style="color:var(--or)">Audit gratuit</a>
+  <button class="x" type="button" id="menu-x" aria-label="Fermer le menu">✕</button>
+  <a class="disp" href="#particuliers">Particuliers</a>
+  <a class="disp" href="#commercants">Commerçants</a>
+  <a class="disp" href="#pros">Pros</a>
+  <a class="disp" href="#faq">FAQ</a>
+  <a class="disp" href="rendez-vous.html" style="color:var(--blue)">Audit gratuit</a>
 </nav>
 
 <main>
-<!-- ================= HÉROS ================= -->
+<!-- 1. HÉROS -->
 <section class="hero dark" id="hero">
-  <h1 class="disp" id="hero-title">
-    <span class="row"><span class="mask"><span id="bye-word">Bye bye</span></span> <span class="mask" id="rates"><span><i>galères…</i></span></span></span>
-    <span class="row" id="row2"><span class="mask"><span><i>Hello</i></span></span><span class="pill" id="pill"><img src="marshall-coucou.webp" alt="Marshall fait coucou"></span><span class="mask"><span>Marshall</span></span></span>
-    <span style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">Mon Copain Digital, coach numérique à Paris</span>
+  <div class="icones" id="icones" aria-hidden="true">
+    <span style="left:6%;top:18%">💻</span><span style="left:84%;top:14%;animation-delay:-1.5s">📱</span><span style="left:72%;top:46%;animation-delay:-3s">📶</span>
+    <span style="left:12%;top:72%;animation-delay:-2s">🖨️</span><span style="left:48%;top:10%;animation-delay:-4s">🔐</span><span style="left:58%;top:80%;animation-delay:-.8s">📸</span>
+  </div>
+  <h1 class="disp" id="titre">
+    <span class="l l1">Le numérique</span>
+    <span class="l l2">sans <span class="pill" id="pill"><img src="marshall-coucou.webp" alt="Marshall fait coucou"></span> prise</span>
+    <span class="l l3"><em>de tête</em></span>
+    <span class="sr">Mon Copain Digital, coach numérique à Paris</span>
   </h1>
-  <div class="scroll-hint" id="scroll-hint">Défile<i></i></div>
-  <div class="runner" id="runner" aria-hidden="true"><img id="runner-run" src="marshall-court.webp" alt=""><img id="runner-kick" src="marshall-shoot.webp" alt=""></div>
-  <div class="base">
-    <p>Ordinateur, smartphone, démarches en ligne, site web ou réseaux sociaux : votre <b>copain digital</b> s’en occupe avec vous. À domicile dans le <b>16e et alentours</b>, en visio partout en France.</p>
-    <a class="sq" href="#metiers" aria-label="Descendre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v16M5 13l7 7 7-7"/></svg></a>
+  <p class="sous">Ordinateur, smartphone, démarches en ligne, site web, réseaux sociaux : votre copain digital s’en occupe avec vous. À domicile dans le 16e et alentours, en visio partout en France.</p>
+  <div class="choix">
+    <a href="#particuliers"><b>Je suis un particulier</b><span>Aide à domicile dès 49 €</span></a>
+    <a href="#commercants" class="or"><b>J’ai un commerce</b><span>Studio Social, sites web, Google</span></a>
   </div>
-  <div class="dsp" id="wall" aria-label="Marshall reçoit vos demandes et les confie à la bonne personne">
-    <div class="dsp-team">
-    <figure class="dsp-ag dsp-in" style="--x:10;--b:44;--s:0.8;--mx:13;--mb:47;--ms:0.62"><img src="agents/ag-testing.webp" alt="Marshall Dépannage" loading="lazy"><figcaption><b>Dépannage</b><span data-wait="En attente" data-work="Cherche la panne…">En attente</span></figcaption></figure>
-    <figure class="dsp-ag dsp-in" style="--x:22;--b:13;--s:0.9;--mx:38;--mb:52;--ms:0.58"><img src="agents/ag-audit.webp" alt="Marshall Démarches" loading="lazy"><figcaption><b>Démarches</b><span data-wait="En attente" data-work="Remplit le dossier avec vous…">En attente</span></figcaption></figure>
-    <figure class="dsp-ag dsp-in" style="--x:32;--b:52;--s:0.62;--mx:62;--mb:52;--ms:0.58"><img src="agents/ag-social.webp" alt="Marshall Site web" loading="lazy"><figcaption><b>Site web</b><span data-wait="En attente" data-work="Dessine la maquette…">En attente</span></figcaption></figure>
-    <figure class="dsp-ag dsp-in" style="--x:68;--b:52;--s:0.62;--mx:87;--mb:47;--ms:0.62"><img src="agents/ag-visual.webp" alt="Marshall Google" loading="lazy"><figcaption><b>Google</b><span data-wait="En attente" data-work="Soigne la fiche Google…">En attente</span></figcaption></figure>
-    <figure class="dsp-ag dsp-in" style="--x:78;--b:13;--s:0.9;--mx:10;--mb:22;--ms:0.72"><img src="agents/ag-campaign.webp" alt="Marshall Studio Social" loading="lazy"><figcaption><b>Studio Social</b><span data-wait="En attente" data-work="Prépare la semaine de posts…">En attente</span></figcaption></figure>
-    <figure class="dsp-ag dsp-in" style="--x:90;--b:44;--s:0.8;--mx:90;--mb:22;--ms:0.72"><img src="agents/ag-brand.webp" alt="Marshall Conseil" loading="lazy"><figcaption><b>Conseil</b><span data-wait="En attente" data-work="Écrit le plan d’action…">En attente</span></figcaption></figure>
+  <img class="hero-marshall marshall" id="hero-marshall" src="marshall-ordi.webp" alt="Marshall, assis, travaille sur son ordinateur">
+</section>
+
+<!-- 2. BANDEAU -->
+<div class="bande orange" aria-hidden="true"><div class="rail" id="rail">
+  <span>Ordinateur<i>✦</i>Smartphone<i>✦</i>Tablette<i>✦</i>Wi-Fi<i>✦</i>Démarches<i>✦</i>Sites web<i>✦</i>Google<i>✦</i>Instagram<i>✦</i></span>
+  <span>Ordinateur<i>✦</i>Smartphone<i>✦</i>Tablette<i>✦</i>Wi-Fi<i>✦</i>Démarches<i>✦</i>Sites web<i>✦</i>Google<i>✦</i>Instagram<i>✦</i></span>
+</div></div>
+
+<!-- 3. PARTICULIERS -->
+<section class="parti light" id="particuliers">
+  <div class="tete">
+    <div><span class="lbl">Particuliers</span><h2 class="disp">Chez vous,<br><em>à votre rythme</em></h2></div>
+    <span class="prix">dès 49 € la séance d’1 h</span>
+  </div>
+  <div class="scene" id="scene">
+    <div class="piste" id="piste">
+      <article class="carte"><span class="ico">💻</span><h3>Ordinateur</h3><p>Fichiers, emails, navigation sur PC ou Mac.</p><span class="ok">À voir ensemble</span></article>
+      <article class="carte"><span class="ico">📱</span><h3>Smartphone</h3><p>Photos, réglages, applis utiles sur iPhone ou Android.</p><span class="ok">À voir ensemble</span></article>
+      <article class="carte"><span class="ico">📲</span><h3>Tablette</h3><p>Prendre en main sa tablette sans crainte de « mal faire ».</p><span class="ok">À voir ensemble</span></article>
+      <article class="carte"><span class="ico">📶</span><h3>Box &amp; Wi-Fi</h3><p>Une bonne connexion dans toute la maison.</p><span class="ok">À voir ensemble</span></article>
+      <article class="carte"><span class="ico">🧾</span><h3>Démarches</h3><p>Impôts, Ameli, CAF, FranceConnect : pas à pas.</p><span class="ok">À voir ensemble</span></article>
+      <article class="carte"><span class="ico">🩺</span><h3>Doctolib</h3><p>Rendez-vous médicaux et ordonnances en ligne.</p><span class="ok">À voir ensemble</span></article>
+      <article class="carte"><span class="ico">🎥</span><h3>Visio en famille</h3><p>Appeler ses petits-enfants avec WhatsApp ou FaceTime.</p><span class="ok">À voir ensemble</span></article>
+      <article class="carte"><span class="ico">🛡️</span><h3>Arnaques</h3><p>Reconnaître les faux SMS, faux mails et faux appels.</p><span class="ok">À voir ensemble</span></article>
+      <article class="carte"><span class="ico">🤖</span><h3>Intelligence artificielle</h3><p>Utiliser ChatGPT pour écrire ou chercher.</p><span class="ok">À voir ensemble</span></article>
     </div>
-    <div class="dsp-boss dsp-in"><img src="marshall-presente-anim.webp" alt="Marshall reçoit les demandes sur son téléphone"></div>
-    <div class="dsp-notifs" aria-hidden="true">
-    <div class="dsp-n"><i>💻</i><p><b>Nouvelle demande</b>L’ordinateur de maman ne démarre plus</p></div>
-    <div class="dsp-n"><i>🧾</i><p><b>Nouvelle demande</b>Je dois faire ma déclaration en ligne</p></div>
-    <div class="dsp-n"><i>🏪</i><p><b>Nouvelle demande</b>Il me faut un site pour ma boutique</p></div>
-    <div class="dsp-n"><i>🔎</i><p><b>Nouvelle demande</b>Personne ne me trouve sur Google</p></div>
-    <div class="dsp-n"><i>📅</i><p><b>Nouvelle demande</b>Mes posts Instagram sont à l’arrêt</p></div>
-    <div class="dsp-n"><i>💡</i><p><b>Nouvelle demande</b>J’ai un projet, par où commencer ?</p></div>
+    <img class="coach marshall" id="coach" src="agents/ag-audit.webp" alt="Marshall, son bloc-notes à la main" loading="lazy">
+  </div>
+  <div class="pied">
+    <p>Une séance d’une heure, chez vous dans le 16e et alentours, ou en visio. Des formules de 3 et 5 heures pour aller plus loin.</p>
+    <a class="btn fill" href="aide-numerique-paris-16.html">Voir l’aide à domicile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+  </div>
+</section>
+
+<!-- 4. COMMENT ÇA MARCHE -->
+<section class="etapes dark" id="etapes">
+  <span class="lbl">Comment ça marche</span>
+  <h2 class="disp">Trois étapes, <em>zéro stress</em></h2>
+  <div class="chemin" id="chemin">
+    <svg viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true"><path id="route" d="M20 150 C 180 30, 300 30, 420 120 S 680 210, 780 90 S 930 40, 985 70"/><path class="trace" id="trace" d="M20 150 C 180 30, 300 30, 420 120 S 680 210, 780 90 S 930 40, 985 70"/></svg>
+    <img class="coureur marshall" id="coureur" src="marshall-court.webp" alt="" aria-hidden="true">
+  </div>
+  <div class="pas" id="pas">
+    <div><b><em>1.</em> Vous appelez</b><p>En ligne ou au 07 53 67 01 95, vous me dites ce qui vous bloque.</p></div>
+    <div><b><em>2.</em> On se voit</b><p>Je viens chez vous, ou on se retrouve en visio. Vous tenez la souris, j’explique.</p></div>
+    <div><b><em>3.</em> Vous êtes autonome</b><p>Vous refaites seul ce qu’on a vu, et vous pouvez revenir vers moi pour la suite.</p></div>
+  </div>
+</section>
+
+<!-- 5. OÙ -->
+<section class="ou light" id="ou">
+  <div class="txt">
+    <span class="lbl">Où j’interviens</span>
+    <h2 class="disp">Paris 16<br><em>et alentours</em></h2>
+    <p>Je me déplace dans le 16e et les quartiers voisins. Partout ailleurs, la séance se fait en visio, avec le même accompagnement.</p>
+    <span class="visio">Ailleurs ? En visio ✦</span>
+  </div>
+  <div class="carteparis" id="carteparis">
+    <svg class="seine" viewBox="0 0 100 87" preserveAspectRatio="none" aria-hidden="true"><path d="M95 18 C 78 30, 70 52, 55 58 S 30 50, 22 64 S 18 80, 10 86"/></svg>
+    <span class="bulle" style="left:36%;top:18%;width:24%;aspect-ratio:1" data-b>Neuilly</span>
+    <span class="bulle" style="left:66%;top:18%;width:20%;aspect-ratio:1" data-b>17e</span>
+    <span class="bulle centre" style="left:42%;top:50%;width:34%;aspect-ratio:1" data-b>16e</span>
+    <span class="bulle" style="left:80%;top:46%;width:18%;aspect-ratio:1" data-b>8e</span>
+    <span class="bulle" style="left:68%;top:80%;width:20%;aspect-ratio:1" data-b>15e</span>
+    <span class="bulle" style="left:22%;top:82%;width:26%;aspect-ratio:1" data-b>Boulogne</span>
+    <img class="loupe marshall" id="loupe" src="agents/ag-visual.webp" alt="" aria-hidden="true" loading="lazy">
+  </div>
+</section>
+
+<!-- 6. COMMERÇANTS -->
+<section class="commerce orange" id="commercants">
+  <div>
+    <span class="lbl">Commerçants</span>
+    <h2 class="disp">Vos réseaux,<br><em>sans y passer</em><br>vos soirées</h2>
+    <ul>
+      <li>Studio Social : Marshall, votre copain IA, crée vos posts, stories et vidéos</li>
+      <li>Publication sur Instagram, Facebook et TikTok</li>
+      <li>Gratuit pour commencer, formules à 29 € et 59 € par mois</li>
+      <li>Et si besoin : site web, fiche Google et référencement, sur devis</li>
+    </ul>
+    <div class="actions">
+      <a class="btn blanc" href="decouvrir-studio-social.html">Découvrir Studio Social <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+      <a class="btn blanc" href="idees-posts-boulangerie.html">30 idées de posts</a>
     </div>
-    <div class="dsp-tickets" aria-hidden="true">
-    <span class="dsp-t">#01 → Dépannage</span>
-    <span class="dsp-t">#02 → Démarches</span>
-    <span class="dsp-t">#03 → Site web</span>
-    <span class="dsp-t">#04 → Google</span>
-    <span class="dsp-t">#05 → Studio Social</span>
-    <span class="dsp-t">#06 → Conseil</span>
-    </div>
-    <p class="dsp-end disp">On s’en occupe,<br><i>vous souriez.</i></p>
   </div>
-  <span class="cap" id="wall-cap">Vous demandez · on s’en occupe</span>
-</section>
-
-<!-- ================= CE QU'ON FAIT ================= -->
-<section class="jobs light" id="metiers">
-  <div class="jwrap" id="jwrap">
-  <span class="lbl">Ce qu’on fait</span>
-  <ul class="jlist" id="jlist">
-    <li><a href="aide-numerique-paris-16.html" data-img="marshall-ordi.webp"><span class="disp">Aide à domicile</span><small>Ordinateur, smartphone, tablette : on apprend ensemble, chez vous</small></a></li>
-    <li><a href="aide-numerique-paris-16.html" data-img="agents/ag-audit.webp"><span class="disp">Démarches</span><small>Impôts, Ameli, CAF, Doctolib : pas à pas, sans stress</small></a></li>
-    <li><a href="rendez-vous.html" data-img="agents/ag-social.webp"><span class="disp">Sites web</span><small>Un site clair pour votre commerce, que vous savez modifier</small></a></li>
-    <li><a href="rendez-vous.html" data-img="agents/ag-visual.webp"><span class="disp">Google</span><small>Être trouvé dans votre quartier : fiche Google et référencement</small></a></li>
-    <li><a href="decouvrir-studio-social.html" data-img="agents/ag-studio.webp"><span class="disp">Studio Social</span><small>Marshall crée et publie vos posts Instagram, Facebook et TikTok</small></a></li>
-    <li><a href="Nosoffres.html" data-img="agents/ag-testing.webp"><span class="disp">Informatique pro</span><small>Parc, sauvegardes, cybersécurité : tout tourne, sans y penser</small></a></li>
-    <li><a href="rendez-vous.html" data-img="agents/ag-brand.webp"><span class="disp">Audit gratuit</span><small>30 minutes en visio pour savoir par où commencer</small></a></li>
-  </ul>
-  <div class="jstage" id="jstage" aria-hidden="true">
-    <figure class="jfig on"><figcaption>Ordinateur, smartphone, tablette : on apprend ensemble, chez vous</figcaption><img src="marshall-ordi.webp" alt="" loading="lazy"></figure>
-    <figure class="jfig"><figcaption>Impôts, Ameli, CAF, Doctolib : pas à pas, sans stress</figcaption><img src="agents/ag-audit.webp" alt="" loading="lazy"></figure>
-    <figure class="jfig"><figcaption>Un site clair pour votre commerce, que vous savez modifier</figcaption><img src="agents/ag-social.webp" alt="" loading="lazy"></figure>
-    <figure class="jfig"><figcaption>Être trouvé dans votre quartier : fiche Google et référencement</figcaption><img src="agents/ag-visual.webp" alt="" loading="lazy"></figure>
-    <figure class="jfig"><figcaption>Marshall crée et publie vos posts Instagram, Facebook et TikTok</figcaption><img src="agents/ag-studio.webp" alt="" loading="lazy"></figure>
-    <figure class="jfig"><figcaption>Parc, sauvegardes, cybersécurité : tout tourne, sans y penser</figcaption><img src="agents/ag-testing.webp" alt="" loading="lazy"></figure>
-    <figure class="jfig"><figcaption>30 minutes en visio pour savoir par où commencer</figcaption><img src="agents/ag-brand.webp" alt="" loading="lazy"></figure>
-    <span class="jnum" id="jnum">1 / 7</span>
-  </div>
-  </div>
-  <div class="why">
-    <p>Le numérique avance vite, et personne ne vous a donné le mode d’emploi. Un écran qui bloque, un mot de passe oublié, un site à créer, des réseaux à tenir : ça finit par prendre toute la place. <b>Alors, pourquoi un copain digital&nbsp;?</b></p>
-    <a class="btn" href="#apropos">Voilà pourquoi <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
-  </div>
-  <div class="follow" id="follow" aria-hidden="true"><div class="bg"></div><img id="follow-img" src="marshall-ordi.webp" alt=""></div>
-</section>
-
-<!-- ================= QUI JE SUIS ================= -->
-<section class="about" id="apropos">
-  <span class="lbl">Qui je suis</span>
-  <div class="agrid">
-    <div class="aleft">
-      <div class="aswap">
-        <h2 class="disp" id="about-title"><span class="mask"><span>Le copain</span></span><span class="mask"><span>digital qui</span></span><span class="mask"><span><em>explique</em></span></span><span class="mask"><span>sans jargon,</span></span><span class="mask"><span>à votre rythme</span></span></h2>
-      </div>
-      <a class="btn fill" id="about-cta" href="qui-suis-je.html">Faire connaissance <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
-    </div>
-    <div class="presente" id="presente"><span class="glow"></span><img id="presente-img" src="marshall-presente-anim.webp" width="540" height="905" alt="Marshall présente, son téléphone à la main"></div>
+  <div class="tel-zone">
+    <div class="tel"><div class="ecran"><div class="fil" id="fil">
+      <div class="post"><img src="reportage-commerce.jpg" alt="" loading="lazy"><div>fleursdelea <span class="coeur">♥</span></div></div>
+      <div class="post"><img src="creation-banane.jpg" alt="" loading="lazy"><div>studio.ia <span class="coeur">♥</span></div></div>
+      <div class="post"><img src="reportage-sahara.jpg" alt="" loading="lazy"><div>marshall.journal <span class="coeur">♥</span></div></div>
+      <div class="post"><img src="reportage-commerce.jpg" alt="" loading="lazy"><div>fleursdelea <span class="coeur">♥</span></div></div>
+    </div></div></div>
+    <img class="tel-marshall marshall" id="tel-marshall" src="agents/ag-campaign.webp" alt="Marshall prépare la semaine de posts" loading="lazy">
   </div>
 </section>
 
-<!-- ================= STUDIO SOCIAL ================= -->
-<section class="work dark" id="creations">
-  <div class="whead">
-    <h2 class="disp">Studio Social</h2>
+<!-- 7. PROS -->
+<section class="pros dark" id="pros">
+  <div class="tete">
+    <div><span class="lbl">Entreprises</span><h2 class="disp">Votre informatique<br><em>qui tourne seule</em></h2></div>
+    <img class="marshall" id="pros-marshall" src="agents/ag-testing.webp" alt="Marshall compare deux solutions" loading="lazy">
   </div>
-  <div class="cards" id="cards">
-    <article class="card">
-      <div class="media"><video src="reportage-sahara.mp4" poster="reportage-sahara.jpg" muted loop playsinline preload="none"></video><button type="button" class="snd" aria-label="Activer le son">🔇</button></div>
-      <h3 class="disp">Le chien du Sahara</h3><p><b>Journaliste</b> | L’info du jour devient un reportage télé de 20 s, Marshall face caméra</p>
-    </article>
-    <article class="card">
-      <div class="media"><video src="creation-banane.mp4" poster="creation-banane.jpg" muted loop playsinline preload="none"></video></div>
-      <h3 class="disp">La banane en balade</h3><p><b>Studio IA</b> | Une idée en une phrase devient une vidéo IA de 15 s</p>
-    </article>
-    <article class="card">
-      <div class="media"><video src="reportage-commerce.mp4?v=20261005-0345" poster="reportage-commerce.jpg?v=20261005-0345" muted loop playsinline preload="none"></video><button type="button" class="snd" aria-label="Activer le son">🔇</button></div>
-      <h3 class="disp">Fleurs de Léa</h3><p><b>Reportage commerce</b> | La nouvelle collection présentée en direct de la boutique</p>
-    </article>
+  <div class="tuiles" id="tuiles">
+    <div class="tuile"><b>Sites web</b><p>Un site clair et rapide, que vous savez modifier, avec le référencement et la fiche Google.</p><span class="devis">Sur devis</span></div>
+    <div class="tuile"><b>Audit &amp; infogérance</b><p>Parc informatique, check-up sécurité et réseaux, maintenance et assistance prioritaire.</p><span class="devis">Sur devis</span></div>
+    <div class="tuile"><b>Cybersécurité</b><p>Protection contre les menaces, accès et mots de passe sécurisés, équipes formées aux bons réflexes.</p><span class="devis">Sur devis</span></div>
+    <div class="tuile"><b>Serveurs &amp; sauvegarde</b><p>Serveurs, NAS, sauvegarde hybride et plan de reprise d’activité.</p><span class="devis">Sur devis</span></div>
   </div>
-  <div class="more"><a class="btn" href="decouvrir-studio-social.html">Découvrir Studio Social <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
+  <div class="bas"><a class="btn fill" href="rendez-vous.html">Demander un devis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
 </section>
 
-<!-- ================= OFFRES ================= -->
-<section class="offers light" id="offres">
-  <span class="lbl">Nos offres</span>
-  <div class="olist">
-    <div class="orow"><h3 class="disp">Particuliers<sup>dès 49 €</sup></h3><ul><li>Séance d’une heure</li><li>À domicile dans le 16e et alentours</li><li>En visio partout ailleurs</li><li>Ordinateur, smartphone, démarches…</li></ul><a class="btn" href="aide-numerique-paris-16.html">Voir l’aide à domicile</a></div>
-    <div class="orow"><div><span class="best">Pour les commerçants</span><h3 class="disp">Studio Social<sup>dès 0 €</sup></h3></div><ul><li>Marshall crée vos posts et vidéos</li><li>Instagram, Facebook et TikTok</li><li>Gratuit pour commencer</li><li>Formules à 29 € et 59 € par mois</li></ul><a class="btn fill" href="decouvrir-studio-social.html">Découvrir Studio Social</a></div>
-    <div class="orow"><h3 class="disp">Pros<sup>sur devis</sup></h3><ul><li>Sites web et référencement</li><li>Audit et infogérance</li><li>Cybersécurité</li><li>Serveurs et sauvegarde</li></ul><a class="btn" href="rendez-vous.html">Demander un devis</a></div>
-  </div>
-  <p class="fine">Un doute sur la formule&nbsp;? L’audit de 30 minutes en visio est gratuit et sans engagement. <a href="Nosoffres.html">Toutes nos offres</a></p>
-</section>
-
-<!-- ================= FAQ ================= -->
+<!-- 8. FAQ -->
 <section class="faq light" id="faq">
-  <span class="lbl">Questions fréquentes</span>
-  <details><summary>Vous vous déplacez où&nbsp;?</summary><p>Dans le 16e et les quartiers voisins : 15e, 17e, 8e, Boulogne-Billancourt et Neuilly-sur-Seine. Ailleurs, on se retrouve en visio, avec le même accompagnement.</p></details>
-  <details><summary>Combien coûte une séance&nbsp;?</summary><p>Une séance d’une heure coûte à partir de 49 €. Des formules de 3 et 5 heures existent pour avancer sur plusieurs séances : elles sont détaillées sur la page <a href="Nosoffres.html" style="text-decoration:underline">Nos offres</a>.</p></details>
-  <details><summary>Je ne suis pas à l’aise avec la technique</summary><p>C’est justement pour vous. On part de ce que vous savez déjà, sans jargon, et on avance à votre rythme. Aucune question n’est bête.</p></details>
-  <details><summary>C’est quoi, Studio Social&nbsp;?</summary><p>L’application de Mon Copain Digital pour les commerçants : Marshall, votre copain IA, crée vos posts, stories et vidéos pour Instagram, Facebook et TikTok, puis les publie. C’est gratuit pour commencer.</p></details>
-  <details><summary>Vous créez aussi des sites internet&nbsp;?</summary><p>Oui, ainsi que le référencement et la fiche Google, sur devis. On commence par l’audit gratuit pour voir ce dont vous avez vraiment besoin.</p></details>
-  <details><summary>L’audit gratuit, ça se passe comment&nbsp;?</summary><p>30 minutes en visio : on regarde ensemble votre site, votre fiche Google et vos réseaux sociaux, et vous repartez avec un plan d’action clair. Sans engagement.</p></details>
+  <div>
+    <span class="lbl">Questions fréquentes</span>
+    <h2 class="disp">On vous <em>répond</em></h2>
+    <details><summary>Vous vous déplacez où ?</summary><p>Dans le 16e et les quartiers voisins : 15e, 17e, 8e, Boulogne-Billancourt et Neuilly-sur-Seine. Ailleurs, on se retrouve en visio, avec le même accompagnement.</p></details>
+    <details><summary>Combien coûte une séance ?</summary><p>Une séance d’une heure coûte à partir de 49 €. Des formules de 3 et 5 heures existent pour avancer sur plusieurs séances : elles sont détaillées sur la page <a href="Nosoffres.html" style="text-decoration:underline">Nos offres</a>.</p></details>
+    <details><summary>Je ne suis pas à l’aise avec la technique</summary><p>C’est justement pour vous. On part de ce que vous savez déjà, sans jargon, et on avance à votre rythme. Aucune question n’est bête.</p></details>
+    <details><summary>C’est quoi, Studio Social ?</summary><p>L’application de Mon Copain Digital pour les commerçants : Marshall, votre copain IA, crée vos posts, stories et vidéos pour Instagram, Facebook et TikTok, puis les publie. C’est gratuit pour commencer.</p></details>
+    <details><summary>Vous créez aussi des sites internet ?</summary><p>Oui, ainsi que le référencement et la fiche Google, sur devis. On commence par l’audit gratuit pour voir ce dont vous avez vraiment besoin.</p></details>
+    <details><summary>L’audit gratuit, ça se passe comment ?</summary><p>30 minutes en visio : on regarde ensemble votre site, votre fiche Google et vos réseaux sociaux, et vous repartez avec un plan d’action clair. Sans engagement.</p></details>
+  </div>
+  <div class="reac" aria-hidden="true"><img class="marshall" id="reac" src="agents/ag-brand.webp" alt="" loading="lazy"><small id="reac-txt">Une question ?</small></div>
 </section>
 
-<!-- ================= ON S'Y MET ================= -->
-<section class="touch dark" id="final">
-  <span class="lbl">On s’y met&nbsp;?</span>
-  <h2 class="disp" id="touch-title"><span class="mask"><span>Parlons</span></span><span class="mask"><span><em>de votre</em></span></span><span class="mask"><span>projet</span></span></h2>
-  <div class="go"><a class="btn fill" href="rendez-vous.html">Réserver mon audit gratuit <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
-  <img class="bravo" id="bravo" src="marshall-bravo.webp" alt="Marshall applaudit" loading="lazy">
+<!-- 9. FIN -->
+<section class="fin orange" id="fin">
+  <span class="lbl">On s’y met ?</span>
+  <h2 class="disp" id="fin-titre">30 minutes,<br><em>un plan clair</em></h2>
+  <p>L’audit est gratuit et sans engagement : on regarde ensemble votre situation, et vous repartez avec les bonnes décisions.</p>
+  <div class="actions">
+    <a class="btn blanc" href="rendez-vous.html">Réserver mon audit gratuit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    <a class="btn blanc" href="tel:+33753670195">07 53 67 01 95</a>
+  </div>
+  <img class="coucou marshall" id="coucou" src="marshall-coucou.webp" alt="Marshall vous fait coucou" loading="lazy">
 </section>
 </main>
 
-<!-- ================= PIED DE PAGE ================= -->
-<footer class="foot light">
-  <div class="fgrid">
-    <div>
-      <h3 class="disp">Un audit gratuit,<br><em>30 min en visio</em></h3>
-      <div class="ref"><span>Sans engagement : vous repartez avec un plan d’action clair. Ou appelez le 07 53 67 01 95.</span><a class="sq" href="rendez-vous.html" aria-label="Réserver l’audit gratuit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
-    </div>
-    <div>
-      <div class="ntabs" id="ntabs" role="tablist">
-        <button type="button" class="on" data-n="0">Particuliers</button><button type="button" data-n="1">Commerçants</button><button type="button" data-n="2">Pros</button><button type="button" data-n="3">Paris 16</button>
-      </div>
-      <div class="ndet" id="ndet"><span class="lbl">Détails</span><p></p></div>
-    </div>
+<footer class="pied-page light">
+  <div class="liens">
+    <a href="Nosoffres.html">Nos offres</a><a href="aide-numerique-paris-16.html">Aide à Paris 16</a><a href="decouvrir-studio-social.html">Studio Social</a><a href="idees-posts-boulangerie.html">Idées de posts</a><a href="qui-suis-je.html">Qui suis-je ?</a><a href="contact.html">Contact</a><a href="espace-compte.html">Mon compte</a><a href="loiapplicablemcp.html">Mentions légales</a>
   </div>
-  <div class="fbot">
-    <div class="flinks"><a href="Nosoffres.html">Nos offres</a><a href="aide-numerique-paris-16.html">Aide à Paris 16</a><a href="decouvrir-studio-social.html">Studio Social</a><a href="idees-posts-boulangerie.html">Idées de posts</a><a href="contact.html">Contact</a><a href="espace-compte.html">Mon compte</a><a href="loiapplicablemcp.html">Mentions légales</a></div>
-    <small>© 2026 Mon Copain Digital<br>Fait à Paris, avec Marshall</small>
-  </div>
-  <div class="bigword disp" aria-hidden="true"><span class="wordline">Copain <span class="brand-tail"><em>Digital</em></span></span></div>
+  <small>© 2026 Mon Copain Digital · Fait à Paris, avec Marshall</small>
+  <div class="grandmot disp" id="grandmot" aria-hidden="true">Mon Copain <em>Digital</em></div>
 </footer>
 
 <style>
@@ -933,72 +845,40 @@
   .mcd-fenetre{left:auto;right:0;top:auto;bottom:78px;max-height:calc(100vh - 120px)}
   @media (max-width:520px){.mcd-chat{right:12px;bottom:12px}.mcd-lanceur{width:54px;height:54px}.mcd-fenetre{bottom:68px;width:calc(100vw - 24px)}}
 </style>
-
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
 <script>
 (function(){
-  /* ---------- Horloge « Marshall en ligne » ---------- */
-  var ck = document.getElementById('clock');
-  function tick(){ var d = new Date(); ck.textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
-  tick(); setInterval(tick, 15000);
-
-
-  /* ---------- Menu mobile ---------- */
+  /* ---------- Menu ---------- */
   var menu = document.getElementById('menu');
   document.getElementById('burger').onclick = function(){ menu.classList.add('open'); };
   document.getElementById('menu-x').onclick = function(){ menu.classList.remove('open'); };
   menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ menu.classList.remove('open'); }); });
 
-  /* ---------- Son des vidéos ---------- */
-  function soundToggle(btn, vids){
-    btn.addEventListener('click', function(){
-      var on = vids[0].muted;
-      document.querySelectorAll('video').forEach(function(v){ v.muted = true; });
-      document.querySelectorAll('.card .snd').forEach(function(b){ b.textContent = '🔇'; });
-      document.querySelectorAll('#wall .spk').forEach(function(x){ x.innerHTML = SPK_OFF; x.setAttribute('aria-pressed', 'false'); });
-      vids.forEach(function(v, i){ v.muted = !on || i > 0; if (on && i === 0) { v.currentTime = 0; v.play().catch(function(){}); } });
-      if (btn.classList.contains('snd')) btn.textContent = on ? '🔊' : '🔇';
-    });
+  /* ---------- En-tête : fond plein au défilement, couleur selon la section dessous ---------- */
+  var top = document.getElementById('top');
+  function enTete(){
+    top.classList.toggle('solid', scrollY > 40);
+    var y = top.offsetHeight / 2, sous = document.elementsFromPoint(innerWidth / 2, y).find(function(el){ return !top.contains(el); });
+    top.classList.toggle('on-light', !!(sous && sous.closest('.light')));
   }
-  // Petit haut-parleur sur chaque vidéo de la vitrine : un seul son à la fois
-  var SPK_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19.5 5.5a9 9 0 0 1 0 13"/></svg>', SPK_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
-  document.querySelectorAll('#wall .spk').forEach(function(b){
-    b.addEventListener('click', function(){
-      var v = b.parentNode.querySelector('video'), on = v.muted;
-      document.querySelectorAll('video').forEach(function(x){ x.muted = true; });
-      document.querySelectorAll('#wall .spk').forEach(function(x){ x.innerHTML = SPK_OFF; x.setAttribute('aria-pressed', 'false'); x.setAttribute('aria-label', 'Activer le son'); });
-      document.querySelectorAll('.card .snd').forEach(function(x){ x.textContent = '🔇'; });
-      if (on) { v.muted = false; v.currentTime = 0; v.play().catch(function(){}); b.innerHTML = SPK_ON; b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-label', 'Couper le son'); }
-    });
-  });
-  document.querySelectorAll('.card .snd').forEach(function(b){ soundToggle(b, [b.parentNode.querySelector('video')]); });
-  // Les vidéos ne tournent que lorsqu'elles sont visibles
-  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ var v = e.target; if (e.isIntersecting) { v.play().catch(function(){}); } else { v.pause(); } }); }, { threshold:.25 });
-  document.querySelectorAll('video').forEach(function(v){ io.observe(v); });
+  addEventListener('scroll', enTete, { passive:true }); addEventListener('resize', enTete); enTete();
 
-  /* ---------- Onglets du pied de page ---------- */
-  var NETS = [
-    'Séances d’une heure dès 49 € : ordinateur, smartphone, tablette, démarches en ligne. Chez vous ou en visio.',
-    'Studio Social : Marshall crée et publie vos posts Instagram, Facebook et TikTok. Gratuit pour commencer.',
-    'Sites web, référencement, infogérance, cybersécurité et sauvegardes, sur devis après un audit gratuit.',
-    'À domicile dans le 16e, le 15e, le 17e, le 8e, à Boulogne-Billancourt et à Neuilly-sur-Seine.'
-  ];
-  var nt = document.getElementById('ntabs'), nd = document.querySelector('#ndet p');
-  nd.textContent = NETS[0];
-  nt.addEventListener('click', function(e){
-    var b = e.target.closest('button'); if (!b) return;
-    nt.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
-    nd.textContent = NETS[+b.getAttribute('data-n')];
+  /* ---------- FAQ : Marshall réagit ---------- */
+  var MOTS = ['Bonne question !', 'Facile.', 'Je vous explique.', 'On y va ?', 'Avec plaisir !', 'C’est parti.'];
+  document.querySelectorAll('.faq details').forEach(function(d, i){
+    d.addEventListener('toggle', function(){
+      if (!d.open) return;
+      document.getElementById('reac-txt').textContent = MOTS[i % MOTS.length];
+      if (window.gsap) gsap.fromTo('#reac', { y:0, rotate:0 }, { keyframes:[{ y:-34, rotate:-6, duration:.22, ease:'power2.out' }, { y:0, rotate:0, duration:.5, ease:'bounce.out' }] });
+    });
   });
 
   if (!window.gsap) return;
   gsap.registerPlugin(ScrollTrigger);
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- Défilement doux ---------- */
   if (window.Lenis && !reduce) {
     var lenis = window.lenis = new Lenis({ lerp:.1 });
     lenis.on('scroll', ScrollTrigger.update);
@@ -1010,355 +890,127 @@
   }
   if (reduce) return;
 
-  /* ---------- Héros : « POSTS RATÉS… » se fissure, les lettres tombent, Marshall les dégage d'un coup de pied,
-     puis « HELLO MARSHALL » remonte en grand ---------- */
-  var hero = document.getElementById('hero'), rates = document.getElementById('rates'), runner = document.getElementById('runner');
-  var runImg = document.getElementById('runner-run'), kickImg = document.getElementById('runner-kick');
-  var word = rates.querySelector('i');
-  word.innerHTML = word.textContent.split('').map(function(c){ return c === ' ' ? ' ' : '<span class="ch">' + c + '</span>'; }).join('');
-  var chars = [].slice.call(word.querySelectorAll('.ch'));
-  var row2 = '#row2 .mask > span';
-
-  // Cachés dès le départ (avant même la construction de la scène)
-  gsap.set(row2, { yPercent:110 }); gsap.set('#pill img', { yPercent:80 });
-  var pillEl = document.getElementById('pill'), pillW0 = pillEl.offsetWidth; gsap.set(pillEl, { width:0 });
-  gsap.set('#wall .dsp-in', { xPercent:-50, autoAlpha:0, yPercent:40, scale:.85 });
-  gsap.set('#wall-cap', { autoAlpha:0, y:20 });
-  function buildHero(){
-  // Mesures prises une fois, page au repos et police chargée (tout est relatif au héros)
-  var G = {};
-  function measure(){
-    var hr = hero.getBoundingClientRect(), r = rates.getBoundingClientRect();
-    G.hw = hero.offsetWidth; G.hh = Math.min(hero.offsetHeight, innerHeight);
-    G.floor = G.hh - 6;
-    G.cx = r.left - hr.left + r.width / 2; G.cy = r.top - hr.top + r.height * .52;
-    G.W = Math.min(r.width * .74, hr.width * .84);
-    G.ratesW = r.width; G.ratesH = rates.offsetHeight;
-    G.col = getComputedStyle(rates.parentNode).flexDirection === 'column';   // mobile : lignes empilées
-    G.chars = chars.map(function(c){ var b = c.getBoundingClientRect(); return { bottom:b.bottom - hr.top, right:b.right - hr.left }; });
-    G.pile = Math.max.apply(null, G.chars.map(function(c){ return c.right; })) + 20;
-    G.rh = runner.offsetHeight; G.rw = G.rh * 523 / 560;
-    runner.style.width = G.rw + 'px';
-    gsap.set(pillEl, { clearProps:'width' }); G.pillW = pillEl.offsetWidth || pillW0; gsap.set(pillEl, { width:0 });
-  }
-  measure();
-
-
-  // État de départ
-  gsap.set(runner, { visibility:'hidden', x:G.hw + 40, y:G.floor + 4 - G.rh }); gsap.set(kickImg, { autoAlpha:0 });
-
-  // Au chargement : seule la première ligne apparaît, puis on invite à défiler
-  gsap.timeline({ defaults:{ ease:'expo.out' } })
-    .from('#hero-title .row:first-child .mask > span', { yPercent:110, duration:.8, stagger:.08 })
-    .from('.hero .base > *', { y:20, opacity:0, duration:.8, stagger:.1 }, .5)
-    .from('#scroll-hint', { opacity:0, y:10, duration:.6 }, .9);
-  gsap.to('#pill img', { rotate:4, y:-3, duration:1.4, repeat:-1, yoyo:true, ease:'sine.inOut' });
-
-  /* ---------- À l'ouverture, tout seul : l'écran tremble → chute des lettres → Marshall court et tire → « HELLO MARSHALL »
-     Ensuite, AU DÉFILEMENT : la pilule remplit l'écran → les 3 exemples ---------- */
-  var fill = document.createElement('div'); fill.className = 'pill-fill'; hero.insertBefore(fill, hero.firstChild);
-  function pr(k){
-    var h = hero.getBoundingClientRect(), p = document.getElementById('pill').getBoundingClientRect();
-    return { l:p.left - h.left, t:p.top - h.top, w:p.width, h:p.height }[k];
-  }
-  var topBar = document.getElementById('top'), orHero = false, orReel = false;
-  function topColor(){ topBar.classList.toggle('on-or', orHero || orReel); }
-  function syncHeaderLight(){
-    var y = Math.max(1, Math.min(innerHeight - 1, topBar.offsetHeight * .5));
-    var under = document.elementsFromPoint(innerWidth * .5, y).find(function(el){ return !topBar.contains(el) && el !== topBar; });
-    topBar.classList.toggle('on-light', !!(under && under.closest('.light')));
-  }
-  addEventListener('scroll', syncHeaderLight, { passive:true });
-  addEventListener('resize', syncHeaderLight, { passive:true });
-  requestAnimationFrame(syncHeaderLight);
-
-  var F = 0;      // le défilement commence directement par le remplissage orange
-  var bob = function(n){ var k = []; for (var i = 0; i < n; i++) k.push({ y:i % 2 ? 0 : -16 }); k.push({ y:0 }); return k; };
-  var st = gsap.timeline({ defaults:{ ease:'none' }, scrollTrigger:{ trigger:hero, start:'top top', end:'+=210%', scrub:1, pin:true, anticipatePin:1, refreshPriority:1,
-      onUpdate:function(t){ var o = t.isActive && t.animation.time() > F + .15; if (o !== orHero) { orHero = o; topColor(); } },
-      onLeave:function(){ orHero = true; topColor(); }, onEnterBack:function(t){ orHero = t.animation.time() > F + .15; topColor(); } } });
-  var it = gsap.timeline({ paused:true, defaults:{ ease:'none' } });   // l'intro, jouée automatiquement
-  it.to('#scroll-hint', { autoAlpha:0, duration:.15 }, 0)
-    // 1. À l'arrivée : l'écran tremble…
-    .to('#hero-title', { keyframes:[{ x:-16, y:7 }, { x:14, y:-6 }, { x:-11, y:5 }, { x:8, y:-3 }, { x:-4, y:2 }, { x:0, y:0 }], duration:.35 }, .05)
-    .to(chars, { keyframes:[{ y:7, rotate:-3 }, { y:-3, rotate:2 }, { y:0, rotate:0 }], duration:.3, stagger:{ each:.01, from:'random' } }, .05)
-    // 2. … et les lettres tombent tout en bas de l'écran
-    .addLabel('chute', .4)
-    .set(rates, { overflow:'visible' }, 'chute');
-  var order = chars.map(function(c, i){ return i; }).sort(function(){ return Math.random() - .5; });
-  order.forEach(function(ci, k){
-    it.to(chars[ci], { x:gsap.utils.random(-30, 30), y:G.floor - G.chars[ci].bottom, rotate:gsap.utils.random(-50, 50), duration:.35, ease:'bounce.out' }, 'chute+=' + (k * .0245));   // 30 % plus rapide
+  /* ---------- 1. Héros : chaque lettre tombe du ciel et rebondit, la pilule s'ouvre, Marshall glisse avec son ordi ---------- */
+  var titre = document.getElementById('titre');
+  titre.querySelectorAll('.l').forEach(function(l){
+    (function coupe(n){
+      [].slice.call(n.childNodes).forEach(function(c){
+        if (c.nodeType === 3) {
+          var f = document.createDocumentFragment();
+          c.textContent.split(/(\s+)/).forEach(function(m){
+            if (!m) return;
+            if (/^\s+$/.test(m)) { f.appendChild(document.createTextNode(' ')); return; }
+            var w = document.createElement('span'); w.className = 'mot';
+            m.split('').forEach(function(ch){ var s = document.createElement('span'); s.className = 'ch'; s.textContent = ch; w.appendChild(s); });
+            f.appendChild(w);
+          });
+          n.replaceChild(f, c);
+        } else if (c.nodeType === 1 && !c.classList.contains('pill')) coupe(c);
+      });
+    })(l);
   });
-  // 3. Marshall arrive en courant depuis la droite…
-  var target = Math.min(G.pile - G.rw * .22, G.hw - G.rw * .85);
-  it.set(runner, { visibility:'visible' }, 1.03)
-    .to(runner, { x:target, duration:.42, ease:'power1.in' }, 1.03)
-    .to(runImg, { keyframes:bob(8), duration:.42 }, 1.03)
-    // 4. … et dégage les lettres d'un coup de pied
-    .addLabel('tir', 1.45)
-    .set(runImg, { autoAlpha:0 }, 'tir').set(kickImg, { autoAlpha:1 }, 'tir')
-    .to(runner, { keyframes:[{ rotate:-6 }, { rotate:0 }], transformOrigin:'50% 100%', duration:.105 }, 'tir')
-    .to('#bye-word', { autoAlpha:0, y:-34, scale:.94, duration:.22, ease:'power2.in' }, 'tir+=.05');
-  chars.forEach(function(c, i){
-    it.to(c, { x:'-=' + (G.chars[i].right + 260 + Math.random() * 300), y:'-=' + gsap.utils.random(120, 460), rotate:'+=' + gsap.utils.random(-540, 540), duration:.315, ease:'power2.in' }, 'tir+=' + (i * .007));
+  var lettres = titre.querySelectorAll('.ch');
+  gsap.set(lettres, { y:function(){ return -innerHeight * gsap.utils.random(.6, 1.1); }, rotate:function(){ return gsap.utils.random(-70, 70); }, opacity:0 });
+  gsap.set('#pill', { scale:0 }); gsap.set('#hero-marshall', { x:'60vw', rotate:8 });
+  gsap.set('.hero .sous, .choix a', { y:30, opacity:0 });
+  var intro = gsap.timeline({ paused:true })
+    .to(lettres, { y:0, rotate:0, opacity:1, duration:1, ease:'bounce.out', stagger:{ each:.035, from:'random' } })
+    .to('#pill', { scale:1, duration:.6, ease:'back.out(2.2)' }, '-=.4')
+    .to('#hero-marshall', { x:0, rotate:0, duration:1.1, ease:'expo.out' }, '-=.5')
+    .to('.hero .sous, .choix a', { y:0, opacity:1, duration:.7, stagger:.1, ease:'expo.out' }, '-=.8');
+  function quandPortesOuvertes(fn){ if (window.__doorsOpen || !document.getElementById('door-tx')) fn(); else document.addEventListener('mcd-doors-open', fn, { once:true }); }
+  quandPortesOuvertes(function(){ gsap.delayedCall(.25, function(){ intro.play(); }); });
+  gsap.to('#pill img', { rotate:5, y:-3, duration:1.3, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  // Les icônes suivent la souris en parallaxe
+  var ic = document.getElementById('icones');
+  addEventListener('mousemove', function(e){
+    var dx = (e.clientX / innerWidth - .5), dy = (e.clientY / innerHeight - .5);
+    gsap.to(ic.children, { x:function(i){ return dx * (20 + i * 9); }, y:function(i){ return dy * (16 + i * 7); }, duration:.8, ease:'power3', overwrite:'auto' });
   });
-  // 5. Il repart en courant, la ligne se resserre et « HELLO MARSHALL » remonte en grand
-  it.set(chars, { autoAlpha:0 }, 1.84)                                  // lettres sorties de l'écran : on les cache (la ligne va se resserrer)
-    .set(kickImg, { autoAlpha:0 }, 1.73).set(runImg, { autoAlpha:1 }, 1.73)
-    .to(runner, { x:-G.rw - 60, duration:.42, ease:'power1.in' }, 1.73)
-    .to(runImg, { keyframes:bob(8), duration:.42 }, 1.73)
-    .set(runner, { visibility:'hidden' }, 2.15)
-    .fromTo(rates, { width:G.ratesW, height:G.ratesH }, G.col ? { width:0, height:0, paddingTop:0, duration:.4, ease:'power3.inOut' } : { width:0, marginLeft:'-.22em', duration:.4, ease:'power3.inOut' }, 1.85)
-    .to(row2, { yPercent:0, duration:.5, stagger:.06, ease:'expo.out' }, 2.05)
-    .fromTo('#row2', { scale:.72 }, { scale:1, duration:.6, ease:'back.out(1.5)' }, 2.05)
-    .to('#pill', { width:G.pillW, duration:.5, ease:'expo.inOut' }, 2.1)
-    .to('#pill img', { yPercent:0, duration:.4, ease:'back.out(1.6)' }, 2.4)
-    .to('#scroll-hint', { autoAlpha:1, duration:.3 }, 2.7);           // l'intro finie, on invite à défiler
-  // 6. AU DÉFILEMENT : la pilule orange grandit jusqu'à remplir l'écran (Marshall et sa pilule s'effacent sur les 10 premiers %)
-  st.fromTo(fill, { left:function(){ return pr('l'); }, top:function(){ return pr('t'); }, width:function(){ return pr('w'); }, height:function(){ return pr('h'); },
-                    borderRadius:function(){ return pr('h') / 2; }, autoAlpha:1 },
-                  { left:0, top:0, width:function(){ return hero.offsetWidth; }, height:function(){ return hero.offsetHeight; }, borderRadius:0, autoAlpha:1, ease:'power2.inOut', duration:.5, immediateRender:false }, F)
-    .set(fill, { autoAlpha:1 }, F)
-    .to('#hero-title .row:first-child, #row2 .mask', { opacity:0, y:-50, stagger:.05, ease:'power1.in', duration:.55 }, F)
-    .to('.hero .base', { opacity:0, duration:.35 }, F)
-    .to('#pill img', { opacity:0, duration:.145 }, F)
-    .to('#pill', { opacity:0, duration:.145 }, F)
-    // 7. Les 3 exemples arrivent un par un sur l'orange
-    .to('#wall .dsp-boss', { autoAlpha:1, yPercent:0, scale:1, duration:.34, ease:'back.out(1.4)' }, F + .45)
-    .to('#wall .dsp-ag', { autoAlpha:1, yPercent:0, scale:1, duration:.26, stagger:.06, ease:'back.out(1.6)' }, F + .62)
-    .to('#wall-cap', { autoAlpha:1, y:0, duration:.12 }, F + 1.08)
-    .set('#wall', { pointerEvents:'auto' }, F + 1.08)
-    .set({}, {}, F + 2.4);                                            // la vitrine reste un moment à l'écran pendant que la boucle tourne
-  // 8. En boucle : les demandes arrivent sur le téléphone de Marshall, il en fait un ticket et l'envoie à l'agent qui s'en charge
-  var dAg = [].slice.call(document.querySelectorAll('#wall .dsp-ag')), dN = [].slice.call(document.querySelectorAll('#wall .dsp-n')),
-      dT = [].slice.call(document.querySelectorAll('#wall .dsp-t')), dBoss = document.querySelector('#wall .dsp-boss'), dWall = document.getElementById('wall'),
-      dEndEl = document.querySelector('#wall .dsp-end');
-  function dAim(){   // départ : le téléphone de Marshall ; arrivée : chaque agent (recalculé à chaque redimensionnement)
-    var w = dWall.getBoundingClientRect(), b = dBoss.getBoundingClientRect();
-    var sx = b.left - w.left + b.width * .74, sy = b.top - w.top + b.height * .25;
-    dT.forEach(function(t, k){
-      var a = dAg[k].getBoundingClientRect();
-      t.style.setProperty('--sx', sx + 'px'); t.style.setProperty('--sy', sy + 'px');
-      t.style.setProperty('--tx', (a.left - w.left + a.width / 2 - sx) + 'px'); t.style.setProperty('--ty', (a.top - w.top + a.height * .35 - sy) + 'px');
-    });
-  }
-  ScrollTrigger.addEventListener('refresh', dAim);
-  function dState(k, v){
-    var f = dAg[k], sp = f.querySelector('figcaption span');
-    f.classList.toggle('dsp-work', v === 1); f.classList.toggle('dsp-done', v === 2);
-    sp.textContent = v === 2 ? 'C’est prêt' : (v === 1 ? sp.dataset.work : sp.dataset.wait);
-  }
-  function dReset(){
-    gsap.set(dN, { autoAlpha:0, x:0, y:0, scale:1 }); gsap.set(dT, { autoAlpha:0, '--p':0, '--arc':0 }); gsap.set(dEndEl, { autoAlpha:0 });
-    dAg.forEach(function(f, k){ dState(k, 0); });
-  }
-  var dS = 1.7, dLoop = gsap.timeline({ paused:true, repeat:-1, defaults:{ ease:'none' } });
-  dLoop.call(dReset, [], 0);
-  dN.forEach(function(n, k){
-    var t0 = .4 + k * dS;
-    dLoop.fromTo(n, { autoAlpha:0, y:-50, scale:.9 }, { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' }, t0)
-      .to(dBoss, { rotate:-2.5, duration:.12 }, t0 + .3).to(dBoss, { rotate:1.5, duration:.12 }, t0 + .42).to(dBoss, { rotate:0, duration:.16 }, t0 + .54)
-      .to(n, { autoAlpha:0, scale:.5, y:90, x:60, duration:.3, ease:'power2.in' }, t0 + .85)
-      .fromTo(dT[k], { autoAlpha:0, '--p':0, '--arc':0 }, { autoAlpha:1, duration:.06 }, t0 + 1.1)
-      .to(dT[k], { '--p':1, duration:.55, ease:'power1.inOut' }, t0 + 1.1)
-      .to(dT[k], { keyframes:[{ '--arc':1, duration:.275, ease:'power1.out' }, { '--arc':0, duration:.275, ease:'power1.in' }] }, t0 + 1.1)
-      .to(dT[k], { autoAlpha:0, duration:.1 }, t0 + 1.62)
-      .call(dState, [k, 1], t0 + 1.62)
-      .to(dAg[k], { scale:1.14, y:-14, duration:.15, ease:'power2.out' }, t0 + 1.62).to(dAg[k], { scale:1, y:0, duration:.4, ease:'back.out(3)' }, t0 + 1.77);
-  });
-  // 9. Tout est prêt : « Je bosse, tu valides. », puis on recommence
-  var dEnd = .4 + dN.length * dS + .3;
-  dAg.forEach(function(f, k){ dLoop.call(dState, [k, 2], dEnd + k * .08); });
-  dLoop.fromTo(dEndEl, { autoAlpha:0, y:40, scale:.9 }, { autoAlpha:1, y:0, scale:1, duration:.6, ease:'back.out(1.6)' }, dEnd + .5)
-    .to(dBoss, { rotate:-3, duration:.2 }, dEnd + .5).to(dBoss, { rotate:0, duration:.3 }, dEnd + .7)
-    .to(dEndEl, { autoAlpha:0, y:-20, duration:.4 }, dEnd + 3.4)
-    .set({}, {}, dEnd + 4);
-  // La boucle tourne dès que l'équipe est arrivée à l'écran, et s'arrête quand on quitte la vitrine
-  var dRun = false;
-  function dSync(want){
-    if (want === dRun) return; dRun = want;
-    if (want) { dAim(); dLoop.restart(); } else { dLoop.pause(); dReset(); }
-  }
-  ScrollTrigger.create({ trigger:hero, start:'top top', end:function(){ return st.scrollTrigger.end; },
-    onEnterBack:function(){ dSync(st.time() > F + 1.05); },
-    onLeave:function(){ dSync(false); }, onLeaveBack:function(){ dSync(false); } });
-  st.call(dSync, [false], F + 1.049).call(dSync, [true], F + 1.05);   // l'équipe est arrivée : la boucle démarre (et s'arrête si on remonte)
-  st.to('#scroll-hint', { autoAlpha:0, duration:.18 }, .18);
-  var root = document.documentElement;
-  function lockScroll(on){ root.style.overflow = on ? 'hidden' : ''; if (window.lenis) { if (on) lenis.stop(); else lenis.start(); } }
-  function blockKeys(e){ if (['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' ','Spacebar'].indexOf(e.key) >= 0) e.preventDefault(); }
-  function whenDoorsOpen(fn){ if (window.__doorsOpen || !document.getElementById('door-tx')) fn(); else document.addEventListener('mcd-doors-open', fn, { once:true }); }
-  if (window.scrollY < 10) {
-    lockScroll(true); window.addEventListener('keydown', blockKeys);
-    it.timeScale(.8).eventCallback('onComplete', function(){ lockScroll(false); window.removeEventListener('keydown', blockKeys); ScrollTrigger.refresh(); });
-    whenDoorsOpen(function(){ gsap.delayedCall(.35, function(){ it.play(); }); });
-  } else { it.progress(1); }                                           // page rechargée plus bas : on saute l'intro
-  ScrollTrigger.create({ trigger:'#metiers', start:'top 70px',
-    onEnter:function(){ orHero = false; orReel = false; topColor(); },
-    onLeaveBack:function(){ orReel = true; topColor(); } });
-  ScrollTrigger.refresh();
-  }
-  // La scène est mesurée une fois la police Archivo chargée (sinon les lettres sont mal placées)
-  var built = false;
-  function buildOnce(){ if (built) return; built = true; buildHero(); }
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildOnce);
-  setTimeout(buildOnce, 2500);
+  // En partant, le titre s'incline et s'efface
+  gsap.to('#titre', { yPercent:-30, rotate:-3, opacity:0, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
+  gsap.to('#hero-marshall', { yPercent:20, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
 
+  /* ---------- 2. Bandeau : défile tout seul, accélère quand on fait défiler la page ---------- */
+  var rail = document.getElementById('rail');
+  var boucle = gsap.to(rail, { xPercent:-50, duration:22, ease:'none', repeat:-1 });
+  ScrollTrigger.create({ onUpdate:function(st){ var v = Math.min(4, 1 + Math.abs(st.getVelocity()) / 600); gsap.to(boucle, { timeScale:st.direction < 0 ? -v : v, duration:.3, overwrite:true }); gsap.to(boucle, { timeScale:st.direction < 0 ? -1 : 1, duration:1.2, delay:.3 }); } });
 
-  /* ---------- Métiers : lignes qui glissent + Marshall agent qui suit la souris ---------- */
-  gsap.utils.toArray('#jlist li').forEach(function(li, i){
-    gsap.from(li.querySelector('.disp'), { yPercent:100, opacity:0, duration:1, ease:'expo.out', scrollTrigger:{ trigger:li, start:'top 92%' } });
+  /* ---------- 3. Particuliers : les cartes défilent à l'horizontale, Marshall coche celle qui passe devant lui ---------- */
+  var piste = document.getElementById('piste'), cartes = [].slice.call(piste.children), coach = document.getElementById('coach');
+  var mm = gsap.matchMedia();
+  mm.add('(min-width: 801px)', function(){
+    function dist(){ return piste.scrollWidth - innerWidth; }
+    var tw = gsap.to(piste, { x:function(){ return -dist(); }, ease:'none',
+      scrollTrigger:{ trigger:'#scene', start:'center center', end:function(){ return '+=' + dist(); }, scrub:1, pin:'#particuliers', anticipatePin:1, invalidateOnRefresh:true },
+        onUpdate:function(){
+          var c = coach.getBoundingClientRect(), x = c.right + 30, act = -1;
+          cartes.forEach(function(k, i){ var r = k.getBoundingClientRect(); if (r.left < x + 60 && r.right > x - 40) act = i; });
+          cartes.forEach(function(k, i){ var on = i === act; if (on !== k.classList.contains('on')) { k.classList.toggle('on', on); if (on) { k.querySelector('.ok').textContent = '✓ On s’en occupe'; gsap.fromTo(coach, { rotate:0 }, { keyframes:[{ rotate:-5, duration:.12 }, { rotate:0, duration:.3, ease:'back.out(3)' }] }); } } });
+        } });
+    return function(){ tw.kill(); gsap.set(piste, { clearProps:'x' }); cartes.forEach(function(k){ k.classList.remove('on'); }); };
   });
-  var fol = document.getElementById('follow'), fimg = document.getElementById('follow-img');
-  var fx = gsap.quickTo(fol, 'x', { duration:.5, ease:'power3' }), fy = gsap.quickTo(fol, 'y', { duration:.5, ease:'power3' });
-  var jl = document.getElementById('jlist');
-  // Règle : la carte n'existe que dans « Ses métiers ». Dès que la section du dessus ou du dessous
-  // occupe 20 % de l'écran, ou que la souris n'est plus sur la liste (même sans bouger, au défilement), elle disparaît.
-  var jobsOn = false, mx = -1, my = -1;
-  function folHide(){ gsap.to(fol, { opacity:0, scale:.6, duration:.3, overwrite:'auto' }); }
-  ScrollTrigger.create({ trigger:'#metiers', start:'top 80%', end:'bottom 20%', onToggle:function(st){ jobsOn = st.isActive; if (!jobsOn) folHide(); } });
-  window.addEventListener('scroll', function(){
-    if (mx < 0) return;
-    var el = document.elementFromPoint(mx, my);
-    if (!jobsOn || !el || !el.closest('#jlist a')) folHide();
-  }, { passive:true });
-  jl.addEventListener('mousemove', function(e){ mx = e.clientX; my = e.clientY; fx(e.clientX); fy(e.clientY); });
-  jl.querySelectorAll('a').forEach(function(a){
-    a.addEventListener('mouseenter', function(){
-      if (!jobsOn) return;
-      if (fimg.getAttribute('src') !== a.dataset.img) fimg.setAttribute('src', a.dataset.img);
-      gsap.to(fol, { opacity:1, scale:1, rotate:gsap.utils.random(-6, 6), duration:.45, ease:'back.out(2)' });
-    });
+  mm.add('(max-width: 800px)', function(){
+    var tws = cartes.map(function(k){ return ScrollTrigger.create({ trigger:k, start:'top 70%', end:'bottom 30%', onToggle:function(st){ k.classList.toggle('on', st.isActive); if (st.isActive) k.querySelector('.ok').textContent = '✓ On s’en occupe'; } }); });
+    return function(){ tws.forEach(function(t){ t.kill(); }); };
   });
-  jl.addEventListener('mouseleave', function(){ mx = -1; folHide(); });
-  // Mobile : la liste reste en place ; au défilement, chaque métier s'allume et son image apparaît dans l'espace du dessous
-  var mmJ = gsap.matchMedia();
-  mmJ.add('(max-width: 800px)', function(){
-    var links = [].slice.call(jl.querySelectorAll('a')), figs = [].slice.call(document.querySelectorAll('#jstage .jfig')),
-        num = document.getElementById('jnum'), n = links.length, cur = -1;
-    function show(i){
-      if (i === cur) return;
-      var prev = cur, down = i > prev; cur = i;
-      links.forEach(function(a, k){ a.classList.toggle('on', k === i); });
-      if (prev >= 0) { figs[prev].classList.remove('on'); gsap.fromTo(figs[prev], { autoAlpha:1, y:0 }, { autoAlpha:0, y:down ? -40 : 40, duration:.3, ease:'power2.in', overwrite:true }); }
-      figs[i].classList.add('on');
-      gsap.fromTo(figs[i], { autoAlpha:0, y:down ? 60 : -60, scale:.94 }, { autoAlpha:1, y:0, scale:1, duration:.5, ease:'back.out(1.6)', overwrite:true });
-      num.textContent = (i + 1) + ' / ' + n;
-    }
-    show(0);
-    var t = ScrollTrigger.create({ trigger:'#jwrap', start:'top 70px', end:'+=' + (n * 45) + '%', pin:true, anticipatePin:1,
-      onUpdate:function(st){ show(Math.min(n - 1, Math.floor(st.progress * n))); } });
-    return function(){
-      t.kill(); cur = -1;
-      links.forEach(function(a){ a.classList.remove('on'); });
-      figs.forEach(function(f, k){ gsap.set(f, { clearProps:'all' }); f.classList.toggle('on', k === 0); });
-      num.textContent = '1 / ' + n;
-    };
+  gsap.from('#coach', { x:-200, opacity:0, duration:1, ease:'back.out(1.4)', scrollTrigger:{ trigger:'#particuliers', start:'top 60%' } });
+  gsap.from('.parti .prix', { scale:0, rotate:-30, duration:.8, ease:'back.out(2.5)', scrollTrigger:{ trigger:'#particuliers', start:'top 70%' } });
+
+  /* ---------- 4. Comment ça marche : le chemin se trace, Marshall court dessus et allume chaque étape ---------- */
+  var route = document.getElementById('route'), trace = document.getElementById('trace'), coureur = document.getElementById('coureur'), chemin = document.getElementById('chemin');
+  var L = route.getTotalLength(), etapes = [].slice.call(document.querySelectorAll('#pas div'));
+  trace.style.strokeDasharray = L; trace.style.strokeDashoffset = L;
+  function placer(p){
+    var pt = route.getPointAtLength(L * p), w = chemin.clientWidth / 1000, h = chemin.clientHeight / 200, pt2 = route.getPointAtLength(Math.min(L, L * p + 4));
+    coureur.style.left = (pt.x * w) + 'px'; coureur.style.top = (pt.y * h) + 'px';
+    coureur.style.transform = 'translate(-50%,-92%) scaleX(' + (pt2.x < pt.x ? 1 : -1) + ')';
+    trace.style.strokeDashoffset = L * (1 - p);
+    etapes.forEach(function(e, i){ e.classList.toggle('on', p >= i * .33 + .02); });
+  }
+  placer(0);
+  var bond = { p:0 };
+  gsap.to(bond, { p:1, ease:'none', onUpdate:function(){ placer(bond.p); }, scrollTrigger:{ trigger:'#etapes', start:'top 55%', end:'bottom 70%', scrub:.6 } });
+  gsap.to(coureur, { y:-10, duration:.18, repeat:-1, yoyo:true, ease:'sine.inOut' });
+
+  /* ---------- 5. Où : la loupe de Marshall passe sur chaque quartier ---------- */
+  var bulles = [].slice.call(document.querySelectorAll('#carteparis [data-b]')), loupe = document.getElementById('loupe'), cp = document.getElementById('carteparis');
+  gsap.from(bulles, { scale:0, duration:.7, stagger:.08, ease:'back.out(2)', scrollTrigger:{ trigger:'#ou', start:'top 65%' } });
+  var ordre = [2, 0, 1, 3, 4, 5, 2];
+  function pos(i){ var b = bulles[i]; return { left:b.offsetLeft, top:b.offsetTop - b.offsetHeight * .1 }; }
+  var visite = gsap.timeline({ scrollTrigger:{ trigger:'#ou', start:'top 50%', end:'bottom 60%', scrub:.8, invalidateOnRefresh:true } });
+  gsap.set(loupe, { left:function(){ return pos(2).left; }, top:function(){ return pos(2).top; } });
+  ordre.forEach(function(i, k){
+    if (k) visite.to(loupe, { left:function(){ return pos(i).left; }, top:function(){ return pos(i).top; }, duration:1, ease:'power1.inOut' });
+    visite.call(function(){ bulles[i].classList.add('vu'); }, [], '>-0.2');
+    visite.to(bulles[i], { scale:1.12, duration:.25, yoyo:true, repeat:1 }, '<');
   });
 
-  // Le texte s'allume mot après mot au fil du défilement
-  var wp = document.querySelector('.why p');
-  (function split(node){
-    [].slice.call(node.childNodes).forEach(function(n){
-      if (n.nodeType === 3) {
-        var frag = document.createDocumentFragment();
-        n.textContent.split(/(\s+)/).forEach(function(t){
-          if (!t) return;
-          if (/^\s+$/.test(t)) { frag.appendChild(document.createTextNode(t)); return; }
-          var sp = document.createElement('span'); sp.className = 'wd'; sp.textContent = t; frag.appendChild(sp);
-        });
-        node.replaceChild(frag, n);
-      } else if (n.nodeType === 1) split(n);
-    });
-  })(wp);
-  // La section reste en place le temps que la phrase s'écrive (défilement plus long, uniquement ici)
-  gsap.timeline({ scrollTrigger:{ trigger:'.why', start:function(){ return document.querySelector('.why').offsetHeight > innerHeight * .7 ? 'top 90px' : 'center 55%'; }, end:'+=140%', invalidateOnRefresh:true, scrub:1, pin:true, anticipatePin:1 } })
-    .to('.why .wd', { opacity:1, stagger:.1, ease:'none' })
-    .from('.why .btn', { y:40, opacity:0, duration:.6, ease:'power2.out' });
+  /* ---------- 6. Commerçants : le fil du téléphone défile, les cœurs battent ---------- */
+  var fil = document.getElementById('fil');
+  gsap.to(fil, { yPercent:-50, duration:12, ease:'none', repeat:-1 });
+  gsap.to('#fil .coeur', { scale:1.45, duration:.25, yoyo:true, repeat:-1, repeatDelay:1.4, stagger:{ each:.6, repeat:-1 } });
+  gsap.from('.tel', { y:200, rotate:20, opacity:0, duration:1.2, ease:'expo.out', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
+  gsap.from('#tel-marshall', { x:-160, opacity:0, duration:1, delay:.3, ease:'back.out(1.5)', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
+  gsap.from('.commerce li', { x:-40, opacity:0, duration:.7, stagger:.1, ease:'expo.out', scrollTrigger:{ trigger:'.commerce ul', start:'top 80%' } });
 
-  /* ---------- À propos : le titre se révèle, puis ses lettres se brouillent (tableau d'affichage) et se figent sur le 2e texte ---------- */
-  document.querySelectorAll('#about-title .mask > span').forEach(function(sp){ var o = document.createElement('span'); o.className = 'out'; o.style.display = 'inline-block'; sp.parentNode.insertBefore(o, sp); o.appendChild(sp); });
-  gsap.from('#about-title .mask > .out > span', { yPercent:110, duration:1.1, stagger:.08, ease:'expo.out', scrollTrigger:{ trigger:'#apropos', start:'top 75%' } });
-  gsap.set('#about-cta', { autoAlpha:0, y:24 });
-  var aTitle = document.getElementById('about-title'), aLines = [].slice.call(aTitle.querySelectorAll('.mask > .out > span'));
-  function L(){ var out = []; for (var i = 0; i < arguments.length; i++) { var a = arguments[i], em = typeof a !== 'string'; (em ? a.em : a).split('').forEach(function(c){ out.push({ c:c, em:em }); }); } return out; }
-  var TXT1 = [L('Le copain'), L('digital qui'), L({ em:'explique' }), L('sans jargon,'), L('à votre rythme')];
-  var TXT2 = [L('Hugo, un vrai'), L({ em:'humain à Paris,' }), L('et Marshall,'), L('son copain IA.'), L('Vous, ', { em:'vous avancez.' })];
-  var GLY = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&@$*+?';
-  var FS1 = parseFloat(getComputedStyle(aTitle).fontSize), FS2 = FS1 * .83;   // le 2e texte, plus long, un peu plus petit
-  var scr = { p:0 }, lastP = -1;
-  function esc(c){ return c === '<' ? '&lt;' : c === '&' ? '&amp;' : c; }
-  function renderScramble(){
-    var p = scr.p; if (p === lastP) return; lastP = p;
-    aTitle.style.fontSize = p <= 0 ? '' : (FS1 + (FS2 - FS1) * Math.min(1, p * 1.4)) + 'px';
-    aLines.forEach(function(el, i){
-      var a = TXT1[i], b = TXT2[i], n = Math.max(a.length, b.length), lp = Math.max(0, Math.min(1, (p - i * .09) / .64)), html = '', cur = null, buf = '';
-      for (var j = 0; j < n; j++) {
-        var thr = j / n * .7, ch, em;
-        if (lp >= thr + .3) { ch = b[j] ? b[j].c : ''; em = b[j] && b[j].em; }                                  // figée sur le nouveau texte
-        else if (lp > thr) { ch = (a[j] || b[j]).c === ' ' ? ' ' : GLY[(Math.random() * GLY.length) | 0]; em = (b[j] || a[j]).em; }   // ça défile
-        else { ch = a[j] ? a[j].c : ''; em = a[j] && a[j].em; }                                                  // encore l'ancien texte
-        if (em !== cur) { if (buf) html += cur ? '<em>' + buf + '</em>' : buf; buf = ''; cur = em; }
-        buf += esc(ch);
-      }
-      if (buf) html += cur ? '<em>' + buf + '</em>' : buf;
-      el.innerHTML = html;
-    });
-    aTitle.setAttribute('aria-label', p >= 1 ? 'Hugo, un vrai humain à Paris, et Marshall, son copain IA. Vous, vous avancez.' : 'Le copain digital qui explique sans jargon, à votre rythme');
-  }
-  var mmA = gsap.matchMedia();
-  mmA.add('(min-width: 901px)', function(){
-    // La section reste bloquée jusqu'à la fin de son défilement ; le brouillage suit la molette et est TERMINÉ à 50 %
-    var sw = gsap.timeline({ defaults:{ ease:'none' } })
-      .fromTo(scr, { p:0 }, { p:1, duration:.26, onUpdate:renderScramble, immediateRender:false }, .22)
-      .fromTo('#about-cta', { autoAlpha:0, y:24 }, { autoAlpha:1, y:0, duration:.06 }, .44)
-      .set({}, {}, 1);
-    var t = ScrollTrigger.create({ trigger:'#apropos', start:'top top', end:'+=100%', pin:true, anticipatePin:1, scrub:.5, animation:sw });
-    return function(){ t.kill(); sw.kill(); };
-  });
-  mmA.add('(max-width: 900px)', function(){
-    var tw = gsap.timeline({ paused:true })
-      .to(scr, { p:1, duration:1.4, ease:'none', onUpdate:renderScramble })
-      .to('#about-cta', { autoAlpha:1, y:0, duration:.5, ease:'back.out(2)' }, '-=.3');
-    var t = ScrollTrigger.create({ trigger:'#apropos', start:'top 20%', onEnter:function(){ tw.play(); }, onLeaveBack:function(){ tw.reverse(); } });
-    return function(){ t.kill(); tw.kill(); };
-  });
-  // En-tête blanc tant qu'il est au-dessus de la section orange (créé APRÈS l'épinglage de la section, pour des positions justes)
-  var hdr = document.getElementById('top');
-  function headH(){ return 'top ' + (hdr.offsetHeight + 4) + 'px'; }
-  ScrollTrigger.create({ trigger:'#apropos', start:headH, invalidateOnRefresh:true,
-    onEnter:function(){ hdr.classList.add('on-or2'); }, onLeaveBack:function(){ hdr.classList.remove('on-or2'); } });
-  ScrollTrigger.create({ trigger:'#creations', start:headH, invalidateOnRefresh:true,
-    onEnter:function(){ hdr.classList.remove('on-or2'); }, onLeaveBack:function(){ hdr.classList.add('on-or2'); } });
-  // Grand Marshall : il arrive d'en bas, puis respire et se balance doucement en présentant le titre
-  gsap.from('#presente-img', { yPercent:60, opacity:0, rotate:4, duration:1.3, ease:'back.out(1.3)', scrollTrigger:{ trigger:'#apropos', start:'top 60%' } });
-  gsap.from('#presente .glow', { scale:0, opacity:0, duration:1, ease:'expo.out', delay:.4, scrollTrigger:{ trigger:'#apropos', start:'top 60%' } });
-  gsap.to('#presente', { y:-10, rotate:-1.2, transformOrigin:'50% 100%', duration:2.2, repeat:-1, yoyo:true, ease:'sine.inOut' });
-  gsap.to('#presente', { yPercent:-6, ease:'none', scrollTrigger:{ trigger:'#apropos', start:'top bottom', end:'bottom top', scrub:true } });
+  /* ---------- 7. Pros : les tuiles tombent comme des cartes retournées ---------- */
+  gsap.from('.tuile', { rotateX:-95, opacity:0, duration:1, stagger:.12, ease:'back.out(1.4)', scrollTrigger:{ trigger:'#tuiles', start:'top 80%' } });
+  gsap.from('#pros-marshall', { y:120, opacity:0, duration:1, ease:'back.out(1.6)', scrollTrigger:{ trigger:'#pros', start:'top 70%' } });
 
-  /* ---------- Créations : cartes qui montent avec un léger décalage ---------- */
-  gsap.utils.toArray('#cards .card').forEach(function(c, i){
-    gsap.from(c, { y:120, opacity:0, duration:1.2, ease:'expo.out', scrollTrigger:{ trigger:c, start:'top 92%' } });
-    gsap.to(c.querySelector('.media'), { yPercent:i % 2 ? -6 : 6, ease:'none', scrollTrigger:{ trigger:c, start:'top bottom', end:'bottom top', scrub:true } });
-  });
+  /* ---------- 8. FAQ ---------- */
+  gsap.from('.faq details', { x:60, opacity:0, duration:.7, stagger:.07, ease:'expo.out', scrollTrigger:{ trigger:'.faq', start:'top 75%' } });
 
-  /* ---------- Offres et FAQ ---------- */
-  gsap.from('.orow', { y:60, opacity:0, duration:1, stagger:.12, ease:'expo.out', scrollTrigger:{ trigger:'.olist', start:'top 85%' } });
-  gsap.from('.faq details', { y:30, opacity:0, duration:.8, stagger:.06, ease:'expo.out', scrollTrigger:{ trigger:'.faq', start:'top 85%' } });
+  /* ---------- 9. Fin : le titre grandit avec le défilement, Marshall monte faire coucou ---------- */
+  gsap.fromTo('#fin-titre', { scale:.55, opacity:.2 }, { scale:1, opacity:1, ease:'none', scrollTrigger:{ trigger:'#fin', start:'top 90%', end:'top 25%', scrub:true } });
+  gsap.from('#coucou', { yPercent:100, duration:1.2, ease:'back.out(1.3)', scrollTrigger:{ trigger:'#fin', start:'top 40%' } });
 
-  /* ---------- Fin : le titre claque, Marshall applaudit sous les confettis ---------- */
-  ScrollTrigger.create({ trigger:'#final', start:'top 65%', once:true, onEnter:function(){
-    gsap.from('#touch-title .mask > span', { yPercent:110, duration:1.1, stagger:.1, ease:'expo.out' });
-    gsap.from('#bravo', { yPercent:100, duration:1.1, ease:'back.out(1.4)', delay:.3 });
-    var colors = ['#F3852B','#FFD23F','#6EC1F0','#FF7FA8','#7ED957','#f5f5f5'], fin = document.getElementById('final');
-    for (var i = 0; i < 46; i++) {
-      var c = document.createElement('i'); c.className = 'confetti'; c.style.background = colors[i % colors.length]; c.style.left = (Math.random() * 100) + '%';
-      fin.appendChild(c);
-      gsap.to(c, { y:fin.offsetHeight + 60, x:'+=' + (Math.random() * 180 - 90), rotate:Math.random() * 720, duration:2.4 + Math.random() * 2, delay:.3 + Math.random() * .8, ease:'power1.in', onComplete:function(){ this.targets()[0].remove(); } });
-    }
-  }});
-  gsap.from('.bigword', { yPercent:40, opacity:0, duration:1.2, ease:'expo.out', scrollTrigger:{ trigger:'.bigword', start:'top 95%' } });
+  /* ---------- Pied de page : les lettres du grand mot sautent une à une ---------- */
+  var gm = document.getElementById('grandmot');
+  (function coupe(n){ [].slice.call(n.childNodes).forEach(function(c){ if (c.nodeType === 3) { var f = document.createDocumentFragment(); c.textContent.split('').forEach(function(ch){ if (ch === ' ') { f.appendChild(document.createTextNode(' ')); return; } var s = document.createElement('span'); s.textContent = ch; f.appendChild(s); }); n.replaceChild(f, c); } else if (c.nodeType === 1) coupe(c); }); })(gm);
+  gsap.from('#grandmot span', { yPercent:110, opacity:0, duration:.8, stagger:.04, ease:'back.out(2)', scrollTrigger:{ trigger:'#grandmot', start:'top 95%' } });
 
+  addEventListener('load', function(){ ScrollTrigger.refresh(); });
 })();
 </script>
 </body>
