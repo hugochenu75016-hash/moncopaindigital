@@ -230,6 +230,8 @@
   .fin .btn.blanc{border-color:#fff;color:#fff}
   .fin .btn.blanc:hover{background:#fff;color:var(--or)}
   .fin .coucou{height:min(46vh,400px);width:auto;margin-top:auto}
+  .confetti{position:absolute;top:-24px;z-index:3;width:10px;height:16px;border-radius:2px;pointer-events:none}
+  .confetti.rond{width:11px;height:11px;border-radius:50%}
 
   /* ---------- Pied de page ---------- */
   .pied-page{padding:60px var(--pad) 26px}
@@ -1050,6 +1052,18 @@
   /* ---------- 9. Fin : le titre grandit avec le défilement, Marshall monte faire coucou ---------- */
   gsap.fromTo('#fin-titre', { scale:.55, opacity:.2 }, { scale:1, opacity:1, ease:'none', scrollTrigger:{ trigger:'#fin', start:'top 90%', end:'top 25%', scrub:true } });
   gsap.from('#coucou', { yPercent:100, duration:1.2, ease:'back.out(1.3)', scrollTrigger:{ trigger:'#fin', start:'top 40%' } });
+  // Confettis à chaque arrivée sur la section (pas plus d'une pluie toutes les 4 s)
+  var COUL = ['#FFFFFF','#6EC1F0','#FFD23F','#FF7FA8','#7ED957','#C7620E'], derniere = 0;
+  function pluie(){
+    var fin = document.getElementById('fin'), t = Date.now(); if (t - derniere < 4000) return; derniere = t;
+    for (var i = 0; i < 70; i++) {
+      var c = document.createElement('i'); c.className = 'confetti' + (i % 4 === 0 ? ' rond' : '');
+      c.style.background = COUL[i % COUL.length]; c.style.left = (Math.random() * 100) + '%';
+      fin.appendChild(c);
+      gsap.to(c, { y:fin.offsetHeight + 60, x:'+=' + (Math.random() * 200 - 100), rotate:Math.random() * 900 - 450, duration:2.4 + Math.random() * 2.2, delay:Math.random() * .9, ease:'power1.in', onComplete:function(){ this.targets()[0].remove(); } });
+    }
+  }
+  ScrollTrigger.create({ trigger:'#fin', start:'top 60%', onEnter:pluie, onEnterBack:pluie });
 
   /* ---------- Pied de page : les lettres du grand mot sautent une à une ---------- */
   var gm = document.getElementById('grandmot');
