@@ -1030,7 +1030,9 @@
   gsap.from('[data-q]', { y:-60, opacity:0, duration:.7, stagger:.07, ease:'bounce.out', scrollTrigger:{ trigger:'#ou', start:'top 65%' } });
   var vol = { p:0 }; poser(0);
   addEventListener('resize', function(){ poser(vol.p); });
-  gsap.timeline({ scrollTrigger:{ trigger:'#plan', start:'top 80%', end:'bottom 95%', scrub:.8 } })
+  gsap.timeline({ scrollTrigger:{ trigger:'#ou', pin:true, anticipatePin:1, scrub:1, invalidateOnRefresh:true,
+    start:function(){ return document.getElementById('ou').offsetHeight > innerHeight ? 'bottom bottom' : 'center center'; },
+    end:'+=200%' } })
     .to(vol, { p:1, duration:1, ease:'none', onUpdate:function(){ poser(vol.p); } })
     .to('#zone', { scale:1, duration:.25, ease:'back.out(1.6)' })
     .to('#epingle', { scale:1.25, duration:.1, yoyo:true, repeat:1 }, '<')
