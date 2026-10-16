@@ -44,6 +44,45 @@
   window.addEventListener('unhandledrejection',function(e){mcdLogErr('promesse',e&&e.reason);});
 })();
 </script>
+<style>
+/* Fenêtres de confirmation du studio (remplacent confirm()/prompt(), mal affichés dans l'appli mobile) */
+#mcd-dlg{position:fixed;inset:0;z-index:100001;background:rgba(40,28,18,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+#mcd-dlg .dlg-box{width:min(440px,100%);background:#FFF8EF;border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:Fredoka,system-ui,sans-serif;color:#3B2A1C;overflow:hidden}
+#mcd-dlg .dlg-head{padding:14px 20px;background:#F3852B;color:#fff;font-size:17px;font-weight:600}
+#mcd-dlg .dlg-body{padding:18px 20px 6px;font-size:15px;line-height:1.45;white-space:pre-line;max-height:55vh;overflow:auto}
+#mcd-dlg .dlg-in{display:block;width:100%;box-sizing:border-box;margin-top:12px;padding:10px 12px;border:1px solid #E8CFB4;border-radius:12px;font:inherit;background:#fff;color:inherit}
+#mcd-dlg .dlg-acts{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px 18px;flex-wrap:wrap}
+#mcd-dlg button{font:inherit;font-weight:600;border-radius:999px;padding:10px 18px;cursor:pointer;border:1px solid #E8CFB4;background:#fff;color:#3B2A1C;min-height:44px}
+#mcd-dlg button.ok{background:#F3852B;border-color:#F3852B;color:#fff}
+#mcd-dlg button.ok.danger{background:#B42318;border-color:#B42318}
+</style>
+<script>
+/* mcdConfirm(message, {titre, ok, danger}) → Promise<boolean> ; mcdPrompt(message, valeur, {titre, ok}) → Promise<string|null>.
+   Mêmes réponses que confirm()/prompt(), mais dans une fenêtre aux couleurs du studio. */
+(function(){
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function ouvrir(message,o,champ,valeur){
+    o=o||{};
+    return new Promise(function(fin){
+      var avant=document.activeElement,ov=document.createElement('div');ov.id='mcd-dlg';
+      ov.innerHTML='<div class="dlg-box" role="alertdialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-m"><div class="dlg-head" id="dlg-t">'+esc(o.titre||(champ?'Studio Social':'Confirmer'))+'</div>'
+        +'<div class="dlg-body" id="dlg-m">'+esc(message)+(champ?'<input class="dlg-in" type="text" maxlength="200">':'')+'</div>'
+        +'<div class="dlg-acts"><button type="button" class="no">'+esc(o.non||'Annuler')+'</button><button type="button" class="ok'+(o.danger?' danger':'')+'">'+esc(o.ok||'OK')+'</button></div></div>';
+      var inp=ov.querySelector('.dlg-in');if(inp)inp.value=valeur==null?'':String(valeur);
+      function fermer(r){ov.remove();document.removeEventListener('keydown',k,true);try{avant&&avant.focus&&avant.focus();}catch(e){}fin(r);}
+      function oui(){fermer(champ?inp.value:true);}
+      function non(){fermer(champ?null:false);}
+      function k(e){if(e.key==='Escape'){e.preventDefault();e.stopPropagation();non();}else if(e.key==='Enter'&&champ&&document.activeElement===inp){e.preventDefault();oui();}}
+      ov.querySelector('.ok').addEventListener('click',oui);ov.querySelector('.no').addEventListener('click',non);
+      ov.addEventListener('click',function(e){if(e.target===ov)non();});
+      document.addEventListener('keydown',k,true);document.body.appendChild(ov);
+      setTimeout(function(){if(inp){inp.focus();inp.select();}else ov.querySelector(o.danger?'.no':'.ok').focus();},0);
+    });
+  }
+  window.mcdConfirm=function(message,o){return ouvrir(message,o,false);};
+  window.mcdPrompt=function(message,valeur,o){return ouvrir(message,o,true,valeur);};
+})();
+</script>
 <meta name="theme-color" content="#f26c00">
 <script>
 (function(){
@@ -5568,7 +5607,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       catch(e){ el.disabled=false; toast('Pilote : '+(e&&e.message||e),true); } return;
     }
     var q=it.status==='scheduled'?'Supprimer cette publication ? Elle sera aussi retirée de ton calendrier et ne sera pas publiée.':(it.status==='published'?'Retirer cette publication de la liste du Pilote ? (Elle reste dans ton historique.)':(it.status==='approved_auto'?'Supprimer cette publication ? Marshall ne la publiera pas.':'Supprimer cette publication proposée ?'));
-    if(!confirm(q)) return;
+    if(!(await mcdConfirm(q,{ok:it.status==='published'?'Retirer':'Supprimer',danger:true}))) return;
     el.disabled=true;
     try{
       if(it.status==='scheduled'&&it.post_id){ await removePost(it.post_id); try{ mcdRerenderLists(); }catch(e){} }
@@ -5984,7 +6023,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     autoRender();
   }
   async function autoDelete(){
-    if(!AUTO.cur.id||!confirm('Supprimer l’automatisation « '+AUTO.cur.name+' » ?')) return;
+    if(!AUTO.cur.id||!(await mcdConfirm('Supprimer l’automatisation « '+AUTO.cur.name+' » ?',{ok:'Supprimer',danger:true}))) return;
     try{ await fetch(MARSHALL_CREWAI_BASE+'/auto/delete',{method:'POST',headers:await authHeaders(),body:JSON.stringify({id:AUTO.cur.id})}); }catch(e){}
     AUTO.cur=autoBlank(); AUTO.sel=-1; AUTO.run=null; await autoLoad(true); autoRender(); toast('Automatisation supprimée.');
   }
@@ -6018,7 +6057,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var x=AUTO.list.find(function(y){return y.id===id;}); if(!x) return;
     if(act==='edit'){ AUTO.cur={id:x.id,name:x.name,active:x.active,pieces:JSON.parse(JSON.stringify(x.pieces||[]))}; AUTO.sel=-1; AUTO.view=null; autoRender(); toast('Automatisation chargée dans le puzzle : modifie-la puis « Enregistrer ».'); return; }
     if(act==='del'){
-      if(!confirm('Supprimer l’automatisation « '+x.name+' » ? Un passage en cours sera arrêté.')) return;
+      if(!(await mcdConfirm('Supprimer l’automatisation « '+x.name+' » ? Un passage en cours sera arrêté.',{ok:'Supprimer',danger:true}))) return;
       try{ await fetch(MARSHALL_CREWAI_BASE+'/auto/delete',{method:'POST',headers:await authHeaders(),body:JSON.stringify({id:id})}); }catch(e){}
       if(AUTO.view===id) AUTO.view=null; if(AUTO.cur&&AUTO.cur.id===id) AUTO.cur=autoBlank();
       await autoLoad(true); autoRender(); toast('Automatisation supprimée.'); return;
@@ -11505,7 +11544,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         it.addEventListener('click',async function(ev){
           var s=ev.target.closest('[data-stop]'),ed=ev.target.closest('[data-edit]'),f=ev.target.closest('[data-refresh]');
           if(ed){var form=document.getElementById('rep-sheet-form');form.innerHTML='';marshallChatRepCard('',r,function(nr){r=nr;it.innerHTML=marshallRepItemHtml(r);form.innerHTML='';toast('Répétition modifiée : la prochaine publication suivra ces réglages.');},form);form.scrollIntoView({behavior:'smooth',block:'nearest'});return;}
-          if(s){if(!confirm('Arrêter cette répétition ? Marshall ne publiera plus rien pour elle.'))return;
+          if(s){if(!(await mcdConfirm('Arrêter cette répétition ? Marshall ne publiera plus rien pour elle.',{ok:'Arrêter',danger:true})))return;
             try{var rr=await fetch(MARSHALL_CREWAI_BASE+'/repetition/stop',{method:'POST',headers:await authHeaders(),body:JSON.stringify({id:s.getAttribute('data-stop')})});var dd=await rr.json();if(dd.ok){r=dd.repetition;it.className='rep-item';it.innerHTML=marshallRepItemHtml(r);marshallRepSheetLoad();}}catch(e){toast('Arrêt impossible : '+(e.message||e),true);}return;}
           if(f)marshallRepSheetLoad();
         });
@@ -14826,7 +14865,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       for(var i=0;i<files.length;i++){var u=await marshallGjShrink(files[i]);if(u)S.photos.push(u);}
       draw();
     });
-    ov.addEventListener('click',function(e){
+    ov.addEventListener('click',async function(e){
       if(e.target===ov||e.target.closest('.msh-x')){close();return;}
       var b=e.target.closest('button');if(!b)return;
       var seg=b.parentNode.getAttribute('data-s');
@@ -14836,7 +14875,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       if(b.hasAttribute('data-go')){
         if(!S.name.trim()){toast('Indique le nom de ton commerce.',true);return;}
         if(S.text.trim().length<10){toast('Décris ce que tu veux annoncer (une phrase suffit).',true);return;}
-        if(!S.photos.length&&!confirm('Sans photo, Marshall imaginera ta boutique et ton produit. Continuer quand même ?'))return;
+        if(!S.photos.length&&!(await mcdConfirm('Sans photo, Marshall imaginera ta boutique et ton produit. Continuer quand même ?',{ok:'Continuer'})))return;
         close();
         try{var dock=document.getElementById('marshall-agent-dock');if(dock&&!dock.classList.contains('open'))marshallAgentDockOpen&&marshallAgentDockOpen();}catch(x){}
         marshallReportRun({title:S.name+' : '+S.text.slice(0,90)},S.city,{journalist:S.journalist,seconds:S.seconds,hd:false},
@@ -18510,7 +18549,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function agencyPublish(){
     if(agencyState.busy)return;
     var targets=agencyState.accounts.filter(function(a){return agencyState.selected.indexOf(a.id)>=0;});if(!targets.length)return;
-    if(!confirm('Publier maintenant sur ces comptes ?\n\n'+targets.map(function(a){return a.account_name+' ('+a.network+')';}).join('\n')))return;
+    if(!(await mcdConfirm('Publier maintenant sur ces comptes ?\n\n'+targets.map(function(a){return a.account_name+' ('+a.network+')';}).join('\n'),{ok:'Publier'})))return;
     var caption=($('#cap').value||'')+($('#tags').value?'\n\n'+$('#tags').value:'');
     var media=comp.media&&comp.media[0]?{url:comp.media[0].url,type:comp.media[0].type}:null;
     if(comp.media&&comp.media.length>1){toast('Le mode agence accepte un seul média par publication pour le moment.',true);return;}
@@ -18546,9 +18585,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       location.href=u.href;
     }catch(e){$('#agency-panel-state').textContent=e.message;this.disabled=false;}});});
     $('#agency-publish').addEventListener('click',agencyPublish);
-    $('#agency-new-batch').addEventListener('click',function(){
+    $('#agency-new-batch').addEventListener('click',async function(){
       if(agencyState.busy||!agencyState.batch)return;
-      if(!confirm('Créer une nouvelle tentative ? Les comptes déjà publiés pourront recevoir un doublon. Vérifiez d’abord les résultats sur chaque réseau.'))return;
+      if(!(await mcdConfirm('Créer une nouvelle tentative ? Les comptes déjà publiés pourront recevoir un doublon. Vérifiez d’abord les résultats sur chaque réseau.',{ok:'Nouvelle tentative',danger:true})))return;
       try{localStorage.removeItem(agencyState.batch.storageKey);}catch(e){}
       agencyState.batch=null;agencyState.results={};agencyRenderPublication();
     });
@@ -19393,7 +19432,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     bar.style.cssText='position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:99999;background:#3B2A1C;color:#FFF8EF;font:600 13px Fredoka,system-ui,sans-serif;padding:8px 16px;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.25);pointer-events:none';
     bar.style.pointerEvents='auto';bar.innerHTML='<span class="dm-long">Mode démo · rien n’est publié ni enregistré en ligne</span><span class="dm-short">Démo</span> <a id="mcd-demo-signup" href="'+location.pathname+'?inscription" style="margin-left:10px;border-radius:999px;background:#F3852B;color:#fff;font:600 12px Fredoka,system-ui,sans-serif;padding:3px 10px;text-decoration:none">Créer mon compte</a><button type="button" id="mcd-demo-reset" style="margin-left:10px;border:0;border-radius:999px;background:#FFF8EF;color:#3B2A1C;font:600 12px Fredoka,system-ui,sans-serif;padding:3px 10px;cursor:pointer">Réinitialiser</button>';
     document.body.appendChild(bar);
-    bar.querySelector('#mcd-demo-reset').addEventListener('click',function(){if(!confirm('Réinitialiser la démo ? Les publications et réglages de démo seront effacés.'))return;try{Object.keys(localStorage).filter(function(k){return /demo-local/.test(k);}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}location.reload();});
+    bar.querySelector('#mcd-demo-reset').addEventListener('click',async function(){if(!(await mcdConfirm('Réinitialiser la démo ? Les publications et réglages de démo seront effacés.',{ok:'Réinitialiser',danger:true})))return;try{Object.keys(localStorage).filter(function(k){return /demo-local/.test(k);}).forEach(function(k){localStorage.removeItem(k);});}catch(e){}location.reload();});
   }
   async function startApp(){
     mcdTouchActive(true);mcdBindActivity();
@@ -19728,13 +19767,13 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     box.innerHTML=L.map(function(g,i){return '<span class="tg"><button type="button" data-tg="'+i+'" title="Insérer : '+esc(g.tags.join(' '))+'">#'+esc(g.name)+' <small>'+g.tags.length+'</small></button><button type="button" class="tgx" data-tgx="'+i+'" aria-label="Supprimer le groupe '+esc(g.name)+'">✕</button></span>';}).join('')
       +(cur.length>=2?'<button type="button" class="tg-save" id="mcd-tg-save">＋ Enregistrer ces '+cur.length+' hashtags</button>':(L.length?'':'<small class="tg-hint">Astuce : écris au moins 2 hashtags puis enregistre-les en groupe pour les réutiliser.</small>'));
   }
-  document.addEventListener('click',function(e){
+  document.addEventListener('click',async function(e){
     if(!e.target.closest)return;
     var b=e.target.closest('[data-tg]');
     if(b){var g=mcdTgGet()[+b.dataset.tg];var t=$('#tags');if(!g||!t)return;var have=(t.value.match(/#[\p{L}\p{N}_]+/gu)||[]).map(function(x){return x.toLowerCase();});var add=g.tags.filter(function(x){return have.indexOf(x.toLowerCase())<0;});t.value=(t.value.trim()+' '+add.join(' ')).trim();t.dispatchEvent(new Event('input',{bubbles:true}));toast(add.length?add.length+' hashtag'+(add.length>1?'s':'')+' ajouté'+(add.length>1?'s':'')+'.':'Ces hashtags sont déjà là.');return;}
     var x=e.target.closest('[data-tgx]');
-    if(x){var L=mcdTgGet();var gg=L[+x.dataset.tgx];if(gg&&confirm('Supprimer le groupe « '+gg.name+' » ?')){L.splice(+x.dataset.tgx,1);mcdTgSet(L);mcdTgRender();}return;}
-    if(e.target.closest('#mcd-tg-save')){var cur=(($('#tags')||{}).value||'').match(/#[\p{L}\p{N}_]+/gu)||[];if(cur.length<2)return;var name=prompt('Nom du groupe (ex. Boulangerie, Événements) :',cur[0].replace('#',''));if(!name)return;name=String(name).replace(/^#/,'').trim().slice(0,30);if(!name)return;var L2=mcdTgGet().filter(function(g){return g.name.toLowerCase()!==name.toLowerCase();});L2.unshift({name:name,tags:cur.slice(0,30)});mcdTgSet(L2);mcdTgRender();toast('Groupe « '+name+' » enregistré ✓');}
+    if(x){var L=mcdTgGet();var gg=L[+x.dataset.tgx];if(gg&&(await mcdConfirm('Supprimer le groupe « '+gg.name+' » ?',{ok:'Supprimer',danger:true}))){L=mcdTgGet();L.splice(+x.dataset.tgx,1);mcdTgSet(L);mcdTgRender();}return;}
+    if(e.target.closest('#mcd-tg-save')){var cur=(($('#tags')||{}).value||'').match(/#[\p{L}\p{N}_]+/gu)||[];if(cur.length<2)return;var name=await mcdPrompt('Nom du groupe (ex. Boulangerie, Événements) :',cur[0].replace('#',''),{titre:'Groupe de hashtags',ok:'Enregistrer'});if(!name)return;name=String(name).replace(/^#/,'').trim().slice(0,30);if(!name)return;var L2=mcdTgGet().filter(function(g){return g.name.toLowerCase()!==name.toLowerCase();});L2.unshift({name:name,tags:cur.slice(0,30)});mcdTgSet(L2);mcdTgRender();toast('Groupe « '+name+' » enregistré ✓');}
   });
   document.addEventListener('input',function(e){if(e.target&&e.target.id==='tags')mcdTgRender();});
   (function(){
@@ -19904,7 +19943,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         try{marshallCanvasPagesEnsureCurrent();marshallCanvasPagesSaveCurrent();}catch(e){}
         marshallCanvasPages.push({name:t.name,desc:'Depuis mes modèles',kind:t.fmt==='9:16'?'story':'post',fmt:t.fmt,bg:t.bg,motion:t.motion,layers:t.layers});
         close();mcdGoView('composer');setTimeout(function(){marshallCanvasPageOpen(marshallCanvasPages.length-1);toast('Modèle « '+t.name+' » ajouté dans un nouveau canvas ✓');},mcdInStudio()?120:700);});});
-      $all('[data-del]',ov).forEach(function(b){b.addEventListener('click',async function(){var L2=await mcdTplList(),t=L2[+b.dataset.del];if(!t||!confirm('Supprimer le modèle « '+t.name+' » ?'))return;L2.splice(+b.dataset.del,1);await mcdIdbSet(mcdTplKey(),L2);render();});});
+      $all('[data-del]',ov).forEach(function(b){b.addEventListener('click',async function(){var L2=await mcdTplList(),t=L2[+b.dataset.del];if(!t||!(await mcdConfirm('Supprimer le modèle « '+t.name+' » ?',{ok:'Supprimer',danger:true})))return;L2.splice(+b.dataset.del,1);await mcdIdbSet(mcdTplKey(),L2);render();});});
     }
     function close(){ov.remove();document.removeEventListener('keydown',k,true);}
     function k(e){if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}}
@@ -20217,7 +20256,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           +(c.kind==='agency'?' <button class="btn-ghost ag-rm" data-ag-revoke="'+esc(c.id)+'">'+(pending?'Annuler':'Retirer')+'</button>':'')+'</div></div>';
       }).join('');
       $all('#clients-list [data-ag-revoke]').forEach(function(b){ b.addEventListener('click', async function(){
-        if(!confirm('Retirer l’accès à ce client ?')) return;
+        if(!(await mcdConfirm('Retirer l’accès à ce client ?',{ok:'Retirer',danger:true}))) return;
         try{ await mcdAgencyPost({action:'revoke',id:b.getAttribute('data-ag-revoke')}); toast('Accès retiré.'); loadClientsList(); }catch(e){ toast(String(e&&e.message||e),true); }
       }); });
       $all('#clients-list [data-cid]').forEach(function(b){ b.addEventListener('click', function(){
@@ -20255,7 +20294,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     box.innerHTML=pend.map(function(l){ return '<div class="ag-link ag-new"><div><b>'+esc(l.agency_name||'Une agence')+'</b> souhaite gérer tes réseaux sociaux (composer, programmer et publier pour toi).</div><div class="ag-acts"><button class="conn-btn" data-ag-act="accept" data-id="'+esc(l.id)+'">Accepter</button><button class="btn-ghost" data-ag-act="decline" data-id="'+esc(l.id)+'">Refuser</button></div></div>'; }).join('')
       +act.map(function(l){ return '<div class="ag-link"><div>✅ <b>'+esc(l.agency_name||'Une agence')+'</b> gère tes réseaux.</div><div class="ag-acts"><button class="btn-ghost" data-ag-act="revoke" data-id="'+esc(l.id)+'">Retirer l’accès</button></div></div>'; }).join('');
     $all('#ag-links [data-ag-act]').forEach(function(b){ b.addEventListener('click', async function(){
-      var act=b.getAttribute('data-ag-act'); if(act==='revoke'&&!confirm('Retirer l’accès à cette agence ?')) return;
+      var act=b.getAttribute('data-ag-act'); if(act==='revoke'&&!(await mcdConfirm('Retirer l’accès à cette agence ?',{ok:'Retirer l’accès',danger:true}))) return;
       b.disabled=true;
       try{ await mcdAgencyPost({action:act,id:b.getAttribute('data-id')}); toast(act==='accept'?'✅ Agence autorisée.':(act==='decline'?'Invitation refusée.':'Accès retiré.')); loadDelegation(); }
       catch(e){ b.disabled=false; toast(String(e&&e.message||e),true); }
