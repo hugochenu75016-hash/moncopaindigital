@@ -114,14 +114,14 @@
   }
 
   /* ---------- 4. Comment ça marche : Marshall court le long du chemin ---------- */
-  .etapes{padding:110px var(--pad) 120px;overflow:hidden}
-  .etapes h2{font-size:clamp(46px,6.6vw,120px);max-width:1100px}
-  .chemin{position:relative;margin-top:60px;height:clamp(180px,22vw,300px)}
+  .etapes{padding:clamp(70px,10vh,110px) var(--pad) clamp(40px,7vh,90px);overflow:hidden}
+  .etapes h2{font-size:clamp(40px,min(5.6vw,10vh),110px);max-width:1100px}
+  .chemin{position:relative;margin-top:clamp(70px,10vh,110px);height:clamp(130px,min(18vw,26vh),260px)}
   .chemin svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
   .chemin path{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-dasharray:14 16;opacity:.35}
   .chemin path.trace{stroke:var(--or);stroke-dasharray:none;opacity:1;stroke-width:8}
   .coureur{position:absolute;left:0;top:0;height:clamp(110px,13vw,190px);width:auto;transform:translate(-50%,-92%);z-index:3;pointer-events:none}
-  .pas{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px}
+  .pas{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:clamp(16px,4vh,40px)}
   .pas div{opacity:.35;transform:translateY(20px);transition:opacity .45s,transform .45s}
   .pas div.on{opacity:1;transform:none}
   .pas b{display:block;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(28px,3vw,46px);line-height:.95;margin-bottom:8px}
@@ -991,7 +991,11 @@
   }
   placer(0);
   var bond = { p:0 };
-  gsap.to(bond, { p:1, ease:'none', onUpdate:function(){ placer(bond.p); }, scrollTrigger:{ trigger:'#etapes', start:'top 55%', end:'bottom 70%', scrub:.6 } });
+  // La section reste épinglée pendant que Marshall parcourt le chemin : 2,2 hauteurs d'écran de défilement pour les 3 étapes
+  gsap.to(bond, { p:1, ease:'none', onUpdate:function(){ placer(bond.p); },
+    scrollTrigger:{ trigger:'#etapes', pin:true, anticipatePin:1, scrub:1, invalidateOnRefresh:true,
+      start:function(){ return document.getElementById('etapes').offsetHeight > innerHeight ? 'bottom bottom' : 'center center'; },
+      end:'+=220%' } });
   gsap.to(coureur, { y:-10, duration:.18, repeat:-1, yoyo:true, ease:'sine.inOut' });
 
   /* ---------- 5. Où : la tête de Marshall survole les départements d'Île-de-France en traçant sa route, puis se pose sur Paris ---------- */
