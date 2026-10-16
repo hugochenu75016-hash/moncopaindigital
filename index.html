@@ -75,10 +75,7 @@
   .hero h1{font-size:clamp(44px,6.8vw,130px);position:relative;z-index:2}
   .hero h1 .l{display:block}
   .hero h1 .mot{display:inline-block;white-space:nowrap}
-  .hero h1 .pill{vertical-align:-.04em;margin:0 .14em}
   .hero .ch{display:inline-block;will-change:transform}
-  .pill{display:inline-block;position:relative;width:1.1em;height:.78em;border-radius:.4em;overflow:hidden;background:linear-gradient(160deg,var(--or2),var(--or));flex:none}
-  .pill img{position:absolute;left:50%;bottom:-16%;height:116%;width:auto;transform:translateX(-50%);max-width:none}
   .hero .sous{position:relative;z-index:2;max-width:640px;margin:20px auto 0;font-size:17px;font-weight:600}
   .scene-hero{position:relative;z-index:1;width:100%;flex:1;display:flex;justify-content:center;align-items:flex-end;min-height:min(50vh,520px);margin-top:10px}
   .regard{position:relative;height:min(64vh,660px);aspect-ratio:415/620;filter:drop-shadow(0 20px 26px rgba(0,40,70,.28));transform-origin:50% 100%}
@@ -419,7 +416,7 @@
   </div>
   <h1 class="disp" id="titre">
     <span class="l l1">Le numérique</span>
-    <span class="l l2">sans <span class="pill" id="pill"><img src="marshall-coucou.webp" alt="Marshall fait coucou"></span> prise</span>
+    <span class="l l2">sans prise</span>
     <span class="l l3"><em>de tête</em></span>
     <span class="sr">Mon Copain Digital, coach numérique à Paris</span>
   </h1>
@@ -931,22 +928,20 @@
             f.appendChild(w);
           });
           n.replaceChild(f, c);
-        } else if (c.nodeType === 1 && !c.classList.contains('pill')) coupe(c);
+        } else if (c.nodeType === 1) coupe(c);
       });
     })(l);
   });
   var lettres = titre.querySelectorAll('.ch');
   gsap.set(lettres, { y:function(){ return -innerHeight * gsap.utils.random(.6, 1.1); }, rotate:function(){ return gsap.utils.random(-70, 70); }, opacity:0 });
-  gsap.set('#pill', { scale:0 }); gsap.set('#regard', { yPercent:105 });
+  gsap.set('#regard', { yPercent:105 });
   gsap.set('.hero .sous, .choix a', { y:30, opacity:0 });
   var intro = gsap.timeline({ paused:true })
     .to(lettres, { y:0, rotate:0, opacity:1, duration:1, ease:'bounce.out', stagger:{ each:.035, from:'random' } })
-    .to('#pill', { scale:1, duration:.6, ease:'back.out(2.2)' }, '-=.4')
     .to('#regard', { yPercent:0, duration:1.1, ease:'back.out(1.2)' }, '-=.5')
     .to('.hero .sous, .choix a', { y:0, opacity:1, duration:.7, stagger:.1, ease:'expo.out' }, '-=.8');
   function quandPortesOuvertes(fn){ if (window.__doorsOpen || !document.getElementById('door-tx')) fn(); else document.addEventListener('mcd-doors-open', fn, { once:true }); }
   quandPortesOuvertes(function(){ gsap.delayedCall(.25, function(){ intro.play(); }); });
-  gsap.to('#pill img', { rotate:5, y:-3, duration:1.3, repeat:-1, yoyo:true, ease:'sine.inOut' });
   // Les icônes suivent la souris en parallaxe
   var ic = document.getElementById('icones');
   addEventListener('mousemove', function(e){
