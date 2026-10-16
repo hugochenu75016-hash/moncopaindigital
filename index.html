@@ -87,9 +87,14 @@
   .choix a:hover{background:#fff;color:var(--blue);transform:translateY(-4px) rotate(-1deg)}
   .choix a.or{background:var(--or);border-color:var(--or)}
   .choix a.or:hover{background:#fff;color:var(--or)}
-  .icones{position:absolute;inset:0;z-index:0;pointer-events:none}
-  .icones span{position:absolute;font-size:clamp(28px,3.4vw,54px);opacity:.9;animation:flotte 6s ease-in-out infinite}
-  @keyframes flotte{50%{transform:translateY(-18px) rotate(8deg)}}
+  .bulles-q{position:absolute;left:50%;bottom:0;z-index:2;width:min(1000px,100%);height:100%;transform:translateX(-50%);pointer-events:none}
+  .bq{position:absolute;max-width:min(240px,42vw);padding:12px 16px;background:#fff;color:var(--blue);border-radius:20px;font-weight:700;font-size:16px;line-height:1.25;text-align:left;box-shadow:0 14px 30px rgba(0,40,70,.18);opacity:0}
+  .bq.g{transform:translateX(-100%);border-bottom-right-radius:5px}
+  .bq.d{border-bottom-left-radius:5px}
+  .bq::after{content:"";position:absolute;bottom:-8px;width:16px;height:16px;background:#fff;clip-path:polygon(0 0,100% 0,100% 100%)}
+  .bq.g::after{right:10px}
+  .bq.d::after{left:10px;transform:scaleX(-1)}
+  @media (max-width:900px){.bq{font-size:13px;padding:9px 12px;max-width:38vw}.bq.m{transform:none}}
   @media (max-width:900px){.hero{padding-bottom:30px}.scene-hero{flex-direction:column;align-items:center;min-height:0}.regard{order:-1;height:min(48vh,440px)}.choix{position:static;flex-direction:column;width:100%;max-width:420px;margin:0 auto}.choix a{min-width:0}}
 
   /* ---------- 2. Bandeau qui défile ---------- */
@@ -410,10 +415,6 @@
 <main>
 <!-- 1. HÉROS -->
 <section class="hero dark" id="hero">
-  <div class="icones" id="icones" aria-hidden="true">
-    <span style="left:6%;top:18%">💻</span><span style="left:84%;top:14%;animation-delay:-1.5s">📱</span><span style="left:72%;top:46%;animation-delay:-3s">📶</span>
-    <span style="left:12%;top:72%;animation-delay:-2s">🖨️</span><span style="left:48%;top:10%;animation-delay:-4s">🔐</span><span style="left:58%;top:80%;animation-delay:-.8s">📸</span>
-  </div>
   <h1 class="disp" id="titre">
     <span class="l l1">Le numérique</span>
     <span class="l l2">sans prise</span>
@@ -426,6 +427,7 @@
       <a href="#particuliers"><b>Je suis un particulier</b><span>Aide à domicile dès 49 €</span></a>
       <a href="#commercants" class="or"><b>J’ai un commerce</b><span>Studio Social, sites web, Google</span></a>
     </div>
+    <div class="bulles-q" id="bulles-q" aria-hidden="true"></div>
     <div class="regard" id="regard" role="img" aria-label="Marshall, le copain digital, vous regarde"><i id="regard-a"></i><i id="regard-b"></i></div>
   </div>
 </section>
@@ -942,12 +944,6 @@
     .to('.hero .sous, .choix a', { y:0, opacity:1, duration:.7, stagger:.1, ease:'expo.out' }, '-=.8');
   function quandPortesOuvertes(fn){ if (window.__doorsOpen || !document.getElementById('door-tx')) fn(); else document.addEventListener('mcd-doors-open', fn, { once:true }); }
   quandPortesOuvertes(function(){ gsap.delayedCall(.25, function(){ intro.play(); }); });
-  // Les icônes suivent la souris en parallaxe
-  var ic = document.getElementById('icones');
-  addEventListener('mousemove', function(e){
-    var dx = (e.clientX / innerWidth - .5), dy = (e.clientY / innerHeight - .5);
-    gsap.to(ic.children, { x:function(i){ return dx * (20 + i * 9); }, y:function(i){ return dy * (16 + i * 7); }, duration:.8, ease:'power3', overwrite:'auto' });
-  });
   // En partant, le titre s'incline et s'efface
   gsap.to('#titre', { yPercent:-30, rotate:-3, opacity:0, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
   gsap.to('#regard', { yPercent:18, ease:'none', scrollTrigger:{ trigger:'#hero', start:'top top', end:'bottom top', scrub:true } });
@@ -955,7 +951,7 @@
   /* ---------- Le regard de Marshall suit la souris : 32 images, de « regarde à gauche » à « regarde à droite », de face au milieu ---------- */
   // 62 images en grille 8 x 8 ; deux calques en fondu entre l'image courante et la suivante pour un mouvement continu
   var regard = document.getElementById('regard'), ca = document.getElementById('regard-a'), cb = document.getElementById('regard-b');
-  var NB = 62, COLS = 8, LIG = 8, FACE = 30.5, vue = { i:FACE }, balade = null;
+  var NB = 62, COLS = 8, LIG = 8, FACE = 30.5, vue = { i:FACE }, derniereSouris = 0;
   function place(el, k){ el.style.backgroundPosition = ((k % COLS) / (COLS - 1) * 100) + '% ' + (Math.floor(k / COLS) / (LIG - 1) * 100) + '%'; }
   function afficher(){
     var i = Math.max(0, Math.min(NB - 1, vue.i)), a = Math.floor(i), b = Math.min(NB - 1, a + 1);
@@ -963,17 +959,33 @@
   }
   var versI = gsap.quickTo(vue, 'i', { duration:.6, ease:'power2.out', onUpdate:afficher });
   addEventListener('mousemove', function(e){
-    if (balade) { balade.kill(); balade = null; }
+    derniereSouris = Date.now();
     var r = regard.getBoundingClientRect(), cx = r.left + r.width / 2, dx = (e.clientX - cx) / Math.max(cx, innerWidth - cx);
     dx = Math.max(-1, Math.min(1, dx));
     versI(dx < 0 ? FACE + dx * FACE : FACE + dx * (NB - 1 - FACE));
     gsap.to(regard, { rotate:dx * 2, y:(e.clientY / innerHeight - .5) * 10, duration:.9, ease:'power2.out', overwrite:'auto' });
   });
   afficher();
-  // Sur téléphone (pas de souris) : il regarde tranquillement d'un côté puis de l'autre
-  if (matchMedia('(hover: none)').matches) gsap.delayedCall(3, function(){
-    balade = gsap.to(vue, { keyframes:[{ i:8, duration:1.8 }, { i:FACE, duration:1.4, delay:.8 }, { i:NB - 9, duration:1.8 }, { i:FACE, duration:1.2, delay:.8 }], repeat:-1, repeatDelay:1.5, ease:'sine.inOut', onUpdate:afficher });
-  });
+  // Bulles de questions : elles apparaissent une à une autour de Marshall ; s'il n'y a pas de souris (ou qu'elle est immobile), il tourne la tête vers la nouvelle
+  var QUESTIONS = ['Mon wifi coupe tout le temps 😩', 'Comment je fais une visio avec mes petits-enfants ?', 'Il me faut un site pour ma boutique',
+    'J’ai reçu un SMS bizarre, je clique ?', 'Mes posts Instagram… jamais le temps !', 'Ma déclaration d’impôts en ligne, au secours !',
+    'Personne ne me trouve sur Google', 'Mon imprimante ne veut plus imprimer', 'C’est quoi, ChatGPT ?', 'Prendre rendez-vous sur Doctolib, je n’y arrive pas'];
+  var PLACES = [{ x:30, y:6, c:'g' }, { x:70, y:14, c:'d' }, { x:28, y:66, c:'g' }, { x:72, y:58, c:'d' }, { x:31, y:84, c:'g' }, { x:69, y:82, c:'d' }];
+  var boiteQ = document.getElementById('bulles-q'), nq = 0, np = 0;
+  function bulle(){
+    if (!document.hidden && boiteQ.getBoundingClientRect().bottom > 0) {
+      var mobile = innerWidth <= 900, p = PLACES[np++ % (mobile ? 2 : PLACES.length)], el = document.createElement('div');
+      el.className = 'bq ' + p.c; el.textContent = QUESTIONS[nq++ % QUESTIONS.length];
+      el.style.top = p.y + '%';
+      if (mobile) { el.classList.add('m'); if (p.c === 'g') el.style.left = '2%'; else el.style.right = '2%'; } else el.style.left = p.x + '%';
+      boiteQ.appendChild(el);
+      gsap.fromTo(el, { opacity:0, scale:.4, y:20 }, { opacity:1, scale:1, y:0, duration:.55, ease:'back.out(2.2)', transformOrigin:p.c === 'g' ? '100% 100%' : '0% 100%' });
+      gsap.to(el, { opacity:0, y:-24, duration:.6, delay:4.6, ease:'power2.in', onComplete:function(){ el.remove(); } });
+      if (Date.now() - derniereSouris > 2500) versI(p.c === 'g' ? 10 : NB - 11);   // il écoute la nouvelle question
+    }
+    gsap.delayedCall(2.6, bulle);
+  }
+  quandPortesOuvertes(function(){ gsap.delayedCall(3.2, bulle); });
 
   /* ---------- 2. Bandeau : défile tout seul, accélère quand on fait défiler la page ---------- */
   var rail = document.getElementById('rail');
