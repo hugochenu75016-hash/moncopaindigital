@@ -1,0 +1,107 @@
+/* Assistant Marshall · style « messagerie de téléphone »
+   Chargé après le style d'origine de l'assistant sur chaque page : il le remplace sans toucher à la position
+   (chaque page garde la sienne). Une seule feuille pour tout le site. */
+.mcd-chat{
+  --msg-bleu:#1E88E5; --msg-bleu-fonce:#1565C0; --msg-gris:#ECECF0; --msg-texte:#111418; --msg-doux:#8A8F98;
+  --msg-fond:#FFFFFF; --msg-ligne:#E6E7EB;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+
+/* Bouton d'ouverture : la photo de Marshall, avec la pastille « en ligne » */
+.mcd-chat .mcd-lanceur{
+  position:relative;overflow:visible;width:60px;height:60px;border-radius:50%;
+  background:#fff;border:3px solid #fff;box-shadow:0 8px 24px rgba(17,20,24,.22);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.mcd-chat .mcd-lanceur img{border-radius:50%;width:100%;height:100%;object-fit:cover}
+.mcd-chat .mcd-lanceur::after{
+  content:"";position:absolute;right:1px;bottom:1px;width:14px;height:14px;border-radius:50%;
+  background:#34C759;border:2.5px solid #fff;
+}
+.mcd-chat .mcd-lanceur:hover{transform:scale(1.06);box-shadow:0 12px 30px rgba(17,20,24,.28)}
+
+/* Fenêtre */
+.mcd-chat .mcd-fenetre{
+  width:min(370px,calc(100vw - 24px));background:var(--msg-fond);border:0;border-radius:24px;
+  box-shadow:0 24px 60px rgba(17,20,24,.25),0 2px 8px rgba(17,20,24,.08);overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* En-tête : comme le haut d'une conversation sur téléphone */
+.mcd-chat .mcd-entete{
+  background:rgba(255,255,255,.96);color:var(--msg-texte);padding:12px 14px;gap:10px;
+  border-bottom:1px solid var(--msg-ligne);box-shadow:none;
+}
+.mcd-chat .mcd-avatar{width:40px;height:40px;border-radius:50%;background:#F3F4F6;border:0;box-shadow:none;flex:none}
+.mcd-chat .mcd-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.mcd-chat .mcd-entete h2{font-family:inherit;font-size:16px;font-weight:600;color:var(--msg-texte);margin:0;letter-spacing:0;text-shadow:none}
+.mcd-chat .mcd-entete p{font-size:0;line-height:0;color:var(--msg-doux);margin:3px 0 0;font-weight:500}   /* le texte d'origine est remplacé par « En ligne » */
+.mcd-chat .mcd-entete p::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#34C759;margin-right:6px;vertical-align:1px}
+.mcd-chat .mcd-entete p::after{content:"En ligne";font-size:12.5px;line-height:1.2}
+.mcd-chat .mcd-fermer{
+  width:30px;height:30px;border-radius:50%;background:#F1F2F5;color:#5B606A;border:0;font-size:20px;line-height:1;
+  box-shadow:none;margin-left:auto;
+}
+.mcd-chat .mcd-fermer:hover{background:#E4E6EB}
+
+/* Fil de la conversation */
+.mcd-chat .mcd-fil{background:var(--msg-fond);padding:14px 12px 8px;gap:4px}
+.mcd-chat .mcd-fil::before{
+  content:"Aujourd’hui";display:block;align-self:center;margin:0 auto 8px;font-size:11.5px;font-weight:600;color:var(--msg-doux);
+}
+.mcd-chat .mcd-bulle{
+  font-family:inherit;font-size:15px;line-height:1.38;padding:9px 13px;max-width:78%;border:0;box-shadow:none;
+  animation:msg-arrive .22s ease-out both;
+}
+.mcd-chat .mcd-bulle.assistant{background:var(--msg-gris);color:var(--msg-texte);border-radius:20px 20px 20px 6px;align-self:flex-start}
+.mcd-chat .mcd-bulle.visiteur{background:var(--msg-bleu);color:#fff;border-radius:20px 20px 6px 20px;align-self:flex-end}
+.mcd-chat .mcd-bulle.erreur{background:#FDECEC;color:#B42318;border-radius:16px;align-self:center;font-size:13.5px}
+.mcd-chat .mcd-bulle a{color:inherit;text-decoration:underline}
+.mcd-chat .mcd-bulle.assistant a{color:var(--msg-bleu-fonce)}
+@keyframes msg-arrive{from{opacity:0;transform:translateY(6px) scale(.97)}to{opacity:1;transform:none}}
+
+/* « Marshall écrit… » : trois points qui rebondissent dans une bulle grise */
+.mcd-chat .mcd-points{display:inline-flex;gap:4px;padding:2px 0}
+.mcd-chat .mcd-points i{width:7px;height:7px;border-radius:50%;background:#9AA0A8;animation:msg-points 1.2s infinite ease-in-out}
+.mcd-chat .mcd-points i:nth-child(2){animation-delay:.15s}
+.mcd-chat .mcd-points i:nth-child(3){animation-delay:.3s}
+@keyframes msg-points{0%,60%,100%{transform:translateY(0);opacity:.55}30%{transform:translateY(-4px);opacity:1}}
+
+/* Réponses rapides : pastilles bleues sur une ligne qui défile */
+.mcd-chat .mcd-suggestions{
+  display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:4px 12px 10px;background:var(--msg-fond);
+  scrollbar-width:none;
+}
+.mcd-chat .mcd-suggestions::-webkit-scrollbar{display:none}
+.mcd-chat .mcd-suggestions button{
+  flex:none;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--msg-bleu-fonce);background:#fff;
+  border:1.5px solid #BBD9F5;border-radius:999px;padding:7px 12px;box-shadow:none;white-space:nowrap;
+}
+.mcd-chat .mcd-suggestions button:hover{background:#EEF6FE;border-color:var(--msg-bleu)}
+
+/* Zone d'écriture : champ arrondi gris et bouton d'envoi rond bleu */
+.mcd-chat .mcd-saisie{background:var(--msg-fond);border-top:1px solid var(--msg-ligne);padding:8px 10px;gap:8px;align-items:flex-end}
+.mcd-chat .mcd-saisie textarea{
+  font-family:inherit;font-size:15px;background:#F2F3F5;color:var(--msg-texte);border:1px solid transparent;
+  border-radius:20px;padding:9px 14px;min-height:38px;box-shadow:none;
+}
+.mcd-chat .mcd-saisie textarea:focus{background:#fff;border-color:#BBD9F5;outline:none;box-shadow:none}
+.mcd-chat .mcd-saisie textarea::placeholder{color:#9AA0A8}
+.mcd-chat .mcd-envoyer{
+  width:38px;height:38px;border-radius:50%;background:var(--msg-bleu);border:0;box-shadow:none;flex:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.mcd-chat .mcd-envoyer svg{width:18px;height:18px}
+.mcd-chat .mcd-envoyer svg path{stroke:#fff}
+.mcd-chat .mcd-envoyer:hover{background:var(--msg-bleu-fonce)}
+.mcd-chat .mcd-envoyer:disabled{background:#C9CDD3}
+.mcd-chat .mcd-mention{font-family:inherit;font-size:11px;color:var(--msg-doux);background:var(--msg-fond);padding:0 12px 10px;margin:0;text-align:center}
+
+/* Sur téléphone : la conversation prend presque tout l'écran, comme une vraie appli de messages */
+@media (max-width:520px){
+  .mcd-chat .mcd-fenetre{width:calc(100vw - 16px);max-height:calc(100dvh - 110px);border-radius:22px}
+  .mcd-chat .mcd-bulle{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .mcd-chat .mcd-bulle,.mcd-chat .mcd-points i{animation:none}
+}
