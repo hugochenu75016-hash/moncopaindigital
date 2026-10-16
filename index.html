@@ -871,7 +871,9 @@
   @media (max-width:520px){.mcd-chat{left:12px!important;top:72px!important}.mcd-lanceur{width:52px;height:52px}.mcd-fenetre{top:62px;width:calc(100vw - 24px)}
     /* Clavier ouvert : la conversation rétrécit au-dessus du clavier au lieu de faire remonter la page */
     .mcd-chat[data-ouvert] .mcd-fenetre{height:min(540px,calc(var(--mcd-vh,100dvh) - 146px));max-height:none}
-    .mcd-chat.clavier .mcd-mention,.mcd-chat.clavier .mcd-suggestions{display:none}}
+    .mcd-chat.clavier .mcd-mention,.mcd-chat.clavier .mcd-suggestions{display:none}
+    .mcd-chat .mcd-saisie textarea{font-size:16px}   /* 16 px : le téléphone ne zoome plus en touchant le champ */
+    html.chat-fige,html.chat-fige body{overflow:hidden;overscroll-behavior:none}}
 </style>
 <script>
 /* Sur téléphone, garde la conversation à sa place quand le clavier s'ouvre :
@@ -885,6 +887,37 @@
     chat.style.transform = innerWidth <= 520 && vv.offsetTop > 0 ? 'translateY(' + vv.offsetTop + 'px)' : '';
   }
   vv.addEventListener('resize', cale); vv.addEventListener('scroll', cale); cale();
+
+  /* Conversation ouverte sur téléphone : la page reste figée à sa place, sans défilement ni zoom */
+  var meta = document.querySelector('meta[name="viewport"]'), metaInitial = meta.content, y = 0, fige = false;
+  function bloque(e){ if (e.touches && e.touches.length > 1) e.preventDefault(); }
+  function geste(e){ e.preventDefault(); }
+  function defile(e){ if (!chat.contains(e.target) || !e.target.closest('.mcd-fil,.mcd-saisie textarea,.mcd-suggestions')) e.preventDefault(); }
+  function figer(oui){
+    if (oui === fige) return; fige = oui;
+    var b = document.body.style;
+    if (oui) {
+      y = scrollY;
+      if (window.lenis) lenis.stop();
+      document.documentElement.classList.add('chat-fige');
+      b.position = 'fixed'; b.top = -y + 'px'; b.left = '0'; b.right = '0'; b.width = '100%';
+      meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+      document.addEventListener('touchmove', bloque, { passive:false });
+      document.addEventListener('touchmove', defile, { passive:false });
+      document.addEventListener('gesturestart', geste);
+    } else {
+      document.documentElement.classList.remove('chat-fige');
+      b.position = b.top = b.left = b.right = b.width = '';
+      meta.content = metaInitial;
+      document.removeEventListener('touchmove', bloque);
+      document.removeEventListener('touchmove', defile);
+      document.removeEventListener('gesturestart', geste);
+      scrollTo(0, y);
+      if (window.lenis) { lenis.scrollTo(y, { immediate:true }); lenis.start(); }
+    }
+  }
+  new MutationObserver(function(){ figer(innerWidth <= 520 && chat.dataset.ouvert === 'true'); })
+    .observe(chat, { attributes:true, attributeFilter:['data-ouvert'] });
 })();
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -902,14 +935,14 @@
 
   /* ---------- En-tête : fond plein au défilement, couleur selon la section dessous ---------- */
   var top = document.getElementById('top');
-  function enTete(){
+  function enTete(){ if (document.documentElement.classList.contains('chat-fige')) return; 
     top.classList.toggle('solid', scrollY > 40);
     var y = top.offsetHeight / 2, sous = document.elementsFromPoint(innerWidth / 2, y).find(function(el){ return !top.contains(el); });
     top.classList.toggle('on-light', !!(sous && sous.closest('.light')));
   }
   addEventListener('scroll', enTete, { passive:true }); addEventListener('resize', enTete); enTete();
   var defile = document.getElementById('defile');
-  function indice(){ defile.classList.toggle('cache', scrollY > innerHeight * .25); }
+  function indice(){ if (document.documentElement.classList.contains('chat-fige')) return; defile.classList.toggle('cache', scrollY > innerHeight * .25); }
   addEventListener('scroll', indice, { passive:true }); indice();
 
   if (!window.gsap) return;
