@@ -76,7 +76,6 @@
   .hero h1 .l{display:block}
   .hero h1 .mot{display:inline-block;white-space:nowrap}
   .hero .ch{display:inline-block;will-change:transform}
-  .hero .sous{position:relative;z-index:2;max-width:640px;margin:20px auto 0;font-size:17px;font-weight:600}
   .scene-hero{position:relative;z-index:1;width:100%;flex:1;display:flex;justify-content:center;align-items:flex-end;min-height:min(50vh,520px);margin-top:10px}
   .regard{position:relative;height:min(64vh,660px);aspect-ratio:415/620;filter:drop-shadow(0 20px 26px rgba(0,40,70,.28));transform-origin:50% 100%}
   .regard i{position:absolute;inset:0;background:url(marshall-regard.webp?v=3) 0 0/800% 800% no-repeat}
@@ -406,7 +405,6 @@
     <span class="l l3"><em>de tête</em></span>
     <span class="sr">Mon Copain Digital, coach numérique à Paris</span>
   </h1>
-  <p class="sous">Ordinateur, smartphone, démarches en ligne, site web, réseaux sociaux : votre copain digital s’en occupe avec vous.</p>
   <div class="scene-hero">
     <div class="regard" id="regard" role="img" aria-label="Marshall, le copain digital, vous regarde"><i id="regard-a"></i><i id="regard-b"></i></div>
   </div>
@@ -917,11 +915,9 @@
   var lettres = titre.querySelectorAll('.ch');
   gsap.set(lettres, { y:function(){ return -innerHeight * gsap.utils.random(.6, 1.1); }, rotate:function(){ return gsap.utils.random(-70, 70); }, opacity:0 });
   gsap.set('#regard', { yPercent:105 });
-  gsap.set('.hero .sous', { y:30, opacity:0 });
   var intro = gsap.timeline({ paused:true })
     .to(lettres, { y:0, rotate:0, opacity:1, duration:1, ease:'bounce.out', stagger:{ each:.035, from:'random' } })
-    .to('#regard', { yPercent:0, duration:1.1, ease:'back.out(1.2)' }, '-=.5')
-    .to('.hero .sous', { y:0, opacity:1, duration:.7, ease:'expo.out' }, '-=.8');
+    .to('#regard', { yPercent:0, duration:1.1, ease:'back.out(1.2)' }, '-=.5');
   function quandPortesOuvertes(fn){ if (window.__doorsOpen || !document.getElementById('door-tx')) fn(); else document.addEventListener('mcd-doors-open', fn, { once:true }); }
   quandPortesOuvertes(function(){ gsap.delayedCall(.25, function(){ intro.play(); }); });
   // En partant, le titre s'incline et s'efface
