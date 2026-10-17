@@ -197,9 +197,25 @@
   .msg.lui{align-self:flex-start;background:#fff;border:1.5px solid #D6ECF9;border-bottom-left-radius:5px}
   .ecrit{align-self:flex-start;display:flex;gap:5px;padding:12px 14px;background:#fff;border:1.5px solid #D6ECF9;border-radius:18px;border-bottom-left-radius:5px}
   .ecrit i{width:8px;height:8px;border-radius:50%;background:var(--blue);display:block}
-  .apercu{align-self:flex-start;width:78%;border-radius:16px;overflow:hidden;background:#fff;border:1.5px solid #D6ECF9}
-  .apercu img{width:100%;aspect-ratio:4/3;object-fit:cover}
-  .apercu p{margin:0;padding:10px 12px;font-size:13px;font-weight:600}
+  .apercu{align-self:flex-start;width:84%;border-radius:16px;overflow:hidden;background:#fff;border:1.5px solid #D6ECF9}
+  /* Le post préparé par Marshall, présenté comme dans le fil Instagram */
+  .post-tete{display:flex;align-items:center;gap:8px;padding:8px 10px}
+  .post-av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:15px;background:#FFF3E6;box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--or)}
+  .post-tete b{display:block;font-size:12.5px;line-height:1.1}
+  .post-tete small{display:block;font-size:10.5px;font-weight:600;color:#6B7785}
+  .post-visuel{position:relative;aspect-ratio:1;overflow:hidden}
+  .post-visuel img{width:100%;height:100%;object-fit:cover;object-position:50% 70%}
+  .post-visuel::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(40,20,5,.55) 0%,rgba(40,20,5,0) 45%,rgba(40,20,5,0) 70%,rgba(40,20,5,.35) 100%)}
+  .post-badge{position:absolute;z-index:1;left:12px;top:12px;padding:4px 9px;border-radius:99px;background:var(--or);color:#fff;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:12px;letter-spacing:.04em}
+  .post-titre{position:absolute;z-index:1;left:12px;top:40px;color:#fff;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:34px;line-height:.9;text-shadow:0 2px 10px rgba(0,0,0,.25)}
+  .post-prix{position:absolute;z-index:1;right:10px;bottom:10px;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--ink);font-stretch:62%;font-weight:900;font-size:17px;transform:rotate(-10deg);box-shadow:0 6px 14px rgba(0,0,0,.25)}
+  .post-icones{display:flex;gap:12px;padding:8px 10px 2px}
+  .post-icones svg{width:21px;height:21px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round}
+  .post-icones .marque{margin-left:auto}
+  .post-icones .coeur.aime{fill:#ED4956;stroke:#ED4956}
+  .apercu p{margin:0;padding:2px 10px 8px;font-size:12.5px;font-weight:500;line-height:1.35}
+  .apercu p b{font-weight:800}
+  .apercu .post-aime{padding-bottom:2px;font-size:12.5px}
   .apercu .publier{margin:0 12px 12px;padding:9px 14px;border:0;background:var(--or);color:#fff;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:15px;cursor:default}
   .publie{align-self:center;padding:8px 14px;border-radius:999px;background:#E8F8EC;color:#1E7A35;font-weight:800;font-size:14px}
   .tel-marshall{position:absolute;left:-40px;bottom:-30px;height:440px;width:auto;z-index:2}
@@ -535,11 +551,24 @@
         <div class="ecrit" data-m aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="msg lui" data-m>C’est prêt ! Voilà le visuel et le texte :</div>
         <div class="apercu" data-m>
-          <img src="post-baguette.jpg" alt="Le post préparé par Marshall : une baguette dorée sur le comptoir de la boulangerie" loading="lazy">
-          <p>🥖 Notre tradition sort du four toutes les heures : croûte qui chante, mie alvéolée. On vous la garde ? #boulangerie #paris16</p>
+          <div class="post-tete"><span class="post-av" aria-hidden="true">🥖</span><span><b>le_fournil_du_coin</b><small>Boulangerie artisanale</small></span></div>
+          <div class="post-visuel">
+            <img src="post-baguette.jpg" alt="Le post préparé par Marshall : une baguette dorée sur le comptoir de la boulangerie" loading="lazy">
+            <span class="post-badge">Sort du four</span>
+            <strong class="post-titre">La tradi<br>est chaude</strong>
+            <span class="post-prix">1,30&nbsp;€</span>
+          </div>
+          <div class="post-icones" aria-hidden="true">
+            <svg class="coeur" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.5 8 3.6 4.5 7 4.5c2 0 3.7 1.1 5 3 1.3-1.9 3-3 5-3 3.4 0 5.5 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3.5 20l1.2-4.2A8.5 8.5 0 1 1 20.5 11.5z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg>
+            <svg class="marque" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>
+          </div>
+          <p class="post-aime"><b>128 J’aime</b></p>
+          <p><b>le_fournil_du_coin</b> Notre tradition sort du four toutes les heures : croûte qui chante, mie alvéolée. On vous la garde ? 🥖 #boulangerie #tradition</p>
           <button type="button" class="publier" tabindex="-1">Publier</button>
         </div>
-        <div class="publie" data-m>✓ Publié sur Instagram et Facebook</div>
+        <div class="publie" data-m>✓ Publié sur tous vos réseaux</div>
       </div>
     </div>
     <img class="tel-marshall marshall" id="tel-marshall" src="marshall-publie.webp" alt="Marshall publie un post depuis son téléphone et se réjouit" loading="lazy">
@@ -1106,11 +1135,13 @@
     .to('#bulle-dit', { scale:1, duration:.2, ease:'back.out(2.5)' });
 
   /* ---------- 6. Commerçants : la conversation avec Marshall s'écrit toute seule, en boucle ---------- */
-  var m = document.querySelectorAll('#conv [data-m]'), ecrit = document.querySelector('#conv .ecrit');
+  var m = document.querySelectorAll('#conv [data-m]'), ecrit = document.querySelector('#conv .ecrit'), coeur = document.querySelector('#conv .coeur');
   gsap.to('#conv .ecrit i', { y:-5, duration:.3, repeat:-1, yoyo:true, stagger:.12, ease:'sine.inOut' });
   var conv = gsap.timeline({ paused:true, repeat:-1, repeatDelay:2.5 })
     .set(m, { autoAlpha:0, y:16, scale:.96, display:'none' })
     .set('#conv .publier', { scale:1, backgroundColor:'#F3852B' })
+    .set('#conv .post-aime', { autoAlpha:0, height:0 })
+    .call(function(){ coeur.classList.remove('aime'); })
     .set(m[0], { display:'block' }).to(m[0], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' }, '+=.5')
     .set(ecrit, { display:'flex' }, '+=.5').to(ecrit, { autoAlpha:1, y:0, scale:1, duration:.3 })
     .set(ecrit, { display:'none' }, '+=1.4')
@@ -1119,8 +1150,17 @@
     .to('#conv .publier', { scale:.9, duration:.12, yoyo:true, repeat:1 }, '+=1.2')
     .to('#conv .publier', { backgroundColor:'#1E7A35', duration:.2 })
     .set(m[4], { display:'block' }).to(m[4], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2.5)' })
+    // Une fois publié, les premiers « J'aime » arrivent
+    .call(function(){ coeur.classList.add('aime'); }, null, '+=.5')
+    .fromTo(coeur, { scale:.4 }, { scale:1, duration:.5, ease:'back.out(3)' }, '<')
+    .to('#conv .post-aime', { autoAlpha:1, height:'auto', duration:.3 }, '<')
     .to({}, { duration:3 });
-  ScrollTrigger.create({ trigger:'#conv', start:'top 80%', end:'bottom top', onToggle:function(st){ if (st.isActive) conv.play(); else conv.pause(); } });
+  // La discussion est vide en arrivant sur la section ; elle repart du début à chaque nouvelle arrivée
+  gsap.set(m, { autoAlpha:0, display:'none' }); gsap.set('#conv .post-aime', { autoAlpha:0, height:0 });
+  conv.pause(0);
+  ScrollTrigger.create({ trigger:'#conv', start:'top 70%', end:'bottom top',
+    onEnter:function(){ conv.restart(true); }, onEnterBack:function(){ conv.restart(true); },
+    onLeave:function(){ conv.pause(0); }, onLeaveBack:function(){ conv.pause(0); } });
   gsap.from('#conv', { y:160, rotate:10, opacity:0, duration:1.1, ease:'expo.out', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
   gsap.from('#tel-marshall', { x:-160, opacity:0, duration:1, delay:.3, ease:'back.out(1.5)', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
   gsap.from('.commerce li', { x:-40, opacity:0, duration:.7, stagger:.1, ease:'expo.out', scrollTrigger:{ trigger:'.commerce ul', start:'top 80%' } });
