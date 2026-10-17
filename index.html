@@ -1002,6 +1002,40 @@
       a.addEventListener('click', function(e){ var t = document.querySelector(a.getAttribute('href')); if (t) { e.preventDefault(); lenis.scrollTo(t); } });
     });
   }
+  /* ---------- 6. Commerçants : la conversation avec Marshall s'écrit toute seule, en boucle ---------- */
+  var m = document.querySelectorAll('#conv [data-m]'), ecrit = document.querySelector('#conv .ecrit'), coeur = document.querySelector('#conv .coeur');
+  gsap.to('#conv .ecrit i', { y:-5, duration:.3, repeat:-1, yoyo:true, stagger:.12, ease:'sine.inOut' });
+  var bouge = reduce ? 0 : 1;
+  var conv = gsap.timeline({ paused:true, repeat:-1, repeatDelay:2.5 })
+    .set(m, { autoAlpha:0, y:16 * bouge, scale:1 - .04 * bouge, display:'none' })
+    .set('#conv .publier', { scale:1, backgroundColor:'#F3852B' })
+    .set('#conv .post-aime', { autoAlpha:0, height:0 })
+    .call(function(){ coeur.classList.remove('aime'); })
+    .set(m[0], { display:'block' }).to(m[0], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' }, '+=.5')
+    .set(ecrit, { display:'flex' }, '+=.5').to(ecrit, { autoAlpha:1, y:0, scale:1, duration:.3 })
+    .set(ecrit, { display:'none' }, '+=1.4')
+    .set(m[2], { display:'block' }).to(m[2], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' })
+    .set(m[3], { display:'block' }, '+=.3').to(m[3], { autoAlpha:1, y:0, scale:1, duration:.5, ease:'back.out(1.6)' })
+    .to('#conv .publier', { scale:.9, duration:.12, yoyo:true, repeat:1 }, '+=1.2')
+    .to('#conv .publier', { backgroundColor:'#1E7A35', duration:.2 })
+    .set(m[4], { display:'block' }).to(m[4], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2.5)' })
+    // Une fois publié, les premiers « J'aime » arrivent
+    .call(function(){ coeur.classList.add('aime'); }, null, '+=.5')
+    .fromTo(coeur, { scale:.4 }, { scale:1, duration:.5, ease:'back.out(3)' }, '<')
+    .to('#conv .post-aime', { autoAlpha:1, height:'auto', duration:.3 }, '<')
+    .to({}, { duration:3 });
+  // La discussion est vide en arrivant sur la section ; elle démarre quand le téléphone est vraiment à l'écran
+  // et repart du début à chaque nouvelle arrivée (déclenché par la visibilité réelle, pas par la position calculée)
+  gsap.set(m, { autoAlpha:0, display:'none' }); gsap.set('#conv .post-aime', { autoAlpha:0, height:0 });
+  conv.pause(0);
+  var convVu = false;
+  new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if (e.isIntersecting && e.intersectionRatio >= .45) { if (!convVu) { convVu = true; conv.restart(true); } }
+      else if (!e.isIntersecting) { convVu = false; conv.pause(0); gsap.set(m, { autoAlpha:0, display:'none' }); }
+    });
+  }, { threshold:[0, .45] }).observe(document.getElementById('conv'));
+
   if (reduce) return;
 
   /* ---------- 1. Héros : chaque lettre tombe du ciel et rebondit, la pilule s'ouvre, Marshall glisse avec son ordi ---------- */
@@ -1134,33 +1168,6 @@
     .to('#epingle', { scale:1.25, duration:.1, yoyo:true, repeat:1 }, '<')
     .to('#bulle-dit', { scale:1, duration:.2, ease:'back.out(2.5)' });
 
-  /* ---------- 6. Commerçants : la conversation avec Marshall s'écrit toute seule, en boucle ---------- */
-  var m = document.querySelectorAll('#conv [data-m]'), ecrit = document.querySelector('#conv .ecrit'), coeur = document.querySelector('#conv .coeur');
-  gsap.to('#conv .ecrit i', { y:-5, duration:.3, repeat:-1, yoyo:true, stagger:.12, ease:'sine.inOut' });
-  var conv = gsap.timeline({ paused:true, repeat:-1, repeatDelay:2.5 })
-    .set(m, { autoAlpha:0, y:16, scale:.96, display:'none' })
-    .set('#conv .publier', { scale:1, backgroundColor:'#F3852B' })
-    .set('#conv .post-aime', { autoAlpha:0, height:0 })
-    .call(function(){ coeur.classList.remove('aime'); })
-    .set(m[0], { display:'block' }).to(m[0], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' }, '+=.5')
-    .set(ecrit, { display:'flex' }, '+=.5').to(ecrit, { autoAlpha:1, y:0, scale:1, duration:.3 })
-    .set(ecrit, { display:'none' }, '+=1.4')
-    .set(m[2], { display:'block' }).to(m[2], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2)' })
-    .set(m[3], { display:'block' }, '+=.3').to(m[3], { autoAlpha:1, y:0, scale:1, duration:.5, ease:'back.out(1.6)' })
-    .to('#conv .publier', { scale:.9, duration:.12, yoyo:true, repeat:1 }, '+=1.2')
-    .to('#conv .publier', { backgroundColor:'#1E7A35', duration:.2 })
-    .set(m[4], { display:'block' }).to(m[4], { autoAlpha:1, y:0, scale:1, duration:.4, ease:'back.out(2.5)' })
-    // Une fois publié, les premiers « J'aime » arrivent
-    .call(function(){ coeur.classList.add('aime'); }, null, '+=.5')
-    .fromTo(coeur, { scale:.4 }, { scale:1, duration:.5, ease:'back.out(3)' }, '<')
-    .to('#conv .post-aime', { autoAlpha:1, height:'auto', duration:.3 }, '<')
-    .to({}, { duration:3 });
-  // La discussion est vide en arrivant sur la section ; elle repart du début à chaque nouvelle arrivée
-  gsap.set(m, { autoAlpha:0, display:'none' }); gsap.set('#conv .post-aime', { autoAlpha:0, height:0 });
-  conv.pause(0);
-  ScrollTrigger.create({ trigger:'#conv', start:'top 70%', end:'bottom top',
-    onEnter:function(){ conv.restart(true); }, onEnterBack:function(){ conv.restart(true); },
-    onLeave:function(){ conv.pause(0); }, onLeaveBack:function(){ conv.pause(0); } });
   gsap.from('#conv', { y:160, rotate:10, opacity:0, duration:1.1, ease:'expo.out', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
   gsap.from('#tel-marshall', { x:-160, opacity:0, duration:1, delay:.3, ease:'back.out(1.5)', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
   gsap.from('.commerce li', { x:-40, opacity:0, duration:.7, stagger:.1, ease:'expo.out', scrollTrigger:{ trigger:'.commerce ul', start:'top 80%' } });
