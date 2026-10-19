@@ -341,7 +341,7 @@
       $('resultat').classList.add('on');
       $('resultat').scrollIntoView({ behavior:'smooth', block:'start' });
       vider('suggestions').appendChild(el('p', null, 'Préparation des idées de la semaine…'));
-      appel('/suggestions/moment', { metier: v.metier || 'commerce de proximité', ville: v.ville })
+      appel('/suggestions/moment', { metier: (d.commerce && d.commerce.metier) || v.metier || 'commerce de proximité', ville: v.ville })
         .then(afficherSuggestions)
         .catch(function(err){ vider('suggestions').appendChild(el('p', null, err.message)); });
     } catch (err) {
