@@ -1506,6 +1506,9 @@
   #mcd-pub-ov .mpo-stage{ position:relative; display:flex; flex-direction:column; align-items:center; }
   #mcd-pub-ov .mpo-marshall{ position:absolute; left:50%; bottom:calc(100% - 30px); width:190px; height:auto; transform:translateX(-50%); z-index:2; pointer-events:none; filter:drop-shadow(0 10px 14px rgba(90,40,0,.18)); }
   #mcd-pub-ov .mpo-stage:has(.mpo-marshall){ margin-top:150px; }
+  /* Validation : Marshall « bravo » se tient entièrement au-dessus du bouton vert (la pose assise, elle, s'appuie dessus). */
+  #mcd-pub-ov .mpo-marshall.bravo{ bottom:calc(100% + 6px); }
+  #mcd-pub-ov .mpo-stage:has(.mpo-marshall.bravo){ margin-top:186px; }
   #mcd-pub-ov .mpo-label{ margin:22px 0 0; font:600 16px Fredoka,system-ui,sans-serif; color:#2b2118; background:rgba(255,255,255,.85); padding:8px 16px; border-radius:999px; box-shadow:0 6px 18px rgba(90,40,0,.12); }
   #mcd-pub-ov .mpo-box{ width:118px; height:118px; border-radius:30px; background:linear-gradient(180deg,#FF9C46,#F3852B); color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 0 #C7620E,0 22px 50px rgba(243,133,43,.4); transform:scale(.85); transition:transform .35s cubic-bezier(.34,1.56,.64,1), background .3s, box-shadow .3s; }
   #mcd-pub-ov.show .mpo-box{ transform:scale(1); }
@@ -18240,7 +18243,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var box=ov.querySelector('.mpo-box'), ok=state==='ok';
     box.classList.add(ok?'ok':'fail'); ov.setAttribute('aria-label',ok?'Publication réussie':'Publication refusée');
     var mi=ov.querySelector('.mpo-marshall'), lb=ov.querySelector('.mpo-label');
-    if(mi&&ok) mi.src=MARSHALL_ANIM.bravo;
+    if(mi&&ok){ mi.src=MARSHALL_ANIM.bravo; mi.classList.add('bravo'); }
     if(lb) lb.textContent=ok?'C’est fait !':'Oups, ça n’a pas marché';
     box.innerHTML=ok?'<svg class="mpo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'
                     :'<svg class="mpo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>';
