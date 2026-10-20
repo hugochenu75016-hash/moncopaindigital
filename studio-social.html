@@ -4768,6 +4768,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   var SCHEDULER_FN = 'social-scheduler'; // publication planifiée côté serveur (Supabase Cron)
   /* Démo locale : le client Supabase ne contacte jamais le serveur (aucune lecture, écriture ni session). */
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, mcdDemoRequested()?{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{fetch:function(){return Promise.resolve(new Response(JSON.stringify({message:'Mode démo : base de données désactivée'}),{status:503,headers:{'Content-Type':'application/json'}}));}}}:undefined);
+  /* Médias : stockés sur le serveur mcd-medias (compte Modal dédié) et non plus dans Supabase,
+     dont la bande passante gratuite s'épuisait. Même forme d'appel que le stockage Supabase (upload, getPublicUrl). */
+  var MEDIAS_URL='https://supportmcd--mcd-medias-web.us-east.modal.run';
+  var mcdMedia=(function(){var urls={};return{
+    upload:async function(path,blob,opts){try{
+      var ses=await sb.auth.getSession(),tok=ses&&ses.data&&ses.data.session&&ses.data.session.access_token;
+      if(!tok)return{error:{message:'connexion requise pour envoyer un média'}};
+      var r=await fetch(MEDIAS_URL+'/upload',{method:'POST',headers:{'Authorization':'Bearer '+tok,'Content-Type':(opts&&opts.contentType)||blob.type||'application/octet-stream'},body:blob});
+      var d=await r.json().catch(function(){return{};});
+      if(!r.ok)return{error:{message:d.detail||('envoi du média refusé ('+r.status+')')}};
+      urls[path]=d.url;return{data:{path:d.path},error:null};
+    }catch(e){return{error:{message:String(e&&e.message||e)}};}},
+    getPublicUrl:function(path){return{data:{publicUrl:urls[path]||''}};}
+  };})();
   var ADMIN_EMAILS = ['hugo.chenu@moncopaindigital.fr'];
 
   var authUser = null, me = { nom:'', role:'' };
@@ -7443,9 +7457,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function edUploadBlob(blob){
     var type=blob.type||'video/mp4', ext=(/webm/.test(type)?'webm':'mp4');
     var path=(effectiveUid()||'anon')+'/video-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-    var up=await sb.storage.from('media').upload(path, blob, { contentType:type, cacheControl:'31536000' });
+    var up=await mcdMedia.upload(path, blob, { contentType:type, cacheControl:'31536000' });
     if(up.error) throw Error(up.error.message||'stockage indisponible');
-    var pu=sb.storage.from('media').getPublicUrl(path); return pu&&pu.data&&pu.data.publicUrl;
+    var pu=mcdMedia.getPublicUrl(path); return pu&&pu.data&&pu.data.publicUrl;
   }
   async function edApplyVideoEdits(){
     var seen={}, list=[];
@@ -8108,14 +8122,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var type=fileOrBlob.type||'video/mp4';
       var ext=(/quicktime/.test(type)?'mov':(/webm/.test(type)?'webm':'mp4'));
       var path=(effectiveUid()||'anon')+'/video-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-      var up=await sb.storage.from('media').upload(path, fileOrBlob, { contentType:type, cacheControl:'31536000' });
+      var up=await mcdMedia.upload(path, fileOrBlob, { contentType:type, cacheControl:'31536000' });
       if(up.error){
         var m=String(up.error.message||'stockage indisponible');
         if(/mime|type/i.test(m)) m='le stockage refuse ce format de vidéo ('+type+')';
         else if(/size|large|exceed|payload/i.test(m)) m='vidéo trop lourde pour le stockage ('+Math.round((fileOrBlob.size||0)/1048576)+' Mo)';
         throw Error(m);
       }
-      var pu=sb.storage.from('media').getPublicUrl(path), url=pu&&pu.data&&pu.data.publicUrl;
+      var pu=mcdMedia.getPublicUrl(path), url=pu&&pu.data&&pu.data.publicUrl;
       if(!url) throw Error('lien public introuvable');
       ed.layers.forEach(function(x){ if(x.id===id) x.url=url; });
       (marshallCanvasPages||[]).forEach(function(pg){ (pg.layers||[]).forEach(function(x){ if(x.id===id&&(!local||x.url===local)) x.url=url; }); });
@@ -16291,8 +16305,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(storeMode==='db'){
       try{
         var blob=await (await fetch(dataUrl)).blob(),path=(effectiveUid()||'anon')+'/photos/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
-        var up=await sb.storage.from('media').upload(path,blob,{contentType:'image/jpeg',cacheControl:'31536000'});
-        if(!up.error){var pu=sb.storage.from('media').getPublicUrl(path);if(pu&&pu.data&&pu.data.publicUrl)return pu.data.publicUrl;}
+        var up=await mcdMedia.upload(path,blob,{contentType:'image/jpeg',cacheControl:'31536000'});
+        if(!up.error){var pu=mcdMedia.getPublicUrl(path);if(pu&&pu.data&&pu.data.publicUrl)return pu.data.publicUrl;}
       }catch(e){console.warn('Upload photo',e);}
     }
     return dataUrl;
@@ -18133,9 +18147,9 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var blob=await (await fetch(dataUrl)).blob();
       var ctype=/^image\/(jpeg|png|webp)$/.test(blob.type)?blob.type:'image/jpeg', ext=ctype==='image/png'?'png':(ctype==='image/webp'?'webp':'jpg');
       var path=(effectiveUid()||'anon')+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-      var up=await sb.storage.from('media').upload(path, blob, { contentType:ctype, cacheControl:'31536000' });
+      var up=await mcdMedia.upload(path, blob, { contentType:ctype, cacheControl:'31536000' });
       if(up.error){ window.__mcdUpErr=(up.error.message||JSON.stringify(up.error)); return null; }
-      var pu=sb.storage.from('media').getPublicUrl(path);
+      var pu=mcdMedia.getPublicUrl(path);
       return (pu && pu.data && pu.data.publicUrl) || null;
     }catch(e){ window.__mcdUpErr=String(e&&e.message||e); return null; }
   }

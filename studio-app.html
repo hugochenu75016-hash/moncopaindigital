@@ -518,6 +518,20 @@ var AGENT_LOGIC={
 /* ---------- état ---------- */
 var DEMO=/[?&]demo=/.test(location.search)||sessionStorage.getItem('mcdapp_demo')==='1';
 var sb=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_ANON,DEMO?{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{fetch:function(){return Promise.resolve(new Response(JSON.stringify({message:'Mode démo'}),{status:503,headers:{'Content-Type':'application/json'}}));}}}:undefined);
+/* Médias : stockés sur le serveur mcd-medias (compte Modal dédié) et non plus dans Supabase,
+   dont la bande passante gratuite s'épuisait. Même forme d'appel que le stockage Supabase (upload, getPublicUrl). */
+var MEDIAS_URL='https://supportmcd--mcd-medias-web.us-east.modal.run';
+var mcdMedia=(function(){var urls={};return{
+  upload:async function(path,blob,opts){try{
+    var ses=await sb.auth.getSession(),tok=ses&&ses.data&&ses.data.session&&ses.data.session.access_token;
+    if(!tok)return{error:{message:'connexion requise pour envoyer un média'}};
+    var r=await fetch(MEDIAS_URL+'/upload',{method:'POST',headers:{'Authorization':'Bearer '+tok,'Content-Type':(opts&&opts.contentType)||blob.type||'application/octet-stream'},body:blob});
+    var d=await r.json().catch(function(){return{};});
+    if(!r.ok)return{error:{message:d.detail||('envoi du média refusé ('+r.status+')')}};
+    urls[path]=d.url;return{data:{path:d.path},error:null};
+  }catch(e){return{error:{message:String(e&&e.message||e)}};}},
+  getPublicUrl:function(path){return{data:{publicUrl:urls[path]||''}};}
+};})();
 var S={user:null,me:{nom:'',avatar:''},posts:[],conns:{},tokens:null,screen:'home',stack:[],planTab:'todo',agent:null,chats:{},pilote:null,storeOk:true};
 
 function uid(){return S.user&&S.user.id;}
@@ -583,9 +597,9 @@ function toValidate(){return upcoming().filter(function(p){return !isApproved(p)
 
 async function uploadBlob(blob,ext,ctype){
   var path=(uid()||'anon')+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
-  var up=await sb.storage.from('media').upload(path,blob,{contentType:ctype});
+  var up=await mcdMedia.upload(path,blob,{contentType:ctype});
   if(up.error)throw Error(up.error.message||'Envoi du média impossible');
-  var pu=sb.storage.from('media').getPublicUrl(path);var url=pu&&pu.data&&pu.data.publicUrl;
+  var pu=mcdMedia.getPublicUrl(path);var url=pu&&pu.data&&pu.data.publicUrl;
   if(!url)throw Error('Lien du média introuvable');return url;
 }
 async function callPublish(p){
