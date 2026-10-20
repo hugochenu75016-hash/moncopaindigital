@@ -113,16 +113,21 @@
 })();
 </script>
 <script>
-/* Grand écran : toute l'interface est agrandie proportionnellement (1 jusqu'à 1600 px de large, 1,6 au maximum),
-   comme un zoom navigateur réglé au bon niveau. Les tailles en vh / vw passent par --vh / --vw, corrigées du zoom,
-   sinon un panneau « 100vh » dépasserait de l'écran. Portables et mobiles : rien ne change. */
+/* Taille d'écran : toute l'interface est mise à l'échelle comme un zoom navigateur réglé au bon niveau.
+   Grand écran (au-delà de 1600 x 900) : agrandie, jusqu'à x1,6. Fenêtre étroite (sous 1400 x 720) : réduite,
+   jusqu'à x0,65, au lieu de se tasser et de se chevaucher. Entre les deux : taille normale. Les tailles en vh / vw passent par --vh / --vw, corrigées du zoom,
+   sinon un panneau « 100vh » dépasserait de l'écran. Mobiles : rien ne change. */
 (function(){
   var d=document.documentElement, P=['--vh','--vw','--vmin','--vmax'];
   function fit(){
     var w=innerWidth, h=innerHeight, z=1;
-    if(d.getAttribute('data-device')!=='mobile') z=Math.max(1,Math.min(1.6,Math.floor(Math.min(w/1600,h/900)*100)/100));
+    if(d.getAttribute('data-device')!=='mobile'){
+      var grand=Math.min(w/1600,h/900), petit=Math.min(w/1400,h/720);
+      if(grand>1) z=Math.min(1.6,Math.floor(grand*100)/100);
+      else if(petit<1) z=Math.max(0.65,Math.floor(petit*100)/100);
+    }
     window.__mcdZoom=z;
-    if(z>1){
+    if(z!==1){
       d.style.zoom=String(z);
       var v=[h,w,Math.min(w,h),Math.max(w,h)];
       P.forEach(function(p,i){ d.style.setProperty(p,(v[i]/z/100)+'px'); });
@@ -3150,6 +3155,9 @@ html body .mv4-compose-dock{background:#fff!important}.mv4-compose{background:#f
 html body :is(.mv4-newchat-side,.mv4-history-item,.mv4-iconbtn,.mv4-agent-option){box-shadow:none!important;border-radius:7px!important;color:#5d5d55!important}.mv4-history-item.active{background:#eaeae3!important}.mv4-avatar{box-shadow:none!important;border-radius:8px!important;filter:none!important}
 html body :is(.set-section,.ai-modelbox,.ed-template-intro,.ed-template-card,.ed-assets-score,.ed-motion-pack,.ed-timeline){background:#fff!important;border:1px solid #e3e3dc!important;border-radius:9px!important;box-shadow:none!important;color:#55554d!important}
 html body :is(.ai-status,.mv7-generated-item){background:#f6f6f1!important;border-color:#e5e5dc!important;color:#69695f!important;box-shadow:none!important;border-radius:8px!important}
+/* Fenêtre étroite (avec le zoom, l'interface fait alors environ 1400 px de large) : la barre du haut se resserre
+   au lieu de passer sous les icônes de droite (≈ 410 px), et « Mise à niveau » ne garde que sa couronne. */
+@media(max-width:1500px){#app #side .fan-wrap{left:230px!important;right:415px!important;gap:2px!important;justify-content:safe center!important}#app #side .fan-wrap .nav-item{padding:7px 8px!important}#mpl-upgrade>span{display:none!important}}
 @media(max-width:1100px){#app #side .fan-wrap{left:220px!important;right:230px!important}#app #side .fan-wrap .nav-item{padding:8px!important}#app #side .fan-wrap .nav-item svg{display:none}.hdr-actions button{padding:8px!important}.ed-agent-tool-copy small{display:none!important}html body .ed-agent-rail{width:160px}#app .ed-stagewrap{padding-right:172px!important}html body .madock,html body .ed-panel{right:172px}}
 @media(max-width:760px){#app.show:before{height:110px}#app #side .brand{left:12px!important;top:12px!important}#app #side .brand .bt small{display:none}#app #side .fan-wrap{left:8px!important;right:8px!important;top:64px!important;justify-content:flex-start}#app #side .fan-wrap .nav-item{padding:8px 12px!important}.hdr-actions{top:12px!important;right:10px!important}.hdr-actions button{font-size:11px!important}html body .ed-rail{top:110px;bottom:80px;width:60px;padding:10px 4px}html body .ed-tool{font-size:9px!important;min-height:50px}html body .ed-agent-rail{left:60px;right:0;bottom:0;top:auto;width:auto;max-height:78px;padding:7px;border-top:1px solid #ddd;flex-direction:row;overflow-x:auto;gap:3px}html body .ed-agent-tool{flex:0 0 88px;min-height:58px;display:flex;padding:6px;text-align:center}html body .ed-agent-tool-copy b{font-size:9px!important}html body .ed-agent-rail-title{display:none}#app .ed-stagewrap{padding:112px 8px 96px 58px!important}.ed-toolbar{gap:2px!important}.ed-tb-note{display:none}html body .madock{left:68px;right:8px;top:118px;bottom:86px;width:auto;max-height:none}html body .ed-panel{left:68px;right:8px;top:118px;max-height:calc(65 * var(--vh, 1vh));width:auto;transform:none}html body .ed-flyout{left:68px;max-width:calc(calc(100 * var(--vw, 1vw)) - 76px)}html body .ed-flyout.marshall-mode{left:8px!important;width:calc(calc(100 * var(--vw, 1vw)) - 16px)!important;max-width:none!important}.auth-card{padding:24px!important}.hub-title{font-size:27px!important}}
 @media(prefers-reduced-motion:reduce){.madock,.mv4-msg,.mv4-agent-option,.ed-agent-tool,.ed-tool{animation:none!important;transition:none!important}}
