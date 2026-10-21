@@ -59,7 +59,7 @@
   .nav a{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;position:relative}
   .nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-3px;height:2px;background:currentColor;transition:right .3s}
   .nav a:hover::after{right:0}
-  .acc-top{display:inline-flex;width:40px;height:40px;border-radius:50%;flex:0 0 auto;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}.acc-top:hover{transform:rotate(-8deg) scale(1.08)}.acc-top img{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 4px rgba(74,42,16,.25))}
+  .acc-wrap{position:relative;flex:0 0 auto}.acc-top{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer;padding:0;transition:background .25s}.acc-top:hover,.acc-top[aria-expanded="true"]{background:rgba(255,255,255,.18)}.acc-top svg{width:20px;height:20px}.acc-card{position:absolute;right:0;top:calc(100% + 12px);width:270px;background:#fff;color:#1d1d1b;border-radius:18px;padding:16px;box-shadow:0 18px 44px rgba(20,40,60,.25);font-family:'Nunito',system-ui,sans-serif;text-transform:none;letter-spacing:0;font-stretch:100%;z-index:70}.acc-card[hidden]{display:none}.acc-card::before{content:"";position:absolute;top:-6px;right:14px;width:12px;height:12px;background:#fff;transform:rotate(45deg)}.acc-card b{display:block;font-size:16px;font-weight:800;margin-bottom:4px}.acc-card p{margin:0 0 12px;font-size:13px;line-height:1.45;color:#5b5b57}.acc-card .acc-btn{display:block;text-align:center;background:var(--or);color:#fff;border-radius:12px;padding:10px 12px;font-weight:800;font-size:14px;text-decoration:none}.acc-card .acc-btn:hover{filter:brightness(.95)}.acc-card .acc-lnk{display:block;padding:9px 2px;font-size:14px;font-weight:700;color:#1d1d1b;text-decoration:none;border-top:1px solid #eee}.acc-card .acc-btn+.acc-lnk{margin-top:10px}.acc-card .acc-lnk:hover{color:var(--or)}
   .cta-top{display:inline-flex;align-items:center;gap:8px;border:1px solid currentColor;border-radius:999px;padding:8px 16px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;white-space:nowrap;transition:background .25s,color .25s}
   .cta-top:hover{background:var(--or);border-color:var(--or);color:#fff}
   .burger{display:none;width:44px;height:30px;border:0;background:none;cursor:pointer;flex-direction:column;justify-content:space-between;padding:6px 4px}
@@ -69,7 +69,7 @@
   .menu a{font-size:clamp(48px,14vw,110px)}
   .menu a:hover{color:var(--blue)}
   .menu .x{position:absolute;top:18px;right:var(--pad);width:52px;height:52px;border:1px solid #fff;background:none;color:#fff;cursor:pointer;font-size:26px}
-  @media (max-width:900px){.nav{display:none}.acc-top{margin-left:auto;width:34px;height:34px}.burger{display:flex;margin-left:6px}}
+  @media (max-width:900px){.nav{display:none}.acc-wrap{margin-left:auto}.acc-top{width:34px;height:34px}.acc-card{position:fixed;left:12px;right:12px;top:66px;width:auto}.acc-card::before{right:auto;left:var(--acc-arrow,70%)}.burger{display:flex;margin-left:6px}}
   @media (max-width:420px){.top{gap:10px}.logo{font-size:19px}.cta-top{padding:7px 11px;font-size:12px}}
 
   /* ---------- 1. Héros : Marshall arrive avec son ordi ---------- */
@@ -427,7 +427,16 @@
     <a href="#pros">Pros</a>
     <a href="#faq">FAQ</a>
   </nav>
-  <a class="acc-top" href="espace-compte.html" aria-label="Espace compte" title="Espace compte"><img src="images/espace-client.svg" alt="" width="40" height="40"></a>
+  <div class="acc-wrap">
+    <button type="button" class="acc-top" id="acc-top" aria-label="Mon compte" title="Mon compte" aria-expanded="false" aria-controls="acc-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></button>
+    <div class="acc-card" id="acc-card" hidden>
+      <b>Mon compte</b>
+      <p id="acc-who">Connecte-toi pour retrouver tes rendez-vous, tes factures et Studio Social.</p>
+      <a class="acc-btn" href="espace-compte.html" id="acc-go">Se connecter</a>
+      <a class="acc-lnk" href="studio-social.html">Ouvrir Studio Social</a>
+      <a class="acc-lnk" href="rendez-vous.html">Prendre rendez-vous</a>
+    </div>
+  </div>
   <a class="cta-top" href="rendez-vous.html">Audit gratuit</a>
   <button class="burger" type="button" aria-label="Ouvrir le menu" id="burger"><span></span><span></span><span></span></button>
 </header>
@@ -1311,5 +1320,20 @@
 })();
 </script>
 
+<script>
+/* En-tête : bouton « Mon compte » et sa petite fiche (affiche l'adresse si on est déjà connecté). */
+(function(){
+  var b = document.getElementById('acc-top'), c = document.getElementById('acc-card'); if (!b || !c) return;
+  try {
+    for (var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i);
+      if (/^sb-.*-auth-token$/.test(k)){ var s = JSON.parse(localStorage.getItem(k) || 'null'), u = s && (s.user || (s.currentSession && s.currentSession.user));
+        if (u && u.email){ document.getElementById('acc-who').textContent = 'Connecté : ' + u.email; document.getElementById('acc-go').textContent = 'Accéder à mon espace'; } break; } }
+  } catch (e) {}
+  function ouvre(o){ c.hidden = !o; b.setAttribute('aria-expanded', o ? 'true' : 'false'); if (o){ var r = b.getBoundingClientRect(); c.style.setProperty('--acc-arrow', (r.left + r.width/2 - 18) + 'px'); } }
+  b.addEventListener('click', function(e){ e.stopPropagation(); ouvre(c.hidden); });
+  document.addEventListener('click', function(e){ if (!c.hidden && !c.contains(e.target)) ouvre(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') ouvre(false); });
+})();
+</script>
 </body>
 </html>
