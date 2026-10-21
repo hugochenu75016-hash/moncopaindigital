@@ -8559,7 +8559,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           <div class="set-section" id="mpl-section"><div class="set-section-head"><b>Mon abonnement</b></div><div id="mpl-card"></div></div>
           <div class="set-section" id="mtk-section"><div class="set-section-head"><b>Mon utilisation</b><span>Temps réel</span></div><div id="mtk-card"></div></div>
           <div class="set-section"><div class="set-field full"><label>Mes infos et ma facturation</label><div class="set-state" id="mbb-account-summary"></div><a href="espace-compte.html#profil" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Gérer mes infos dans l’Espace compte</a> <a href="espace-compte.html#securite" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Changer mon mot de passe</a></div></div>
-          <div class="set-section"><div class="set-field full"><label>Mes données</label><div class="set-state">Ce que Studio Social garde sur toi, pourquoi et combien de temps. Pour fermer ton compte, écris-nous depuis l’adresse de ton compte : tout est effacé sous 30 jours (sauf les factures, gardées 10 ans par obligation légale) et ton abonnement est arrêté.</div><a href="loiapplicablemcp.html#studio-social" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Voir mes données et mes droits</a> <a href="mailto:hugochenu@moncopaindigital.fr?subject=Supprimer%20mon%20compte%20Studio%20Social&amp;body=Bonjour%2C%0A%0AJe%20souhaite%20la%20suppression%20de%20mon%20compte%20Studio%20Social%20et%20de%20toutes%20mes%20donn%C3%A9es.%0A%0AMerci." class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none;background:#9b1c1c;color:#fff">Demander la suppression de mon compte</a></div></div>
+          <div class="set-section"><div class="set-field full"><label>Mes données</label><div class="set-state">Ce que Studio Social garde sur toi, pourquoi et combien de temps. Pour fermer ton compte, écris-nous depuis l’adresse de ton compte : tout est effacé sous 30 jours (sauf les factures, gardées 10 ans par obligation légale) et ton abonnement est arrêté.</div><a href="loiapplicablemcp.html#studio-social" target="_blank" rel="noopener" class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none">Voir mes données et mes droits</a> <a href="mailto:contact@moncopaindigital.fr?subject=Supprimer%20mon%20compte%20Studio%20Social&amp;body=Bonjour%2C%0A%0AJe%20souhaite%20la%20suppression%20de%20mon%20compte%20Studio%20Social%20et%20de%20toutes%20mes%20donn%C3%A9es.%0A%0AMerci." class="set-save" style="display:inline-flex;align-items:center;justify-content:center;width:auto;padding:0 14px;min-height:36px;margin-top:6px;text-decoration:none;background:#9b1c1c;color:#fff">Demander la suppression de mon compte</a></div></div>
         </div>
         <div class="set-state set2-state" id="mbb-state"></div>
       </div>`;
@@ -12361,7 +12361,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     box.hidden=false;
     if(st.unlimited){box.innerHTML='<div class="sc-top"><span>Tokens</span><b>Illimités</b></div><div class="sc-bar"><i style="width:100%"></i></div>';return;}
     var left=st.quota_left!=null?st.quota_left:Math.max(0,(st.limit||0)-(st.used||0)),top=st.topup_left||0,pct=Math.max(0,Math.min(100,Math.round(left/Math.max(1,st.limit||1)*100)));
-    box.innerHTML='<div class="sc-top"><span>Tokens</span><b>'+marshallTokenFmt(left+top)+'</b><button type="button" class="spt-recharge sc-recharge" title="Acheter une recharge de tokens">+ Recharger</button></div><div class="sc-bar'+(pct<15?' low':'')+'"><i style="width:'+pct+'%"></i></div>';
+    box.innerHTML='<div class="sc-top"><span>Tokens restants</span><button type="button" class="spt-recharge sc-recharge" title="Acheter une recharge de tokens">+ Recharger</button></div><b class="sc-num">'+marshallTokenFmt(left+top)+'</b><div class="sc-bar'+(pct<15?' low':'')+'"><i style="width:'+pct+'%"></i></div>';
   }
   function marshallProfileTokensRender(){
     try{ marshallSideCreditsRender(); }catch(e){}
@@ -21666,9 +21666,11 @@ html:not([data-device="mobile"]) body #app .ed-flyout.marshall-mode.show .marsha
 html:not([data-device="mobile"]) body #studio-profile-tokens{display:none!important}
 html:not([data-device="mobile"]) body #mcd-gift-pop{left:234px!important;top:auto!important;bottom:16px!important;max-height:calc(100% - 32px)!important;overflow-y:auto!important}
 html:not([data-device="mobile"]) body #mcd-gift-pop::before{display:none!important}
-html:not([data-device="mobile"]) body #app #side .side-credits .sc-recharge{margin-left:8px;border:0;border-radius:999px;background:#F3852B;color:#fff;font:600 11px/1 var(--studio-font,Fredoka,sans-serif);padding:5px 8px;cursor:pointer}
-html:not([data-device="mobile"]) body #app #side .side-credits .sc-recharge:hover{background:#e2701a}
-html:not([data-device="mobile"]) body #app #side .side-credits .sc-top b{margin-left:auto}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-recharge{flex:0 0 auto;white-space:nowrap;border:0;border-radius:999px;background:#fdeee1;color:#c25f12;font:600 11px/1 var(--studio-font,Fredoka,sans-serif);padding:5px 9px;cursor:pointer;width:auto!important;height:auto!important;min-height:0!important;box-shadow:none!important}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-top span{font-size:11.5px;color:#9a8676}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-num{display:block;margin-top:4px;font:700 20px/1.1 var(--studio-font,Fredoka,sans-serif);color:#3a2a20!important}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-recharge:hover{background:#F3852B;color:#fff}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-top{align-items:center!important;gap:8px}
 }
 #ed-qbar{display:none}
 @media (min-width:761px){
@@ -21771,6 +21773,11 @@ html:not([data-device="mobile"]) body #app #pub-step.pub2 .pub2-when-pop{positio
 html:not([data-device="mobile"]) body #app #pub-step.pub2 .pub2-when-pop[hidden]{display:none}
 html:not([data-device="mobile"]) body #app #pub-step.pub2 .pub2-when-pop .sched-toggle{margin:0!important}
 html:not([data-device="mobile"]) body #app #pub-step.pub2 .pub2-when-pop #sched-fields{margin:0!important}
+}
+@media (min-width:761px){
+html:not([data-device="mobile"]) body #marshall-agent-dock.madock{left:300px!important;right:auto!important;top:0!important;bottom:0!important;width:430px!important;max-height:none!important;height:auto!important;border-radius:0!important;border:0!important;border-right:1px solid #efe6dd!important;box-shadow:8px 0 24px rgba(60,30,10,.08)!important;transform:none!important;z-index:90!important}
+html:not([data-device="mobile"]) body #marshall-agent-dock.madock.min{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+html:not([data-device="mobile"]) body:has(#marshall-agent-dock.open:not(.min)) #app:has(#view-composer.active) .ed-stagewrap{padding-left:540px!important}
 }
 #mcd-gallery{position:fixed;inset:0;z-index:10050;background:rgba(40,24,12,.45);display:flex;align-items:center;justify-content:center;padding:24px;font-family:var(--studio-font,Fredoka,system-ui,sans-serif)}
 #mcd-gallery .mg-sheet{position:relative;width:min(1060px,100%);max-height:calc(92 * var(--vh, 1vh));overflow:auto;background:#6EC1F0;border-radius:22px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
