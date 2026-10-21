@@ -5170,6 +5170,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     $('#studio-profile-photo-initial').textContent=name.trim().slice(0,1).toUpperCase();
     if(avatar){if(photo.getAttribute('src')!==avatar)photo.src=avatar;}else photo.removeAttribute('src');
     $('#studio-profile-name').textContent=name;
+    var tg=$('#studio-profile-toggle'); if(tg){ tg.classList.toggle('has-photo',!!avatar); tg.style.backgroundImage=avatar?'url("'+avatar.replace(/"/g,'%22')+'")':''; }
     $('#studio-profile-email').textContent=authUser&&authUser.email||'';
     $('#studio-profile-role').textContent=authUser?(me.role||'Compte connecté'):'Non connecté';
     $('#studio-profile-initial').textContent=name.trim().slice(0,1).toUpperCase();
@@ -21595,10 +21596,13 @@ html body #studio-profile-toggle img{width:20px!important;height:20px!important;
 html body #studio-profile-toggle::after{content:"";position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#2ecc71;border:2px solid #fff}
 html.mcd-demo-on body #studio-profile-toggle::after,body.mcd-demo-on #studio-profile-toggle::after{display:none}
 html body #studio-profile-card{width:280px!important;padding:16px!important;background:linear-gradient(145deg,rgba(255,158,70,.86),rgba(240,112,20,.78))!important;-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);border:1px solid rgba(255,255,255,.5)!important;border-radius:20px!important;box-shadow:0 18px 44px rgba(120,50,0,.28),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(120,50,0,.15)!important;font-family:'Nunito',var(--studio-font),system-ui,sans-serif!important}
-html body #studio-profile-card #studio-profile-photo,html body #studio-profile-card #studio-profile-photo-initial{display:none!important}
+html body #studio-profile-card #studio-profile-photo-initial{display:none!important}
+html body #studio-profile-card #studio-profile-photo{width:52px!important;height:52px!important;border-radius:50%!important;object-fit:cover;border:2px solid #fff;margin:0 0 10px!important;display:block}
+html body #studio-profile-card #studio-profile-photo[hidden]{display:none!important}
+html body #studio-profile-toggle.has-photo{background-size:cover!important;background-position:center!important;border:2px solid #fff!important}
+html body #studio-profile-toggle.has-photo img{visibility:hidden}
 html body #studio-profile-card strong{font-size:16px!important;font-weight:800!important;margin:0 0 4px!important}
 html body #studio-profile-card p{margin:0 0 4px!important;font-size:13px!important;line-height:1.45!important;color:rgba(255,255,255,.92)!important}
-html body #studio-profile-card #studio-profile-email:not(:empty)::before{content:"Connecté : "}
 html body #studio-profile-card #studio-profile-role{font-size:11.5px!important;opacity:.85;margin-bottom:12px!important}
 html body #studio-profile-card a.spc-btn{display:block!important;text-align:center;background:#fff!important;color:#d9620f!important;border:0!important;border-radius:12px!important;padding:10px 12px!important;font-weight:800!important;font-size:14px!important;box-shadow:0 4px 12px rgba(120,50,0,.2)}
 html body #studio-profile-card a.spc-lnk{display:block!important;margin-top:10px;padding:9px 2px!important;font-size:14px!important;font-weight:700!important;color:#fff!important;border-top:1px solid rgba(255,255,255,.35)!important}
