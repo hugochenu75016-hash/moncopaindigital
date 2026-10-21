@@ -685,8 +685,8 @@
 
   var OFFERS = [
     { id:'seance',  nom:'Séance à l\u2019unité',  desc:'1h d\u2019accompagnement, à domicile ou en visio.', prix:49 },
-    { id:'pack3',   nom:'Pack 3 séances',        desc:'3 séances à utiliser quand vous voulez. Soit 47&nbsp;€/séance.', prix:141 },
-    { id:'pack5',   nom:'Pack 5 séances',        desc:'5 séances, la formule la plus avantageuse. Soit 45&nbsp;€/séance.', prix:225 }
+    { id:'pack3',   nom:'Pack 3 séances',        desc:'3 séances à utiliser quand vous voulez. Soit 45&nbsp;€/séance.', prix:135 },
+    { id:'pack5',   nom:'Pack 5 séances',        desc:'5 séances, la formule la plus avantageuse. Soit 42&nbsp;€/séance.', prix:210 }
   ];
 
   var SUPABASE_URL = 'https://fskrgqkrpgxvypcwbfwm.supabase.co';
@@ -700,6 +700,10 @@
   var params = new URLSearchParams(location.search);
   /* ---------- Offre pré-sélectionnée depuis l'URL (?offre=pack3) ---------- */
   var urlOffre = params.get('offre');
+  /* ---------- Bon cadeau (depuis carte-cadeau.html) : pour qui, de la part de qui, petit mot, envoi ---------- */
+  var CADEAU = params.get('cadeau')==='1' ? { pour:(params.get('pour')||'').trim().slice(0,40), de:(params.get('de')||'').trim().slice(0,60),
+    mot:(params.get('mot')||'').trim().slice(0,200), envoi:(params.get('envoi')==='email24'?'email24':'imprime'), dest:(params.get('dest')||'').trim().slice(0,120) } : null;
+  function echappe(t){ return String(t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   if(urlOffre){ var found=OFFERS.filter(function(o){return o.id===urlOffre;})[0]; if(found){ /* sélection appliquée plus bas */ window.__preselect = urlOffre; } }
 
   /* ---------- État ---------- */
@@ -722,7 +726,7 @@
 
   function renderSummary(){
     var o=state.offer, q=state.qty, total=o.prix*q;
-    $('#sum-name').textContent = o.nom.replace(/&nbsp;/g,' ');
+    $('#sum-name').textContent = (CADEAU ? 'Bon cadeau · ' : '') + o.nom.replace(/&nbsp;/g,' ') + (CADEAU && CADEAU.pour ? ' pour ' + CADEAU.pour : '');
     $('#sum-unit').textContent = euro(o.prix);
     $('#sum-qty').textContent = '×'+q;
     $('#sum-total').textContent = euro(total);
@@ -790,7 +794,7 @@
     var o=state.offer, q=state.qty, total=o.prix*q;
     return { offerId:o.id, offerName:o.nom.replace(/&nbsp;/g,' '), unit:o.prix, qty:q, total:total,
       name:$('#f-nom').value.trim(), email:$('#f-email').value.trim(),
-      tel:$('#f-tel').value.trim(), address:$('#f-adresse').value.trim(), date:new Date().toISOString() };
+      tel:$('#f-tel').value.trim(), address:$('#f-adresse').value.trim(), date:new Date().toISOString(), cadeau:CADEAU };
   }
 
   /* ---------- Étape 1 → 2 : valider les infos puis afficher le forfait ---------- */
@@ -894,7 +898,7 @@
         if(sub.error){ throw new Error(sub.error.message); }
         var res = await fetch(FN_URL, { method:'POST',
           headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+SUPABASE_ANON },
-          body: JSON.stringify({ offerId:currentOrder.offerId, qty:currentOrder.qty, name:currentOrder.name, email:currentOrder.email, tel:currentOrder.tel, address:currentOrder.address }) });
+          body: JSON.stringify({ offerId:currentOrder.offerId, qty:currentOrder.qty, name:currentOrder.name, email:currentOrder.email, tel:currentOrder.tel, address:currentOrder.address, cadeau:currentOrder.cadeau||undefined }) });
         var data = await res.json();
         if(!res.ok || !data.clientSecret){ throw new Error((data && data.error) || 'Erreur du serveur de paiement.'); }
         var conf = await stripe.confirmPayment({ elements: elements, clientSecret: data.clientSecret, confirmParams:{ return_url: ret } });
@@ -1087,6 +1091,11 @@
         '<div class="r-line"><span>Client</span><span>'+ (order.name||'—') +'</span></div>' +
         '<div class="r-line tot"><span>Payé</span><span>'+euro(order.total)+'</span></div>';
       $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre paiement de '+euro(order.total)+' a bien été pris en compte. Un reçu vous est envoyé par email.';
+      if(order.cadeau){
+        var h1c = document.querySelector('#confirm h1'); if(h1c) h1c.textContent = 'Bon cadeau commandé !';
+        $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre bon cadeau'+(order.cadeau.pour?' pour '+order.cadeau.pour:'')+' arrive par e-mail sous 24 h (jours ouvrés)'+(order.cadeau.envoi==='email24'?', et nous l\u2019envoyons au bénéficiaire le 24 décembre au matin':', prêt à imprimer')+'. Un reçu de paiement vous est envoyé par e-mail.';
+        $('#conf-recap').insertAdjacentHTML('afterbegin', '<div class="r-line"><span>Bon cadeau pour</span><span>'+echappe(order.cadeau.pour||'—')+'</span></div>');
+      }
       try{ localStorage.removeItem('mcd_pending_order'); }catch(e){}
     } else {
       $('#conf-recap').style.display='none';
