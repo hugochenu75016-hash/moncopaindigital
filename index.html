@@ -381,7 +381,7 @@
   function waitImages(){
     return Promise.all([].slice.call(document.querySelectorAll('#hero img:not([loading="lazy"])')).map(function(img){
       if(img.complete && img.naturalWidth !== 0) return Promise.resolve();
-      if(img.decode) return waitAsset(img.decode().catch(function(){}), 2500);
+      if(img.decode) return waitAsset(img.decode().catch(function(){}), 1500);
       return waitAsset(new Promise(function(resolve){
         img.addEventListener('load', resolve, { once:true });
         img.addEventListener('error', resolve, { once:true });
@@ -389,6 +389,8 @@
     }));
   }
   function waitVideos(){
+    /* Téléphone : on n'attend pas les vidéos du mur (lentes en 4G), la page doit défiler tout de suite. */
+    if(window.matchMedia && matchMedia('(hover:none)').matches) return Promise.resolve();
     return Promise.all([].slice.call(document.querySelectorAll('#wall video')).map(function(v){
       if(v.preload === 'none') return Promise.resolve();
       if(v.readyState >= 2) return Promise.resolve();
@@ -406,7 +408,9 @@
   }
   if(document.readyState!=='loading') onPageLoaded();
   else document.addEventListener('DOMContentLoaded', onPageLoaded);
-  setTimeout(doOpen, 5000);
+  setTimeout(doOpen, 2500);
+  /* Si on touche ou fait défiler pendant le chargement, les portes s'ouvrent aussitôt. */
+  ['touchstart','wheel','keydown'].forEach(function(ev){ window.addEventListener(ev, doOpen, { once:true, passive:true }); });
   window.addEventListener('pageshow', function(ev){
     if(ev.persisted){
       ov.classList.remove('closing');
