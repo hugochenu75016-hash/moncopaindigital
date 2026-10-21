@@ -4272,6 +4272,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       <a class="home-btn" href="#" id="side-home" title="Menu Studio Social"><svg class="mcd-house" viewBox="0 0 32 32" aria-hidden="true"><rect x="21.2" y="5.2" width="4.4" height="8.2" rx="1.6" fill="currentColor"/><path fill="currentColor" fill-rule="evenodd" d="M16 3.6c.7 0 1.4.25 1.95.7l10.6 8.7c1.1.9.46 2.7-.97 2.7H25.6v10.4c0 1.8-1.45 3.25-3.25 3.25H9.65A3.25 3.25 0 0 1 6.4 26.1V15.7H4.42c-1.43 0-2.07-1.8-.97-2.7l10.6-8.7c.55-.45 1.25-.7 1.95-.7zM13.1 29.35v-5.3a2.9 2.9 0 0 1 5.8 0v5.3zM16 11.6a2.15 2.15 0 1 1 0 4.3 2.15 2.15 0 0 1 0-4.3z"/></svg></a>
       <span class="bt">Studio Social<small>Mon Copain Digital</small></span>
     </div>
+    <button type="button" class="side-create" id="side-create"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Créer</button>
     <div class="fan-wrap" id="fan-wrap">
     <a class="nav-item active" data-view="composer">
       <svg class="cartoon-ic" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#4a2a10" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M15.4 3.8l4.8 4.8L9.1 19.7l-5.6 1.1 1.1-5.6z" fill="#FFD23F"/><path d="M13.6 5.6l4.8 4.8" fill="none"/><path d="M4.6 15.2l4.5 4.5-5.6 1.1z" fill="#FBE3C4"/><path d="M15.4 3.8l1.4-1.4a1.9 1.9 0 0 1 2.7 0l2.1 2.1a1.9 1.9 0 0 1 0 2.7l-1.4 1.4z" fill="#FF7FA8"/></g><path d="M3.3 19.3l1.4 1.4-1.9.5z" fill="#4a2a10"/><path d="M7.2 15.1l6.6-6.6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity=".75"/></svg>
@@ -4302,6 +4303,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     </button>
     </div>
     <div class="spacer"></div>
+    <div class="side-bottom">
+      <div class="side-lbl">Réseaux</div>
+      <div class="side-nets" id="side-nets"></div>
+      <div class="side-credits" id="side-credits" hidden></div>
+    </div>
     <div class="side-foot">
       <div class="un" id="me-name">—</div>
       <div class="rl" id="me-role">—</div>
@@ -5357,7 +5363,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   /* ============ CONNEXIONS ============ */
   function loadConnsLocal(){ try{ var o=JSON.parse(localStorage.getItem(CONN_LS_KEY())||'null'); if(o){ Object.keys(o).forEach(function(k){ if(o[k]&&/\(test\)/.test(o[k].account||'')) o[k]={connected:false,account:''}; }); connections=Object.assign(connections,o); } }catch(e){} }
   function saveConns(){ try{ localStorage.setItem(CONN_LS_KEY(), JSON.stringify(connections)); }catch(e){} updateConnBadge(); updateHandle(); renderHubNetworks(); }
+  /* Barre latérale : les réseaux connectés (icônes de l'accueil) + un « + » qui ouvre les connexions. */
+  function renderSideNets(){
+    var box=$('#side-nets'); if(!box)return;
+    var on=NETS.filter(function(n){ return connections[n.id]&&connections[n.id].connected; });
+    box.innerHTML=on.map(function(n){ return '<span class="hub-network-logo net-'+n.id+' on" title="'+esc(n.name)+' · Connecté">'+n.icon+'</span>'; }).join('')+
+      '<button type="button" class="side-net-add" title="Connecter un réseau" aria-label="Connecter un réseau">+</button>';
+    var add=box.querySelector('.side-net-add'); if(add) add.addEventListener('click',function(){ showHub(!!actingAs); });
+  }
   function renderHubNetworks(){
+    try{ renderSideNets(); }catch(e){}
     var box=$('#hub-networks'); if(!box)return;
     box.innerHTML=NETS.map(function(n){
       var on=!!(connections[n.id]&&connections[n.id].connected);
@@ -8251,6 +8266,45 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     ed.sel=null; edApplyFmt(); edSnap(); edRender();
     toast('✓ Brouillon prêt : clique sur un texte pour le changer. Touche ici pour que Marshall le personnalise.',false,7000,function(){ edStartAskMarshall(idea.ask); });
   }
+  /* Galerie « Créer un visuel » : un modèle = un format de l'éditeur + une idée de départ (construite par edStartPick). */
+  var MCD_GALLERY=[
+    {fmt:'1:1',k:'promo',t:'Post Instagram',s:'Promo · 1080 × 1080'},
+    {fmt:'9:16',k:'event',t:'Story',s:'Événement · 1080 × 1920'},
+    {fmt:'9:16',k:'coulisses',t:'Reel / TikTok',s:'Coulisses · 1080 × 1920'},
+    {fmt:'4:5',k:'nouveau',t:'Post portrait',s:'Nouveauté · 1080 × 1350'},
+    {fmt:'1.91:1',k:'promo',t:'Post Facebook',s:'Promo · 1200 × 628'},
+    {fmt:'1.91:1',k:'nouveau',t:'Post LinkedIn',s:'Nouveauté · 1200 × 628'},
+    {fmt:'9:16',k:'promo',t:'Story promo',s:'Promo · 1080 × 1920'},
+    {fmt:'1:1',k:'coulisses',t:'Post coulisses',s:'Coulisses · 1080 × 1080'}
+  ];
+  var MCD_GALLERY_BLANK=[['1:1','Carré'],['4:5','Portrait'],['9:16','Story'],['1.91:1','Paysage']];
+  function mcdGalleryThumb(o){
+    var r=({'1:1':'1/1','4:5':'4/5','9:16':'9/16','1.91:1':'1.91/1'})[o.fmt]||'1/1';
+    var inner=({promo:'<em>-20 %</em><small>PROMO</small>',nouveau:'<u>NOUVEAU</u><em>Votre nouveauté</em>',coulisses:'<em>👀</em><small>Coulisses</small>',event:'<u>SAMEDI</u><em>Votre événement</em>'})[o.k]||'';
+    return '<span class="mg-thumb mg-'+o.k+(o.fmt==='9:16'?' mg-tall':'')+'" style="aspect-ratio:'+r+'">'+inner+'</span>';
+  }
+  function mcdGalleryClose(){ var m=document.getElementById('mcd-gallery'); if(m) m.remove(); }
+  function mcdGalleryOpen(){
+    mcdGalleryClose();
+    var m=document.createElement('div'); m.id='mcd-gallery'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); m.setAttribute('aria-label','Créer un visuel');
+    m.innerHTML='<div class="mg-sheet"><button type="button" class="mg-x" aria-label="Fermer">×</button>'+
+      '<div class="mg-hero"><h2>Créer un visuel</h2><p>Des modèles à la bonne taille pour chaque réseau. Choisis-en un, change tout dans l’éditeur.</p></div>'+
+      '<div class="mg-grid">'+MCD_GALLERY.map(function(o,i){ return '<button type="button" class="mg-card" data-mg="'+i+'"><span class="mg-prev">'+mcdGalleryThumb(o)+'</span><b>'+o.t+'</b><small>'+o.s+'</small></button>'; }).join('')+'</div>'+
+      '<div class="mg-blank"><span>Page blanche :</span>'+MCD_GALLERY_BLANK.map(function(b){ return '<button type="button" data-mg-blank="'+b[0]+'">'+b[1]+'</button>'; }).join('')+'</div></div>';
+    m.addEventListener('click',function(e){ if(e.target===m||e.target.closest('.mg-x')) mcdGalleryClose(); });
+    $all('[data-mg]',m).forEach(function(b){ b.addEventListener('click',function(){ var o=MCD_GALLERY[Number(b.getAttribute('data-mg'))]; if(o) mcdGalleryPick(o.fmt,o.k); }); });
+    $all('[data-mg-blank]',m).forEach(function(b){ b.addEventListener('click',function(){ mcdGalleryPick(b.getAttribute('data-mg-blank'),'blank'); }); });
+    document.body.appendChild(m);
+  }
+  function mcdGalleryPick(fmt,k){
+    if((ed.layers||[]).length && !confirm('Remplacer le visuel en cours par ce modèle ?\nEnregistre-le d’abord en brouillon si tu veux le garder.')) return;
+    mcdGalleryClose(); switchView('composer');
+    ed.layers=[]; ed.sel=null; ed.bg='#ffffff'; ed.fmt=fmt; ed._startSkip=false;
+    if(k==='blank'){ ed._startSkip=true; edApplyFmt(); edSnap(); edRender(); return; }
+    edStartPick(k);
+  }
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') mcdGalleryClose(); });
+  (function(){ var b=document.getElementById('side-create'); if(b) b.addEventListener('click',function(){ var s=$('#side'); if(s) s.classList.remove('fan-open'); mcdGalleryOpen(); }); })();
   function edStartAskMarshall(prompt){
     try{ edFlyout('ai'); }catch(e){}
     setTimeout(function(){ var i=$('#ai-prompt'); if(i){ i.value=prompt; i.dispatchEvent(new Event('input',{bubbles:true})); i.focus(); try{ i.setSelectionRange(i.value.length,i.value.length); }catch(e){} } },250);
@@ -12261,7 +12315,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     try{o.retry();}catch(x){console.warn(x);}
   });
   /* Fiche profil : petite barre orange + tokens restants */
+  function marshallSideCreditsRender(){
+    var box=document.getElementById('side-credits'),st=marshallTokenState&&marshallTokenState.st;if(!box)return;
+    if(!st||window.MCD_DEMO){box.hidden=true;return;}
+    box.hidden=false;
+    if(st.unlimited){box.innerHTML='<div class="sc-top"><span>Tokens</span><b>Illimités</b></div><div class="sc-bar"><i style="width:100%"></i></div>';return;}
+    var left=st.quota_left!=null?st.quota_left:Math.max(0,(st.limit||0)-(st.used||0)),top=st.topup_left||0,pct=Math.max(0,Math.min(100,Math.round(left/Math.max(1,st.limit||1)*100)));
+    box.innerHTML='<div class="sc-top"><span>Tokens</span><b>'+marshallTokenFmt(left+top)+'</b></div><div class="sc-bar'+(pct<15?' low':'')+'"><i style="width:'+pct+'%"></i></div>';
+  }
   function marshallProfileTokensRender(){
+    try{ marshallSideCreditsRender(); }catch(e){}
     var box=document.getElementById('studio-profile-tokens'),st=marshallTokenState&&marshallTokenState.st;if(!box)return;
     if(!st||window.MCD_DEMO){box.hidden=true;return;}
     box.hidden=false;
@@ -21356,5 +21419,76 @@ html[data-demo="1"] #mcd-back-app{bottom:calc(136px + env(safe-area-inset-bottom
   requestAnimationFrame(tick);
 })();
 </script>
+<style id="mcd-sidebar-style">
+/* Ordinateur : la barre orange du haut devient une barre latérale (mêmes icônes). L'éditeur est posé à droite,
+   main sert de repère aux éléments « fixed » de l'éditeur (transform), donc rien d'autre ne bouge. */
+#side .side-create,#side .side-bottom{display:none}
+@media (min-width:761px){
+html:not([data-device="mobile"]) body #app.show{grid-template-columns:220px minmax(0,1fr)!important}
+html:not([data-device="mobile"]) body #app.show:before{display:none!important}
+html:not([data-device="mobile"]) body #app #side{position:sticky!important;top:0!important;align-self:start!important;height:calc(100 * var(--vh, 1vh))!important;width:220px!important;padding:16px 12px 14px!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:3px!important;background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%)!important;box-shadow:4px 0 24px rgba(120,50,0,.18)!important;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:none;z-index:62!important}
+html:not([data-device="mobile"]) body #app #side .brand{position:static!important;display:flex!important;align-items:center!important;margin:0 0 14px!important;padding:0 4px!important}
+html:not([data-device="mobile"]) body #app #side .side-create{display:flex;align-items:center;justify-content:center;gap:8px;height:44px;margin:0 0 12px;border:0;border-radius:12px;background:#4c382b;color:#fff;font:600 15px/1 var(--studio-font,Fredoka,system-ui,sans-serif);cursor:pointer;box-shadow:0 6px 16px rgba(76,56,43,.28);transition:transform .15s ease,background .15s ease}
+html:not([data-device="mobile"]) body #app #side .side-create:hover{background:#3a2a20;transform:translateY(-1px)}
+html:not([data-device="mobile"]) body #app #side .side-create svg{width:18px;height:18px}
+html:not([data-device="mobile"]) body #app #side .fan-wrap{position:static!important;left:auto!important;right:auto!important;top:auto!important;width:auto!important;height:auto!important;margin:0!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;gap:2px!important;overflow:visible!important}
+html:not([data-device="mobile"]) body #app #side .fan-wrap .nav-item{width:100%!important;height:44px!important;min-height:44px!important;justify-content:flex-start!important;padding:0 12px!important;gap:12px!important;border-radius:11px!important;font-size:14px!important;flex:0 0 auto!important}
+html:not([data-device="mobile"]) body #app #side .fan-wrap .nav-item>span:not(.badge){font-size:14px!important}
+html:not([data-device="mobile"]) body #app #side .fan-wrap .nav-item svg.cartoon-ic{display:block!important;width:24px!important;height:24px!important;flex:0 0 24px}
+html:not([data-device="mobile"]) body #app #side .fan-wrap .nav-item .badge,html:not([data-device="mobile"]) body #app #side .fan-wrap .nav-item[data-view="calendar"] #badge-sched{position:static!important;margin-left:auto!important;box-shadow:none!important}
+html:not([data-device="mobile"]) body #app #side .spacer{display:block!important;flex:1 1 auto!important;min-height:12px}
+html:not([data-device="mobile"]) body #app #side .side-bottom{display:flex;flex-direction:column;gap:8px}
+html:not([data-device="mobile"]) body #app #side .side-lbl{font:500 11px/1 var(--studio-font,Fredoka,sans-serif);color:#ffe3cc;padding:0 4px;letter-spacing:.3px}
+html:not([data-device="mobile"]) body #app #side .side-nets{display:flex;flex-wrap:wrap;gap:6px;padding:0 2px}
+html:not([data-device="mobile"]) body #app #side .side-nets .hub-network-logo{width:32px!important;height:32px!important;border-radius:9px!important;box-shadow:0 2px 6px rgba(76,30,0,.2)!important}
+html:not([data-device="mobile"]) body #app #side .side-nets .hub-network-logo svg{width:17px!important;height:17px!important}
+html:not([data-device="mobile"]) body #app #side .side-net-add{width:32px;height:32px;border-radius:9px;border:1.5px dashed rgba(255,255,255,.7);background:transparent;color:#fff;font:600 18px/1 system-ui;cursor:pointer}
+html:not([data-device="mobile"]) body #app #side .side-net-add:hover{background:rgba(255,255,255,.16)}
+html:not([data-device="mobile"]) body #app #side .side-credits{background:#fff;border-radius:12px;padding:10px 12px;color:#4c382b;font:500 12px/1.2 var(--studio-font,Fredoka,sans-serif)}
+html:not([data-device="mobile"]) body #app #side .side-credits[hidden]{display:none}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-top{display:flex;justify-content:space-between;align-items:baseline}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-top b{font-size:14px;color:#4c382b!important}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-bar{height:5px;border-radius:5px;background:#f3ebe3;margin-top:7px;overflow:hidden}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-bar i{display:block;height:100%;background:#F3852B;border-radius:5px}
+html:not([data-device="mobile"]) body #app #side .side-credits .sc-bar.low i{background:#e5484d}
+html:not([data-device="mobile"]) body #app main{background:#6EC1F0}
+html:not([data-device="mobile"]) body #app #side .side-foot{display:none!important}
+html:not([data-device="mobile"]) body #app #side #mpl-upgrade,html:not([data-device="mobile"]) body #app #side #mcd-gift{order:20;width:100%!important;height:40px!important;margin:6px 0 0!important;border-radius:11px!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:10px!important;padding:0 12px!important;font:600 13px/1 var(--studio-font,Fredoka,sans-serif)!important;animation:none!important;transform:none!important}
+html:not([data-device="mobile"]) body #app #side #mpl-upgrade[hidden]{display:none!important}
+html:not([data-device="mobile"]) body #app #side #mpl-upgrade span{display:inline!important}
+html:not([data-device="mobile"]) body #app #side #mcd-gift{flex-direction:row-reverse!important;justify-content:flex-end!important;background:rgba(255,255,255,.95)!important;color:#4c382b!important}
+html:not([data-device="mobile"]) body #app #side #mcd-gift::before{content:"Inviter un ami"}
+html:not([data-device="mobile"]) body #app #side #mcd-gift::after{position:static!important;margin-left:auto;order:-1}
+html:not([data-device="mobile"]) body #app #side #mcd-gift svg{width:22px!important;height:22px!important}
+html:not([data-device="mobile"]) body #app:has(#view-composer.active) main{transform:translateZ(0)}
+html:not([data-device="mobile"]) body #app:has(#view-composer.active) .ed-rail{top:0!important}
+}
+#mcd-gallery{position:fixed;inset:0;z-index:10050;background:rgba(40,24,12,.45);display:flex;align-items:center;justify-content:center;padding:24px;font-family:var(--studio-font,Fredoka,system-ui,sans-serif)}
+#mcd-gallery .mg-sheet{position:relative;width:min(1060px,100%);max-height:calc(92 * var(--vh, 1vh));overflow:auto;background:#6EC1F0;border-radius:22px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+#mcd-gallery .mg-x{position:absolute;top:12px;right:14px;width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:#4c382b;font-size:22px;line-height:1;cursor:pointer}
+#mcd-gallery .mg-hero{background:#fff;border-radius:16px;padding:22px 18px;text-align:center}
+#mcd-gallery .mg-hero h2{margin:0;font-size:24px;color:#3a2a20}
+#mcd-gallery .mg-hero p{margin:6px auto 0;max-width:460px;color:#7d6a5d;font-size:14px;line-height:1.5}
+#mcd-gallery .mg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:16px}
+#mcd-gallery .mg-card{background:#fff;border:0;border-radius:16px;padding:0 0 12px;text-align:left;cursor:pointer;overflow:hidden;transition:transform .15s ease,box-shadow .15s ease;font-family:inherit}
+#mcd-gallery .mg-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(20,60,90,.25)}
+#mcd-gallery .mg-card b{display:block;padding:10px 12px 0;font-size:15px;color:#3a2a20}
+#mcd-gallery .mg-card small{display:block;padding:2px 12px 0;font-size:12px;color:#9a8676}
+#mcd-gallery .mg-prev{display:flex;align-items:center;justify-content:center;height:150px;background:#f6f1ec}
+#mcd-gallery .mg-thumb{height:124px;max-width:88%;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.12);text-align:center}
+#mcd-gallery .mg-thumb em{font-style:normal;font-weight:700;font-size:18px;line-height:1.1;padding:0 6px}
+#mcd-gallery .mg-tall em{font-size:12px}
+#mcd-gallery .mg-thumb small{color:inherit!important;opacity:.9}
+#mcd-gallery .mg-thumb small,#mcd-gallery .mg-thumb u{font-size:9px;letter-spacing:1.5px;text-decoration:none;font-weight:600}
+#mcd-gallery .mg-promo{background:#F3852B;color:#fff}
+#mcd-gallery .mg-nouveau{background:#FFF6EC;color:#201e1d}
+#mcd-gallery .mg-nouveau u{background:#F3852B;color:#fff;padding:2px 6px;border-radius:4px}
+#mcd-gallery .mg-coulisses{background:#201e1d;color:#fff}
+#mcd-gallery .mg-event{background:#FFF6EC;color:#201e1d;border:6px solid #fff}
+#mcd-gallery .mg-event u{background:#F3852B;color:#fff;padding:2px 6px;border-radius:4px}
+#mcd-gallery .mg-blank{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:16px;color:#fff;font-size:14px;font-weight:500}
+#mcd-gallery .mg-blank button{border:0;border-radius:10px;background:#fff;color:#4c382b;padding:8px 14px;font:500 13px/1 inherit;cursor:pointer}
+#mcd-gallery .mg-blank button:hover{background:#fdeee1}
+</style>
 </body>
 </html>
