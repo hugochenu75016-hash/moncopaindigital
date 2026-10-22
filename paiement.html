@@ -22,7 +22,7 @@
 <meta name="theme-color" content="#6EC1F0">
 <title>Paiement · Mon Copain Digital</title>
 <meta name="description" content="Réglez votre accompagnement Mon Copain Digital en toute sécurité. Paiement par carte, Apple Pay et Google Pay.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&amp;family=Nunito:wght@400;600;700;800&amp;family=Fredoka:wght@400;500;600;700&amp;display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 <script src="https://js.stripe.com/v3/"></script>
 <style>
@@ -448,89 +448,151 @@
   .waiver.shake{animation:wvShake .45s;border-color:#e5484d}
   @keyframes wvShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 </style>
+<style id="style-ticket">
+  /* ===== Charte du site (Nos offres, audit gratuit) ===== */
+  :root{--ink:#0a0a0a;--paper:#f5f5f5;--or:#F3852B;--or2:#FF9C46;--orf:#C7620E;--blue:#6EC1F0;--blued:#4AA8DE;--pad:clamp(16px,2.2vw,32px);--papier:#fffdf8}
+  html,body{background:var(--blue);color:#fff;font-family:Archivo,system-ui,sans-serif}
+  a{color:inherit}
+  .disp{font-family:Archivo,system-ui,sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.84;letter-spacing:-.005em;margin:0}
+  .disp em{font-style:italic;font-weight:800;color:var(--or)}
+  .light{background:var(--paper);color:var(--blue)}
+  .top a,#menu a,.pied-page a{text-decoration:none}
+  #menu{z-index:1000001}
+  .top{position:fixed;inset:0 0 auto;z-index:60;display:flex;align-items:center;gap:20px;padding:18px var(--pad);color:#fff;transition:background .3s,color .3s,padding .3s}
+  .top.solid{background:rgba(110,193,240,.92);backdrop-filter:blur(8px);padding-top:12px;padding-bottom:12px}
+  .top.on-light{color:var(--blue)}
+  .top.on-light.solid{background:rgba(245,245,245,.92)}
+  .logo{font-stretch:62%;font-weight:900;font-size:26px;text-transform:uppercase;letter-spacing:-.01em;line-height:1}
+  .nav{margin:0 auto;display:flex;gap:22px}
+  .nav a{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;position:relative}
+  .nav a::after{content:"";position:absolute;left:0;right:100%;bottom:-3px;height:2px;background:currentColor;transition:right .3s}
+  .nav a:hover::after,.nav a.on::after{right:0}
+  .cta-top{display:inline-flex;align-items:center;border:1px solid currentColor;border-radius:999px;padding:8px 16px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;white-space:nowrap;transition:background .25s}
+  .cta-top:hover{background:var(--or);border-color:var(--or);color:#fff}
+  .acc-wrap{position:relative;flex:0 0 auto}.acc-top{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer;padding:0;transition:background .25s}.acc-top:hover,.acc-top[aria-expanded="true"]{background:rgba(255,255,255,.18)}.acc-top{position:relative}.acc-top.photo{background-size:cover!important;background-position:center;border:2px solid #fff}.acc-top.photo svg{visibility:hidden}.acc-top.on::after{content:"";position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#2ecc71;border:2px solid #fff}.acc-top svg{width:20px;height:20px}.acc-card{position:absolute;right:0;top:calc(100% + 12px);width:270px;background:linear-gradient(145deg,rgba(255,158,70,.86),rgba(240,112,20,.78));-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:20px;padding:16px;box-shadow:0 18px 44px rgba(120,50,0,.28),inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(120,50,0,.15);font-family:'Nunito',system-ui,sans-serif;text-transform:none;letter-spacing:0;font-stretch:100%;z-index:70}.acc-card[hidden],.acc-card .acc-lnk[hidden]{display:none}.acc-card::before{display:none}.acc-card b{display:block;font-size:16px;font-weight:800;margin-bottom:4px}.acc-card p{margin:0 0 12px;font-size:13px;line-height:1.45;color:rgba(255,255,255,.92)}.acc-card .acc-btn{display:block;text-align:center;background:#fff;color:#d9620f;box-shadow:0 4px 12px rgba(120,50,0,.2);border-radius:12px;padding:10px 12px;font-weight:800;font-size:14px;text-decoration:none}.acc-card .acc-btn:hover{filter:brightness(.95)}.acc-card .acc-lnk{display:block;padding:9px 2px;font-size:14px;font-weight:700;color:#fff;text-decoration:none;border-top:1px solid rgba(255,255,255,.35)}.acc-card .acc-btn+.acc-lnk{margin-top:10px}.acc-card .acc-lnk:hover{color:#fff3e4;text-decoration:underline}
+  .burger{display:none;width:44px;height:30px;border:0;background:none;cursor:pointer;flex-direction:column;justify-content:space-between;padding:6px 4px}
+  .burger span{height:2px;background:currentColor;display:block}
+  .menu{position:fixed;inset:0;z-index:70;background:var(--or);color:#fff;display:flex;flex-direction:column;justify-content:center;padding:var(--pad);gap:6px;transform:translateY(-100%);transition:transform .55s cubic-bezier(.76,0,.24,1)}
+  .menu.open{transform:none}
+  .menu a{font-size:clamp(48px,14vw,110px)}
+  .menu a:hover{color:var(--blue)}
+  .menu .x{position:absolute;top:18px;right:var(--pad);width:52px;height:52px;border:1px solid #fff;background:none;color:#fff;cursor:pointer;font-size:26px}
+  @media (max-width:900px){.nav{display:none}.acc-wrap{margin-left:auto}.acc-top{width:34px;height:34px}.acc-card{position:fixed;left:12px;right:12px;top:66px;width:auto}.burger{display:flex}}
+  @media (max-width:420px){.top{gap:10px}.logo{font-size:19px}.cta-top{padding:7px 11px;font-size:12px}}
+  .pied-page{padding:60px var(--pad) 26px}
+  .pied-page .liens{display:flex;flex-wrap:wrap;gap:12px 26px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px}
+  .grandmot{margin-top:30px;font-size:12.2vw;white-space:nowrap;text-align:center;line-height:.8}
+  .grandmot em{color:var(--or)}
+  /* Restes de l'ancienne page annulés : marge de l'ancien menu, page limitée à la hauteur de l'écran, défilement caché dans le formulaire */
+  body{padding-top:0!important}
+  html,body{height:auto!important;overflow-y:visible!important;overflow-x:hidden!important}
+  #pay-view,#confirm{height:auto!important}
+  #checkout{max-height:none!important;overflow:visible!important;display:block!important}
+  /* ===== Mise en page : Marshall sur son cube à gauche, le ticket au centre ===== */
+  #pay-view,#confirm{position:relative;max-width:1180px;margin:0 auto;padding:110px var(--pad) 70px;display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);gap:0;align-items:start}
+  #confirm{display:none}
+  #confirm.show{display:grid}
+  .marshall-cube{position:sticky;top:100px;width:100%;max-width:380px;height:auto;justify-self:end;filter:drop-shadow(0 22px 26px rgba(0,40,70,.28));z-index:2}
+  /* Le ticket part du rouleau (à hauteur des mains de Marshall) et se déroule vers le bas */
+  #checkout,#confirm .conf-card{position:relative;max-width:560px;width:100%;margin:calc(min(380px,30vw) * .5) 0 0 -36px;background:var(--papier);color:var(--ink);
+    padding:30px clamp(20px,3vw,38px) 34px;box-shadow:0 26px 50px rgba(0,50,90,.22);border-radius:0;
+    animation:deroule 1.15s cubic-bezier(.22,.9,.25,1) .15s both;transform-origin:top center}
+  #checkout::before,#checkout::after,#confirm .conf-card::before,#confirm .conf-card::after{content:"";position:absolute;left:0;right:0;height:12px;
+    background:linear-gradient(-45deg,transparent 8px,var(--papier) 0),linear-gradient(45deg,transparent 8px,var(--papier) 0);background-size:16px 12px;background-repeat:repeat-x}
+  #checkout::before,#confirm .conf-card::before{top:-11px;transform:scaleY(-1)}
+  #checkout::after,#confirm .conf-card::after{bottom:-11px}
+  @keyframes deroule{from{clip-path:inset(0 0 100% 0);transform:translateY(-14px)}to{clip-path:inset(-20px -20px -20px -20px);transform:none}}
+  @media (prefers-reduced-motion:reduce){#checkout,#confirm .conf-card{animation:none}}
+  .ticket-tete{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:18px;border-bottom:2px dashed #d9d2c5;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#7a7368}
+  .ticket-tete b{font-family:Archivo,system-ui,sans-serif;font-stretch:62%;font-weight:900;font-size:20px;letter-spacing:0;color:var(--or)}
+
+  /* ===== Étapes sur le ticket ===== */
+  #checkout .panel{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;padding:0!important;margin:0!important;border-radius:0!important;color:var(--ink)}
+  #checkout h2{font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:900!important;text-transform:uppercase;font-size:clamp(26px,3vw,34px)!important;line-height:.95!important;color:var(--blue)!important;text-shadow:none!important;display:flex;align-items:center;gap:12px;margin:0 0 8px!important}
+  #checkout .step-n{background:var(--or)!important;color:#fff!important;border-radius:0!important;box-shadow:none!important;width:34px!important;height:34px!important;font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:900!important;font-size:20px!important;display:inline-grid!important;place-items:center;flex:none}
+  #checkout .hint,#checkout p{color:#555!important;font-family:Archivo,system-ui,sans-serif!important;font-weight:600;font-size:15px!important;text-shadow:none!important}
+  #checkout .hint strong{color:var(--ink)!important}
+  #checkout .field label{color:var(--ink)!important;font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:800!important;font-size:14px!important;letter-spacing:.03em!important}
+  #checkout .field input,#checkout input[type=text],#checkout input[type=email],#checkout input[type=tel]{background:#fff!important;color:var(--ink)!important;border:2px solid var(--blue)!important;border-radius:0!important;box-shadow:none!important;font-family:Archivo,system-ui,sans-serif!important;font-weight:600!important}
+  #checkout .field input:focus{border-color:var(--or)!important;outline:none}
+  #checkout .field input::placeholder{color:#9a9a9a!important}
+  #checkout .client-badge{background:var(--paper)!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+  #checkout .client-badge .cb-av{background:var(--blue)!important;color:#fff!important;box-shadow:none!important;font-family:Archivo,system-ui,sans-serif!important}
+  #checkout .client-badge .cb-l1{color:var(--ink)!important;font-family:Archivo,system-ui,sans-serif!important;font-weight:800!important}
+  #checkout .client-badge .cb-l2,#checkout .client-badge .cb-l2 a{color:#555!important}
+  #checkout .client-badge .cb-l2 a{color:var(--orf)!important}
+  #checkout .pay-btn,#confirm .cta{background:var(--or)!important;border:1px solid var(--or)!important;border-radius:0!important;box-shadow:none!important;color:#fff!important;
+    font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:800!important;text-transform:uppercase;letter-spacing:.02em!important;font-size:18px!important;text-shadow:none!important;transition:background .25s,border-color .25s}
+  #checkout .pay-btn:hover:not(:disabled),#confirm .cta:hover{background:var(--ink)!important;border-color:var(--ink)!important;transform:none!important}
+  #checkout .pay-btn:disabled{opacity:.45}
+  #confirm .cta.ghost{background:transparent!important;color:var(--blue)!important;border-color:var(--blue)!important}
+  #checkout .back-btn{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--blue)!important;font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:800!important;text-transform:uppercase;padding:0!important;margin-bottom:10px!important}
+  #checkout .offer{background:#fff!important;border:2px solid var(--blue)!important;border-radius:0!important;box-shadow:none!important;color:var(--ink)!important}
+  #checkout .offer.on,#checkout .offer.active,#checkout .offer.sel,#checkout .offer[aria-pressed="true"],#checkout .offer[aria-checked="true"]{background:var(--blue)!important}
+  #checkout .offer .o-name,#checkout .offer .o-amt{font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:900!important;text-shadow:none!important;color:var(--ink)!important}
+  #checkout .offer .o-amt{color:var(--or)!important;font-size:26px!important}
+  #checkout .offer .o-desc,#checkout .offer small,#checkout .offer p{color:#555!important}
+  #checkout .qty-row .lbl,#checkout .qty .val{color:var(--ink)!important;font-family:Archivo,system-ui,sans-serif!important;font-weight:800!important}
+  #checkout .qty button{background:#fff!important;color:var(--blue)!important;border:2px solid var(--blue)!important;border-radius:0!important;box-shadow:none!important}
+  #checkout .summary,#confirm .recap{background:transparent!important;border:0!important;border-top:2px dashed #d9d2c5!important;border-bottom:2px dashed #d9d2c5!important;border-radius:0!important;box-shadow:none!important;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;color:var(--ink)!important;padding:12px 0!important}
+  #checkout .summary .line,#confirm .recap .r-line{color:#444!important;font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important;font-size:14px!important}
+  #checkout .summary .total .t-lbl,#confirm .recap .r-line.tot{color:var(--ink)!important;font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:900!important;text-transform:uppercase}
+  #checkout .summary .total .t-amt{color:var(--or)!important;font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:900!important;font-size:40px!important;text-shadow:none!important}
+  #checkout .methods .m{background:var(--paper)!important;color:var(--ink)!important;border:0!important;border-radius:0!important;box-shadow:none!important;font-family:Archivo,system-ui,sans-serif!important;font-weight:800!important}
+  #checkout .secure{color:#666!important;font-family:Archivo,system-ui,sans-serif!important}
+  #checkout .notice{border-radius:0!important}
+  #checkout .waiver{border-radius:0!important;background:var(--paper)!important;border-color:var(--blue)!important;color:var(--ink)!important}
+  #checkout #payment-element .pe-loading{color:#666!important}
+  #confirm .conf-card{background:var(--papier)!important;border:0!important;border-radius:0!important;box-shadow:0 26px 50px rgba(0,50,90,.22)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;color:var(--ink);padding:34px clamp(20px,3vw,38px)!important}
+  #confirm .conf-ic{background:var(--or)!important;color:#fff!important;border-radius:0!important;box-shadow:none!important}
+  #confirm h1{font-family:Archivo,system-ui,sans-serif!important;font-stretch:62%;font-weight:900!important;text-transform:uppercase;color:var(--blue)!important;text-shadow:none!important;line-height:.95!important}
+  #confirm p{color:#555!important;font-family:Archivo,system-ui,sans-serif!important;font-weight:600}
+
+  /* ===== Téléphone : Marshall en haut à gauche, le ticket sort du rouleau juste en dessous ===== */
+  @media (max-width:820px){
+    #pay-view,#confirm,#confirm.show{grid-template-columns:1fr;padding-top:84px}
+    .marshall-cube{position:relative;top:0;justify-self:start;width:min(46vw,200px);margin-left:max(70px,18vw)}
+    #checkout,#confirm .conf-card{margin:-28px 0 0;max-width:none}
+  }
+</style>
 </head>
 <body>
-<!-- ===== Transition portes ===== -->
-<div id="door-tx" aria-hidden="true">
-  <div class="door l"></div>
-  <div class="door r"></div>
-  <img class="dt-logo" src="./logocoupeworld-mreyg9i3.png" alt="">
-</div>
 
-<nav id="mcd-nav" aria-label="Navigation principale">
-  <div id="mcd-pill">
-    <a class="mcd-link" href="index.html" onclick="event.preventDefault();mcdGo('index.html')">Accueil</a>
-    <a class="mcd-link" href="qui-suis-je.html" onclick="event.preventDefault();mcdGo('qui-suis-je.html')">Qui suis-je</a>
-    <button type="button" class="mcd-link" id="mcd-sol" aria-expanded="false">Solutions <span style="font-size:9px;opacity:.7">&#9660;</span></button>
-    <a class="mcd-link" href="Nosoffres.html" onclick="event.preventDefault();mcdGo('Nosoffres.html')">Nos offres</a>
-    <a class="mcd-link" href="rendez-vous.html" onclick="event.preventDefault();mcdGo('rendez-vous.html')">Rendez-vous</a>
-    <div id="mcd-drop">
-      <a href="decouvrir-studio-social.html" onclick="event.preventDefault();mcdGo('decouvrir-studio-social.html')"><strong>Social Studio</strong><em>Votre pr&eacute;sence sur les r&eacute;seaux, cl&eacute; en main &#128273;</em></a>
+
+<header class="top" id="top">
+  <a class="logo" href="index.html" aria-label="Mon Copain Digital · accueil">Mon Copain Digital</a>
+  <nav class="nav" aria-label="Navigation">
+    <a href="index.html#particuliers">Particuliers</a><a href="index.html#commercants">Commerçants</a><a href="index.html#pros">Pros</a><a href="Nosoffres.html">Nos offres</a><a href="index.html#faq">FAQ</a>
+  </nav>
+  <div class="acc-wrap">
+    <button type="button" class="acc-top" id="acc-top" aria-label="Mon compte" title="Mon compte" aria-expanded="false" aria-controls="acc-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></button>
+    <div class="acc-card" id="acc-card" hidden>
+      <b>Mon compte</b>
+      <p id="acc-who">Connecte-toi pour retrouver tes rendez-vous, tes factures et tes outils.</p>
+      <a class="acc-btn" href="espace-compte.html" id="acc-go">Se connecter</a>
+      <a class="acc-lnk" href="rendez-vous.html">Prendre rendez-vous</a>
+      <a class="acc-lnk" href="#" id="acc-out" hidden>Se déconnecter</a>
     </div>
   </div>
-  <div id="mcd-right">
-    <a class="mcd-cta" href="contact.html" onclick="event.preventDefault();mcdGo('contact.html')">Nous contacter</a>
-  </div>
-</nav>
-<script>
-(function(){
-  if(!window.mcdGo){ window.mcdGo=function(dest){
-    var ov=document.getElementById('door-tx');
-    if(!ov){ location.href=dest; return; }
-    void ov.offsetWidth; ov.classList.add('closing');
-    setTimeout(function(){ location.href=dest; }, 1100);
-  }; }
-  function init(){
-    var btn=document.getElementById('mcd-sol'), drop=document.getElementById('mcd-drop');
-    if(!btn||!drop) return;
-    btn.addEventListener('click', function(e){ e.stopPropagation();
-      var open=drop.classList.toggle('open'); btn.setAttribute('aria-expanded', open?'true':'false'); });
-    document.addEventListener('click', function(){ drop.classList.remove('open'); btn.setAttribute('aria-expanded','false'); });
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
-})();
-</script>
-
-<header id="topbar">
-  <span aria-hidden="true" style="width:62px;height:62px;flex:0 0 auto"></span>
-  <p class="kicker"><span class="dot"></span> Paiement sécurisé</p>
-<!-- Réseaux sociaux + Votre Bulle -->
-<div id="social-rail">
-  <a class="acct-sq" href="espace-compte.html" aria-label="Votre Bulle · Espace client" title="Votre Bulle">
-    <img src="images/espace-client.svg" alt="Votre Bulle">
-  </a>
-  <a class="social-btn ig" href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-    <svg viewBox="0 0 24 24">
-      <defs>
-        <radialGradient id="igGradPay" cx="30%" cy="107%" r="150%">
-          <stop offset="0%" stop-color="#fdf497"></stop>
-          <stop offset="5%" stop-color="#fdf497"></stop>
-          <stop offset="45%" stop-color="#fd5949"></stop>
-          <stop offset="60%" stop-color="#d6249f"></stop>
-          <stop offset="90%" stop-color="#285AEB"></stop>
-        </radialGradient>
-      </defs>
-      <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igGradPay)"></rect>
-      <rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"></rect>
-      <circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"></circle>
-      <circle cx="16.5" cy="7.5" r="1.15" fill="#fff"></circle>
-    </svg>
-  </a>
-  <a class="social-btn li" href="https://www.linkedin.com/company/moncopaindigital/" target="_blank" rel="noopener" aria-label="LinkedIn">
-    <svg viewBox="0 0 24 24">
-      <rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"></rect>
-      <path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"></path>
-    </svg>
-  </a>
-</div>
+  <a class="cta-top" href="rendez-vous.html">Audit gratuit</a>
+  <button class="burger" type="button" aria-label="Ouvrir le menu" id="burger"><span></span><span></span><span></span></button>
 </header>
+<nav class="menu" id="menu" aria-label="Menu">
+  <button class="x" type="button" id="menu-x" aria-label="Fermer le menu">✕</button>
+  <a class="disp" href="index.html#particuliers">Particuliers</a>
+  <a class="disp" href="index.html#commercants">Commerçants</a>
+  <a class="disp" href="index.html#pros">Pros</a>
+  <a class="disp" href="index.html#faq">FAQ</a>
+  <a class="disp" href="rendez-vous.html" style="color:var(--blue)">Audit gratuit</a>
+</nav>
 
 <!-- ===== Checkout ===== -->
 <div id="pay-view">
-  <section id="head">
-  </section>
-
+  <img class="marshall-cube" src="images/marshall-cube-ticket.webp" width="446" height="747" alt="Marshall assis sur un cube orange, un rouleau de ticket à la main">
   <div id="checkout">
+    <div class="ticket-tete" aria-hidden="true"><b>Mon Copain Digital</b><span>Paiement sécurisé · Stripe</span></div>
     <!-- Étape 1 : Vos informations -->
     <div class="panel" id="step-info">
       <h2><span class="step-n">1</span> Vos informations de facturation</h2>
@@ -651,6 +713,7 @@
 
 <!-- ===== Confirmation ===== -->
 <div id="confirm">
+  <img class="marshall-cube" src="images/marshall-cube-ticket.webp" width="446" height="747" alt="">
   <div class="panel conf-card">
     <div class="conf-ic">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
@@ -840,7 +903,7 @@
     $('#pay-amount').textContent = euro(currentOrder.total);
     $('#pay-btn-label').textContent = 'Payer '+euro(currentOrder.total);
     elements = stripe.elements({ mode:'payment', amount: Math.round(currentOrder.total*100), currency:'eur',
-      appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
+      appearance:{ theme:'stripe', variables:{ colorPrimary:'#F3852B', colorBackground:'#ffffff', colorText:'#0a0a0a', colorTextSecondary:'#555555', borderRadius:'0px', fontFamily:'Archivo, system-ui, sans-serif' } } });
     var pe = elements.create('payment', { layout:'tabs' });
     $('#payment-element').innerHTML='';
     pe.mount('#payment-element');
@@ -931,7 +994,7 @@
       $('#pay-btn-label').textContent = 'Payer '+euro(total);
       if(hint) hint.innerHTML = 'Paiement demandé par Mon Copain Digital'+(data.reason? ' — <strong>'+data.reason+'</strong>':'')+'.<br>Montant : <strong>'+euro(total)+'</strong>';
       elements = stripe.elements({ clientSecret: data.clientSecret,
-        appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
+        appearance:{ theme:'stripe', variables:{ colorPrimary:'#F3852B', colorBackground:'#ffffff', colorText:'#0a0a0a', colorTextSecondary:'#555555', borderRadius:'0px', fontFamily:'Archivo, system-ui, sans-serif' } } });
       var pe = elements.create('payment', { layout:'tabs' });
       $('#payment-element').innerHTML=''; pe.mount('#payment-element');
       pe.on('ready', function(){ $('#pay-btn').removeAttribute('disabled'); });
@@ -988,7 +1051,7 @@
       studioSecret = data.clientSecret; waiverShow('abonnement');
       try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
       elements = stripe.elements({ clientSecret: data.clientSecret,
-        appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
+        appearance:{ theme:'stripe', variables:{ colorPrimary:'#F3852B', colorBackground:'#ffffff', colorText:'#0a0a0a', colorTextSecondary:'#555555', borderRadius:'0px', fontFamily:'Archivo, system-ui, sans-serif' } } });
       var pe = elements.create('payment', { layout:'tabs' });
       $('#payment-element').innerHTML=''; pe.mount('#payment-element');
       pe.on('ready', function(){ $('#pay-btn').removeAttribute('disabled'); });
@@ -1033,7 +1096,7 @@
       studioSecret = data.clientSecret; waiverShow('recharge');
       try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
       elements = stripe.elements({ clientSecret: data.clientSecret,
-        appearance:{ theme:'flat', variables:{ colorPrimary:'#e0662a', colorBackground:'#fff8ef', colorText:'#4d2000', colorTextSecondary:'#8a3c00', borderRadius:'13px', fontFamily:'Space Grotesk, Helvetica, Arial, sans-serif' } } });
+        appearance:{ theme:'stripe', variables:{ colorPrimary:'#F3852B', colorBackground:'#ffffff', colorText:'#0a0a0a', colorTextSecondary:'#555555', borderRadius:'0px', fontFamily:'Archivo, system-ui, sans-serif' } } });
       var pe = elements.create('payment', { layout:'tabs' });
       $('#payment-element').innerHTML=''; pe.mount('#payment-element');
       pe.on('ready', function(){ $('#pay-btn').removeAttribute('disabled'); });
@@ -1451,5 +1514,51 @@
 </style>
 
 <link rel="stylesheet" href="css/marshall-bot.css?v=5">
+<footer class="pied-page light">
+  <div class="liens">
+    <a href="Nosoffres.html">Nos offres</a><a href="aide-numerique-ile-de-france.html">Aide à domicile</a><a href="decouvrir-studio-social.html">Studio Social</a><a href="idees-posts-boulangerie.html">Idées de posts</a><a href="qui-suis-je.html">Qui suis-je ?</a><a href="contact.html">Contact</a><a href="espace-compte.html">Mon compte</a><a href="loiapplicablemcp.html">Mentions légales</a>
+  </div>
+  <div class="grandmot disp" aria-hidden="true">Mon Copain <em>Digital</em></div>
+</footer>
+<script>
+/* En-tête : bouton « Mon compte » et sa petite fiche (affiche l'adresse si on est déjà connecté). */
+(function(){
+  var b = document.getElementById('acc-top'), c = document.getElementById('acc-card'); if (!b || !c) return;
+  /* Connecté ? On lit la session Supabase du site (projet actuel) gardée par le navigateur. */
+  var CLE = 'sb-fskrgqkrpgxvypcwbfwm-auth-token', email = '', uid = '', jeton = '';
+  try {
+    var s = JSON.parse(localStorage.getItem(CLE) || 'null'); s = s && (s.currentSession || s);
+    var u = s && s.user, vivante = s && (s.refresh_token || (s.expires_at && s.expires_at * 1000 > Date.now()));
+    if (u && u.email && vivante){ email = u.email; uid = u.id; jeton = s.access_token; }
+  } catch (e) {}
+  if (email){
+    document.getElementById('acc-who').textContent = email;
+    document.getElementById('acc-go').textContent = 'Accéder à mon espace';
+    b.classList.add('on'); b.setAttribute('title', 'Mon compte · ' + email);
+    var out = document.getElementById('acc-out'); out.hidden = false;
+    out.addEventListener('click', function(e){ e.preventDefault(); try { localStorage.removeItem(CLE); } catch (x) {} location.reload(); });
+    /* Photo de profil de l'Espace compte : affichée dans le bouton (gardée en mémoire pour l'afficher tout de suite). */
+    function photo(src){ if (!src || !/^(https:\/\/|data:image\/(jpeg|png|webp);base64,)/i.test(src)) return; b.classList.add('photo'); b.style.backgroundImage = 'url("' + src.replace(/"/g, '%22') + '")'; }
+    var CP = 'mcd_avatar_' + uid; try { photo(localStorage.getItem(CP)); } catch (x) {}
+    if (uid && jeton) fetch('https://fskrgqkrpgxvypcwbfwm.supabase.co/rest/v1/profiles?select=avatar&id=eq.' + encodeURIComponent(uid), { headers:{ apikey:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZza3JncWtycGd4dnlwY3diZndtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTY0MjgsImV4cCI6MjEwODA3MjQyOH0.rY5AB0ZwPsCqu_p74Ph09_fGj92uDztoYDwJvH1jmIU', Authorization:'Bearer ' + jeton } })
+      .then(function(r){ return r.ok ? r.json() : null; }).then(function(d){ if (!Array.isArray(d)) return; var a = d[0] && d[0].avatar; try { if (a) localStorage.setItem(CP, a); else localStorage.removeItem(CP); } catch (x) {} if (a) photo(a); else { b.classList.remove('photo'); b.style.backgroundImage = ''; } }).catch(function(){});
+  }
+  function ouvre(o){ c.hidden = !o; b.setAttribute('aria-expanded', o ? 'true' : 'false'); if (o){ var r = b.getBoundingClientRect(); c.style.setProperty('--acc-arrow', (r.left + r.width/2 - 18) + 'px'); } }
+  b.addEventListener('click', function(e){ e.stopPropagation(); ouvre(c.hidden); });
+  document.addEventListener('click', function(e){ if (!c.hidden && !c.contains(e.target)) ouvre(false); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') ouvre(false); });
+})();
+</script>
+<script>
+/* Menu burger (mobile) et en-tête plein au défilement, comme sur les autres pages */
+(function(){
+  var menu = document.getElementById('menu'), top = document.getElementById('top');
+  document.getElementById('burger').onclick = function(){ menu.classList.add('open'); };
+  document.getElementById('menu-x').onclick = function(){ menu.classList.remove('open'); };
+  menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ menu.classList.remove('open'); }); });
+  function enTete(){ top.classList.toggle('solid', scrollY > 40); }
+  addEventListener('scroll', enTete, { passive:true }); enTete();
+})();
+</script>
 </body>
 </html>
