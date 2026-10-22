@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Cockpit · Mon Copain Digital</title>
+<link rel="icon" href="favicons/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/cockpit.css?v=1">
+</head>
+<body>
+<!-- Cockpit privé : aucune donnée ici. Tout passe par la fonction « cockpit », qui vérifie à chaque appel
+     que la personne connectée est l'administrateur. -->
+<aside class="cp-side" id="cp-side">
+  <a class="cp-marque" href="index.html"><img src="images/avatarchatbot.png" alt=""><span>MCD<b>·</b>CMD</span></a>
+  <nav class="cp-nav" aria-label="Sections du cockpit">
+    <a href="#vue" class="on">Vue d’ensemble</a>
+    <a href="#ventes">Ventes</a>
+    <a href="#emails">E-mails</a>
+    <a href="#autos">Automatisations</a>
+    <a href="#support">Support <span class="cp-pastille" id="nb-support" hidden></span></a>
+    <a href="#sante">Santé <span class="cp-pastille" id="nb-sante" hidden></span></a>
+    <a href="#marketing">Marketing</a>
+  </nav>
+  <div class="cp-side-bas">
+    <a href="espace-compte.html">Espace admin</a>
+    <a href="journal-erreurs.html">Journal des erreurs</a>
+    <button type="button" id="cp-deco">Se déconnecter</button>
+  </div>
+</aside>
+
+<main class="cp-main" id="vue">
+  <header class="cp-tete">
+    <div>
+      <h1>Tour de contrôle</h1>
+      <p class="cp-etat" id="cp-etat"><i></i><span>Chargement…</span></p>
+    </div>
+    <button type="button" class="cp-btn" id="cp-maj">Actualiser</button>
+  </header>
+
+  <div id="cp-acces" class="cp-carte cp-acces" hidden></div>
+
+  <div id="cp-contenu" hidden>
+    <section class="cp-kpis" id="ventes" aria-label="Chiffres du mois"></section>
+
+    <div class="cp-grille deux">
+      <section class="cp-carte" id="emails"><h2>E-mails envoyés <small id="emails-src">via Resend</small></h2><div id="bloc-emails"></div></section>
+      <section class="cp-carte" id="autos"><h2>Automatisations <small>interrupteur = actif / en pause</small></h2><div id="bloc-autos"></div></section>
+    </div>
+
+    <div class="cp-grille trois">
+      <section class="cp-carte" id="support"><h2>Support <small>tickets et messages</small></h2><div id="bloc-support"></div></section>
+      <section class="cp-carte" id="sante"><h2>Santé <small>aujourd’hui · 7 j</small></h2><div id="bloc-sante"></div></section>
+      <section class="cp-carte"><h2>Idées de campagnes <small>d’après vos chiffres</small></h2><div id="bloc-idees"></div></section>
+    </div>
+
+    <div class="cp-grille deux">
+      <section class="cp-carte" id="marketing"><h2>Codes promo</h2><div id="bloc-promos"></div></section>
+      <section class="cp-carte"><h2>Bons cadeaux</h2><div id="bloc-bons"></div></section>
+    </div>
+  </div>
+</main>
+
+<!-- Fiche d'un ticket (s'ouvre par-dessus) -->
+<div class="cp-tiroir" id="cp-tiroir" hidden>
+  <div class="cp-tiroir-fond" data-fermer></div>
+  <div class="cp-tiroir-boite" role="dialog" aria-modal="true" aria-labelledby="tk-titre">
+    <button type="button" class="cp-fermer" data-fermer aria-label="Fermer">×</button>
+    <div id="tk-fiche"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
+<script src="js/cockpit.js?v=1"></script>
+</body>
+</html>

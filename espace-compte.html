@@ -1433,6 +1433,10 @@
       <div class="brand">
         <span class="nm">VOTRE BULLE<small>Espace admin</small><a class="brand-back" href="index.html">← Retour accueil</a></span>
       </div>
+      <a class="nav-item" href="cockpit.html" id="adm-nav-cockpit" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-4"/><path d="M12 3v2M3 12h2M19 12h2"/></svg>
+        Cockpit
+      </a>
       <a class="nav-item active" data-aview="overview">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
         Vue d'ensemble
@@ -3238,7 +3242,7 @@
     $('#usg-refresh').addEventListener('click',function(){ renderAdminUsage(true); });
     $all('#aview-usage [data-usg-sort]').forEach(function(b){ b.addEventListener('click',function(){ usg.sort=b.getAttribute('data-usg-sort'); renderAdminUsage(); }); });
   }
-  (function(){ var t=setInterval(function(){ var n=document.getElementById('adm-nav-abos'); if(!n) return; if(typeof authUser!=='undefined' && authUser){ n.style.display=isAdmin()?'':'none'; var u=document.getElementById('adm-nav-usage'); if(u) u.style.display=isAdmin()?'':'none'; var tk=document.getElementById('adm-nav-tickets'); if(tk) tk.style.display=isAdmin()?'':'none'; } },800); })();
+  (function(){ var t=setInterval(function(){ var n=document.getElementById('adm-nav-abos'); if(!n) return; if(typeof authUser!=='undefined' && authUser){ n.style.display=isAdmin()?'':'none'; var u=document.getElementById('adm-nav-usage'); if(u) u.style.display=isAdmin()?'':'none'; var tk=document.getElementById('adm-nav-tickets'); if(tk) tk.style.display=isAdmin()?'':'none'; var cp=document.getElementById('adm-nav-cockpit'); if(cp) cp.style.display=isAdmin()?'':'none'; } },800); })();
   var ADM_TITLES = { usage:['Studio Social','Tableau de bord Studio'], abos:['Studio Social','Gérer les abonnements'], overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], regler:['Encaissement','Faire régler'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], tickets:['Support','Tickets'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'], 'paie-coach':['Encaissements','Paiements par commercial'] };
   /* ===================== Tickets support (chat de Marshall → fonction support-ticket) =====================
      Liste filtrée par statut, fiche avec le fil (client / équipe) et la conversation avec Marshall,
