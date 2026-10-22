@@ -1325,6 +1325,32 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
   /* Le bouton Démarrer (et le halo au sol) défilent avec la borne au lieu de rester collés à l'écran */
   .caption, .floor-glow { position:absolute !important; }
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&display=swap" rel="stylesheet">
+<style id="pied-site-css">
+  /* Pied de page commun (outils/pied-site/pied_site.py dans mcd-cloud) */
+  .pied-site{--ps-bleu:#6EC1F0;--ps-or:#F3852B;--ps-encre:#0a0a0a;background:#f5f5f5;color:var(--ps-bleu);font-family:Archivo,system-ui,sans-serif;padding:64px clamp(16px,2.2vw,32px) 24px;overflow:hidden;position:relative;z-index:1}
+  .pied-site *{box-sizing:border-box}
+  .pied-site a{color:inherit;text-decoration:none}
+  .pied-site .ps-haut{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:32px 28px;align-items:start}
+  .pied-site .ps-marque p{margin:10px 0 18px;color:#555;font-weight:600;font-size:15px;line-height:1.5;max-width:300px}
+  .pied-site .ps-logo{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:28px;line-height:.9;color:var(--ps-bleu)}
+  .pied-site .ps-logo em{font-style:italic;color:var(--ps-or)}
+  .pied-site .ps-cta{display:inline-flex;align-items:center;gap:10px;background:var(--ps-or);color:#fff;padding:12px 18px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.02em;transition:background .25s}
+  .pied-site .ps-cta:hover{background:var(--ps-encre)}
+  .pied-site h3{margin:0 0 12px;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:17px;color:var(--ps-encre);letter-spacing:.02em}
+  .pied-site ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+  .pied-site li a{font-weight:700;font-size:15px;color:#3a3a3a;transition:color .2s}
+  .pied-site li a:hover,.pied-site li a[aria-current="page"]{color:var(--ps-or)}
+  .pied-site .ps-reseaux{display:flex;gap:10px;margin-top:4px}
+  .pied-site .ps-reseaux a{width:40px;height:40px;display:grid;place-items:center;border:1.5px solid var(--ps-bleu);color:var(--ps-bleu);transition:background .2s,color .2s}
+  .pied-site .ps-reseaux a:hover{background:var(--ps-bleu);color:#fff}
+  .pied-site .ps-reseaux svg{width:20px;height:20px}
+  .pied-site .ps-bas{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;margin-top:40px;padding-top:16px;border-top:1.5px solid #dcdcdc;font-size:13px;font-weight:600;color:#777}
+  .pied-site .ps-grand{margin-top:22px;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:12.2vw;line-height:.8;white-space:nowrap;text-align:center;letter-spacing:-.005em}
+  .pied-site .ps-grand em{font-style:italic;font-weight:800;color:var(--ps-or)}
+  @media (max-width:980px){.pied-site .ps-haut{grid-template-columns:1fr 1fr}.pied-site .ps-marque{grid-column:1/-1}}
+  @media (max-width:440px){.pied-site{padding-top:48px}.pied-site .ps-haut{gap:26px 16px}.pied-site li a{font-size:14px}}
+</style>
 </head>
 <body>
 <div id="stars" aria-hidden="true"></div>
@@ -2277,62 +2303,23 @@ html:not([data-appweb]) #mcd-bottom{ display:none !important; }
     </div>
   </div>
   </div>
-<footer id="site-footer" class="show" aria-label="Pied de page Mon Copain Digital">
-  <button class="fs-handle" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Revenir en haut">
-    <span class="bar"></span>
-    <span class="chev">▲</span>
-    <span>Revenir en haut</span>
-  </button>
-
-  <div class="fs-body">
-    <div class="fs-brand-lg"><span>Mon Copain<br>Digital</span></div>
-
-    <div class="fs-col">
-      <h3>Le site</h3>
-      <ul>
-        <li><a href="index.html"><span class="dot"></span>Accueil</a></li>
-        <li><a href="Nosoffres.html"><span class="dot"></span>Nos offres</a></li>
-        <li><a href="qui-suis-je.html"><span class="dot"></span>Qui suis-je ?</a></li>
-        <li><a href="rendez-vous.html"><span class="dot"></span>Rendez-vous</a></li>
-        <li><a href="studio-social.html"><span class="dot"></span>Social Studio</a></li>
-        <li><a href="espace-compte.html"><span class="dot"></span>Espace compte</a></li>
-      </ul>
+<footer class="pied-site" aria-label="Pied de page">
+  <div class="ps-haut">
+    <div class="ps-marque">
+      <div class="ps-logo">Mon Copain <em>Digital</em></div>
+      <p>Le numérique pour tout le monde : à domicile en Île-de-France ou en visio, à votre rythme et sans jargon.</p>
+      <a class="ps-cta" href="rendez-vous.html">Audit gratuit de 30 min <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
     </div>
-
-    <div class="fs-col fs-contact">
-      <h3>Rester en lien</h3>
-      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px;">
-        <li><a href="contact.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Contact</a></li>
-        <li><a href="espace-compte.html" style="font-size:15px;font-weight:600;"><span class="dot"></span>Votre Bulle · Espace client</a></li>
-      </ul>
-      <div class="fs-socials">
-        <a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg viewBox="0 0 24 24"><defs><radialGradient id="fsIg" cx="30%" cy="107%" r="150%"><stop offset="0%" stop-color="#fdf497"/><stop offset="5%" stop-color="#fdf497"/><stop offset="45%" stop-color="#fd5949"/><stop offset="60%" stop-color="#d6249f"/><stop offset="90%" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#fsIg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.5" cy="7.5" r="1.15" fill="#fff"/></svg>
-        </a>
-        <a href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" fill="#0A66C2"/><path fill="#fff" d="M7.2 9.6H4.9V18h2.3V9.6zM6.05 6.1a1.33 1.33 0 1 0 0 2.66 1.33 1.33 0 0 0 0-2.66zM18.9 18h-2.3v-4.1c0-.98-.02-2.24-1.37-2.24-1.37 0-1.58 1.07-1.58 2.17V18h-2.3V9.6h2.2v1.15h.03c.31-.58 1.06-1.19 2.19-1.19 2.34 0 2.77 1.54 2.77 3.54V18z"/></svg>
-        </a>
-      </div>
-    </div>
-
-    <div class="fs-col">
-      <h3>Loi applicable</h3>
-      <ul>
-        <li><a href="loiapplicablemcp.html#mentions-legales"><span class="dot"></span>Mentions légales</a></li>
-        <li><a href="loiapplicablemcp.html#confidentialite"><span class="dot"></span>Politique de confidentialité</a></li>
-          <li><a href="loiapplicablemcp.html#studio-social"><span class="dot"></span>Studio Social — vos données</a></li>
-        <li><a href="loiapplicablemcp.html#cookies"><span class="dot"></span>Politique de cookies</a></li>
-        <li><a href="loiapplicablemcp.html#cgv"><span class="dot"></span>CGV — Conditions de vente</a></li>
-        <li><a href="loiapplicablemcp.html#cgu"><span class="dot"></span>CGU — Conditions d'utilisation</a></li>
-        <li><a href="loiapplicablemcp.html#accessibilite"><span class="dot"></span>Accessibilité</a></li>
-        <li><a href="loiapplicablemcp.html#gerer-cookies"><span class="dot"></span>Gérer les cookies</a></li>
-      </ul>
-    </div>
+    <nav aria-label="Se faire aider"><h3>Se faire aider</h3><ul><li><a href="Nosoffres.html">Nos offres</a></li><li><a href="aide-numerique-ile-de-france.html">Aide numérique à domicile</a></li><li><a href="audit-gratuit.html">Audit gratuit</a></li><li><a href="rendez-vous.html">Prendre rendez-vous</a></li><li><a href="carte-cadeau.html">Carte cadeau</a></li></ul></nav>
+    <nav aria-label="Studio Social"><h3>Studio Social</h3><ul><li><a href="decouvrir-studio-social.html">Découvrir Studio Social</a></li><li><a href="studio-social.html">Ouvrir le Studio</a></li><li><a href="idees-posts-boulangerie.html">Idées de posts</a></li><li><a href="explorer.html">Explorer</a></li></ul></nav>
+    <nav aria-label="Mon Copain Digital"><h3>Mon Copain Digital</h3><ul><li><a href="index.html">Accueil</a></li><li><a href="qui-suis-je.html" aria-current="page">Qui suis-je ?</a></li><li><a href="contact.html">Contact</a></li><li><a href="espace-compte.html">Mon compte</a></li></ul></nav>
+    <nav aria-label="Informations"><h3>Informations</h3><ul><li><a href="loiapplicablemcp.html">Mentions légales et CGV</a></li><li><a href="suppression-donnees.html">Suppression des données</a></li></ul></nav>
   </div>
-
-  <div class="fs-legal">
-    <span>© 2026 Mon Copain Digital</span>
+  <div class="ps-bas">
+    <div class="ps-reseaux"><a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a><a href="https://www.linkedin.com/company/moncopaindigital/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.9 8.7H3.6V20h3.3V8.7zM5.3 3.5a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8zM20.4 20h-3.3v-5.5c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9V20H9.9V8.7h3.2v1.5h.1c.4-.8 1.5-1.7 3.1-1.7 3.3 0 3.9 2.2 3.9 5V20z"/></svg></a></div>
+    <span>© 2026 Mon Copain Digital · contact@moncopaindigital.fr</span>
   </div>
+  <div class="ps-grand" id="grandmot" aria-hidden="true">Mon Copain <em>Digital</em></div>
 </footer>
 <script>
 (function(){
