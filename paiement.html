@@ -1194,7 +1194,7 @@
       $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre paiement de '+euro(order.total)+' a bien été pris en compte. Un reçu vous est envoyé par email.';
       if(order.cadeau){
         var h1c = document.querySelector('#confirm h1'); if(h1c) h1c.textContent = 'Bon cadeau commandé !';
-        $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre bon cadeau'+(order.cadeau.pour?' pour '+order.cadeau.pour:'')+' arrive par e-mail sous 24 h (jours ouvrés)'+(order.cadeau.envoi==='email24'?', et nous l\u2019envoyons au bénéficiaire le 24 décembre au matin':', prêt à imprimer')+'. Un reçu de paiement vous est envoyé par e-mail.';
+        $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre bon cadeau'+(order.cadeau.pour?' pour '+order.cadeau.pour:'')+' arrive par e-mail dans quelques minutes'+(order.cadeau.envoi==='email24'?' (une copie pour vous), et nous l\u2019envoyons au bénéficiaire le 24 décembre au matin':', prêt à imprimer')+'. Un reçu de paiement vous est aussi envoyé.';
         $('#conf-recap').insertAdjacentHTML('afterbegin', '<div class="r-line"><span>Bon cadeau pour</span><span>'+echappe(order.cadeau.pour||'—')+'</span></div>');
       }
       try{ localStorage.removeItem('mcd_pending_order'); }catch(e){}
