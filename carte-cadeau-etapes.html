@@ -183,6 +183,7 @@ button,input,textarea,select{font:inherit;color:inherit}
     var p = new URLSearchParams({ offre: OFFRE[f.value], cadeau: '1', pour: document.getElementById('i-pour').value.trim(),
       de: document.getElementById('i-de').value.trim(), mot: document.getElementById('i-mot').value.trim(), envoi: envoi });
     if (envoi === 'email24') p.set('dest', dest.value.trim());
+    var th = q.get('theme'); if (/^(noel|anniversaire|fete-meres|fete-peres|merci)$/.test(th || '')) p.set('theme', th);
     location.href = 'paiement.html?' + p.toString();
   };
   voir(0);

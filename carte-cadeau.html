@@ -155,13 +155,33 @@ button,input,textarea,select{font:inherit;color:inherit}
     body{--h:min(11.5svh,110px)}
     .reglage{padding-bottom:calc(var(--h) * 1.07 + 2px)}
   }
+
+  /* ===== Occasions : Noël (par défaut), anniversaire, fête des mères, fête des pères, merci ===== */
+  .occasion{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .occasion label{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px}
+  .occasion select{appearance:none;-webkit-appearance:none;border:1.5px solid #fff;background:transparent;color:#fff;border-radius:999px;padding:7px 30px 7px 14px;font-family:inherit;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:12px}
+  .occasion select option{color:#0a0a0a}
+  .top .cta-top{margin-left:12px}
+  body[data-theme]:not([data-theme="noel"]) .sapin,body[data-theme]:not([data-theme="noel"]) .neige-pied{display:none}
+  body[data-theme="anniversaire"],body[data-theme="merci"]{background:var(--blue)}
+  body[data-theme="anniversaire"] .neige{background-image:radial-gradient(#F3852B 3px,transparent 3.6px),radial-gradient(#fff 2.6px,transparent 3px),radial-gradient(#FFD34D 2.4px,transparent 2.9px),radial-gradient(#1f7a43 2px,transparent 2.5px);background-size:120px 120px,90px 90px,70px 70px,55px 55px;background-position:10px 0,40px 20px,20px 33px,5px 11px}
+  body[data-theme="anniversaire"] .tete h1 em,body[data-theme="merci"] .tete h1 em{color:var(--or)}
+  body[data-theme="fete-meres"],body[data-theme="fete-peres"]{background:var(--or)}
+  body[data-theme="fete-meres"] .neige,body[data-theme="fete-peres"] .neige{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140'%3E%3Cpath fill='%23ffffff' transform='translate(18 22)' d='M12 21s-7.5-4.6-10-9.3C.4 8.5 2.3 4.5 6 4.5c2.1 0 3.4 1.2 4 2.3.6-1.1 1.9-2.3 4-2.3 3.7 0 5.6 4 4 7.2-2.5 4.7-10 9.3-10 9.3z'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 140 140'%3E%3Cpath fill='%23ffffff' transform='translate(18 22)' d='M12 21s-7.5-4.6-10-9.3C.4 8.5 2.3 4.5 6 4.5c2.1 0 3.4 1.2 4 2.3.6-1.1 1.9-2.3 4-2.3 3.7 0 5.6 4 4 7.2-2.5 4.7-10 9.3-10 9.3z'/%3E%3C/svg%3E");background-size:140px 140px,90px 90px;background-position:0 0,45px 60px;background-repeat:repeat;opacity:.55}
+  body[data-theme="fete-meres"] .tete h1 em,body[data-theme="fete-peres"] .tete h1 em{color:var(--blue)}
+  body[data-theme="merci"] .neige{background-image:radial-gradient(#fff 2px,transparent 2.6px);background-size:70px 70px;opacity:.6}
+  body[data-theme]:not([data-theme="noel"]) .bon .g::before,body[data-theme]:not([data-theme="noel"]) .bon .g::after{background:inherit}
+  body[data-theme="anniversaire"] .bon .g::before,body[data-theme="anniversaire"] .bon .g::after,body[data-theme="merci"] .bon .g::before,body[data-theme="merci"] .bon .g::after{background:var(--blue)}
+  @media (max-width:700px){.occasion label{display:none}.top .cta-top{display:none}}
 </style>
 </head>
-<body>
+<body data-theme="noel">
 <div class="neige" aria-hidden="true"></div>
-<header class="top" style="position:relative"><a class="logo" href="index.html" aria-label="Mon Copain Digital · accueil">Mon Copain Digital</a><a class="cta-top" href="rendez-vous.html">Audit gratuit</a></header>
+<header class="top" style="position:relative"><a class="logo" href="index.html" aria-label="Mon Copain Digital · accueil">Mon Copain Digital</a><div class="occasion"><label for="occ">Occasion</label><select id="occ" aria-label="Occasion du cadeau">
+    <option value="noel">🎄 Noël</option><option value="anniversaire">🎂 Anniversaire</option><option value="fete-meres">💐 Fête des mères</option><option value="fete-peres">👔 Fête des pères</option><option value="merci">🙏 Merci</option></select></div><a class="cta-top" href="rendez-vous.html">Audit gratuit</a></header>
 <section class="tete">
-  <h1 class="disp">À glisser<br>sous <em>le sapin</em></h1>
+  <h1 class="disp" id="titre">À glisser<br>sous <em>le sapin</em></h1>
   <p>Un bon cadeau à imprimer tout de suite : des séances pour se sentir à l'aise avec le numérique, chez soi en Île-de-France ou en visio.</p>
 </section>
 <section class="bon-zone">
@@ -170,7 +190,7 @@ button,input,textarea,select{font:inherit;color:inherit}
       <span class="lbl">Bon cadeau · valable 12 mois</span>
       <h2 class="disp" id="b-pour">Pour Mamie</h2>
       <p id="b-txt">3 séances avec Mon Copain Digital pour apprivoiser téléphone, tablette, e-mails et photos.</p>
-      <img src="images/marshall-cadeau-noel.webp" alt="">
+      <img id="b-marshall" src="images/marshall-cadeau-noel.webp" alt="">
     </div>
     <div class="d">
       <div class="prix" id="b-prix">135 €</div>
@@ -207,10 +227,27 @@ button,input,textarea,select{font:inherit;color:inherit}
   }
   document.querySelectorAll('input').forEach(function(e){ e.addEventListener('input', maj); e.addEventListener('change', maj); });
   maj();
+
+  /* Occasion : titre, couleurs, décor et Marshall du bon ; reprise dans l'adresse (?theme=) pour partager le lien */
+  var THEMES = {
+    'noel':         { titre:'À glisser<br>sous <em>le sapin</em>', img:'images/marshall-cadeau-noel.webp' },
+    'anniversaire': { titre:'Joyeux<br><em>anniversaire</em>', img:'images/marshall-cadeau-paquet.webp' },
+    'fete-meres':   { titre:'Bonne fête<br><em>Maman</em>', img:'images/marshall-cadeau-ecrit.webp' },
+    'fete-peres':   { titre:'Bonne fête<br><em>Papa</em>', img:'images/marshall-cadeau-ecrit.webp' },
+    'merci':        { titre:'Un grand<br><em>merci</em>', img:'images/marshall-cadeau-paquet.webp' }
+  };
+  function theme(t){
+    if (!THEMES[t]) t = 'noel';
+    document.body.dataset.theme = t; $('occ').value = t;
+    $('titre').innerHTML = THEMES[t].titre; $('b-marshall').src = THEMES[t].img;
+    try { history.replaceState(null, '', t === 'noel' ? location.pathname : '?theme=' + t); } catch (e) {}
+  }
+  $('occ').addEventListener('change', function(){ theme(this.value); });
+  theme(new URLSearchParams(location.search).get('theme'));
   $('suite').addEventListener('click', function(){
     var f = document.querySelector('input[name=f]:checked');
     try { sessionStorage.setItem('mcd-cadeau', JSON.stringify({ prix: f.dataset.prix, pour: $('i-pour').value.trim() })); } catch (e) {}
-    this.href = 'carte-cadeau-etapes.html?prix=' + encodeURIComponent(f.dataset.prix) + '&pour=' + encodeURIComponent($('i-pour').value.trim());
+    this.href = 'carte-cadeau-etapes.html?prix=' + encodeURIComponent(f.dataset.prix) + '&pour=' + encodeURIComponent($('i-pour').value.trim()) + '&theme=' + document.body.dataset.theme;
   });
 })();
 </script>

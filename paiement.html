@@ -805,7 +805,7 @@
   var urlOffre = params.get('offre');
   /* ---------- Bon cadeau (depuis carte-cadeau.html) : pour qui, de la part de qui, petit mot, envoi ---------- */
   var CADEAU = params.get('cadeau')==='1' ? { pour:(params.get('pour')||'').trim().slice(0,40), de:(params.get('de')||'').trim().slice(0,60),
-    mot:(params.get('mot')||'').trim().slice(0,200), envoi:(params.get('envoi')==='email24'?'email24':'imprime'), dest:(params.get('dest')||'').trim().slice(0,120) } : null;
+    mot:(params.get('mot')||'').trim().slice(0,200), envoi:(params.get('envoi')==='email24'?'email24':'imprime'), dest:(params.get('dest')||'').trim().slice(0,120), theme:(/^(noel|anniversaire|fete-meres|fete-peres|merci)$/.test(params.get('theme')||'')?params.get('theme'):'noel') } : null;
   function echappe(t){ return String(t).replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   if(urlOffre){ var found=OFFERS.filter(function(o){return o.id===urlOffre;})[0]; if(found){ /* sélection appliquée plus bas */ window.__preselect = urlOffre; } }
 
