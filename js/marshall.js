@@ -259,14 +259,54 @@
       c.innerHTML = '<h3>🎫 Mes tickets</h3>' + (t.length ? '<ul class="tk-liste"></ul>' : '<p>Aucun ticket pour l’instant.</p>') + '<button type="button" class="tk-ok">Nouveau ticket</button>';
       var ul = c.querySelector('ul');
       t.forEach(function (k) {
-        var li = document.createElement('li');
+        var li = document.createElement('li'); li.tabIndex = 0; li.setAttribute('role', 'button');
         li.innerHTML = '<span class="tk-n"></span><span class="tk-s"></span><span class="tk-e"></span>';
+        li.addEventListener('click', function () { voirTicket(k.numero); });
+        li.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') voirTicket(k.numero); });
         li.children[0].textContent = k.numero; li.children[1].textContent = k.sujet;
         li.children[2].textContent = STATUTS[k.statut] || k.statut; li.children[2].dataset.statut = k.statut;
         ul.appendChild(li);
       });
       c.querySelector('.tk-ok').addEventListener('click', function () { formulaire(); });
     } catch (e) { c.innerHTML = '<h3>🎫 Mes tickets</h3><p class="tk-err"></p>'; c.querySelector('.tk-err').textContent = e.message; }
+    bas();
+  }
+
+  // Un ticket : le message de départ, les réponses de l'équipe et du client, et un champ pour répondre
+  async function voirTicket(numero) {
+    var c = carte('', '<h3>🎫 ' + numero + '</h3><p>Chargement…</p>');
+    try {
+      var res = await appel({ voir: numero });
+      if (res.connexion) { c.remove(); return demandeConnexion(); }
+      var tk = res.ticket, msgs = [{ auteur: 'client', message: tk.message, cree_le: tk.cree_le }].concat(res.messages || []);
+      c.innerHTML = '<h3>🎫 <span></span></h3><p class="tk-sujet"></p><span class="tk-e"></span><div class="tk-fil"></div>' +
+        (tk.statut === 'resolu' ? '<p class="tk-petit">Ticket résolu. Écrivez ci-dessous pour le rouvrir.</p>' : '') +
+        '<form class="tk-rep"><textarea maxlength="3000" placeholder="Votre réponse…" aria-label="Votre réponse"></textarea><p class="tk-err" role="alert" hidden></p><button class="tk-ok" type="submit">Répondre</button></form>';
+      c.querySelector('h3 span').textContent = tk.numero; c.querySelector('.tk-sujet').textContent = tk.sujet;
+      var st = c.querySelector('.tk-e'); st.textContent = STATUTS[tk.statut] || tk.statut; st.dataset.statut = tk.statut;
+      var zone = c.querySelector('.tk-fil');
+      function ajoute(m) {
+        var d = document.createElement('div'); d.className = 'tk-msg ' + m.auteur;
+        d.innerHTML = '<small></small><p></p>';
+        d.querySelector('small').textContent = (m.auteur === 'equipe' ? 'Mon Copain Digital' : 'Vous') + ' · ' + new Date(m.cree_le).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        d.querySelector('p').textContent = m.message; zone.appendChild(d);
+      }
+      msgs.forEach(ajoute);
+      var f = c.querySelector('.tk-rep');
+      f.addEventListener('submit', async function (ev) {
+        ev.preventDefault();
+        var ta = f.querySelector('textarea'), err = f.querySelector('.tk-err'), ok = f.querySelector('.tk-ok'), txt = ta.value.trim();
+        if (!txt) return;
+        ok.disabled = true; err.hidden = true;
+        try {
+          var r = await appel({ repondre: tk.numero, message: txt });
+          if (r.connexion) { c.remove(); return demandeConnexion(); }
+          ajoute({ auteur: 'client', message: txt, cree_le: new Date().toISOString() }); ta.value = '';
+          st.textContent = STATUTS.ouvert; st.dataset.statut = 'ouvert';
+        } catch (e) { err.hidden = false; err.textContent = e.message; }
+        ok.disabled = false; bas();
+      });
+    } catch (e) { c.innerHTML = '<h3>🎫 Ticket</h3><p class="tk-err"></p>'; c.querySelector('.tk-err').textContent = e.message; }
     bas();
   }
 

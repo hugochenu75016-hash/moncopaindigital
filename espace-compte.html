@@ -663,6 +663,26 @@
   .adm-search { flex: 1; min-width: 200px; }
   .adm-search input { width: 100%; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 14.5px; color: #6b3410; padding: 12px 14px 12px 42px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffe0c6' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M21 21l-4-4'/%3E%3C/svg%3E") no-repeat 14px center; outline: none; }
   .adm-search input::placeholder { color: rgba(107,52,16,0.55); }
+  /* Tickets support (admin) */
+  .tk-filtres{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 4px}
+  .tk-filtres button{border:1.5px solid rgba(107,52,16,.35);background:rgba(255,255,255,.18);color:#6b3410;border-radius:999px;padding:7px 14px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer}
+  .tk-filtres button.on{background:#F3852B;border-color:#F3852B;color:#fff}
+  .tk-ligne{cursor:pointer}.tk-ligne:hover td,.tk-ligne:focus td{background:rgba(255,255,255,.22)}
+  .tk-num{color:#C7620E;font-family:'Fredoka',sans-serif;font-weight:700;letter-spacing:.02em}
+  .tk-prio{display:inline-block;background:#d93f3f;color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;font-weight:700;margin-left:4px}
+  .tk-st{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:700;background:#fde3cc;color:#a24d06;white-space:nowrap}
+  .tk-st[data-st="en-cours"]{background:#dceefa;color:#1f6f9c}.tk-st[data-st="attente-client"]{background:#f5e6ff;color:#6c3aa0}.tk-st[data-st="resolu"]{background:#dff3e6;color:#1f7a43}
+  .tk-statut{display:flex;align-items:center;gap:8px;font-weight:700;color:#6b3410}
+  .tk-statut select,.tk-actions select{border:1.5px solid rgba(107,52,16,.3);border-radius:10px;padding:8px 10px;font:inherit;background:#fff;color:#4d2000}
+  .tk-conv{margin:14px 0;background:rgba(255,255,255,.18);border-radius:12px;padding:10px 14px;color:#6b3410;font-size:13.5px}
+  .tk-conv summary{cursor:pointer;font-weight:700}.tk-conv p{margin:6px 0}
+  .tk-fiche .tk-fil{display:grid;gap:10px;margin:16px 0}
+  .tk-fiche .tk-msg{max-width:80%;padding:10px 14px;border-radius:14px;background:#fff3e6;border:1px solid #f6d9bd;color:#3d1a00}
+  .tk-fiche .tk-msg.equipe{justify-self:end;background:#F3852B;color:#fff}.tk-fiche .tk-msg.equipe small{color:rgba(255,255,255,.85)}
+  .tk-fiche .tk-msg small{display:block;font-size:11.5px;font-weight:700;color:#a07850}.tk-fiche .tk-msg p{margin:3px 0 0;white-space:pre-wrap}
+  .tk-form{display:grid;gap:10px}
+  .tk-form textarea{width:100%;border:1.5px solid rgba(107,52,16,.3);border-radius:14px;padding:12px 14px;font:inherit;font-size:15px;background:#fff;color:#3d1a00;resize:vertical}
+  .tk-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;color:#6b3410;font-weight:700}
   .adm-table { width: 100%; border-collapse: separate; border-spacing: 0 9px; }
   .adm-table th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b3410; font-weight: 700; padding: 0 14px 2px; white-space: nowrap; }
   .adm-table td { background: rgba(255,255,255,0.1); padding: 12px 14px; color: #6b3410; font-size: 14px; vertical-align: middle; border-top: 1px solid rgba(255,255,255,0.16); border-bottom: 1px solid rgba(255,255,255,0.16); }
@@ -1450,6 +1470,11 @@
         Messagerie
         <span class="badge" id="adm-msg-badge" style="display:none;">0</span>
       </a>
+      <a class="nav-item" data-aview="tickets" id="adm-nav-tickets" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M13 6v12" stroke-dasharray="2 2"/></svg>
+        Tickets
+        <span class="badge" id="adm-tk-badge" style="display:none;">0</span>
+      </a>
       <a class="nav-item" data-aview="coach">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 13.5L17 22l-5-3-5 3 1.5-8.5"/></svg>
         Coachs
@@ -1608,6 +1633,7 @@
       </section>
 
       <!-- ===== Coachs / commerciaux ===== -->
+      <section class="aview" id="aview-tickets"></section>
       <section class="aview" id="aview-coach">
         <div class="card">
           <div class="card-title-row"><div><h2>Mes commerciaux</h2><p class="sub" style="margin:2px 0 0;">Votre équipe et leurs clients.</p></div><button class="glass-btn" data-act="toggle-coach-form" style="padding:11px 20px;color:#6b3410;">+ Ajouter</button></div>
@@ -3212,8 +3238,74 @@
     $('#usg-refresh').addEventListener('click',function(){ renderAdminUsage(true); });
     $all('#aview-usage [data-usg-sort]').forEach(function(b){ b.addEventListener('click',function(){ usg.sort=b.getAttribute('data-usg-sort'); renderAdminUsage(); }); });
   }
-  (function(){ var t=setInterval(function(){ var n=document.getElementById('adm-nav-abos'); if(!n) return; if(typeof authUser!=='undefined' && authUser){ n.style.display=isAdmin()?'':'none'; var u=document.getElementById('adm-nav-usage'); if(u) u.style.display=isAdmin()?'':'none'; } },800); })();
-  var ADM_TITLES = { usage:['Studio Social','Tableau de bord Studio'], abos:['Studio Social','Gérer les abonnements'], overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], regler:['Encaissement','Faire régler'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'], 'paie-coach':['Encaissements','Paiements par commercial'] };
+  (function(){ var t=setInterval(function(){ var n=document.getElementById('adm-nav-abos'); if(!n) return; if(typeof authUser!=='undefined' && authUser){ n.style.display=isAdmin()?'':'none'; var u=document.getElementById('adm-nav-usage'); if(u) u.style.display=isAdmin()?'':'none'; var tk=document.getElementById('adm-nav-tickets'); if(tk) tk.style.display=isAdmin()?'':'none'; } },800); })();
+  var ADM_TITLES = { usage:['Studio Social','Tableau de bord Studio'], abos:['Studio Social','Gérer les abonnements'], overview:['Administration','Vue d\'ensemble'], clients:['Clients','Tous les clients'], client:['Clients','Fiche client'], rdv:['Planning','Tous les rendez-vous'], regler:['Encaissement','Faire régler'], projets:['Projets','Suivi des projets'], factures:['Facturation','Factures & documents'], msg:['Messagerie','Conversations'], tickets:['Support','Tickets'], coach:['Équipe','Mes commerciaux'], 'coach-detail':['Équipe','Fiche commercial'], direction:['Équipe','Discussion direction'], profil:['Compte','Mon profil'], 'paie-coach':['Encaissements','Paiements par commercial'] };
+  /* ===================== Tickets support (chat de Marshall → fonction support-ticket) =====================
+     Liste filtrée par statut, fiche avec le fil (client / équipe) et la conversation avec Marshall,
+     réponse au client par e-mail + changement de statut. Réservé à l'administrateur (vérifié par la fonction). */
+  var tks = { filtre:'a-traiter', liste:[], ouvert:null, charge:false };
+  var TK_STATUTS = { ouvert:'Ouvert', 'en-cours':'En cours', 'attente-client':'Attente client', resolu:'Résolu' };
+  var TK_CATS = { paiement:'Paiement', seance:'Séance', studio:'Studio Social', 'bon-cadeau':'Bon cadeau', compte:'Mon compte', autre:'Autre' };
+  async function tkAppel(corps){
+    var r = await sb.functions.invoke('support-ticket', { body: corps });
+    if (r.error) { var m='Action impossible.'; try { var d=await r.error.context.json(); if(d && d.error) m=d.error; } catch(e){} throw new Error(m); }
+    return r.data;
+  }
+  function tkDate(d){ d=new Date(d); return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' · '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}); }
+  function tkPastille(st){ return '<span class="tk-st" data-st="'+esc(st)+'">'+esc(TK_STATUTS[st]||st)+'</span>'; }
+  function tkBadge(){ var n=tks.liste.filter(function(k){ return k.statut==='ouvert'; }).length, b=$('#adm-tk-badge'); if(b){ b.textContent=n; b.style.display=n?'':'none'; } }
+  async function tkCharger(){
+    try { var d=await tkAppel({ admin:'liste' }); tks.liste=d.tickets||[]; tks.charge=true; tks.err=''; } catch(e){ tks.err=e.message; }
+    tkBadge();
+  }
+  async function renderAdminTickets(recharger){
+    var el=$('#aview-tickets'); if(!el) return;
+    if(tks.ouvert) return renderAdminTicket(tks.ouvert);
+    if(!tks.charge || recharger){ el.innerHTML='<div class="card"><p class="sub">Chargement des tickets…</p></div>'; await tkCharger(); }
+    var F={ 'a-traiter':['À traiter',function(k){ return k.statut==='ouvert'||k.statut==='en-cours'; }], 'attente-client':['Attente client',function(k){ return k.statut==='attente-client'; }], resolu:['Résolus',function(k){ return k.statut==='resolu'; }], tous:['Tous',function(){ return true; }] };
+    var rows=tks.liste.filter(F[tks.filtre][1]);
+    var prio={ haute:0, normale:1, basse:2 };
+    if(tks.filtre==='a-traiter') rows.sort(function(a,b){ return (prio[a.priorite]-prio[b.priorite]) || (new Date(a.maj_le)-new Date(b.maj_le)); });
+    el.innerHTML='<div class="card">'+
+      '<div class="card-title-row"><div><h2>Tickets support</h2><p class="sub" style="margin:2px 0 0;">Ouverts par les clients connectés depuis le chat de Marshall. Les plus urgents d’abord.</p></div><button class="glass-btn" id="tk-refresh" style="padding:11px 20px;color:#6b3410;">Actualiser</button></div>'+
+      (tks.err?'<p class="sub" style="color:#b23a3e;font-weight:700;">⚠ '+esc(tks.err)+'</p>':'')+
+      '<div class="tk-filtres">'+Object.keys(F).map(function(k){ var n=tks.liste.filter(F[k][1]).length; return '<button type="button" data-tk-f="'+k+'" class="'+(k===tks.filtre?'on':'')+'">'+F[k][0]+' <b>'+n+'</b></button>'; }).join('')+'</div>'+
+      '<div style="overflow-x:auto;"><table class="adm-table"><thead><tr><th>Ticket</th><th>Client</th><th>Sujet</th><th>Catégorie</th><th>Statut</th><th>Mis à jour</th></tr></thead><tbody>'+
+      (rows.length?rows.map(function(k){ return '<tr class="tk-ligne" data-tk="'+esc(k.numero)+'" tabindex="0">'+
+        '<td><b class="tk-num">'+esc(k.numero)+'</b>'+(k.priorite==='haute'?' <span class="tk-prio">Prioritaire</span>':'')+'</td>'+
+        '<td><div class="adm-cli"><span class="adm-ini">'+initials(k.nom)+'</span><span style="font-family:\'Fredoka\',sans-serif;font-weight:600;">'+esc(k.nom)+'</span></div></td>'+
+        '<td>'+esc(k.sujet)+'</td><td>'+esc(TK_CATS[k.categorie]||k.categorie)+'</td><td>'+tkPastille(k.statut)+'</td><td style="white-space:nowrap;">'+tkDate(k.maj_le)+'</td></tr>'; }).join('')
+        :'<tr><td colspan="6"><div class="empty">Aucun ticket ici.</div></td></tr>')+
+      '</tbody></table></div></div>';
+    $('#tk-refresh').addEventListener('click',function(){ renderAdminTickets(true); });
+    $all('#aview-tickets [data-tk-f]').forEach(function(b){ b.addEventListener('click',function(){ tks.filtre=b.getAttribute('data-tk-f'); renderAdminTickets(); }); });
+    $all('#aview-tickets [data-tk]').forEach(function(r){ var go=function(){ tks.ouvert=r.getAttribute('data-tk'); renderAdminTickets(); }; r.addEventListener('click',go); r.addEventListener('keydown',function(e){ if(e.key==='Enter') go(); }); });
+  }
+  async function renderAdminTicket(numero){
+    var el=$('#aview-tickets'); el.innerHTML='<div class="card"><p class="sub">Chargement du ticket…</p></div>';
+    var d; try { d=await tkAppel({ admin:'voir', numero:numero }); } catch(e){ el.innerHTML='<div class="card"><p class="sub" style="color:#b23a3e;font-weight:700;">⚠ '+esc(e.message)+'</p><button class="glass-btn" id="tk-retour">← Tous les tickets</button></div>'; $('#tk-retour').onclick=function(){ tks.ouvert=null; renderAdminTickets(); }; return; }
+    var k=d.ticket, fil=[{ auteur:'client', message:k.message, cree_le:k.cree_le }].concat(d.messages||[]);
+    var conv=(k.conversation||[]).map(function(m){ return '<p><b>'+(m.role==='user'?esc(String(k.nom).split(' ')[0]):'Marshall')+' :</b> '+esc(m.content)+'</p>'; }).join('');
+    el.innerHTML='<div class="card tk-fiche">'+
+      '<button class="glass-btn" id="tk-retour" style="padding:8px 16px;color:#6b3410;margin-bottom:14px;">← Tous les tickets</button>'+
+      '<div class="card-title-row"><div><h2><span class="tk-num">'+esc(k.numero)+'</span> · '+esc(k.sujet)+'</h2>'+
+        '<p class="sub" style="margin:4px 0 0;">'+esc(k.nom)+' · <a href="mailto:'+esc(k.email)+'">'+esc(k.email)+'</a> · '+esc(TK_CATS[k.categorie]||k.categorie)+' · priorité '+esc(k.priorite)+(k.page?' · depuis '+esc(k.page):'')+' · ouvert le '+tkDate(k.cree_le)+'</p></div>'+
+        '<label class="tk-statut">Statut <select id="tk-st">'+Object.keys(TK_STATUTS).map(function(s){ return '<option value="'+s+'"'+(s===k.statut?' selected':'')+'>'+TK_STATUTS[s]+'</option>'; }).join('')+'</select></label></div>'+
+      (conv?'<details class="tk-conv"><summary>Conversation avec Marshall avant le ticket</summary>'+conv+'</details>':'')+
+      '<div class="tk-fil">'+fil.map(function(m){ return '<div class="tk-msg '+m.auteur+'"><small>'+(m.auteur==='equipe'?'Équipe':esc(k.nom))+' · '+tkDate(m.cree_le)+'</small><p>'+esc(m.message)+'</p></div>'; }).join('')+'</div>'+
+      '<form id="tk-form" class="tk-form"><textarea id="tk-msg" rows="5" placeholder="Votre réponse au client (envoyée par e-mail, visible dans « Mes tickets »)…"></textarea>'+
+        '<div class="tk-actions"><label>Après l’envoi : <select id="tk-apres"><option value="attente-client">Attente client</option><option value="en-cours">En cours</option><option value="resolu">Résolu</option></select></label>'+
+        '<button class="primary-btn" type="submit" style="width:auto;padding:12px 28px;">Envoyer la réponse</button></div><p class="sub" id="tk-etat" role="status"></p></form>'+
+    '</div>';
+    $('#tk-retour').onclick=function(){ tks.ouvert=null; renderAdminTickets(true); };
+    $('#tk-st').addEventListener('change',async function(){ var s=this.value; try{ await tkAppel({ admin:'statut', numero:k.numero, statut:s }); flashToast(s==='resolu'?'Ticket résolu : le client est prévenu':'Statut : '+TK_STATUTS[s]); var x=tks.liste.find(function(t){ return t.numero===k.numero; }); if(x){ x.statut=s; tkBadge(); } }catch(e){ flashToast(e.message); } });
+    $('#tk-form').addEventListener('submit',async function(e){ e.preventDefault(); var txt=$('#tk-msg').value.trim(); if(!txt) return; var b=this.querySelector('button'); b.disabled=true; $('#tk-etat').textContent='Envoi…';
+      try{ var r=await tkAppel({ admin:'repondre', numero:k.numero, message:txt, statut:$('#tk-apres').value }); flashToast(r.avertissement||'Réponse envoyée au client'); var x=tks.liste.find(function(t){ return t.numero===k.numero; }); if(x){ x.statut=r.statut; x.maj_le=new Date().toISOString(); tkBadge(); } renderAdminTicket(k.numero); }
+      catch(err){ $('#tk-etat').textContent='⚠ '+err.message; b.disabled=false; } });
+  }
+  // Pastille du menu : nombre de tickets ouverts, dès que l'administrateur est connecté
+  (function(){ var t=setInterval(function(){ if(typeof authUser!=='undefined' && authUser){ clearInterval(t); if(isAdmin()) tkCharger(); } },1000); })();
+
   function closeAdmSide(){ var s=$('#adm-side'); if(s) s.classList.remove('open'); var sc=$('#adm-scrim'); if(sc) sc.classList.remove('show'); }
   function switchAdminView(name){
     admin.view=name;
@@ -3229,6 +3321,7 @@
     else if(name==='factures') renderAdminFactures();
     else if(name==='regler') renderRegler();
     else if(name==='msg') renderAdminMsg();
+    else if(name==='tickets') renderAdminTickets();
     else if(name==='coach') renderAdminCoachs();
     else if(name==='paie-coach') renderPaieCoach();
     else if(name==='direction') renderDirection();
