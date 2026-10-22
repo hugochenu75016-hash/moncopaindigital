@@ -494,14 +494,15 @@
   #confirm.show{display:grid}
   .marshall-cube{position:sticky;top:100px;width:100%;max-width:380px;height:auto;justify-self:end;filter:drop-shadow(0 22px 26px rgba(0,40,70,.28));z-index:2}
   /* Le ticket part du rouleau (à hauteur des mains de Marshall) et se déroule vers le bas */
-  #checkout,#confirm .conf-card{position:relative;max-width:560px;width:100%;margin:calc(min(380px,30vw) * .5) 0 0 -36px;background:var(--papier);color:var(--ink);
+  #checkout,#confirm .conf-card{position:relative;max-width:560px;width:100%;margin:calc(min(380px,30vw) * .74) 0 0 -36px;background:var(--papier);color:var(--ink);
     padding:30px clamp(20px,3vw,38px) 34px;box-shadow:0 26px 50px rgba(0,50,90,.22);border-radius:0;
-    animation:deroule 1.15s cubic-bezier(.22,.9,.25,1) .15s both;transform-origin:top center}
+    animation:imprime 1.9s cubic-bezier(.3,.05,.25,1) .72s both}
   #checkout::before,#checkout::after,#confirm .conf-card::before,#confirm .conf-card::after{content:"";position:absolute;left:0;right:0;height:12px;
     background:linear-gradient(-45deg,transparent 8px,var(--papier) 0),linear-gradient(45deg,transparent 8px,var(--papier) 0);background-size:16px 12px;background-repeat:repeat-x}
-  #checkout::before,#confirm .conf-card::before{top:-11px;transform:scaleY(-1)}
+  #checkout::before,#confirm .conf-card::before{display:none}  /* en haut, le papier sort du rouleau : pas de bord déchiré */
   #checkout::after,#confirm .conf-card::after{bottom:-11px}
-  @keyframes deroule{from{clip-path:inset(0 0 100% 0);transform:translateY(-14px)}to{clip-path:inset(-20px -20px -20px -20px);transform:none}}
+  /* Le ticket glisse vers le bas et n'apparaît que sous son bord du haut (la sortie du rouleau) : on le voit « s'imprimer » */
+  @keyframes imprime{from{transform:translateY(-100%);clip-path:inset(100% -40px -40px -40px)}to{transform:none;clip-path:inset(0 -40px -40px -40px)}}
   @media (prefers-reduced-motion:reduce){#checkout,#confirm .conf-card{animation:none}}
   .ticket-tete{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:18px;border-bottom:2px dashed #d9d2c5;
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#7a7368}
@@ -559,6 +560,12 @@
 </style>
 </head>
 <body>
+<!-- ===== Transition portes ===== -->
+<div id="door-tx" aria-hidden="true">
+  <div class="door l"></div>
+  <div class="door r"></div>
+  <img class="dt-logo" src="./logocoupeworld-mreyg9i3.png" alt="">
+</div>
 
 
 <header class="top" id="top">
