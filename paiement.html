@@ -483,6 +483,17 @@
   .pied-page .liens{display:flex;flex-wrap:wrap;gap:12px 26px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px}
   .grandmot{margin-top:30px;font-size:12.2vw;white-space:nowrap;text-align:center;line-height:.8}
   .grandmot em{color:var(--or)}
+  /* Code promo */
+  #checkout .promo{margin:12px 0 4px;display:grid;gap:6px}
+  #checkout .promo label{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:14px;color:var(--ink)}
+  #checkout .promo-ligne{display:flex;gap:8px}
+  #checkout .promo-ligne input{flex:1;min-width:0;border:2px solid var(--blue);padding:9px 12px;font-family:inherit;font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.06em;background:#fff;color:var(--ink)}
+  #checkout .promo-ligne input:focus{outline:none;border-color:var(--or)}
+  #checkout .promo-ligne button{border:0;background:var(--blue);color:#fff;padding:0 16px;cursor:pointer;font-family:inherit;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px}
+  #checkout .promo-ligne button:disabled{opacity:.5}
+  #checkout .promo-etat{margin:0!important;font-size:13.5px!important;font-weight:700!important;min-height:1.2em}
+  #checkout .promo-etat.ok{color:#1f7a43!important}#checkout .promo-etat.ko{color:#d93f3f!important}
+
   /* Restes de l'ancienne page annulés : marge de l'ancien menu, page limitée à la hauteur de l'écran, défilement caché dans le formulaire */
   body{padding-top:0!important}
   html,body{height:auto!important;overflow-y:visible!important;overflow-x:hidden!important}
@@ -692,8 +703,15 @@
       <div class="summary">
         <div class="line"><span id="sum-name">—</span><span id="sum-unit">—</span></div>
         <div class="line"><span>Quantité</span><span id="sum-qty">×1</span></div>
+        <div class="line" id="sum-promo" hidden><span id="sum-promo-nom">Code promo</span><span id="sum-promo-val">—</span></div>
         <div class="total"><span class="t-lbl">Total à payer</span><span class="t-amt" id="sum-total">—</span></div>
         </div>
+
+      <form class="promo" id="promo" autocomplete="off">
+        <label for="promo-code">Code promo</label>
+        <div class="promo-ligne"><input id="promo-code" maxlength="30" placeholder="Ex. BIENVENUE10" spellcheck="false"><button type="submit" id="promo-ok">Appliquer</button></div>
+        <p class="promo-etat" id="promo-etat" role="status"></p>
+      </form>
 
       <div class="methods" aria-label="Moyens de paiement acceptés">
         <span class="m">CB</span>
@@ -822,13 +840,15 @@
         '<span class="radio"></span>' +
         '<div class="o-body"><div class="o-name">'+o.nom+'</div><div class="o-desc">'+o.desc+'</div></div>' +
         '<div class="o-price"><div class="o-amt">'+euro(o.prix)+'</div></div>';
-      el.addEventListener('click', function(){ state.offer=o; if(o.id==='seance'||o.id==='custom'){} renderOffers(); renderSummary(); });
+      el.addEventListener('click', function(){ state.offer=o; promoAnnule(); if(o.id==='seance'||o.id==='custom'){} renderOffers(); renderSummary(); });
       box.appendChild(el);
     });
   }
 
   function renderSummary(){
-    var o=state.offer, q=state.qty, total=o.prix*q;
+    var o=state.offer, q=state.qty, total=o.prix*q - (state.promo ? state.promo.remise/100 : 0);
+    $('#sum-promo').hidden = !state.promo;
+    if(state.promo){ $('#sum-promo-nom').textContent = 'Code ' + state.promo.code + ' (' + state.promo.libelle + ')'; $('#sum-promo-val').textContent = '−' + euro(state.promo.remise/100); }
     $('#sum-name').textContent = (CADEAU ? 'Bon cadeau · ' : '') + o.nom.replace(/&nbsp;/g,' ') + (CADEAU && CADEAU.pour ? ' pour ' + CADEAU.pour : '');
     $('#sum-unit').textContent = euro(o.prix);
     $('#sum-qty').textContent = '×'+q;
@@ -837,8 +857,8 @@
   }
 
   /* ---------- Quantité ---------- */
-  $('#q-minus').addEventListener('click', function(){ state.qty=Math.max(1,state.qty-1); $('#q-val').textContent=state.qty; renderSummary(); });
-  $('#q-plus').addEventListener('click', function(){ state.qty=Math.min(20,state.qty+1); $('#q-val').textContent=state.qty; renderSummary(); });
+  $('#q-minus').addEventListener('click', function(){ promoAnnule(); state.qty=Math.max(1,state.qty-1); $('#q-val').textContent=state.qty; renderSummary(); });
+  $('#q-plus').addEventListener('click', function(){ promoAnnule(); state.qty=Math.min(20,state.qty+1); $('#q-val').textContent=state.qty; renderSummary(); });
 
   /* ---------- Pré-remplissage via Supabase (Votre Bulle) ---------- */
   function initials(name){ return (name||'').trim().split(/\s+/).map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase() || '?'; }
@@ -893,9 +913,29 @@
   var elements = null, currentOrder = null, reqMode = false;
   function showNotice(id, html){ var n=$(id); if(!n) return; n.innerHTML=html; n.classList.add('show'); }
   function clearNotice(id){ var n=$(id); if(n){ n.classList.remove('show'); n.innerHTML=''; } }
+  /* ---------- Code promo : vérifié par le serveur, qui seul calcule la remise ---------- */
+  function promoAnnule(){ if(state.promo){ state.promo = null; var e=$('#promo-etat'); if(e) e.textContent = 'Formule changée : réappliquez votre code.'; } }
+  (function(){
+    var f=$('#promo'); if(!f) return;
+    f.addEventListener('submit', async function(e){
+      e.preventDefault();
+      var code = $('#promo-code').value.trim().toUpperCase(), etat=$('#promo-etat'), b=$('#promo-ok');
+      if(!code){ state.promo=null; renderSummary(); etat.textContent=''; return; }
+      b.disabled = true; etat.className='promo-etat'; etat.textContent = 'Vérification…';
+      try{
+        var r = await fetch(FN_URL, { method:'POST', headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+SUPABASE_ANON },
+          body: JSON.stringify({ verifierPromo: code, offerId: state.offer.id, qty: state.qty }) });
+        var d = await r.json();
+        if(!r.ok || !d.code){ state.promo=null; etat.className='promo-etat ko'; etat.textContent = (d && d.error) || 'Code promo refusé.'; }
+        else { state.promo = { code:d.code, remise:d.remise, libelle:d.libelle }; etat.className='promo-etat ok'; etat.textContent = 'Code ' + d.code + ' appliqué : ' + d.libelle + '.'; }
+      }catch(err){ state.promo=null; etat.className='promo-etat ko'; etat.textContent = 'Vérification impossible pour le moment.'; }
+      b.disabled = false; renderSummary();
+    });
+  })();
+
   function buildOrder(){
-    var o=state.offer, q=state.qty, total=o.prix*q;
-    return { offerId:o.id, offerName:o.nom.replace(/&nbsp;/g,' '), unit:o.prix, qty:q, total:total,
+    var o=state.offer, q=state.qty, total=o.prix*q - (state.promo ? state.promo.remise/100 : 0);
+    return { promo: state.promo ? state.promo.code : undefined, offerId:o.id, offerName:o.nom.replace(/&nbsp;/g,' '), unit:o.prix, qty:q, total:total,
       name:$('#f-nom').value.trim(), email:$('#f-email').value.trim(),
       tel:$('#f-tel').value.trim(), address:$('#f-adresse').value.trim(), date:new Date().toISOString(), cadeau:CADEAU };
   }
@@ -1001,7 +1041,7 @@
         if(sub.error){ throw new Error(sub.error.message); }
         var res = await fetch(FN_URL, { method:'POST',
           headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+SUPABASE_ANON },
-          body: JSON.stringify({ offerId:currentOrder.offerId, qty:currentOrder.qty, name:currentOrder.name, email:currentOrder.email, tel:currentOrder.tel, address:currentOrder.address, cadeau:currentOrder.cadeau||undefined }) });
+          body: JSON.stringify({ offerId:currentOrder.offerId, qty:currentOrder.qty, name:currentOrder.name, email:currentOrder.email, tel:currentOrder.tel, address:currentOrder.address, cadeau:currentOrder.cadeau||undefined, promo:currentOrder.promo }) });
         var data = await res.json();
         if(!res.ok || !data.clientSecret){ throw new Error((data && data.error) || 'Erreur du serveur de paiement.'); }
         var conf = await stripe.confirmPayment({ elements: elements, clientSecret: data.clientSecret, confirmParams:{ return_url: ret } });
