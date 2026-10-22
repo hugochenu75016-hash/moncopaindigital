@@ -7,59 +7,87 @@
 <title>Cockpit · Mon Copain Digital</title>
 <link rel="icon" href="favicons/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/cockpit.css?v=1">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/cockpit.css?v=2">
 </head>
 <body>
 <!-- Cockpit privé : aucune donnée ici. Tout passe par la fonction « cockpit », qui vérifie à chaque appel
-     que la personne connectée est l'administrateur. -->
-<aside class="cp-side" id="cp-side">
-  <a class="cp-marque" href="index.html"><img src="images/avatarchatbot.png" alt=""><span>MCD<b>·</b>CMD</span></a>
-  <nav class="cp-nav" aria-label="Sections du cockpit">
-    <a href="#vue" class="on">Vue d’ensemble</a>
-    <a href="#ventes">Ventes</a>
-    <a href="#emails">E-mails</a>
-    <a href="#autos">Automatisations</a>
-    <a href="#support">Support <span class="cp-pastille" id="nb-support" hidden></span></a>
-    <a href="#sante">Santé <span class="cp-pastille" id="nb-sante" hidden></span></a>
-    <a href="#marketing">Marketing</a>
+     que la personne connectée est l'administrateur. Une catégorie de la barre = un écran (#ventes, #emails…). -->
+<aside class="cp-side">
+  <a class="cp-marque" href="index.html"><img src="images/avatarchatbot.png" alt=""><span>MCD · CMD</span></a>
+  <nav class="cp-nav" aria-label="Catégories du cockpit">
+    <a href="#vue" data-vue="vue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>Vue d’ensemble</a>
+    <a href="#ventes" data-vue="ventes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>Ventes</a>
+    <a href="#emails" data-vue="emails"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>E-mails</a>
+    <a href="#autos" data-vue="autos"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>Automatisations</a>
+    <a href="#support" data-vue="support"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Support <span class="cp-n" id="nb-support" hidden></span></a>
+    <a href="#sante" data-vue="sante"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Santé <span class="cp-n" id="nb-sante" hidden></span></a>
+    <a href="#marketing" data-vue="marketing"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><circle cx="7" cy="7" r="1.5"/></svg>Marketing</a>
   </nav>
   <div class="cp-side-bas">
     <a href="espace-compte.html">Espace admin</a>
     <a href="journal-erreurs.html">Journal des erreurs</a>
     <button type="button" id="cp-deco">Se déconnecter</button>
+    <div class="cp-moi"><i>H</i><span>Hugo</span></div>
   </div>
 </aside>
 
-<main class="cp-main" id="vue">
+<main class="cp-main">
   <header class="cp-tete">
     <div>
-      <h1>Tour de contrôle</h1>
-      <p class="cp-etat" id="cp-etat"><i></i><span>Chargement…</span></p>
+      <h1 id="cp-titre">Bonjour Hugo</h1>
+      <p class="cp-etat" id="cp-etat"><span class="cp-pastille"><i></i><b>Chargement…</b></span><span id="cp-date"></span></p>
     </div>
-    <button type="button" class="cp-btn" id="cp-maj">Actualiser</button>
+    <button type="button" class="cp-btn clair" id="cp-maj">Actualiser</button>
   </header>
 
-  <div id="cp-acces" class="cp-carte cp-acces" hidden></div>
+  <div id="cp-acces" class="cp-verre cp-acces" hidden></div>
 
   <div id="cp-contenu" hidden>
-    <section class="cp-kpis" id="ventes" aria-label="Chiffres du mois"></section>
+    <!-- Vue d'ensemble : l'essentiel, le détail est dans chaque catégorie -->
+    <section class="cp-vue" data-v="vue">
+      <div class="cp-kpis" id="kpis"></div>
+      <div class="cp-duo">
+        <div class="cp-verre cp-bloc"><h2>À regarder aujourd’hui</h2><div id="regarder"></div></div>
+        <div class="cp-verre cp-bloc"><h2>Derniers e-mails <small id="mails-resume"></small></h2><div id="mails-courts"></div></div>
+      </div>
+    </section>
 
-    <div class="cp-grille deux">
-      <section class="cp-carte" id="emails"><h2>E-mails envoyés <small id="emails-src">via Resend</small></h2><div id="bloc-emails"></div></section>
-      <section class="cp-carte" id="autos"><h2>Automatisations <small>interrupteur = actif / en pause</small></h2><div id="bloc-autos"></div></section>
-    </div>
+    <section class="cp-vue" data-v="ventes">
+      <div class="cp-kpis" id="kpis-ventes"></div>
+      <div class="cp-verre cp-bloc"><h2>Chiffre jour par jour <small>30 derniers jours</small></h2><div id="courbe"></div></div>
+      <div class="cp-duo">
+        <div class="cp-verre cp-bloc"><h2>Paiements échoués <small>7 derniers jours</small></h2><div id="echecs"></div></div>
+        <div class="cp-verre cp-bloc"><h2>Studio Social</h2><div id="studio"></div></div>
+      </div>
+    </section>
 
-    <div class="cp-grille trois">
-      <section class="cp-carte" id="support"><h2>Support <small>tickets et messages</small></h2><div id="bloc-support"></div></section>
-      <section class="cp-carte" id="sante"><h2>Santé <small>aujourd’hui · 7 j</small></h2><div id="bloc-sante"></div></section>
-      <section class="cp-carte"><h2>Idées de campagnes <small>d’après vos chiffres</small></h2><div id="bloc-idees"></div></section>
-    </div>
+    <section class="cp-vue" data-v="emails">
+      <div class="cp-verre cp-bloc"><h2>E-mails envoyés <small>40 derniers, via Resend</small></h2><div id="bloc-emails"></div></div>
+    </section>
 
-    <div class="cp-grille deux">
-      <section class="cp-carte" id="marketing"><h2>Codes promo</h2><div id="bloc-promos"></div></section>
-      <section class="cp-carte"><h2>Bons cadeaux</h2><div id="bloc-bons"></div></section>
-    </div>
+    <section class="cp-vue" data-v="autos">
+      <div class="cp-verre cp-bloc"><h2>Automatisations <small>interrupteur = active ou en pause</small></h2><div id="bloc-autos"></div></div>
+    </section>
+
+    <section class="cp-vue" data-v="support">
+      <div class="cp-duo">
+        <div class="cp-verre cp-bloc"><h2>Tickets à traiter</h2><div id="bloc-tickets"></div></div>
+        <div class="cp-verre cp-bloc"><h2>Formulaire de contact</h2><div id="bloc-contacts"></div></div>
+      </div>
+    </section>
+
+    <section class="cp-vue" data-v="sante">
+      <div class="cp-verre cp-bloc"><h2>Santé du service <small>aujourd’hui · 7 jours</small></h2><div id="bloc-sante"></div></div>
+    </section>
+
+    <section class="cp-vue" data-v="marketing">
+      <div class="cp-duo">
+        <div class="cp-verre cp-bloc"><h2>Codes promo</h2><div id="bloc-promos"></div></div>
+        <div class="cp-verre cp-bloc"><h2>Bons cadeaux</h2><div id="bloc-bons"></div></div>
+      </div>
+      <div class="cp-verre cp-bloc"><h2>Idées de campagnes <small>d’après vos chiffres</small></h2><div id="bloc-idees"></div></div>
+    </section>
   </div>
 </main>
 
@@ -73,6 +101,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-<script src="js/cockpit.js?v=1"></script>
+<script src="js/cockpit.js?v=2"></script>
 </body>
 </html>
