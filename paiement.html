@@ -557,6 +557,35 @@
     .marshall-cube{position:relative;top:0;justify-self:start;width:min(46vw,200px);margin-left:max(70px,18vw)}
     #checkout,#confirm .conf-card{margin:-28px 0 0;max-width:none}
   }
+
+  /* ===== Tout tient sur l'écran : pas de défilement de la page ; si une étape est longue, c'est le ticket qui défile ===== */
+  html,body{height:100%!important;overflow:hidden!important}
+  .pied-page{display:none}
+  body{--h:min(64svh,600px)}
+  #pay-view,#confirm.show{height:100vh;height:100svh!important;box-sizing:border-box;padding:76px var(--pad) 14px!important;grid-template-rows:minmax(0,1fr);overflow:hidden}
+  .marshall-cube{position:relative!important;top:0!important;align-self:start;height:var(--h);width:auto;max-width:none}
+  #checkout,#confirm .conf-card{align-self:start;margin-top:calc(var(--h) * .44)!important;max-height:calc(100svh - 76px - 14px - var(--h) * .44 - 14px)!important;display:flex!important;flex-direction:column;padding-top:20px!important;padding-bottom:16px!important}
+  #confirm .conf-card{overflow-y:auto}
+  .ticket-tete{flex:none;margin-bottom:12px;padding-bottom:10px}
+  .ticket-defile{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-right:6px;margin-right:-6px;scrollbar-width:thin;scrollbar-color:var(--or) transparent}
+  .ticket-defile::-webkit-scrollbar{width:6px}
+  .ticket-defile::-webkit-scrollbar-thumb{background:var(--or)}
+  /* Étapes plus compactes pour tenir sur la hauteur */
+  #checkout h2{font-size:clamp(22px,min(3vw,4svh),32px)!important;margin-bottom:4px!important}
+  #checkout .hint{font-size:13.5px!important;margin-bottom:10px!important}
+  #checkout .client-badge{padding:8px 12px!important;margin-bottom:10px!important}
+  #checkout .field{margin-bottom:8px!important}
+  #checkout .field input{padding-top:9px!important;padding-bottom:9px!important}
+  #checkout .pay-btn{padding-top:13px!important;padding-bottom:13px!important;margin-top:8px!important}
+  #checkout .offer{padding-top:9px!important;padding-bottom:9px!important}
+  #checkout .offers{gap:8px!important;margin-bottom:10px!important}
+  #checkout .summary .total .t-amt{font-size:32px!important}
+  @media (max-width:820px){
+    body{--h:min(21svh,170px)}
+    #pay-view,#confirm.show{display:flex!important;flex-direction:column;padding-top:66px!important;padding-bottom:10px!important}
+    .marshall-cube{flex:none;align-self:flex-start}
+    #checkout,#confirm .conf-card{flex:1 1 auto;min-height:0;max-height:none!important;margin-top:-20px!important;padding-left:18px!important;padding-right:18px!important}
+  }
 </style>
 </head>
 <body>
@@ -600,6 +629,7 @@
   <img class="marshall-cube" src="images/marshall-cube-ticket.webp" width="446" height="747" alt="Marshall assis sur un cube orange, un rouleau de ticket à la main">
   <div id="checkout">
     <div class="ticket-tete" aria-hidden="true"><b>Mon Copain Digital</b><span>Paiement sécurisé · Stripe</span></div>
+    <div class="ticket-defile">
     <!-- Étape 1 : Vos informations -->
     <div class="panel" id="step-info">
       <h2><span class="step-n">1</span> Vos informations de facturation</h2>
@@ -714,6 +744,7 @@
       </div>
 
       <div class="notice" id="pay-notice"></div>
+    </div>
     </div>
   </div>
 </div>
