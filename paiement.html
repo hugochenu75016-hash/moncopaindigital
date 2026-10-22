@@ -852,8 +852,10 @@
     $('#sum-name').textContent = (CADEAU ? 'Bon cadeau · ' : '') + o.nom.replace(/&nbsp;/g,' ') + (CADEAU && CADEAU.pour ? ' pour ' + CADEAU.pour : '');
     $('#sum-unit').textContent = euro(o.prix);
     $('#sum-qty').textContent = '×'+q;
-    $('#sum-total').textContent = euro(total);
+    var offert = state.promo && total <= 0;
+    $('#sum-total').textContent = offert ? 'Offert' : euro(total);
     var lbl=$('#pay-btn-label'); if(lbl) lbl.textContent = 'Payer '+euro(total);
+    var gl=$('#goto-pay-label'); if(gl) gl.textContent = offert ? 'Valider ma commande offerte' : 'Procéder au paiement';
   }
 
   /* ---------- Quantité ---------- */
@@ -973,6 +975,8 @@
   $('#goto-pay').addEventListener('click', function(){
     clearNotice('#forfait-notice');
     if(!validInfos()){ showNotice('#forfait-notice','Veuillez compléter vos informations de facturation ci-dessus.'); return; }
+    var commande = buildOrder();
+    if(commande.promo && commande.total <= 0){ return validerOffert(commande); }
     if(!stripe){ showNotice('#forfait-notice','Configuration de paiement incomplète : renseignez votre clé publiable Stripe (STRIPE_PK) dans le fichier.'); return; }
     currentOrder = buildOrder();
     try{ localStorage.setItem('mcd_pending_order', JSON.stringify(currentOrder)); }catch(e){}
@@ -990,6 +994,24 @@
     pe.on('ready', function(){ $('#pay-btn').removeAttribute('disabled'); });
     setTimeout(function(){ window.scrollTo({ top: step.getBoundingClientRect().top + window.pageYOffset - 20, behavior:'smooth' }); }, 60);
   });
+
+  /* ---------- Commande offerte (code promo à 100 %) : pas de carte, le serveur valide et envoie les e-mails ---------- */
+  async function validerOffert(commande){
+    var b=$('#goto-pay'), gl=$('#goto-pay-label'); b.setAttribute('disabled','disabled'); gl.textContent='Validation…';
+    try{
+      var res = await fetch(FN_URL, { method:'POST',
+        headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+SUPABASE_ANON },
+        body: JSON.stringify({ offerId:commande.offerId, qty:commande.qty, name:commande.name, email:commande.email, tel:commande.tel, address:commande.address, cadeau:commande.cadeau||undefined, promo:commande.promo }) });
+      var data = await res.json();
+      if(!res.ok || !data.gratuit){ throw new Error((data && data.error) || 'La commande n\u2019a pas pu être validée.'); }
+      commande.offert = true; commande.total = 0;
+      try{ localStorage.setItem('mcd_pending_order', JSON.stringify(commande)); }catch(e){}
+      location.href = location.pathname + '?status=success';
+    }catch(err){
+      showNotice('#forfait-notice', (err && err.message) ? err.message : 'La commande n\u2019a pas pu être validée. Réessayez.');
+      b.removeAttribute('disabled'); gl.textContent='Valider ma commande offerte';
+    }
+  }
 
   /* ---------- Retour à la commande ---------- */
   $('#pay-back').addEventListener('click', function(e){
@@ -1214,7 +1236,7 @@
   /* ---------- Vue confirmation (retour depuis Stripe : ?status=success&redirect_status=succeeded) ---------- */
   function showConfirm(){
     var order=null; try{ order=JSON.parse(localStorage.getItem('mcd_pending_order')||'null'); }catch(e){}
-    $('#pay-view').style.display='none';
+    $('#pay-view').style.setProperty('display','none','important');   // « important » : le style mobile force display:flex
     var c=$('#confirm'); c.classList.add('show');
     if(topupPack){ confirmTopup(); return; }
     if(aboPlan){
@@ -1234,9 +1256,14 @@
         '<div class="r-line"><span>Client</span><span>'+ (order.name||'—') +'</span></div>' +
         '<div class="r-line tot"><span>Payé</span><span>'+euro(order.total)+'</span></div>';
       $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre paiement de '+euro(order.total)+' a bien été pris en compte. Un reçu vous est envoyé par email.';
+      if(order.offert){
+        var h1o = document.querySelector('#confirm h1'); if(h1o) h1o.textContent = 'Commande confirmée !';
+        $('#conf-recap').querySelector('.r-line.tot').innerHTML = '<span>Offert avec le code '+echappe(order.promo||'')+'</span><span>0 €</span>';
+        $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre commande est confirmée. Une confirmation vous est envoyée par e-mail et nous vous contactons très vite pour fixer le rendez-vous.';
+      }
       if(order.cadeau){
         var h1c = document.querySelector('#confirm h1'); if(h1c) h1c.textContent = 'Bon cadeau commandé !';
-        $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre bon cadeau'+(order.cadeau.pour?' pour '+order.cadeau.pour:'')+' arrive par e-mail dans quelques minutes'+(order.cadeau.envoi==='email24'?' (une copie pour vous), et nous l\u2019envoyons au bénéficiaire le 24 décembre au matin':', prêt à imprimer')+'. Un reçu de paiement vous est aussi envoyé.';
+        $('#conf-sub').textContent = 'Merci '+(order.name? order.name.split(' ')[0] : '')+' ! Votre bon cadeau'+(order.cadeau.pour?' pour '+order.cadeau.pour:'')+' arrive par e-mail dans quelques minutes'+(order.cadeau.envoi==='email24'?' (une copie pour vous), et nous l\u2019envoyons au bénéficiaire le 24 décembre au matin':', prêt à imprimer')+(order.offert?'.':'. Un reçu de paiement vous est aussi envoyé.');
         $('#conf-recap').insertAdjacentHTML('afterbegin', '<div class="r-line"><span>Bon cadeau pour</span><span>'+echappe(order.cadeau.pour||'—')+'</span></div>');
       }
       try{ localStorage.removeItem('mcd_pending_order'); }catch(e){}
