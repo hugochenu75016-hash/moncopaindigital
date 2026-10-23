@@ -2374,43 +2374,6 @@ html body .mnat-card{padding:16px 16px 12px!important}
   @keyframes mcdAppIn { from { opacity:0; } to { opacity:1; } }
 }
 </style>
-<style id="door-tx-style">
-  #door-tx{position:fixed;inset:0;z-index:2147483647;pointer-events:none;overflow:hidden;}
-  #door-tx .door{position:absolute;top:0;height:100%;width:calc(50% + 1px);
-    background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%);
-    box-shadow:0 0 70px rgba(90,40,0,0.45);}
-  #door-tx .door.l{left:0;border-right:1px solid rgba(120,50,0,0.35);transform:translateX(-101%);}
-  #door-tx .door.r{right:0;border-left:1px solid rgba(255,205,150,0.4);transform:translateX(101%);}
-  #door-tx.loading{pointer-events:auto;}
-  #door-tx.loading .door.l,#door-tx.loading .door.r{transform:translateX(0)!important;animation:none!important;}
-  #door-tx.loading .dt-logo{opacity:1!important;animation:dtLogoPulse 1.6s ease-in-out infinite!important;}
-  @keyframes dtLogoPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
-  #door-tx.opening .door.l{animation:dtOpenL .72s cubic-bezier(.76,0,.24,1) .05s both;}
-  #door-tx.opening .door.r{animation:dtOpenR .72s cubic-bezier(.76,0,.24,1) .05s both;}
-  #door-tx .dt-logo{position:absolute;top:50%;left:50%;width:clamp(230px,calc(40 * var(--vw, 1vw)),440px);height:auto;
-    transform:translate(-50%,-50%);filter:drop-shadow(0 12px 26px rgba(90,40,0,0.5));opacity:0;}
-  #door-tx.opening .dt-logo{animation:dtLogoOut .5s ease both;}
-  @keyframes dtOpenL{from{transform:translateX(0)}to{transform:translateX(-101%)}}
-  @keyframes dtOpenR{from{transform:translateX(0)}to{transform:translateX(101%)}}
-  @keyframes dtLogoOut{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}55%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.72)}}
-  #door-tx.closing{pointer-events:auto;}
-  #door-tx.closing .door.l{animation:dtCloseL .6s cubic-bezier(.76,0,.24,1) both;}
-  #door-tx.closing .door.r{animation:dtCloseR .6s cubic-bezier(.76,0,.24,1) both;}
-  #door-tx.closing .dt-logo{animation:dtLogoIn .46s cubic-bezier(.2,1.5,.35,1) .44s both;}
-  @keyframes dtCloseL{from{transform:translateX(-101%)}to{transform:translateX(0)}}
-  @keyframes dtCloseR{from{transform:translateX(101%)}to{transform:translateX(0)}}
-  @keyframes dtLogoIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.55)}55%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-  #door-tx .dt-spin{position:absolute;left:50%;top:calc(50% + clamp(96px,calc(17 * var(--vw, 1vw)),168px));
-    transform:translate(-50%,-50%);width:clamp(46px,calc(9.5 * var(--vw, 1vw)),68px);height:clamp(46px,calc(9.5 * var(--vw, 1vw)),68px);
-    color:#FFE6C4;opacity:0;transition:opacity .25s ease;
-    filter:drop-shadow(0 3px 6px rgba(120,50,0,.45));}
-  #door-tx.loading .dt-spin{opacity:.95;}
-  #door-tx.closing .dt-spin{opacity:0;}
-  @media (prefers-reduced-motion:reduce){
-    #door-tx .door.l,#door-tx .door.r,#door-tx .dt-logo{animation-duration:.01s !important;}
-    #door-tx .dt-spin{display:none;}
-  }
-</style>
 
 <style id="marshall-studio-redesign">
   .marshall-studio-chat{font-family:'Nunito',system-ui,sans-serif;color:#3B2A1C;padding:2px 2px 14px}
@@ -3838,31 +3801,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   if(btn) btn.addEventListener('click',function(){ if(!evt) return; evt.prompt(); evt.userChoice.finally(function(){ evt=null; btn.hidden=true; }); });
 })();
 </script>
-<div id="door-tx" class="loading" aria-hidden="true">
-  <div class="door l"></div>
-  <div class="door r"></div>
-  <img class="dt-logo" src="logomcd.png" alt="">
-  <svg class="dt-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
-    <rect width="10" height="10" x="1" y="1" fill="currentColor" rx="2">
-      <animate id="mcdS1b" fill="freeze" attributeName="x" begin="0;mcdS12b.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS2b" fill="freeze" attributeName="y" begin="mcdS9b.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS3b" fill="freeze" attributeName="x" begin="mcdS10b.end" dur="0.2s" values="13;1"/>
-      <animate id="mcdS4b" fill="freeze" attributeName="y" begin="mcdS11b.end" dur="0.2s" values="13;1"/>
-    </rect>
-    <rect width="10" height="10" x="1" y="13" fill="currentColor" rx="2">
-      <animate id="mcdS5b" fill="freeze" attributeName="y" begin="mcdS1b.end" dur="0.2s" values="13;1"/>
-      <animate id="mcdS6b" fill="freeze" attributeName="x" begin="mcdS2b.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS7b" fill="freeze" attributeName="y" begin="mcdS3b.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS8b" fill="freeze" attributeName="x" begin="mcdS4b.end" dur="0.2s" values="13;1"/>
-    </rect>
-    <rect width="10" height="10" x="13" y="13" fill="currentColor" rx="2">
-      <animate id="mcdS9b" fill="freeze" attributeName="x" begin="mcdS5b.end" dur="0.2s" values="13;1"/>
-      <animate id="mcdS10b" fill="freeze" attributeName="y" begin="mcdS6b.end" dur="0.2s" values="13;1"/>
-      <animate id="mcdS11b" fill="freeze" attributeName="x" begin="mcdS7b.end" dur="0.2s" values="1;13"/>
-      <animate id="mcdS12b" fill="freeze" attributeName="y" begin="mcdS8b.end" dur="0.2s" values="1;13"/>
-    </rect>
-  </svg>
-</div>
+<div id="door-tx" class="loading" aria-hidden="true"></div>
+<script src="js/intro-tx.js?v=1"></script>
 <script>
 (function(){
   if(window.__doorTx) return; window.__doorTx=true;
