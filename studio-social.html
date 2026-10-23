@@ -6788,7 +6788,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var box=$('#ed-el-list'); if(!box) return;
     q=(q||'').trim().toLowerCase();
     var match=function(n){ return !q || n.toLowerCase().replace(/_/g,' ').replace(/-/g,' ').indexOf(q)>=0; };
-    var html='', shapes=ED_SHAPES.concat(Object.keys(ED_POLY)).filter(match);
+    var html=EDS_DESK?edsDecoHtml(match):'', shapes=ED_SHAPES.concat(Object.keys(ED_POLY)).filter(match);
     if(shapes.length) html+='<div class="ed-sec">Formes</div><div class="ed-grid">'+
       shapes.map(function(s){ return '<div class="ed-cell" data-shape="'+s+'" title="'+s.replace(/-/g,' ')+'">'+edShapeThumb(s)+'</div>'; }).join('')+'</div>';
     ED_ICON_CATS.forEach(function(c){
@@ -6801,6 +6801,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     box.innerHTML=html;
     $all('#ed-el-list [data-shape]').forEach(function(c){ c.addEventListener('click', function(){ edAddShape(c.getAttribute('data-shape')); edFlyClose(); }); });
     $all('#ed-el-list [data-icon]').forEach(function(c){ c.addEventListener('click', function(){ edAddIcon(c.getAttribute('data-icon')); edFlyClose(); }); });
+    if(EDS_DESK) edsBrancher(box,false);
   }
   function edPolyCss(p){ return 'polygon('+p.split(',').map(function(pt){ var a=pt.trim().split(/\s+/); return a[0]+'% '+a[1]+'%'; }).join(',')+')'; }
 
@@ -6904,6 +6905,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function edRender(){
     var page=$('#ed-page'); if(!page) return;
+    edsFontsWatch();
     var _pw=page.offsetWidth; if(_pw>0) ed._pxW=_pw;
     var _edVidKeep={}; $all('.ed-layer.vid video',page).forEach(function(v){ var d=v.closest('.ed-layer'); if(d) _edVidKeep[d.getAttribute('data-lid')+'|'+v.getAttribute('data-vsrc')]=v; });
     page.innerHTML = ed.layers.map(function(l){
@@ -8186,6 +8188,265 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         italic:!!o.italic, under:false, upper:!!o.upper, align:'center', ls:+(((o.upper?3:0))*sc).toFixed(1), lh:1.1, bgc:'none', rot:0, op:100 }); });
     ed.sel=ids[0]; edSnap(); edRender();
   }
+  /* ===== Style : duos de polices, palettes et formes décoratives (maquettes A + B + C choisies par Hugo le 23/10) =====
+     Sur ORDINATEUR SEULEMENT pour tout ce qui se voit (le mobile n'est jamais touché).
+     Tout est calculé ici : rien n'est enregistré en plus (ni navigateur, ni Supabase, ni Modal) et aucun service extérieur n'est appelé,
+     sauf Google Fonts pour charger une police quand on la choisit (comme les autres polices du Studio).
+     A : « Texte » gagne 40 duos, « Fond » gagne des palettes, « Éléments » gagne des formes décoratives.
+     B : un outil « Style » dans la colonne (Polices / Couleurs / Formes), appliqué au post ouvert.
+     C : un bouton « Mélanger le style » au-dessus du post, avec retour en arrière et pastilles pour garder un réglage. */
+  var EDS_DESK=document.documentElement.getAttribute('data-device')!=='mobile';
+  /* Polices chargées à la demande (graisses vérifiées chez Google Fonts). Celles déjà chargées par le Studio n'y sont pas. */
+  var EDS_FONTS={
+    'Bebas Neue':'Bebas+Neue','Abril Fatface':'Abril+Fatface','Alfa Slab One':'Alfa+Slab+One','Righteous':'Righteous','Pacifico':'Pacifico',
+    'Lobster':'Lobster','Shrikhand':'Shrikhand','Chewy':'Chewy','Permanent Marker':'Permanent+Marker','Yeseva One':'Yeseva+One','Satisfy':'Satisfy',
+    'Dancing Script':'Dancing+Script:wght@500;700','Kalam':'Kalam:wght@400;700','Poppins':'Poppins:wght@500;800','Lora':'Lora:wght@500;700',
+    'Oswald':'Oswald:wght@500;700','Raleway':'Raleway:wght@500;800','Work Sans':'Work+Sans:wght@500;800','DM Sans':'DM+Sans:wght@500;800',
+    'Merriweather':'Merriweather:wght@400;900','Libre Baskerville':'Libre+Baskerville:wght@400;700','Cormorant Garamond':'Cormorant+Garamond:wght@500;700',
+    'Josefin Sans':'Josefin+Sans:wght@500;700','Rubik':'Rubik:wght@500;800','Quicksand':'Quicksand:wght@500;700','Karla':'Karla:wght@500;800',
+    'Syne':'Syne:wght@500;800','Outfit':'Outfit:wght@500;800','Manrope':'Manrope:wght@500;800','Sora':'Sora:wght@500;800','Space Mono':'Space+Mono:wght@400;700',
+    'Fraunces':'Fraunces:wght@500;800','Bodoni Moda':'Bodoni+Moda:wght@500;800','Unbounded':'Unbounded:wght@500;800','Lexend':'Lexend:wght@500;800',
+    'Barlow':'Barlow:wght@500;800','Barlow Condensed':'Barlow+Condensed:wght@500;800','Archivo':'Archivo:wght@500;800','Source Serif 4':'Source+Serif+4:wght@500;800'
+  };
+  /* 40 duos : a = titre, b = texte. u = majuscules, i = italique, m = ambiance, t / s = exemple. */
+  var EDS_DUOS=[
+    {a:'Anton',u:1,b:'Inter',m:'percutant',t:'Promo',s:'-20 % ce week-end'},
+    {a:'Playfair Display',i:1,b:'Montserrat',m:'élégant',t:'Nouveauté',s:'Disponible en boutique'},
+    {a:'Bebas Neue',b:'Lora',m:'affiche',t:'Soirée jazz',s:'Vendredi 20 h, entrée libre'},
+    {a:'Caveat',b:'Poppins',m:'chaleureux',t:'Fait maison',s:'Chaque matin, avec amour'},
+    {a:'Archivo Black',u:1,b:'DM Sans',m:'moderne',t:'Soldes',s:'Jusqu’à -50 %'},
+    {a:'DM Serif Display',b:'Work Sans',m:'raffiné',t:'Merci !',s:'Pour vos 500 avis'},
+    {a:'Fredoka',b:'Nunito',m:'joyeux',t:'Ouvert dimanche',s:'De 8 h à 13 h'},
+    {a:'Abril Fatface',b:'Raleway',m:'magazine',t:'La collection',s:'Printemps · été'},
+    {a:'Oswald',u:1,b:'Merriweather',m:'journal',t:'Dernière minute',s:'Plus que 3 places'},
+    {a:'Pacifico',b:'Quicksand',m:'gourmand',t:'Bon appétit',s:'Le menu du jour est prêt'},
+    {a:'Alfa Slab One',b:'Karla',m:'rétro',t:'Depuis 1987',s:'L’artisan du quartier'},
+    {a:'Lobster',b:'Josefin Sans',m:'vintage',t:'Joyeux Noël',s:'Toute l’équipe vous remercie'},
+    {a:'Syne',u:1,b:'Inter',m:'design',t:'Atelier',s:'Inscriptions ouvertes'},
+    {a:'Righteous',b:'Rubik',m:'fun',t:'Happy hour',s:'De 18 h à 20 h'},
+    {a:'Shrikhand',b:'Outfit',m:'pop',t:'Glaces maison',s:'25 parfums cet été'},
+    {a:'Yeseva One',b:'Libre Baskerville',m:'classique',t:'Fête des mères',s:'Une attention qui compte'},
+    {a:'Unbounded',b:'Manrope',m:'tendance',t:'Lancement',s:'Découvrez la nouveauté'},
+    {a:'Permanent Marker',b:'Karla',m:'brut',t:'Bon plan !',s:'Valable jusqu’à samedi'},
+    {a:'Bodoni Moda',i:1,b:'Lexend',m:'luxe',t:'Édition limitée',s:'Seulement 50 pièces'},
+    {a:'Barlow Condensed',u:1,b:'Barlow',m:'sport',t:'Inscriptions',s:'Rentrée le 2 septembre'},
+    {a:'Fraunces',b:'DM Sans',m:'doux',t:'Bienvenue',s:'On vous attend'},
+    {a:'Space Grotesk',b:'Space Mono',m:'tech',t:'Nouveau service',s:'Réparation en 24 h'},
+    {a:'Dancing Script',b:'Cormorant Garamond',m:'romantique',t:'Saint-Valentin',s:'Le coffret pour deux'},
+    {a:'Chewy',b:'Nunito',m:'enfant',t:'Atelier enfants',s:'Mercredi après-midi'},
+    {a:'Montserrat',u:1,b:'Lora',m:'sobre',t:'Horaires',s:'Du mardi au samedi'},
+    {a:'Satisfy',b:'Raleway',m:'beauté',t:'Prenez soin de vous',s:'Nouveau soin du visage'},
+    {a:'Archivo',u:1,b:'Source Serif 4',m:'éditorial',t:'Le guide',s:'Nos conseils de saison'},
+    {a:'Sora',b:'Inter',m:'net',t:'Rendez-vous',s:'Réservez en ligne'},
+    {a:'Baloo 2',b:'Quicksand',m:'rond',t:'Goûter gratuit',s:'Pour tout achat'},
+    {a:'Kalam',b:'Work Sans',m:'manuscrit',t:'Le mot du chef',s:'Produits frais du marché'},
+    {a:'Anton',u:1,b:'Lora',m:'contraste',t:'Black Friday',s:'Vendredi seulement'},
+    {a:'Playfair Display',b:'Poppins',m:'chic',t:'Vernissage',s:'Jeudi à partir de 18 h'},
+    {a:'Bebas Neue',b:'Montserrat',m:'urbain',t:'Concert',s:'Samedi, place du marché'},
+    {a:'Outfit',u:1,b:'Fraunces',m:'frais',t:'Nouveau menu',s:'De saison, de la région'},
+    {a:'Josefin Sans',u:1,b:'Libre Baskerville',m:'boutique',t:'Arrivage',s:'Les pièces de la semaine'},
+    {a:'Rubik',b:'Karla',m:'amical',t:'On recrute',s:'Rejoignez l’équipe'},
+    {a:'DM Serif Display',i:1,b:'Inter',m:'sérieux',t:'Conseil',s:'Votre bilan offert'},
+    {a:'Oswald',u:1,b:'Quicksand',m:'dynamique',t:'Dernier jour',s:'Profitez-en'},
+    {a:'Cormorant Garamond',b:'Montserrat',m:'mariage',t:'Le grand jour',s:'Fleurs et décoration'},
+    {a:'Lexend',b:'Space Grotesk',m:'clair',t:'Mode d’emploi',s:'En 3 étapes simples'}
+  ];
+  /* Formes décoratives : polygones calculés une fois (cadre 0-100), comme les formes du Studio. */
+  var EDS_DECO=(function(){
+    function pts(a){ return a.map(function(p){ return (+p[0].toFixed(1))+' '+(+p[1].toFixed(1)); }).join(','); }
+    function vague(haut,amp,tours){ var a=[]; for(var i=0;i<=32;i++){ var x=i*100/32; a.push([x,(haut?70:30)+amp*Math.sin(i/32*Math.PI*2*tours)]); }
+      return pts(haut?[[100,0],[0,0]].concat(a):a.concat([[100,100],[0,100]])); }
+    function tache(k){ var a=[]; for(var i=0;i<48;i++){ var t=i/48*Math.PI*2, r=40+7*Math.sin(3*t+k)+4*Math.sin(5*t+k*2)+2*Math.cos(2*t+k*3); a.push([50+r*Math.cos(t),50+r*Math.sin(t)]); } return pts(a); }
+    function arche(){ var a=[[0,100]]; for(var i=0;i<=24;i++){ var t=Math.PI-i/24*Math.PI; a.push([50+50*Math.cos(t),50-50*Math.sin(t)]); } a.push([100,100]); return pts(a); }
+    function quart(){ var a=[[100,100]]; for(var i=0;i<=20;i++){ var t=Math.PI+i/20*Math.PI/2; a.push([100+100*Math.cos(t),100+100*Math.sin(t)]); } return pts(a); }
+    return {
+      'vague-bas':{n:'Vague en bas',poly:vague(false,12,1.5),x:0,y:70,w:100,h:30},
+      'vague-haut':{n:'Vague en haut',poly:vague(true,12,1.5),x:0,y:0,w:100,h:28},
+      'vague-douce':{n:'Vague douce',poly:vague(false,6,1),x:0,y:78,w:100,h:22},
+      'tache-1':{n:'Tache',poly:tache(0.3),x:-12,y:-12,w:58,rond:1},
+      'tache-2':{n:'Tache ronde',poly:tache(1.7),x:58,y:56,w:54,rond:1},
+      'tache-3':{n:'Grande tache',poly:tache(4.1),x:12,y:12,w:76,rond:1},
+      'arche':{n:'Arche',poly:arche(),x:16,y:14,w:68,h:86},
+      'diagonale':{n:'Bande en biais',poly:'0 62,100 30,100 52,0 84',x:0,y:0,w:100,h:100},
+      'quart-cercle':{n:'Quart de cercle',poly:quart(),x:62,y:62,w:38,rond:1},
+      'cadre':{n:'Cadre',poly:'0 0,100 0,100 100,0 100,0 6,6 6,6 94,94 94,94 6,0 6',x:4,y:4,w:92,h:92}
+    };
+  })();
+
+  /* --- polices --- */
+  var edsAsked={};
+  function edsFont(name){
+    var spec=EDS_FONTS[name]; if(!spec||!document.fonts) return Promise.resolve();
+    if(!edsAsked[name]){ edsAsked[name]=1; var l=document.createElement('link'); l.rel='stylesheet'; l.setAttribute('data-eds-font',name);
+      l.href='https://fonts.googleapis.com/css2?family='+spec+'&display=swap'; document.head.appendChild(l); }
+    var w=['500','800'].map(function(g){ return document.fonts.load(g+' 40px "'+name+'"').catch(function(){}); });
+    return Promise.race([Promise.all(w),new Promise(function(r){ setTimeout(r,4000); })]);
+  }
+  /* Un post enregistré avec une de ces polices la recharge à l'ouverture (sur tous les appareils, sinon le texte changerait de police) */
+  function edsFontsWatch(){
+    (ed.layers||[]).forEach(function(l){ if(l&&l.type==='text'&&EDS_FONTS[l.font]&&!edsAsked[l.font]) edsFont(l.font).then(function(){ try{ edRender(); }catch(e){} }); });
+  }
+
+  /* --- couleurs --- */
+  function edsHex2hsl(h){ var m=/^#?([0-9a-f]{6})$/i.exec(h||''); if(!m) return [27,89,56];
+    var r=parseInt(m[1].slice(0,2),16)/255,g=parseInt(m[1].slice(2,4),16)/255,b=parseInt(m[1].slice(4,6),16)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,s=0,hh=0,d=mx-mn;
+    if(d){ s=d/(1-Math.abs(2*l-1)); hh=mx===r?((g-b)/d)%6:mx===g?(b-r)/d+2:(r-g)/d+4; hh*=60; if(hh<0) hh+=360; }
+    return [Math.round(hh),Math.round(s*100),Math.round(l*100)]; }
+  function edsHsl(h,s,l){ h=((h%360)+360)%360; s/=100; l/=100; var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2,r=0,g=0,b=0;
+    if(h<60){r=c;g=x;}else if(h<120){r=x;g=c;}else if(h<180){g=c;b=x;}else if(h<240){g=x;b=c;}else if(h<300){r=x;b=c;}else{r=c;b=x;}
+    return '#'+[r,g,b].map(function(v){ return ('0'+Math.round((v+m)*255).toString(16)).slice(-2); }).join(''); }
+  function edsLum(h){ var m=/^#?([0-9a-f]{6})$/i.exec(h||'')||[0,'ffffff']; return [0,2,4].map(function(i){ var n=parseInt(m[1].slice(i,i+2),16)/255; return n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4); }).reduce(function(a,v,i){ return a+v*[.2126,.7152,.0722][i]; },0); }
+  function edsContraste(a,b){ var x=edsLum(a),y=edsLum(b); return (Math.max(x,y)+.05)/(Math.min(x,y)+.05); }
+  /* Couleur de texte lisible sur le fond (seuil 3:1, pour du grand texte) */
+  function edsLisible(c,bg){ return edsContraste(c,bg)>=3?c:(edsContraste('#201e1d',bg)>=edsContraste('#ffffff',bg)?'#201e1d':'#ffffff'); }
+  function edsBase(){ var c=''; try{ c=(marshallBrandGet()||{}).primary||''; }catch(e){} return /^#[0-9a-f]{6}$/i.test(c)?c:'#F3852B'; }
+  /* bg = fond, ink = titre, acc = texte, deco = forme */
+  function edsPalettes(){
+    var base=edsBase(), h=edsHex2hsl(base), H=h[0], S=Math.max(h[1],45);
+    var marque=[
+      {n:'Douce',bg:edsHsl(H,S,96),ink:edsHsl(H,S,20),acc:base,deco:base},
+      {n:'Franche',bg:base,ink:'#ffffff',acc:edsHsl(H,S,94),deco:edsHsl(H,S,28)},
+      {n:'Opposée',bg:edsHsl(H+180,30,95),ink:edsHsl(H+180,S,22),acc:base,deco:base},
+      {n:'Trio',bg:'#ffffff',ink:edsHsl(H+120,S,26),acc:base,deco:edsHsl(H+240,S,62)},
+      {n:'Nuit',bg:edsHsl(H,30,10),ink:base,acc:'#ffffff',deco:edsHsl(H,S,32)},
+      {n:'Voisine',bg:edsHsl(H+30,S,92),ink:edsHsl(H-30,S,24),acc:base,deco:edsHsl(H+30,S,62)}
+    ];
+    var ambiances=[
+      {n:'Naturel',bg:'#ede0d4',ink:'#5e3b23',acc:'#7f5539',deco:'#b08968'},
+      {n:'Pastel',bg:'#fff5fa',ink:'#5a4b7a',acc:'#c06c95',deco:'#ffafcc'},
+      {n:'Forêt',bg:'#f4f1de',ink:'#0b3d2e',acc:'#e07a5f',deco:'#88b04b'},
+      {n:'Océan',bg:'#eaf6fb',ink:'#073b4c',acc:'#118ab2',deco:'#6EC1F0'},
+      {n:'Noir et or',bg:'#141414',ink:'#e9c46a',acc:'#ffffff',deco:'#b08d3b'},
+      {n:'Vintage',bg:'#fdf0d5',ink:'#780000',acc:'#003049',deco:'#c1121f'}
+    ];
+    return { marque:marque, ambiances:ambiances, toutes:marque.concat(ambiances) };
+  }
+
+  /* --- appliquer au post ouvert --- */
+  function edsTextes(){ var t=(ed.layers||[]).filter(function(l){ return l.type==='text'; }); t.sort(function(a,b){ return (b.size||0)-(a.size||0); }); return t; }
+  function edsAjouterDuo(d,pal){
+    var sc=edW()/540, ids=[], ink=pal?edsLisible(pal.ink,pal.bg):'#201e1d', acc=pal?edsLisible(pal.acc,pal.bg):'#201e1d';
+    [[{text:d.t,font:d.a,upper:!!d.u,italic:!!d.i,size:d.u?90:80},34,ink],[{text:d.s,font:d.b,size:30},58,acc]].forEach(function(p){ var o=p[0]; ed.seq++; var id='t'+ed.seq; ids.push(id);
+      ed.layers.push({ id:id, type:'text', text:o.text, x:8, y:p[1], w:84, size:Math.round(o.size*0.6*sc), color:p[2], font:o.font, bold:true,
+        italic:!!o.italic, under:false, upper:!!o.upper, align:'center', ls:+(((o.upper?3:0))*sc).toFixed(1), lh:1.1, bgc:'none', rot:0, op:100 }); });
+    ed.sel=ids[0];
+  }
+  function edsPoserDuo(d){
+    var t=edsTextes(); if(!t.length){ edsAjouterDuo(d); return; }
+    t.forEach(function(l,i){ l.font=i?d.b:d.a; if(!i){ l.upper=!!d.u; l.italic=!!d.i; l.ls=+(((d.u?3:0))*(edW()/540)).toFixed(1); } else { l.upper=false; l.italic=false; } });
+  }
+  function edsPoserPalette(p){
+    ed.bg=p.bg;
+    edsTextes().forEach(function(l,i){ l.color=edsLisible(i?p.acc:p.ink,p.bg); });
+    (ed.layers||[]).forEach(function(l){ if(l.type==='shape'&&(l.deco||l.mix)) l.fill=p.deco; });
+  }
+  function edsDecoCalque(k,fill,mix){
+    var f=EDS_DECO[k]; if(!f) return null; ed.seq++;
+    var h=f.rond?f.w*edW()/edH():f.h;
+    var l={ id:'s'+ed.seq, type:'shape', shape:k, poly:f.poly, x:f.x, y:f.y, w:f.w, h:h, fill:fill||edsBase(), stroke:'none', sw:0, rad:0, rot:0, op:100, deco:true };
+    if(mix) l.mix=true;
+    // Sous les textes, au-dessus d'une photo de fond qui couvre la page
+    var at=0; (ed.layers||[]).forEach(function(x,i){ if(x.type==='image'&&(x.w||0)>=90) at=i+1; });
+    ed.layers.splice(at,0,l); return l;
+  }
+  function edsFin(){ edApplyFmt(); edRender(); edSnap(); }
+  async function edsDuo(i,ajout){ var d=EDS_DUOS[i]; if(!d) return; await Promise.all([edsFont(d.a),edsFont(d.b)]); if(ajout) edsAjouterDuo(d); else edsPoserDuo(d); edsFin(); }
+
+  /* --- C : Mélanger le style (historique gardé en mémoire de la page seulement) --- */
+  var edsMix={ garde:{polices:false,couleurs:false,forme:false}, hist:[], pos:-1, duo:-1, pal:-1, deco:'' };
+  function edsEtat(){ return JSON.stringify({ bg:ed.bg, layers:ed.layers.map(function(l){ var c={}; for(var k in l){ if(k==='_img'||k==='_rmbgBusy') continue; if(k==='url'&&l.type==='image') continue; c[k]=l[k]; } return c; }) }); }
+  function edsRevenir(s){ var o=JSON.parse(s); ed.bg=o.bg; ed.layers=o.layers.map(function(l){ if(l.type==='image'){ l.url=ED_SRC[l.id]||l.url; var im=new Image(); im.src=l.url; l._img=im; } return l; }); ed.sel=null; edsFin(); }
+  function edsHasard(n,sauf){ if(n<2) return 0; var r; do{ r=Math.floor(Math.random()*n); }while(r===sauf); return r; }
+  async function edsMelanger(){
+    var pals=edsPalettes().toutes, keys=Object.keys(EDS_DECO), g=edsMix.garde, textes=edsTextes().length;
+    if(edsMix.pos<0||edsMix.hist[edsMix.pos]!==edsEtat()){ edsMix.hist=edsMix.hist.slice(0,edsMix.pos+1); edsMix.hist.push(edsEtat()); edsMix.pos=edsMix.hist.length-1; }
+    // « Garder » conserve ce qui est affiché sur le post (même après un retour en arrière)
+    var garderPolices=g.polices&&textes, ancienne=(ed.layers||[]).filter(function(l){ return l.mix; })[0], garderForme=g.forme&&ancienne;
+    if(!garderPolices) edsMix.duo=edsHasard(EDS_DUOS.length,edsMix.duo);
+    if(!g.couleurs||edsMix.pal<0) edsMix.pal=edsHasard(pals.length,edsMix.pal);
+    var d=EDS_DUOS[edsMix.duo<0?0:edsMix.duo], p=pals[edsMix.pal];
+    if(!garderPolices){ await Promise.all([edsFont(d.a),edsFont(d.b)]); if(!textes) edsAjouterDuo(d,p); else edsPoserDuo(d); }
+    if(!garderForme){
+      edsMix.deco=keys[edsHasard(keys.length,keys.indexOf(ancienne?ancienne.shape:edsMix.deco))];
+      ed.layers=ed.layers.filter(function(l){ return !l.mix; }); edsDecoCalque(edsMix.deco,ancienne?ancienne.fill:p.deco,true);
+    }
+    if(!g.couleurs) edsPoserPalette(p);
+    else if(!textes) edsTextes().forEach(function(l,i){ l.color=edsLisible(i?p.acc:p.ink,ed.bg); });
+    edsFin();
+    edsMix.hist=edsMix.hist.slice(0,edsMix.pos+1); edsMix.hist.push(edsEtat()); edsMix.pos=edsMix.hist.length-1; edsMixMaj();
+  }
+  function edsMixPas(k){ var i=edsMix.pos+k; if(i<0||i>=edsMix.hist.length) return; edsMix.pos=i; edsRevenir(edsMix.hist[i]); edsMixMaj(); }
+  function edsMixMaj(){ var b=$('#eds-mix'); if(!b) return; var n=edsMix.hist.length;
+    b.querySelector('[data-eds-pas="-1"]').disabled=edsMix.pos<=0; b.querySelector('[data-eds-pas="1"]').disabled=edsMix.pos>=n-1;
+    b.querySelector('.eds-n').textContent=n>1?(edsMix.pos+1)+' / '+n:'';
+    $all('#eds-mix [data-eds-garde]').forEach(function(x){ var on=edsMix.garde[x.getAttribute('data-eds-garde')]; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on?'true':'false'); }); }
+
+  /* --- contenus des panneaux --- */
+  // !important : une règle des panneaux impose sa propre police aux boutons
+  function edsDuoBtn(d,i){ return '<button type="button" class="eds-duo" data-eds-duo="'+i+'"><b style="font-family:\''+d.a+'\'!important;'+(d.i?'font-style:italic!important;':'')+(d.u?'text-transform:uppercase;letter-spacing:.04em;':'')+'">'+esc(d.t)+'</b><span style="font-family:\''+d.b+'\'!important">'+esc(d.s)+'</span><small>'+esc(d.a)+' + '+esc(d.b)+' · '+esc(d.m)+'</small></button>'; }
+  /* Aperçus : une seule feuille Google Fonts pour toutes les polices des duos, demandée à la première ouverture de la liste
+     (le navigateur ne télécharge que les polices réellement affichées) */
+  function edsApercus(){ if(edsApercus.ok) return; edsApercus.ok=1; var l=document.createElement('link'); l.rel='stylesheet'; l.setAttribute('data-eds-font','apercus');
+    l.href='https://fonts.googleapis.com/css2?'+Object.keys(EDS_FONTS).map(function(n){ edsAsked[n]=1; return 'family='+EDS_FONTS[n]; }).join('&')+'&display=swap'; document.head.appendChild(l); }
+  function edsDuosHtml(){ edsApercus(); return '<div class="eds-duos">'+EDS_DUOS.map(edsDuoBtn).join('')+'</div>'; }
+  function edsPalBtn(p,i){ return '<button type="button" class="eds-pal" data-eds-pal="'+i+'" title="'+esc(p.n)+'"><i style="background:'+p.bg+'"></i><i style="background:'+p.ink+'"></i><i style="background:'+p.acc+'"></i><i style="background:'+p.deco+'"></i><span>'+esc(p.n)+'</span></button>'; }
+  function edsPalsHtml(){ var P=edsPalettes(); return '<div class="ed-sec">À partir de votre couleur</div>'+P.marque.map(edsPalBtn).join('')+'<div class="ed-sec">Ambiances</div>'+P.ambiances.map(function(p,i){ return edsPalBtn(p,i+P.marque.length); }).join(''); }
+  function edsDecoThumb(k){ return '<svg viewBox="0 0 24 24"><polygon points="'+EDS_DECO[k].poly.split(',').map(function(pt){ var a=pt.trim().split(/\s+/); return (1.5+Math.min(100,Math.max(0,+a[0]))*0.21)+','+(1.5+Math.min(100,Math.max(0,+a[1]))*0.21); }).join(' ')+'" fill="currentColor"/></svg>'; }
+  function edsDecoHtml(match){ var k=Object.keys(EDS_DECO).filter(function(x){ return !match||match(x)||match(EDS_DECO[x].n); }); if(!k.length) return '';
+    return '<div class="ed-sec">Formes décoratives</div><div class="ed-grid">'+k.map(function(x){ return '<div class="ed-cell eds-deco" data-eds-deco="'+x+'" title="'+esc(EDS_DECO[x].n)+'">'+edsDecoThumb(x)+'</div>'; }).join('')+'</div>'; }
+  function edsBrancher(box,ajoutDuo){
+    $all('[data-eds-duo]',box).forEach(function(b){ b.addEventListener('click', function(){ edsDuo(+b.getAttribute('data-eds-duo'),ajoutDuo); if(ajoutDuo) edFlyAutoClose(); }); });
+    $all('[data-eds-pal]',box).forEach(function(b){ b.addEventListener('click', function(){ edsPoserPalette(edsPalettes().toutes[+b.getAttribute('data-eds-pal')]); edsFin(); }); });
+    $all('[data-eds-deco]',box).forEach(function(b){ b.addEventListener('click', function(){ var l=edsDecoCalque(b.getAttribute('data-eds-deco')); if(l) ed.sel=l.id; edsFin(); edFlyAutoClose(); }); });
+  }
+  /* B : panneau « Style » */
+  function edsPanneau(body,title,onglet){
+    title.textContent='Style'; onglet=onglet||edsPanneau.onglet||'polices'; edsPanneau.onglet=onglet;
+    var aide={polices:'Un clic change les polices du post ouvert.',couleurs:'Un clic change le fond et les couleurs des textes.',formes:'Un clic ajoute la forme sous vos textes.'}[onglet];
+    body.innerHTML='<div class="eds-onglets" role="tablist">'+[['polices','Polices'],['couleurs','Couleurs'],['formes','Formes']].map(function(o){ return '<button type="button" role="tab" data-eds-o="'+o[0]+'" aria-selected="'+(o[0]===onglet)+'"'+(o[0]===onglet?' class="on"':'')+'>'+o[1]+'</button>'; }).join('')+'</div>'+
+      '<p class="eds-aide">'+aide+'</p>'+(onglet==='polices'?edsDuosHtml():onglet==='couleurs'?edsPalsHtml():edsDecoHtml());
+    $all('[data-eds-o]',body).forEach(function(b){ b.addEventListener('click', function(){ edsPanneau(body,title,b.getAttribute('data-eds-o')); }); });
+    edsBrancher(body,false);
+  }
+
+  /* --- mise en place (ordinateur seulement) --- */
+  (function edsInit(){
+    if(!EDS_DESK) return;
+    var css=document.createElement('style'); css.textContent=
+      '.eds-duos{display:grid;gap:8px}.eds-duo{display:block;width:100%;text-align:left;border:1.5px solid #eee5dc;background:#fff;border-radius:12px;padding:9px 11px;cursor:pointer;color:#201e1d;font:inherit}'+
+      '.eds-duo:hover,.eds-duo:focus-visible{border-color:#F3852B;background:#fff8f1}.eds-duo b{display:block;font-size:21px;line-height:1.05;font-weight:800}.eds-duo span{display:block;font-size:12.5px;margin-top:3px;font-weight:500}.eds-duo small{display:block;font:600 10.5px Inter,sans-serif;color:#6b5f55;margin-top:5px}'+
+      '.eds-pal{display:flex;align-items:center;width:100%;border:1.5px solid #eee5dc;background:#fff;border-radius:10px;padding:4px;margin-bottom:6px;cursor:pointer;gap:0}.eds-pal:hover,.eds-pal:focus-visible{border-color:#F3852B}'+
+      '.eds-pal i{flex:1;height:24px}.eds-pal i:first-child{border-radius:7px 0 0 7px}.eds-pal i:nth-child(4){border-radius:0 7px 7px 0}.eds-pal span{flex:0 0 74px;font:600 11.5px Inter,sans-serif;color:#4c382b;padding-left:8px;text-align:left}'+
+      '.eds-onglets{display:flex;gap:6px;margin-bottom:8px}.eds-onglets button{border:0;border-radius:999px;background:#f3efea;color:#4c382b;font:600 12.5px Inter,sans-serif;padding:6px 12px;cursor:pointer}.eds-onglets button.on{background:#F3852B;color:#fff}'+
+      '.eds-aide{font:500 12px Inter,sans-serif;color:#6b5f55;margin:0 0 10px}'+
+      '.eds-mix{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:4px auto 10px;font-family:Inter,sans-serif}'+
+      '.eds-mix .eds-go{border:0;border-radius:999px;background:linear-gradient(180deg,#ff9b45,#F3852B);color:#fff;font:700 13px Inter,sans-serif;padding:8px 16px;cursor:pointer;box-shadow:0 2px 0 #c25f12;white-space:nowrap}'+
+      '.eds-mix .eds-go:hover{filter:brightness(1.05)}.eds-mix .eds-go:active{transform:translateY(1px);box-shadow:0 1px 0 #c25f12}'+
+      '.eds-mix [data-eds-pas]{width:32px;height:32px;border-radius:50%;border:0;background:#fff;color:#4c382b;font-size:17px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1)}.eds-mix [data-eds-pas]:disabled{opacity:.4;cursor:default}'+
+      '.eds-mix .eds-n{font:600 11px Inter,sans-serif;color:#4c382b;min-width:30px}'+
+      '.eds-mix [data-eds-garde]{border:0;border-radius:999px;background:#fff;color:#4c382b;font:600 11.5px Inter,sans-serif;padding:6px 10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);white-space:nowrap}.eds-mix [data-eds-garde].on{background:#4c382b;color:#fff}';
+    document.head.appendChild(css);
+    // B : bouton « Style » entre Fond et Calques (avant que la colonne branche ses clics)
+    var fond=document.querySelector('.ed-rail [data-fly="bg"]');
+    if(fond){ var b=document.createElement('button'); b.type='button'; b.className='ed-tool'; b.setAttribute('data-fly','style');
+      b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/><path d="M19 15c1.2 1.4 2 2.6 2 3.6a2 2 0 0 1-4 0c0-1 .8-2.2 2-3.6z"/></svg><span>Style</span>';
+      fond.insertAdjacentElement('afterend',b); }
+    // C : barre « Mélanger le style » au-dessus du post
+    var st=document.getElementById('ed-stage');
+    if(st){ var m=document.createElement('div'); m.className='eds-mix'; m.id='eds-mix';
+      m.innerHTML='<button type="button" data-eds-pas="-1" aria-label="Style précédent" title="Style précédent" disabled>‹</button><button type="button" class="eds-go" title="Change d’un coup les polices, les couleurs et une forme">🎲 Mélanger le style</button><button type="button" data-eds-pas="1" aria-label="Style suivant" title="Style suivant" disabled>›</button><span class="eds-n" aria-live="polite"></span>'+
+        '<button type="button" data-eds-garde="polices" aria-pressed="false" title="Garder les polices au prochain mélange">🔒 Polices</button><button type="button" data-eds-garde="couleurs" aria-pressed="false" title="Garder les couleurs au prochain mélange">🔒 Couleurs</button><button type="button" data-eds-garde="forme" aria-pressed="false" title="Garder la forme au prochain mélange">🔒 Forme</button>';
+      st.parentNode.insertBefore(m,st);
+      m.querySelector('.eds-go').addEventListener('click', function(){ edsMelanger(); });
+      $all('[data-eds-pas]',m).forEach(function(x){ x.addEventListener('click', function(){ edsMixPas(+x.getAttribute('data-eds-pas')); }); });
+      $all('[data-eds-garde]',m).forEach(function(x){ x.addEventListener('click', function(){ var k=x.getAttribute('data-eds-garde'); edsMix.garde[k]=!edsMix.garde[k]; edsMixMaj(); }); }); }
+    // Les nouvelles polices apparaissent aussi dans la liste des polices du texte sélectionné
+    var sel=document.getElementById('ed-t-font');
+    if(sel){ var g=document.createElement('optgroup'); g.label='Polices des duos';
+      Object.keys(EDS_FONTS).sort().forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; g.appendChild(o); });
+      sel.appendChild(g);
+      sel.addEventListener('change', function(){ if(EDS_FONTS[sel.value]) edsFont(sel.value).then(function(){ try{ edRender(); }catch(e){} }); }); }
+  })();
   function edAddText(preset){
     ed.seq++;
     var p=preset||{};
@@ -8720,13 +8981,16 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         corps:{ text:'Votre paragraphe de texte.', size:22, bold:false }, caps:{ text:'Intertitre', size:20, upper:true, ls:3 } };
       $all('#ed-fly-body [data-p]').forEach(function(b){ b.addEventListener('click', function(){ edAddText(PR[b.getAttribute('data-p')]); edFlyAutoClose(); }); });
       $all('#ed-fly-body [data-combo]').forEach(function(b){ b.addEventListener('click', function(){ edAddCombo(ED_TEXT_COMBOS[Number(b.getAttribute('data-combo'))]); edFlyAutoClose(); }); });
+      if(EDS_DESK){ var _cb=body.querySelector('.tx-combos'); if(_cb){ var _sec=_cb.previousElementSibling; if(_sec) _sec.textContent='Duos de polices (40)'; _cb.outerHTML=edsDuosHtml(); edsBrancher(body,true); } }
     }
     if(kind==='bg'){
       title.textContent='Fond de la page';
       body.innerHTML='<div class="ed-sec">Couleur</div><div class="ed-swatches" id="ed-bg-sw">'+swatchRow('bg', ed.bg, false)+'</div>';
       $all('#ed-bg-sw .ed-sw').forEach(function(s){ s.addEventListener('click', function(){
         ed.bg=s.getAttribute('data-bg'); edApplyFmt(); edSnap(); edFlyAutoClose(); }); });
+      if(EDS_DESK){ body.insertAdjacentHTML('beforeend','<div class="ed-sec">Palettes (fond + textes)</div>'+edsPalsHtml().replace(/^<div class="ed-sec">À partir de votre couleur<\/div>/,'')); edsBrancher(body,false); }
     }
+    if(kind==='style'&&EDS_DESK){ edsPanneau(body,title); }
     if(kind==='layers'){
       title.textContent='Calques';
       if(!ed.layers.length){ body.innerHTML='<div class="ed-sec">Aucun élément</div>'; return; }
