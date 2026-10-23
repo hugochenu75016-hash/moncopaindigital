@@ -735,7 +735,9 @@
     f.addEventListener('click', function (e) { if (e.target === f) fermer(); });
     liste(); $('#at-pal-q').focus();
   }
+  function studioOuvert() { var a = document.getElementById('app'); return !!(a && a.classList.contains('show')); }
   document.addEventListener('keydown', function (e) {
+    if (!studioOuvert()) return;
     var k = String(e.key).toLowerCase();
     if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && k === 'j') { e.preventDefault(); palette(); return; }
     if (e.altKey && !e.ctrlKey && !e.metaKey) {
@@ -752,11 +754,12 @@
   /* 10 · Rappel « rien de prévu demain » (une fois par jour)               */
   /* ====================================================================== */
   function rappel() {
+    if (!studioOuvert()) { setTimeout(rappel, 3000); return; }
     var auj = cle(new Date()); if (memo.lire('rappel', '') === auj) return;
     lirePosts().then(function (posts) {
       if (!posts.length) return;   // compte tout neuf : pas de rappel
       var dem = plus(new Date(new Date().setHours(0, 0, 0, 0)), 1), apres = plus(dem, 1);
-      var prevu = posts.some(function (p) { return p.scheduled_at && new Date(p.scheduled_at) >= dem && new Date(p.scheduled_at) < apres; });
+      var prevu = posts.some(function (p) { return estCompte(p) && p.scheduled_at && new Date(p.scheduled_at) >= dem && new Date(p.scheduled_at) < apres; });
       if (prevu) return;
       var tf = aVenir(10)[0];
       var r = document.createElement('div'); r.className = 'at-rappel'; r.setAttribute('role', 'status');
@@ -1098,6 +1101,7 @@
   var minuterieSecours = 0;
   function garderSecours() { clearTimeout(minuterieSecours); minuterieSecours = setTimeout(function () { var t = lireLegende(); if (t.trim().length > 20) memo.ecrire('secours', { texte: t, quand: Date.now() }); }, 1500); }
   function proposerSecours() {
+    if (!studioOuvert()) { setTimeout(proposerSecours, 3000); return; }
     var s2 = memo.lire('secours', null); if (!s2 || !s2.texte || Date.now() - s2.quand > 3 * 864e5 || lireLegende().trim()) return;
     lirePosts().then(function (posts) {
       if (posts.some(function (p) { return (p.caption || '').trim() === s2.texte.trim(); })) return;
@@ -1289,6 +1293,12 @@
     // L'application peut reconstruire le composeur : on se rebranche si besoin
     new MutationObserver(function () { if (legende() && !$('#at-barre')) { barreLegende(); chipAdapter(); } if (champ('tags') && !$('#at-tags')) barreHashtags(); }).observe(document.body, { childList: true, subtree: true });
     // Le bouton de l'Atelier n'apparaît que dans les outils, pas sur l'accueil (cartes Studio / Message / Rapports)
-    setInterval(function () { var h = $('#hub'), l = $('#at-lanceur'); if (h && l) l.hidden = !!(h.offsetParent || getComputedStyle(h).display !== 'none' && h.getBoundingClientRect().height > 0); }, 700);
+    // L'Atelier n'existe que dans l'application Studio ouverte : ni sur l'écran de connexion, ni sur l'accueil (cartes), ni dans Rapports / Message Social
+    setInterval(function () {
+      var l = $('#at-lanceur'), ok = studioOuvert(); if (!l) return;
+      l.hidden = !ok;
+      if (!ok) { if ($('#at-panneau.on')) ouvrir(false); fermerPop(); }
+      $$('.at-rappel').forEach(function (r) { r.style.display = ok ? '' : 'none'; });
+    }, 700);
   })();
 })();
