@@ -295,9 +295,18 @@
     p.style.top = (r.bottom + scrollY + 6) + 'px';
     setTimeout(function () { document.addEventListener('click', fermerPop, { once: true }); }, 0);
     p.addEventListener('click', function (e) { e.stopPropagation(); });
+    popover.bouton = bouton; p.setAttribute('role', 'dialog');
+    setTimeout(function () { var f = p.querySelector('input, textarea, select, button'); if (f && document.activeElement === bouton) f.focus({ preventScroll: true }); }, 0);
     return p;
   }
   function fermerPop() { $$('.at-pop').forEach(function (p) { p.remove(); }); }
+  // Clavier et défilement : Échap ferme le menu et rend la main au bouton ; un défilement de la page le referme (il ne suivrait pas).
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var p = $('.at-pop'); if (!p) return;
+    e.stopPropagation(); var b = popover.bouton; fermerPop(); if (b && document.contains(b)) b.focus({ preventScroll: true });
+  }, true);
+  document.addEventListener('scroll', function (e) { var p = $('.at-pop'); if (p && !(e.target.nodeType === 1 && p.contains(e.target))) fermerPop(); }, true);
 
   function barreLegende() {
     var c = legende(); if (!c || $('#at-barre')) return;
@@ -465,10 +474,10 @@
   var onglet = memo.lire('onglet', 'ecrire');
   function panneau() {
     if ($('#at-panneau')) return;
-    var l = document.createElement('button'); l.type = 'button'; l.className = 'at-lanceur'; l.id = 'at-lanceur'; l.title = 'Atelier de Marshall (Ctrl + J pour les commandes)';
+    var l = document.createElement('button'); l.type = 'button'; l.className = 'at-lanceur'; l.id = 'at-lanceur'; l.setAttribute('aria-expanded', 'false'); l.setAttribute('aria-controls', 'at-panneau'); l.title = 'Atelier de Marshall (Ctrl + J pour les commandes)';
     l.innerHTML = '<img src="images/avatarchatbot.png" alt=""><span class="at-nom-l">Atelier</span><span class="at-obj" id="at-obj" hidden></span><span class="at-pastille" id="at-pastille" hidden></span>';
     document.body.appendChild(l);
-    var p = document.createElement('aside'); p.className = 'at-panneau'; p.id = 'at-panneau'; p.setAttribute('aria-label', 'Atelier de Marshall'); p.setAttribute('aria-hidden', 'true');
+    var p = document.createElement('aside'); p.className = 'at-panneau'; p.id = 'at-panneau'; p.setAttribute('aria-label', 'Atelier de Marshall'); p.setAttribute('aria-hidden', 'true'); p.setAttribute('inert', '');
     p.innerHTML = '<div class="at-tete"><img src="images/avatarchatbot.png" alt=""><div><h2>Atelier de Marshall</h2><p>Des outils pour écrire, planifier et t’organiser.</p></div><button type="button" class="at-fermer" id="at-fermer" aria-label="Fermer">×</button></div>' +
       '<div class="at-onglets" role="tablist"><button data-o="ecrire" role="tab">Écrire</button><button data-o="planifier" role="tab">Planifier</button><button data-o="organiser" role="tab">Organiser</button></div>' +
       '<div class="at-corps" id="at-corps"></div>';
@@ -481,8 +490,17 @@
   function ouvrir(oui, ong) {
     var p = $('#at-panneau'); if (!p) return;
     if (ong) { onglet = ong; memo.ecrire('onglet', ong); }
+    var etaitOuvert = p.classList.contains('on'), l = $('#at-lanceur');
     p.classList.toggle('on', oui); p.setAttribute('aria-hidden', oui ? 'false' : 'true');
-    if (oui) rendre();
+    if (oui) p.removeAttribute('inert'); else p.setAttribute('inert', '');   // fermé : rien n'y est atteignable au clavier
+    if (l) l.setAttribute('aria-expanded', oui ? 'true' : 'false');
+    if (oui) {
+      rendre();
+      if (!etaitOuvert) { ouvrir.retour = document.activeElement; var o = $('.at-onglets button.on', p); if (o) o.focus({ preventScroll: true }); }
+    } else if (etaitOuvert) {
+      var r = ouvrir.retour; ouvrir.retour = null;
+      if (r && document.contains(r) && r.offsetParent && !p.contains(r)) r.focus({ preventScroll: true }); else if (l && !l.hidden) l.focus({ preventScroll: true });
+    }
   }
   function rendre() {
     $$('.at-onglets button').forEach(function (b) { b.classList.toggle('on', b.dataset.o === onglet); b.setAttribute('aria-selected', b.dataset.o === onglet); });
