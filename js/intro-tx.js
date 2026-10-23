@@ -2,10 +2,15 @@
    puis le rideau s'ouvre par le bas en arrondi, directement sur la page.
    Remplace le dessin des anciennes portes : chaque page garde sa propre logique et pilote #door-tx
    avec les classes loading (écran de chargement), opening (ouverture) et closing (départ vers une autre page).
-   À placer juste après <div id="door-tx">. Sans dépendance. */
+   À placer juste après <div id="door-tx">. Sans dépendance.
+   Avec data-auto sur le div, le script gère tout seul l'attente du chargement, les liens et le retour arrière
+   (pour les pages qui n'avaient pas de portes). */
 (function(){
   var ov=document.getElementById('door-tx');
   if(!ov || ov.__intro) return; ov.__intro=true;
+  var auto=ov.hasAttribute('data-auto');
+  /* Page affichée dans une autre page (cadre) : pas d'intro. */
+  if(auto && window.self !== window.top){ ov.parentNode.removeChild(ov); return; }
   var reduce=!!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   if(!document.getElementById('intro-tx-css')){
@@ -138,4 +143,50 @@
   else if(e0.opening) ouvrir();
   avant=e0;
   if(window.MutationObserver) new MutationObserver(suivre).observe(ov, { attributes:true, attributeFilter:['class'] });
+
+  if(!auto) return;
+  /* ---------- Mode autonome ---------- */
+  var ouverte=false;
+  function lancer(){
+    if(ouverte) return; ouverte=true;
+    ov.classList.remove('loading'); ov.classList.add('opening');
+    window.__doorsOpen=true;
+    document.dispatchEvent(new Event('mcd-doors-open'));
+  }
+  function charge(){
+    var fr=(document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    fr.then(lancer, lancer);
+  }
+  if(document.readyState==='complete') charge(); else window.addEventListener('load', charge, { once:true });
+  setTimeout(lancer, 2500);
+  /* Si on touche ou fait défiler pendant le chargement, le rideau s'ouvre aussitôt. */
+  ['touchstart','wheel','keydown'].forEach(function(ev){ window.addEventListener(ev, lancer, { once:true, passive:true }); });
+
+  function interne(a){
+    if(!a) return false;
+    if(a.target && a.target!=='_self') return false;
+    if(a.hasAttribute('download')) return false;
+    var href=a.getAttribute('href')||'';
+    if(!href || href.charAt(0)==='#') return false;
+    if(/^(mailto:|tel:|javascript:)/i.test(href)) return false;
+    var url; try{ url=new URL(a.href, location.href); }catch(err){ return false; }
+    if(url.origin!==location.origin) return false;
+    if(url.pathname===location.pathname && url.search===location.search && url.hash) return false;
+    return true;
+  }
+  function go(dest){
+    if(ov.classList.contains('closing')) return;
+    ov.classList.remove('opening'); ov.classList.add('closing');
+    setTimeout(function(){ window.location.href=dest; }, 650);
+  }
+  if(!window.mcdGo) window.mcdGo=go;
+  document.addEventListener('click', function(e){
+    if(e.defaultPrevented) return;
+    if(e.button!==0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a=e.target.closest ? e.target.closest('a[href]') : null;
+    if(!interne(a)) return;
+    e.preventDefault();
+    go(a.href);
+  }, true);
+  window.addEventListener('pageshow', function(ev){ if(ev.persisted) ov.classList.remove('closing'); });
 })();
