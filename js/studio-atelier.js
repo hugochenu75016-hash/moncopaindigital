@@ -266,8 +266,8 @@
     if (propre.length > place) {
       var phrases = propre.match(/[^.!?…\n]+[.!?…]*\s*/g) || [propre], out = '';
       for (var i = 0; i < phrases.length; i++) { if ((out + phrases[i]).trim().length > place - 1) break; out += phrases[i]; }
-      propre = (out.trim() || propre.slice(0, place - 1)).trim();
-      if (propre.length > place) propre = propre.slice(0, place - 1) + '…';
+      propre = (out.trim() || Array.from(propre).slice(0, place - 1).join('')).trim();
+      if (propre.length > place) propre = Array.from(propre).slice(0, place - 1).join('') + '…';
     }
     return (propre + (tg ? '\n' + tg : '')).trim();
   }
@@ -378,7 +378,7 @@
       (longues ? '<span class="at-alerte">' + longues + ' phrase' + (longues > 1 ? 's' : '') + ' de plus de 25 mots : à couper</span>' : '<span>phrases courtes ✓</span>') : '';
     var acc = $('#at-accroche');
     if (t.trim().length > 60) {
-      var vis = t.slice(0, 125), coupe = t.length > 125;
+      var car = Array.from(t), vis = car.slice(0, 125).join(''), coupe = car.length > 125;
       acc.innerHTML = '<small>Ce qu’on voit avant « … plus » sur Instagram</small>';
       acc.appendChild(document.createTextNode(vis.split('\n').slice(0, 2).join('\n')));
       if (coupe || t.split('\n').length > 2) acc.insertAdjacentHTML('beforeend', '<i> … plus</i>');
@@ -604,10 +604,10 @@
     var idees = memo.lire('idees', []);
     var k1 = carte(c, '💡 Boîte à idées', idees.length + ' idée' + (idees.length > 1 ? 's' : ''));
     k1.insertAdjacentHTML('beforeend', '<div class="at-ligne"><input id="at-idee" placeholder="Une idée de post en passant…" maxlength="300"><button class="at-btn" id="at-idee-ok">Garder</button></div>' +
-      (idees.length ? '<div class="at-liste">' + idees.map(function (x, i) { return '<div class="at-item"><small style="color:#3b2a1c">' + esc(x.texte) + '</small><div class="at-actions"><button class="at-btn" data-i="p' + i + '">En faire un post</button><button class="at-btn clair" data-i="s' + i + '">Fait</button></div></div>'; }).join('') + '</div>' : '<p>Note ici tes idées dès qu’elles te viennent, Marshall les garde au chaud.</p>'));
+      (idees.length ? '<div class="at-liste">' + idees.map(function (x, i) { return '<div class="at-item' + (x.prio ? ' at-prio' : '') + '"><small style="color:#3b2a1c"><button type="button" class="at-etoile" data-i="e' + i + '" title="' + (x.prio ? 'Retirer des prioritaires' : 'Prioritaire : passe en haut de la liste') + '" aria-pressed="' + !!x.prio + '">' + (x.prio ? '★' : '☆') + '</button> ' + esc(x.texte) + '</small><div class="at-actions"><button class="at-btn" data-i="p' + i + '">En faire un post</button><button class="at-btn clair" data-i="s' + i + '">Fait</button></div></div>'; }).join('') + '</div>' : '<p>Note ici tes idées dès qu’elles te viennent, Marshall les garde au chaud.</p>'));
     $('#at-idee-ok').addEventListener('click', function () { var v = $('#at-idee').value.trim(); if (!v) return; idees.unshift({ texte: v, quand: Date.now() }); memo.ecrire('idees', idees.slice(0, 100)); rendre(); });
     $('#at-idee').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('#at-idee-ok').click(); });
-    k1.addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i.slice(1); if (b.dataset.i[0] === 'p') { var t = idees[i].texte; ouvrirComposeur(); setTimeout(function () { ecrireLegende((lireLegende() ? lireLegende() + '\n\n' : '') + t); }, 250); ouvrir(false); } idees.splice(i, 1); memo.ecrire('idees', idees); if (b.dataset.i[0] === 's') rendre(); });
+    k1.addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i.slice(1); if (b.dataset.i[0] === 'e') { idees[i].prio = !idees[i].prio; idees.sort(function (x, y) { return (y.prio ? 1 : 0) - (x.prio ? 1 : 0); }); memo.ecrire('idees', idees); rendre(); return; } if (b.dataset.i[0] === 'p') { var t = idees[i].texte; ouvrirComposeur(); setTimeout(function () { ecrireLegende((lireLegende() ? lireLegende() + '\n\n' : '') + t); }, 250); ouvrir(false); } idees.splice(i, 1); memo.ecrire('idees', idees); if (b.dataset.i[0] === 's') rendre(); });
 
     // Recherche dans mes publications
     var k2 = carte(c, '🔎 Rechercher dans mes publications', '');
@@ -624,7 +624,7 @@
 
     // Raccourcis
     var k3 = carte(c, '⌨️ Raccourcis clavier', '');
-    k3.insertAdjacentHTML('beforeend', '<table class="at-table"><tbody>' + [['Ctrl + J', 'Palette de commandes'], ['Alt + 1 à 6', 'Composer, Calendrier, Historique, Brouillons, Pilote, Automatisations'], ['Alt + A', 'Ouvrir / fermer l’Atelier'], ['Alt + Z', 'Mode concentration'], ['Échap', 'Fermer']].map(function (r) { return '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td></tr>'; }).join('') + '</tbody></table>');
+    k3.insertAdjacentHTML('beforeend', '<table class="at-table"><tbody>' + [['Ctrl + J', 'Palette de commandes'], ['Alt + 1 à 6', 'Composer, Calendrier, Historique, Brouillons, Pilote, Automatisations'], ['Alt + A', 'Ouvrir / fermer l’Atelier'], ['Alt + Z', 'Mode concentration'], ['Alt + D', 'Dicter la légende (micro)'], ['?', 'Afficher ces raccourcis'], ['Échap', 'Fermer']].map(function (r) { return '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td></tr>'; }).join('') + '</tbody></table>');
 
     // Quoi de neuf
     var k4 = carte(c, '✨ Quoi de neuf dans l’Atelier', NOUVEAUTES.length + ' outils');
@@ -659,6 +659,12 @@
       { nom: 'Ouvrir l’Atelier · Planifier', faire: function () { ouvrir(true, 'planifier'); } },
       { nom: 'Ouvrir l’Atelier · Organiser', faire: function () { ouvrir(true, 'organiser'); } },
       { nom: 'Préparer le mois (temps forts → boîte à idées)', faire: preparerMois },
+      { nom: 'Dicter la légende au micro', aide: 'Alt + D', faire: function () { ouvrirComposeur(); setTimeout(dicter, 300); } },
+      { nom: 'Écouter ma légende', faire: ecouter },
+      { nom: 'Déplacer les hashtags de la légende', faire: deplacerHashtags },
+      { nom: 'Mélanger les hashtags', faire: melangerHashtags },
+      { nom: 'Imprimer mon planning', faire: function () { lirePosts().then(imprimerPlanning); } },
+      { nom: 'Idée au hasard / sauvegarde / tirage au sort', faire: function () { ouvrir(true, 'organiser'); } },
       { nom: 'Mode concentration', aide: 'Alt + Z', faire: function () { ouvrirComposeur(); setTimeout(zen, 250); } },
       { nom: 'Typographie française sur la légende', faire: function () { ecrireLegende(typographie(lireLegende())); } },
       { nom: 'Nettoyer les hashtags', faire: function () { var t = champ('tags'); if (t) ecrireChamp('tags', nettoyerHashtags(t.value).texte); } },
@@ -703,7 +709,9 @@
       if (n >= 1 && n <= VUES.length) { e.preventDefault(); allerVue(VUES[n - 1][0]); return; }
       if (e.code === 'KeyA') { e.preventDefault(); var p = $('#at-panneau'); ouvrir(!(p && p.classList.contains('on'))); return; }
       if (e.code === 'KeyZ') { e.preventDefault(); ouvrirComposeur(); setTimeout(zen, 250); }
+      if (e.code === 'KeyD') { e.preventDefault(); dicter(); }
     }
+    if (e.key === '?' && !e.ctrlKey && !e.altKey && !/^(INPUT|TEXTAREA|SELECT)$/.test((e.target || {}).tagName || '') && !(e.target || {}).isContentEditable) { e.preventDefault(); ouvrir(true, 'organiser'); setTimeout(function () { var r = $$('#at-corps h3').find(function (h) { return /Raccourcis/.test(h.textContent); }); if (r) r.scrollIntoView({ block: 'start' }); }, 300); }
   });
 
   /* ====================================================================== */
@@ -785,7 +793,7 @@
   /* --- Légende ① : adapter le texte à chaque réseau --- */
   function phrasesDe(t) { return (t.replace(/\n{2,}/g, '\n').match(/[^.!?…\n]+[.!?…]*/g) || []).map(function (x) { return x.trim(); }).filter(Boolean); }
   function tagsDe(n) { return ((champ('tags') || {}).value || '').split(/[\s,]+/).filter(function (x) { return /^#/.test(x); }).slice(0, n).join(' '); }
-  function coupe(t, max) { if (t.length <= max) return t; var out = ''; phrasesDe(t).some(function (p) { if ((out + ' ' + p).trim().length > max) return true; out = (out + ' ' + p).trim(); }); return out || t.slice(0, max - 1) + '…'; }
+  function coupe(t, max) { if (t.length <= max) return t; var out = ''; phrasesDe(t).some(function (p) { if ((out + ' ' + p).trim().length > max) return true; out = (out + ' ' + p).trim(); }); return out || Array.from(t).slice(0, max - 1).join('') + '…'; }
   function versionsReseaux(t) {
     var ph = phrasesDe(t);
     return [
@@ -850,6 +858,7 @@
         (cr.indexOf('[Nom]') >= 0 ? (nom ? '<button type="button" class="at-btn clair" data-al="nom">Mettre « ' + esc(nom) + ' »</button>' : '<button type="button" class="at-btn clair" data-al="nomdef">Enregistrer le nom de ma boutique</button>') : '') + '</div>';
     }
     if (z.dataset.doublon) { var d = z.dataset.doublon.split('|'); h += '<div class="at-alerte-l">🔁 <span>Ressemble à <b>' + d[0] + ' %</b> à ton post du ' + esc(d[1]) + ' : change l’accroche pour ne pas lasser tes abonnés.</span></div>'; }
+    h += alertesEnPlus(t);
     z.innerHTML = h; z.hidden = !h;
   }
   function surLegende() { var z = $('#at-alertes'); afficherAlertes(); z = $('#at-alertes'); if (z) verifierDoublon(lireLegende(), z); }
@@ -857,7 +866,8 @@
     var b = e.target.closest('#at-alertes [data-al]'); if (!b) return;
     if (b.dataset.al === 'suivant') allerAuSuivant();
     else if (b.dataset.al === 'nom') ecrireLegende(avecNom(lireLegende()));
-    else { var n = (prompt('Nom de ta boutique (il remplacera [Nom] dans les modèles) :', '') || '').trim(); if (n) { memo.ecrire('nom', n.slice(0, 60)); ecrireLegende(avecNom(lireLegende())); } }
+    else if (b.dataset.al === 'nomdef') { var n = (prompt('Nom de ta boutique (il remplacera [Nom] dans les modèles) :', '') || '').trim(); if (n) { memo.ecrire('nom', n.slice(0, 60)); ecrireLegende(avecNom(lireLegende())); } }
+    else clicAlerte2(b.dataset.al);
   }
 
   /* --- Organiser ① : brouillons oubliés · Planifier ② : il y a un an · ③ objectif sur le bouton --- */
@@ -906,6 +916,330 @@
     document.addEventListener('input', function (e) { if (e.target && e.target.id === 'cap') surLegende(); });
     document.addEventListener('click', clicAlerte);
     surLegende(); majLanceur(); setInterval(majLanceur, 5 * 60000);
+    suite2();
+  }
+
+  /* ====================================================================== */
+  /* 12 · Grande passe (23/10) : chaque outil repris et prolongé             */
+  /* ====================================================================== */
+
+  /* ---------- Menu « ➕ Plus » sous la légende ---------- */
+  var dictee = null;
+  function dicter() {
+    var R = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!R) { message('La dictée marche dans Chrome et Edge.'); return; }
+    if (dictee) { dictee.stop(); return; }
+    if (!legende()) return;
+    dictee = new R(); dictee.lang = 'fr-FR'; dictee.continuous = true; dictee.interimResults = false;
+    dictee.onresult = function (e) { for (var i = e.resultIndex; i < e.results.length; i++) if (e.results[i].isFinal) { var t = e.results[i][0].transcript.trim(); if (t) inserer((/\s$|^$/.test(lireLegende()) ? '' : ' ') + t.charAt(0).toLocaleUpperCase('fr') + t.slice(1)); } };
+    dictee.onend = function () { dictee = null; message('Dictée arrêtée.'); var b = $('#at-dictee'); if (b) b.remove(); };
+    dictee.onerror = function (e) { if (e.error === 'not-allowed') message('Autorise le micro dans ton navigateur pour dicter.'); };
+    try { dictee.start(); } catch (e) { dictee = null; return; }
+    var b = document.createElement('button'); b.type = 'button'; b.id = 'at-dictee'; b.className = 'at-dictee'; b.textContent = '🎙️ Dictée en cours… cliquer pour arrêter';
+    b.addEventListener('click', function () { if (dictee) dictee.stop(); }); document.body.appendChild(b);
+  }
+  function ecouter() {
+    if (!window.speechSynthesis) { message('La lecture à voix haute n’est pas disponible ici.'); return; }
+    if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
+    var t = lireLegende().replace(/#[\p{L}\p{N}_]+/gu, '').replace(/\p{Extended_Pictographic}/gu, '').trim();
+    if (!t) { message('La légende est vide.'); return; }
+    var u = new SpeechSynthesisUtterance(t); u.lang = 'fr-FR'; u.rate = 1;
+    speechSynthesis.speak(u); message('🔊 Lecture… (clique à nouveau sur « Écouter » pour arrêter)');
+  }
+  function hashtagsDeLaLegende() { return lireLegende().replace(/https?:\/\/\S+/g, '').match(/#[\p{L}\p{N}_]+/gu) || []; }
+  function deplacerHashtags() {
+    var tg = hashtagsDeLaLegende(); if (!tg.length) { message('Aucun hashtag dans la légende.'); return; }
+    var t = lireLegende();
+    tg.forEach(function (h) { t = t.replace(new RegExp('\\s*' + h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\p{L}\\p{N}_])', 'u'), ''); });
+    ecrireLegende(t.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim());
+    var champTags = champ('tags'); if (champTags) ecrireChamp('tags', nettoyerHashtags(champTags.value + ' ' + tg.join(' ')).texte);
+    message(tg.length + ' hashtag' + (tg.length > 1 ? 's' : '') + ' déplacé' + (tg.length > 1 ? 's' : '') + ' dans « Hashtags ».');
+  }
+  function melangerHashtags() {
+    var t = champ('tags'); if (!t || !t.value.trim()) { message('Aucun hashtag à mélanger.'); return; }
+    var m = t.value.split(/\s+/).filter(Boolean), at = m.filter(function (x) { return x[0] === '@'; }), h = m.filter(function (x) { return x[0] !== '@'; });
+    for (var i = h.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = h[i]; h[i] = h[j]; h[j] = x; }
+    ecrireChamp('tags', at.concat(h).join(' ')); message('Ordre des hashtags mélangé.');
+  }
+  function tailleLegende(delta) {
+    var c = legende(); if (!c) return;
+    var tl = Math.max(12, Math.min(24, memo.lire('taille', 15) + delta)); memo.ecrire('taille', tl);
+    c.style.setProperty('font-size', tl + 'px', 'important'); c.style.setProperty('line-height', '1.55', 'important');
+  }
+  function remplacerPop(ancre) {
+    var p = popover(ancre, '<h4>Rechercher et remplacer</h4><div style="display:grid;gap:6px;padding:4px"><input id="at-rr-a" placeholder="Chercher (ex. samedi)" class="at-champ"><input id="at-rr-b" placeholder="Remplacer par (ex. dimanche)" class="at-champ"><small id="at-rr-n" style="padding:0"></small><button class="at-btn" id="at-rr-ok" style="text-align:center">Tout remplacer</button></div>');
+    var a = $('#at-rr-a', p), b2 = $('#at-rr-b', p), n = $('#at-rr-n', p);
+    function re() { var v = a.value; return v ? new RegExp(v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi') : null; }
+    a.addEventListener('input', function () { var r = re(); n.textContent = r ? ((lireLegende().match(r) || []).length + ' trouvé(s)') : ''; });
+    $('#at-rr-ok', p).addEventListener('click', function () { var r = re(); if (!r) return; var k = (lireLegende().match(r) || []).length; ecrireLegende(lireLegende().replace(r, b2.value)); fermerPop(); message(k + ' remplacement' + (k > 1 ? 's' : '') + '.'); });
+    a.focus();
+  }
+  function phrasesPop(ancre) {
+    var l = memo.lire('phrases', []), c = legende(), sel = c && c.selectionStart !== c.selectionEnd ? c.value.slice(c.selectionStart, c.selectionEnd) : '';
+    var p = popover(ancre, '<h4>Mes phrases toutes prêtes</h4>' + (l.length ? l.map(function (x, i) { return '<button data-ph="' + i + '"><b>' + esc(x.nom) + '</b><small>' + esc(x.texte.slice(0, 70)) + '</small></button>'; }).join('') : '<small style="padding:4px 8px">Adresse, horaires, lien de réservation… : enregistre-les une fois, insère-les en un clic.</small>') +
+      '<div style="display:grid;gap:6px;padding:8px 4px 2px"><input id="at-ph-nom" class="at-champ" placeholder="Nom (ex. Horaires)"><textarea id="at-ph-t" class="at-champ" rows="2" placeholder="Texte"></textarea><button class="at-btn" id="at-ph-ok" style="text-align:center">Enregistrer la phrase</button></div>');
+    $('#at-ph-t', p).value = sel;
+    p.addEventListener('click', function (ev) { var x = ev.target.closest('[data-ph]'); if (!x) return; fermerPop(); inserer(l[+x.dataset.ph].texte); });
+    $('#at-ph-ok', p).addEventListener('click', function () { var nom = $('#at-ph-nom', p).value.trim(), t = $('#at-ph-t', p).value.trim(); if (!nom || !t) { message('Donne un nom et un texte.'); return; } l.unshift({ nom: nom.slice(0, 40), texte: t.slice(0, 600) }); memo.ecrire('phrases', l.slice(0, 40)); fermerPop(); message('Phrase « ' + nom + ' » enregistrée.'); });
+  }
+  function chipPlus() {
+    var barre = $('#at-barre'); if (!barre || $('[data-at2="plus"]', barre)) return;
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'at-chip at-chip-plus'; b.dataset.at2 = 'plus'; b.textContent = '➕ Plus';
+    barre.appendChild(b);
+    var t = memo.lire('taille', 0); if (t) tailleLegende(0);
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var p = popover(b, '<h4>Écrire</h4><button data-pl="dicter">🎙️ Dicter au micro <small>Alt + D</small></button><button data-pl="ecouter">🔊 Écouter ma légende</button><button data-pl="remplacer">🔍 Rechercher et remplacer</button><button data-pl="phrases">🧩 Mes phrases toutes prêtes</button>' +
+        '<h4>Hashtags</h4><button data-pl="deplacer">⇣ Déplacer les hashtags de la légende vers « Hashtags »</button><button data-pl="melanger">🔀 Mélanger l’ordre des hashtags</button><button data-pl="copiertags">⧉ Copier seulement les hashtags</button>' +
+        '<h4>Affichage</h4><div class="at-ligne" style="padding:2px 6px"><button class="at-btn clair" data-pl="moins">A−</button><button class="at-btn clair" data-pl="plus">A+</button><small style="padding:0">Taille du texte de la légende</small></div>');
+      p.addEventListener('click', function (ev) {
+        var x = ev.target.closest('[data-pl]'); if (!x) return; var a = x.dataset.pl;
+        if (a === 'plus' || a === 'moins') { tailleLegende(a === 'plus' ? 1 : -1); return; }
+        fermerPop();
+        if (a === 'dicter') dicter(); else if (a === 'ecouter') ecouter(); else if (a === 'remplacer') remplacerPop(b); else if (a === 'phrases') phrasesPop(b);
+        else if (a === 'deplacer') deplacerHashtags(); else if (a === 'melanger') melangerHashtags();
+        else if (a === 'copiertags') { var tg = ((champ('tags') || {}).value || '').trim(); if (tg) { copier(tg); message('Hashtags copiés.'); } else message('Aucun hashtag.'); }
+      });
+    });
+  }
+
+  /* ---------- Alertes en plus (légende, hashtags, programmation) ---------- */
+  var PASSE_PARTOUT = ['très', 'vraiment', 'super', 'trop', 'juste', 'génial', 'incroyable', 'top', 'sympa', 'beaucoup', 'énormément', 'franchement'];
+  var BANNIS = ['#followforfollow', '#follow4follow', '#f4f', '#like4like', '#l4l', '#likeforlike', '#followback', '#tagsforlikes', '#likes4likes', '#followme', '#sfs', '#shoutout4shoutout', '#likeforfollow', '#instalike', '#spam'];
+  var GENERIQUES = ['#love', '#instagood', '#photooftheday', '#instagram', '#happy', '#beautiful', '#picoftheday', '#follow', '#like', '#photography', '#fashion', '#cute'];
+  function feries(a) {
+    var p = paques(a);
+    return [[new Date(a, 0, 1), 'Jour de l’an'], [plus(p, 1), 'Lundi de Pâques'], [new Date(a, 4, 1), 'Fête du travail'], [new Date(a, 4, 8), 'Victoire 1945'], [plus(p, 39), 'Ascension'], [plus(p, 50), 'Lundi de Pentecôte'],
+      [new Date(a, 6, 14), 'Fête nationale'], [new Date(a, 7, 15), 'Assomption'], [new Date(a, 10, 1), 'Toussaint'], [new Date(a, 10, 11), 'Armistice'], [new Date(a, 11, 25), 'Noël']].map(function (x) { return { date: x[0], nom: x[1] }; });
+  }
+  function ferieDu(d) { var k = cle(d); return feries(d.getFullYear()).find(function (f) { return cle(f.date) === k; }); }
+  function programmeLe() {
+    var on = $('.seg.on[data-sched]'); if (!on || on.getAttribute('data-sched') !== 'later') return null;
+    var dv = ($('#sc-date') || {}).value, hv = ($('#sc-time') || {}).value; if (!dv) return null;
+    var d = new Date(dv + 'T' + (hv || '09:00')); return isNaN(d) ? null : d;
+  }
+  function ligne(ic, texte, boutons) { return '<div class="at-alerte-l">' + ic + ' <span>' + texte + '</span>' + (boutons || '') + '</div>'; }
+  function alertesEnPlus(t) {
+    var h = '', tags = ((champ('tags') || {}).value || '').toLocaleLowerCase('fr');
+    if (/https?:\/\/\S+|www\.\S+/i.test(t)) h += ligne('🔗', 'Sur Instagram, un lien dans la légende <b>n’est pas cliquable</b>.', '<button type="button" class="at-btn clair" data-al="lien">Le mettre en DM + « lien en bio »</button>');
+    var bas = t.toLocaleLowerCase('fr'), pp = PASSE_PARTOUT.map(function (m) { return [m, (bas.match(new RegExp('(^|[^\\p{L}])' + m + '(?![\\p{L}])', 'gu')) || []).length]; }).filter(function (x) { return x[1]; });
+    var totalPP = pp.reduce(function (s2, x) { return s2 + x[1]; }, 0);
+    if (totalPP >= 3) h += ligne('💬', 'Mots passe-partout : ' + pp.map(function (x) { return '« ' + x[0] + ' »' + (x[1] > 1 ? ' ×' + x[1] : ''); }).join(', ') + '. Un mot précis touche plus (« croustillant » plutôt que « super bon »).');
+    var lettres = t.replace(/[^\p{L}]/gu, ''), maj = lettres.replace(/[^\p{Lu}]/gu, '');
+    if (/!{3,}|\?{3,}/.test(t) || (lettres.length >= 30 && maj.length / lettres.length > 0.35)) h += ligne('📢', 'Beaucoup de MAJUSCULES ou de « !!! » : le message peut paraître crié.');
+    var nbEmo = (t.match(/\p{Extended_Pictographic}/gu) || []).length;
+    if (nbEmo > 10) h += ligne('😵', '<b>' + nbEmo + ' émojis</b> : au-delà de 6 à 8, le texte devient difficile à lire.');
+    var dansLeg = hashtagsDeLaLegende();
+    if (dansLeg.length >= 3) h += ligne('#️⃣', dansLeg.length + ' hashtags au milieu du texte : la légende est plus lisible s’ils sont à part.', '<button type="button" class="at-btn clair" data-al="deplacer">Les déplacer</button>');
+    var tous = (tags + ' ' + dansLeg.join(' ')).toLocaleLowerCase('fr').split(/[\s,]+/);
+    var b = BANNIS.filter(function (x) { return tous.indexOf(x) >= 0; });
+    if (b.length) h += ligne('🚫', 'À éviter : <b>' + esc(b.join(' ')) + '</b>. Ces hashtags « d’échange de likes » peuvent faire baisser la portée de tes posts.', '<button type="button" class="at-btn clair" data-al="bannis">Les retirer</button>');
+    var g = GENERIQUES.filter(function (x) { return tous.indexOf(x) >= 0; });
+    if (g.length >= 2) h += ligne('🌊', esc(g.join(' ')) + ' : trop généraux, ton post s’y noie parmi des millions. Préfère ceux de ton métier et de ta ville.');
+    var d = programmeLe();
+    if (d) {
+      if (d < new Date()) h += ligne('⏰', 'La date de programmation est <b>déjà passée</b>.');
+      else if (d.getHours() < 7 || d.getHours() >= 22) h += ligne('🌙', 'Programmé à <b>' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + '</b> : la plupart de tes abonnés dorment. Entre 11 h et 13 h ou 18 h et 20 h, c’est mieux.');
+      var f = ferieDu(d); if (f) h += ligne('📅', 'Le ' + jour(d) + ' est férié (<b>' + esc(f.nom) + '</b>). Si tu annonces une ouverture, précise tes horaires.');
+    }
+    return h;
+  }
+  function clicAlerte2(a) {
+    if (a === 'deplacer') deplacerHashtags();
+    else if (a === 'bannis') {
+      var bas = function (x) { return BANNIS.indexOf(x.toLocaleLowerCase('fr')) < 0; };
+      var t = champ('tags'); if (t) ecrireChamp('tags', t.value.split(/\s+/).filter(bas).join(' '));
+      ecrireLegende(lireLegende().split(/(\s+)/).filter(function (m) { return !/^#/.test(m) || bas(m); }).join('').replace(/ {2,}/g, ' '));
+      message('Hashtags à éviter retirés.');
+    } else if (a === 'lien') {
+      var m = lireLegende().match(/https?:\/\/\S+|www\.\S+/i); if (!m) return;
+      var url = /^www\./i.test(m[0]) ? 'https://' + m[0] : m[0];
+      if (champ('dm-link')) ecrireChamp('dm-link', url);
+      ecrireLegende(lireLegende().replace(m[0], 'lien en bio 👆'));
+      message('Lien mis dans « Lien envoyé en DM » et remplacé par « lien en bio ».');
+    }
+  }
+
+  /* ---------- Texte de secours : on ne perd plus une légende ---------- */
+  var minuterieSecours = 0;
+  function garderSecours() { clearTimeout(minuterieSecours); minuterieSecours = setTimeout(function () { var t = lireLegende(); if (t.trim().length > 20) memo.ecrire('secours', { texte: t, quand: Date.now() }); }, 1500); }
+  function proposerSecours() {
+    var s2 = memo.lire('secours', null); if (!s2 || !s2.texte || Date.now() - s2.quand > 3 * 864e5 || lireLegende().trim()) return;
+    lirePosts().then(function (posts) {
+      if (posts.some(function (p) { return (p.caption || '').trim() === s2.texte.trim(); })) return;
+      var r = document.createElement('div'); r.className = 'at-rappel at-rappel-haut'; r.setAttribute('role', 'status');
+      r.innerHTML = '<span>📝 Un texte non publié du ' + jour(new Date(s2.quand)) + ' a été gardé : « ' + esc(s2.texte.slice(0, 50)) + '… »</span><button class="go">Le reprendre</button><button class="x" aria-label="Oublier">×</button>';
+      document.body.appendChild(r);
+      $('.go', r).addEventListener('click', function () { r.remove(); ouvrirComposeur(); setTimeout(function () { ecrireLegende(s2.texte); }, 350); });
+      $('.x', r).addEventListener('click', function () { r.remove(); memo.ecrire('secours', null); });
+    });
+  }
+
+  /* ---------- Planifier : prochain post, jours vides, semaine type, fériés, impression ---------- */
+  var SEMAINES = {
+    1: [[5, 'nouveaute']], 2: [[2, 'coulisses'], [5, 'promo']], 3: [[2, 'coulisses'], [4, 'conseil'], [6, 'nouveaute']],
+    4: [[1, 'conseil'], [3, 'coulisses'], [5, 'promo'], [6, 'avis']], 5: [[1, 'conseil'], [2, 'coulisses'], [3, 'question'], [5, 'promo'], [6, 'avis']]
+  };
+  var NOMS_JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  function semaineType() { var o = memo.lire('objectif', 3); return SEMAINES[Math.min(5, Math.max(1, o))]; }
+  function postAuJour(d) {
+    d = new Date(d); d.setHours(11, 0, 0, 0);
+    ouvrirComposeur(); ouvrir(false);
+    setTimeout(function () { if (programmer(d)) message('Post programmé le ' + jour(d) + ' à 11 h : écris ta légende (modifiable à l’étape Publier).'); }, 350);
+  }
+  function imprimerPlanning(posts) {
+    var auj = new Date(); auj.setHours(0, 0, 0, 0); var fin = plus(auj, 31);
+    var lignes = posts.filter(function (p) { return p.scheduled_at && new Date(p.scheduled_at) >= auj && new Date(p.scheduled_at) < fin; }).map(function (p) { return [new Date(p.scheduled_at), '📣 ' + (p.caption || '').slice(0, 140), (p.nets || []).join(', ')]; })
+      .concat(aVenir(31).map(function (t) { return [t.date, '★ ' + t.nom + ' : ' + t.idee, 'temps fort']; }))
+      .concat(feries(auj.getFullYear()).concat(feries(auj.getFullYear() + 1)).filter(function (f) { return f.date >= auj && f.date < fin; }).map(function (f) { return [f.date, '🏖️ Férié : ' + f.nom, '']; }))
+      .sort(function (a, b) { return a[0] - b[0]; });
+    var w = window.open('', '_blank'); if (!w) { message('Autorise les fenêtres pour imprimer.'); return; }
+    w.document.write('<!doctype html><html lang="fr"><meta charset="utf-8"><title>Mon planning · Studio Social</title><style>body{font:14px/1.45 system-ui,sans-serif;color:#3b2a1c;margin:28px}h1{font-size:20px;margin:0 0 4px}p{color:#8b7562;margin:0 0 16px}table{border-collapse:collapse;width:100%}td,th{border-bottom:1px solid #eadfd2;padding:7px 6px;text-align:left;vertical-align:top}th{font-size:12px;text-transform:uppercase;color:#8b7562}td:first-child{white-space:nowrap;font-weight:700}button{margin-top:16px}@media print{button{display:none}}</style>' +
+      '<h1>Mon planning des 31 prochains jours</h1><p>Studio Social · Mon Copain Digital · imprimé le ' + new Date().toLocaleDateString('fr-FR') + '</p><table><thead><tr><th>Date</th><th>Quoi</th><th>Réseaux</th></tr></thead><tbody>' +
+      (lignes.length ? lignes.map(function (l) { return '<tr><td>' + esc(l[0].toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' })) + (l[2] && l[2] !== 'temps fort' ? ' ' + pad2(l[0].getHours()) + ':' + pad2(l[0].getMinutes()) : '') + '</td><td>' + esc(l[1]) + '</td><td>' + esc(l[2]) + '</td></tr>'; }).join('') : '<tr><td colspan="3">Rien de prévu.</td></tr>') +
+      '</tbody></table><button onclick="print()">Imprimer</button></html>');
+    w.document.close();
+  }
+  var EXTRAS_P1 = EXTRAS.planifier;
+  EXTRAS.planifier = function (c) {
+    EXTRAS_P1(c);
+    var kP = carte(c, '⏭️ Prochaine publication', ''); c.insertBefore(kP, c.firstChild);
+    var kV = carte(c, '🕳️ Jours sans publication', '14 prochains jours'); c.insertBefore(kV, kP.nextSibling);
+    var kS = carte(c, '🗓️ Ma semaine type', 'selon ton objectif');
+    var kF = carte(c, '🏖️ Jours fériés à venir', '90 jours');
+    var kI = carte(c, '🖨️ Imprimer mon planning', '31 jours');
+    [kP, kV].forEach(function (k) { k.insertAdjacentHTML('beforeend', '<p>Chargement…</p>'); });
+    // semaine type
+    var st = semaineType();
+    kS.insertAdjacentHTML('beforeend', '<p>Un rythme simple, à adapter. Chaque jour a son type de post.</p><div class="at-liste">' + st.map(function (x, i) { var m = MODELES.find(function (y) { return y.id === x[1]; }); return '<div class="at-item"><b>' + NOMS_JOURS[x[0]].replace(/^./, function (l) { return l.toUpperCase(); }) + ' · ' + esc(m.nom) + '</b><div class="at-actions"><button class="at-btn clair" data-st="' + i + '">Écrire</button></div></div>'; }).join('') + '</div><div class="at-ligne"><button class="at-btn clair" id="at-st-idees">Mettre la semaine dans ma boîte à idées</button></div>');
+    kS.addEventListener('click', function (e) { var b = e.target.closest('[data-st]'); if (!b) return; var m = MODELES.find(function (y) { return y.id === st[+b.dataset.st][1]; }); ouvrirComposeur(); ouvrir(false); setTimeout(function () { ecrireLegende(avecNom(m.texte)); }, 350); });
+    $('#at-st-idees', kS).addEventListener('click', function () { var idees = memo.lire('idees', []); st.forEach(function (x) { var m = MODELES.find(function (y) { return y.id === x[1]; }); idees.push({ texte: NOMS_JOURS[x[0]] + ' : post « ' + m.nom + ' »', quand: Date.now() }); }); memo.ecrire('idees', idees.slice(0, 100)); message(st.length + ' idées ajoutées à ta boîte à idées.'); });
+    // fériés
+    var auj = new Date(); auj.setHours(0, 0, 0, 0);
+    var fr = feries(auj.getFullYear()).concat(feries(auj.getFullYear() + 1)).filter(function (f) { return f.date >= auj && f.date <= plus(auj, 90); });
+    kF.insertAdjacentHTML('beforeend', fr.length ? '<div class="at-liste">' + fr.map(function (f, i) { return '<div class="at-item"><b>' + esc(f.nom) + ' <span class="at-tag">' + jour(f.date) + '</span></b><div class="at-actions"><button class="at-btn clair" data-fe="' + i + '">Annoncer mes horaires</button></div></div>'; }).join('') + '</div><p>Prévenir 2 ou 3 jours avant évite les clients devant une porte fermée.</p>' : '<p>Aucun jour férié dans les 90 prochains jours.</p>');
+    kF.addEventListener('click', function (e) { var b = e.target.closest('[data-fe]'); if (!b) return; var f = fr[+b.dataset.fe]; ouvrirComposeur(); ouvrir(false);
+      setTimeout(function () { ecrireLegende(avecNom('📢 ' + f.nom + ' (' + f.date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) + ')\n\n[Ouvert de … à … / Fermé exceptionnellement].\n\nOn vous retrouve dès le [date] ! Merci de votre fidélité 🙏')); var d = plus(f.date, -2); d.setHours(11, 0, 0, 0); if (d > new Date()) programmer(d); }, 350); });
+    kI.insertAdjacentHTML('beforeend', '<p>Tes posts programmés, les temps forts et les jours fériés sur une feuille, à afficher dans l’arrière-boutique.</p><div class="at-ligne"><button class="at-btn" id="at-imprimer">Ouvrir la version à imprimer</button></div>');
+    $('#at-imprimer', kI).addEventListener('click', function () { lirePosts().then(imprimerPlanning); });
+    lirePosts().then(function (posts) {
+      var prog = posts.filter(estProgramme).sort(function (a, b) { return datePost(a) - datePost(b); }), p = prog[0];
+      kP.lastChild.remove();
+      if (p) { var ms = datePost(p) - Date.now(), j = Math.floor(ms / 864e5), hh = Math.floor(ms % 864e5 / 36e5);
+        kP.insertAdjacentHTML('beforeend', '<div class="at-ligne"><b style="font:700 20px Fredoka,sans-serif">dans ' + (j ? j + ' j ' : '') + hh + ' h</b><span>' + jour(datePost(p)) + ' à ' + pad2(datePost(p).getHours()) + ':' + pad2(datePost(p).getMinutes()) + '</span></div><p>« ' + esc((p.caption || '').slice(0, 120)) + ' »</p><p>' + prog.length + ' publication' + (prog.length > 1 ? 's' : '') + ' programmée' + (prog.length > 1 ? 's' : '') + ' au total.</p>');
+      } else kP.insertAdjacentHTML('beforeend', '<p>Aucune publication programmée. Choisis un jour ci-dessous pour commencer.</p>');
+      var occupes = {}; prog.forEach(function (x) { occupes[cle(datePost(x))] = 1; });
+      var vides = []; for (var i = 1; i <= 14; i++) { var d = plus(auj, i); if (!occupes[cle(d)]) vides.push(d); }
+      kV.lastChild.remove();
+      kV.insertAdjacentHTML('beforeend', vides.length ? '<p>' + vides.length + ' jour' + (vides.length > 1 ? 's' : '') + ' sans post. Clique sur un jour pour y programmer une publication à 11 h.</p><div class="at-ligne at-jours">' + vides.map(function (d, i) { return '<button class="at-chip" data-vd="' + i + '">' + jour(d) + (ferieDu(d) ? ' 🏖️' : '') + '</button>'; }).join('') + '</div>' : '<p>Chaque jour des deux prochaines semaines a sa publication. Bravo !</p>');
+      kV.addEventListener('click', function (e) { var b = e.target.closest('[data-vd]'); if (b) postAuJour(vides[+b.dataset.vd]); });
+    });
+  };
+
+  /* ---------- Organiser : idée au hasard, bilan du mois, mots, hashtags, tirage au sort, sauvegarde ---------- */
+  var BANQUE = [
+    'Montre tes mains au travail (sans visage, ça marche très bien).', 'Ton produit le plus vendu et pourquoi les clients l’adorent.', 'Une erreur de débutant que tu ne fais plus.', 'Avant / après : une transformation en photo.',
+    'Présente un fournisseur ou un producteur avec qui tu travailles.', 'La question qu’on te pose le plus souvent, et ta réponse.', 'Ton outil préféré et à quoi il sert.', 'Une journée type en 5 photos.',
+    'Le mot de la fin d’une cliente (avec son accord).', 'Un sondage : lequel préférez-vous, A ou B ?', 'Une astuce pour bien conserver / entretenir ce que tu vends.', 'Ton coin préféré du quartier.',
+    'L’histoire de ta boutique en 3 dates.', 'Ce qui arrive la semaine prochaine (teasing).', 'Un « vrai ou faux » sur ton métier.', 'Remercie tes clients pour un cap (100 avis, 1 an, 1 000 abonnés…).',
+    'Le produit de saison du moment.', 'Ce que tu fais quand la boutique est fermée.', 'Ton conseil pour offrir un cadeau réussi.', 'Une photo de ta vitrine qui change avec la saison.',
+    'La playlist de la boutique.', 'Le geste technique le plus difficile de ton métier, en vidéo courte.', 'Un client fidèle depuis longtemps (avec son accord).', 'Les coulisses d’une commande spéciale.',
+    'Ton « petit plus » que les autres n’ont pas.', 'Une idée reçue sur ton métier, démontée.', 'Le premier produit que tu as vendu.', 'Une photo d’équipe, même si tu es seul·e (selfie !).',
+    'Un mini-tuto en 3 étapes.', 'Ce que tu prépares pour le prochain temps fort.', 'Une citation qui te motive.', 'Un jeu : trouve l’erreur dans la photo.',
+    'Rappelle comment te trouver (adresse, horaires, accès).', 'Ce qui se cache derrière ton prix (matière, temps, savoir-faire).', 'Ton moment préféré de la journée.', 'Montre un emballage cadeau.',
+    'Partage un avis Google et dis merci.', 'Une nouveauté en avant-première pour tes abonnés.', 'Un conseil de saison (chaleur, froid, pluie…).', 'Le défi de la semaine dans ta boutique.'
+  ];
+  var MOTS_VIDES = ('avec dans pour plus vous nous votre vos notre nos cette cela ceux elles leur leurs tout tous toute toutes mais donc quand comme aussi encore très bien sans sous chez entre après avant depuis faire fait être avoir sont sera était peut') .split(' ');
+  function topMots(posts) {
+    var n = {}; posts.forEach(function (p) { ((p.caption || '').toLocaleLowerCase('fr').match(/[\p{L}’'-]{5,}/gu) || []).forEach(function (m) { m = m.replace(/^[a-z]’/, ''); if (MOTS_VIDES.indexOf(m) < 0) n[m] = (n[m] || 0) + 1; }); });
+    return Object.keys(n).map(function (k) { return [k, n[k]]; }).filter(function (x) { return x[1] > 1; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 14);
+  }
+  function topHashtags(posts) {
+    var n = {}; posts.forEach(function (p) { ((p.tags || '') + ' ' + (p.caption || '')).toLocaleLowerCase('fr').match(/#[\p{L}\p{N}_]+/gu)?.forEach(function (h) { n[h] = (n[h] || 0) + 1; }); });
+    return Object.keys(n).map(function (k) { return [k, n[k]]; }).sort(function (a, b) { return b[1] - a[1]; }).slice(0, 15);
+  }
+  function hasard(n) { var a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; }
+  var EXTRAS_O1 = EXTRAS.organiser;
+  EXTRAS.organiser = function (c) {
+    EXTRAS_O1(c);
+    // idée au hasard
+    var kH = carte(c, '🎲 Pas d’idée ? Tire au sort', BANQUE.length + ' idées');
+    c.insertBefore(kH, c.children[1] || null);
+    kH.insertAdjacentHTML('beforeend', '<p class="at-hasard" id="at-hasard">Clique pour une idée de post qui marche dans tous les métiers.</p><div class="at-ligne"><button class="at-btn" id="at-h-tirer">🎲 Une idée</button><button class="at-btn clair" id="at-h-garder" disabled>Garder</button><button class="at-btn clair" id="at-h-ecrire" disabled>Écrire maintenant</button></div>');
+    var idee = '';
+    $('#at-h-tirer', kH).addEventListener('click', function () { idee = BANQUE[hasard(BANQUE.length)]; $('#at-hasard', kH).textContent = '💡 ' + idee; $('#at-h-garder', kH).disabled = $('#at-h-ecrire', kH).disabled = false; });
+    $('#at-h-garder', kH).addEventListener('click', function () { var l = memo.lire('idees', []); l.push({ texte: idee, quand: Date.now() }); memo.ecrire('idees', l.slice(0, 100)); message('Idée gardée.'); this.disabled = true; });
+    $('#at-h-ecrire', kH).addEventListener('click', function () { ouvrirComposeur(); ouvrir(false); setTimeout(function () { ecrireLegende((lireLegende() ? lireLegende() + '\n\n' : '') + '[' + idee + ']'); }, 350); });
+    // bilan, mots, hashtags
+    var kB = carte(c, '📊 Ce mois-ci', ''), kM = carte(c, '🔤 Tes mots les plus utilisés', 'pour varier'), kT = carte(c, '🏷️ Tes hashtags les plus utilisés', 'un clic pour l’ajouter');
+    [kB, kM, kT].forEach(function (k) { k.insertAdjacentHTML('beforeend', '<p>Chargement…</p>'); });
+    lirePosts().then(function (posts) {
+      var auj = new Date(), deb = new Date(auj.getFullYear(), auj.getMonth(), 1), debAv = new Date(auj.getFullYear(), auj.getMonth() - 1, 1), memeJour = new Date(auj.getFullYear(), auj.getMonth() - 1, auj.getDate(), 23, 59);
+      var faits = posts.filter(function (p) { return p.status !== 'draft'; });
+      var ce = faits.filter(function (p) { var d = datePost(p); return d >= deb && d <= auj; }).length, av = faits.filter(function (p) { var d = datePost(p); return d >= debAv && d <= memeJour; }).length;
+      var aVen = faits.filter(estProgramme).length, br = posts.filter(function (p) { return p.status === 'draft'; }).length;
+      kB.lastChild.remove();
+      kB.insertAdjacentHTML('beforeend', '<table class="at-table"><tbody><tr><td>Publiés depuis le 1er</td><td><b>' + ce + '</b> ' + (ce > av ? '<span class="at-tag vert">+' + (ce - av) + ' vs mois dernier</span>' : ce < av ? '<span class="at-tag or">' + (ce - av) + ' vs mois dernier</span>' : '<span class="at-tag">comme le mois dernier</span>') + '</td></tr><tr><td>Programmés à venir</td><td><b>' + aVen + '</b></td></tr><tr><td>Brouillons</td><td><b>' + br + '</b></td></tr></tbody></table>');
+      var mots = topMots(posts.slice(0, 60));
+      kM.lastChild.remove();
+      kM.insertAdjacentHTML('beforeend', mots.length ? '<div class="at-ligne">' + mots.map(function (m) { return '<span class="at-tag">' + esc(m[0]) + ' ×' + m[1] + '</span>'; }).join('') + '</div><p>Si un mot revient trop, trouve-lui un synonyme : tes abonnés remarquent les répétitions.</p>' : '<p>Pas encore assez de publications.</p>');
+      var ht = topHashtags(posts);
+      kT.lastChild.remove();
+      kT.insertAdjacentHTML('beforeend', ht.length ? '<div class="at-ligne">' + ht.map(function (h, i) { return '<button class="at-chip" data-ht="' + i + '">' + esc(h[0]) + ' ×' + h[1] + '</button>'; }).join('') + '</div>' : '<p>Pas encore de hashtags dans tes publications.</p>');
+      kT.addEventListener('click', function (e) { var b = e.target.closest('[data-ht]'); if (!b) return; var t = champ('tags'); if (!t) return; ecrireChamp('tags', nettoyerHashtags(t.value + ' ' + ht[+b.dataset.ht][0]).texte); message(ht[+b.dataset.ht][0] + ' ajouté aux hashtags.'); });
+    });
+    // tirage au sort
+    var kC = carte(c, '🎁 Tirage au sort d’un concours', 'équitable');
+    kC.insertAdjacentHTML('beforeend', '<p>Colle la liste des participants (un par ligne, ou les @ des commentaires). Les doublons sont retirés.</p><textarea id="at-tir-l" class="at-champ" rows="4" placeholder="@marie_d\n@paul.b\n@julie…"></textarea><div class="at-ligne"><label style="display:flex;gap:6px;align-items:center">Gagnants <select id="at-tir-n">' + [1, 2, 3, 5].map(function (n) { return '<option>' + n + '</option>'; }).join('') + '</select></label><button class="at-btn" id="at-tir-ok">Tirer au sort</button></div><div id="at-tir-res"></div>');
+    $('#at-tir-ok', kC).addEventListener('click', function () {
+      var brut = $('#at-tir-l', kC).value, l = (brut.match(/@[\w.]+/g) || brut.split(/\n+/)).map(function (x) { return x.trim(); }).filter(Boolean);
+      var vus = {}; l = l.filter(function (x) { var k = x.toLowerCase(); if (vus[k]) return false; vus[k] = 1; return true; });
+      var n = Math.min(+$('#at-tir-n', kC).value, l.length), g = [];
+      if (!l.length) { $('#at-tir-res', kC).innerHTML = '<p>Aucun participant.</p>'; return; }
+      while (g.length < n) { var x = l.splice(hasard(l.length), 1)[0]; g.push(x); }
+      var annonce = '🎉 Merci à tous pour votre participation !\n\nBravo à ' + g.join(', ') + ' ' + (g.length > 1 ? 'qui remportent' : 'qui remporte') + ' [lot] 🎁\nEnvoie-nous un message pour récupérer ton cadeau.';
+      $('#at-tir-res', kC).innerHTML = '<p><b>' + (g.length > 1 ? 'Gagnants' : 'Gagnant') + ' : ' + esc(g.join(', ')) + '</b> (parmi ' + (l.length + g.length) + ' participants, tirage le ' + new Date().toLocaleString('fr-FR') + ')</p><div class="at-ligne"><button class="at-btn clair" id="at-tir-ann">Écrire l’annonce</button></div>';
+      $('#at-tir-ann', kC).addEventListener('click', function () { ouvrirComposeur(); ouvrir(false); setTimeout(function () { ecrireLegende(annonce); }, 350); });
+    });
+    // sauvegarde
+    var kS = carte(c, '💾 Sauvegarder mon Atelier', 'favoris, idées, phrases…');
+    kS.insertAdjacentHTML('beforeend', '<p>Tes favoris, idées, phrases et groupes de hashtags restent dans ce navigateur. Télécharge-les pour les retrouver sur un autre ordinateur.</p><div class="at-ligne"><button class="at-btn" id="at-sv-dl">Télécharger ma sauvegarde</button><label class="at-btn clair" style="cursor:pointer">Restaurer…<input type="file" id="at-sv-up" accept="application/json,.json" hidden></label></div>');
+    $('#at-sv-dl', kS).addEventListener('click', function () {
+      var o = {}; try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (/^mcd_atelier_/.test(k)) o[k] = localStorage.getItem(k); } } catch (e) {}
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ atelier: 1, date: new Date().toISOString(), donnees: o }, null, 1)], { type: 'application/json' }));
+      a.download = 'atelier-marshall-' + cle(new Date()) + '.json'; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    });
+    $('#at-sv-up', kS).addEventListener('change', function () {
+      var fi = this.files && this.files[0]; if (!fi) return;
+      fi.text().then(function (t) {
+        var o; try { o = JSON.parse(t); } catch (e) { message('Fichier illisible.'); return; }
+        if (!o || o.atelier !== 1 || typeof o.donnees !== 'object') { message('Ce fichier n’est pas une sauvegarde de l’Atelier.'); return; }
+        if (!confirm('Remplacer les données de l’Atelier de ce navigateur par la sauvegarde du ' + new Date(o.date).toLocaleDateString('fr-FR') + ' ?')) return;
+        Object.keys(o.donnees).forEach(function (k) { if (/^mcd_atelier_[a-z_]+$/.test(k) && typeof o.donnees[k] === 'string') try { localStorage.setItem(k, o.donnees[k]); } catch (e) {} });
+        message('Sauvegarde restaurée.'); onglet = memo.lire('onglet', 'organiser'); rendre();
+      });
+    });
+  };
+
+  var NOUVEAUTES_2 = [
+    ['Dictée', 'écrire la légende au micro (Alt + D)'], ['Écouter', 'lire la légende à voix haute pour la relire'], ['Rechercher et remplacer', 'dans la légende'], ['Mes phrases', 'adresse, horaires… insérés en un clic'],
+    ['Taille du texte', 'agrandir la légende pour mieux relire'], ['Déplacer les hashtags', 'de la légende vers le champ Hashtags'], ['Mélanger les hashtags', 'pour ne pas publier toujours la même liste'], ['Copier les hashtags', 'seuls, pour le premier commentaire'],
+    ['Alerte lien', 'lien non cliquable sur Instagram → DM + « lien en bio »'], ['Alerte mots passe-partout', 'très, super, vraiment…'], ['Alerte MAJUSCULES', 'et « !!! »'], ['Alerte émojis', 'au-delà de 10'],
+    ['Alerte hashtags dans le texte', 'et bouton pour les déplacer'], ['Hashtags à éviter', '#f4f, #like4like… détectés et retirés'], ['Hashtags trop généraux', '#love, #instagood…'], ['Alerte heure de nuit', 'programmation entre 22 h et 7 h'],
+    ['Alerte jour férié', 'quand le post tombe un jour férié'], ['Alerte date passée', 'programmation dans le passé'], ['Texte de secours', 'une légende non publiée n’est plus perdue'], ['Prochaine publication', 'compte à rebours'],
+    ['Jours sans publication', 'un clic pour programmer un jour vide'], ['Ma semaine type', 'un type de post par jour selon ton objectif'], ['Jours fériés', 'avec l’annonce des horaires préparée'], ['Imprimer le planning', 'une feuille pour l’arrière-boutique'],
+    ['Idées prioritaires', '⭐ en haut de la boîte à idées'], ['Idée au hasard', BANQUE.length + ' idées de posts'], ['Bilan du mois', 'comparé au mois dernier'], ['Mots les plus utilisés', 'pour varier ton vocabulaire'],
+    ['Hashtags les plus utilisés', 'à réutiliser en un clic'], ['Tirage au sort', 'pour tes concours, avec l’annonce prête'], ['Sauvegarde', 'retrouver ton Atelier sur un autre ordinateur'], ['Raccourci ?', 'affiche les raccourcis'], ['Alt + D', 'lance la dictée']
+  ];
+  Array.prototype.push.apply(NOUVEAUTES, NOUVEAUTES_2);
+
+  function suite2() {
+    chipPlus();
+    document.addEventListener('input', function (e) { var id = e.target && e.target.id; if (id === 'cap') garderSecours(); if (id === 'tags' || id === 'sc-date') afficherAlertes(); });
+    document.addEventListener('change', function (e) { var id = e.target && e.target.id; if (id === 'sc-date' || id === 'sc-time') afficherAlertes(); });
+    document.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('.seg[data-sched], #quick-slots [data-slot]')) setTimeout(afficherAlertes, 80); });
+    new MutationObserver(function () { if ($('#at-barre') && !$('[data-at2="plus"]')) chipPlus(); }).observe(document.body, { childList: true, subtree: true });
+    setTimeout(proposerSecours, 2500);
   }
 
   /* ====================================================================== */
