@@ -662,7 +662,11 @@
 
     // Quoi de neuf
     var k4 = carte(c, '✨ Quoi de neuf dans l’Atelier', NOUVEAUTES.length + ' outils');
-    k4.insertAdjacentHTML('beforeend', '<div class="at-liste">' + NOUVEAUTES.map(function (n) { return '<div class="at-item"><small style="color:#3b2a1c"><b style="font:600 13.5px Fredoka,sans-serif">' + esc(n[0]) + '</b> · ' + esc(n[1]) + '</small></div>'; }).join('') + '</div>');
+    // Les plus récents d'abord ; seuls les 8 derniers (ou ceux jamais vus) sont affichés, le reste sur demande
+    var dejaVu = memo.lire('vu', 0), recents = NOUVEAUTES.slice().reverse(), montres = Math.max(8, NOUVEAUTES.length - dejaVu);
+    function ligneNouveaute(n, i) { return '<div class="at-item"><small style="color:#3b2a1c">' + (i < NOUVEAUTES.length - dejaVu ? '<span class="at-tag or">nouveau</span> ' : '') + '<b style="font:600 13.5px Fredoka,sans-serif">' + esc(n[0]) + '</b> · ' + esc(n[1]) + '</small></div>'; }
+    k4.insertAdjacentHTML('beforeend', '<div class="at-liste" id="at-nv">' + recents.slice(0, montres).map(ligneNouveaute).join('') + '</div>' + (recents.length > montres ? '<div class="at-ligne"><button class="at-btn clair" id="at-nv-tout">Voir les ' + recents.length + ' outils</button></div>' : ''));
+    var tout = $('#at-nv-tout', k4); if (tout) tout.addEventListener('click', function () { $('#at-nv', k4).innerHTML = recents.map(ligneNouveaute).join(''); this.parentNode.remove(); });
     memo.ecrire('vu', NOUVEAUTES.length); var pa = $('#at-pastille'); if (pa) pa.hidden = true;
   }
 
