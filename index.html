@@ -662,6 +662,7 @@
   #ville .mc-wrap::before{height:6%}
   #ville .mc-wrap::before{top:0;background:linear-gradient(var(--bg),transparent)}
   #ville .mc-wrap::after{bottom:0;background:linear-gradient(transparent,var(--bg))}
+  @media (max-width:600px){#ville .mc-wrap{height:80vh;min-height:500px}}
 
   #ville .mc-tip{position:absolute;z-index:3;pointer-events:none;background:#fff;color:var(--ink);font-weight:600;font-size:13px;padding:7px 12px;border-radius:999px;box-shadow:0 6px 20px rgba(0,40,70,.15);transform:translate(-50%,-140%);white-space:nowrap;opacity:0;transition:opacity .15s}
   #ville .mc-tip.on{opacity:1}
@@ -759,7 +760,8 @@ scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xffffff, 1.7);
 sun.position.set(-22, 45, 12);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+const PETIT = Math.min(innerWidth, innerHeight) < 700;      // téléphone : réglages plus légers
+sun.shadow.mapSize.set(PETIT ? 1024 : 2048, PETIT ? 1024 : 2048);
 Object.assign(sun.shadow.camera, { left:-45, right:45, top:45, bottom:-45, near:1, far:120 });
 sun.shadow.bias = -0.0006;
 sun.shadow.normalBias = 0.03;
@@ -872,8 +874,8 @@ new FontLoader().load('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts
 // tube éteint (cuivré) -> allumage qui grésille, ronronnement, foudre toutes les 3 à 5 s
 const neonMat = [new THREE.MeshBasicMaterial({ color:0xc98a5e }), new THREE.MeshBasicMaterial({ color:0x8a4a22 })];
 const NEON = { faceOff:new THREE.Color(0xc98a5e), faceOn:new THREE.Color(0xff9a3c), sideOff:new THREE.Color(0x8a4a22), sideOn:new THREE.Color(0xc24e10) };
-const haloTex = canvasTex(256, 128, (c, W, H) => {
-  const gr = c.createRadialGradient(W / 2, H / 2, 4, W / 2, H / 2, W / 2);
+const haloTex = canvasTex(256, 256, (c, W, H) => {
+  const gr = c.createRadialGradient(W / 2, H / 2, 4, W / 2, H / 2, W / 2 - 2);
   gr.addColorStop(0, 'rgba(255,138,42,.9)'); gr.addColorStop(.45, 'rgba(255,106,0,.35)'); gr.addColorStop(1, 'rgba(255,106,0,0)');
   c.fillStyle = gr; c.fillRect(0, 0, W, H);
 });
@@ -1657,12 +1659,12 @@ shop({ x:-26, z:-12, w:5.5, d:6, floors:4, color:0xc7620e });
 
   // phare au sommet : deux faisceaux qui tournent
   const beacon = new THREE.Group(); beacon.position.y = TOP + .4; g.add(anim(beacon));
-  const beamMat = new THREE.MeshBasicMaterial({ color:0xffd27a, transparent:true, opacity:.2, depthWrite:false, side:THREE.DoubleSide });
+  const beamMat = new THREE.MeshBasicMaterial({ color:0xffd27a, transparent:true, opacity:.12, depthWrite:false, side:THREE.DoubleSide });
   for (const s of [1, -1]) {
     const beam = new THREE.Mesh(new THREE.ConeGeometry(1.4, 16, 20, 1, true), beamMat);
     beam.rotation.z = s * Math.PI / 2; beam.position.x = s * 8; beam.rotation.x = 0; beacon.add(beam);
   }
-  const beamCore = new THREE.MeshBasicMaterial({ color:0xffc65a, transparent:true, opacity:.3, depthWrite:false, side:THREE.DoubleSide });
+  const beamCore = new THREE.MeshBasicMaterial({ color:0xffc65a, transparent:true, opacity:.18, depthWrite:false, side:THREE.DoubleSide });
   for (const s of [1, -1]) {
     const core = new THREE.Mesh(new THREE.ConeGeometry(.45, 16, 12, 1, true), beamCore);
     core.rotation.z = s * Math.PI / 2; core.position.x = s * 8; beacon.add(core);
@@ -1941,7 +1943,7 @@ function updateLife(dt, t) {
 }
 
 // ---- neige légère -------------------------------------------------------
-const FLAKES = 650, snowPos = new Float32Array(FLAKES * 3), snowSpd = new Float32Array(FLAKES);
+const FLAKES = PETIT ? 260 : 650, snowPos = new Float32Array(FLAKES * 3), snowSpd = new Float32Array(FLAKES);
 for (let i = 0; i < FLAKES; i++) {
   snowPos[i * 3] = (Math.random() - .5) * 80; snowPos[i * 3 + 1] = Math.random() * 24; snowPos[i * 3 + 2] = (Math.random() - .5) * 80;
   snowSpd[i] = .8 + Math.random() * .9;
@@ -1953,7 +1955,8 @@ const flakeTex = canvasTex(32, 32, (c) => {
   gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.8)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
   c.fillStyle = gr; c.fillRect(0, 0, 32, 32);
 });
-const snow = new THREE.Points(snowGeo, new THREE.PointsMaterial({ map:flakeTex, size:3.6 * Math.min(devicePixelRatio, 2), sizeAttenuation:false, transparent:true, depthWrite:false, opacity:.95 }));
+flakeTex.premultiplyAlpha = true;
+const snow = new THREE.Points(snowGeo, new THREE.PointsMaterial({ map:flakeTex, size:(PETIT ? 2.6 : 3.4) * renderer.getPixelRatio(), sizeAttenuation:false, transparent:true, premultipliedAlpha:true, depthWrite:false, opacity:.9 }));
 snow.frustumCulled = false; snow.renderOrder = 5; scene.add(snow);
 function updateSnow(dt, t, c) {
   for (let i = 0; i < FLAKES; i++) {
@@ -2099,11 +2102,12 @@ function updateReveal(t) {
 
 // ---- caméra, interactions ----------------------------------------------
 const view = { target:new THREE.Vector3(), zoom:1, pan:new THREE.Vector3(), focus:null };
-let halfH = 16;
+let halfH = 16, portrait = false;
 function resize() {
   const w = wrap.clientWidth, h = wrap.clientHeight, a = w / h;
   renderer.setSize(w, h, false);
-  halfH = Math.max(18, 26 / a);
+  portrait = a < .9;
+  halfH = portrait ? Math.max(18, 14.5 / a) : Math.max(18, 26 / a);
   camera.left = -halfH * a; camera.right = halfH * a; camera.top = halfH; camera.bottom = -halfH;
   camera.updateProjectionMatrix();
 }
@@ -2196,7 +2200,7 @@ function frame() {
   const p = THREE.MathUtils.clamp((innerHeight - r.top) / (innerHeight + r.height), 0, 1);
   let zoomGoal = .92 + p * .14;
   if (view.focus) { desired.copy(view.focus); zoomGoal = 1.7; }
-  else desired.set(0, 0, 0).addScaledVector(FAR, (0.5 - p) * 10).add(view.pan);
+  else desired.set(0, 0, 0).addScaledVector(FAR, (0.5 - p) * 10 + (portrait ? 3.5 : 0)).add(view.pan);
   const k = 1 - Math.exp(-dt * 4);
   view.target.lerp(desired, k);
   view.zoom += (zoomGoal - view.zoom) * k;
