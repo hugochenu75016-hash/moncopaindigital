@@ -229,8 +229,12 @@
     return cachePosts;
   }
   function datePost(p) { return new Date(p.scheduled_at || p.created_at || 0); }
-  function estProgramme(p) { return p.scheduled_at && new Date(p.scheduled_at) > new Date() && p.status !== 'draft'; }
-  function estPublie(p) { return /publi|sent|done|success|posted/i.test(p.status || '') || (p.scheduled_at && new Date(p.scheduled_at) <= new Date() && p.status !== 'draft'); }
+  // Statuts réels de social_posts : draft, scheduled, published, failed (et publishing pendant l'envoi).
+  // Un post en échec n'a jamais été vu par les abonnés : il ne compte ni dans l'objectif, ni dans la régularité, ni dans le bilan.
+  function estCompte(p) { return p.status !== 'draft' && p.status !== 'failed'; }
+  function enEchec(p) { return p.status === 'failed'; }
+  function estProgramme(p) { return p.scheduled_at && new Date(p.scheduled_at) > new Date() && estCompte(p); }
+  function estPublie(p) { return p.status === 'published' || p.status === 'publishing'; }
 
   /* ====================================================================== */
   /* 1 · Historique des versions de la légende (20 dernières)                */
@@ -582,8 +586,8 @@
       // Objectif hebdomadaire + série
       var obj = memo.lire('objectif', 3);
       var lundi = new Date(); lundi.setHours(0, 0, 0, 0); lundi.setDate(lundi.getDate() - ((lundi.getDay() + 6) % 7));
-      var semaine = posts.filter(function (p) { var d = datePost(p); return p.status !== 'draft' && d >= lundi && d < plus(lundi, 7); }).length;
-      var serie = 0; for (var s = 1; s < 60; s++) { var deb = plus(lundi, -7 * s), n = posts.filter(function (p) { var d = datePost(p); return p.status !== 'draft' && d >= deb && d < plus(deb, 7); }).length; if (n >= obj) serie++; else break; }
+      var semaine = posts.filter(function (p) { var d = datePost(p); return estCompte(p) && d >= lundi && d < plus(lundi, 7); }).length;
+      var serie = 0; for (var s = 1; s < 60; s++) { var deb = plus(lundi, -7 * s), n = posts.filter(function (p) { var d = datePost(p); return estCompte(p) && d >= deb && d < plus(deb, 7); }).length; if (n >= obj) serie++; else break; }
       if (semaine >= obj) serie++;
       k3.lastChild.remove();
       k3.insertAdjacentHTML('beforeend', '<div class="at-ligne"><b style="font:700 22px Fredoka,sans-serif">' + semaine + ' / ' + obj + '</b><span>publications cette semaine</span><select id="at-obj" style="flex:0 0 auto;margin-left:auto">' + [1, 2, 3, 4, 5, 7, 10, 14].map(function (n) { return '<option' + (n === obj ? ' selected' : '') + ' value="' + n + '">' + n + ' / semaine</option>'; }).join('') + '</select></div>' +
@@ -592,7 +596,7 @@
 
       // Carte de régularité
       var debut = plus(lundi, -7 * 11), parJour = {};
-      posts.forEach(function (p) { if (p.status === 'draft') return; var d = datePost(p); if (d >= debut) parJour[cle(d)] = (parJour[cle(d)] || 0) + 1; });
+      posts.forEach(function (p) { if (!estCompte(p)) return; var d = datePost(p); if (d >= debut) parJour[cle(d)] = (parJour[cle(d)] || 0) + 1; });
       var cases = '', total = 0;
       for (var j = 0; j < 7; j++) for (var w = 0; w < 12; w++) { var d = plus(debut, w * 7 + j), n = parJour[cle(d)] || 0; total += n; cases += '<span class="' + (n >= 3 ? 'n3' : n === 2 ? 'n2' : n === 1 ? 'n1' : '') + '" title="' + jour(d) + ' : ' + n + ' post' + (n > 1 ? 's' : '') + '"></span>'; }
       k4.lastChild.remove();
@@ -646,9 +650,9 @@
     $('#at-cherche').addEventListener('input', async function () {
       var q = this.value.trim().toLocaleLowerCase('fr'), r = $('#at-resultats');
       if (q.length < 2) { r.innerHTML = ''; return; }
-      posts = posts || await lirePosts();
+      posts = await lirePosts();   // toujours la liste du moment (cache de 10 s)
       var trouves = posts.filter(function (p) { return (p.caption + ' ' + p.tags).toLocaleLowerCase('fr').indexOf(q) >= 0; }).slice(0, 15);
-      r.innerHTML = trouves.length ? trouves.map(function (p, i) { return '<div class="at-item"><b>' + jour(datePost(p)) + ' <span class="at-tag ' + (estPublie(p) ? 'vert' : p.status === 'draft' ? '' : 'or') + '">' + (estPublie(p) ? 'publié' : p.status === 'draft' ? 'brouillon' : 'programmé') + '</span></b><small>' + esc(p.caption.slice(0, 180)) + (p.caption.length > 180 ? '…' : '') + '</small><div class="at-actions"><button class="at-btn" data-p="' + i + '">Reprendre</button></div></div>'; }).join('') : '<p>Aucune publication ne contient « ' + esc(q) + ' ».</p>';
+      r.innerHTML = trouves.length ? trouves.map(function (p, i) { return '<div class="at-item"><b>' + jour(datePost(p)) + ' <span class="at-tag ' + (estPublie(p) ? 'vert' : enEchec(p) ? 'rouge' : p.status === 'draft' ? '' : 'or') + '">' + (estPublie(p) ? 'publié' : enEchec(p) ? 'échec' : p.status === 'draft' ? 'brouillon' : 'programmé') + '</span></b><small>' + esc(p.caption.slice(0, 180)) + (p.caption.length > 180 ? '…' : '') + '</small><div class="at-actions"><button class="at-btn" data-p="' + i + '">Reprendre</button></div></div>'; }).join('') : '<p>Aucune publication ne contient « ' + esc(q) + ' ».</p>';
       r.onclick = function (e) { var b = e.target.closest('[data-p]'); if (!b) return; var p = trouves[+b.dataset.p]; ouvrirComposeur(); setTimeout(function () { ecrireLegende(p.caption); if (p.tags) ecrireChamp('tags', p.tags); }, 250); ouvrir(false); message('Texte repris dans le composeur.'); };
     });
 
@@ -870,7 +874,7 @@
       lirePosts().then(function (posts) {
         var depuis = Date.now() - 90 * 864e5, meilleur = null, score = 0;
         posts.forEach(function (p) {
-          if (p.status === 'draft' || !p.caption || p.caption.trim() === t.trim() || datePost(p).getTime() < depuis) return;
+          if (!estCompte(p) || !p.caption || p.caption.trim() === t.trim() || datePost(p).getTime() < depuis) return;
           var r = ressemblance(mots, motsDe(p.caption)); if (r > score) { score = r; meilleur = p; }
         });
         zone.dataset.doublon = score >= 0.55 ? Math.round(score * 100) + '|' + jour(datePost(meilleur)) : '';
@@ -912,7 +916,7 @@
     var k = carte(c, '🕰️ Il y a un an', 'même semaine, l’an dernier');
     k.insertAdjacentHTML('beforeend', '<p>Chargement…</p>');
     lirePosts().then(function (posts) {
-      var centre = Date.now() - 365 * 864e5, l = posts.filter(function (p) { return p.caption && p.status !== 'draft' && Math.abs(datePost(p).getTime() - centre) <= 7 * 864e5; }).slice(0, 5);
+      var centre = Date.now() - 365 * 864e5, l = posts.filter(function (p) { return p.caption && estCompte(p) && Math.abs(datePost(p).getTime() - centre) <= 7 * 864e5; }).slice(0, 5);
       k.lastChild.remove();
       k.insertAdjacentHTML('beforeend', l.length ? '<p>Ce qui a été publié à la même période : une bonne base pour cette année.</p><div class="at-liste">' + l.map(function (p, i) { return '<div class="at-item"><b>' + jour(datePost(p)) + '</b><small>' + esc(p.caption.slice(0, 160)) + (p.caption.length > 160 ? '…' : '') + '</small><div class="at-actions"><button class="at-btn" data-an="' + i + '">Reprendre</button></div></div>'; }).join('') + '</div>' : '<p>Pas encore de publication il y a un an. Dans un an, tes posts d’aujourd’hui apparaîtront ici.</p>');
       k.addEventListener('click', function (e) { var b = e.target.closest('[data-an]'); if (!b) return; var p = l[+b.dataset.an]; ouvrirComposeur(); ouvrir(false); setTimeout(function () { ecrireLegende(p.caption); if (p.tags) ecrireChamp('tags', p.tags); }, 350); });
@@ -935,7 +939,7 @@
     cacheQuand = 0;
     lirePosts().then(function (posts) {
       var obj = memo.lire('objectif', 3), lundi = new Date(); lundi.setHours(0, 0, 0, 0); lundi.setDate(lundi.getDate() - ((lundi.getDay() + 6) % 7));
-      var n = posts.filter(function (p) { var d = datePost(p); return p.status !== 'draft' && d >= lundi && d < plus(lundi, 7); }).length;
+      var n = posts.filter(function (p) { var d = datePost(p); return estCompte(p) && d >= lundi && d < plus(lundi, 7); }).length;
       o.textContent = Math.min(n, 99) + '/' + obj; o.hidden = false; o.classList.toggle('ok', n >= obj);
       o.title = n + ' publication' + (n > 1 ? 's' : '') + ' cette semaine, objectif ' + obj;
     });
@@ -1205,11 +1209,11 @@
     [kB, kM, kT].forEach(function (k) { k.insertAdjacentHTML('beforeend', '<p>Chargement…</p>'); });
     lirePosts().then(function (posts) {
       var auj = new Date(), deb = new Date(auj.getFullYear(), auj.getMonth(), 1), debAv = new Date(auj.getFullYear(), auj.getMonth() - 1, 1), memeJour = new Date(auj.getFullYear(), auj.getMonth() - 1, auj.getDate(), 23, 59);
-      var faits = posts.filter(function (p) { return p.status !== 'draft'; });
+      var faits = posts.filter(estCompte), echecs = posts.filter(enEchec).length;
       var ce = faits.filter(function (p) { var d = datePost(p); return d >= deb && d <= auj; }).length, av = faits.filter(function (p) { var d = datePost(p); return d >= debAv && d <= memeJour; }).length;
       var aVen = faits.filter(estProgramme).length, br = posts.filter(function (p) { return p.status === 'draft'; }).length;
       kB.lastChild.remove();
-      kB.insertAdjacentHTML('beforeend', '<table class="at-table"><tbody><tr><td>Publiés depuis le 1er</td><td><b>' + ce + '</b> ' + (ce > av ? '<span class="at-tag vert">+' + (ce - av) + ' vs mois dernier</span>' : ce < av ? '<span class="at-tag or">' + (ce - av) + ' vs mois dernier</span>' : '<span class="at-tag">comme le mois dernier</span>') + '</td></tr><tr><td>Programmés à venir</td><td><b>' + aVen + '</b></td></tr><tr><td>Brouillons</td><td><b>' + br + '</b></td></tr></tbody></table>');
+      kB.insertAdjacentHTML('beforeend', '<table class="at-table"><tbody><tr><td>Publiés depuis le 1er</td><td><b>' + ce + '</b> ' + (ce > av ? '<span class="at-tag vert">+' + (ce - av) + ' vs mois dernier</span>' : ce < av ? '<span class="at-tag or">' + (ce - av) + ' vs mois dernier</span>' : '<span class="at-tag">comme le mois dernier</span>') + '</td></tr><tr><td>Programmés à venir</td><td><b>' + aVen + '</b></td></tr><tr><td>Brouillons</td><td><b>' + br + '</b></td></tr>' + (echecs ? '<tr><td>En échec</td><td><b>' + echecs + '</b> <span class="at-tag or">à republier depuis l’Historique</span></td></tr>' : '') + '</tbody></table>');
       var mots = topMots(posts.slice(0, 60));
       kM.lastChild.remove();
       kM.insertAdjacentHTML('beforeend', mots.length ? '<div class="at-ligne">' + mots.map(function (m) { return '<span class="at-tag">' + esc(m[0]) + ' ×' + m[1] + '</span>'; }).join('') + '</div><p>Si un mot revient trop, trouve-lui un synonyme : tes abonnés remarquent les répétitions.</p>' : '<p>Pas encore assez de publications.</p>');
