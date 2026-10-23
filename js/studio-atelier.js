@@ -192,29 +192,41 @@
   }
 
   /* ====================================================================== */
-  /* Publications (lecture seule) : base Supabase, ou mémoire locale (démo)  */
+  /* Publications (lecture seule) : la copie locale que le Studio tient à jour */
   /* ====================================================================== */
-  var URL_SB = 'https://fskrgqkrpgxvypcwbfwm.supabase.co';
-  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZza3JncWtycGd4dnlwY3diZndtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI0OTY0MjgsImV4cCI6MjEwODA3MjQyOH0.rY5AB0ZwPsCqu_p74Ph09_fGj92uDztoYDwJvH1jmIU';   // clé publique du site
+  /* Le Studio recopie dans localStorage (mcd_social_posts_<identifiant>) les posts qu'il a chargés depuis la base,
+     déjà filtrés sur l'utilisateur, ou sur le client géré en mode agence. L'Atelier lit cette copie, et seulement
+     celle du compte actif : aucune requête Supabase en plus, aucun 2ᵉ client de connexion, jamais les posts d'un autre compte. */
+  var PREFIXE_POSTS = 'mcd_social_posts_', cleActive = '';
+  try {
+    var ecrireOrig = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (k, v) {
+      if (this === window.localStorage && typeof k === 'string' && k.indexOf(PREFIXE_POSTS) === 0) cleActive = k;   // la dernière copie écrite par le Studio = le compte affiché
+      return ecrireOrig.apply(this, arguments);
+    };
+  } catch (e) {}
+  function uidSession() {
+    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (/^sb-.*-auth-token$/.test(k)) { var o = JSON.parse(localStorage.getItem(k) || 'null'); if (o && o.user && o.user.id) return o.user.id; } } } catch (e) {}
+    return '';
+  }
+  function cleDesPosts() {
+    if (cleActive) return cleActive;
+    var uid = uidSession(); if (uid) return PREFIXE_POSTS + uid;
+    if (window.MCD_DEMO) { try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (/^mcd_social_posts_demo/.test(k)) return k; } } catch (e) {} }
+    return PREFIXE_POSTS + 'anon';
+  }
   var cachePosts = null, cacheQuand = 0;
   function postsLocaux() {
-    var tous = [];
-    try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (/^mcd_social_posts_/.test(k)) { var l = JSON.parse(localStorage.getItem(k) || '[]'); if (Array.isArray(l)) tous = tous.concat(l); } } } catch (e) {}
-    return tous.map(function (p) { return { caption: p.caption || '', tags: p.tags || '', nets: p.nets || p.networks || [], status: p.status || 'draft', scheduled_at: p.scheduled_at || null, created_at: p.created_at || null }; });
+    var l = [];
+    try { l = JSON.parse(localStorage.getItem(cleDesPosts()) || '[]'); } catch (e) {}
+    if (!Array.isArray(l)) l = [];
+    return l.map(function (p) { return { caption: p.caption || '', tags: p.tags || '', nets: p.nets || p.networks || [], status: p.status || 'draft', scheduled_at: p.scheduled_at || null, created_at: p.created_at || null }; })
+      .sort(function (a, b) { return new Date(b.created_at || 0) - new Date(a.created_at || 0); });
   }
   async function lirePosts() {
-    if (cachePosts && Date.now() - cacheQuand < 60000) return cachePosts;
-    var liste = null;
-    if (!window.MCD_DEMO && window.supabase && window.supabase.createClient) {
-      try {
-        var sb = lirePosts.sb || (lirePosts.sb = window.supabase.createClient(URL_SB, ANON));
-        var r = await sb.from('social_posts').select('caption,tags,networks,status,scheduled_at,created_at').order('created_at', { ascending: false }).limit(500);
-        if (!r.error && Array.isArray(r.data)) liste = r.data.map(function (p) { return { caption: p.caption || '', tags: p.tags || '', nets: p.networks || [], status: p.status, scheduled_at: p.scheduled_at, created_at: p.created_at }; });
-      } catch (e) {}
-    }
-    if (!liste) liste = postsLocaux();
-    cachePosts = liste; cacheQuand = Date.now();
-    return liste;
+    if (cachePosts && Date.now() - cacheQuand < 10000) return cachePosts;
+    cachePosts = postsLocaux(); cacheQuand = Date.now();
+    return cachePosts;
   }
   function datePost(p) { return new Date(p.scheduled_at || p.created_at || 0); }
   function estProgramme(p) { return p.scheduled_at && new Date(p.scheduled_at) > new Date() && p.status !== 'draft'; }
