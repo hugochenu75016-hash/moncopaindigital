@@ -412,7 +412,7 @@
     var deja = t, prop = [];
     EMOJI_MOTS.forEach(function (x) { if (x[0].test(t) && deja.indexOf(x[1]) < 0 && prop.indexOf(x[1]) < 0) prop.push(x[1]); });
     var em = $('#at-emojis');
-    em.innerHTML = prop.length ? '<span class="at-lbl" style="font:700 11.5px Fredoka,sans-serif;color:#8b7562;text-transform:uppercase;letter-spacing:.06em">Émojis suggérés</span>' + prop.slice(0, 8).map(function (e) { return '<button type="button" data-e="' + e + '" title="Insérer">' + e + '</button>'; }).join('') : '';
+    em.innerHTML = prop.length ? '<span class="at-lbl" style="font:700 11.5px Fredoka,sans-serif;color:#7f6b5a;text-transform:uppercase;letter-spacing:.06em">Émojis suggérés</span>' + prop.slice(0, 8).map(function (e) { return '<button type="button" data-e="' + e + '" title="Insérer">' + e + '</button>'; }).join('') : '';
   }
   document.addEventListener('click', function (e) { var b = e.target.closest('#at-emojis [data-e]'); if (b) inserer(b.dataset.e); });
 
