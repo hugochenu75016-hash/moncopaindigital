@@ -101,7 +101,7 @@
   .defile{position:fixed;left:var(--pad);bottom:22px;z-index:55;display:block;width:280px;height:92px;padding:0;border:0;background:none;cursor:pointer;font:inherit}
   .defile .d-l{position:absolute;left:0;bottom:0;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:40px;line-height:.86;color:var(--or2);transform-origin:50% 50%;will-change:transform,opacity;
     -webkit-text-stroke:1px #fff;paint-order:stroke fill;text-shadow:1px 1px 0 #e5711a,2px 2px 0 #db6815,3px 3px 0 #C7620E,4px 4px 0 #b8560a,5px 6px 9px rgba(20,60,90,.35)}
-  /* pastille blanche qui gonfle sous l'anneau : il reste lisible sur le bleu, l'orange du bandeau et le gris clair des sections */
+  /* pastille blanche qui gonfle sous l'anneau : il reste lisible sur le bleu, l'orange et le gris clair des sections */
   .defile .d-disque{position:absolute;left:0;bottom:0;width:92px;height:92px;border-radius:50%;background:#fff;box-shadow:0 10px 26px rgba(20,60,90,.22);transform:scale(0)}
   .defile svg{position:absolute;left:0;bottom:0;width:92px;height:92px;transform:rotate(-90deg);overflow:visible;pointer-events:none}
   .defile .d-fond{fill:none;stroke:rgba(243,133,43,.2);stroke-width:5}
@@ -110,16 +110,11 @@
   @media (max-width:520px){.defile{width:200px}.defile .d-l{font-size:28px}}
 
   /* ---------- 2. Bandeau qui défile ---------- */
-  .bande{overflow:hidden;padding:20px 0;border-top:2px solid rgba(255,255,255,.4);border-bottom:2px solid rgba(255,255,255,.4)}
-  .bande .rail{display:flex;width:max-content;will-change:transform}
-  .bande .rail span{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(34px,5vw,72px);white-space:nowrap;padding-right:.5em}
-  .bande .rail span i{color:var(--blue);font-style:normal;padding:0 .3em}
 
   /* ---------- 3. Particuliers : les cartes défilent à l'horizontale, Marshall coche au passage ---------- */
   .parti{overflow:hidden}
   .parti .tete{padding:110px var(--pad) 30px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
   .parti h2{font-size:clamp(48px,7vw,130px)}
-  .parti .prix{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:22px;background:var(--or);color:#fff;padding:12px 18px;transform:rotate(-3deg)}
   .parti .scene{position:relative;height:min(64vh,560px);display:flex;align-items:center}
   .parti .piste{display:flex;gap:18px;padding-left:min(30vw,380px);padding-right:var(--pad);will-change:transform}
   .carte{flex:none;width:clamp(230px,22vw,300px);min-height:260px;padding:22px;background:#fff;color:var(--ink);border:2px solid var(--blue);display:flex;flex-direction:column;gap:10px;transition:background .3s,color .3s,transform .3s}
@@ -228,19 +223,77 @@
   @media (max-width:900px){.commerce{grid-template-columns:1fr}.tel-zone{min-height:0;padding-bottom:20px}.conv{margin:0 auto}.conv-fil{min-height:400px}.tel-marshall{height:300px;left:-20px;bottom:-20px}}
 
   /* ---------- 7. Pros : les cartes se retournent ---------- */
-  .pros{padding:110px var(--pad)}
   .pros .tete{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .pros{padding:110px var(--pad)}
   .pros h2{font-size:clamp(46px,6.4vw,120px)}
-  .pros .tete img{height:200px;width:auto}
-  .tuiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:40px;perspective:1200px}
-  .tuile{padding:26px 22px;min-height:230px;background:rgba(255,255,255,.14);border:2px solid #fff;display:flex;flex-direction:column;gap:12px;transform-origin:50% 0;transition:background .3s,color .3s}
+  .tuiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:230px}   /* place pour les Marshall assis */
+  .tuile{position:relative;padding:26px 22px;min-height:230px;background:rgba(255,255,255,.14);border:2px solid #fff;display:flex;flex-direction:column;gap:12px;transition:background .3s,color .3s}
   .tuile:hover{background:#fff;color:var(--blue)}
   .tuile b{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:30px;line-height:.95}
   .tuile p{margin:0;font-size:15px;font-weight:600}
   .tuile .devis{margin-top:auto;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:14px;color:var(--or)}
-  .pros .bas{margin-top:34px}
-  @media (max-width:1000px){.tuiles{grid-template-columns:repeat(2,1fr)}}
-  @media (max-width:560px){.tuiles{grid-template-columns:1fr}}
+
+  /* Marshall posé sur le bord haut de la carte : le bas de l'image touche le cadre */
+  .assis{position:absolute;left:50%;bottom:calc(100% - 14px);width:170px;transform:translateX(-50%);pointer-events:none;z-index:2;transform-origin:50% 100%;transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+  .assis img{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 12px rgba(0,40,70,.25))}
+  .tuile:hover .assis{transform:translateX(-50%) translateY(-8px)}
+  /* au scroll, chaque carte pivote pour se montrer de face, puis Marshall apparaît dans un nuage de poussière magique */
+  .tuiles{perspective:1200px}
+  #pros.anim .tuile{transform:rotateY(-110deg);opacity:0;transform-origin:50% 50%;transition:transform .9s cubic-bezier(.2,1.25,.4,1),opacity .3s ease,background .3s,color .3s}
+  #pros.anim .tuile.vu{transform:none;opacity:1}
+  #pros.anim .assis{opacity:0;scale:.35;transition:transform .35s cubic-bezier(.2,.9,.3,1.4),opacity .25s ease .55s,scale .6s cubic-bezier(.3,1.7,.5,1) .55s}
+  #pros.anim .assis img{filter:drop-shadow(0 10px 12px rgba(0,40,70,.25)) brightness(2.2) blur(3px);transition:filter .7s ease .6s}
+  #pros.anim .tuile.vu .assis{opacity:1;scale:1}
+  #pros.anim .tuile.vu .assis img{filter:drop-shadow(0 10px 12px rgba(0,40,70,.25))}
+  #pros.anim .fx{opacity:0;transition:opacity .4s ease}
+  #pros.anim .tuile.vu .fx{opacity:1;transition-delay:1.1s}
+  /* poussière magique : éclair, anneau et étincelles lancées par le script */
+  .pouf{position:absolute;left:50%;bottom:calc(100% + 95px);width:0;height:0;z-index:4;pointer-events:none}
+  .pouf .eclair{position:absolute;left:-120px;top:-120px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,214,120,.55) 35%,transparent 68%);animation:eclair .7s ease-out forwards}
+  .pouf .anneau{position:absolute;left:-30px;top:-30px;width:60px;height:60px;border-radius:50%;border:3px solid rgba(255,236,170,.9);box-shadow:0 0 18px rgba(255,200,90,.8);animation:anneau .8s cubic-bezier(.2,.8,.3,1) forwards}
+  .pouf i{position:absolute;left:0;top:0;width:var(--t);height:var(--t);margin:calc(var(--t)/-2);border-radius:50%;background:var(--c);box-shadow:0 0 6px var(--c),0 0 14px var(--c);animation:etincelle var(--d) cubic-bezier(.1,.7,.3,1) forwards}
+  .pouf i.etoile{border-radius:0;background:none;box-shadow:none;width:auto;height:auto;margin:-.6em;font-size:var(--t);line-height:1;color:var(--c);text-shadow:0 0 8px var(--c)}
+  @keyframes eclair{0%{transform:scale(.2);opacity:0}25%{opacity:1}100%{transform:scale(1.5);opacity:0}}
+  @keyframes anneau{0%{transform:scale(.3);opacity:1}100%{transform:scale(3.4);opacity:0}}
+  @keyframes etincelle{0%{transform:translate(0,0) scale(1) rotate(0);opacity:1}70%{opacity:1}100%{transform:translate(var(--x),var(--y)) scale(.2) rotate(var(--r));opacity:0}}
+
+  /* petite animation du service, à côté de Marshall */
+  .fx{position:absolute;z-index:3;pointer-events:none}
+  /* sites web : fenêtre de navigateur qui se construit */
+  .fx-site{right:14px;top:-112px;width:92px;height:64px;background:#fff;border-radius:6px;box-shadow:0 8px 18px rgba(0,40,70,.2);overflow:hidden;animation:flotte 3s ease-in-out infinite}
+  .fx-site::before{content:"";display:block;height:10px;background:var(--blued)}
+  .fx-site i{display:block;height:7px;margin:6px 8px 0;border-radius:4px;background:#e4eef5;transform-origin:0 50%;animation:ligne 3.6s ease-in-out infinite}
+  .fx-site i:nth-child(1){background:var(--or);width:50%}
+  .fx-site i:nth-child(2){animation-delay:.3s}.fx-site i:nth-child(3){width:70%;animation-delay:.6s}
+  @keyframes ligne{0%,10%{transform:scaleX(0)}40%,90%{transform:scaleX(1)}100%{transform:scaleX(0)}}
+  /* audit : un trait de scan balaie la carte */
+  .fx-scan{left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent);box-shadow:0 0 12px var(--or);animation:scan 3.2s ease-in-out infinite;opacity:.85}
+  @keyframes scan{0%{top:0}50%{top:calc(100% - 2px)}100%{top:0}}
+  /* serveurs : barre de sauvegarde */
+  .fx-sauve{left:22px;right:22px;bottom:58px;height:8px;border-radius:4px;background:rgba(255,255,255,.3);overflow:hidden}
+  .fx-sauve::before{content:"";position:absolute;inset:0;background:var(--or);transform-origin:0 50%;animation:sauve 3.4s ease-in-out infinite}
+  @keyframes sauve{0%{transform:scaleX(0)}70%,100%{transform:scaleX(1)}}
+  .tuile:hover .fx-sauve{background:#e4eef5}
+  @keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+  .pros .bas{margin-top:34px;position:relative}
+  /* bouton « Demander un devis » : arrive après les 4 Marshall, reflet qui passe, halo qui respire, étincelles au survol */
+  .devis-btn{position:relative;overflow:hidden;isolation:isolate;animation:halo 2.6s ease-out 1.2s infinite}
+  .devis-btn::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:-1;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:reflet 3.6s ease-in-out 1.5s infinite}
+  .devis-btn svg{animation:fleche 1.8s ease-in-out infinite}
+  .devis-btn:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(200,90,10,.35)}
+  .devis-btn:hover svg{animation-duration:.7s}
+  .devis-btn{transition:background .25s,color .25s,border-color .25s,transform .25s,box-shadow .25s}
+  @keyframes reflet{0%{left:-60%}35%,100%{left:130%}}
+  @keyframes halo{0%{box-shadow:0 0 0 0 rgba(243,133,43,.55)}70%,100%{box-shadow:0 0 0 16px rgba(243,133,43,0)}}
+  @keyframes fleche{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+  #pros.anim .devis-btn{opacity:0;transform:translateY(24px) scale(.85)}
+  #pros.anim .bas.vu .devis-btn{opacity:1;transform:none;transition:opacity .35s ease,transform .6s cubic-bezier(.3,1.7,.5,1),background .25s,color .25s,border-color .25s,box-shadow .25s}
+  #pros.anim .bas.vu .devis-btn:hover{transform:translateY(-3px)}
+  .bas .pouf{bottom:auto;top:var(--cy,28px);left:var(--cx,110px)}
+  @media (max-width:1000px){.tuiles{grid-template-columns:repeat(2,1fr);row-gap:190px}}
+  @media (max-width:560px){.tuiles{grid-template-columns:1fr;row-gap:170px;margin-top:170px}.assis{width:150px}}
+  @media (prefers-reduced-motion:reduce){.fx,.fx *,.fx::before{animation:none!important}#pros.anim .tuile,#pros.anim .assis,#pros.anim .assis img,#pros.anim .fx,#pros.anim .devis-btn{opacity:1;transform:none;scale:none;filter:none;transition:none}.pouf{display:none}.devis-btn,.devis-btn::before,.devis-btn svg{animation:none}}
 
   /* ---------- 8. FAQ ---------- */
   .faq{padding:110px var(--pad)}
@@ -517,17 +570,10 @@
   </div>
 </section>
 
-<!-- 2. BANDEAU -->
-<div class="bande orange" aria-hidden="true"><div class="rail" id="rail">
-  <span>Ordinateur<i>✦</i>Smartphone<i>✦</i>Tablette<i>✦</i>Wi-Fi<i>✦</i>Démarches<i>✦</i>Sites web<i>✦</i>Google<i>✦</i>Instagram<i>✦</i></span>
-  <span>Ordinateur<i>✦</i>Smartphone<i>✦</i>Tablette<i>✦</i>Wi-Fi<i>✦</i>Démarches<i>✦</i>Sites web<i>✦</i>Google<i>✦</i>Instagram<i>✦</i></span>
-</div></div>
-
 <!-- 3. PARTICULIERS -->
 <section class="parti light" id="particuliers">
   <div class="tete">
     <div><span class="lbl">Particuliers</span><h2 class="disp">Chez vous,<br><em>à votre rythme</em></h2></div>
-    <span class="prix">dès 49 € la séance d’1 h</span>
   </div>
   <div class="scene" id="scene">
     <div class="piste" id="piste">
@@ -642,20 +688,89 @@
   </div>
 </section>
 
-<!-- 7. PROS -->
+<!-- 7. PROS : Marshall assis et animé sur chaque carte (maquette : maquettes/marshall-cartes) -->
 <section class="pros dark" id="pros">
   <div class="tete">
     <div><span class="lbl">Entreprises</span><h2 class="disp">Votre informatique<br><em>qui tourne seule</em></h2></div>
-    <img class="marshall" id="pros-marshall" src="images/agents/ag-testing.webp" alt="Marshall compare deux solutions" loading="lazy">
   </div>
   <div class="tuiles" id="tuiles">
-    <div class="tuile"><b>Sites web</b><p>Un site clair et rapide, que vous savez modifier, avec le référencement et la fiche Google.</p><span class="devis">Sur devis</span></div>
-    <div class="tuile"><b>Audit &amp; infogérance</b><p>Parc informatique, check-up sécurité et réseaux, maintenance et assistance prioritaire.</p><span class="devis">Sur devis</span></div>
-    <div class="tuile"><b>Cybersécurité</b><p>Protection contre les menaces, accès et mots de passe sécurisés, équipes formées aux bons réflexes.</p><span class="devis">Sur devis</span></div>
-    <div class="tuile"><b>Serveurs &amp; sauvegarde</b><p>Serveurs, NAS, sauvegarde hybride et plan de reprise d’activité.</p><span class="devis">Sur devis</span></div>
+    <div class="tuile">
+      <div class="assis"><img loading="lazy" src="images/marshall-ordi.webp" alt="Marshall assis sur la carte, code un site sur son ordinateur"></div>
+      <div class="fx fx-site"><i></i><i></i><i></i></div>
+      <b>Sites web</b><p>Un site clair et rapide, que vous savez modifier, avec le référencement et la fiche Google.</p><span class="devis">Sur devis</span>
+    </div>
+    <div class="tuile">
+      <div class="assis"><img loading="lazy" src="images/marshall-assis-audit.webp" alt="Marshall inspecte le parc informatique à la loupe"></div>
+      <div class="fx fx-scan"></div>
+      <b>Audit &amp; infogérance</b><p>Parc informatique, check-up sécurité et réseaux, maintenance et assistance prioritaire.</p><span class="devis">Sur devis</span>
+    </div>
+    <div class="tuile">
+      <div class="assis"><img loading="lazy" src="images/marshall-assis-cyber.webp" alt="Marshall verrouille les accès"></div>
+      <b>Cybersécurité</b><p>Protection contre les menaces, accès et mots de passe sécurisés, équipes formées aux bons réflexes.</p><span class="devis">Sur devis</span>
+    </div>
+    <div class="tuile">
+      <div class="assis"><img loading="lazy" src="images/marshall-assis-sauvegarde.webp" alt="Marshall lance la sauvegarde des serveurs"></div>
+      <div class="fx fx-sauve"></div>
+      <b>Serveurs &amp; sauvegarde</b><p>Serveurs, NAS, sauvegarde hybride et plan de reprise d’activité.</p><span class="devis">Sur devis</span>
+    </div>
   </div>
-  <div class="bas"><a class="btn fill" href="rendez-vous.html">Demander un devis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
+  <div class="bas" id="bas"><a class="btn fill devis-btn" href="rendez-vous.html">Demander un devis <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div>
 </section>
+<script>
+  // les cartes pivotent l'une après l'autre quand elles arrivent à l'écran, puis Marshall apparaît dans un nuage de poussière magique
+  (() => {
+    document.getElementById('pros').classList.add('anim');   // sans script, tout reste visible
+    const tuiles = [...document.querySelectorAll('#tuiles .tuile')];
+    const calme = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const COULEURS = ['#fff', '#FFE39A', '#FFC24D', '#FF9C46', '#BFE8FF'];
+    // nuage de poussière magique : n étincelles projetées jusqu'à r px (petit = sans éclair ni anneau, pour le survol du bouton)
+    const pouf = (hote, n = 56, r0 = 70, r1 = 120, petit = false) => {
+      if (calme) return;
+      const p = document.createElement('div'); p.className = 'pouf';
+      if (!petit) p.innerHTML = '<span class="eclair"></span><span class="anneau"></span>';
+      for (let k = 0; k < n; k++) {
+        const i = document.createElement('i'), a = Math.random() * Math.PI * 2, r = r0 + Math.random() * r1;
+        if (k % 3 === 0) { i.className = 'etoile'; i.textContent = k % 2 ? '✦' : '✧'; }
+        i.style.cssText = `--x:${Math.cos(a) * r}px;--y:${Math.sin(a) * r * .85 - (petit ? 10 : 30)}px;--t:${k % 3 ? 4 + Math.random() * 6 : (petit ? 10 : 16) + Math.random() * 12}px;`
+          + `--c:${COULEURS[k % COULEURS.length]};--d:${.9 + Math.random() * .8}s;--r:${Math.random() * 360 - 180}deg`;
+        p.appendChild(i);
+      }
+      hote.appendChild(p);
+      setTimeout(() => p.remove(), 2000);
+    };
+    // le bouton arrive juste après le dernier Marshall, dans son propre petit nuage
+    const bas = document.getElementById('bas'), bouton = bas.querySelector('.devis-btn');
+    const montrerBouton = () => { if (bas.classList.contains('vu')) return; bas.classList.add('vu'); setTimeout(() => pouf(bas, 30, 40, 90), 150); };
+    const centrer = () => { bas.style.setProperty('--cx', bouton.offsetWidth / 2 + 'px'); bas.style.setProperty('--cy', bouton.offsetHeight / 2 + 'px'); };
+    centrer(); addEventListener('resize', centrer);
+    let survol = 0;
+    bouton.addEventListener('pointerenter', () => { if (performance.now() - survol > 700) { survol = performance.now(); pouf(bas, 16, 20, 60, true); } });
+    const montrer = t => {
+      t.classList.add('vu'); setTimeout(() => pouf(t), 520);
+      if (t === tuiles[tuiles.length - 1]) setTimeout(montrerBouton, 1000);
+    };
+    if (!('IntersectionObserver' in window)) { tuiles.forEach(t => t.classList.add('vu')); bas.classList.add('vu'); return; }
+    let rang = 0, dernier = 0;
+    const obs = new IntersectionObserver(entrees => {
+      // cartes déjà dépassées (arrivée directe plus bas dans la page) : affichées sans animation
+      entrees.filter(e => !e.isIntersecting && e.boundingClientRect.bottom < 0).forEach(e => { obs.unobserve(e.target); e.target.classList.add('vu'); });
+      entrees.filter(e => e.isIntersecting).forEach(e => {
+        obs.unobserve(e.target);
+        const maintenant = performance.now();
+        if (maintenant - dernier > 900) rang = 0;          // nouvelle vague (sur mobile, une carte à la fois)
+        dernier = maintenant;
+        setTimeout(() => montrer(e.target), rang++ * 420);
+      });
+    }, { threshold: .25 });
+    tuiles.forEach(t => obs.observe(t));
+    // le bouton n'attend pas forcément le dernier Marshall : il arrive aussi dès qu'il est lui-même à l'écran
+    new IntersectionObserver(([e], o) => {
+      if (!e.isIntersecting) return;
+      o.disconnect();
+      setTimeout(montrerBouton, tuiles.every(t => t.classList.contains('vu')) ? 300 : 1400);
+    }, { threshold: .6 }).observe(bas);
+  })();
+</script>
 
 <!-- MARSHALL CITY -->
 <style>
@@ -2491,11 +2606,6 @@ else {
     gsap.to(vue, { keyframes:[{ i:12, duration:1.8 }, { i:FACE, duration:1.4, delay:.8 }, { i:NB - 13, duration:1.8 }, { i:FACE, duration:1.2, delay:.8 }], repeat:-1, repeatDelay:1.5, ease:'sine.inOut', onUpdate:afficher });
   });
 
-  /* ---------- 2. Bandeau : défile tout seul, accélère quand on fait défiler la page ---------- */
-  var rail = document.getElementById('rail');
-  var boucle = gsap.to(rail, { xPercent:-50, duration:22, ease:'none', repeat:-1 });
-  ScrollTrigger.create({ onUpdate:function(st){ var v = Math.min(4, 1 + Math.abs(st.getVelocity()) / 600); gsap.to(boucle, { timeScale:st.direction < 0 ? -v : v, duration:.3, overwrite:true }); gsap.to(boucle, { timeScale:st.direction < 0 ? -1 : 1, duration:1.2, delay:.3 }); } });
-
   /* ---------- 3. Particuliers : les cartes défilent à l'horizontale, Marshall coche celle qui passe devant lui ---------- */
   var piste = document.getElementById('piste'), cartes = [].slice.call(piste.children), coach = document.getElementById('coach');
   var mm = gsap.matchMedia();
@@ -2515,7 +2625,6 @@ else {
     return function(){ tws.forEach(function(t){ t.kill(); }); };
   });
   gsap.from('#coach', { x:-200, opacity:0, duration:1, ease:'back.out(1.4)', scrollTrigger:{ trigger:'#particuliers', start:'top 60%' } });
-  gsap.from('.parti .prix', { scale:0, rotate:-30, duration:.8, ease:'back.out(2.5)', scrollTrigger:{ trigger:'#particuliers', start:'top 70%' } });
 
   /* ---------- 4. Comment ça marche : le chemin se trace, Marshall court dessus et allume chaque étape ---------- */
   var route = document.getElementById('route'), trace = document.getElementById('trace'), coureur = document.getElementById('coureur'), chemin = document.getElementById('chemin');
@@ -2569,9 +2678,7 @@ else {
   gsap.from('#tel-marshall', { x:-160, opacity:0, duration:1, delay:.3, ease:'back.out(1.5)', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
   gsap.from('.commerce li', { x:-40, opacity:0, duration:.7, stagger:.1, ease:'expo.out', scrollTrigger:{ trigger:'.commerce ul', start:'top 80%' } });
 
-  /* ---------- 7. Pros : les tuiles tombent comme des cartes retournées ---------- */
-  gsap.from('.tuile', { rotateX:-95, opacity:0, duration:1, stagger:.12, ease:'back.out(1.4)', scrollTrigger:{ trigger:'#tuiles', start:'top 80%' } });
-  gsap.from('#pros-marshall', { y:120, opacity:0, duration:1, ease:'back.out(1.6)', scrollTrigger:{ trigger:'#pros', start:'top 70%' } });
+  /* ---------- 7. Pros : animée par son propre script (cartes qui pivotent, Marshall dans la poussière magique) ---------- */
 
   /* ---------- 8. FAQ ---------- */
   gsap.from('.faq details', { x:60, opacity:0, duration:.7, stagger:.07, ease:'expo.out', scrollTrigger:{ trigger:'.faq', start:'top 75%' } });
