@@ -175,6 +175,12 @@
   .ombre{position:absolute;left:0;top:0;width:34px;height:10px;border-radius:50%;background:rgba(0,40,70,.22);transform:translate(-50%,-50%);z-index:4;pointer-events:none}
   .bulle-dit{position:absolute;left:52%;top:36%;z-index:7;padding:12px 16px;background:#fff;color:var(--or);border:3px solid var(--or);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(16px,1.7vw,22px);line-height:1;border-radius:18px 18px 18px 4px;white-space:nowrap}
   @media (max-width:900px){.ou{grid-template-columns:1fr}.plan{max-width:520px}}
+  /* PC : la section tient dans l'écran (le plan suit la hauteur disponible sous l'en-tête),
+     ainsi elle est épinglée bien centrée au lieu d'être coupée en haut avec un vide en bas */
+  @media (min-width:901px){
+    .ou{box-sizing:border-box;min-height:100vh;min-height:100svh;padding-top:calc(84px + 2vh);padding-bottom:4vh;align-content:center}
+    .plan{max-width:min(640px,calc((100vh - 84px - 8vh) * 1.1))}
+  }
 
   /* ---------- 6. Commerçants : le téléphone de Studio Social ---------- */
   .commerce{padding:110px var(--pad);display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center;overflow:hidden}
@@ -223,18 +229,23 @@
   @media (max-width:900px){.commerce{grid-template-columns:1fr}.tel-zone{min-height:0;padding-bottom:20px}.conv{margin:0 auto}.conv-fil{min-height:400px}.tel-marshall{height:300px;left:-20px;bottom:-20px}}
 
   /* ---------- 7. Pros : les cartes se retournent ---------- */
-  .pros .tete{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
-  .pros{padding:110px var(--pad)}
-  .pros h2{font-size:clamp(46px,6.4vw,120px)}
-  .tuiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:230px}   /* place pour les Marshall assis */
-  .tuile{position:relative;padding:26px 22px;min-height:230px;background:rgba(255,255,255,.14);border:2px solid #fff;display:flex;flex-direction:column;gap:12px;transition:background .3s,color .3s}
+  /* PROS : début (généré depuis maquettes/marshall-cartes par vers-site.py) */
+  .pros .tete{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  /* toute la section tient dans l'écran : les tailles suivent la hauteur (vh) autant que la largeur.
+     --m = largeur d'un Marshall assis (il est ~1,45 fois plus haut que large) ; --entete = place de l'en-tête fixe du site */
+  .pros{--entete:84px;--m:clamp(84px,17vh,170px);box-sizing:border-box;height:100vh;height:100svh;min-height:520px;
+    padding:calc(var(--entete) + 3vh) var(--pad) 3vh;display:flex;flex-direction:column;justify-content:center}
+  .pros .tete{text-align:center;justify-content:center}
+  .pros h2{font-size:clamp(34px,min(6.4vw,10vh),120px)}
+  .tuiles{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:calc(var(--m) * 1.42)}   /* place pour les Marshall assis */
+  .tuile{position:relative;padding:clamp(12px,2.6vh,26px) clamp(12px,1.8vw,22px);background:rgba(255,255,255,.14);border:2px solid #fff;display:flex;flex-direction:column;gap:clamp(6px,1.4vh,12px);transition:background .3s,color .3s}
   .tuile:hover{background:#fff;color:var(--blue)}
-  .tuile b{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:30px;line-height:.95}
-  .tuile p{margin:0;font-size:15px;font-weight:600}
-  .tuile .devis{margin-top:auto;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:14px;color:var(--or)}
+  .tuile b{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(17px,3.4vh,30px);line-height:.95}
+  .tuile p{margin:0;font-size:clamp(12px,1.95vh,15px);line-height:1.4;font-weight:600}
+  .tuile .devis{margin-top:auto;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(11px,1.7vh,14px);color:var(--or)}
 
   /* Marshall posé sur le bord haut de la carte : le bas de l'image touche le cadre */
-  .assis{position:absolute;left:50%;bottom:calc(100% - 14px);width:170px;transform:translateX(-50%);pointer-events:none;z-index:2;transform-origin:50% 100%;transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+  .assis{position:absolute;left:50%;bottom:calc(100% - var(--m) * .08);width:var(--m);transform:translateX(-50%);pointer-events:none;z-index:2;transform-origin:50% 100%;transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
   .assis img{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 12px rgba(0,40,70,.25))}
   .tuile:hover .assis{transform:translateX(-50%) translateY(-8px)}
   /* au scroll, chaque carte pivote pour se montrer de face, puis Marshall apparaît dans un nuage de poussière magique */
@@ -248,7 +259,7 @@
   #pros.anim .fx{opacity:0;transition:opacity .4s ease}
   #pros.anim .tuile.vu .fx{opacity:1;transition-delay:1.1s}
   /* poussière magique : éclair, anneau et étincelles lancées par le script */
-  .pouf{position:absolute;left:50%;bottom:calc(100% + 95px);width:0;height:0;z-index:4;pointer-events:none}
+  .pouf{position:absolute;left:50%;bottom:calc(100% + var(--m) * .56);width:0;height:0;z-index:4;pointer-events:none}
   .pouf .eclair{position:absolute;left:-120px;top:-120px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95),rgba(255,214,120,.55) 35%,transparent 68%);animation:eclair .7s ease-out forwards}
   .pouf .anneau{position:absolute;left:-30px;top:-30px;width:60px;height:60px;border-radius:50%;border:3px solid rgba(255,236,170,.9);box-shadow:0 0 18px rgba(255,200,90,.8);animation:anneau .8s cubic-bezier(.2,.8,.3,1) forwards}
   .pouf i{position:absolute;left:0;top:0;width:var(--t);height:var(--t);margin:calc(var(--t)/-2);border-radius:50%;background:var(--c);box-shadow:0 0 6px var(--c),0 0 14px var(--c);animation:etincelle var(--d) cubic-bezier(.1,.7,.3,1) forwards}
@@ -260,7 +271,7 @@
   /* petite animation du service, à côté de Marshall */
   .fx{position:absolute;z-index:3;pointer-events:none}
   /* sites web : fenêtre de navigateur qui se construit */
-  .fx-site{right:14px;top:-112px;width:92px;height:64px;background:#fff;border-radius:6px;box-shadow:0 8px 18px rgba(0,40,70,.2);overflow:hidden;animation:flotte 3s ease-in-out infinite}
+  .fx-site{right:8%;top:calc(var(--m) * -.66);width:calc(var(--m) * .54);height:calc(var(--m) * .38);background:#fff;border-radius:6px;box-shadow:0 8px 18px rgba(0,40,70,.2);overflow:hidden;animation:flotte 3s ease-in-out infinite}
   .fx-site::before{content:"";display:block;height:10px;background:var(--blued)}
   .fx-site i{display:block;height:7px;margin:6px 8px 0;border-radius:4px;background:#e4eef5;transform-origin:0 50%;animation:ligne 3.6s ease-in-out infinite}
   .fx-site i:nth-child(1){background:var(--or);width:50%}
@@ -269,14 +280,15 @@
   /* audit : un trait de scan balaie la carte */
   .fx-scan{left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,var(--or),transparent);box-shadow:0 0 12px var(--or);animation:scan 3.2s ease-in-out infinite;opacity:.85}
   @keyframes scan{0%{top:0}50%{top:calc(100% - 2px)}100%{top:0}}
-  /* serveurs : barre de sauvegarde */
-  .fx-sauve{left:22px;right:22px;bottom:58px;height:8px;border-radius:4px;background:rgba(255,255,255,.3);overflow:hidden}
+  /* serveurs : barre de sauvegarde, au-dessus de « Sur devis » */
+  .fx-sauve{left:clamp(12px,1.8vw,22px);right:clamp(12px,1.8vw,22px);bottom:calc(clamp(12px,2.6vh,26px) + clamp(11px,1.7vh,14px) + 8px);height:6px;border-radius:4px;background:rgba(255,255,255,.3);overflow:hidden}
   .fx-sauve::before{content:"";position:absolute;inset:0;background:var(--or);transform-origin:0 50%;animation:sauve 3.4s ease-in-out infinite}
   @keyframes sauve{0%{transform:scaleX(0)}70%,100%{transform:scaleX(1)}}
   .tuile:hover .fx-sauve{background:#e4eef5}
   @keyframes flotte{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
-  .pros .bas{margin-top:34px;position:relative}
+  .pros .bas{margin-top:clamp(12px,3.4vh,34px);position:relative;display:flex;justify-content:center}
+  .pros .bas .btn{padding:clamp(11px,2vh,16px) 22px}
   /* bouton « Demander un devis » : arrive après les 4 Marshall, reflet qui passe, halo qui respire, étincelles au survol */
   .devis-btn{position:relative;overflow:hidden;isolation:isolate;animation:halo 2.6s ease-out 1.2s infinite}
   .devis-btn::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;z-index:-1;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:reflet 3.6s ease-in-out 1.5s infinite}
@@ -291,9 +303,22 @@
   #pros.anim .bas.vu .devis-btn{opacity:1;transform:none;transition:opacity .35s ease,transform .6s cubic-bezier(.3,1.7,.5,1),background .25s,color .25s,border-color .25s,box-shadow .25s}
   #pros.anim .bas.vu .devis-btn:hover{transform:translateY(-3px)}
   .bas .pouf{bottom:auto;top:var(--cy,28px);left:var(--cx,110px)}
-  @media (max-width:1000px){.tuiles{grid-template-columns:repeat(2,1fr);row-gap:190px}}
-  @media (max-width:560px){.tuiles{grid-template-columns:1fr;row-gap:170px;margin-top:170px}.assis{width:150px}}
+  /* tablette et téléphone : 2 x 2 cartes, Marshall plus petits, textes resserrés pour que tout tienne sur l'écran */
+  @media (max-width:1000px){
+    .pros{--m:clamp(58px,10.5vh,120px)}
+    .tuiles{grid-template-columns:repeat(2,1fr);gap:10px;row-gap:calc(var(--m) * 1.42 + 6px)}
+  }
+  @media (max-width:560px){
+    .pros{--entete:80px;--m:clamp(46px,9.2vh,110px);padding-top:calc(var(--entete) + 1vh);padding-bottom:2vh}
+    .pros h2{font-size:clamp(28px,min(11vw,6vh),56px)}
+    .tuile{padding:10px 11px;border-width:1.5px}
+    .tuile b{font-size:clamp(15px,2.5vh,20px)}
+    .tuile p{font-size:clamp(11px,1.6vh,13px);line-height:1.32}
+    .tuile .devis{display:none}
+    .fx-sauve{bottom:8px}
+  }
   @media (prefers-reduced-motion:reduce){.fx,.fx *,.fx::before{animation:none!important}#pros.anim .tuile,#pros.anim .assis,#pros.anim .assis img,#pros.anim .fx,#pros.anim .devis-btn{opacity:1;transform:none;scale:none;filter:none;transition:none}.pouf{display:none}.devis-btn,.devis-btn::before,.devis-btn svg{animation:none}}
+  /* PROS : fin */
 
   /* ---------- 8. FAQ ---------- */
   .faq{padding:110px var(--pad)}
@@ -313,6 +338,9 @@
   .fin .actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
   .fin .btn.blanc{border-color:#fff;color:#fff}
   .fin .btn.blanc:hover{background:#fff;color:var(--or)}
+  /* bouton principal plein blanc ; au survol il s'inverse (transparent, texte blanc) */
+  .fin .btn.blanc.plein{background:#fff;color:var(--or)}
+  .fin .btn.blanc.plein:hover{background:transparent;color:#fff}
   .fin .coucou{height:min(46vh,400px);width:auto;margin-top:auto}
   .confetti{position:absolute;top:-24px;z-index:3;width:10px;height:16px;border-radius:2px;pointer-events:none}
   .confetti.rond{width:11px;height:11px;border-radius:50%}
@@ -326,7 +354,7 @@
   .grandmot span{display:inline-block}
   .grandmot em{color:var(--or)}
 </style>
-<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": ["Organization", "ProfessionalService"], "@id": "https://moncopaindigital.fr/#organization", "name": "Mon Copain Digital", "url": "https://moncopaindigital.fr/", "logo": "https://moncopaindigital.fr/favicons/favicon-512.png", "image": "https://moncopaindigital.fr/favicons/favicon-512.png", "description": "Votre coach personnel pour apprivoiser le numérique en douceur. Sans jargon, sans stress, à votre rythme.", "priceRange": "€€", "address": {"@type": "PostalAddress", "addressLocality": "Paris", "addressRegion": "Île-de-France", "addressCountry": "FR"}, "areaServed": [{"@type": "AdministrativeArea", "name": "Île-de-France"}, {"@type": "GeoCircle", "geoMidpoint": {"@type": "GeoCoordinates", "latitude": 48.8566, "longitude": 2.3522}, "geoRadius": "70000"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "opens": "08:00", "closes": "20:00"}, {"@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "00:00", "closes": "00:00"}], "sameAs": ["https://www.instagram.com/moncopaindigital.fr/", "https://share.google/fmjos4E8HSBV9qAIa"]}, {"@type": "WebSite", "@id": "https://moncopaindigital.fr/#website", "url": "https://moncopaindigital.fr/", "name": "Mon Copain Digital", "publisher": {"@id": "https://moncopaindigital.fr/#organization"}}, {"@type": "SiteNavigationElement", "position": 1, "name": "Nos offres", "url": "https://moncopaindigital.fr/Nosoffres.html"}, {"@type": "SiteNavigationElement", "position": 2, "name": "Qui suis-je ?", "url": "https://moncopaindigital.fr/qui-suis-je.html"}, {"@type": "SiteNavigationElement", "position": 3, "name": "Rendez-vous", "url": "https://moncopaindigital.fr/rendez-vous.html"}, {"@type": "SiteNavigationElement", "position": 4, "name": "Contact", "url": "https://moncopaindigital.fr/contact.html"}, {"@type": "SiteNavigationElement", "position": 5, "name": "Espace client", "url": "https://moncopaindigital.fr/espace-compte.html"}, {"@type": "SiteNavigationElement", "position": 6, "name": "Studio Social", "url": "https://moncopaindigital.fr/studio-social.html"}, {"@type": "SiteNavigationElement", "position": 7, "name": "Loi applicable", "url": "https://moncopaindigital.fr/loiapplicablemcp.html"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Vous vous déplacez où ?", "acceptedAnswer": {"@type": "Answer", "text": "Partout en Île-de-France : Paris et les sept départements autour (92, 93, 94, 77, 78, 91, 95). Ailleurs, on se retrouve en visio, avec le même accompagnement."}}, {"@type": "Question", "name": "Combien coûte une séance ?", "acceptedAnswer": {"@type": "Answer", "text": "Une séance d’une heure coûte à partir de 49 €. Des carnets de 3 et 5 séances (45 € puis 42 € la séance) existent pour avancer à votre rythme : elles sont détaillées sur la page Nos offres."}}, {"@type": "Question", "name": "Je ne suis pas à l’aise avec la technique", "acceptedAnswer": {"@type": "Answer", "text": "C’est justement pour vous. On part de ce que vous savez déjà, sans jargon, et on avance à votre rythme. Aucune question n’est bête."}}, {"@type": "Question", "name": "C’est quoi, Studio Social ?", "acceptedAnswer": {"@type": "Answer", "text": "L’application de Mon Copain Digital pour les commerçants : Marshall, votre copain IA, crée vos posts, stories et vidéos pour Instagram, Facebook et TikTok, puis les publie. C’est gratuit pour commencer."}}, {"@type": "Question", "name": "Vous créez aussi des sites internet ?", "acceptedAnswer": {"@type": "Answer", "text": "Oui, ainsi que le référencement et la fiche Google, sur devis. On commence par l’audit gratuit pour voir ce dont vous avez vraiment besoin."}}, {"@type": "Question", "name": "L’audit gratuit, ça se passe comment ?", "acceptedAnswer": {"@type": "Answer", "text": "30 minutes en visio : on regarde ensemble votre site, votre fiche Google et vos réseaux sociaux, et vous repartez avec un plan d’action clair. Sans engagement."}}]}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": ["Organization", "ProfessionalService"], "@id": "https://moncopaindigital.fr/#organization", "name": "Mon Copain Digital", "url": "https://moncopaindigital.fr/", "logo": "https://moncopaindigital.fr/favicons/favicon-512.png", "image": "https://moncopaindigital.fr/favicons/favicon-512.png", "description": "Votre coach personnel pour apprivoiser le numérique en douceur. Sans jargon, sans stress, à votre rythme.", "priceRange": "€€", "address": {"@type": "PostalAddress", "addressLocality": "Paris", "addressRegion": "Île-de-France", "addressCountry": "FR"}, "areaServed": [{"@type": "AdministrativeArea", "name": "Île-de-France"}, {"@type": "GeoCircle", "geoMidpoint": {"@type": "GeoCoordinates", "latitude": 48.8566, "longitude": 2.3522}, "geoRadius": "70000"}], "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], "opens": "08:00", "closes": "20:00"}, {"@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "00:00", "closes": "00:00"}], "sameAs": ["https://www.instagram.com/moncopaindigital.fr/", "https://share.google/fmjos4E8HSBV9qAIa"]}, {"@type": "WebSite", "@id": "https://moncopaindigital.fr/#website", "url": "https://moncopaindigital.fr/", "name": "Mon Copain Digital", "publisher": {"@id": "https://moncopaindigital.fr/#organization"}}, {"@type": "SiteNavigationElement", "position": 1, "name": "Nos offres", "url": "https://moncopaindigital.fr/Nosoffres.html"}, {"@type": "SiteNavigationElement", "position": 2, "name": "Rendez-vous", "url": "https://moncopaindigital.fr/rendez-vous.html"}, {"@type": "SiteNavigationElement", "position": 3, "name": "Contact", "url": "https://moncopaindigital.fr/contact.html"}, {"@type": "SiteNavigationElement", "position": 4, "name": "Espace client", "url": "https://moncopaindigital.fr/espace-compte.html"}, {"@type": "SiteNavigationElement", "position": 5, "name": "Studio Social", "url": "https://moncopaindigital.fr/studio-social.html"}, {"@type": "SiteNavigationElement", "position": 6, "name": "Loi applicable", "url": "https://moncopaindigital.fr/loiapplicablemcp.html"}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Vous vous déplacez où ?", "acceptedAnswer": {"@type": "Answer", "text": "Partout en Île-de-France : Paris et les sept départements autour (92, 93, 94, 77, 78, 91, 95). Ailleurs, on se retrouve en visio, avec le même accompagnement."}}, {"@type": "Question", "name": "Combien coûte une séance ?", "acceptedAnswer": {"@type": "Answer", "text": "Une séance d’une heure coûte à partir de 49 €. Des carnets de 3 et 5 séances (45 € puis 42 € la séance) existent pour avancer à votre rythme : elles sont détaillées sur la page Nos offres."}}, {"@type": "Question", "name": "Je ne suis pas à l’aise avec la technique", "acceptedAnswer": {"@type": "Answer", "text": "C’est justement pour vous. On part de ce que vous savez déjà, sans jargon, et on avance à votre rythme. Aucune question n’est bête."}}, {"@type": "Question", "name": "C’est quoi, Studio Social ?", "acceptedAnswer": {"@type": "Answer", "text": "L’application de Mon Copain Digital pour les commerçants : Marshall, votre copain IA, crée vos posts, stories et vidéos pour Instagram, Facebook et TikTok, puis les publie. C’est gratuit pour commencer."}}, {"@type": "Question", "name": "Vous créez aussi des sites internet ?", "acceptedAnswer": {"@type": "Answer", "text": "Oui, ainsi que le référencement et la fiche Google, sur devis. On commence par l’audit gratuit pour voir ce dont vous avez vraiment besoin."}}, {"@type": "Question", "name": "L’audit gratuit, ça se passe comment ?", "acceptedAnswer": {"@type": "Answer", "text": "30 minutes en visio : on regarde ensemble votre site, votre fiche Google et vos réseaux sociaux, et vous repartez avec un plan d’action clair. Sans engagement."}}]}]}</script>
 <style id="pied-site-css">
   /* Pied de page commun (outils/pied-site/pied_site.py dans mcd-cloud) */
   .pied-site{--ps-bleu:#6EC1F0;--ps-or:#F3852B;--ps-encre:#0a0a0a;background:#f5f5f5;color:var(--ps-bleu);font-family:Archivo,system-ui,sans-serif;padding:64px clamp(16px,2.2vw,32px) 24px;overflow:hidden;position:relative;z-index:1}
@@ -440,6 +468,22 @@
       }), 2500);
     }));
   }
+  /* Toutes les images de la page, même celles en chargement différé, se chargent pendant le logo :
+     le rideau les attend (6 s max, comme la ville), plus rien n'apparaît en retard en descendant. */
+  var toutesImages=new Promise(function(resolve){
+    function charger(){
+      Promise.all([].slice.call(document.images).map(function(img){
+        if(img.loading === 'lazy') img.loading='eager';
+        var decode=function(){ return img.decode ? img.decode().catch(function(){}) : Promise.resolve(); };
+        if(img.complete && img.naturalWidth !== 0) return decode();
+        return new Promise(function(r){
+          img.addEventListener('load', function(){ decode().then(r); }, { once:true });
+          img.addEventListener('error', r, { once:true });
+        });
+      })).then(resolve, resolve);
+    }
+    if(document.readyState!=='loading') charger(); else document.addEventListener('DOMContentLoaded', charger);
+  });
   var pret=new Promise(function(resolve){
     function charge(){
       var fr=(document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
@@ -465,7 +509,7 @@
       .addPause('+=.45', function(){
         /* logo gonflé : rien ne bouge, la page finit de se préparer (la ville 3D se construit ici), puis le rideau s'ouvre */
         window.__logoGonfle=true; performance.mark('mcd-logo-gonfle'); document.dispatchEvent(new Event('mcd-logo-gonfle'));
-        var attente=[pret].concat((window.mcdAttente||[]).map(function(p){ return waitAsset(p, 6000); }));
+        var attente=[pret, waitAsset(toutesImages, 6000)].concat((window.mcdAttente||[]).map(function(p){ return waitAsset(p, 6000); }));
         Promise.all(attente).then(function(){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ tl.play(); }); }); });
       })
       .addLabel('sortie')
@@ -688,7 +732,8 @@
   </div>
 </section>
 
-<!-- 7. PROS : Marshall assis et animé sur chaque carte (maquette : maquettes/marshall-cartes) -->
+<!-- 7. PROS -->
+<!-- généré depuis maquettes/marshall-cartes par vers-site.py : retoucher la maquette, pas ce bloc -->
 <section class="pros dark" id="pros">
   <div class="tete">
     <div><span class="lbl">Entreprises</span><h2 class="disp">Votre informatique<br><em>qui tourne seule</em></h2></div>
@@ -741,43 +786,58 @@
     // le bouton arrive juste après le dernier Marshall, dans son propre petit nuage
     const bas = document.getElementById('bas'), bouton = bas.querySelector('.devis-btn');
     const montrerBouton = () => { if (bas.classList.contains('vu')) return; bas.classList.add('vu'); setTimeout(() => pouf(bas, 30, 40, 90), 150); };
-    const centrer = () => { bas.style.setProperty('--cx', bouton.offsetWidth / 2 + 'px'); bas.style.setProperty('--cy', bouton.offsetHeight / 2 + 'px'); };
+    const centrer = () => { bas.style.setProperty('--cx', bouton.offsetLeft + bouton.offsetWidth / 2 + 'px'); bas.style.setProperty('--cy', bouton.offsetTop + bouton.offsetHeight / 2 + 'px'); };
     centrer(); addEventListener('resize', centrer);
     let survol = 0;
     bouton.addEventListener('pointerenter', () => { if (performance.now() - survol > 700) { survol = performance.now(); pouf(bas, 16, 20, 60, true); } });
-    const montrer = t => {
-      t.classList.add('vu'); setTimeout(() => pouf(t), 520);
-      if (t === tuiles[tuiles.length - 1]) setTimeout(montrerBouton, 1000);
+    const montrer = t => { t.classList.add('vu'); setTimeout(() => pouf(t), 520); };
+    const toutMontrer = () => { tuiles.forEach(t => t.classList.add('vu')); bas.classList.add('vu'); };
+    if (calme || !('IntersectionObserver' in window)) { toutMontrer(); return; }
+
+    // pendant le spectacle, la page ne défile plus (molette, doigt, clavier ; Lenis est mis en pause sur PC)
+    let bloque = false;
+    const TOUCHES = ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' '];
+    const retenir = e => { if (bloque) e.preventDefault(); };
+    addEventListener('wheel', retenir, { passive:false });
+    addEventListener('touchmove', retenir, { passive:false });
+    addEventListener('keydown', e => { if (bloque && TOUCHES.includes(e.key)) e.preventDefault(); });
+    const bloquer = () => { bloque = true; window.lenis?.stop(); };
+    const debloquer = () => { bloque = false; window.lenis?.start(); };
+
+    // la section se cale sur l'écran, puis les 4 cartes s'enchaînent ; on rend le défilement quand le 4e Marshall est là
+    const ECART = 420, FIN = 3 * ECART + 1150;
+    let joue = false;
+    const spectacle = () => {
+      joue = true; bloquer();
+      const y = section.getBoundingClientRect().top + scrollY;
+      if (window.lenis) window.lenis.scrollTo(y, { duration:.6, force:true }); else scrollTo({ top:y, behavior:'smooth' });
+      tuiles.forEach((t, i) => setTimeout(() => montrer(t), 350 + i * ECART));
+      setTimeout(() => { debloquer(); montrerBouton(); }, 350 + FIN);
     };
-    if (!('IntersectionObserver' in window)) { tuiles.forEach(t => t.classList.add('vu')); bas.classList.add('vu'); return; }
-    let rang = 0, dernier = 0;
-    const obs = new IntersectionObserver(entrees => {
-      // cartes déjà dépassées (arrivée directe plus bas dans la page) : affichées sans animation
-      entrees.filter(e => !e.isIntersecting && e.boundingClientRect.bottom < 0).forEach(e => { obs.unobserve(e.target); e.target.classList.add('vu'); });
-      entrees.filter(e => e.isIntersecting).forEach(e => {
-        obs.unobserve(e.target);
-        const maintenant = performance.now();
-        if (maintenant - dernier > 900) rang = 0;          // nouvelle vague (sur mobile, une carte à la fois)
-        dernier = maintenant;
-        setTimeout(() => montrer(e.target), rang++ * 420);
-      });
-    }, { threshold: .25 });
-    tuiles.forEach(t => obs.observe(t));
-    // le bouton n'attend pas forcément le dernier Marshall : il arrive aussi dès qu'il est lui-même à l'écran
+    const section = document.getElementById('pros');
     new IntersectionObserver(([e], o) => {
-      if (!e.isIntersecting) return;
-      o.disconnect();
-      setTimeout(montrerBouton, tuiles.every(t => t.classList.contains('vu')) ? 300 : 1400);
-    }, { threshold: .6 }).observe(bas);
+      if (joue) return;
+      const r = e.boundingClientRect;
+      if (r.top < -innerHeight * .25) { joue = true; o.disconnect(); toutMontrer(); return; }   // arrivée par en dessous : tout est déjà là
+      if (e.intersectionRatio >= .55 && r.top > -innerHeight * .25) { o.disconnect(); spectacle(); }
+    }, { threshold: [0, .55, .8] }).observe(section);
   })();
 </script>
+<!-- /7. PROS -->
 
 <!-- MARSHALL CITY -->
 <style>
   #ville{padding:110px 0 0;--bg:var(--paper);--accent:var(--or);--muted:#8a8a8a}
-  #ville .tete-ville{padding:0 var(--pad)}
-  #ville .tete-ville h2{font-size:clamp(46px,6vw,110px);margin:0 0 18px}
-  #ville .tete-ville p{margin:0;font-size:17px;font-weight:600;color:var(--or);max-width:720px}
+  #ville .tete-ville{padding:0 var(--pad);text-align:center}
+  #ville .tete-ville h2{font-size:clamp(46px,6vw,110px);margin:0 0 18px;perspective:900px}
+  #ville .tete-ville .lbl{display:inline-block;margin-bottom:clamp(14px,1.8vw,30px)}   /* au-dessus de l'accent du « é », qui dépasse de la ligne */
+  #ville .tete-ville .mot{display:inline-block;transform-origin:50% 100%}
+  /* entrée : l'étiquette s'ouvre comme un store, puis chaque mot bascule depuis le bas avec un rebond */
+  #ville .tete-ville.anim .lbl{clip-path:inset(0 50% 0 50%);opacity:0;transition:clip-path .6s cubic-bezier(.3,.9,.3,1),opacity .3s}
+  #ville .tete-ville.anim .mot{opacity:0;transform:translateY(.55em) rotateX(-85deg) scale(.9);filter:blur(6px);
+    transition:opacity .35s ease var(--d),transform .9s cubic-bezier(.2,1.45,.4,1) var(--d),filter .5s ease var(--d)}
+  #ville .tete-ville.anim.vu .lbl{clip-path:inset(0 0 0 0);opacity:1}
+  #ville .tete-ville.anim.vu .mot{opacity:1;transform:none;filter:none}
   #ville .mc-wrap{position:relative;height:100vh;min-height:560px;max-height:980px}
   #mc-map{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y}
   #mc-map.drag{cursor:grabbing}
@@ -808,14 +868,14 @@
   #ville .mc-card .cta{display:inline-block;margin-top:14px;padding:11px 18px;border-radius:999px;background:linear-gradient(180deg,rgba(255,158,70,.95),rgba(240,112,20,.9));border:1px solid rgba(255,255,255,.55);box-shadow:0 8px 20px rgba(240,112,20,.3),inset 0 1px 0 rgba(255,255,255,.6);color:#fff;text-decoration:none;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.02em;transition:transform .2s,box-shadow .2s}
   #ville .mc-card .cta:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(240,112,20,.38),inset 0 1px 0 rgba(255,255,255,.7)}
   #ville .mc-card button{position:absolute;top:12px;right:12px;z-index:2;width:30px;height:30px;border:1px solid rgba(255,255,255,.6);border-radius:50%;background:rgba(255,255,255,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);color:var(--ink);font-size:16px;cursor:pointer}
-  #ville .mc-hint{position:absolute;z-index:3;left:50%;bottom:17%;transform:translateX(-50%);font-size:12px;color:var(--muted);background:rgba(255,255,255,.7);padding:6px 12px;border-radius:999px;white-space:nowrap}
+  #ville .mc-hint{position:absolute;z-index:3;left:50%;bottom:17%;transform:translateX(-50%);font-size:13.8px;color:var(--accent);background:rgba(255,255,255,.7);border:1.5px solid var(--accent);padding:6.9px 13.8px;border-radius:999px;white-space:nowrap}   /* pilule orange, 15 % plus grande */
+  @media (max-width:440px){#ville .mc-hint{white-space:normal;text-align:center;width:max-content;max-width:calc(100% - 32px);border-radius:22px;line-height:1.3}}   /* téléphone : elle passe sur 2 lignes au lieu de dépasser */
   @media (max-width:600px){#ville .mc-card{right:16px;bottom:16%}}
 </style>
 <section class="ville light" id="ville">
-  <div class="tete-ville">
+  <div class="tete-ville" id="tete-ville">
     <span class="lbl">Marshall City</span>
-    <h2 class="disp">Le numérique<br><em>au coin de la rue</em></h2>
-    <p>Cliquez sur un immeuble pour le découvrir.</p>
+    <h2 class="disp"><span class="mot" style="--d:0.15s">Le</span> <span class="mot" style="--d:0.24s">numérique</span><br><em><span class="mot" style="--d:0.40s">au</span> <span class="mot" style="--d:0.49s">coin</span> <span class="mot" style="--d:0.58s">de</span> <span class="mot" style="--d:0.67s">la</span> <span class="mot" style="--d:0.76s">rue</span></em></h2>
   </div>
   <div class="mc-wrap" id="mc-wrap">
   <canvas id="mc-map" aria-label="Carte animée de Marshall City"></canvas>
@@ -830,6 +890,15 @@
   <div class="mc-hint" id="mc-hint">Glissez pour vous déplacer · cliquez sur les immeubles</div>
 </div>
 </section>
+<script>
+  // titre de Marshall City : l'animation d'entrée part quand il arrive à l'écran (sans script, il reste simplement affiché)
+  (() => {
+    const tete = document.getElementById('tete-ville');
+    if (!tete || matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    tete.classList.add('anim');
+    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { tete.classList.add('vu'); o.disconnect(); } }, { threshold:.5 }).observe(tete);
+  })();
+</script>
 <script type="importmap">
 { "imports": {
   "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
@@ -2401,7 +2470,7 @@ else {
   <h2 class="disp" id="fin-titre">30 minutes,<br><em>un plan clair</em></h2>
   <p>L’audit est gratuit et sans engagement : on regarde ensemble votre situation, et vous repartez avec les bonnes décisions.</p>
   <div class="actions">
-    <a class="btn blanc" href="rendez-vous.html">Réserver mon audit gratuit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    <a class="btn blanc plein" href="rendez-vous.html">Réserver mon audit gratuit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
     <button type="button" class="btn blanc" id="ecrire-marshall">Écrire à Marshall</button>
   </div>
   <img class="coucou marshall" id="coucou" src="images/marshall-coucou.webp" alt="Marshall vous fait coucou" loading="lazy">
@@ -2416,8 +2485,8 @@ else {
       <a class="ps-cta" href="rendez-vous.html">Audit gratuit de 30 min <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
     </div>
     <nav aria-label="Se faire aider"><h3>Se faire aider</h3><ul><li><a href="Nosoffres.html">Nos offres</a></li><li><a href="aide-numerique-ile-de-france.html">Aide numérique à domicile</a></li><li><a href="audit-gratuit.html">Audit gratuit</a></li><li><a href="rendez-vous.html">Prendre rendez-vous</a></li><li><a href="carte-cadeau.html">Carte cadeau</a></li></ul></nav>
-    <nav aria-label="Studio Social"><h3>Studio Social</h3><ul><li><a href="decouvrir-studio-social.html">Découvrir Studio Social</a></li><li><a href="studio-social.html">Ouvrir le Studio</a></li><li><a href="idees-posts-boulangerie.html">Idées de posts</a></li><li><a href="explorer.html">Explorer</a></li></ul></nav>
-    <nav aria-label="Mon Copain Digital"><h3>Mon Copain Digital</h3><ul><li><a href="index.html" aria-current="page">Accueil</a></li><li><a href="qui-suis-je.html">Qui suis-je ?</a></li><li><a href="contact.html">Contact</a></li><li><a href="espace-compte.html">Mon compte</a></li></ul></nav>
+    <nav aria-label="Studio Social"><h3>Studio Social</h3><ul><li><a href="decouvrir-studio-social.html">Découvrir Studio Social</a></li><li><a href="studio-social.html">Ouvrir le Studio</a></li><li><a href="idees-posts-boulangerie.html">Idées de posts</a></li></ul></nav>
+    <nav aria-label="Mon Copain Digital"><h3>Mon Copain Digital</h3><ul><li><a href="index.html" aria-current="page">Accueil</a></li><li><a href="contact.html">Contact</a></li><li><a href="espace-compte.html">Mon compte</a></li></ul></nav>
     <nav aria-label="Informations"><h3>Informations</h3><ul><li><a href="loiapplicablemcp.html">Mentions légales et CGV</a></li><li><a href="suppression-donnees.html">Suppression des données</a></li></ul></nav>
   </div>
   <div class="ps-bas">
@@ -2475,6 +2544,17 @@ else {
         [[i, 1], [i - 1, .45], [i + 1, .45], [i - 2, .18], [i + 2, .18]].forEach(function(k){ if (ressorts[k[0]]) ressorts[k[0]].v -= 430 * k[1]; });
       });
     });
+    // Ouverture des portes : les lettres jaillissent du bas l'une après l'autre (gonflées, en vrille, avec un éclat),
+    // puis une vague les fait rebondir de gauche à droite. Avant l'ouverture, elles restent cachées sous le rideau.
+    var ENTREE = 650, DECALAGE = 75, tEntree = null, attendEntree = !calme;
+    function vagueDesPortes(){
+      if (calme) return;
+      tEntree = performance.now() + 250;
+      var finEntree = 250 + (lettres.length - 1) * DECALAGE + ENTREE;
+      lettres.forEach(function(s, i){ setTimeout(function(){ ressorts[i].v -= 900; }, finEntree + 120 + i * 60); });
+    }
+    if (window.__doorsOpen || !document.getElementById('intro-tx')) vagueDesPortes();
+    else document.addEventListener('mcd-doors-open', vagueDesPortes, { once:true });
     // La transformation se fait sur le premier tiers d'écran de défilement ; ensuite l'anneau suit la lecture.
     // Chat ouvert (page figée) : on garde l'état d'avant
     function suivi(){
@@ -2504,10 +2584,14 @@ else {
         if (e > .3) r.p = r.v = 0;
         var saut = r.p * (1 - e), force = Math.min(1, Math.abs(r.p) / 18);
         var vague = calme ? 0 : Math.sin(t / 380 - i * .7) * 3 * (1 - e);
-        var x = lisse(m.x + m.w / 2, CX + Math.cos(a) * R, e), y = lisse(-m.h / 2 + vague + saut, CY + Math.sin(a) * R, e);
-        var rot = lisse((calme ? 0 : Math.sin(t / 900 + i) * 3) * (1 - e) + (i % 2 ? 1 : -1) * force * 18, (a * 180 / Math.PI) + 90, e), ech = lisse(1 + force * .2, .22, e);
+        // entrée à l'ouverture des portes : 0 = encore cachée, 1 = posée
+        var ent = tEntree === null ? (attendEntree ? 0 : 1) : Math.min(1, Math.max(0, (t - tEntree - i * DECALAGE) / ENTREE));
+        var jaillit = Math.pow(1 - ent, 3) * 90, gonfle = Math.sin(ent * Math.PI) * .7, vrille = (i % 2 ? 1 : -1) * Math.pow(1 - ent, 2) * 60;
+        var x = lisse(m.x + m.w / 2, CX + Math.cos(a) * R, e), y = lisse(-m.h / 2 + vague + saut + jaillit, CY + Math.sin(a) * R, e);
+        var rot = lisse((calme ? 0 : Math.sin(t / 900 + i) * 3) * (1 - e) + (i % 2 ? 1 : -1) * force * 18 + vrille, (a * 180 / Math.PI) + 90, e), ech = lisse(1 + force * .2 + gonfle, .22, e);
         s.style.transform = 'translate(' + (x - m.w / 2) + 'px,' + (y + m.h / 2) + 'px) rotate(' + rot + 'deg) scale(' + ech + ')';
-        s.style.opacity = 1 - doux((e - .7) / .3);
+        s.style.opacity = (1 - doux((e - .7) / .3)) * Math.min(1, ent * 3);
+        s.style.filter = ent > 0 && ent < 1 ? 'brightness(' + (1 + gonfle * 1.1) + ')' : '';
       });
       // pastille et anneau blanc pendant que les lettres s'y fondent, puis l'arc orange suit la lecture
       var plein = lecture * doux((e - .8) / .2);
