@@ -111,33 +111,69 @@
 
   /* ---------- 2. Bandeau qui défile ---------- */
 
-  /* ---------- 3. Particuliers : les cartes défilent à l'horizontale, Marshall coche au passage ---------- */
-  .parti{overflow:hidden}
-  .parti .tete{padding:110px var(--pad) 30px;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  /* ---------- 3. Particuliers : une roue de cartes dont on ne voit que le haut ; elle tourne d'une carte à l'autre au défilement ---------- */
+  .parti{overflow:hidden;position:relative;box-shadow:0 3px 0 var(--paper)}   /* bouche le liseré bleu d’un demi-pixel avec la section suivante */
+  .parti .tete{padding:110px var(--pad) 30px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+  .parti .tete .lbl{color:var(--or)}
   .parti h2{font-size:clamp(48px,7vw,130px)}
-  .parti .scene{position:relative;height:min(64vh,560px);display:flex;align-items:center}
-  .parti .piste{display:flex;gap:18px;padding-left:min(30vw,380px);padding-right:var(--pad);will-change:transform}
-  .carte{flex:none;width:clamp(230px,22vw,300px);min-height:260px;padding:22px;background:#fff;color:var(--ink);border:2px solid var(--blue);display:flex;flex-direction:column;gap:10px;transition:background .3s,color .3s,transform .3s}
-  .carte .ico{font-size:40px;line-height:1}
-  .carte h3{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:28px;line-height:.95;margin:0;color:var(--blue)}
-  .carte p{margin:0;font-size:15px;color:var(--or);font-weight:600}
-  .carte .ok{margin-top:auto;align-self:flex-start;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:14px;padding:6px 10px;background:var(--paper);color:var(--mut)}
-  .carte.on{background:var(--blue);color:#fff;transform:translateY(-10px) rotate(-1.5deg)}
-  .carte.on h3,.carte.on p{color:#fff}
-  .carte.on .ok{background:var(--or);color:#fff}
-  .parti .coach{position:absolute;left:var(--pad);bottom:0;z-index:3;height:min(56vh,470px);width:auto}
-  .parti .pied{padding:30px var(--pad) 90px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-  .parti .pied p{margin:0 18px 0 0;font-size:17px;font-weight:600;color:var(--or);max-width:520px}
+  .roue-cadre{position:relative;container-type:inline-size;width:min(85vw,calc((100svh - 300px) / .36));margin:0 auto;aspect-ratio:1/.36;min-height:0;clip-path:inset(-200px -50vw 0 -50vw)}   /* coupé seulement en bas : la lueur du survol peut déborder en haut et sur les côtés */
+  .roue{position:relative;width:100%;aspect-ratio:1;will-change:transform}
+  .roue-carte{--t:rotate(calc(var(--i) * 40deg)) translateY(-23.5cqw);position:absolute;top:50%;left:50%;width:18.6cqw;aspect-ratio:305/385;translate:-50% -100%;transform-origin:50% 100%;transform:var(--t);border-radius:.6cqw;overflow:hidden;display:flex;flex-direction:column;padding:1.5cqw;color:#fff;background:linear-gradient(160deg,var(--or2),var(--or));box-shadow:-2px 6px 20px 14px rgba(0,0,0,.12);transition:transform .2s ease-out,box-shadow .35s ease}
+  .roue-carte:nth-child(3n+2){background:linear-gradient(160deg,#9ad8f8,var(--blued))}
+  .roue-carte:nth-child(3n){background:linear-gradient(160deg,#2b2b2b,var(--ink))}
+  .roue-carte.active{z-index:2}
+  /* au survol, une lueur orange s'allume derrière la carte */
+  .roue-carte:hover{transform:var(--t) translateY(-1rem) scale(1.05);z-index:15;box-shadow:0 0 40px 10px rgba(243,133,43,.75),0 0 110px 34px rgba(255,156,70,.45)}
+  /* la vidéo de Marshall remplit la carte ; un voile sombre en bas garde le texte lisible */
+  .roue-carte video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .roue-carte::after{content:"";position:absolute;inset:auto 0 0;height:48%;background:linear-gradient(to top,rgba(0,0,0,.62),rgba(0,0,0,0))}
+  .roue-carte h3{position:relative;z-index:2}
+  /* au survol : un voile en filigrane passe sur la vidéo et un petit « En savoir plus » en verre liquide transparent apparaît */
+  .roue-carte .voile{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .35s ease;
+    background:linear-gradient(155deg,rgba(255,255,255,.34),rgba(255,255,255,.08) 45%,rgba(255,255,255,.2));-webkit-backdrop-filter:blur(1.5px) saturate(1.15);backdrop-filter:blur(1.5px) saturate(1.15)}
+  .roue-carte .savoir{position:absolute;left:50%;top:46%;z-index:3;display:inline-flex;align-items:center;gap:.45em;white-space:nowrap;
+    padding:.75cqw 1.5cqw;border-radius:999px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:max(12px,1.25cqw);letter-spacing:.02em;color:#fff;
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.65);-webkit-backdrop-filter:blur(10px) saturate(1.6);backdrop-filter:blur(10px) saturate(1.6);
+    box-shadow:inset 0 1px 2px rgba(255,255,255,.85),inset 0 -3px 8px rgba(255,255,255,.12),0 8px 18px rgba(0,0,0,.18);text-shadow:0 1px 2px rgba(0,0,0,.25);
+    opacity:0;transform:translate(-50%,-50%) scale(.57);transition:opacity .3s ease,transform .45s cubic-bezier(.3,1.7,.5,1),background .2s,color .2s,border-color .2s}
+  .roue-carte .savoir svg{width:1.1em;height:1.1em;transition:transform .25s}
+  .roue-carte:hover .voile{opacity:1}
+  .roue-carte:hover .savoir{opacity:1;transform:translate(-50%,-50%) scale(.7)}   /* 30 % plus petite */
+  .roue-carte .savoir:hover{background:#fff;border-color:#fff;color:var(--blue);text-shadow:none}   /* survol de la pilule : blanche, texte bleu */
+  .roue-carte .savoir:hover svg{transform:translateX(3px)}
+  .roue-carte h3{margin:auto 0 0;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:2.3cqw;line-height:.92}
+  /* le bouton se place au centre, sous la carte du haut, entre ses voisines */
+  .parti .pied{position:absolute;left:50%;top:29.5cqw;translate:-50% 0;scale:.75;transform-origin:50% 0;z-index:5}
+  .parti .pied .btn{white-space:nowrap;border-radius:999px;padding-inline:28px}   /* bouton en pilule */
+  /* Boutons qui reprennent l'animation de « Demander un devis » (classe devis-btn, styles de la section Pros) :
+     « Voir l'aide à domicile », « Audit gratuit » de l'en-tête et « Réserver mon audit gratuit ». Ils arrivent dans un nuage d'étincelles. */
+  .pouf.libre{position:fixed;left:var(--px);top:var(--py);bottom:auto;z-index:2147483000}
+  .devis-btn.arrive{opacity:0;transform:translateY(24px) scale(.85)}
+  .devis-btn.arrive.vu{opacity:1;transform:none;transition:opacity .35s ease,transform .6s cubic-bezier(.3,1.7,.5,1),background .25s,color .25s,border-color .25s,box-shadow .25s}
+  .devis-btn.arrive.vu:hover{transform:translateY(-3px)}
+  /* sur le fond orange de la fin, le bouton est blanc : reflet orangé et halo blanc pour qu'on les voie */
+  .fin .btn.blanc.plein.devis-btn{animation-name:halo-blanc}
+  .fin .btn.blanc.plein.devis-btn::before{background:linear-gradient(100deg,transparent,rgba(243,133,43,.35),transparent)}
+  @keyframes halo-blanc{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}70%,100%{box-shadow:0 0 0 16px rgba(255,255,255,0)}}
   @media (max-width:800px){
-    .parti .scene{height:auto;display:block}
-    .parti .piste{flex-direction:column;padding:0 var(--pad);gap:12px}
-    .carte{width:auto;min-height:0}
-    .parti .coach{position:relative;left:auto;height:220px;margin:10px auto 0}
+    .roue-cadre{width:190vw;margin-left:calc(50% - 95vw);aspect-ratio:1/.385}
+  }
+  /* Ordinateur : la section tient dans un écran pendant que la roue tourne */
+  @media (min-width:801px){
+    .parti{height:100vh;height:100svh;display:flex;flex-direction:column}
+    .parti .tete{padding:calc(76px + 1.5vh) var(--pad) 0}
+    .parti h2{font-size:clamp(40px,min(7vw,10vh),130px)}
+    .roue-cadre{flex:none;margin-top:auto}   /* collée au bas de l'écran : les cartes y disparaissent */
   }
 
   /* ---------- 4. Comment ça marche : Marshall court le long du chemin ---------- */
-  .etapes{padding:clamp(70px,10vh,110px) var(--pad) clamp(40px,7vh,90px);overflow:hidden}
-  .etapes h2{font-size:clamp(40px,min(5.6vw,10vh),110px);max-width:1100px}
+  .etapes{padding:clamp(70px,10vh,110px) var(--pad) clamp(40px,7vh,90px);overflow:hidden;position:relative;z-index:0}
+  /* fondu : le haut de la section part du gris clair de « Particuliers » et passe au bleu */
+  .etapes::before{content:"";position:absolute;left:0;right:0;top:0;height:clamp(80px,14vh,160px);z-index:-1;pointer-events:none;background:linear-gradient(to bottom,var(--paper),rgba(245,245,245,.6) 40%,rgba(245,245,245,0))}
+  .etapes h2{font-size:clamp(40px,min(5.6vw,10vh),110px);max-width:1100px;margin-inline:auto;text-align:center}
+  .etapes > .lbl{display:table;margin-inline:auto}
+  .etapes h2{perspective:600px}
+  .etapes h2 .et-mot{display:inline-block;transform-origin:50% 100%}
   .chemin{position:relative;margin-top:clamp(70px,10vh,110px);height:clamp(130px,min(18vw,26vh),260px)}
   .chemin svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
   .chemin path{fill:none;stroke:#fff;stroke-width:6;stroke-linecap:round;stroke-dasharray:14 16;opacity:.35}
@@ -146,7 +182,9 @@
   .pas{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:clamp(16px,4vh,40px)}
   .pas div{opacity:.35;transform:translateY(20px);transition:opacity .45s,transform .45s}
   .pas div.on{opacity:1;transform:none}
-  .pas b{display:block;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(28px,3vw,46px);line-height:.95;margin-bottom:8px}
+  .pas b{display:block;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(28px,2.6vw,46px);line-height:.95;margin-bottom:8px}
+  /* Côte à côte : 1 au bord gauche, 3 au bord droit, 2 au milieu avec le même écart de chaque côté */
+  @media (min-width:801px){.pas{display:flex;justify-content:space-between}.pas b{white-space:nowrap}}
   .pas b em{color:var(--or);font-style:normal}
   .pas p{margin:0;font-size:16px;font-weight:600;max-width:340px}
   @media (max-width:800px){.pas{grid-template-columns:1fr}.chemin{height:150px}}
@@ -397,10 +435,19 @@
   #intro-tx .it-trait{position:absolute;left:30%;right:30%;bottom:.17em;height:5px;background:#fff;border-radius:3px;transform:scaleX(0)}
   #intro-tx.statique .it-ch{opacity:1}
   #intro-tx.statique .it-blk,#intro-tx.statique .it-trait{display:none}
+  /* Barre de chargement sous le logo : rail blanc translucide, remplissage blanc qui suit le vrai chargement de la page */
+  #intro-tx .it-charge{position:absolute;left:50%;top:calc(50% + clamp(46px,10vw,122px) * 1.04 + clamp(40px,5.5vw,70px));translate:-50% 0;
+    display:flex;flex-direction:column;align-items:center;gap:12px;font-family:Fredoka,system-ui,sans-serif;font-weight:700;color:#fff;opacity:0}
+  #intro-tx .it-rail{position:relative;width:min(440px,64vw);height:16px;border-radius:999px;background:rgba(255,255,255,.22);box-shadow:inset 0 2px 4px rgba(90,40,0,.25);transform:scaleX(0)}
+  #intro-tx .it-plein{position:absolute;left:3px;top:3px;bottom:3px;width:0;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(90,40,0,.25)}
+  #intro-tx .it-pct{font-size:clamp(18px,2.4vw,26px);text-shadow:0 .06em .14em rgba(90,40,0,.3);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+  #intro-tx.statique .it-charge{display:none}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap" rel="stylesheet">
 <div id="intro-tx" aria-hidden="true">
-  <div class="it-rideau"><div class="it-logo" id="it-logo"></div></div>
+  <div class="it-rideau"><div class="it-logo" id="it-logo"></div>
+    <div class="it-charge" id="it-charge"><div class="it-rail" id="it-rail"><div class="it-plein" id="it-plein"></div></div><div class="it-pct"><span id="it-pct">0</span> %</div></div>
+  </div>
 </div>
 <script>
 (function(){
@@ -442,6 +489,11 @@
   }
   function terminer(){ ov.classList.add('fini'); ouvert(); }
 
+  /* ---------- Compteur du chargement : chaque image, vidéo, police, la page et la ville 3D comptent pour une tâche ;
+     la barre affiche la part des tâches terminées ---------- */
+  var taches=0, faites=0;
+  function compter(p){ taches++; var fin=function(){ faites++; }; Promise.resolve(p).then(fin, fin); return p; }
+
   /* ---------- Attente du chargement (images du héros, vidéos du mur), comme avant ---------- */
   function waitAsset(p, ms){ return Promise.race([p, new Promise(function(resolve){ setTimeout(resolve, ms); })]); }
   function waitImages(){
@@ -475,28 +527,51 @@
       Promise.all([].slice.call(document.images).map(function(img){
         if(img.loading === 'lazy') img.loading='eager';
         var decode=function(){ return img.decode ? img.decode().catch(function(){}) : Promise.resolve(); };
-        if(img.complete && img.naturalWidth !== 0) return decode();
-        return new Promise(function(r){
+        if(img.complete && img.naturalWidth !== 0) return compter(decode());
+        return compter(new Promise(function(r){
           img.addEventListener('load', function(){ decode().then(r); }, { once:true });
           img.addEventListener('error', r, { once:true });
-        });
+        }));
       })).then(resolve, resolve);
     }
     if(document.readyState!=='loading') charger(); else document.addEventListener('DOMContentLoaded', charger);
   });
+  /* Toutes les vidéos de la page (cartes Particuliers comprises), sur ordinateur comme sur téléphone :
+     le rideau attend qu'elles puissent jouer, pour qu'aucune carte ne reste vide en arrivant. */
+  var toutesVideos=new Promise(function(resolve){
+    function charger(){
+      Promise.all([].slice.call(document.querySelectorAll('video')).map(function(v){
+        if(v.preload === 'none' || v.readyState >= 3) return compter(Promise.resolve());
+        return compter(new Promise(function(r){
+          v.addEventListener('canplay', r, { once:true });
+          v.addEventListener('error', r, { once:true });
+        }));
+      })).then(resolve, resolve);
+    }
+    if(document.readyState!=='loading') charger(); else document.addEventListener('DOMContentLoaded', charger);
+  });
+  /* Et la fin du chargement de la page elle-même (scripts, styles, polices, tout ce que le navigateur télécharge) */
+  var pageChargee=compter(new Promise(function(resolve){
+    if(document.readyState==='complete') resolve(); else addEventListener('load', resolve, { once:true });
+  }));
   var pret=new Promise(function(resolve){
     function charge(){
-      var fr=(document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+      var fr=compter((document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve());
       Promise.all([fr, waitImages(), waitVideos()]).then(resolve, resolve);
     }
     if(document.readyState!=='loading') charge(); else document.addEventListener('DOMContentLoaded', charge);
     setTimeout(resolve, 2500);
   });
 
+  // tout doit être chargé avant d'ouvrir ; 10 s au plus, pour ne jamais rester bloqué sur une connexion lente
+  function toutCharge(){ return [pret, waitAsset(toutesImages, 10000), waitAsset(toutesVideos, 10000), waitAsset(pageChargee, 10000)]; }
+
   /* ---------- L'animation (GSAP est chargé en bas de page) ---------- */
   var tl;
+  var charge=document.getElementById('it-charge'), rail=document.getElementById('it-rail'), plein=document.getElementById('it-plein'), pct=document.getElementById('it-pct');
+  function barre(p){ plein.style.width='calc(' + (p * 100) + '% - ' + (6 * p) + 'px)'; pct.textContent=Math.round(p * 100); }
   function jouer(){
-    if(!window.gsap || reduce){ ov.classList.add('statique'); pret.then(terminer); return; }
+    if(!window.gsap || reduce){ ov.classList.add('statique'); Promise.all(toutCharge()).then(terminer); return; }
     var blocs=logo.querySelectorAll('.it-blk'), lettres=logo.querySelectorAll('.it-ch'), trait=logo.querySelector('.it-trait');
     var etat={ p:0 };
     tl=gsap.timeline({ delay:.15 })
@@ -506,20 +581,32 @@
       .addLabel('morph', '-=.15')
       .to(blocs, { scaleX:.55, scaleY:.5, borderRadius:'50%', opacity:0, duration:.28, ease:'power2.in', stagger:.05 }, 'morph')
       .fromTo(lettres, { opacity:0, scale:.7, y:6 }, { opacity:1, scale:1, y:0, duration:.3, ease:'back.out(2)', stagger:.05 }, 'morph+=.1')
-      .addPause('+=.45', function(){
+      // une fois le logo posé, la barre arrive comme le trait du début
+      .to(charge, { opacity:1, duration:.2 }, '+=.1')
+      .to(rail, { scaleX:1, duration:.4, ease:'back.out(1.7)' }, '<')
+      .addPause('+=.05', function(){
         /* logo gonflé : rien ne bouge, la page finit de se préparer (la ville 3D se construit ici), puis le rideau s'ouvre */
         window.__logoGonfle=true; performance.mark('mcd-logo-gonfle'); document.dispatchEvent(new Event('mcd-logo-gonfle'));
-        var attente=[pret, waitAsset(toutesImages, 6000)].concat((window.mcdAttente||[]).map(function(p){ return waitAsset(p, 6000); }));
-        Promise.all(attente).then(function(){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ tl.play(); }); }); });
+        var attente=toutCharge().concat((window.mcdAttente||[]).map(function(p){ compter(p); return waitAsset(p, 6000); }));
+        // la barre rattrape en douceur la part réellement chargée, sans jamais la dépasser
+        // (lissage réglé sur le temps écoulé : la page lourde ralentit les images, pas la barre)
+        var vu=0, fini=false, tPrec=performance.now();
+        (function suivre(t){ if(fini) return; t=t || performance.now(); var vise=taches ? faites / taches : 0;
+          vu+=(vise - vu) * (1 - Math.exp(-(t - tPrec) / 180)); tPrec=t; barre(Math.min(vu, vise)); requestAnimationFrame(suivre); })();
+        Promise.all(attente).then(function(){
+          fini=true; var e={ v:vu };
+          gsap.to(e, { v:1, duration:.35, ease:'power1.out', onUpdate:function(){ barre(e.v); }, onComplete:function(){ gsap.delayedCall(.2, function(){ tl.play(); }); } });
+        });
       })
       .addLabel('sortie')
       .call(ouvert, null, 'sortie')
+      .to(charge, { y:'-6vh', opacity:0, duration:.4, ease:'power2.in' }, 'sortie')
       .to(logo, { y:'-18vh', opacity:0, duration:.5, ease:'power2.in' }, 'sortie')
       .to(etat, { p:1, duration:.9, ease:'power2.inOut', onUpdate:function(){ ouverture(etat.p); } }, 'sortie+=.05')
       .call(terminer);
   }
   if(document.readyState!=='loading') jouer(); else document.addEventListener('DOMContentLoaded', jouer);
-  setTimeout(function(){ if(!tl) { ov.classList.add('statique'); pret.then(terminer); } }, 4000);
+  setTimeout(function(){ if(!tl) { ov.classList.add('statique'); Promise.all(toutCharge()).then(terminer); } }, 4000);
   /* Si on touche ou fait défiler pendant l'intro, elle accélère. */
   ['touchstart','wheel','keydown'].forEach(function(ev){ window.addEventListener(ev, function(){ if(tl) tl.timeScale(2.5); }, { once:true, passive:true }); });
 
@@ -581,7 +668,7 @@
       <a class="acc-lnk" href="#" id="acc-out" hidden>Se déconnecter</a>
     </div>
   </div>
-  <a class="cta-top" href="rendez-vous.html">Audit gratuit</a>
+  <a class="cta-top devis-btn" href="rendez-vous.html">Audit gratuit</a>
   <button class="burger" type="button" aria-label="Ouvrir le menu" id="burger"><span></span><span></span><span></span></button>
 </header>
 <nav class="menu" id="menu" aria-label="Menu">
@@ -617,25 +704,23 @@
 <!-- 3. PARTICULIERS -->
 <section class="parti light" id="particuliers">
   <div class="tete">
-    <div><span class="lbl">Particuliers</span><h2 class="disp">Chez vous,<br><em>à votre rythme</em></h2></div>
+    <span class="lbl">Particuliers</span><h2 class="disp">Chez vous,<br><em>à votre rythme</em></h2>
   </div>
-  <div class="scene" id="scene">
-    <div class="piste" id="piste">
-      <article class="carte"><span class="ico">💻</span><h3>Ordinateur</h3><p>Fichiers, emails, navigation sur PC ou Mac.</p><span class="ok">À voir ensemble</span></article>
-      <article class="carte"><span class="ico">📱</span><h3>Smartphone</h3><p>Photos, réglages, applis utiles sur iPhone ou Android.</p><span class="ok">À voir ensemble</span></article>
-      <article class="carte"><span class="ico">📲</span><h3>Tablette</h3><p>Prendre en main sa tablette sans crainte de « mal faire ».</p><span class="ok">À voir ensemble</span></article>
-      <article class="carte"><span class="ico">📶</span><h3>Box &amp; Wi-Fi</h3><p>Une bonne connexion dans toute la maison.</p><span class="ok">À voir ensemble</span></article>
-      <article class="carte"><span class="ico">🧾</span><h3>Démarches</h3><p>Impôts, Ameli, CAF, FranceConnect : pas à pas.</p><span class="ok">À voir ensemble</span></article>
-      <article class="carte"><span class="ico">🩺</span><h3>Doctolib</h3><p>Rendez-vous médicaux et ordonnances en ligne.</p><span class="ok">À voir ensemble</span></article>
-      <article class="carte"><span class="ico">🎥</span><h3>Visio en famille</h3><p>Appeler ses petits-enfants avec WhatsApp ou FaceTime.</p><span class="ok">À voir ensemble</span></article>
-      <article class="carte"><span class="ico">🛡️</span><h3>Arnaques</h3><p>Reconnaître les faux SMS, faux mails et faux appels.</p><span class="ok">À voir ensemble</span></article>
-      <article class="carte"><span class="ico">🤖</span><h3>Intelligence artificielle</h3><p>Utiliser ChatGPT pour écrire ou chercher.</p><span class="ok">À voir ensemble</span></article>
+  <div class="roue-cadre">
+    <div class="roue" id="roue">
+      <article class="roue-carte" style="--i:1"><video src="images/particuliers/ordinateur.mp4" poster="images/particuliers/ordinateur.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Ordinateur</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
+      <article class="roue-carte" style="--i:0"><video src="images/particuliers/smartphone.mp4" poster="images/particuliers/smartphone.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Smartphone</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
+      <article class="roue-carte" style="--i:2"><video src="images/particuliers/tablette.mp4" poster="images/particuliers/tablette.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Tablette</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
+      <article class="roue-carte" style="--i:3"><video src="images/particuliers/box-wifi.mp4" poster="images/particuliers/box-wifi.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Box &amp; Wi-Fi</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
+      <article class="roue-carte" style="--i:4"><video src="images/particuliers/demarches.mp4" poster="images/particuliers/demarches.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Démarches</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
+      <article class="roue-carte" style="--i:5"><video src="images/particuliers/doctolib.mp4" poster="images/particuliers/doctolib.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Doctolib</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
+      <article class="roue-carte" style="--i:6"><video src="images/particuliers/visio.mp4" poster="images/particuliers/visio.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Visio en famille</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
+      <article class="roue-carte" style="--i:7"><video src="images/particuliers/arnaques.mp4" poster="images/particuliers/arnaques.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Arnaques</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
+      <article class="roue-carte" style="--i:8"><video src="images/particuliers/ia.mp4" poster="images/particuliers/ia.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Intelligence artificielle</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
     </div>
-    <img class="coach marshall" id="coach" src="images/agents/ag-audit.webp" alt="Marshall, son bloc-notes à la main" loading="lazy">
-  </div>
-  <div class="pied">
-    <p>Une séance d’une heure, chez vous partout en Île-de-France, ou en visio. Des carnets de 3 et 5 séances pour aller plus loin.</p>
-    <a class="btn fill" href="aide-numerique-ile-de-france.html">Voir l’aide à domicile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    <div class="pied">
+      <a class="btn fill devis-btn" href="aide-numerique-ile-de-france.html">Voir l’aide à domicile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    </div>
   </div>
 </section>
 
@@ -648,9 +733,9 @@
     <img class="coureur marshall" id="coureur" src="images/marshall-court.webp" alt="" aria-hidden="true">
   </div>
   <div class="pas" id="pas">
-    <div><b><em>1.</em> Vous écrivez à Marshall</b><p>Notre assistant, en haut à gauche, vous répond tout de suite et prend votre demande : dites-lui ce qui vous bloque.</p></div>
-    <div><b><em>2.</em> On se voit</b><p>On vient chez vous, ou on se retrouve en visio. Vous tenez la souris, on explique.</p></div>
-    <div><b><em>3.</em> Vous êtes autonome</b><p>Vous refaites seul ce qu’on a vu, et vous pouvez revenir vers nous pour la suite.</p></div>
+    <div><b><em>1.</em> Vous écrivez à Marshall</b></div>
+    <div><b><em>2.</em> On se voit</b></div>
+    <div><b><em>3.</em> Vous êtes autonome</b></div>
   </div>
 </section>
 
@@ -2470,7 +2555,7 @@ else {
   <h2 class="disp" id="fin-titre">30 minutes,<br><em>un plan clair</em></h2>
   <p>L’audit est gratuit et sans engagement : on regarde ensemble votre situation, et vous repartez avec les bonnes décisions.</p>
   <div class="actions">
-    <a class="btn blanc plein" href="rendez-vous.html">Réserver mon audit gratuit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+    <a class="btn blanc plein devis-btn" href="rendez-vous.html">Réserver mon audit gratuit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
     <button type="button" class="btn blanc" id="ecrire-marshall">Écrire à Marshall</button>
   </div>
   <img class="coucou marshall" id="coucou" src="images/marshall-coucou.webp" alt="Marshall vous fait coucou" loading="lazy">
@@ -2490,9 +2575,7 @@ else {
     <nav aria-label="Informations"><h3>Informations</h3><ul><li><a href="loiapplicablemcp.html">Mentions légales et CGV</a></li><li><a href="suppression-donnees.html">Suppression des données</a></li></ul></nav>
   </div>
   <div class="ps-bas">
-    <div class="ps-reseaux"><a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a><a href="https://www.linkedin.com/company/moncopaindigital/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.9 8.7H3.6V20h3.3V8.7zM5.3 3.5a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8zM20.4 20h-3.3v-5.5c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9V20H9.9V8.7h3.2v1.5h.1c.4-.8 1.5-1.7 3.1-1.7 3.3 0 3.9 2.2 3.9 5V20z"/></svg></a></div>
-    <span>© 2026 Mon Copain Digital · contact@moncopaindigital.fr</span>
-  </div>
+    <div class="ps-reseaux"><a href="https://www.instagram.com/moncopaindigital.fr/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a><a href="https://www.linkedin.com/company/moncopaindigital/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.9 8.7H3.6V20h3.3V8.7zM5.3 3.5a1.9 1.9 0 1 0 0 3.8 1.9 1.9 0 0 0 0-3.8zM20.4 20h-3.3v-5.5c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9V20H9.9V8.7h3.2v1.5h.1c.4-.8 1.5-1.7 3.1-1.7 3.3 0 3.9 2.2 3.9 5V20z"/></svg></a></div>  </div>
   <div class="ps-grand" id="grandmot" aria-hidden="true">Mon Copain <em>Digital</em></div>
 </footer>
 
@@ -2690,25 +2773,47 @@ else {
     gsap.to(vue, { keyframes:[{ i:12, duration:1.8 }, { i:FACE, duration:1.4, delay:.8 }, { i:NB - 13, duration:1.8 }, { i:FACE, duration:1.2, delay:.8 }], repeat:-1, repeatDelay:1.5, ease:'sine.inOut', onUpdate:afficher });
   });
 
-  /* ---------- 3. Particuliers : les cartes défilent à l'horizontale, Marshall coche celle qui passe devant lui ---------- */
-  var piste = document.getElementById('piste'), cartes = [].slice.call(piste.children), coach = document.getElementById('coach');
-  var mm = gsap.matchMedia();
-  mm.add('(min-width: 801px)', function(){
-    function dist(){ return piste.scrollWidth - innerWidth; }
-    var tw = gsap.to(piste, { x:function(){ return -dist(); }, ease:'none',
-      scrollTrigger:{ trigger:'#scene', start:'center center', end:function(){ return '+=' + dist(); }, scrub:1, pin:'#particuliers', anticipatePin:1, invalidateOnRefresh:true },
-        onUpdate:function(){
-          var c = coach.getBoundingClientRect(), x = c.right + 30, act = -1;
-          cartes.forEach(function(k, i){ var r = k.getBoundingClientRect(); if (r.left < x + 60 && r.right > x - 40) act = i; });
-          cartes.forEach(function(k, i){ var on = i === act; if (on !== k.classList.contains('on')) { k.classList.toggle('on', on); if (on) { k.querySelector('.ok').textContent = '✓ On s’en occupe'; gsap.fromTo(coach, { rotate:0 }, { keyframes:[{ rotate:-5, duration:.12 }, { rotate:0, duration:.3, ease:'back.out(3)' }] }); } } });
-        } });
-    return function(){ tw.kill(); gsap.set(piste, { clearProps:'x' }); cartes.forEach(function(k){ k.classList.remove('on'); }); };
-  });
-  mm.add('(max-width: 800px)', function(){
-    var tws = cartes.map(function(k){ return ScrollTrigger.create({ trigger:k, start:'top 70%', end:'bottom 30%', onToggle:function(st){ k.classList.toggle('on', st.isActive); if (st.isActive) k.querySelector('.ok').textContent = '✓ On s’en occupe'; } }); });
-    return function(){ tws.forEach(function(t){ t.kill(); }); };
-  });
-  gsap.from('#coach', { x:-200, opacity:0, duration:1, ease:'back.out(1.4)', scrollTrigger:{ trigger:'#particuliers', start:'top 60%' } });
+  /* ---------- 3. Particuliers : la section est épinglée et la roue tourne d'une carte à l'autre au défilement ---------- */
+  (function(){
+    var roue = document.getElementById('roue'), cartes = [].slice.call(roue.children), n = cartes.length, PAS = 360 / n;
+    // la carte du haut passe devant ses voisines
+    function active(angle){ var k = ((Math.round(-angle / PAS) % n) + n) % n; cartes.forEach(function(c){ c.classList.toggle('active', +c.style.getPropertyValue('--i') === k); }); }
+    active(0);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.to(roue, { rotation:-PAS * (n - 1), ease:'none', onUpdate:function(){ active(gsap.getProperty(roue, 'rotation')); },
+      scrollTrigger:{ trigger:'#particuliers', start:'top top', end:'+=' + (n - 1) * 35 + '%', pin:true, scrub:1, anticipatePin:1, invalidateOnRefresh:true } });
+  })();
+  // Boutons comme « Demander un devis » : ils arrivent dans un nuage d'étincelles, puis en relancent un petit au survol
+  (function(){
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var COULEURS = ['#fff', '#FFE39A', '#FFC24D', '#FF9C46', '#BFE8FF'];
+    // le nuage part du centre du bouton ; il est posé sur l'écran, donc rien ne le coupe (en-tête, cadre de la roue…)
+    function pouf(bouton, n, r0, r1, petit){
+      var b = bouton.getBoundingClientRect(), p = document.createElement('div'); p.className = 'pouf libre';
+      p.style.setProperty('--px', b.left + b.width / 2 + 'px'); p.style.setProperty('--py', b.top + b.height / 2 + 'px');
+      if (!petit) p.innerHTML = '<span class="eclair"></span><span class="anneau"></span>';
+      for (var k = 0; k < n; k++) {
+        var i = document.createElement('i'), a = Math.random() * Math.PI * 2, r = r0 + Math.random() * r1;
+        if (k % 3 === 0) { i.className = 'etoile'; i.textContent = k % 2 ? '✦' : '✧'; }
+        i.style.cssText = '--x:' + Math.cos(a) * r + 'px;--y:' + (Math.sin(a) * r * .85 - (petit ? 10 : 30)) + 'px;--t:' + (k % 3 ? 4 + Math.random() * 6 : (petit ? 10 : 16) + Math.random() * 12) + 'px;'
+          + '--c:' + COULEURS[k % COULEURS.length] + ';--d:' + (.9 + Math.random() * .8) + 's;--r:' + (Math.random() * 360 - 180) + 'deg';
+        p.appendChild(i);
+      }
+      document.body.appendChild(p); setTimeout(function(){ p.remove(); }, 2000);
+    }
+    function etincelant(bouton, quand){
+      bouton.classList.add('arrive');   // sans script, le bouton reste visible
+      quand(function(){ bouton.classList.add('vu'); setTimeout(function(){ pouf(bouton, 30, 40, 90); }, 150); });
+      var survol = 0;
+      bouton.addEventListener('pointerenter', function(){ if (performance.now() - survol > 700) { survol = performance.now(); pouf(bouton, 16, 20, 60, true); } });
+    }
+    var aSection = function(sel){ return function(go){ ScrollTrigger.create({ trigger:sel, start:'top 40%', once:true, onEnter:go }); }; };
+    etincelant(document.querySelector('#particuliers .devis-btn'), aSection('#particuliers'));
+    etincelant(document.querySelector('#fin .devis-btn'), aSection('#fin'));
+    // l'en-tête : juste après l'ouverture du rideau
+    etincelant(document.querySelector('.cta-top.devis-btn'), function(go){ quandPortesOuvertes(function(){ setTimeout(go, 700); }); });
+  })();
+
 
   /* ---------- 4. Comment ça marche : le chemin se trace, Marshall court dessus et allume chaque étape ---------- */
   var route = document.getElementById('route'), trace = document.getElementById('trace'), coureur = document.getElementById('coureur'), chemin = document.getElementById('chemin');
@@ -2729,6 +2834,15 @@ else {
       start:function(){ return document.getElementById('etapes').offsetHeight > innerHeight ? 'bottom bottom' : 'center center'; },
       end:'+=220%' } });
   gsap.to(coureur, { y:-10, duration:.18, repeat:-1, yoyo:true, ease:'sine.inOut' });
+  // Entrée du titre : l'étiquette s'ouvre depuis le centre, puis les mots surgissent du bas en basculant, « zéro stress » en dernier avec un rebond
+  var titreEt = document.querySelector('#etapes h2');
+  (function coupe(n){ [].slice.call(n.childNodes).forEach(function(c){ if (c.nodeType === 3) { var f = document.createDocumentFragment(); c.textContent.split(/(\s+)/).forEach(function(m){ if (!m) return; if (/^\s+$/.test(m)) { f.appendChild(document.createTextNode(m)); return; } var s = document.createElement('span'); s.className = 'et-mot'; s.textContent = m; f.appendChild(s); }); n.replaceChild(f, c); } else if (c.nodeType === 1) coupe(c); }); })(titreEt);
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    gsap.timeline({ scrollTrigger:{ trigger:'#etapes', start:'top 75%' } })
+      .from('#etapes > .lbl', { clipPath:'inset(0 50% 0 50%)', opacity:0, duration:.5, ease:'power3.out' })
+      .from('#etapes h2 > .et-mot', { yPercent:120, rotateX:-80, opacity:0, duration:.7, stagger:.08, ease:'back.out(1.8)' }, '-=.2')
+      .from('#etapes h2 em .et-mot', { yPercent:120, scale:.4, rotate:-8, opacity:0, duration:.8, stagger:.1, ease:'elastic.out(1,.55)' }, '-=.35');
+  }
 
   /* ---------- 5. Où : la tête de Marshall survole les départements d'Île-de-France en traçant sa route, puis se pose sur Paris ---------- */
   var plan = document.getElementById('plan'), trajet = document.getElementById('trajet'), epingle = document.getElementById('epingle'), ombre = document.getElementById('ombre');
@@ -2792,6 +2906,12 @@ else {
 })();
 </script>
 <link rel="stylesheet" href="css/marshall-bot.css?v=5">
+<style>
+/* Accueil : Marshall en haut à droite, la conversation s'ouvre vers le bas, calée à droite */
+.mcd-chat{left:auto;right:var(--pad,24px)}
+.mcd-fenetre{left:auto;right:0}
+@media (max-width:520px){.mcd-chat{left:auto;right:12px}}
+</style>
 <style>
 /* « Numérique » en tube néon (relief) + foudre : à l'ouverture des portes, le néon s'allume. */
 #titre .orange-t{position:relative;display:inline-block}
