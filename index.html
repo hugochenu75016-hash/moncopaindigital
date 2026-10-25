@@ -367,6 +367,7 @@
     .tuile .devis{display:none}
     .fx-sauve{bottom:8px}
   }
+  @media (max-width:600px) and (hover:none) and (prefers-reduced-motion:no-preference){#pros.attend-cartes{touch-action:none}}
   @media (prefers-reduced-motion:reduce){.fx,.fx *,.fx::before{animation:none!important}#pros.anim .tuile,#pros.anim .assis,#pros.anim .assis img,#pros.anim .fx,#pros.anim .devis-btn{opacity:1;transform:none;scale:none;filter:none;transition:none}.pouf{display:none}.devis-btn,.devis-btn::before,.devis-btn svg{animation:none}}
   /* PROS : fin */
 
@@ -845,11 +846,13 @@
     addEventListener('wheel', retenir, { passive:false });
     addEventListener('touchmove', retenir, { passive:false });
     addEventListener('keydown', e => { if (bloque && TOUCHES.includes(e.key)) e.preventDefault(); });
-    const bloquer = () => { bloque = true; window.lenis?.stop(); };
-    const debloquer = () => { bloque = false; window.lenis?.start(); };
+    const section = document.getElementById('pros');
+    const bloqueMobile = matchMedia('(max-width:600px) and (hover:none) and (prefers-reduced-motion:no-preference)').matches;
+    const bloquer = () => { bloque = true; if (bloqueMobile) section.classList.add('attend-cartes'); window.lenis?.stop(); };
+    const debloquer = () => { bloque = false; section.classList.remove('attend-cartes'); window.lenis?.start(); };
 
-    // la section se cale sur l'écran, puis les 4 cartes s'enchaînent ; on rend le défilement quand le 4e Marshall est là
-    const ECART = 420, FIN = 3 * ECART + 1150;
+    // la section se cale sur l'écran, puis les 4 cartes s'enchaînent ; on libère le défilement après la dernière apparition complète
+    const ECART = 420, FIN = 3 * ECART + 1400;
     let joue = false;
     const spectacle = () => {
       joue = true; bloquer();
@@ -858,7 +861,6 @@
       tuiles.forEach((t, i) => setTimeout(() => montrer(t), 350 + i * ECART));
       setTimeout(() => { debloquer(); montrerBouton(); }, 350 + FIN);
     };
-    const section = document.getElementById('pros');
     new IntersectionObserver(([e], o) => {
       if (joue) return;
       const r = e.boundingClientRect;
@@ -1413,6 +1415,7 @@
   #ville .mc-wrap::before{top:0;background:linear-gradient(var(--bg),transparent)}
   #ville .mc-wrap::after{bottom:0;background:linear-gradient(transparent,var(--bg))}
   @media (max-width:600px){#ville .mc-wrap{height:80vh;min-height:500px}}
+  @media (max-width:600px) and (hover:none) and (prefers-reduced-motion:no-preference){#ville.attend-reveal{touch-action:none}}
 
   #ville .mc-tip{position:absolute;z-index:3;pointer-events:none;background:#fff;color:var(--ink);font-weight:600;font-size:13px;padding:7px 12px;border-radius:999px;box-shadow:0 6px 20px rgba(0,40,70,.15);transform:translate(-50%,-140%);white-space:nowrap;opacity:0;transition:opacity .15s}
   #ville .mc-tip.on{opacity:1}
@@ -2844,8 +2847,13 @@ for (const o of scene.children) {
   const delay = o === logoGroup ? .35 : mover ? 1.6 + Math.random() * .5 : (tall ? .1 : .55) + dist * .022 + Math.random() * .12;
   POP.push({ o, s:o.scale.clone(), y:o.position.y, mover, delay });
 }
-const reveal = { t0:null, done:false, armed:false };
-new IntersectionObserver(([e]) => { if (e.isIntersecting && !reveal.armed) reveal.armed = true; }, { threshold:.3 }).observe(wrap);
+const holdRevealScroll = matchMedia('(max-width:600px) and (hover:none) and (prefers-reduced-motion:no-preference)').matches;
+const villeSection = wrap.closest('#ville');
+function setRevealScrollHold(hold) { if (holdRevealScroll) villeSection.classList.toggle('attend-reveal', hold); }
+const reveal = { t0:null, done:false, armed:false, finished:false };
+new IntersectionObserver(([e]) => {
+  if (e.isIntersecting && !reveal.armed) { reveal.armed = true; setRevealScrollHold(true); }
+}, { threshold:.3 }).observe(wrap);
 const backOut = x => { const c = 1.9; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
 function updateReveal(t) {
   if (reveal.done) return 1;
@@ -2950,7 +2958,11 @@ document.getElementById('mc-close').onclick = closeCard;
 // ---- boucle -------------------------------------------------------------
 const clock = new THREE.Clock();
 let visible = false;                     // l'observateur dira quand la carte est à l'écran
-new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(wrap);
+new IntersectionObserver(([e]) => {
+  visible = e.isIntersecting;
+  if (!visible) setRevealScrollHold(false);
+  else if (reveal.armed && !reveal.finished) setRevealScrollHold(true);
+}).observe(wrap);
 const desired = new THREE.Vector3();
 
 function frame() {
@@ -2988,6 +3000,7 @@ function frame() {
   spinners.clap.rotation.z = (t % 2.4) < .15 ? 0 : .35;
   onAirMat.emissiveIntensity = .35 + Math.abs(Math.sin(t * 2)) * .7;
   const shown = updateReveal(t);
+  if (shown >= 1 && !reveal.finished) { reveal.finished = true; setRevealScrollHold(false); }
   for (const h of hotspots) {
     h.hover += ((hovered === h ? 1 : 0) - h.hover) * Math.min(1, dt * 10);
     const ph = ((t * .7 + h.phase) % 1);
