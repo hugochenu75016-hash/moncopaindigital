@@ -18,6 +18,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,400..900;1,62..125,400..900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">   <!-- Satoshi : textes de description (comme waverunmedia.com) -->
 <link rel="preload" as="image" href="images/marshall-regard.webp?v=3" media="(hover:hover)">
 <link rel="preload" as="image" href="images/marshall-regard-mobile.webp?v=2" media="(hover:none)">
 <style>
@@ -30,6 +32,9 @@
   html{overflow-x:hidden}
   body{background:var(--blue);color:#fff;font-family:Archivo,system-ui,sans-serif;font-size:16px;line-height:1.45;overflow-x:hidden;-webkit-font-smoothing:antialiased}
   img{display:block;max-width:100%}
+  /* Textes de description en Satoshi (titres, étiquettes et boutons restent en Archivo étroit) */
+  p{font-family:Satoshi,Archivo,system-ui,sans-serif;font-stretch:normal}
+  main p,footer p{font-weight:700!important}   /* Satoshi Bold : plus présent que le Medium de waverunmedia.com (demande du 25/10) */
   a{color:inherit;text-decoration:none}
   button{font:inherit;color:inherit}
   .disp{font-family:Archivo,system-ui,sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.84;letter-spacing:-.005em;margin:0}
@@ -117,8 +122,8 @@
   .parti .tete .lbl{color:var(--or)}
   .parti h2{font-size:clamp(48px,7vw,130px)}
   .roue-cadre{position:relative;container-type:inline-size;width:min(85vw,calc((100svh - 300px) / .36));margin:0 auto;aspect-ratio:1/.36;min-height:0;clip-path:inset(-200px -50vw 0 -50vw)}   /* coupé seulement en bas : la lueur du survol peut déborder en haut et sur les côtés */
-  .roue{position:relative;width:100%;aspect-ratio:1;will-change:transform}
-  .roue-carte{--t:rotate(calc(var(--i) * 40deg)) translateY(-23.5cqw);position:absolute;top:50%;left:50%;width:18.6cqw;aspect-ratio:305/385;translate:-50% -100%;transform-origin:50% 100%;transform:var(--t);border-radius:.6cqw;overflow:hidden;display:flex;flex-direction:column;padding:1.5cqw;color:#fff;background:linear-gradient(160deg,var(--or2),var(--or));box-shadow:-2px 6px 20px 14px rgba(0,0,0,.12);transition:transform .2s ease-out,box-shadow .35s ease}
+  .roue{position:relative;width:100%;aspect-ratio:1;will-change:transform;translate:0 5cqw}   /* descendue de 5cqw : avec les cartes +15 %, le haut de la carte du haut reste à la même hauteur (sous le titre) */
+  .roue-carte{--t:rotate(calc(var(--i) * 40deg)) translateY(-27cqw);position:absolute;top:50%;left:50%;width:21.4cqw;aspect-ratio:305/385;translate:-50% -100%;transform-origin:50% 100%;transform:var(--t);border-radius:.69cqw;overflow:hidden;display:flex;flex-direction:column;padding:1.73cqw;color:#fff;background:linear-gradient(160deg,var(--or2),var(--or));box-shadow:-2px 6px 20px 14px rgba(0,0,0,.12);transition:transform .2s ease-out,box-shadow .35s ease}
   .roue-carte:nth-child(3n+2){background:linear-gradient(160deg,#9ad8f8,var(--blued))}
   .roue-carte:nth-child(3n){background:linear-gradient(160deg,#2b2b2b,var(--ink))}
   .roue-carte.active{z-index:2}
@@ -132,7 +137,7 @@
   .roue-carte .voile{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;transition:opacity .35s ease;
     background:linear-gradient(155deg,rgba(255,255,255,.34),rgba(255,255,255,.08) 45%,rgba(255,255,255,.2));-webkit-backdrop-filter:blur(1.5px) saturate(1.15);backdrop-filter:blur(1.5px) saturate(1.15)}
   .roue-carte .savoir{position:absolute;left:50%;top:46%;z-index:3;display:inline-flex;align-items:center;gap:.45em;white-space:nowrap;
-    padding:.75cqw 1.5cqw;border-radius:999px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:max(12px,1.25cqw);letter-spacing:.02em;color:#fff;
+    padding:.86cqw 1.73cqw;border-radius:999px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:max(12px,1.44cqw);letter-spacing:.02em;color:#fff;
     background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.65);-webkit-backdrop-filter:blur(10px) saturate(1.6);backdrop-filter:blur(10px) saturate(1.6);
     box-shadow:inset 0 1px 2px rgba(255,255,255,.85),inset 0 -3px 8px rgba(255,255,255,.12),0 8px 18px rgba(0,0,0,.18);text-shadow:0 1px 2px rgba(0,0,0,.25);
     opacity:0;transform:translate(-50%,-50%) scale(.57);transition:opacity .3s ease,transform .45s cubic-bezier(.3,1.7,.5,1),background .2s,color .2s,border-color .2s}
@@ -141,9 +146,9 @@
   .roue-carte:hover .savoir{opacity:1;transform:translate(-50%,-50%) scale(.7)}   /* 30 % plus petite */
   .roue-carte .savoir:hover{background:#fff;border-color:#fff;color:var(--blue);text-shadow:none}   /* survol de la pilule : blanche, texte bleu */
   .roue-carte .savoir:hover svg{transform:translateX(3px)}
-  .roue-carte h3{margin:auto 0 0;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:2.3cqw;line-height:.92}
+  .roue-carte h3{margin:auto 0 0;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:2.65cqw;line-height:.92}   /* cartes +15 % (25/10) : largeur, rayon, textes */
   /* le bouton se place au centre, sous la carte du haut, entre ses voisines */
-  .parti .pied{position:absolute;left:50%;top:29.5cqw;translate:-50% 0;scale:.75;transform-origin:50% 0;z-index:5}
+  .parti .pied{position:absolute;left:50%;top:31cqw;translate:-50% 0;scale:.75;transform-origin:50% 0;z-index:5}
   .parti .pied .btn{white-space:nowrap;border-radius:999px;padding-inline:28px}   /* bouton en pilule */
   /* Boutons qui reprennent l'animation de « Demander un devis » (classe devis-btn, styles de la section Pros) :
      « Voir l'aide à domicile », « Audit gratuit » de l'en-tête et « Réserver mon audit gratuit ». Ils arrivent dans un nuage d'étincelles. */
@@ -169,7 +174,7 @@
   /* ---------- 4. Comment ça marche : Marshall court le long du chemin ---------- */
   .etapes{padding:clamp(70px,10vh,110px) var(--pad) clamp(40px,7vh,90px);overflow:hidden;position:relative;z-index:0}
   /* fondu : le haut de la section part du gris clair de « Particuliers » et passe au bleu */
-  .etapes::before{content:"";position:absolute;left:0;right:0;top:0;height:clamp(80px,14vh,160px);z-index:-1;pointer-events:none;background:linear-gradient(to bottom,var(--paper),rgba(245,245,245,.6) 40%,rgba(245,245,245,0))}
+  .etapes::before{content:"";position:absolute;left:0;right:0;top:0;height:clamp(80px,14vh,160px);z-index:-1;pointer-events:none;opacity:var(--fondu,1);background:linear-gradient(to bottom,var(--paper),rgba(245,245,245,.6) 40%,rgba(245,245,245,0))}
   .etapes h2{font-size:clamp(40px,min(5.6vw,10vh),110px);max-width:1100px;margin-inline:auto;text-align:center}
   .etapes > .lbl{display:table;margin-inline:auto}
   .etapes h2{perspective:600px}
@@ -769,54 +774,6 @@
   </div>
 </section>
 
-<!-- 6. COMMERÇANTS -->
-<section class="commerce orange" id="commercants">
-  <div>
-    <span class="lbl">Commerçants</span>
-    <h2 class="disp">Vos réseaux,<br><em>sans y passer</em><br>vos soirées</h2>
-    <ul>
-      <li>Studio Social : Marshall, votre copain IA, crée vos posts, stories et vidéos</li>
-      <li>Publication sur Instagram, Facebook et TikTok</li>
-      <li>Gratuit pour commencer, formules à 29 € et 59 € par mois</li>
-      <li>Et si besoin : site web, fiche Google et référencement, sur devis</li>
-    </ul>
-    <div class="actions">
-      <a class="btn blanc" href="decouvrir-studio-social.html">Découvrir Studio Social <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
-      <a class="btn blanc" href="idees-posts-boulangerie.html">30 idées de posts</a>
-    </div>
-  </div>
-  <div class="tel-zone">
-    <div class="conv" id="conv">
-      <div class="conv-tete"><img src="images/avatarchatbot.png" alt=""><div><b>Marshall</b><small>en ligne · Studio Social</small></div></div>
-      <div class="conv-fil">
-        <div class="msg moi" data-m>Fais-moi un post pour ma baguette tradition 🥖</div>
-        <div class="ecrit" data-m aria-hidden="true"><i></i><i></i><i></i></div>
-        <div class="msg lui" data-m>C’est prêt ! Voilà le visuel et le texte :</div>
-        <div class="apercu" data-m>
-          <div class="post-tete"><span class="post-av" aria-hidden="true">🥖</span><span><b>le_fournil_du_coin</b><small>Boulangerie artisanale</small></span></div>
-          <div class="post-visuel">
-            <img src="images/post-baguette.jpg" alt="Le post préparé par Marshall : une baguette dorée sur le comptoir de la boulangerie" loading="lazy">
-            <span class="post-badge">Sort du four</span>
-            <strong class="post-titre">La tradi<br>est chaude</strong>
-            <span class="post-prix">1,30&nbsp;€</span>
-          </div>
-          <div class="post-icones" aria-hidden="true">
-            <svg class="coeur" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.5 8 3.6 4.5 7 4.5c2 0 3.7 1.1 5 3 1.3-1.9 3-3 5-3 3.4 0 5.5 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3.5 20l1.2-4.2A8.5 8.5 0 1 1 20.5 11.5z"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></svg>
-            <svg class="marque" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4.5L6 21z"/></svg>
-          </div>
-          <p class="post-aime"><b>128 J’aime</b></p>
-          <p><b>le_fournil_du_coin</b> Notre tradition sort du four toutes les heures : croûte qui chante, mie alvéolée. On vous la garde ? 🥖 #boulangerie #tradition</p>
-          <button type="button" class="publier" tabindex="-1">Publier</button>
-        </div>
-        <div class="publie" data-m>✓ Publié sur tous vos réseaux</div>
-      </div>
-    </div>
-    <img class="tel-marshall marshall" id="tel-marshall" src="images/marshall-publie.webp" alt="Marshall publie un post depuis son téléphone et se réjouit" loading="lazy">
-  </div>
-</section>
-
 <!-- 7. PROS -->
 <!-- généré depuis maquettes/marshall-cartes par vers-site.py : retoucher la maquette, pas ce bloc -->
 <section class="pros dark" id="pros">
@@ -910,19 +867,538 @@
 </script>
 <!-- /7. PROS -->
 
+<!-- 6. COMMERÇANTS -->
+<style>
+  /* ---------- 6. Commerçants : l'écran coupé en deux par un éclair ---------- */
+  .eclair-split{height:100vh;height:100svh;min-height:620px;overflow:hidden;background:var(--blue);isolation:isolate}
+  .eclair-split .moitie{position:absolute;inset:0;display:flex;align-items:center;transition:transform .8s cubic-bezier(.2,1.3,.4,1),opacity .4s}
+  .eclair-split .moitie.g{background:var(--or);color:#fff;clip-path:polygon(0 0,53% 0,47% 27%,56% 33%,45% 62%,55% 69%,49% 100%,0 100%);padding:0 57% 0 calc(var(--pad) + 2vw)}
+  .eclair-split .moitie.d{background:var(--blue);color:#fff;clip-path:polygon(53% 0,100% 0,100% 100%,49% 100%,55% 69%,45% 62%,56% 33%,47% 27%);padding:0 calc(var(--pad) + 2vw) 0 59%;justify-content:flex-end;text-align:right}
+  .eclair-split .txt{max-width:640px;min-width:0}
+  .eclair-split h2{font-size:clamp(40px,4.7vw,96px);margin:14px 0 22px}
+  /* Marshall boulanger : boucle vidéo détourée, seule dans la moitié gauche, centrée et posée en bas */
+  .eclair-split .chef{position:absolute;left:0;bottom:0;width:45%;height:72%;object-fit:contain;object-position:50% 100%;pointer-events:none;filter:drop-shadow(0 20px 26px rgba(90,30,0,.35));transition:transform .9s .55s cubic-bezier(.2,1.2,.35,1),opacity .4s .55s}
+  /* Ambiance de fournil derrière Marshall : lueur de four qui pulse, farine en suspension (canvas), vapeur au-dessus de la plaque */
+  /* Décor de fournil flou derrière Marshall, fondu dans l'orange vers l'éclair et vers le haut */
+  .eclair-split .fournil{position:absolute;left:0;bottom:0;width:47%;height:100%;object-fit:cover;object-position:50% 100%;pointer-events:none;opacity:.92;
+    -webkit-mask-image:linear-gradient(to right,#000 68%,transparent 97%),linear-gradient(to bottom,transparent,#000 22%);mask-image:linear-gradient(to right,#000 68%,transparent 97%),linear-gradient(to bottom,transparent,#000 22%);
+    -webkit-mask-composite:source-in;mask-composite:intersect;transition:opacity .8s .4s}
+  /* Côté droit : Marshall à son bureau, la machine à contenu à gauche (côté éclair) ; le bureau en bois est dessiné par la page */
+  .eclair-split .bureau-vid{position:absolute;right:0;bottom:38px;width:46%;height:72%;object-fit:contain;object-position:50% 100%;pointer-events:none;transition:transform .9s .55s cubic-bezier(.2,1.2,.35,1),opacity .4s .55s}
+  .eclair-split .bureau{position:absolute;left:44%;right:0;bottom:0;height:52px;background:linear-gradient(#b07a4a,#8c5a31 14%,#6e4423 60%,#4f2f17);box-shadow:0 -2px 0 #d39a62 inset,0 -16px 30px rgba(0,40,70,.25);transition:transform .7s .45s cubic-bezier(.2,1,.3,1)}
+  /* La machine se met en marche : écran qui s'illumine, voyants, ondes de vibration, puis likes et pouces qui s'envolent */
+  .eclair-split .ecran,.eclair-split .voyant,.eclair-split .onde,.eclair-split .like{position:absolute;left:0;top:0;pointer-events:none;z-index:3}
+  .eclair-split .ecran{border-radius:10%;background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(190,230,255,.55) 60%,rgba(150,210,255,0));mix-blend-mode:screen;animation:ecran 1.6s ease-out forwards}
+  @keyframes ecran{0%{opacity:0}10%,25%{opacity:1}35%{opacity:.4}45%,80%{opacity:1}100%{opacity:0}}
+  .eclair-split .voyant{border-radius:50%;background:#fff6a8;box-shadow:0 0 10px 4px #ffd34d;animation:voyant .32s steps(1) 5 forwards}
+  @keyframes voyant{0%{opacity:1}50%{opacity:.1}100%{opacity:0}}
+  .eclair-split .onde{border:3px solid rgba(255,255,255,.9);border-color:transparent rgba(255,255,255,.9) transparent transparent;border-radius:50%;animation:onde .5s ease-out 3}
+  .eclair-split .onde.g{border-color:transparent transparent transparent rgba(255,255,255,.9)}
+  @keyframes onde{0%{opacity:0;scale:.6}40%{opacity:1}100%{opacity:0;scale:1.25}}
+  .eclair-split .like{display:grid;place-items:center;border-radius:50%;background:#fff;box-shadow:0 8px 18px rgba(0,40,70,.25);color:#fff;font:900 15px/1 Archivo,system-ui,sans-serif;animation:like var(--duree,1.8s) cubic-bezier(.2,.7,.3,1) forwards}
+  .eclair-split .like svg{width:58%;height:58%}
+  .eclair-split .like.coeur-l{background:#ff3b5c}
+  .eclair-split .like.pouce{background:var(--or)}
+  .eclair-split .like.plus{background:#fff;color:var(--or);border-radius:999px}
+  @keyframes like{0%{opacity:0;transform:var(--de) scale(.2)}15%{opacity:1;transform:var(--de) scale(1.15)}25%{transform:var(--de) scale(1)}100%{opacity:0;transform:var(--a) scale(.9)}}
+  /* Entrée : un voile bleu couvre la moitié gauche, puis s'ouvre de l'éclair vers la gauche (bord doux de 90 px) */
+  @property --ouvre{syntax:'<percentage>';inherits:false;initial-value:0%}
+  .eclair-split .moitie.g::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:var(--blue);
+    -webkit-mask-image:linear-gradient(to left,transparent calc(var(--ouvre) - 1px),#000 calc(var(--ouvre) + 90px));mask-image:linear-gradient(to left,transparent calc(var(--ouvre) - 1px),#000 calc(var(--ouvre) + 90px));
+    --ouvre:44%;transition:--ouvre .9s cubic-bezier(.65,0,.35,1)}
+  .eclair-split.ouvert .moitie.g::after{--ouvre:115%}
+  .eclair-split:not(.ouvert) .pose{opacity:0}   /* le croissant de la plaque n'apparaît qu'une fois le fournil révélé */
+  /* L'orange déborde en halo sur le bas de la section du dessus, jusqu'à l'éclair (--bord = x du haut de l'éclair, posé par le script) */
+  .fondu-or{position:relative;height:0;z-index:6;pointer-events:none}
+  .fondu-or::before{content:"";position:absolute;left:0;bottom:-3px;width:calc(var(--bord,52vw) + 4px);height:clamp(150px,30vh,300px);
+    background:
+      linear-gradient(to top,var(--or) 0,rgba(243,133,43,.9) 6%,rgba(243,133,43,.55) 22%,rgba(243,133,43,0) 48%),
+      radial-gradient(40% 50% at 34% 66%,rgba(255,176,96,.38),rgba(255,176,96,0)),
+      radial-gradient(130% 100% at 30% 100%,rgba(243,133,43,.95) 0%,rgba(243,133,43,.86) 14%,rgba(243,134,45,.72) 26%,rgba(244,137,49,.56) 38%,rgba(245,141,55,.4) 50%,rgba(246,146,62,.26) 62%,rgba(247,151,70,.14) 74%,rgba(248,156,78,.05) 86%,rgba(249,160,85,0) 100%);
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 70px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 70px),transparent);
+    opacity:0;transform:translateY(24%);transition:opacity 1s .25s,transform 1.1s .25s cubic-bezier(.2,1,.3,1)}
+  .fondu-or:has(+ .eclair-split.ouvert)::before{opacity:1;transform:none}
+  @media (max-width:900px){
+    .eclair-split .moitie.g::after{-webkit-mask-image:linear-gradient(to top,transparent calc(var(--ouvre) - 1px),#000 calc(var(--ouvre) + 60px));mask-image:linear-gradient(to top,transparent calc(var(--ouvre) - 1px),#000 calc(var(--ouvre) + 60px))}
+    .fondu-or::before{width:100%;-webkit-mask-image:none;mask-image:none;background:linear-gradient(to top,var(--or) 0%,rgba(243,133,43,.9) 18%,rgba(244,137,49,.66) 36%,rgba(245,142,56,.42) 52%,rgba(247,150,68,.22) 68%,rgba(248,157,80,.08) 84%,rgba(249,160,85,0) 100%)}
+  }
+  @media (prefers-reduced-motion:reduce){.eclair-split .moitie.g::after{display:none}}
+  /* Fondu blanc en bas de la section, vers la section suivante */
+  .eclair-split::after{content:"";position:absolute;left:0;right:0;bottom:0;height:24%;z-index:3;pointer-events:none;background:linear-gradient(to bottom,rgba(245,245,245,0),rgba(245,245,245,.7) 55%,var(--paper))}
+  /* Bouton vers Studio Social, centré en bas, au-dessus du fondu blanc */
+  /* Bouton pilule vers Studio Social, centré en bas ; son contour est électrique (arcs qui tournent + grésillement) */
+  @property --cta-ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+  .eclair-split .eclair-cta{position:absolute;left:50%;bottom:clamp(22px,5vh,48px);translate:-50% 0;z-index:5;white-space:nowrap;border-radius:999px;border:0;padding:17px 30px;isolation:isolate;background:linear-gradient(135deg,#fff,#d6f0ff 45%,#9ad6ff);color:#0b2e4a;
+    box-shadow:0 0 0 1.5px rgba(225,244,255,.75),0 0 16px rgba(150,210,255,.75),0 12px 28px rgba(60,150,220,.35);animation:cta-gresille 2.4s steps(1) infinite}
+  .eclair-split .eclair-cta::before,.eclair-split .eclair-cta::after{content:"";position:absolute;border-radius:inherit;z-index:-1;pointer-events:none;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+  .eclair-split .eclair-cta::before{inset:-6px;padding:5px;
+    background:conic-gradient(from var(--cta-ang),transparent 0 4%,#fff 8%,#bfe6ff 10%,transparent 15% 33%,#fff 38%,#6EC1F0 41%,transparent 46% 66%,#fff 70%,#d6f0ff 73%,transparent 78%);
+    filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 10px #8fd0ff);animation:cta-tourne 1.2s linear infinite}
+  .eclair-split .eclair-cta::after{inset:-3px;padding:2px;
+    background:conic-gradient(from calc(180deg - var(--cta-ang)),transparent 0 12%,#fff 15%,transparent 18% 45%,#e6f6ff 49%,transparent 52% 80%,#fff 84%,transparent 87%);
+    animation:cta-tourne .9s linear infinite reverse}
+  .eclair-split .btn.eclair-cta,.eclair-split .btn.eclair-cta:hover{color:#0b2e4a}   /* plus fort que .btn.fill et .eclair-split .btn (texte blanc) */
+  .eclair-split .eclair-cta:hover{background:linear-gradient(135deg,#fff,#eaf8ff 50%,#bfe6ff)}
+  .eclair-split .eclair-cta:hover::before{animation-duration:.5s}
+  .eclair-split .eclair-cta:hover::after{animation-duration:.4s}
+  @keyframes cta-tourne{to{--cta-ang:360deg}}
+  @keyframes cta-gresille{0%,100%{box-shadow:0 0 0 1.5px rgba(225,244,255,.75),0 0 16px rgba(150,210,255,.75),0 12px 28px rgba(60,150,220,.35)}
+    6%{box-shadow:0 0 0 1.5px rgba(225,244,255,.3),0 0 6px rgba(150,210,255,.3),0 12px 28px rgba(60,150,220,.35)}
+    9%{box-shadow:0 0 0 2px #fff,0 0 26px rgba(170,220,255,.95),0 12px 28px rgba(60,150,220,.35)}
+    52%{box-shadow:0 0 0 1.5px rgba(225,244,255,.45),0 0 10px rgba(150,210,255,.5),0 12px 28px rgba(60,150,220,.35)}}
+  @media (prefers-reduced-motion:reduce){.eclair-split .eclair-cta,.eclair-split .eclair-cta::before,.eclair-split .eclair-cta::after{animation:none!important}}
+  /* Titre principal, centré en haut, à cheval sur l'éclair */
+  .eclair-split .titre{position:absolute;left:0;right:0;top:5vh;z-index:4;text-align:center;max-width:none;padding:0 var(--pad);pointer-events:none;text-shadow:0 3px 18px rgba(0,30,60,.35)}
+  .eclair-split .titre h2{font-size:clamp(34px,4.5vw,86px);margin:10px 0 0}
+  .eclair-split .titre em{color:#fff}
+  /* Ombres par côté : la 1re ligne (votre métier) en orange, la 2e (la visibilité) en bleu nuit */
+  .eclair-split .titre .l1{text-shadow:0 4px 0 var(--orf),0 10px 26px rgba(199,98,14,.65)}
+  .eclair-split .titre em{text-shadow:0 4px 0 #0f4f82,0 10px 26px rgba(8,60,110,.55)}
+  /* Titre fendu par l'éclair : deux copies découpées de part et d'autre du tracé et décalées ; l'original, transparent, reste pour les lecteurs d'écran */
+  .eclair-split .moitie-titre{display:none}
+  .eclair-split.fendu .moitie-titre{display:block}
+  .eclair-split.fendu .titre:not(.moitie-titre),.eclair-split.fendu .titre:not(.moitie-titre) *{color:transparent!important;text-shadow:none!important}
+  .eclair-split .moitie-titre.g{transform:translate(-4px,9px) rotate(-.6deg)}
+  .eclair-split .moitie-titre.d{transform:translate(4px,-6px) rotate(.4deg)}
+  .eclair-split .lueur{position:absolute;left:-12%;bottom:-25%;width:70%;height:95%;background:radial-gradient(closest-side,rgba(255,216,140,.6),rgba(255,176,86,.28) 45%,rgba(255,150,60,0));animation:lueur-four 3.6s ease-in-out infinite;pointer-events:none}
+  @keyframes lueur-four{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
+  .eclair-split .farine{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .eclair-split .vapeur{position:absolute;left:0;bottom:0;width:45%;height:72%;pointer-events:none}
+  .eclair-split .vapeur i{position:absolute;left:50%;top:50%;width:80px;height:120px;margin-left:-40px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.6),rgba(255,255,255,0));filter:blur(7px);opacity:0;animation:vapeur 4.2s ease-out infinite}
+  .eclair-split .vapeur i:nth-child(2){margin-left:-95px;animation-delay:1.4s}
+  .eclair-split .vapeur i:nth-child(3){margin-left:20px;animation-delay:2.8s}
+  @keyframes vapeur{0%{opacity:0;transform:translateY(0) scale(.6)}25%{opacity:.75}100%{opacity:0;transform:translateY(-190px) scale(1.5)}}
+  /* Le croissant qui s'envole de la plaque et traverse l'éclair */
+  .eclair-split:not(.frappe) .pose,.eclair-split .pose.parti{opacity:0}
+  .eclair-split .bouffee{position:absolute;left:0;top:0;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;z-index:3;pointer-events:none;background:radial-gradient(closest-side,rgba(255,255,255,.85),rgba(255,255,255,0));filter:blur(4px);animation:bouffee .9s ease-out forwards}
+  @keyframes bouffee{0%{opacity:0;transform:var(--ou) scale(.3)}30%{opacity:1}100%{opacity:0;transform:var(--ou) translateY(-70px) scale(1.6)}}
+  .eclair-split .vol{position:absolute;left:0;top:0;width:clamp(56px,6.5vw,104px);z-index:3;pointer-events:none;will-change:transform;filter:drop-shadow(0 10px 14px rgba(0,0,0,.35))}
+  .eclair-split p{font-size:clamp(16px,1.35vw,20px);font-weight:700;margin:0 0 26px;max-width:34ch}
+  .eclair-split .d p{margin-left:auto}
+  .eclair-split .btn{border-color:#fff;color:#fff}
+  .eclair-split .btn:hover{background:#fff;border-color:#fff;color:var(--or)}
+  .eclair-split .d .lbl,.eclair-split .d em{color:var(--blue)}
+  .eclair-split .d .btn:hover{color:var(--ink)}
+
+  /* L'éclair : un trait blanc dentelé, un cœur plus vif et un halo froid ; les étincelles du survol sont dessinées dans le canvas */
+  .eclair-split>svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:2}
+  /* halo en dégradé : 6 traits superposés de plus en plus fins et opaques (aucun filtre) */
+  .eclair-split .halo1{stroke:rgba(150,205,255,.05);stroke-width:96}
+  .eclair-split .halo2{stroke:rgba(160,210,255,.07);stroke-width:72}
+  .eclair-split .halo3{stroke:rgba(180,220,255,.09);stroke-width:52}
+  .eclair-split .halo4{stroke:rgba(200,230,255,.13);stroke-width:36}
+  .eclair-split .halo5{stroke:rgba(220,240,255,.2);stroke-width:25}
+  .eclair-split .halo6{stroke:rgba(240,249,255,.34);stroke-width:18}
+  .eclair-split.survol .halo1,.eclair-split.claque .halo1,.eclair-split.survol .halo2,.eclair-split.claque .halo2{stroke:rgba(170,215,255,.12)}
+  .eclair-split .pointe{fill:#fff}
+  .eclair-split .trait{fill:none;stroke-linejoin:round;stroke-linecap:round}
+  .eclair-split .corps{stroke:rgba(228,244,255,.92);stroke-width:13}
+  .eclair-split .coeur{stroke:#fff;stroke-width:5}
+  .eclair-split .branche{stroke:#f2f9ff;stroke-width:2.6;opacity:.9}
+  .eclair-split .eclair-h{display:none}
+  .eclair-split .etincelles{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+  .eclair-split .flash{position:absolute;inset:0;background:#dff3ff;opacity:0;pointer-events:none;z-index:3;mix-blend-mode:screen}
+
+  /* État de départ : tout l'écran est orange, l'éclair pas encore tombé ; en tombant il fend l'écran et la moitié droite vire au noir */
+  .eclair-split .txt>*{transition:transform .7s cubic-bezier(.2,1,.3,1),opacity .5s}
+
+  /* La frappe puis le grésillement */
+  .eclair-split.frappe .coeur,.eclair-split.frappe .corps{animation:eclair-gresille 3.2s 1.2s steps(1) infinite}
+  .eclair-split.frappe .branche{animation:eclair-branche 3.2s 1.2s steps(1) infinite}
+  @keyframes eclair-flash{0%{opacity:.85}100%{opacity:0}}
+  @keyframes eclair-gresille{0%,100%{opacity:1}4%{opacity:.35}7%{opacity:1}10%{opacity:.6}12%{opacity:1}}
+  @keyframes eclair-branche{0%,100%{opacity:.8}4%{opacity:0}9%{opacity:.8}50%{opacity:.8}53%{opacity:0}56%{opacity:.8}}
+  @keyframes eclair-secousse{0%,100%{transform:none}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-3px,2px)}80%{transform:translate(2px,-1px)}}
+
+  /* Sur téléphone : l'éclair coupe l'écran à l'horizontale */
+  @media (max-width:900px){
+    .eclair-split .moitie{align-items:flex-start}
+    .eclair-split .moitie.g{clip-path:polygon(0 0,100% 0,100% 47%,70% 54%,66% 45%,34% 56%,30% 46%,0 52%);padding:calc(var(--pad) + 70px) var(--pad) 0}
+    .eclair-split .moitie.d{clip-path:polygon(0 52%,30% 46%,34% 56%,66% 45%,70% 54%,100% 47%,100% 100%,0 100%);padding:0 var(--pad) calc(var(--pad) + 70px);align-items:flex-end;justify-content:flex-start;text-align:left}
+    .eclair-split .d p{margin-left:0}
+    .eclair-split h2{font-size:clamp(34px,9.5vw,60px);margin:8px 0 12px}
+    .eclair-split p{font-size:15px;margin-bottom:16px}
+    .eclair-split .chef,.eclair-split .vapeur{width:100%;bottom:auto;top:calc(var(--pad) + 120px);height:calc(46% - var(--pad) - 120px)}
+    .eclair-split .titre{top:calc(var(--pad) + 4px)}
+    .eclair-split .titre h2{font-size:clamp(20px,5.76vw,36px)}
+    /* sur téléphone l'éclair passe sous le titre : pas de titre fendu, l'original reste visible */
+    .eclair-split.fendu .moitie-titre{display:none}
+    .eclair-split.fendu .titre:not(.moitie-titre),.eclair-split.fendu .titre:not(.moitie-titre) *{color:#fff!important}
+    .eclair-split.fendu .titre:not(.moitie-titre){text-shadow:0 3px 18px rgba(0,30,60,.35)!important}
+    .eclair-split.fendu .titre:not(.moitie-titre) .l1{text-shadow:0 4px 0 var(--orf),0 10px 26px rgba(199,98,14,.65)!important}
+    .eclair-split.fendu .titre:not(.moitie-titre) em{text-shadow:0 4px 0 #0f4f82,0 10px 26px rgba(8,60,110,.55)!important}
+    .eclair-split .vapeur i{width:50px;height:80px;margin-left:-25px}
+    .eclair-split .vapeur i:nth-child(2){margin-left:-60px}
+    .eclair-split .vapeur i:nth-child(3){margin-left:10px}
+    .eclair-split .lueur{left:10%;bottom:auto;top:0;width:80%;height:55%}
+    .eclair-split .bureau-vid{width:100%;height:36%;bottom:30px}
+    .eclair-split .bureau{left:0;height:36px}
+    .eclair-split .fournil{width:100%;height:54%;top:0;bottom:auto;content:url(images/eclair/fournil-mobile.webp);
+      -webkit-mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 70%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 20%,#000 70%,transparent)}
+    .eclair-split .eclair-v{display:none}
+    .eclair-split .eclair-h{display:block}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .eclair-split *,.eclair-split{animation:none!important;transition:none!important}
+    .eclair-split .moitie,.eclair-split .txt>*{transform:none!important;opacity:1!important}
+    .eclair-split>svg{clip-path:none!important}
+  }
+</style>
+<div class="fondu-or" aria-hidden="true"></div>
+<section class="eclair-split" id="commercants">
+  <div class="moitie g">
+    <img class="fournil" src="images/eclair/fournil.webp" alt="" aria-hidden="true">
+    <div class="lueur" aria-hidden="true"></div>
+    <canvas class="farine" aria-hidden="true"></canvas>
+    <video class="chef" src="images/eclair/plaque-place-2-g7.webm" poster="images/eclair/plaque-place-2-g7.png" autoplay loop muted playsinline aria-hidden="true"></video>
+    <div class="vapeur" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>
+  <div class="moitie d">
+    <video class="bureau-vid" src="images/eclair/bureau-bleu-2b-g7.webm" poster="images/eclair/bureau-bleu-2b-g7.png" autoplay loop muted playsinline aria-hidden="true"></video>
+    <div class="bureau" aria-hidden="true"></div>
+  </div>
+  <div class="txt titre">
+    <span class="lbl">Commerçants</span>
+    <h2 class="disp"><span class="l1">Votre savoir-faire</span><br><em>mérite de se faire connaître</em></h2>
+  </div>
+  <a class="btn fill eclair-cta" href="decouvrir-studio-social.html">Découvrir Studio Social <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+  <svg class="eclair-v" data-p="53,-2 47,27 56,33 45,62 55,69 49,102" aria-hidden="true">
+    <polyline class="trait branche"/><polyline class="trait branche"/><polyline class="trait branche"/><polyline class="trait branche"/><polyline class="trait branche"/>
+    <polyline class="trait halo1"/><polyline class="trait halo2"/><polyline class="trait halo3"/><polyline class="trait halo4"/><polyline class="trait halo5"/><polyline class="trait halo6"/><polyline class="trait corps"/><polyline class="trait coeur"/><circle class="pointe" r="9" cx="-99" cy="-99"/>
+  </svg>
+  <svg class="eclair-h" data-p="-2,52 30,46 34,56 66,45 70,54 102,47" aria-hidden="true">
+    <polyline class="trait branche"/><polyline class="trait branche"/><polyline class="trait branche"/>
+    <polyline class="trait halo1"/><polyline class="trait halo2"/><polyline class="trait halo3"/><polyline class="trait halo4"/><polyline class="trait halo5"/><polyline class="trait halo6"/><polyline class="trait corps"/><polyline class="trait coeur"/><circle class="pointe" r="7" cx="-99" cy="-99"/>
+  </svg>
+  <canvas class="etincelles" aria-hidden="true"></canvas>
+  <div class="flash" aria-hidden="true"></div>
+</section>
+<script>
+  // L'éclair tombe quand la section arrive à l'écran, et se recharge quand on s'en va
+  (function(){
+    var s = document.getElementById('commercants');
+    var chef = s.querySelector('.chef');
+    if (chef && !chef.canPlayType('video/webm; codecs="vp9"')) { var im = new Image(); im.className = 'chef'; im.alt = ''; im.src = 'images/eclair/plaque-place-2-g7.webp'; chef.replaceWith(im); var bv = s.querySelector('.bureau-vid'), ib = new Image(); ib.className = 'bureau-vid'; ib.alt = ''; ib.src = 'images/eclair/bureau-bleu-2b-g7.webp'; bv.replaceWith(ib); }
+    var cv = s.querySelector('.etincelles'), cx = cv.getContext('2d'), W = 0, H = 0, chemin = [];
+    function svgActif(){ return s.querySelector(innerWidth <= 900 ? '.eclair-h' : '.eclair-v'); }
+    function enPx(str){ return str.split(' ').map(function(xy){ var c = xy.split(','); return [c[0] * W / 100, c[1] * H / 100]; }); }
+    function texte(p){ return p.map(function(q){ return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' '); }
+    // Un vrai éclair zigzague à toutes les échelles : on décale le milieu de chaque segment, puis le milieu des moitiés, etc.
+    function dentelle(p, amp, prof){
+      var out = [p[0]];
+      for (var i = 1; i < p.length; i++) coupe(p[i-1], p[i], amp, prof, out);
+      return out;
+    }
+    function coupe(a, b, amp, prof, out){
+      if (!prof) { out.push(b); return; }
+      var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, k = (Math.random() - .5) * amp * L;
+      var m = [(a[0] + b[0]) / 2 - dy / L * k, (a[1] + b[1]) / 2 + dx / L * k];
+      coupe(a, m, amp, prof - 1, out); coupe(m, b, amp, prof - 1, out);
+    }
+    function fourche(depart, angle, long){ return dentelle([depart, [depart[0] + Math.cos(angle) * long, depart[1] + Math.sin(angle) * long]], .4, 4); }
+    // Redessine l'éclair (nouvelle forme à chaque grésillement) et ses ramifications
+    function dessine(){
+      var svg = svgActif(); if (!svg || !W) return;
+      var vert = svg.classList.contains('eclair-v');
+      svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      chemin = dentelle(enPx(svg.dataset.p), .22, 6); vertical = vert;
+      var fo = s.previousElementSibling; if (fo && fo.classList.contains('fondu-or')) fo.style.setProperty('--bord', (vert ? chemin[0][0] : W).toFixed(0) + 'px');
+      rameaux = [];
+      svg.querySelectorAll('.branche').forEach(function(){
+        var p = chemin[Math.floor(chemin.length * (.12 + Math.random() * .76))], cote = Math.random() < .5 ? -1 : 1;
+        var ang = (vert ? Math.PI / 2 : 0) + cote * (.45 + Math.random() * .6);
+        rameaux.push(fourche(p, ang, (vert ? H : W) * (.08 + Math.random() * .14)));
+      });
+      applique();
+    }
+    // Pendant la descente, l'éclair n'est tracé que jusqu'à sa pointe (avance de 0 à 1) : son halo l'entoure au lieu d'être coupé à plat
+    var avance = 0, rameaux = [], vertical = true;
+    function jusqua(p, lim, axe){
+      var out = [];
+      for (var i = 0; i < p.length; i++) {
+        if (p[i][axe] <= lim) { out.push(p[i]); continue; }
+        if (i) { var a = p[i-1], b = p[i], t = (lim - a[axe]) / (b[axe] - a[axe]); out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]); }
+        break;
+      }
+      return out;
+    }
+    function applique(){
+      var svg = svgActif(); if (!svg || !chemin.length) return;
+      var axe = vertical ? 1 : 0, long = vertical ? H : W, lim = -20 + avance * (long + 40), entier = avance >= 1;
+      var d = entier ? chemin : jusqua(chemin, lim, axe), t = texte(d);
+      svg.querySelectorAll('.halo1,.halo2,.halo3,.halo4,.halo5,.halo6,.corps,.coeur').forEach(function(l){ l.setAttribute('points', t); });
+      svg.querySelectorAll('.branche').forEach(function(l, k){ var r = rameaux[k] || []; l.setAttribute('points', texte(entier ? r : jusqua(r, lim, axe))); });
+      // Avant la frappe la section est blanche : les deux moitiés n'apparaissent que derrière la pointe, découpées par l'éclair
+      var bord = d.map(function(q){ return q[0].toFixed(1) + 'px ' + q[1].toFixed(1) + 'px'; }), f = entier ? '100%' : lim.toFixed(1) + 'px';
+      var g = vertical ? ['0 0'].concat(bord, ['0 ' + f]) : ['0 0', f + ' 0'].concat(bord.slice().reverse());
+      var dr = vertical ? ['100% 0'].concat(bord, ['100% ' + f]) : bord.concat([f + ' 100%', '0 100%']);
+      s.querySelector('.moitie.g').style.clipPath = 'polygon(' + g.join(',') + ')';
+      s.querySelector('.moitie.d').style.clipPath = 'polygon(' + dr.join(',') + ')';
+      fendTitre(d);
+      var bout = d[d.length - 1], pt = svg.querySelector('.pointe');
+      pt.setAttribute('cx', bout ? bout[0] : -99); pt.setAttribute('cy', bout ? bout[1] : -99);
+      pt.style.opacity = avance > 0 && !entier ? 1 : 0;
+    }
+    // Titre fendu : les deux moitiés sont découpées sur le tracé de l'éclair à chaque nouveau tracé (sur ordinateur seulement : sur téléphone l'éclair passe sous le titre)
+    function fendTitre(d){
+      var t = s.querySelector('.titre:not(.moitie-titre)'); if (!t) return;
+      var g = s.querySelector('.moitie-titre.g'), dr = s.querySelector('.moitie-titre.d');
+      if (!g) {
+        g = t.cloneNode(true); g.classList.add('moitie-titre', 'g'); g.setAttribute('aria-hidden', 'true');
+        dr = t.cloneNode(true); dr.classList.add('moitie-titre', 'd'); dr.setAttribute('aria-hidden', 'true');
+        t.after(g, dr);
+      }
+      s.classList.toggle('fendu', vertical && d.length > 0);
+      if (!vertical || !d.length) return;
+      var ox = t.offsetLeft, oy = t.offsetTop, haut = -oy - 60, bas = s.clientHeight - oy + 60;
+      var bord = d.map(function(q){ return (q[0] - ox).toFixed(1) + 'px ' + (q[1] - oy).toFixed(1) + 'px'; });
+      g.style.clipPath = 'polygon(' + ['-200px ' + haut + 'px'].concat(bord, ['-200px ' + bas + 'px']).join(',') + ')';
+      dr.style.clipPath = 'polygon(' + ['calc(100% + 200px) ' + haut + 'px'].concat(bord, ['calc(100% + 200px) ' + bas + 'px']).join(',') + ')';
+    }
+    function taille(){
+      W = s.clientWidth; H = s.clientHeight;
+      var dpr = Math.min(devicePixelRatio || 1, 2);
+      cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      dessine();
+    }
+    avance = 0;   // l'éclair tombe à l'arrivée de la section (voir guette)
+    taille(); if ('ResizeObserver' in window) new ResizeObserver(taille).observe(s); else addEventListener('resize', taille);
+    s.querySelectorAll('.coeur').forEach(function(c){ c.addEventListener('animationiteration', dessine); });
+
+    // Au survol : des arcs électriques claquent entre l'éclair et la souris
+    var souris = null, arcs = [], boucle = 0, contact = null, RAYON = 120;
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      s.addEventListener('pointermove', function(e){ vise(e); });
+      s.addEventListener('pointerdown', function(e){ vise(e); var n = proche(); for (var k = 0; k < 6; k++) arc(n.i, 1); });
+      s.addEventListener('pointerleave', function(){ souris = null; });
+    }
+    function vise(e){ var r = s.getBoundingClientRect(); souris = [e.clientX - r.left, e.clientY - r.top]; if (!boucle) boucle = requestAnimationFrame(tick); }
+    function proche(){
+      var bi = 0, bd = 1e9;
+      for (var i = 0; i < chemin.length; i++) { var d = Math.hypot(chemin[i][0] - souris[0], chemin[i][1] - souris[1]); if (d < bd) { bd = d; bi = i; } }
+      return { i:bi, d:bd };
+    }
+    function arc(i, force){
+      if (!chemin.length) return;
+      var j = Math.max(0, Math.min(chemin.length - 1, i + Math.round((Math.random() - .5) * 14))), p = chemin[j];
+      var ang = Math.atan2(souris[1] - p[1], souris[0] - p[0]) + (Math.random() - .5) * 2.4;
+      var long = 25 + Math.random() * (50 + 130 * force), vie = 3 + Math.round(Math.random() * 7);
+      var trait = fourche(p, ang, long);
+      arcs.push({ p:trait, vie:vie, max:vie, l:1 + Math.random() * 1.4 });
+      if (Math.random() < .45) { var q = trait[Math.floor(trait.length * (.3 + Math.random() * .4))]; arcs.push({ p:fourche(q, ang + (Math.random() - .5) * 1.8, long * .45), vie:vie, max:vie, l:.8 }); }
+    }
+    function tick(){
+      boucle = 0;
+      cx.clearRect(0, 0, W, H);
+      var actif = souris && s.classList.contains('frappe') && chemin.length;
+      contact = null;
+      if (actif) {
+        var n = proche();
+        if (n.d < RAYON) {
+          var force = 1 - n.d / RAYON;
+          contact = { i:n.i, f:force };
+          if (Math.random() < .3 + force * .6) arc(n.i, force);
+        }
+      }
+      s.classList.toggle('survol', !!contact);
+      cx.globalCompositeOperation = 'lighter'; cx.lineJoin = 'round'; cx.lineCap = 'round';
+      if (contact) {
+        var c = chemin[contact.i], rg = 18 + 46 * contact.f * (.6 + Math.random() * .4);
+        var g = cx.createRadialGradient(c[0], c[1], 0, c[0], c[1], rg);
+        g.addColorStop(0, 'rgba(255,255,255,.9)'); g.addColorStop(.35, 'rgba(190,225,255,.45)'); g.addColorStop(1, 'rgba(150,205,255,0)');
+        cx.fillStyle = g; cx.beginPath(); cx.arc(c[0], c[1], rg, 0, 7); cx.fill();
+      }
+      arcs = arcs.filter(function(a){ return a.vie-- > 0; });
+      arcs.forEach(function(a){
+        var al = Math.max(0, a.vie / a.max) * (.7 + Math.random() * .3);
+        cx.beginPath(); a.p.forEach(function(q, k){ k ? cx.lineTo(q[0], q[1]) : cx.moveTo(q[0], q[1]); });
+        cx.shadowColor = 'rgba(160,210,255,' + al + ')'; cx.shadowBlur = 16;
+        cx.strokeStyle = 'rgba(200,232,255,' + (.45 * al) + ')'; cx.lineWidth = a.l * 3.5; cx.stroke();
+        cx.shadowBlur = 0; cx.strokeStyle = 'rgba(255,255,255,' + al + ')'; cx.lineWidth = a.l; cx.stroke();
+      });
+      if (arcs.length || contact) boucle = requestAnimationFrame(tick);
+      else cx.clearRect(0, 0, W, H);
+    }
+    // L'éclair tombe d'un coup (0,34 s) dès que la section est bien entrée à l'écran (son haut passe aux 2/3 de la fenêtre),
+    // pour qu'on ne voie jamais de grand blanc ; il se recharge quand on s'en va
+    // Farine en suspension dans la moitié gauche : de fines particules qui flottent et scintillent dans la lumière du four
+    var fc = s.querySelector('.farine'), fx = fc.getContext('2d'), grains = [], farineOn = 0;
+    function farine(t){
+      farineOn = 0;
+      if (!s.classList.contains('frappe') || document.hidden) return;
+      var dpr = 1;
+      if (fc.width !== Math.round(W * dpr)) { fc.width = W * dpr; fc.height = H * dpr; fx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+      var lx = vertical ? W * .5 : W, ly = vertical ? H : H * .55;
+      while (grains.length < 40) grains.push({ x:Math.random() * lx, y:Math.random() * ly, r:.6 + Math.random() * 1.8, vx:.05 + Math.random() * .2, vy:-.08 - Math.random() * .25, p:Math.random() * 6.3 });
+      fx.clearRect(0, 0, W, H);
+      grains.forEach(function(g){
+        g.x += g.vx; g.y += g.vy; g.p += .03;
+        if (g.y < -5 || g.x > lx + 5) { g.x = Math.random() * lx * .9; g.y = ly + 5; }
+        fx.globalAlpha = .18 + .32 * (.5 + .5 * Math.sin(g.p));
+        fx.fillStyle = '#fff8ec'; fx.beginPath(); fx.arc(g.x + Math.sin(g.p) * 3, g.y, g.r, 0, 7); fx.fill();
+      });
+      farineOn = requestAnimationFrame(farine);
+    }
+
+    // Le croissant qui s'envole est posé sur la place libre de la plaque (la vidéo n'a que 5 croissants) :
+    // sa position est suivie image par image (boucles/<vidéo>.place.json, fabriqué par maquettes/eclair-commercants/suivre.py)
+    var place = null, PL = 370, PH = 720, t00 = performance.now(), boites = {};
+    // Boîtes de Marshall et du bureau par rapport à la section, relues seulement quand la taille change
+    function mesureBoites(){
+      var r = s.getBoundingClientRect();
+      [['chef', '.chef'], ['bureau', '.bureau-vid']].forEach(function(b){
+        var el = s.querySelector(b[1]); if (!el) return;
+        var c = el.getBoundingClientRect(); boites[b[0]] = { left:c.left - r.left, top:c.top - r.top, width:c.width, height:c.height };
+      });
+    }
+    if ('ResizeObserver' in window) new ResizeObserver(mesureBoites).observe(s); addEventListener('load', mesureBoites);
+    fetch('images/eclair/plaque-place-2-g7.place.json').then(function(r){ return r.json(); }).then(function(j){ place = j; });
+    var pose = new Image(); pose.src = 'images/eclair/croissant.webp'; pose.className = 'vol pose'; pose.alt = ''; s.appendChild(pose);
+    var poseSc = 1, poseOn = 0;
+    function surPlaque(){
+      var el = s.querySelector('.chef'); if (!place || !el || !boites.chef) return null;
+      var c = boites.chef;
+      var ch = Math.min(c.height, c.width * PH / PL), cw = ch * PL / PH, k = cw / PL;    // Marshall dans sa boîte (object-fit: contain, calé en bas)
+      var ox = c.left + (c.width - cw) / 2, oy = c.top + (c.height - ch);
+      var t = el.tagName === 'VIDEO' ? el.currentTime : (performance.now() - t00) / 1000;
+      var q = place[Math.floor(t * 16) % place.length];
+      return { x:ox + (q[0] * PL - 21 * q[2]) * k, y:oy + (q[1] * PH + 3 * q[2]) * k, w:70 * q[2] * k };
+    }
+    function poser(){
+      poseOn = 0;
+      if (!s.classList.contains('frappe') || document.hidden) return;
+      var q = surPlaque();
+      if (q) {
+        pose.style.width = q.w.toFixed(1) + 'px';
+        pose.style.transform = 'translate(' + (q.x - q.w / 2).toFixed(1) + 'px,' + (q.y - q.w * 1.034 * .62).toFixed(1) + 'px) rotate(42deg) scale(' + poseSc.toFixed(3) + ')';
+      }
+      poseOn = requestAnimationFrame(poser);
+    }
+    // Toutes les quelques secondes, le croissant quitte sa place et traverse l'éclair dans une gerbe d'étincelles ; un autre, tout chaud, le remplace
+    function vol(){
+      if (!s.classList.contains('frappe') || document.hidden || !chemin.length || pose.classList.contains('parti')) return;
+      var q = surPlaque(); if (!q) return;
+      var x0 = q.x, y0 = q.y - q.w * 1.034 * .12, demi = q.w / 2, demiH = q.w * 1.034 / 2;
+      var cible = surBureau(185, 268), x1 = cible[0], y1 = cible[1];   // l'entonnoir de la machine
+      var haut = vertical ? H * .3 : H * .1, dur = 1500, t0 = performance.now(), cote = null, tour = (Math.random() < .5 ? -1 : 1) * 360;
+      var img = new Image(); img.src = pose.src; img.className = 'vol'; img.alt = ''; img.style.width = q.w.toFixed(1) + 'px'; s.appendChild(img);
+      pose.classList.add('parti');
+      (function pas(t){
+        var k = Math.min(1, (t - t0) / dur), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        var x = x0 + (x1 - x0) * e, y = y0 + (y1 - y0) * e - Math.sin(Math.PI * e) * haut;
+        var sc = k < .2 ? 1 + k * 3 : k > .75 ? 1.6 - (k - .75) * 4.4 : 1.6, op = k > .9 ? (1 - k) / .1 : 1;   // rapetisse en tombant dans l'entonnoir
+        img.style.transform = 'translate(' + (x - demi).toFixed(1) + 'px,' + (y - demiH).toFixed(1) + 'px) rotate(' + (42 + tour * e).toFixed(1) + 'deg) scale(' + sc.toFixed(3) + ')';
+        img.style.opacity = op.toFixed(3);
+        if (k < 1) requestAnimationFrame(pas); else { img.remove(); machine(); setTimeout(revient, 1300); }
+      })(t0);
+    }
+    // Position d'un point de la vidéo du bureau (coordonnées de l'image 732 x 720) dans la section
+    var MW = 732, MH = 720;
+    function surBureau(fx, fy){
+      var c = boites.bureau || { left:0, top:0, width:1, height:1 };
+      var ch = Math.min(c.height, c.width * MH / MW), cw = ch * MW / MH, k = cw / MW;
+      return [c.left + (c.width - cw) / 2 + fx * k, c.top + (c.height - ch) + fy * k, k];
+    }
+    function pose1(cl, fx, fy, w, h, duree){
+      var p = surBureau(fx, fy), e = document.createElement('div'); e.className = cl;
+      e.style.width = (w * p[2]).toFixed(1) + 'px'; e.style.height = (h * p[2]).toFixed(1) + 'px';
+      e.style.transform = 'translate(' + (p[0] - w * p[2] / 2).toFixed(1) + 'px,' + (p[1] - h * p[2] / 2).toFixed(1) + 'px)';
+      s.appendChild(e); setTimeout(function(){ e.remove(); }, duree);
+      return e;
+    }
+    var COEUR = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 21s-7.5-4.6-9.3-9.2C1.5 8.5 3.6 5 7 5c2 0 3.7 1.1 5 3 1.3-1.9 3-3 5-3 3.4 0 5.5 3.5 4.3 6.8C19.5 16.4 12 21 12 21z"/></svg>';
+    var POUCE = '<svg viewBox="0 0 24 24" fill="#fff"><path d="M2 10h4v11H2zM8 21V10l4.5-7.5c.9-1.4 3-.8 3 .9V9h5c1.3 0 2.3 1.2 2 2.5l-1.8 7.6c-.3 1.1-1.2 1.9-2.4 1.9z"/></svg>';
+    function machine(){
+      if (calme) return;
+      pose1('ecran', 255, 520, 96, 118, 1700);
+      [240, 275, 308].forEach(function(x, i){ setTimeout(function(){ pose1('voyant', x, 610, 16, 16, 1700); }, i * 90); });
+      pose1('onde', 330, 520, 70, 120, 1600); pose1('onde g', 30, 520, 70, 120, 1600);
+      // les réactions s'envolent au-dessus de l'entonnoir
+      for (var n = 0; n < 11; n++) setTimeout(function(){
+        var t = Math.random(), p = surBureau(185 + (Math.random() - .5) * 90, 240), k = p[2];
+        var e = document.createElement('div'), taille = (t < .45 ? 46 : t < .85 ? 42 : 0) * k + 30;
+        if (t < .45) { e.className = 'like coeur-l'; e.innerHTML = COEUR; }
+        else if (t < .85) { e.className = 'like pouce'; e.innerHTML = POUCE; }
+        else { e.className = 'like plus'; e.textContent = '+' + (1 + Math.floor(Math.random() * 9)); taille = 44 * k + 22; e.style.padding = '0 10px'; }
+        e.style.width = e.style.height = taille.toFixed(0) + 'px';
+        var dx = (Math.random() - .5) * 260 * k, dy = (200 + Math.random() * 220) * k, d = 1.5 + Math.random() * .7;
+        e.style.setProperty('--de', 'translate(' + (p[0] - taille / 2).toFixed(0) + 'px,' + (p[1] - taille / 2).toFixed(0) + 'px)');
+        e.style.setProperty('--a', 'translate(' + (p[0] - taille / 2 + dx).toFixed(0) + 'px,' + (p[1] - taille / 2 - dy).toFixed(0) + 'px)');
+        e.style.setProperty('--duree', d.toFixed(2) + 's');
+        s.appendChild(e); setTimeout(function(){ e.remove(); }, d * 1000 + 100);
+      }, 250 + n * 110);
+    }
+    function revient(){
+      var q = surPlaque();
+      if (q) {
+        var b = document.createElement('div'); b.className = 'bouffee';
+        b.style.setProperty('--ou', 'translate(' + q.x.toFixed(1) + 'px,' + (q.y - q.w * .2).toFixed(1) + 'px)');
+        s.appendChild(b); setTimeout(function(){ b.remove(); }, 950);
+      }
+      pose.classList.remove('parti');
+      var t0 = performance.now();
+      (function pop(t){
+        var k = Math.min(1, (t - t0) / 450), c1 = 1.70158, c3 = c1 + 1;
+        poseSc = .2 + .8 * (1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2));   // petit rebond en arrivant
+        if (k < 1) requestAnimationFrame(pop); else poseSc = 1;
+      })(t0);
+    }
+    function claque(i, x, y){
+      var garde = souris; souris = [x, y];
+      for (var n = 0; n < 12; n++) arc(i, 1);
+      souris = garde;
+      s.classList.add('claque'); setTimeout(function(){ s.classList.remove('claque'); }, 260);
+      if (!boucle) boucle = requestAnimationFrame(tick);
+    }
+    var envols = 0;
+    function lanceAmbiance(){
+      mesureBoites();
+      s.querySelectorAll('video').forEach(function(v){ var p = v.play(); if (p && p.catch) p.catch(function(){}); });
+      if (calme) return;
+      if (!farineOn) farineOn = requestAnimationFrame(farine);
+      if (!poseOn) poseOn = requestAnimationFrame(poser);
+      clearInterval(envols); setTimeout(vol, 1700); envols = setInterval(vol, 5200);
+    }
+
+    var tete = document.getElementById('top'), calme = matchMedia('(prefers-reduced-motion: reduce)').matches, chute = 0;
+    function tombe(){
+      cancelAnimationFrame(chute);
+      if (calme) { avance = 1; applique(); return; }
+      var t0 = performance.now();
+      (function pas(t){
+        var k = Math.min(1, (t - t0) / 340);
+        avance = k * k; applique(); // accélère comme une vraie chute
+        if (k < 1) chute = requestAnimationFrame(pas);
+      })(t0);
+    }
+    function guette(){
+      var bas = tete ? tete.getBoundingClientRect().bottom : 0, r = s.getBoundingClientRect();
+      // à la 1re arrivée (haut de la section aux 70 % de l'écran) : l'éclair tombe et l'orange s'ouvre, une seule fois par visite ;
+      // en sortant, seule l'ambiance se met en pause (le dévoilement reste acquis)
+      if (r.top < innerHeight * .7 && r.bottom > bas) { if (!s.classList.contains('frappe')) { s.classList.add('frappe'); if (!s.classList.contains('ouvert')) { tombe(); setTimeout(function(){ s.classList.add('ouvert'); }, 360); } lanceAmbiance(); } }
+      else if (r.top > innerHeight || r.bottom < 0) { if (s.classList.contains('frappe')) { s.classList.remove('frappe'); clearInterval(envols); s.querySelectorAll('video').forEach(function(v){ v.pause(); }); } }
+    }
+    addEventListener('scroll', guette, { passive:true }); guette();
+    if (!s.classList.contains('frappe')) s.querySelectorAll('video').forEach(function(v){ v.pause(); });   // pas de décodage vidéo tant que la section n'est pas à l'écran
+
+  })();
+</script>
+
 <!-- MARSHALL CITY -->
 <style>
   #ville{padding:110px 0 0;--bg:var(--paper);--accent:var(--or);--muted:#8a8a8a}
   #ville .tete-ville{padding:0 var(--pad);text-align:center}
   #ville .tete-ville h2{font-size:clamp(46px,6vw,110px);margin:0 0 18px;perspective:900px}
   #ville .tete-ville .lbl{display:inline-block;margin-bottom:clamp(14px,1.8vw,30px)}   /* au-dessus de l'accent du « é », qui dépasse de la ligne */
-  #ville .tete-ville .mot{display:inline-block;transform-origin:50% 100%}
-  /* entrée : l'étiquette s'ouvre comme un store, puis chaque mot bascule depuis le bas avec un rebond */
+  /* chaque mot est un cache coupé seulement en bas (les accents du « É » restent visibles) ; les lettres montent dedans */
+  #ville .tete-ville .mot{display:inline-block;clip-path:inset(-60% -12% 0 -12%)}
+  #ville .tete-ville .l{display:inline-block}
+  /* entrée : l'étiquette s'ouvre comme un store, puis les lettres montent une à une avec un léger rebond et se redressent */
   #ville .tete-ville.anim .lbl{clip-path:inset(0 50% 0 50%);opacity:0;transition:clip-path .6s cubic-bezier(.3,.9,.3,1),opacity .3s}
-  #ville .tete-ville.anim .mot{opacity:0;transform:translateY(.55em) rotateX(-85deg) scale(.9);filter:blur(6px);
-    transition:opacity .35s ease var(--d),transform .9s cubic-bezier(.2,1.45,.4,1) var(--d),filter .5s ease var(--d)}
+  #ville .tete-ville.anim .l{transform:translateY(108%) rotate(8deg);transition:transform .85s cubic-bezier(.2,1.25,.35,1) var(--d)}
   #ville .tete-ville.anim.vu .lbl{clip-path:inset(0 0 0 0);opacity:1}
-  #ville .tete-ville.anim.vu .mot{opacity:1;transform:none;filter:none}
+  #ville .tete-ville.anim.vu .l{transform:none}
   #ville .mc-wrap{position:relative;height:100vh;min-height:560px;max-height:980px}
   #mc-map{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y}
   #mc-map.drag{cursor:grabbing}
@@ -960,7 +1436,7 @@
 <section class="ville light" id="ville">
   <div class="tete-ville" id="tete-ville">
     <span class="lbl">Marshall City</span>
-    <h2 class="disp"><span class="mot" style="--d:0.15s">Le</span> <span class="mot" style="--d:0.24s">numérique</span><br><em><span class="mot" style="--d:0.40s">au</span> <span class="mot" style="--d:0.49s">coin</span> <span class="mot" style="--d:0.58s">de</span> <span class="mot" style="--d:0.67s">la</span> <span class="mot" style="--d:0.76s">rue</span></em></h2>
+    <h2 class="disp"><span class="sr">Le numérique au coin de la rue</span><span aria-hidden="true"><span class="mot"><span class="l" style="--d:0.120s">L</span><span class="l" style="--d:0.155s">e</span></span> <span class="mot"><span class="l" style="--d:0.225s">n</span><span class="l" style="--d:0.260s">u</span><span class="l" style="--d:0.295s">m</span><span class="l" style="--d:0.330s">é</span><span class="l" style="--d:0.365s">r</span><span class="l" style="--d:0.400s">i</span><span class="l" style="--d:0.435s">q</span><span class="l" style="--d:0.470s">u</span><span class="l" style="--d:0.505s">e</span></span><br><em><span class="mot"><span class="l" style="--d:0.625s">a</span><span class="l" style="--d:0.660s">u</span></span> <span class="mot"><span class="l" style="--d:0.730s">c</span><span class="l" style="--d:0.765s">o</span><span class="l" style="--d:0.800s">i</span><span class="l" style="--d:0.835s">n</span></span> <span class="mot"><span class="l" style="--d:0.905s">d</span><span class="l" style="--d:0.940s">e</span></span> <span class="mot"><span class="l" style="--d:1.010s">l</span><span class="l" style="--d:1.045s">a</span></span> <span class="mot"><span class="l" style="--d:1.115s">r</span><span class="l" style="--d:1.150s">u</span><span class="l" style="--d:1.185s">e</span></span></em></span></h2>
   </div>
   <div class="mc-wrap" id="mc-wrap">
   <canvas id="mc-map" aria-label="Carte animée de Marshall City"></canvas>
@@ -981,7 +1457,11 @@
     const tete = document.getElementById('tete-ville');
     if (!tete || matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
     tete.classList.add('anim');
-    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { tete.classList.add('vu'); o.disconnect(); } }, { threshold:.5 }).observe(tete);
+    const montre = () => { tete.classList.add('vu'); removeEventListener('scroll', guetteTitre); };
+    // secours : si l'observateur ne se déclenche pas (onglet en arrière-plan, défilement fluide…), le défilement s'en charge
+    const guetteTitre = () => { const r = tete.getBoundingClientRect(); if (r.top < innerHeight * .88 && r.bottom > 0) montre(); };
+    new IntersectionObserver(([e], o) => { if (e.isIntersecting) { montre(); o.disconnect(); } }, { threshold:.2, rootMargin:'0px 0px -12% 0px' }).observe(tete);
+    addEventListener('scroll', guetteTitre, { passive:true }); guetteTitre();
   })();
 </script>
 <script type="importmap">
@@ -2549,17 +3029,6 @@ else {
   </div>
 </section>
 
-<!-- 9. FIN -->
-<section class="fin orange" id="fin">
-  <span class="lbl">On s’y met ?</span>
-  <h2 class="disp" id="fin-titre">30 minutes,<br><em>un plan clair</em></h2>
-  <p>L’audit est gratuit et sans engagement : on regarde ensemble votre situation, et vous repartez avec les bonnes décisions.</p>
-  <div class="actions">
-    <a class="btn blanc plein devis-btn" href="rendez-vous.html">Réserver mon audit gratuit <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
-    <button type="button" class="btn blanc" id="ecrire-marshall">Écrire à Marshall</button>
-  </div>
-  <img class="coucou marshall" id="coucou" src="images/marshall-coucou.webp" alt="Marshall vous fait coucou" loading="lazy">
-</section>
 </main>
 
 <footer class="pied-site" aria-label="Pied de page">
@@ -2593,7 +3062,8 @@ else {
   document.getElementById('menu-x').onclick = function(){ menu.classList.remove('open'); };
   menu.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ menu.classList.remove('open'); }); });
   // « Écrire à Marshall » ouvre l'assistant (le contact passe par lui)
-  document.getElementById('ecrire-marshall').addEventListener('click', function(){ var c = document.getElementById('mcdChat'); if (c && c.dataset.ouvert !== 'true') document.getElementById('mcdLanceur').click(); });
+  var ecrire = document.getElementById('ecrire-marshall');   // bouton de l'ancienne section « 30 minutes » (retirée le 25/10)
+  if (ecrire) ecrire.addEventListener('click', function(){ var c = document.getElementById('mcdChat'); if (c && c.dataset.ouvert !== 'true') document.getElementById('mcdLanceur').click(); });
 
   /* ---------- En-tête : fond plein au défilement, couleur selon la section dessous ---------- */
   var top = document.getElementById('top');
@@ -2703,6 +3173,8 @@ else {
     });
   }
   /* ---------- 6. Commerçants : la conversation avec Marshall s'écrit toute seule, en boucle ---------- */
+  // (la section a été refaite avec l'éclair : ce bloc ne tourne que si l'ancienne conversation #conv existe encore)
+  if (document.getElementById('conv')) {
   var m = document.querySelectorAll('#conv [data-m]'), ecrit = document.querySelector('#conv .ecrit'), coeur = document.querySelector('#conv .coeur');
   gsap.to('#conv .ecrit i', { y:-5, duration:.3, repeat:-1, yoyo:true, stagger:.12, ease:'sine.inOut' });
   var bouge = reduce ? 0 : 1;
@@ -2729,12 +3201,13 @@ else {
   gsap.set(m, { autoAlpha:0, display:'none' }); gsap.set('#conv .post-aime', { autoAlpha:0, height:0 });
   conv.pause(0);
   var convVu = false;
-  new IntersectionObserver(function(es){
+  var convObs = new IntersectionObserver(function(es){
     es.forEach(function(e){
       if (e.isIntersecting && e.intersectionRatio >= .45) { if (!convVu) { convVu = true; conv.restart(true); } }
       else if (!e.isIntersecting) { convVu = false; conv.pause(0); gsap.set(m, { autoAlpha:0, display:'none' }); }
     });
-  }, { threshold:[0, .45] }).observe(document.getElementById('conv'));
+  }, { threshold:[0, .45] }); convObs.observe(document.getElementById('conv'));
+  }
 
   if (reduce) return;
 
@@ -2809,7 +3282,6 @@ else {
     }
     var aSection = function(sel){ return function(go){ ScrollTrigger.create({ trigger:sel, start:'top 40%', once:true, onEnter:go }); }; };
     etincelant(document.querySelector('#particuliers .devis-btn'), aSection('#particuliers'));
-    etincelant(document.querySelector('#fin .devis-btn'), aSection('#fin'));
     // l'en-tête : juste après l'ouverture du rideau
     etincelant(document.querySelector('.cta-top.devis-btn'), function(go){ quandPortesOuvertes(function(){ setTimeout(go, 700); }); });
   })();
@@ -2864,6 +3336,8 @@ else {
   gsap.from('[data-q]', { y:-60, opacity:0, duration:.7, stagger:.07, ease:'bounce.out', scrollTrigger:{ trigger:'#ou', start:'top 65%' } });
   var vol = { p:0 }; poser(0);
   addEventListener('resize', function(){ poser(vol.p); });
+  // Le fondu blanc du haut de « Comment ça marche » s'efface pendant que la section Particuliers sort de l'écran (sinon il reste collé en haut pendant l'épinglage)
+  gsap.fromTo('#etapes', { '--fondu':1 }, { '--fondu':0, ease:'none', scrollTrigger:{ trigger:'#etapes', start:'top 35%', end:'top top', scrub:true, invalidateOnRefresh:true } });
   gsap.timeline({ scrollTrigger:{ trigger:'#ou', pin:true, anticipatePin:1, scrub:1, invalidateOnRefresh:true,
     start:function(){ return document.getElementById('ou').offsetHeight > innerHeight ? 'bottom bottom' : 'center center'; },
     end:'+=200%' } })
@@ -2872,30 +3346,13 @@ else {
     .to('#epingle', { scale:1.25, duration:.1, yoyo:true, repeat:1 }, '<')
     .to('#bulle-dit', { scale:1, duration:.2, ease:'back.out(2.5)' });
 
-  gsap.from('#conv', { y:160, rotate:10, opacity:0, duration:1.1, ease:'expo.out', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
-  gsap.from('#tel-marshall', { x:-160, opacity:0, duration:1, delay:.3, ease:'back.out(1.5)', scrollTrigger:{ trigger:'#commercants', start:'top 65%' } });
-  gsap.from('.commerce li', { x:-40, opacity:0, duration:.7, stagger:.1, ease:'expo.out', scrollTrigger:{ trigger:'.commerce ul', start:'top 80%' } });
 
   /* ---------- 7. Pros : animée par son propre script (cartes qui pivotent, Marshall dans la poussière magique) ---------- */
 
   /* ---------- 8. FAQ ---------- */
   gsap.from('.faq details', { x:60, opacity:0, duration:.7, stagger:.07, ease:'expo.out', scrollTrigger:{ trigger:'.faq', start:'top 75%' } });
 
-  /* ---------- 9. Fin : le titre grandit avec le défilement, Marshall monte faire coucou ---------- */
-  gsap.fromTo('#fin-titre', { scale:.55, opacity:.2 }, { scale:1, opacity:1, ease:'none', scrollTrigger:{ trigger:'#fin', start:'top 90%', end:'top 25%', scrub:true } });
-  gsap.from('#coucou', { yPercent:100, duration:1.2, ease:'back.out(1.3)', scrollTrigger:{ trigger:'#fin', start:'top 40%' } });
-  // Confettis à chaque arrivée sur la section (pas plus d'une pluie toutes les 4 s)
-  var COUL = ['#FFFFFF','#6EC1F0','#FFD23F','#FF7FA8','#7ED957','#C7620E'], derniere = 0;
-  function pluie(){
-    var fin = document.getElementById('fin'), t = Date.now(); if (t - derniere < 4000) return; derniere = t;
-    for (var i = 0; i < 70; i++) {
-      var c = document.createElement('i'); c.className = 'confetti' + (i % 4 === 0 ? ' rond' : '');
-      c.style.background = COUL[i % COUL.length]; c.style.left = (Math.random() * 100) + '%';
-      fin.appendChild(c);
-      gsap.to(c, { y:fin.offsetHeight + 60, x:'+=' + (Math.random() * 200 - 100), rotate:Math.random() * 900 - 450, duration:2.4 + Math.random() * 2.2, delay:Math.random() * .9, ease:'power1.in', onComplete:function(){ this.targets()[0].remove(); } });
-    }
-  }
-  ScrollTrigger.create({ trigger:'#fin', start:'top 60%', onEnter:pluie, onEnterBack:pluie });
+  /* (section 9. Fin « 30 minutes, un plan clair » retirée le 25/10, avec son titre animé, Marshall coucou et les confettis) */
 
   /* ---------- Pied de page : les lettres du grand mot sautent une à une ---------- */
   var gm = document.getElementById('grandmot');
