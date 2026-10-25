@@ -74,7 +74,7 @@
   .menu a{font-size:clamp(48px,14vw,110px)}
   .menu a:hover{color:var(--blue)}
   .menu .x{position:absolute;top:18px;right:var(--pad);width:52px;height:52px;border:1px solid #fff;background:none;color:#fff;cursor:pointer;font-size:26px}
-  @media (max-width:900px){.nav{display:none}.acc-wrap{margin-left:auto}.acc-top{width:34px;height:34px}.acc-card{position:fixed;left:12px;right:12px;top:66px;width:auto}.acc-card::before{right:auto;left:var(--acc-arrow,70%)}.burger{display:flex;margin-left:6px}}
+  @media (max-width:900px){.nav{display:none}.acc-wrap{margin-left:auto}.acc-top{width:34px;height:34px}.acc-card{position:fixed;left:12px;right:12px;top:66px;width:auto}.acc-card::before{right:auto;left:var(--acc-arrow,70%)}.burger{display:flex;margin-left:6px}.top.solid{padding-top:18px;padding-bottom:18px}}
   @media (max-width:420px){.top{gap:10px}.logo{font-size:19px}.cta-top{padding:7px 11px;font-size:12px}}
 
   /* ---------- 1. Héros : Marshall arrive avec son ordi ---------- */
@@ -161,7 +161,9 @@
   .fin .btn.blanc.plein.devis-btn::before{background:linear-gradient(100deg,transparent,rgba(243,133,43,.35),transparent)}
   @keyframes halo-blanc{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}70%,100%{box-shadow:0 0 0 16px rgba(255,255,255,0)}}
   @media (max-width:800px){
-    .roue-cadre{width:190vw;margin-left:calc(50% - 95vw);aspect-ratio:1/.385}
+    .roue-cadre{width:190vw;margin-left:calc(50% - 95vw);aspect-ratio:1/.385;clip-path:none}
+    .parti .pied{top:calc(31cqw + 24px)}
+    .parti{min-height:100svh}
   }
   /* Ordinateur : la section tient dans un écran pendant que la roue tourne */
   @media (min-width:801px){
@@ -217,7 +219,12 @@
   .epingle .tete img{width:100%;height:100%;border-radius:50%;object-fit:cover;transform:rotate(45deg);background:#fff}
   .ombre{position:absolute;left:0;top:0;width:34px;height:10px;border-radius:50%;background:rgba(0,40,70,.22);transform:translate(-50%,-50%);z-index:4;pointer-events:none}
   .bulle-dit{position:absolute;left:52%;top:36%;z-index:7;padding:12px 16px;background:#fff;color:var(--or);border:3px solid var(--or);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(16px,1.7vw,22px);line-height:1;border-radius:18px 18px 18px 4px;white-space:nowrap}
-  @media (max-width:900px){.ou{grid-template-columns:1fr}.plan{max-width:520px}}
+  @media (max-width:900px){
+    .ou{box-sizing:border-box;min-height:100svh;padding:calc(78px + env(safe-area-inset-top)) var(--pad) 18px;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:clamp(8px,1.4vh,14px);align-content:center}
+    .ou .txt p{font-size:clamp(15px,2.2vh,18px);margin:8px 0}
+    .visio{margin-top:4px;font-size:clamp(16px,2.5vh,20px)}
+    .plan{width:min(100%,calc((100svh - 380px) * 1.1));max-width:520px}
+  }
   /* PC : la section tient dans l'écran (le plan suit la hauteur disponible sous l'en-tête),
      ainsi elle est épinglée bien centrée au lieu d'être coupée en haut avec un vide en bas */
   @media (min-width:901px){
@@ -403,12 +410,7 @@
   .pied-site{--ps-bleu:#6EC1F0;--ps-or:#F3852B;--ps-encre:#0a0a0a;background:#f5f5f5;color:var(--ps-bleu);font-family:Archivo,system-ui,sans-serif;padding:64px clamp(16px,2.2vw,32px) 24px;overflow:hidden;position:relative;z-index:1}
   .pied-site *{box-sizing:border-box}
   .pied-site a{color:inherit;text-decoration:none}
-  .pied-site .ps-haut{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:32px 28px;align-items:start}
-  .pied-site .ps-marque p{margin:10px 0 18px;color:#555;font-weight:600;font-size:15px;line-height:1.5;max-width:300px}
-  .pied-site .ps-logo{font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:28px;line-height:.9;color:var(--ps-bleu)}
-  .pied-site .ps-logo em{font-style:italic;color:var(--ps-or)}
-  .pied-site .ps-cta{display:inline-flex;align-items:center;gap:10px;background:var(--ps-or);color:#fff;padding:12px 18px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:15px;letter-spacing:.02em;transition:background .25s}
-  .pied-site .ps-cta:hover{background:var(--ps-encre)}
+  .pied-site .ps-haut{display:grid;grid-template-columns:repeat(4,1fr);gap:32px 28px;align-items:start}
   .pied-site h3{margin:0 0 12px;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:17px;color:var(--ps-encre);letter-spacing:.02em}
   .pied-site ul{list-style:none;margin:0;padding:0;display:grid;gap:9px}
   .pied-site li a{font-weight:700;font-size:15px;color:#3a3a3a;transition:color .2s}
@@ -420,7 +422,7 @@
   .pied-site .ps-bas{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;margin-top:40px;padding-top:16px;border-top:1.5px solid #dcdcdc;font-size:13px;font-weight:600;color:#777}
   .pied-site .ps-grand{margin-top:22px;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:12.2vw;line-height:.8;white-space:nowrap;text-align:center;letter-spacing:-.005em}
   .pied-site .ps-grand em{font-style:italic;font-weight:800;color:var(--ps-or)}
-  @media (max-width:980px){.pied-site .ps-haut{grid-template-columns:1fr 1fr}.pied-site .ps-marque{grid-column:1/-1}}
+  @media (max-width:980px){.pied-site .ps-haut{grid-template-columns:1fr 1fr}}
   @media (max-width:440px){.pied-site{padding-top:48px}.pied-site .ps-haut{gap:26px 16px}.pied-site li a{font-size:14px}}
 </style>
 </head>
@@ -1079,7 +1081,10 @@
   (function(){
     var s = document.getElementById('commercants');
     var chef = s.querySelector('.chef');
-    if (chef && !chef.canPlayType('video/webm; codecs="vp9"')) { var im = new Image(); im.className = 'chef'; im.alt = ''; im.src = 'images/eclair/plaque-place-2-g7.webp'; chef.replaceWith(im); var bv = s.querySelector('.bureau-vid'), ib = new Image(); ib.className = 'bureau-vid'; ib.alt = ''; ib.src = 'images/eclair/bureau-bleu-2b-g7.webp'; bv.replaceWith(ib); }
+    // Safari lit certaines vidéos WebM VP9, mais affiche leur canal alpha en noir.
+    // Les WebP animés conservent la transparence sur iOS et Safari.
+    var safariAlpha = /Safari/i.test(navigator.userAgent) && !/Chrome|CriOS|Edg|OPR|FxiOS/i.test(navigator.userAgent);
+    if (chef && (safariAlpha || !chef.canPlayType('video/webm; codecs="vp9"'))) { var im = new Image(); im.className = 'chef'; im.alt = ''; im.src = 'images/eclair/plaque-place-2-g7.webp'; chef.replaceWith(im); var bv = s.querySelector('.bureau-vid'), ib = new Image(); ib.className = 'bureau-vid'; ib.alt = ''; ib.src = 'images/eclair/bureau-bleu-2b-g7.webp'; bv.replaceWith(ib); }
     var cv = s.querySelector('.etincelles'), cx = cv.getContext('2d'), W = 0, H = 0, chemin = [];
     function svgActif(){ return s.querySelector(innerWidth <= 900 ? '.eclair-h' : '.eclair-v'); }
     function enPx(str){ return str.split(' ').map(function(xy){ var c = xy.split(','); return [c[0] * W / 100, c[1] * H / 100]; }); }
@@ -3033,11 +3038,6 @@ else {
 
 <footer class="pied-site" aria-label="Pied de page">
   <div class="ps-haut">
-    <div class="ps-marque">
-      <div class="ps-logo">Mon Copain <em>Digital</em></div>
-      <p>Le numérique pour tout le monde : à domicile en Île-de-France ou en visio, à votre rythme et sans jargon.</p>
-      <a class="ps-cta" href="rendez-vous.html">Audit gratuit de 30 min <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
-    </div>
     <nav aria-label="Se faire aider"><h3>Se faire aider</h3><ul><li><a href="Nosoffres.html">Nos offres</a></li><li><a href="aide-numerique-ile-de-france.html">Aide numérique à domicile</a></li><li><a href="audit-gratuit.html">Audit gratuit</a></li><li><a href="rendez-vous.html">Prendre rendez-vous</a></li><li><a href="carte-cadeau.html">Carte cadeau</a></li></ul></nav>
     <nav aria-label="Studio Social"><h3>Studio Social</h3><ul><li><a href="decouvrir-studio-social.html">Découvrir Studio Social</a></li><li><a href="studio-social.html">Ouvrir le Studio</a></li><li><a href="idees-posts-boulangerie.html">Idées de posts</a></li></ul></nav>
     <nav aria-label="Mon Copain Digital"><h3>Mon Copain Digital</h3><ul><li><a href="index.html" aria-current="page">Accueil</a></li><li><a href="contact.html">Contact</a></li><li><a href="espace-compte.html">Mon compte</a></li></ul></nav>
