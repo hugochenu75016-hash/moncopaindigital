@@ -1782,6 +1782,22 @@
   .clp-acts{ display:flex; gap:5px; margin-top:7px; }
   .clp-acts button,.clp-acts a{ border:0; border-radius:10px; background:#f1f7f4; color:#065f46; font:700 11.5px 'Fredoka',sans-serif; padding:6px 8px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; }
   .clp-acts button:first-child{ flex:1; justify-content:center; background:#10b981; color:#fff; }
+  .motion-root{ display:flex; flex-direction:column; gap:10px; }
+  .motion-root .motion-presets{ display:grid; gap:8px; }
+  .motion-root .motion-preset-btn{ display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:12px; border:1.5px solid #dbeafe; background:#f0f7ff; color:#1e40af; font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; text-align:left; transition:all .15s; }
+  .motion-root .motion-preset-btn:hover{ border-color:#3b82f6; background:#e0efff; }
+  .motion-root .motion-preset-btn.active{ border-color:#2563eb; background:linear-gradient(135deg,#0052D4,#4364F7); color:#fff; }
+  .motion-root .motion-input-group{ display:flex; flex-direction:column; gap:5px; }
+  .motion-root .motion-input{ width:100%; box-sizing:border-box; border:1.5px solid #dbeafe; border-radius:12px; padding:9px 11px; font:inherit; font-size:12.5px; background:#fff; }
+  .motion-root .motion-input:focus{ outline:none; border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,.15); }
+  .motion-root textarea.motion-input{ resize:vertical; min-height:64px; line-height:1.4; }
+  .motion-root .motion-go{ background:linear-gradient(180deg,#2563eb,#1d4ed8); box-shadow:0 4px 0 #1e40af, 0 10px 20px rgba(37,99,235,.25); }
+  .motion-root .motion-preview{ margin-top:10px; border-radius:14px; overflow:hidden; background:#000; box-shadow:0 6px 18px rgba(0,0,0,.15); }
+  .motion-root .motion-preview video{ width:100%; display:block; max-height:420px; }
+  .motion-root .motion-acts{ display:flex; gap:8px; margin-top:8px; }
+  .motion-root .motion-acts button, .motion-root .motion-acts a{ flex:1; text-align:center; padding:9px 12px; border-radius:10px; border:0; font:inherit; font-size:12px; font-weight:700; text-decoration:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+  .motion-root .motion-acts .btn-cvs{ background:linear-gradient(135deg,#0052D4,#4364F7); color:#fff; }
+  .motion-root .motion-acts .btn-dl{ background:#eff6ff; color:#1e40af; border:1.5px solid #bfdbfe; }
   .sai-eta{ font-size:11.5px; color:#8a7a6c; margin:-4px 0 0 4px; }
   .sai-secs button.on{ border-color:#F3852B; background:#fff4e8; color:#b8601a; }
   .sai-go1{ display:flex; align-items:center; justify-content:space-between; gap:10px; border:0; border-radius:16px; padding:13px 16px; background:linear-gradient(180deg,#ff9a3d,#F3852B); color:#fff; cursor:pointer; box-shadow:0 4px 0 #d0671a, 0 10px 20px rgba(243,133,43,.25); font-family:inherit; transition:transform .15s; }
@@ -8806,7 +8822,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
     if(kind==='agents'){
       title.textContent='Agents IA';
-      var AD=marshallAgentShowcaseData(), GROUPS=[['Créer',['studio','genjutsu','avatar','clipper','image','story']],['Stratégie',['marshall','social','brand','campaign','nation']],['Contrôle',['visual','testing','audit','team']]];
+      var AD=marshallAgentShowcaseData(), GROUPS=[['Créer',['studio','motion','genjutsu','avatar','clipper','image','story']],['Stratégie',['marshall','social','brand','campaign','nation']],['Contrôle',['visual','testing','audit','team']]];
       body.innerHTML='<p class="ag-intro">Tes assistants spécialisés. Clique sur un agent pour l’ouvrir.</p>'+GROUPS.map(function(g){
         return '<div class="ed-sec">'+g[0]+'</div><div class="ag-list">'+g[1].filter(function(k){ return AD[k]; }).map(function(k){ var a=AD[k], lk=marshallAgentLocked(k);
           return '<button type="button" class="ag-item'+(lk?' locked':'')+'" data-agent-pick="'+k+'"><span class="ag-ic" style="background:'+a.color+'">'+marshallAgentLogoSVG(k)+'</span><span class="ag-copy"><b>'+esc(a.name)+'</b><small>'+esc(lk?'Bientôt disponible':(a.role||a.tag||a.subtitle||''))+'</small></span></button>'; }).join('')+'</div>';
@@ -9318,6 +9334,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       genjutsu:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7c0-1.7 3.6-3 8-3s8 1.3 8 3v4c0 5-3.6 9-8 9s-8-4-8-9z"/><path d="M8.5 11c.6-.7 1.6-.7 2.2 0M13.3 11c.6-.7 1.6-.7 2.2 0M9.5 15c1.4 1 3.6 1 5 0"/></svg>',
       clipper:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></svg>',
       studio:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12" rx="2.5"/><path d="M3 8l3.5-4.5M9 8l3.5-4.5M15 8l3.5-4.5"/><path d="M10 12.2v4.6l4-2.3-4-2.3Z"/></svg>',
+      motion:'<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>',
       team:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M2.5 20c.5-4 2.5-6 5.5-6s5 2 5.5 6"/><path d="M10.5 20c.5-3.2 2.3-5 5.5-5 3 0 4.8 1.8 5.5 5"/></svg>'
     };
     return icons[key]||icons.marshall;
@@ -9335,6 +9352,11 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       genjutsu:{name:'Genjutsu',tag:'Toi dans la vidéo',icon:'🎭',color:'linear-gradient(135deg,#7c3aed,#ec4899)',desc:'Importe une vidéo et une photo : Marshall remplace uniquement la personne, en conservant le décor et tous ses mouvements naturels (porte, coussin, ombres, lumière et caméra).',logic:['Ta vidéo + la photo de la personne','Marshall remplace uniquement le sujet humain','Donc → le décor original et ses mouvements restent visibles'],actions:[]},
       clipper:{name:'Clippeur',tag:'Clips viraux',icon:'✂️',color:'linear-gradient(135deg,#10b981,#0ea5e9)',desc:'Colle le lien d’une vidéo longue (ou importe-la) : Marshall trouve les meilleurs moments, les recadre en 9:16 sur la personne qui parle, ajoute les sous-titres et note chaque clip.',logic:['Tu donnes ta vidéo longue','Marshall écoute, choisit et recadre','Donc → clips 9:16 classés par score viral'],actions:[]},
       studio:{name:'Studio IA',tag:'Image & vidéo IA',icon:'🎬',color:'linear-gradient(135deg,#8b5cf6,#ec4899)',desc:'Crée une vidéo à partir d’une image, une image à partir d’un texte, ou une vidéo à partir d’un texte. Avec Wan 2.2, tu choisis la qualité (Éco, HD ou Pro).',logic:['Tu choisis le moteur et la qualité','Tu décris ce que tu veux (et l’image de départ)','Donc → image ou vidéo posée sur un nouveau canva'],actions:[]},
+      motion:{name:'Motion 3D',tag:'Shorts 3D viraux',icon:'⚡',color:'linear-gradient(135deg,#0052D4,#4364F7,#6FB1FC)',desc:'Génère des vidéos 9:16 dynamiques en 3D WebGL (Three.js), animations continues, caméras orbitales, stickers animés et sous-titres cinétiques synchronisés.',logic:['Un sujet ou match + stickers','Moteur WebGL 3D + caméras orbitales + TTS','Donc → Short 9:16 viral prêt pour TikTok/Reels'],actions:[
+        {label:'⚽ Match PSG vs Lyon (2-0)',mission:'motion_generate',prompt:'Génère le Short 3D continu PSG vs Lyon 2-0 avec caméra orbitale, onde de choc et stats.'},
+        {label:'🔥 Mercato 3D Transfert',mission:'motion_generate',prompt:'Génère un Short 3D sur le dernier gros transfert avec ballons 3D dorés et zoom dramatique.'},
+        {label:'🚨 Breaking News Express',mission:'motion_generate',prompt:'Génère une alerte breaking news avec plateau 3D et sous-titres cinétiques.'}
+      ]},
       nation:{name:'Journaliste Pays',tag:'Infos en temps réel',icon:'🌍',color:'linear-gradient(135deg,#1fb6ff,#0b6fd6)',desc:'Cherche en temps réel toutes les infos sur un pays (actualités, économie, tendances réseaux, fiche pays) et te garde les 3 plus importantes, avec les sources.',logic:['Tu donnes un pays','Il cherche sur le web en direct','Donc → 3 infos clés + fiche pays + sources'],actions:[
         {label:'Briefing d’un pays',mission:'nation_brief',prompt:'Briefing en temps réel sur le pays : '},
         {label:'Économie d’un pays',mission:'nation_brief',prompt:'Économie et derniers chiffres du pays : '},
@@ -9660,7 +9682,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
   function marshallAgentRightRailInit(){
     var rail=document.getElementById('ed-agent-rail'); if(!rail)return;
-    var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','avatar','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
+    var data=marshallAgentShowcaseData(),order=['marshall','studio','motion','genjutsu','avatar','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     rail.innerHTML='<div class="ed-agent-rail-title">Agents IA</div>'+order.map(function(key){var a=data[key];var lk=marshallAgentLocked(key);return '<button type="button" class="ed-agent-tool'+(lk?' locked':'')+'" data-agent-rail="'+key+'" title="'+esc(lk?a.name+' · Bientôt disponible':a.name)+'"'+(lk?' aria-disabled="true"':'')+'>'+(lk?MARSHALL_LOCK_HTML:'')+'<span class="ed-agent-tool-icon" style="background:'+a.color+'">'+marshallAgentLogoSVG(key)+'</span><span class="ed-agent-tool-copy"><b>'+esc(a.name)+'</b><small>'+esc(a.tag)+'</small></span></button>';}).join('');
     $all('[data-agent-rail]',rail).forEach(function(btn){btn.addEventListener('click',function(){var key=this.getAttribute('data-agent-rail')||'marshall';if(marshallAgentLocked(key)){toast('🔒 '+((marshallAgentShowcaseData()[key]||{}).name||'Cet agent')+' : bientôt disponible.');return;}var dock=marshallAgentDockEnsure();window.marshallAgentDockSelected=key;marshallAgentDockRender(key);dock.classList.remove('min');dock.classList.add('open');marshallAgentRightRailSync();});});
     marshallAgentRightRailSync();
@@ -10449,10 +10471,201 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }catch(e){ A.error=String(e&&e.message||e); try{ marshallAgentDockChatAdd('error','Avatar parlant : '+A.error,false); }catch(x){} }
     finally{ A.busy=false; marshallAvRefresh(); }
   }
+  
+  /* ===== Agent « Motion 3D » (Three.js WebGL + Playwright + Edge-TTS sur Modal) ===== */
+  var MARSHALL_MOTION = {
+    endpoint: 'https://supportmcd--marshall-motion-web.modal.run',
+    preset: 'psg_lyon',
+    title: 'PSG 2 - 0 LYON',
+    score: '2 – 0',
+    subject: 'Le Paris Saint-Germain bat Lyon deux à zéro au Parc des Princes. Après une première période sans but, Senny Mayulu débloque le score à la 72e minute. Douze minutes plus tard, Mika Godts marque à son tour. Paris prend la tête de la Ligue 1. Premier but de Godts avec Paris. Victoire nette deux zéro.',
+    voice: 'fr-FR-HenriNeural',
+    duration: 25,
+    busy: false,
+    progress: 0,
+    msg: '',
+    video_url: '',
+    error: ''
+  };
+
+  function marshallMotionPanelHTML(prof){
+    var M = MARSHALL_MOTION;
+    var presets = [
+      { id: 'psg_lyon', label: '⚽ PSG vs Lyon (2-0)', title: 'PSG 2 - 0 LYON', score: '2 – 0', text: 'Le Paris Saint-Germain bat Lyon deux à zéro au Parc des Princes. Après une première période sans but, Senny Mayulu débloque le score à la 72e minute. Douze minutes plus tard, Mika Godts marque à son tour. Paris prend la tête de la Ligue 1. Premier but de Godts avec Paris. Victoire nette deux zéro.' },
+      { id: 'mercato', label: '🔥 Mercato : Transfert Choc', title: 'MERCATO OFFICIEL', score: 'OFFICIEL', text: 'Coup de tonnerre sur le mercato estival ! Les négociations ont enfin abouti après des semaines d’intense suspense. Contrat de cinq ans, indemnité record et ambition XXL : découvrez tous les dessous de la signature de l’année.' },
+      { id: 'breaking', label: '🚨 Breaking News Sport', title: 'ALERTE INFO SPORT', score: 'INFO DIRECT', text: 'Alerte info en direct ! Décision surprise de la commission disciplinaire ce matin. Réunion de crise au sommet du club, les supporters sous le choc. Suivez les réactions à chaud dans ce short exclusif.' },
+      { id: 'custom', label: '✍️ Personnalisé', title: M.title, score: M.score, text: M.subject }
+    ];
+
+    var presetsHTML = '<div class="motion-presets">' + presets.map(function(p){
+      var active = M.preset === p.id ? ' active' : '';
+      return '<button type="button" class="motion-preset-btn' + active + '" data-motion-preset="' + p.id + '">' + esc(p.label) + '</button>';
+    }).join('') + '</div>';
+
+    var previewHTML = '';
+    if(M.busy){
+      previewHTML = '<div class="clp-prog" style="margin-top:10px;"><div class="clp-bar"><span style="width:' + Math.max(8, Math.min(100, M.progress || 0)) + '%"></span></div><small><span class="vp-spin"></span> ' + esc(M.msg || 'Génération 3D en cours sur Modal...') + '</small></div>';
+    } else if(M.error){
+      previewHTML = '<div class="clp-err" style="margin-top:10px;">⚠️ ' + esc(M.error) + '</div>';
+    } else if(M.video_url){
+      previewHTML = '<div class="motion-preview">'
+        + '<video src="' + esc(M.video_url) + '" controls playsinline autoplay loop></video>'
+        + '</div>'
+        + '<div class="motion-acts">'
+        + '<button type="button" class="btn-cvs" data-motion-act="canvas">🎬 Poser sur Canva</button>'
+        + '<a href="' + esc(M.video_url) + '" download="short-motion-3d.mp4" target="_blank" class="btn-dl">⬇ Télécharger MP4</a>'
+        + '</div>';
+    }
+
+    return '<div class="sai-root motion-root">'
+      + '<div class="madock-detail-head">'
+      + '<span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:' + prof.color + '">' + marshallAgentLogoSVG('motion') + '</span>'
+      + '<div class="madock-detail-copy"><b>' + esc(prof.name) + '</b><p>' + esc(prof.desc) + '</p></div>'
+      + '</div>'
+      + '<div class="sai-lbl">1. Modèle & Sujet</div>'
+      + presetsHTML
+      + '<div class="motion-input-group">'
+      + '<label style="font-size:11.5px;font-weight:700;color:#1e40af;">Titre du bandeau</label>'
+      + '<input type="text" class="motion-input" data-motion-f="title" value="' + esc(M.title) + '" placeholder="Ex: PSG 2 - 0 LYON">'
+      + '</div>'
+      + '<div class="motion-input-group">'
+      + '<label style="font-size:11.5px;font-weight:700;color:#1e40af;">Texte du script (voix-off & sous-titres)</label>'
+      + '<textarea class="motion-input" data-motion-f="subject" placeholder="Écris le texte du commentateur...">' + esc(M.subject) + '</textarea>'
+      + '</div>'
+      + '<div class="motion-input-group">'
+      + '<label style="font-size:11.5px;font-weight:700;color:#1e40af;">Voix de synthèse (Edge-TTS)</label>'
+      + '<select class="motion-input" data-motion-f="voice">'
+      + '<option value="fr-FR-HenriNeural"' + (M.voice==='fr-FR-HenriNeural'?' selected':'') + '>🎙️ Henri (Journaliste dynamique - Homme)</option>'
+      + '<option value="fr-FR-VivienneMultilingualNeural"' + (M.voice==='fr-FR-VivienneMultilingualNeural'?' selected':'') + '>🎙️ Vivienne (Expressive - Femme)</option>'
+      + '<option value="fr-FR-RemyMultilingualNeural"' + (M.voice==='fr-FR-RemyMultilingualNeural'?' selected':'') + '>🎙️ Rémy (Moderne - Homme)</option>'
+      + '<option value="fr-FR-DeniseNeural"' + (M.voice==='fr-FR-DeniseNeural'?' selected':'') + '>🎙️ Denise (Présentatrice TV - Femme)</option>'
+      + '</select>'
+      + '</div>'
+      + '<div class="motion-input-group">'
+      + '<label style="font-size:11.5px;font-weight:700;color:#475569;">Serveur Modal actif (profil medias / 29.99$)</label>'
+      + '<input type="url" class="motion-input" data-motion-f="endpoint" value="' + esc(M.endpoint) + '" style="font-size:11px;color:#64748b;">'
+      + '</div>'
+      + '<button type="button" class="sai-go1 motion-go" data-motion-act="go"' + (M.busy ? ' disabled' : '') + '>'
+      + '<span>⚡ Lancer le rendu Motion 3D</span>'
+      + '<small>Three.js WebGL · 25s 1080x1920</small>'
+      + '</button>'
+      + previewHTML
+      + '</div>';
+  }
+
+  function marshallMotionRender(detail, prof){
+    detail.innerHTML = marshallMotionPanelHTML(prof);
+    marshallMotionBind(detail, prof);
+  }
+
+  function marshallMotionBind(detail, prof){
+    var M = MARSHALL_MOTION;
+    detail.querySelectorAll('[data-motion-preset]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var pid = this.getAttribute('data-motion-preset');
+        M.preset = pid;
+        if(pid === 'psg_lyon'){
+          M.title = 'PSG 2 - 0 LYON';
+          M.score = '2 – 0';
+          M.subject = 'Le Paris Saint-Germain bat Lyon deux à zéro au Parc des Princes. Après une première période sans but, Senny Mayulu débloque le score à la 72e minute. Douze minutes plus tard, Mika Godts marque à son tour. Paris prend la tête de la Ligue 1. Premier but de Godts avec Paris. Victoire nette deux zéro.';
+        } else if(pid === 'mercato'){
+          M.title = 'MERCATO OFFICIEL';
+          M.score = 'OFFICIEL';
+          M.subject = 'Coup de tonnerre sur le mercato estival ! Les négociations ont enfin abouti après des semaines d’intense suspense. Contrat de cinq ans, indemnité record et ambition XXL : découvrez tous les dessous de la signature de l’année.';
+        } else if(pid === 'breaking'){
+          M.title = 'ALERTE INFO SPORT';
+          M.score = 'INFO DIRECT';
+          M.subject = 'Alerte info en direct ! Décision surprise de la commission disciplinaire ce matin. Réunion de crise au sommet du club, les supporters sous le choc. Suivez les réactions à chaud dans ce short exclusif.';
+        }
+        marshallMotionRender(detail, prof);
+      });
+    });
+
+    detail.querySelectorAll('[data-motion-f]').forEach(function(input){
+      input.addEventListener('input', function(){
+        var f = this.getAttribute('data-motion-f');
+        M[f] = this.value;
+      });
+      input.addEventListener('change', function(){
+        var f = this.getAttribute('data-motion-f');
+        M[f] = this.value;
+      });
+    });
+
+    var goBtn = detail.querySelector('[data-motion-act="go"]');
+    if(goBtn){
+      goBtn.addEventListener('click', function(){
+        marshallMotionRun(detail, prof);
+      });
+    }
+
+    var cvsBtn = detail.querySelector('[data-motion-act="canvas"]');
+    if(cvsBtn){
+      cvsBtn.addEventListener('click', function(){
+        if(M.video_url){
+          try{ marshallFreshReset(); }catch(e){}
+          marshallVideoToCanvas(M.video_url, 'Motion 3D · ' + M.title, {});
+          toast('🎬 Vidéo 3D posée sur un nouveau canva !');
+        }
+      });
+    }
+  }
+
+  async function marshallMotionRun(detail, prof){
+    var M = MARSHALL_MOTION;
+    if(M.busy) return;
+    M.busy = true;
+    M.error = '';
+    M.progress = 15;
+    M.msg = 'Initialisation du pipeline 3D sur Modal...';
+    marshallMotionRender(detail, prof);
+
+    try {
+      var endpoint = (M.endpoint || 'https://supportmcd--marshall-motion-web.modal.run').replace(/\/+$/, '');
+      M.progress = 30;
+      M.msg = 'Génération de la voix-off Edge-TTS & scène Three.js...';
+      marshallMotionRender(detail, prof);
+
+      var res = await fetch(endpoint + '/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: M.subject,
+          title: M.title,
+          score: M.score,
+          voice: M.voice,
+          duration: M.duration || 25
+        })
+      });
+
+      if(!res.ok){
+        var errTxt = await res.text().catch(function(){ return 'Erreur serveur ' + res.status; });
+        throw Error(errTxt || ('HTTP ' + res.status));
+      }
+
+      var data = await res.json();
+      if(!data.ok || !data.video_url){
+        throw Error(data.error || 'Réponse invalide du serveur Modal');
+      }
+
+      var fullUrl = data.video_url.startsWith('http') ? data.video_url : (endpoint + data.video_url);
+      M.video_url = fullUrl;
+      M.progress = 100;
+      M.msg = 'Rendu terminé avec succès !';
+      toast('⚡ Short Motion 3D généré avec succès !');
+    } catch(err){
+      M.error = 'Erreur Motion 3D : ' + (err.message || err);
+      toast('⚠️ ' + M.error, true);
+    } finally {
+      M.busy = false;
+      marshallMotionRender(detail, prof);
+    }
+  }
+
   function marshallAgentDockRender(forceKey){
     var dock=marshallAgentDockEnsure(); if(!dock) return;
     var grid=dock.querySelector('#marshall-agent-dock-grid'),detail=dock.querySelector('#marshall-agent-dock-detail'); if(!detail) return;
-    var data=marshallAgentShowcaseData(),order=['marshall','studio','genjutsu','avatar','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
+    var data=marshallAgentShowcaseData(),order=['marshall','studio','motion','genjutsu','avatar','clipper','social','story','brand','campaign','image','visual','testing','audit','nation','team'];
     var selected=(forceKey&&data[forceKey])?forceKey:(window.marshallAgentDockSelected||'marshall');
     if(!data[selected]||selected==='auto'||marshallAgentLocked(selected)) selected='marshall';
     window.marshallAgentDockSelected=selected;
@@ -10465,6 +10678,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     if(selected==='genjutsu'){ marshallGenjutsuRender(detail,prof); var ctg=dock.querySelector('#marshall-agent-dock-chat-title');if(ctg)ctg.textContent=prof.name; marshallAgentRightRailSync(); return; }
     if(selected==='clipper'){ marshallClipperRender(detail,prof); var ct1=dock.querySelector('#marshall-agent-dock-chat-title');if(ct1)ct1.textContent=prof.name; marshallAgentRightRailSync(); return; }
     if(selected==='studio'){ marshallStudioAgentRender(detail,prof); var ct0=dock.querySelector('#marshall-agent-dock-chat-title');if(ct0)ct0.textContent=prof.name; marshallAgentRightRailSync(); return; }
+    if(selected==='motion'){ marshallMotionRender(detail,prof); var ctm=dock.querySelector('#marshall-agent-dock-chat-title');if(ctm)ctm.textContent=prof.name; marshallAgentRightRailSync(); return; }
     detail.innerHTML='\
       <div class="madock-detail-head">\
         <span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:'+prof.color+'">'+marshallAgentLogoSVG(selected)+'</span>\
@@ -10480,7 +10694,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   }
 
   /* ===== Agents IA v7 : Marshall animé (Wan 2.2) dans le rôle de chaque agent ===== */
-  var MAG_KEYS=['marshall','studio','genjutsu','avatar','clipper','nation','voice','social','story','brand','campaign','image','visual','testing','audit','team'];
+  var MAG_KEYS=['marshall','studio','motion','genjutsu','avatar','clipper','nation','voice','social','story','brand','campaign','image','visual','testing','audit','team'];
   function marshallAgentHero(key,animate){
     var det=document.getElementById('marshall-agent-dock-detail');if(!det)return;
     var head=det.querySelector('.madock-detail-head');
