@@ -10563,6 +10563,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     M.storyNews = Object.assign({ country: M.country || 'France' }, item);
     M.storyData = null;
     M.storyAngle = '';
+    M.error = '';
     await marshallMotionFetchStory(String(item.title || '').slice(0, 120), '', detail, prof);
   }
 
@@ -10646,8 +10647,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var d = await r.json().catch(function(){ return {}; });
       if(r.ok && d && d.ok && d.brief && d.brief.top3 && d.brief.top3.length){
         M.countryNews = d.brief.top3;
-        M.selectedNewsIdx = 0;
-        marshallMotionApplyNewsItem(d.brief.top3[0], M.country, M.theme);
+        M.selectedNewsIdx = -1;
         toast('🌍 Actu en temps réel chargée pour ' + M.country + ' !');
       } else {
         throw Error((d && d.error) || ('Briefing indisponible (HTTP ' + r.status + ')'));
@@ -10665,12 +10665,13 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
   function marshallMotionOpenWithNews(item, country){
     var M = MARSHALL_MOTION;
-    M.preset = 'actu_pays';
+    M.preset = 'storytelling';
     M.country = country || 'France';
     M.theme = item.theme || item.category || 'Actualité';
     M.countryNews = [item];
     M.selectedNewsIdx = 0;
     marshallMotionApplyNewsItem(item, M.country, M.theme);
+    M.autoStory = item;
     window.marshallAgentDockSelected = 'motion';
     var dock = marshallAgentDockEnsure();
     if(dock){
@@ -10682,165 +10683,83 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     toast('⚡ Actu chargée dans l’agent Motion 3D !');
   }
 
+  // Fiche Motion = un seul parcours : le Journaliste trouve l'info -> le Story Director en fait l'histoire -> rendu documentaire
   function marshallMotionPanelHTML(prof){
     var M = MARSHALL_MOTION;
-    var presets = [
-      { id: 'storytelling', label: '📜 Storytelling Documentaire (Style Réf)', desc: '5 actes narratifs avec HUD persistant (Plan technique, Journal, Duel, Sauvetage, 3D)' },
-      { id: 'actu_pays', label: '🌍 Actu à suivre (En direct)', title: M.title, score: M.score, text: M.subject },
-      { id: 'psg_lyon', label: '⚽ Démo match : PSG vs Lyon (2-0)', title: 'PSG 2 - 0 LYON', score: '2 – 0', text: 'Le Paris Saint-Germain bat Lyon deux à zéro au Parc des Princes. Après une première période sans but, Senny Mayulu débloque le score à la 72e minute. Douze minutes plus tard, Mika Godts marque à son tour. Paris prend la tête de la Ligue 1. Premier but de Godts avec Paris. Victoire nette deux zéro.' },
-      { id: 'custom', label: '✍️ Personnalisé (Texte libre)', title: M.title, score: M.score, text: M.subject }
-    ];
+    M.preset = 'storytelling';
+    var countries = ['France','États-Unis','Espagne','Royaume-Uni','Maroc','Japon','Allemagne','Brésil'];
+    var cChipsHTML = countries.map(function(c){
+      return '<button type="button" class="' + (M.country === c ? 'active' : '') + '" data-motion-country="' + esc(c) + '">' + esc(c) + '</button>';
+    }).join('');
+    var themes = ['Football','Économie','Politique','Tech & IA','Mercato','Culture'];
+    var tChipsHTML = themes.map(function(t){
+      return '<button type="button" class="' + (M.theme === t ? 'active' : '') + '" data-motion-theme-pick="' + esc(t) + '">' + esc(t) + '</button>';
+    }).join('');
 
-    var presetsHTML = '<div class="motion-presets">' + presets.map(function(p){
-      var active = M.preset === p.id ? ' active' : '';
-      return '<button type="button" class="motion-preset-btn' + active + '" data-motion-preset="' + p.id + '">' + esc(p.label) + '</button>';
-    }).join('') + '</div>';
-
-    var storyBoxHTML = '';
-    if(M.preset === 'storytelling'){
-      var storyIdeas = ['La Tour Eiffel', 'NVIDIA & les GPU', 'Le Concorde', 'L\'affaire Enron', 'L\'invention d\'Internet', 'Coca-Cola'];
-      var chipsHTML = storyIdeas.map(function(s){
-        return '<button type="button" data-motion-story-pick="' + esc(s) + '">' + esc(s) + '</button>';
-      }).join('');
-
-      var actsHTML = '';
-      if(M.storyLoading){
-        actsHTML = '<div class="sai-status" style="margin:10px 0;color:#64ffda;"><span class="vp-spin" style="border-top-color:#64ffda;"></span> <span>Scénarisation de l\'histoire par l\'IA Story Director (5 actes)...</span></div>';
-      } else if(M.storyError){
-        actsHTML = '<div class="clp-err" style="margin-top:6px;">⚠️ ' + esc(M.storyError) + '</div>';
-      } else if(M.storyData && ((M.storyData.scenes && M.storyData.scenes.length) || (M.storyData.acts && M.storyData.acts.length))){
-        var scenes = M.storyData.scenes || M.storyData.acts || [];
-        var hud = M.storyData.hud || {};
-        var hudPill = '<div class="motion-story-hud-pill">'
-          + '<span>Série : <b>' + esc(M.storyData.series || 'DOCUMENTAIRE') + '</b></span>'
-          + '<span>Lieu : <b>' + esc(hud.location || hud.place_initial || 'HISTOIRE') + '</b></span>'
-          + '<span>Tension : <b>' + esc(hud.status_tension || hud.tension_initial || 'CRITIQUE') + '</b></span>'
-          + '<span>Départ : <b>' + esc(hud.year || hud.timeline_start || 'DÉBUT') + '</b></span>'
+    var newsCardsHTML = '';
+    if(M.loadingNews){
+      newsCardsHTML = '<div class="sai-status" style="margin:8px 0;"><span class="vp-spin"></span> <span>Le Journaliste cherche l’actu ' + esc(M.country || 'France') + (M.theme ? (' (' + esc(M.theme) + ')') : '') + '…</span></div>';
+    } else if(M.newsError){
+      newsCardsHTML = '<div class="clp-err" style="margin-top:6px;">⚠️ ' + esc(M.newsError) + '</div>';
+    } else if(M.countryNews && M.countryNews.length){
+      newsCardsHTML = '<div class="motion-news-list">' + M.countryNews.map(function(item, idx){
+        var badge = (item.category || item.theme || M.theme || 'ACTU').toUpperCase();
+        return '<div class="motion-news-card' + (M.selectedNewsIdx === idx ? ' active' : '') + '" data-motion-pick-news="' + idx + '">'
+          + '<div class="motion-news-badge">' + esc(badge) + (item.date ? (' · ' + esc(item.date)) : '') + '</div>'
+          + '<b>' + esc(item.title || '') + '</b>'
+          + (item.key_figure ? ('<div class="motion-news-fig">📊 ' + esc(item.key_figure) + '</div>') : '')
+          + '<div class="motion-news-fig" style="color:#0a192f;">📜 ' + (M.selectedNewsIdx === idx ? 'Info choisie' : 'Raconter cette info') + '</div>'
           + '</div>';
-
-        var cards = scenes.map(function(sc, idx){
-          var title = sc.name || sc.title || ('Scène ' + (idx + 1));
-          var badgeText = (sc.hud && sc.hud.year) || sc.year || '';
-          var tensionBadge = (sc.hud && sc.hud.status_tension) || sc.tension || '';
-          var voice = sc.voiceover || sc.voice_chunk || '';
-          return '<div class="motion-story-act-card">'
-            + '<div class="motion-story-act-head">'
-            + '<b>' + (idx + 1) + '. ' + esc(title) + '</b>'
-            + (badgeText ? ('<span class="act-badge">' + esc(badgeText) + '</span>') : '')
-            + '</div>'
-            + (tensionBadge ? ('<div style="font-weight:700;color:#64ffda;font-size:10.5px;margin-bottom:2px;">⏳ ' + esc(tensionBadge) + '</div>') : '')
-            + '<p>' + esc(voice) + '</p>'
-            + (sc.draw_code ? '<div style="margin-top:4px;font-size:10px;color:#93c5fd;font-weight:700;">✨ Composition graphique Canvas IA sur-mesure</div>' : '')
-            + '</div>';
-        }).join('');
-
-        actsHTML = hudPill + '<div class="motion-story-acts">' + cards + '</div>';
-      } else {
-        actsHTML = '<div class="motion-news-empty" style="background:rgba(255,255,255,.03);border-color:#334155;color:#94a3b8;">'
-          + '<span>📜</span>'
-          + '<b style="color:#64ffda;">Storytelling Documentaire 100% Motion</b>'
-          + '<p>Saisis un sujet historique, scientifique ou business ci-dessus, puis clique sur <b>« ⚡ 1. Scénariser l\'histoire (IA) »</b>.<br>L\'IA va composer un arc narratif complet en 5 actes prêt à être animé.</p>'
-          + '</div>';
-      }
-
-      storyBoxHTML = '<div class="motion-story-box">'
-        + '<div class="motion-story-head">'
-        + '<span>📜 Moteur Documentaire · Story Director IA</span>'
-        + '<small>5 actes visuels narratifs + HUD cinétique</small>'
-        + '</div>'
-        + '<div class="motion-input-group">'
-        + '<label style="font-size:11px;font-weight:700;color:#64ffda;">Sujet du documentaire</label>'
-        + '<input type="text" class="motion-input" data-motion-story-topic value="' + esc(M.storyTopic || '') + '" placeholder="Ex: La Tour Eiffel, NVIDIA, Le Concorde...">'
-        + '</div>'
-        + (marshallMotionStoryNews() ? ('<div class="motion-story-news-src">📡 D’après l’info du Journaliste : <b>' + esc(M.storyNews.title) + '</b>' + (M.storyNews.date ? (' · ' + esc(M.storyNews.date)) : '') + '</div>') : '')
-        + '<div class="motion-story-chips">' + chipsHTML + '</div>'
-        + '<div class="motion-input-group" style="margin-top:2px;">'
-        + '<label style="font-size:11px;font-weight:700;color:#64ffda;">Angle narratif (optionnel)</label>'
-        + '<input type="text" class="motion-input" data-motion-story-angle value="' + esc(M.storyAngle || '') + '" placeholder="Ex: Comment un projet voué à la destruction est devenu immortel...">'
-        + '</div>'
-        + '<button type="button" class="motion-story-script-btn" data-motion-act="fetch_story"' + (M.storyLoading ? ' disabled' : '') + '>'
-        + '<span>⚡ 1. Scénariser l\'histoire (IA 5 Actes)</span>'
-        + '</button>'
-        + actsHTML
-        + '</div>';
+      }).join('') + '</div>';
+    } else {
+      newsCardsHTML = '<div class="motion-news-empty"><span>📡</span><b>1. Le Journaliste cherche l’info</b>'
+        + '<p>Choisis un pays et un thème, puis clique sur <b>« ⚡ Chercher l’actu »</b>. Clique ensuite sur l’info à raconter.</p></div>';
     }
 
-    var newsBoxHTML = '';
-    if(M.preset === 'actu_pays'){
-      var countries = ['France','États-Unis','Espagne','Royaume-Uni','Maroc','Japon','Allemagne','Brésil'];
-      var cChipsHTML = countries.map(function(c){
-        var isAct = (M.country === c);
-        return '<button type="button" class="' + (isAct?'active':'') + '" data-motion-country="' + esc(c) + '">' + esc(c) + '</button>';
-      }).join('');
+    var newsBoxHTML = '<div class="motion-news-box">'
+      + '<div class="motion-news-head"><span>📡 1. Journaliste · Pays & thème</span><small>3 infos vérifiées du jour</small></div>'
+      + '<div class="motion-filter-row">'
+      + '<div class="motion-filter-col"><label>🌍 Pays</label><input type="text" class="motion-input" data-motion-country-input value="' + esc(M.country || 'France') + '" placeholder="Pays (ex: France, Maroc...)"></div>'
+      + '<div class="motion-filter-col"><label>🎯 Thème (optionnel)</label><input type="text" class="motion-input" data-motion-theme-input value="' + esc(M.theme || '') + '" placeholder="Thème (ex: Économie, IA...)"></div>'
+      + '</div>'
+      + '<div class="motion-theme-chips">' + tChipsHTML + '</div>'
+      + '<div class="motion-country-chips" style="margin-top:2px;">' + cChipsHTML + '</div>'
+      + '<div style="display:flex;justify-content:flex-end;margin-top:2px;"><button type="button" class="motion-fetch-btn" data-motion-act="fetch_news">⚡ Chercher l’actu</button></div>'
+      + newsCardsHTML
+      + '</div>';
 
-      var themes = ['Football','Économie','Politique','Tech & IA','Mercato','Culture'];
-      var tChipsHTML = themes.map(function(t){
-        var isAct = (M.theme === t);
-        return '<button type="button" class="' + (isAct?'active':'') + '" data-motion-theme-pick="' + esc(t) + '">' + esc(t) + '</button>';
-      }).join('');
-
-      var newsCardsHTML = '';
-      if(M.loadingNews){
-        newsCardsHTML = '<div class="sai-status" style="margin:8px 0;"><span class="vp-spin"></span> <span>Recherche de la dernière actu sur ' + esc(M.country || 'France') + (M.theme ? (' (' + esc(M.theme) + ')') : '') + '…</span></div>';
-      } else if(M.newsError){
-        newsCardsHTML = '<div class="clp-err" style="margin-top:6px;">⚠️ ' + esc(M.newsError) + '</div>';
-      } else if(M.countryNews && M.countryNews.length){
-        newsCardsHTML = '<div class="motion-news-list">' + M.countryNews.map(function(item, idx){
-          var isCur = (M.selectedNewsIdx === idx);
-          var badge = (item.theme || item.category || M.theme || 'ACTU').toUpperCase();
-          return '<div class="motion-news-card' + (isCur?' active':'') + '" data-motion-pick-news="' + idx + '">'
-            + '<div class="motion-news-badge">' + esc(badge) + (item.punchline ? (' · ' + esc(item.punchline)) : '') + '</div>'
-            + '<b>' + esc(item.title || '') + '</b>'
-            + (item.summary ? ('<p>' + esc(item.summary) + '</p>') : '')
-            + (item.key_figure ? ('<div class="motion-news-fig">📊 ' + esc(item.key_figure) + '</div>') : '')
-            + (isCur ? ('<button type="button" class="motion-story-from-news" data-motion-story-news="' + idx + '">📜 Raconter cette info en documentaire</button>') : '')
-            + '</div>';
-        }).join('') + '</div>';
-      } else {
-        newsCardsHTML = '<div class="motion-news-empty">'
-          + '<span>📡</span>'
-          + '<b>Recherche d’actualité en direct</b>'
-          + '<p>Sélectionne un pays et un thème puis clique sur <b>« ⚡ Actualiser selon ce thème »</b>.<br>Le titre et le script seront rédigés automatiquement à partir de l’info trouvée.</p>'
-          + '</div>';
-      }
-
-      newsBoxHTML = '<div class="motion-news-box">'
-        + '<div class="motion-news-head">'
-        + '<span>📡 Actu du pays · Choisis le Pays & le Thème</span>'
-        + '<small>Les champs ci-dessous se rempliront avec l’actu trouvée</small>'
-        + '</div>'
-        + '<div class="motion-filter-row">'
-        + '<div class="motion-filter-col">'
-        + '<label>🌍 Pays</label>'
-        + '<input type="text" class="motion-input" data-motion-country-input value="' + esc(M.country || 'France') + '" placeholder="Pays (ex: France, Maroc...)">'
-        + '</div>'
-        + '<div class="motion-filter-col">'
-        + '<label>🎯 Thème / Sujet (optionnel)</label>'
-        + '<input type="text" class="motion-input" data-motion-theme-input value="' + esc(M.theme || '') + '" placeholder="Thème (ex: Football, Économie, IA...)">'
-        + '</div>'
-        + '</div>'
-        + '<div class="motion-theme-chips">' + tChipsHTML + '</div>'
-        + '<div class="motion-country-chips" style="margin-top:2px;">' + cChipsHTML + '</div>'
-        + '<div style="display:flex;justify-content:flex-end;margin-top:2px;">'
-        + '<button type="button" class="motion-fetch-btn" data-motion-act="fetch_news">⚡ Actualiser selon ce thème</button>'
-        + '</div>'
-        + newsCardsHTML
-        + '</div>';
+    var storyHTML = '';
+    var n = marshallMotionStoryNews();
+    if(M.storyLoading){
+      storyHTML = '<div class="sai-status" style="margin:10px 0;color:#64ffda;"><span class="vp-spin" style="border-top-color:#64ffda;"></span> <span>Le Story Director construit l’histoire de cette info…</span></div>';
+    } else if(M.storyError){
+      storyHTML = '<div class="clp-err" style="margin-top:6px;">⚠️ ' + esc(M.storyError) + '</div>';
+    } else if(n && M.storyData && M.storyData.scenes && M.storyData.scenes.length){
+      storyHTML = '<div class="motion-story-acts">' + M.storyData.scenes.map(function(sc, idx){
+        var yr = (sc.hud && sc.hud.year) || '';
+        return '<div class="motion-story-act-card"><div class="motion-story-act-head"><b>' + (idx + 1) + '. ' + esc(sc.name || ('Scène ' + (idx + 1))) + '</b>'
+          + (yr ? ('<span class="act-badge">' + esc(yr) + '</span>') : '') + '</div><p>' + esc(sc.voiceover || '') + '</p></div>';
+      }).join('') + '</div>';
+    } else {
+      storyHTML = '<div class="motion-news-empty" style="background:rgba(255,255,255,.03);border-color:#334155;color:#94a3b8;"><span>📜</span>'
+        + '<b style="color:#64ffda;">2. L’histoire</b><p>Elle se construit toute seule dès que tu cliques sur une info du Journaliste.</p></div>';
     }
+    var storyBoxHTML = '<div class="motion-story-box">'
+      + '<div class="motion-story-head"><span>📜 2. Story Director</span><small>Histoire construite à partir de l’info</small></div>'
+      + (n ? ('<div class="motion-story-news-src">📡 D’après l’info du Journaliste : <b>' + esc(n.title) + '</b>' + (n.date ? (' · ' + esc(n.date)) : '') + '</div>') : '')
+      + storyHTML
+      + '</div>';
 
+    var ready = !!(n && M.storyData && M.storyData.scenes && M.storyData.scenes.length && !M.storyLoading);
     var previewHTML = '';
     if(M.busy){
-      previewHTML = '<div class="clp-prog" style="margin-top:10px;"><div class="clp-bar"><span style="width:' + Math.max(8, Math.min(100, M.progress || 0)) + '%"></span></div><small><span class="vp-spin"></span> ' + esc(M.msg || 'Génération 3D en cours sur Modal...') + '</small></div>';
+      previewHTML = '<div class="clp-prog" style="margin-top:10px;"><div class="clp-bar"><span style="width:' + Math.max(8, Math.min(100, M.progress || 0)) + '%"></span></div><small><span class="vp-spin"></span> ' + esc(M.msg || 'Rendu en cours sur Modal...') + '</small></div>';
     } else if(M.error){
       previewHTML = '<div class="clp-err" style="margin-top:10px;">⚠️ ' + esc(M.error) + '</div>';
     } else if(M.video_url){
-      previewHTML = '<div class="motion-preview">'
-        + '<video src="' + esc(M.video_url) + '" controls playsinline autoplay loop></video>'
-        + '</div>'
-        + '<div class="motion-acts">'
-        + '<button type="button" class="btn-cvs" data-motion-act="canvas">🎬 Poser sur Canva</button>'
-        + '<a href="' + esc(M.video_url) + '" download="short-motion-3d.mp4" target="_blank" class="btn-dl">⬇ Télécharger MP4</a>'
-        + '</div>';
+      previewHTML = '<div class="motion-preview"><video src="' + esc(M.video_url) + '" controls playsinline autoplay loop></video></div>'
+        + '<div class="motion-acts"><button type="button" class="btn-cvs" data-motion-act="canvas">🎬 Poser sur Canva</button>'
+        + '<a href="' + esc(M.video_url) + '" download="documentaire-motion.mp4" target="_blank" class="btn-dl">⬇ Télécharger MP4</a></div>';
     }
 
     return '<div class="sai-root motion-root">'
@@ -10848,20 +10767,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       + '<span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:' + prof.color + '">' + marshallAgentLogoSVG('motion') + '</span>'
       + '<div class="madock-detail-copy"><b>' + esc(prof.name) + '</b><p>' + esc(prof.desc) + '</p></div>'
       + '</div>'
-      + '<div class="sai-lbl">1. Sujet & Thématique</div>'
-      + presetsHTML
-      + storyBoxHTML
       + newsBoxHTML
+      + storyBoxHTML
       + '<div class="motion-input-group">'
-      + '<label style="font-size:11.5px;font-weight:700;color:#1e40af;">Titre du bandeau</label>'
-      + '<input type="text" class="motion-input" data-motion-f="title" value="' + esc(M.title || '') + '" placeholder="Généré automatiquement selon l’actualité trouvée (ou saisis ton titre)...">'
-      + '</div>'
-      + '<div class="motion-input-group">'
-      + '<label style="font-size:11.5px;font-weight:700;color:#1e40af;">Texte du script (voix-off & sous-titres cinétiques)</label>'
-      + '<textarea class="motion-input" data-motion-f="subject" placeholder="Rédigé automatiquement par l’IA d’après la dépêche en direct (ou saisis ton texte)...">' + esc(M.subject || '') + '</textarea>'
-      + '</div>'
-      + '<div class="motion-input-group">'
-      + '<label style="font-size:11.5px;font-weight:700;color:#1e40af;">Voix de synthèse (Edge-TTS)</label>'
+      + '<label style="font-size:11.5px;font-weight:700;color:#1e40af;">Voix de synthèse</label>'
       + '<select class="motion-input" data-motion-f="voice">'
       + '<option value="fr-FR-HenriNeural"' + (M.voice==='fr-FR-HenriNeural'?' selected':'') + '>🎙️ Henri (Journaliste dynamique - Homme)</option>'
       + '<option value="fr-FR-VivienneMultilingualNeural"' + (M.voice==='fr-FR-VivienneMultilingualNeural'?' selected':'') + '>🎙️ Vivienne (Expressive - Femme)</option>'
@@ -10869,15 +10778,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       + '<option value="fr-FR-DeniseNeural"' + (M.voice==='fr-FR-DeniseNeural'?' selected':'') + '>🎙️ Denise (Présentatrice TV - Femme)</option>'
       + '</select>'
       + '</div>'
-      + '<button type="button" class="sai-go1 motion-go" data-motion-act="go"' + (M.busy ? ' disabled' : '') + '>'
-      + '<span>' + (M.preset === 'storytelling' ? '🎬 2. Lancer le rendu Motion Story (Modal)' : '⚡ Lancer le rendu Motion 3D') + '</span>'
-      + '<small>' + (M.preset === 'storytelling' ? 'Playwright + Canvas 2D + Three.js · 1080x1920 · 25s' : 'Three.js WebGL · 25s 1080x1920') + '</small>'
+      + '<button type="button" class="sai-go1 motion-go" data-motion-act="go"' + ((M.busy || !ready) ? ' disabled' : '') + '>'
+      + '<span>🎬 3. Lancer le rendu documentaire</span>'
+      + '<small>' + (ready ? 'Pixel 3D tramé · voix calée sur les scènes · 1080x1920' : 'Choisis d’abord une info du Journaliste') + '</small>'
       + '</button>'
       + previewHTML
       + '</div>';
   }
 
   function marshallMotionRender(detail, prof){
+    var M = MARSHALL_MOTION;
+    if(M.autoStory && !M.storyLoading){ var it = M.autoStory; M.autoStory = null; marshallMotionStoryFromNews(it, detail, prof); return; }
     detail.innerHTML = marshallMotionPanelHTML(prof);
     marshallMotionBind(detail, prof);
   }
@@ -10976,12 +10887,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
 
     detail.querySelectorAll('[data-motion-pick-news]').forEach(function(card){
       card.addEventListener('click', function(){
-        var idx = +this.getAttribute('data-motion-pick-news');
+        var idx = +this.getAttribute('data-motion-pick-news'), item = M.countryNews && M.countryNews[idx];
+        if(!item || M.storyLoading) return;
+        if(M.selectedNewsIdx === idx && marshallMotionStoryNews() && M.storyData) return;
         M.selectedNewsIdx = idx;
-        if(M.countryNews && M.countryNews[idx]){
-          marshallMotionApplyNewsItem(M.countryNews[idx], M.country, M.theme);
-          marshallMotionRender(detail, prof);
-        }
+        marshallMotionApplyNewsItem(item, M.country, M.theme);
+        marshallMotionStoryFromNews(item, detail, prof);
       });
     });
 
@@ -11051,6 +10962,12 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
   async function marshallMotionRun(detail, prof){
     var M = MARSHALL_MOTION;
     if(M.busy) return;
+    if(!(marshallMotionStoryNews() && M.storyData && M.storyData.scenes && M.storyData.scenes.length)){
+      M.error = 'Choisis d’abord une info du Journaliste : l’histoire se construit à partir d’elle.';
+      marshallMotionRender(detail, prof);
+      return;
+    }
+    M.preset = 'storytelling';
     M.busy = true;
     M.error = '';
     M.progress = 10;
