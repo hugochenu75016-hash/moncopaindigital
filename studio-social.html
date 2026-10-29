@@ -1824,6 +1824,10 @@
   .motion-step3 .motion-voice.active{ border-color:#64ffda; background:rgba(100,255,218,.10); box-shadow:0 0 0 2px rgba(100,255,218,.18); }
   .motion-step3 .motion-voice-play{ position:absolute; right:7px; top:50%; transform:translateY(-50%); width:22px; height:22px; border-radius:50%; background:#64ffda; color:#0a192f; font-size:10px; display:grid; place-items:center; }
   .motion-step3 .motion-engine-note{ font-size:10.5px; color:#94a3b8; }
+  .motion-step3 .motion-logo-row{ display:grid; grid-template-columns:1fr auto; gap:7px; align-items:center; }
+  .motion-step3 .motion-logo-row label{ grid-column:1/-1; font-size:11px; font-weight:700; color:#64ffda; }
+  .motion-step3 .motion-logo-file{ border:1px dashed #334155; border-radius:10px; padding:8px 10px; font:inherit; font-size:11px; color:#cbd5e1; background:rgba(255,255,255,.04); cursor:pointer; white-space:nowrap; }
+  .motion-step3 .motion-logo-file.on{ border-color:#64ffda; color:#64ffda; }
   .motion-step3 .motion-go{ margin-top:2px; }
   .motion-story-news-src{ font-size:10.5px; color:#94a3b8; background:rgba(100,255,218,.06); border:1px dashed #2a4a5a; border-radius:8px; padding:6px 8px; }
   .motion-story-news-src b{ color:#64ffda; }
@@ -10799,7 +10803,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       + '<span>🎬 Lancer le rendu documentaire</span>'
       + '<small>' + (ready ? 'Voix ' + esc(marshallMotionVoiceName()) + ' · bruitages et musique · 1080x1920' : 'Choisis d’abord une info du Journaliste (étape 1)') + '</small>'
       + '</button>'
-      + '<div class="motion-engine-note">Rendu sur le moteur documentaire pixel 3D : photos du sujet, bruitages et musique d’ambiance automatiques.</div>'
+      + '<div class="motion-logo-row"><label>Logo en bas à droite (facultatif)</label>'
+      + '<input type="text" class="motion-input" data-motion-logo maxlength="40" value="' + esc(M.logo || '') + '" placeholder="Texte du logo (ex. Mon Copain JOURNALISTE)">'
+      + '<button type="button" class="motion-logo-file' + (M.logoImage ? ' on' : '') + '" data-motion-logo-file>' + (M.logoImage ? '✓ Image (retirer)' : '+ Image') + '</button></div>'
+      + '<div class="motion-engine-note">Scènes créées par l’IA à partir de l’info : photos du sujet, Marshall sous l’image, bruitages et musique d’ambiance automatiques.</div>'
       + previewHTML
       + '</div>'
       + '</div>';
@@ -10895,6 +10902,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         marshallMotionFetchCountryNews(c, t, detail, prof);
       });
     }
+
+    var logoIn = detail.querySelector('[data-motion-logo]');
+    if(logoIn) logoIn.addEventListener('input', function(){ M.logo = this.value; });
+    var logoBtn = detail.querySelector('[data-motion-logo-file]');
+    if(logoBtn) logoBtn.addEventListener('click', function(){
+      if(M.logoImage){ M.logoImage = ''; marshallMotionRender(detail, prof); return; }
+      var f = document.createElement('input'); f.type = 'file'; f.accept = 'image/png,image/jpeg,image/webp,image/svg+xml';
+      f.onchange = function(){
+        var file = f.files && f.files[0]; if(!file) return;
+        if(file.size > 400 * 1024){ toast('⚠️ Logo trop lourd : 400 Ko maximum.', true); return; }
+        var rd = new FileReader(); rd.onload = function(){ M.logoImage = String(rd.result || ''); marshallMotionRender(detail, prof); }; rd.readAsDataURL(file);
+      };
+      f.click();
+    });
 
     var motionVoiceAudio = null;
     detail.querySelectorAll('[data-motion-voice-play]').forEach(function(el){
@@ -11027,6 +11048,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
           title: (M.preset === 'storytelling' && M.storyData && M.storyData.topic) ? M.storyData.topic : M.title,
           score: M.score,
           voice: M.voice,
+          engine: 'ia',
+          layout: 'bandeau',
+          logo: M.logo || '',
+          logo_image: M.logoImage || '',
           duration: M.duration || 25,
           country: M.country || 'France',
           theme: M.theme || '',
