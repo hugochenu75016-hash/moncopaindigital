@@ -1817,6 +1817,14 @@
   .motion-root .motion-news-card p{ margin:4px 0 0; font-size:11px; color:#475569; line-height:1.35; }
   .motion-root .motion-story-from-news{ margin-top:8px; width:100%; border:0; border-radius:9px; background:linear-gradient(135deg,#0a192f,#172a45); color:#64ffda; font:inherit; font-size:11.5px; font-weight:800; padding:8px 10px; cursor:pointer; }
   .motion-root .motion-story-from-news:hover{ filter:brightness(1.15); }
+  .motion-step3 .motion-voice-grid{ display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+  .motion-step3 .motion-voice{ position:relative; text-align:left; border:1.5px solid #334155; background:rgba(255,255,255,.04); color:#e2e8f0; border-radius:10px; padding:8px 34px 8px 10px; font:inherit; cursor:pointer; }
+  .motion-step3 .motion-voice b{ display:block; font-size:12.5px; color:#fff; }
+  .motion-step3 .motion-voice small{ display:block; font-size:10.5px; color:#94a3b8; margin-top:1px; }
+  .motion-step3 .motion-voice.active{ border-color:#64ffda; background:rgba(100,255,218,.10); box-shadow:0 0 0 2px rgba(100,255,218,.18); }
+  .motion-step3 .motion-voice-play{ position:absolute; right:7px; top:50%; transform:translateY(-50%); width:22px; height:22px; border-radius:50%; background:#64ffda; color:#0a192f; font-size:10px; display:grid; place-items:center; }
+  .motion-step3 .motion-engine-note{ font-size:10.5px; color:#94a3b8; }
+  .motion-step3 .motion-go{ margin-top:2px; }
   .motion-story-news-src{ font-size:10.5px; color:#94a3b8; background:rgba(100,255,218,.06); border:1px dashed #2a4a5a; border-radius:8px; padding:6px 8px; }
   .motion-story-news-src b{ color:#64ffda; }
   .motion-root .motion-news-fig{ margin-top:4px; font-size:11px; font-weight:700; color:#0284c7; }
@@ -9405,7 +9413,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       genjutsu:{name:'Genjutsu',tag:'Toi dans la vidéo',icon:'🎭',color:'linear-gradient(135deg,#7c3aed,#ec4899)',desc:'Importe une vidéo et une photo : Marshall remplace uniquement la personne, en conservant le décor et tous ses mouvements naturels (porte, coussin, ombres, lumière et caméra).',logic:['Ta vidéo + la photo de la personne','Marshall remplace uniquement le sujet humain','Donc → le décor original et ses mouvements restent visibles'],actions:[]},
       clipper:{name:'Clippeur',tag:'Clips viraux',icon:'✂️',color:'linear-gradient(135deg,#10b981,#0ea5e9)',desc:'Colle le lien d’une vidéo longue (ou importe-la) : Marshall trouve les meilleurs moments, les recadre en 9:16 sur la personne qui parle, ajoute les sous-titres et note chaque clip.',logic:['Tu donnes ta vidéo longue','Marshall écoute, choisit et recadre','Donc → clips 9:16 classés par score viral'],actions:[]},
       studio:{name:'Studio IA',tag:'Image & vidéo IA',icon:'🎬',color:'linear-gradient(135deg,#8b5cf6,#ec4899)',desc:'Crée une vidéo à partir d’une image, une image à partir d’un texte, ou une vidéo à partir d’un texte. Avec Wan 2.2, tu choisis la qualité (Éco, HD ou Pro).',logic:['Tu choisis le moteur et la qualité','Tu décris ce que tu veux (et l’image de départ)','Donc → image ou vidéo posée sur un nouveau canva'],actions:[]},
-      motion:{name:'Motion 3D',tag:'Shorts 3D viraux',icon:'⚡',color:'linear-gradient(135deg,#0052D4,#4364F7,#6FB1FC)',desc:'Génère des vidéos 9:16 dynamiques en 3D WebGL (Three.js), animations continues, caméras orbitales, stickers animés et sous-titres cinétiques synchronisés.',logic:['Un sujet ou match + stickers','Moteur WebGL 3D + caméras orbitales + TTS','Donc → Short 9:16 viral prêt pour TikTok/Reels'],actions:[
+      motion:{name:'Motion 3D',tag:'Shorts 3D viraux',icon:'⚡',color:'linear-gradient(135deg,#0052D4,#4364F7,#6FB1FC)',desc:'Transforme une info du Journaliste en documentaire vertical 9:16 : histoire scénarisée, photos du sujet en pixel art, voix ElevenLabs, bruitages et musique.',logic:['Un sujet ou match + stickers','Moteur WebGL 3D + caméras orbitales + TTS','Donc → Short 9:16 viral prêt pour TikTok/Reels'],actions:[
         {label:'⚽ Match PSG vs Lyon (2-0)',mission:'motion_generate',prompt:'Génère le Short 3D continu PSG vs Lyon 2-0 avec caméra orbitale, onde de choc et stats.'},
         {label:'🔥 Mercato 3D Transfert',mission:'motion_generate',prompt:'Génère un Short 3D sur le dernier gros transfert avec ballons 3D dorés et zoom dramatique.'},
         {label:'🚨 Breaking News Express',mission:'motion_generate',prompt:'Génère une alerte breaking news avec plateau 3D et sous-titres cinétiques.'}
@@ -10683,6 +10691,17 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     toast('⚡ Actu chargée dans l’agent Motion 3D !');
   }
 
+  var MOTION_VOICES = [
+    { id: 'fr-FR-HenriNeural', name: 'Nicolas', desc: 'Narrateur documentaire', file: 'nicolas' },
+    { id: 'fr-FR-RemyMultilingualNeural', name: 'Léo', desc: 'Dynamique, réseaux', file: 'leo' },
+    { id: 'fr-FR-DeniseNeural', name: 'Clara', desc: 'Présentatrice info', file: 'clara' },
+    { id: 'fr-FR-VivienneMultilingualNeural', name: 'Jeanne', desc: 'Narratrice posée', file: 'jeanne' }
+  ];
+  function marshallMotionVoiceName(){
+    var v = MOTION_VOICES.filter(function(x){ return x.id === MARSHALL_MOTION.voice; })[0];
+    return v ? v.name : 'Nicolas';
+  }
+
   // Fiche Motion = un seul parcours : le Journaliste trouve l'info -> le Story Director en fait l'histoire -> rendu documentaire
   function marshallMotionPanelHTML(prof){
     var M = MARSHALL_MOTION;
@@ -10769,20 +10788,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       + '</div>'
       + newsBoxHTML
       + storyBoxHTML
-      + '<div class="motion-input-group">'
-      + '<label style="font-size:11.5px;font-weight:700;color:#1e40af;">Voix de synthèse</label>'
-      + '<select class="motion-input" data-motion-f="voice">'
-      + '<option value="fr-FR-HenriNeural"' + (M.voice==='fr-FR-HenriNeural'?' selected':'') + '>🎙️ Henri (Journaliste dynamique - Homme)</option>'
-      + '<option value="fr-FR-VivienneMultilingualNeural"' + (M.voice==='fr-FR-VivienneMultilingualNeural'?' selected':'') + '>🎙️ Vivienne (Expressive - Femme)</option>'
-      + '<option value="fr-FR-RemyMultilingualNeural"' + (M.voice==='fr-FR-RemyMultilingualNeural'?' selected':'') + '>🎙️ Rémy (Moderne - Homme)</option>'
-      + '<option value="fr-FR-DeniseNeural"' + (M.voice==='fr-FR-DeniseNeural'?' selected':'') + '>🎙️ Denise (Présentatrice TV - Femme)</option>'
-      + '</select>'
-      + '</div>'
+      + '<div class="motion-story-box motion-step3">'
+      + '<div class="motion-story-head"><span>🎬 3. Voix & rendu</span><small>Voix ElevenLabs · moteur documentaire</small></div>'
+      + '<div class="motion-voice-grid">' + MOTION_VOICES.map(function(v){
+          return '<button type="button" class="motion-voice' + (M.voice === v.id ? ' active' : '') + '" data-motion-voice="' + v.id + '">'
+            + '<b>' + esc(v.name) + '</b><small>' + esc(v.desc) + '</small>'
+            + '<span class="motion-voice-play" data-motion-voice-play="' + v.file + '" title="Écouter">▶</span></button>';
+        }).join('') + '</div>'
       + '<button type="button" class="sai-go1 motion-go" data-motion-act="go"' + ((M.busy || !ready) ? ' disabled' : '') + '>'
-      + '<span>🎬 3. Lancer le rendu documentaire</span>'
-      + '<small>' + (ready ? 'Pixel 3D tramé · voix calée sur les scènes · 1080x1920' : 'Choisis d’abord une info du Journaliste') + '</small>'
+      + '<span>🎬 Lancer le rendu documentaire</span>'
+      + '<small>' + (ready ? 'Voix ' + esc(marshallMotionVoiceName()) + ' · bruitages et musique · 1080x1920' : 'Choisis d’abord une info du Journaliste (étape 1)') + '</small>'
       + '</button>'
+      + '<div class="motion-engine-note">Rendu sur le moteur documentaire pixel 3D : photos du sujet, bruitages et musique d’ambiance automatiques.</div>'
       + previewHTML
+      + '</div>'
       + '</div>';
   }
 
@@ -10876,6 +10895,22 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         marshallMotionFetchCountryNews(c, t, detail, prof);
       });
     }
+
+    var motionVoiceAudio = null;
+    detail.querySelectorAll('[data-motion-voice-play]').forEach(function(el){
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+        try { if(motionVoiceAudio) motionVoiceAudio.pause(); motionVoiceAudio = new Audio('videos/voix-motion/' + this.getAttribute('data-motion-voice-play') + '.mp3'); motionVoiceAudio.play(); } catch(err){}
+      });
+    });
+    detail.querySelectorAll('[data-motion-voice]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        M.voice = this.getAttribute('data-motion-voice');
+        detail.querySelectorAll('[data-motion-voice]').forEach(function(b){ b.classList.toggle('active', b === btn); });
+        var sm = detail.querySelector('[data-motion-act="go"] small');
+        if(sm && !detail.querySelector('[data-motion-act="go"]').disabled) sm.textContent = 'Voix ' + marshallMotionVoiceName() + ' · bruitages et musique · 1080x1920';
+      });
+    });
 
     detail.querySelectorAll('[data-motion-story-news]').forEach(function(btn){
       btn.addEventListener('click', function(e){
@@ -10971,14 +11006,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     M.busy = true;
     M.error = '';
     M.progress = 10;
-    M.msg = 'Initialisation du pipeline 3D sur Modal...';
+    M.msg = 'Préparation du rendu documentaire...';
     marshallMotionRender(detail, prof);
 
     var pollTimer = null;
     try {
       var endpoint = (M.endpoint || 'https://supportmcd--marshall-motion-web.modal.run').replace(/\/+$/, '');
       M.progress = 15;
-      M.msg = 'Lancement du rendu sur Modal (Three.js WebGL + Edge-TTS)...';
+      M.msg = 'Lancement du rendu documentaire (voix ' + marshallMotionVoiceName() + ')...';
       marshallMotionRender(detail, prof);
 
       var curNews = (M.countryNews && M.selectedNewsIdx != null && M.countryNews[M.selectedNewsIdx]) ? M.countryNews[M.selectedNewsIdx] : {};
