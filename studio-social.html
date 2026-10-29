@@ -1815,6 +1815,10 @@
   .motion-root .motion-news-badge{ display:inline-block; font-size:10px; font-weight:800; text-transform:uppercase; color:#0369a1; background:#e0f2fe; padding:2px 6px; border-radius:6px; margin-bottom:4px; }
   .motion-root .motion-news-card b{ display:block; font-size:12px; color:#0f172a; line-height:1.35; }
   .motion-root .motion-news-card p{ margin:4px 0 0; font-size:11px; color:#475569; line-height:1.35; }
+  .motion-root .motion-story-from-news{ margin-top:8px; width:100%; border:0; border-radius:9px; background:linear-gradient(135deg,#0a192f,#172a45); color:#64ffda; font:inherit; font-size:11.5px; font-weight:800; padding:8px 10px; cursor:pointer; }
+  .motion-root .motion-story-from-news:hover{ filter:brightness(1.15); }
+  .motion-story-news-src{ font-size:10.5px; color:#94a3b8; background:rgba(100,255,218,.06); border:1px dashed #2a4a5a; border-radius:8px; padding:6px 8px; }
+  .motion-story-news-src b{ color:#64ffda; }
   .motion-root .motion-news-fig{ margin-top:4px; font-size:11px; font-weight:700; color:#0284c7; }
   .motion-root .motion-input-group{ display:flex; flex-direction:column; gap:5px; }
   .motion-root .motion-input{ width:100%; box-sizing:border-box; border:1.5px solid #dbeafe; border-radius:12px; padding:9px 11px; font:inherit; font-size:12.5px; background:#fff; }
@@ -10548,6 +10552,20 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     error: ''
   };
 
+  function marshallMotionStoryNews(){
+    var M = MARSHALL_MOTION, n = M.storyNews;
+    return (n && n.title && String(n.title).slice(0, 120) === String(M.storyTopic || '').trim()) ? n : null;
+  }
+
+  async function marshallMotionStoryFromNews(item, detail, prof){
+    var M = MARSHALL_MOTION;
+    M.preset = 'storytelling';
+    M.storyNews = Object.assign({ country: M.country || 'France' }, item);
+    M.storyData = null;
+    M.storyAngle = '';
+    await marshallMotionFetchStory(String(item.title || '').slice(0, 120), '', detail, prof);
+  }
+
   async function marshallMotionFetchStory(topic, angle, detail, prof){
     var M = MARSHALL_MOTION;
     M.storyTopic = topic || M.storyTopic || 'La Tour Eiffel';
@@ -10560,7 +10578,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
       var r = await fetch(MARSHALL_CREWAI_BASE + '/story/director', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: M.storyTopic, angle: M.storyAngle })
+        body: JSON.stringify({ topic: M.storyTopic, angle: M.storyAngle, news: marshallMotionStoryNews() })
       });
       var d = await r.json().catch(function(){ return {}; });
       if(r.ok && d && d.ok && d.story){
@@ -10734,6 +10752,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         + '<label style="font-size:11px;font-weight:700;color:#64ffda;">Sujet du documentaire</label>'
         + '<input type="text" class="motion-input" data-motion-story-topic value="' + esc(M.storyTopic || '') + '" placeholder="Ex: La Tour Eiffel, NVIDIA, Le Concorde...">'
         + '</div>'
+        + (marshallMotionStoryNews() ? ('<div class="motion-story-news-src">📡 D’après l’info du Journaliste : <b>' + esc(M.storyNews.title) + '</b>' + (M.storyNews.date ? (' · ' + esc(M.storyNews.date)) : '') + '</div>') : '')
         + '<div class="motion-story-chips">' + chipsHTML + '</div>'
         + '<div class="motion-input-group" style="margin-top:2px;">'
         + '<label style="font-size:11px;font-weight:700;color:#64ffda;">Angle narratif (optionnel)</label>'
@@ -10774,6 +10793,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
             + '<b>' + esc(item.title || '') + '</b>'
             + (item.summary ? ('<p>' + esc(item.summary) + '</p>') : '')
             + (item.key_figure ? ('<div class="motion-news-fig">📊 ' + esc(item.key_figure) + '</div>') : '')
+            + (isCur ? ('<button type="button" class="motion-story-from-news" data-motion-story-news="' + idx + '">📜 Raconter cette info en documentaire</button>') : '')
             + '</div>';
         }).join('') + '</div>';
       } else {
@@ -10945,6 +10965,14 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         marshallMotionFetchCountryNews(c, t, detail, prof);
       });
     }
+
+    detail.querySelectorAll('[data-motion-story-news]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var item = M.countryNews && M.countryNews[+this.getAttribute('data-motion-story-news')];
+        if(item) marshallMotionStoryFromNews(item, detail, prof);
+      });
+    });
 
     detail.querySelectorAll('[data-motion-pick-news]').forEach(function(card){
       card.addEventListener('click', function(){
