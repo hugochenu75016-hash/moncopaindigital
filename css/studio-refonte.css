@@ -374,10 +374,6 @@ html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app .ed-flyout.marshall-
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #marshall-agent-dock.madock{left:auto!important;right:18px!important;top:72px!important;bottom:18px!important;width:400px!important;border:0!important;border-radius:28px!important;box-shadow:var(--th-sh)!important;overflow:hidden!important}
 
 /* Atelier : pastille dans l'en-tête du panneau */
-html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:has(#view-composer.active):not(:has(#pub-step.pub2:not([style*="none"]))) .at-lanceur{top:78px;right:34px;bottom:auto;padding:4px 10px 4px 4px;font-size:13px;box-shadow:0 8px 16px -8px rgba(90,30,0,.6)}
-html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:has(#view-composer.active):not(:has(#pub-step.pub2:not([style*="none"]))) .at-lanceur img{width:26px;height:26px}
-html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body:has(.ed-flyout.marshall-mode.show:not(.minimized)) .at-lanceur{right:130px}
-html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body:has(#marshall-agent-dock.open:not(.min)) .at-lanceur{top:auto;right:432px;bottom:18px}
 
 /* Publication */
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app #pub-step.pub2 :is(.pub2-main,.pub2-side){border-radius:28px;box-shadow:var(--th-sh)}
@@ -397,7 +393,6 @@ html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app #pub-step.pub2 .pub2
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:has(.ed-flyout.show:not(.marshall-mode)) #sr-panel{opacity:0;visibility:hidden}
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:has(.ed-flyout.show:not(.marshall-mode)) #app .ed-rail #ed-ai{top:auto!important;right:22px!important;bottom:22px!important;width:66px!important;height:66px!important;padding:0!important;justify-content:center!important;border-radius:50%!important}
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:has(.ed-flyout.show:not(.marshall-mode)) #app .ed-rail #ed-ai>span{display:none!important}
-html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body:has(.ed-flyout.show:not(.marshall-mode)) .at-lanceur{top:auto;right:22px;bottom:100px}
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:has(.ed-flyout.show:not(.marshall-mode)):not(:has(#marshall-agent-dock.open:not(.min))) #app:has(#view-composer.active) .ed-stagewrap{padding-top:64px!important;padding-right:28px!important}
 }
 
@@ -484,3 +479,43 @@ html.rf-on.rf-a-bulles:is(:root,#_):is(:root,#_):is(:root,#_) body:has(#marshall
 html.rf-on:is(:root,#_) body:has(#marshall-agent-dock.open:not(.min)) #rf-bulles{right:426px}
 }
 @media (prefers-reduced-motion:reduce){#rf-bulles .rf-bulle,#rf-ask-agent,html.rf-on body #marshall-agent-dock.open,html.rf-on body #rf-bulles .rf-bulle::after{animation:none!important}}
+
+/* Atelier : rangé dans le menu de gauche, il ne passe plus devant le contenu */
+@media (min-width:761px){
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur{position:static;z-index:auto;width:100%;box-sizing:border-box;min-height:44px;margin:0 0 10px;padding:6px 12px 6px 7px;border-radius:14px;background:#fff;color:#A8380A;font:600 14px var(--th-font);box-shadow:0 12px 22px -12px rgba(90,30,0,.6);transition:translate .3s var(--th-spring)}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur[hidden]{display:none}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur:hover{translate:0 -2px}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur img{width:30px;height:30px}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur :is(.at-pastille,.at-obj){background:#FFF1DC;color:#A8380A}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur .at-nom-l{max-width:80px}
+}
+/* Bibliothèque : icône orange en haut à droite du panneau Agents IA */
+@media (min-width:761px){
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body:has(#view-composer.active):not(:has(#pub-step.pub2:not([style*="none"]))) #app .hdr-actions #hdr-books:is(#hdr-books,#_){position:fixed;top:80px;right:32px;z-index:65;width:36px!important;min-width:36px!important;height:36px!important;flex:none!important;background:linear-gradient(135deg,#E8590C,#C2410C)!important;color:#fff!important;box-shadow:0 10px 18px -10px rgba(90,30,0,.7)!important}
+}
+@media (min-width:761px) and (max-width:1499px){
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body:has(.ed-flyout.show:not(.marshall-mode)) #app .hdr-actions #hdr-books:is(#hdr-books,#_):is(#hdr-books,#_){position:static!important;width:40px!important;min-width:40px!important;height:40px!important;box-sizing:border-box;border:1px solid rgba(255,255,255,.9)!important;background:rgba(255,255,255,.08)!important;color:#fff!important;box-shadow:none!important}
+}
+/* Icônes du haut : même fond que l'espace compte, toutes centrées */
+@media (min-width:761px){
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body #app .hdr-actions{align-items:center!important;gap:7px!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body #app .hdr-actions :is(#mcd-gear-hdr,#mcd-bell,#hdr-dl,#hdr-share,#pv-open){box-sizing:border-box;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:40px!important;min-width:40px!important;height:40px!important;flex:0 0 40px!important;padding:0!important;margin:0!important;border:1px solid rgba(255,255,255,.9)!important;border-radius:50%!important;background:rgba(255,255,255,.08)!important;color:#fff!important;box-shadow:none!important;transform:none!important;transition:background .2s,translate .3s var(--th-spring),scale .3s var(--th-spring)!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body #app .hdr-actions :is(#mcd-gear-hdr,#mcd-bell,#hdr-dl,#hdr-share,#pv-open):hover{background:rgba(255,255,255,.28)!important;translate:0 -2px}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body #app .hdr-actions :is(#mcd-gear-hdr,#mcd-bell,#pv-open) svg{width:23px!important;height:23px!important;min-width:0!important;margin:0!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body #app .hdr-actions :is(#hdr-dl,#hdr-share) svg{width:20px!important;height:20px!important;margin:0!important;stroke:currentColor!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body #app .hdr-actions #hdr-share span{display:none!important}
+}
+
+/* Barres centrées sur le canvas, sauf quand un volet occupe la gauche */
+@media (min-width:761px){
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body #app:has(#view-composer.active):not(:has(.ed-flyout.show:not(.marshall-mode))) .ed-toolbar:is(.ed-toolbar,#_){align-self:center;width:max-content!important;max-width:none!important;margin-left:0!important;margin-right:0!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app .eds-mix{align-self:center}
+#rf-couleur{flex:none;box-sizing:border-box;width:32px;height:32px;padding:0;border:3px solid #fff;border-radius:50%;cursor:pointer;box-shadow:0 6px 12px -6px rgba(30,60,90,.6);animation:rf-bulle-in .35s var(--th-spring) backwards;transition:scale .25s var(--th-spring)}
+#rf-couleur[hidden]{display:none}
+html.rf-on:is(:root,#_) body #rf-couleur:hover{scale:1.12;translate:none}
+}
+@media (min-width:761px) and (max-width:1599px){
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app .ed-toolbar .ed-sel{max-width:150px}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app .ed-toolbar #ed-zoom{width:84px!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app .ed-toolbar{gap:3px!important;padding:6px!important}
+}

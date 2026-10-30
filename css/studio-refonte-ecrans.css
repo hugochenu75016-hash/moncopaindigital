@@ -234,3 +234,23 @@ html:is(:root,#_) body:is(body,#_) :is(#mcd-undo,#mcd-demo-bar){border-radius:16
 
 /* Galerie Creer : fond orange a la place du bleu */
 html:is(:root,#_) body:is(body,#_) #mcd-gallery .mg-sheet{background:linear-gradient(140deg,#FF9A1F,#F2600C)!important;border-radius:28px!important}
+
+/* Fond bleu dans l'espace de travail : le menu de gauche reste orange */
+html:is(:root,#_){--rf-bleu:linear-gradient(140deg,#7DD3FC,#38BDF8)}
+html:is(:root,#_):is(:root,#_) body:is(body,#_) #app:is(#app,#_) main:is(main,#_){background:var(--rf-bleu)!important}
+html:is(:root,#_):is(:root,#_) body:is(body,#_) #hub .hub-inner{background:var(--rf-bleu) no-repeat 220px 0/calc(100% - 220px) 100%}
+html:is(:root,#_):is(:root,#_) body:is(body,#_) #app main .topbar :is(h1,.hdr-title){color:var(--th-ink)!important}
+html:is(:root,#_):is(:root,#_) body:is(body,#_) #hub :is(.rf-top h1,.rf-top p,.rf-sec h3,.rf-sec a){color:var(--th-ink)!important}
+
+/* Petites fiches sous les icônes du haut : bibliothèque, réglages, notifications */
+@keyframes rf-fiche{from{translate:0 -10px;scale:.96}}
+@media (min-width:761px){
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #scl-pop:is(#scl-pop,#_),
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #perm-sheet:is(#perm-sheet,#_){display:flex;justify-content:flex-end;align-items:flex-start;padding:var(--rf-fiche-haut,64px) var(--rf-fiche-droite,18px) 14px 14px!important;background:transparent!important;backdrop-filter:none!important}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #scl-pop:is(#scl-pop,#_)[hidden]{display:none}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #perm-sheet:is(#perm-sheet,#_):not(.show):not(.open){display:none}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #scl-pop .scl-sheet:is(.scl-sheet,#_),
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #perm-sheet .sheet:is(.sheet,#_){box-sizing:border-box;width:400px;max-width:100%;max-height:min(580px,calc(100 * var(--vh,1vh) - var(--rf-fiche-haut,64px) - 14px));margin:0;overflow:auto;border:0!important;border-radius:26px!important;background:#fff!important;box-shadow:0 24px 44px -18px rgba(60,30,0,.65)!important;transform:none;transform-origin:top right;animation:rf-fiche .28s var(--th-spring) backwards}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #mcd-bell-pop:is(#mcd-bell-pop,#_){left:auto!important;right:var(--rf-fiche-droite,18px)!important;width:400px!important;max-height:min(580px,calc(100 * var(--vh,1vh) - var(--rf-fiche-haut,64px) - 14px));overflow:auto;border:0!important;border-radius:26px!important;background:#fff!important;box-shadow:0 24px 44px -18px rgba(60,30,0,.65)!important;transform-origin:top right;animation:rf-fiche .28s var(--th-spring) backwards}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #mcd-bell-pop:is(#mcd-bell-pop,#_)[hidden]{display:none}
+}

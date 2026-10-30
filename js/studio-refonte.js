@@ -597,12 +597,51 @@
     if(ficheVisible())ajouterBulle(cleOuverte());
   }
 
+  /* Atelier : la pastille reste active, seule sa place change */
+  function rangerAtelier(){
+    var l=$('#at-lanceur'),bas=$('#side .side-bottom');
+    if(l&&bas&&l.parentNode!==bas)bas.insertBefore(l,bas.firstChild);
+    return !!l;
+  }
+
+  /* Cercle de couleur : suit la barre de couleur de l'élément sélectionné et ouvre le même choix */
+  function majCouleur(){
+    var mix=$('#eds-mix'),suiv=mix&&$('[data-eds-pas="1"]',mix);if(!suiv)return;
+    var c=$('#rf-couleur');
+    if(!c){
+      c=el('button','rf-couleur ctx-colbtn');c.id='rf-couleur';c.type='button';c.hidden=true;
+      c.title='Couleur de l’élément sélectionné';c.setAttribute('aria-label',c.title);
+      c.addEventListener('click',function(){var b=$('#ed-qbar .ctx-colbtn');if(b)b.click();});
+      suiv.insertAdjacentElement('afterend',c);
+    }
+    var tb=$('.ed-toolbar'),bouton=$('#ed-qbar .ctx-colbtn'),barre=$('#ed-qbar .ctx-colbar');
+    var teinte=barre&&barre.style.background,ok=!!(tb&&tb.classList.contains('has-sel')&&bouton&&bouton.offsetWidth&&teinte&&teinte!=='transparent');
+    c.hidden=!ok;
+    if(ok)c.style.background=teinte;
+  }
+  function suivreCouleur(){
+    majCouleur();
+    var tb=$('.ed-toolbar'),sw=$('.ed-stagewrap');
+    if(tb)new MutationObserver(majCouleur).observe(tb,{attributes:true,attributeFilter:['class','style'],subtree:true});
+    if(sw)new MutationObserver(majCouleur).observe(sw,{childList:true});
+  }
+
+  /* Petites fiches : calées sous l'icône cliquée, comme l'espace compte */
+  function caleFiches(){
+    document.addEventListener('click',function(e){
+      var b=e.target.closest&&e.target.closest('#hdr-books,#hub-gear,#mcd-gear-hdr,#mcd-bell');if(!b||!b.offsetWidth)return;
+      var z=parseFloat(html.style.zoom)||1,r=b.getBoundingClientRect();
+      html.style.setProperty('--rf-fiche-droite',Math.max(14,window.innerWidth/z-r.right/z)+'px');
+      html.style.setProperty('--rf-fiche-haut',(r.bottom/z+10)+'px');
+    },true);
+  }
+
   var prevu=0;
-  function plusTard(){if(prevu)return;prevu=setTimeout(function(){prevu=0;decorerBarre();majAccueil();verifierCompte();},0);}
+  function plusTard(){if(prevu)return;prevu=setTimeout(function(){prevu=0;decorerBarre();majAccueil();verifierCompte();rangerAtelier();},0);}
 
   function demarrer(){
     try{
-      decorerBarre();construireAccueil();majAccueil();construireEditeur();suivreFiche();brancherAgents();
+      decorerBarre();construireAccueil();majAccueil();construireEditeur();suivreFiche();brancherAgents();caleFiches();suivreCouleur();
       new MutationObserver(plusTard).observe($('#hub'),{attributes:true,attributeFilter:['class']});
       var app=$('#app');if(app)new MutationObserver(plusTard).observe(app,{attributes:true,attributeFilter:['class']});
       var fan=$('#fan-wrap');
@@ -611,6 +650,10 @@
       window.addEventListener('resize',plusTard);
       window.addEventListener('pagehide',sauver);
       verifierCompte();
+      if(!rangerAtelier()){
+        var attAtelier=new MutationObserver(function(){if(rangerAtelier())attAtelier.disconnect();});
+        attAtelier.observe(document.body,{childList:true});
+      }
       setInterval(majAccueil,60000);
     }catch(e){console.warn('Refonte',e);}
   }
