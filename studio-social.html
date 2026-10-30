@@ -6878,7 +6878,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     var p=$('#ed-page'); if(!p) return;
     var st=$('#ed-stage'), W=edW(), H=edH();
     var wrap=st?st.parentNode:null;
-    var availH=Math.min(window.innerHeight*0.66, 540);
+    var availH=(window.mcdStageH&&window.mcdStageH())||Math.min(window.innerHeight*0.66, 540);
     var availW=(wrap&&wrap.clientWidth)?wrap.clientWidth:520;
     /* Largeur réellement disponible (sans les marges intérieures) : sur mobile, le canvas ne déborde plus de l'écran. */
     /* Ordinateur : on retire les marges intérieures (panneaux ouverts à gauche / à droite) pour que le canvas tienne entre eux. */
@@ -21974,6 +21974,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }catch(e){}
     if(window.mcdDoorsOpen) window.mcdDoorsOpen();
   })();
+  window.mcdRefonte={renderNets:renderNetChips};
+  window.mcdStudioData=function(){return{uid:effectiveUid()||'anon',posts:posts.slice(),nom:actingAs?actingName:(me&&me.nom)||'',role:(me&&me.role)||'',acting:!!actingAs,staff:marshallIsStaff(),formule:MARSHALL_PLANS[marshallPlan()].name,approved:calendarPostApproved,goView:mcdGoView,validate:calendarValidationOpen,excerpt:excerpt};};
 })();
 </script>
   <footer id="site-footer" aria-label="Pied de page Mon Copain Digital">
@@ -22755,5 +22757,9 @@ html:not([data-device="mobile"]) body:has(#marshall-agent-dock.open:not(.min)) #
 <link rel="stylesheet" href="css/studio-atelier.css">
 <script src="js/studio-atelier.js" defer></script>
 <script src="js/studio-publier.js" defer></script>
+<link rel="stylesheet" href="studio-theme.css">
+<link rel="stylesheet" href="css/studio-refonte.css">
+<link rel="stylesheet" href="css/studio-refonte-ecrans.css">
+<script src="js/studio-refonte.js" defer></script>
 </body>
 </html>

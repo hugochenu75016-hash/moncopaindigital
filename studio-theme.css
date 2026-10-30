@@ -1,0 +1,88 @@
+/* Thème Studio Social : fond orange, cartes blanches, typo Bricolage Grotesque + Outfit.
+   Feuille chargée en dernier. Uniquement du visuel : aucun élément n'est masqué ni déplacé dans le code. */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root{
+  --th-or0:#E8590C; --th-or1:#FF7A00; --th-or2:#FFA51F; --th-or3:#FFC766; --th-pale:#FFF1DC; --th-pale2:#FFF8EF;
+  --th-ink:#2B2118; --th-mut:#6B5848; --th-line:#F6E7D6; --th-sky:#7DD3FC;
+  --th-bg:linear-gradient(140deg,#FF9A1F,#F2600C);
+  --th-sh:0 18px 34px -18px rgba(90,30,0,.55);
+  --th-r:22px;
+  --th-spring:cubic-bezier(.34,1.56,.64,1);
+  --th-font:'Outfit',ui-sans-serif,system-ui,'Segoe UI Emoji','Apple Color Emoji',sans-serif;
+  --th-title:'Bricolage Grotesque','Outfit',ui-sans-serif,system-ui,sans-serif;
+}
+
+/* Typo : tout sauf le contenu du canvas et les aperçus de polices */
+html:is(:root,#_){--studio-font:var(--th-font)}
+html:is(:root,#_) body,
+html:is(:root,#_) body *:not(.ed-page):not(.ed-page *):not(.pub2-phone *):not([style*="font-family"]):not(svg):not(svg *){font-family:var(--th-font)!important}
+html:is(:root,#_):is(:root,#_) body :is(h1,h2,h3,.hub-ct,.bt,.calv-head h2):not(.ed-page *):not(.pub2-phone *){font-family:var(--th-title)!important;letter-spacing:-.02em}
+
+/* Fond : les :is(...,#_) montent la spécificité au-dessus des règles !important existantes */
+html:is(:root,#_):is(:root,#_),html body:is(body,#_):is(body,#_):is(body,#_){background:var(--th-bg) fixed!important}
+html:is(:root,#_) body:is(body,#_) #app .ed-stagewrap{background:transparent!important}
+html:is(:root,#_) body:is(body,#_) #app #side{background:transparent!important}
+html body #app::before{background:none!important}
+html body #mcd-pill{background:rgba(255,255,255,.22)!important;border-color:rgba(255,255,255,.35)!important;box-shadow:none!important}
+html body #mcd-pill .mcd-link{color:#fff!important}
+html body #mcd-pill .mcd-link.is-active{background:#fff!important;color:#C2410C!important}
+html body .hub-foot,html body .hub-foot *{color:#fff!important}
+html body #auth,html body #connect-gate,html body #hub,html body #app,html body #app main,html body #msgapp,html body #clientsapp,html body #reportsapp,
+html body #app main > .view,html body .ed-stagewrap,html body #ed-shell-wrap,html body .ed-shell,html body .composer-grid,html body #content-card{background:transparent!important}
+html body #content-card{box-shadow:none!important;border:0!important}
+
+/* Barre latérale */
+html body #app #side{background:transparent!important;border:0!important;box-shadow:none!important}
+html body #app #side .bt,html body #app #side .bt small,html body #app #side .side-lbl,html body #app #side .un,html body #app #side .rl{color:#fff!important}
+html body #app #side .nav-item{color:#fff!important;background:transparent!important;border:0!important;border-radius:16px!important;box-shadow:none!important;font-weight:600!important;transition:background .22s,color .22s,translate .3s var(--th-spring)!important}
+html body #app #side .nav-item:hover{background:rgba(255,255,255,.2)!important;translate:3px 0}
+html body #app #side .nav-item.active{background:#fff!important;color:var(--th-ink)!important;box-shadow:0 12px 22px -12px rgba(90,30,0,.6)!important}
+html body #app #side .side-create{background:#fff!important;color:#C2410C!important;border:0!important;border-radius:16px!important;box-shadow:0 14px 26px -12px rgba(90,30,0,.6)!important}
+
+/* Rail d'outils */
+html body #app .ed-rail{background:#fff!important;border:0!important;border-radius:var(--th-r)!important;box-shadow:var(--th-sh)!important}
+html body #app .ed-tool{color:var(--th-ink)!important;border-radius:14px!important;background:transparent!important;font-weight:600!important;transition:background .2s,color .2s,translate .3s var(--th-spring),scale .3s var(--th-spring)!important}
+html body #app .ed-tool:hover,html body #app .ed-tool.on,html body #app .ed-tool.active{background:var(--th-pale)!important;color:#C2410C!important}
+
+@media (min-width:901px){
+  html:is(:root,#_) body:is(body,#_) #app .ed-rail{top:14px!important;bottom:14px!important}
+}
+
+/* Barre d'outils de l'éditeur */
+html:is(:root,#_) body #app .ed-toolbar .ed-tb.on,html:is(:root,#_) body #app .ed-toolbar .ed-tb.active,html:is(:root,#_) body #app .ed-toolbar .ed-tb[aria-pressed="true"],html:is(:root,#_) body #app .ed-toolbar #ed-play-motion{background:linear-gradient(135deg,var(--th-or1),var(--th-or0))!important;color:#fff!important}
+html body #app .ed-toolbar{background:#fff!important;border:0!important;border-radius:var(--th-r)!important;box-shadow:var(--th-sh)!important}
+html body #app .ed-tb{background:var(--th-pale2)!important;border:0!important;color:var(--th-ink)!important;border-radius:12px!important;box-shadow:none!important;transition:background .2s,color .2s,translate .3s var(--th-spring),scale .3s var(--th-spring)!important}
+html body #app .ed-tb:hover{background:var(--th-pale)!important;color:#C2410C!important}
+html body #app .ed-sel,html body #app .ed-zoom-select{background:var(--th-pale2)!important;border:0!important;color:var(--th-ink)!important;border-radius:12px!important}
+
+/* Canvas */
+html body #app .ed-stage{border:0!important;border-radius:6px!important;box-shadow:0 26px 50px -22px rgba(90,30,0,.6)!important}
+
+/* En-têtes et boutons */
+html body #app .topbar h1,html body #app .topbar .ts{color:#fff!important}
+html body .btn-ghost{background:#fff!important;color:var(--th-ink)!important;border:0!important;border-radius:14px!important;box-shadow:0 10px 20px -12px rgba(90,30,0,.5)!important;transition:background .2s,color .2s,translate .3s var(--th-spring),scale .3s var(--th-spring)!important}
+html body .btn-ghost:hover{background:var(--th-pale)!important;color:#C2410C!important}
+
+/* Cartes */
+html body #app main .card,html body .hub-card,html body .pub-card{background:#fff!important;border:0!important;border-radius:var(--th-r)!important;box-shadow:var(--th-sh)!important;color:var(--th-ink)!important}
+html body #app main #content-card.card{background:transparent!important;box-shadow:none!important}
+html body .hub-card{transition:translate .4s var(--th-spring),box-shadow .3s!important}
+html body .hub-card:hover{translate:0 -7px}
+html body .hub-card .hub-avatar{transition:translate .45s var(--th-spring),rotate .45s var(--th-spring),scale .45s var(--th-spring)!important}
+html body .hub-card:hover .hub-avatar{translate:0 -6px;rotate:3deg;scale:1.05}
+html body .hub-go{color:#C2410C!important}
+
+/* Animations générales : translate/scale/rotate s'ajoutent aux transform existants sans les remplacer */
+html body :is(button,a,select,[role="button"]):not(.ed-page *):not(.nav-item):not(.hub-card):not(.ed-tool):not(.ed-tb):not(.btn-ghost){transition:background-color .2s,color .2s,box-shadow .25s,translate .3s var(--th-spring),scale .3s var(--th-spring)}
+html body :is(button,a,[role="button"]):not(.ed-page *):not(.nav-item):not(.hub-card):not(:disabled):hover{translate:0 -2px}
+html body :is(button,a,[role="button"]):not(.ed-page *):not(:disabled):active{translate:0 0;scale:.96;transition-duration:.08s}
+html body :is(button,a,[role="button"]):not(.ed-page *):not(:disabled) svg{transition:scale .35s var(--th-spring),rotate .35s var(--th-spring)}
+html body :is(button,a,[role="button"]):not(.ed-page *):not(:disabled):hover svg{scale:1.12;rotate:-6deg}
+html body input:not(.ed-page *),html body textarea:not(.ed-page *),html body select:not(.ed-page *){transition:box-shadow .2s,border-color .2s}
+html body input:not(.ed-page *):focus,html body textarea:not(.ed-page *):focus{border-color:var(--th-or1)!important;box-shadow:0 0 0 3px var(--th-pale)!important}
+
+@media (prefers-reduced-motion:reduce){
+  html body *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+  html body *:hover{translate:none!important;rotate:none!important;scale:none!important}
+}
