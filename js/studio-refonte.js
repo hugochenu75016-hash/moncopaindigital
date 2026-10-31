@@ -34,7 +34,8 @@
     play:'<circle class="s" cx="14" cy="14" r="9"/><circle class="l" cx="13" cy="13" r="10"/><path class="a" d="M10 8.5v9l8-4.5z"/>',
     bot:'<rect class="s" x="6" y="11" width="16" height="11" rx="4"/><rect class="l" x="4" y="9" width="18" height="13" rx="5"/><path class="l" d="M13 9V5M2 15v3M24 15v3"/><circle class="a" cx="13" cy="4" r="2.2"/><circle class="a" cx="9.5" cy="15" r="1.7"/><circle class="a" cx="16.5" cy="15" r="1.7"/>',
     gear:'<circle class="s" cx="14" cy="14" r="7"/><circle class="l" cx="13" cy="13" r="3.5"/><path class="l" d="M13 2.5v3.2M13 20.3v3.2M2.5 13h3.2M20.3 13h3.2M5.6 5.6l2.3 2.3M18.1 18.1l2.3 2.3M20.4 5.6l-2.3 2.3M7.9 18.1l-2.3 2.3"/><circle class="a" cx="13" cy="13" r="1.6"/>',
-    shield:'<path class="s" d="M13 8l7 2v5c0 4-3 6-7 8z"/><path class="l" d="M13 3 4 6.5V13c0 5 3.5 8 9 10 5.5-2 9-5 9-10V6.5z"/><circle class="a" cx="13" cy="12.5" r="2.5"/>'
+    shield:'<path class="s" d="M13 8l7 2v5c0 4-3 6-7 8z"/><path class="l" d="M13 3 4 6.5V13c0 5 3.5 8 9 10 5.5-2 9-5 9-10V6.5z"/><circle class="a" cx="13" cy="12.5" r="2.5"/>',
+    compte:'<circle class="s" cx="15" cy="10" r="6"/><circle class="l" cx="13" cy="9" r="5"/><path class="l" d="M3.5 23c1-5 4.800-8 9.500-8s8.500 3 9.500 8"/><circle class="a" cx="13" cy="9" r="1.800"/>'
   };
   var ICONE_VUE={composer:'pen',calendar:'cal',history:'his',drafts:'doc',automations:'zap',pilote:'target'};
   function icone(nom){
@@ -66,7 +67,7 @@
     placerPilule();
   }
   function placerPilule(){
-    var p=$('#rf-pill'),a=$('#fan-wrap .nav-item.active');if(!p)return;
+    var p=$('#rf-pill'),hub=$('#hub'),a=$(hub&&hub.classList.contains('show')?'#fan-wrap .rf-nav-home':'#fan-wrap .nav-item.active');if(!p)return;
     if(!a||!a.offsetHeight){p.style.opacity='0';return;}
     p.style.opacity='1';p.style.height=a.offsetHeight+'px';p.style.transform='translateY('+a.offsetTop+'px)';
   }
@@ -597,11 +598,31 @@
     if(ficheVisible())ajouterBulle(cleOuverte());
   }
 
-  /* Atelier : la pastille reste active, seule sa place change */
-  function rangerAtelier(){
-    var l=$('#at-lanceur'),bas=$('#side .side-bottom');
-    if(l&&bas&&l.parentNode!==bas)bas.insertBefore(l,bas.firstChild);
-    return !!l;
+  /* Menu de gauche : réglages et espace compte au-dessus des réseaux */
+  var relaisMenu=false;
+  function outilsMenu(){
+    var bas=$('#side .side-bottom'),carte=$('#studio-profile-card'),racine=$('#studio-profile');
+    if(!bas||$('.rf-side-outils',bas))return;
+    var box=el('div','rf-side-outils');
+    [['rf-side-gear','gear','Réglages','#hub-gear'],['rf-side-compte','compte','Espace compte','#studio-profile-toggle']].forEach(function(o){
+      var b=el('button','rf-side-ic');b.type='button';b.id=o[0];b.title=o[2];b.setAttribute('aria-label',o[2]);b.appendChild(icone(o[1]));
+      b.addEventListener('click',function(){var c=$(o[3]);relaisMenu=true;if(c)c.click();relaisMenu=false;});
+      box.appendChild(b);
+    });
+    var langue=$('#mcd-social [data-mcd-lang]');if(langue)box.appendChild(langue);
+    bas.insertBefore(box,bas.firstChild);
+    // Sur l'accueil le Studio n'est pas ouvert : le menu passe par la même entrée que les cartes
+    $('#side').addEventListener('click',function(e){
+      if(!$('#hub').classList.contains('show'))return;
+      var b=e.target.closest('.nav-item,.rf-nav-home,#side-home');if(!b)return;
+      e.stopPropagation();e.preventDefault();
+      if(b.classList.contains('nav-item'))aller(cleItem(b));
+    },true);
+    // L'espace compte vit dans l'en-tête de Composer, masqué ailleurs : sa carte passe sur la page pour s'ouvrir partout
+    if(carte&&racine){
+      document.body.appendChild(carte);
+      racine.contains=function(n){return Node.prototype.contains.call(racine,n)||carte.contains(n)||!!(n.closest&&n.closest('#rf-side-compte'));};
+    }
   }
 
   /* Cercle de couleur : suit la barre de couleur de l'élément sélectionné et ouvre le même choix */
@@ -629,7 +650,9 @@
   /* Petites fiches : calées sous l'icône cliquée, comme l'espace compte */
   function caleFiches(){
     document.addEventListener('click',function(e){
-      var b=e.target.closest&&e.target.closest('#hdr-books,#hub-gear,#mcd-gear-hdr,#mcd-bell');if(!b||!b.offsetWidth)return;
+      if(relaisMenu)return;
+      var b=e.target.closest&&e.target.closest('#rf-side-gear,#rf-side-compte,#hdr-books,#hub-gear,#mcd-gear-hdr,#mcd-bell,#studio-profile-toggle');if(!b||!b.offsetWidth)return;
+      html.classList.toggle('rf-fiche-gauche',b.classList.contains('rf-side-ic'));
       var z=parseFloat(html.style.zoom)||1,r=b.getBoundingClientRect();
       html.style.setProperty('--rf-fiche-droite',Math.max(14,window.innerWidth/z-r.right/z)+'px');
       html.style.setProperty('--rf-fiche-haut',(r.bottom/z+10)+'px');
@@ -637,7 +660,7 @@
   }
 
   var prevu=0;
-  function plusTard(){if(prevu)return;prevu=setTimeout(function(){prevu=0;decorerBarre();majAccueil();verifierCompte();rangerAtelier();},0);}
+  function plusTard(){if(prevu)return;prevu=setTimeout(function(){prevu=0;decorerBarre();majAccueil();verifierCompte();},0);}
 
   function demarrer(){
     try{
@@ -650,10 +673,7 @@
       window.addEventListener('resize',plusTard);
       window.addEventListener('pagehide',sauver);
       verifierCompte();
-      if(!rangerAtelier()){
-        var attAtelier=new MutationObserver(function(){if(rangerAtelier())attAtelier.disconnect();});
-        attAtelier.observe(document.body,{childList:true});
-      }
+      outilsMenu();
       setInterval(majAccueil,60000);
     }catch(e){console.warn('Refonte',e);}
   }

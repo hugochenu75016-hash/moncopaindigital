@@ -480,14 +480,7 @@ html.rf-on:is(:root,#_) body:has(#marshall-agent-dock.open:not(.min)) #rf-bulles
 }
 @media (prefers-reduced-motion:reduce){#rf-bulles .rf-bulle,#rf-ask-agent,html.rf-on body #marshall-agent-dock.open,html.rf-on body #rf-bulles .rf-bulle::after{animation:none!important}}
 
-/* Atelier : rangé dans le menu de gauche, il ne passe plus devant le contenu */
 @media (min-width:761px){
-html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur{position:static;z-index:auto;width:100%;box-sizing:border-box;min-height:44px;margin:0 0 10px;padding:6px 12px 6px 7px;border-radius:14px;background:#fff;color:#A8380A;font:600 14px var(--th-font);box-shadow:0 12px 22px -12px rgba(90,30,0,.6);transition:translate .3s var(--th-spring)}
-html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur[hidden]{display:none}
-html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur:hover{translate:0 -2px}
-html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur img{width:30px;height:30px}
-html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur :is(.at-pastille,.at-obj){background:#FFF1DC;color:#A8380A}
-html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .at-lanceur .at-nom-l{max-width:80px}
 }
 /* Bibliothèque : icône orange en haut à droite du panneau Agents IA */
 @media (min-width:761px){
@@ -518,4 +511,48 @@ html.rf-on:is(:root,#_) body #rf-couleur:hover{scale:1.12;translate:none}
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app .ed-toolbar .ed-sel{max-width:150px}
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app .ed-toolbar #ed-zoom{width:84px!important}
 html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body #app .ed-toolbar{gap:3px!important;padding:6px!important}
+}
+
+/* Menu de gauche : ni Créer ni Atelier, réglages et espace compte au-dessus de Réseaux */
+@media (min-width:761px){
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:is(body,#_) #app #side #side-create{display:none!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:is(body,#_) .at-lanceur{display:none!important}
+.rf-side-outils{display:flex;gap:8px;margin:0 0 12px}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .rf-side-ic{display:grid;place-items:center;box-sizing:border-box;width:40px;height:40px;padding:0;border:1px solid rgba(255,255,255,.9);border-radius:50%;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;box-shadow:none;transition:background .2s,translate .3s var(--th-spring),scale .3s var(--th-spring)}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .rf-side-ic:hover{background:rgba(255,255,255,.26);translate:0 -2px}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .rf-side-ic .rf-ic{width:23px;height:23px}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side #rf-side-compte .rf-ic .l{stroke:#fff}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #studio-profile-card:is(#studio-profile-card,#_){position:fixed;top:var(--rf-fiche-haut,64px);right:var(--rf-fiche-droite,18px);left:auto;bottom:auto;z-index:10001}
+html.rf-on.rf-fiche-gauche:is(:root,#_):is(:root,#_) body:is(body,#_) #studio-profile-card:is(#studio-profile-card,#_){top:auto;right:auto;left:232px;bottom:14px}
+html.rf-on.rf-fiche-gauche:is(:root,#_):is(:root,#_) body:is(body,#_) #perm-sheet:is(#perm-sheet,#_){justify-content:flex-start;align-items:flex-end;padding:14px 14px 14px 232px!important}
+html.rf-on.rf-fiche-gauche:is(:root,#_):is(:root,#_) body:is(body,#_) #perm-sheet .sheet:is(.sheet,#_){transform-origin:bottom left;max-height:min(580px,calc(100 * var(--vh,1vh) - 28px))}
+}
+
+/* Un seul menu de gauche : celui du Studio reste affiché sur l'accueil */
+@media (min-width:761px){
+html.rf-on:is(:root,#_):is(:root,#_) body:has(#hub.show) #app:is(#app,#_){display:block!important;position:fixed;left:0;top:0;bottom:0;width:220px;min-height:0;z-index:11}
+html.rf-on:is(:root,#_):is(:root,#_) body:has(#hub.show) #app:is(#app,#_) main{display:none!important}
+html.rf-on:is(:root,#_):is(:root,#_) body:has(#hub.show) #app:is(#app,#_) #side{height:100%}
+html.rf-on:is(:root,#_):is(:root,#_) body:has(#hub.show) #rf-hub-side{visibility:hidden}
+html.rf-on:is(:root,#_):is(:root,#_) body:has(#hub.show) #mcd-pill{display:none!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:has(#hub.show) #app #side .fan-wrap .nav-item.active{color:#fff!important}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_) body:has(#hub.show) #app #side .fan-wrap .rf-nav-home{color:var(--th-ink)!important}
+
+/* En-têtes : réglages, compte et langue vivent dans le menu, seule la cloche reste */
+html.rf-on:is(:root,#_):is(:root,#_) body:has(#hub.show) #mcd-social :is(.social-btn,.acct-sq){display:none!important}
+/* La roue reste rendue : le code place la cloche d'après elle, et Réglages la clique */
+html.rf-on:is(:root,#_):is(:root,#_) body:has(#hub.show) #mcd-social #hub-gear:is(#hub-gear,#_){position:absolute!important;width:0!important;min-width:0!important;height:0!important;flex:none!important;padding:0!important;overflow:hidden;visibility:hidden}
+html.rf-on:is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_):is(:root,#_) body #app .hdr-actions :is(#mcd-gear-hdr,#studio-profile){display:none!important}
+
+/* Langue dans le menu : même rond que réglages et compte, liste vers le haut */
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .mcd-lang-btn{box-sizing:border-box;width:40px;height:40px;min-width:40px;padding:0;border:1px solid rgba(255,255,255,.9);border-radius:50%;background:rgba(255,255,255,.08);box-shadow:none;transition:background .2s,translate .3s var(--th-spring)}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .mcd-lang-btn:hover{background:rgba(255,255,255,.26);translate:0 -2px}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .mcd-lang-btn .mcd-caret{display:none}
+html.rf-on:is(:root,#_):is(:root,#_) body:is(body,#_) #side .mcd-lang-menu{top:auto;bottom:calc(100% + 8px);left:0;right:auto;color:var(--th-ink)}
+}
+
+/* Accueil : plus d'icône dans l'en-tête, le panneau remonte */
+@media (min-width:761px){
+html.rf-on:is(:root,#_):is(:root,#_) body:has(#hub.show) #mcd-social #mcd-bell:is(#mcd-bell,#_){display:none!important}
+html.rf-on:is(:root,#_):is(:root,#_) body #rf-hub-panel:is(#rf-hub-panel,#_){padding-top:24px}
 }
