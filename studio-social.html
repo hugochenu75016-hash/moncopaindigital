@@ -1824,6 +1824,16 @@
   .motion-step3 .motion-voice.active{ border-color:#64ffda; background:rgba(100,255,218,.10); box-shadow:0 0 0 2px rgba(100,255,218,.18); }
   .motion-step3 .motion-voice-play{ position:absolute; right:7px; top:50%; transform:translateY(-50%); width:22px; height:22px; border-radius:50%; background:#64ffda; color:#0a192f; font-size:10px; display:grid; place-items:center; }
   .motion-step3 .motion-engine-note{ font-size:10.5px; color:#94a3b8; }
+  .motion-steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin:2px 0 4px; }
+  .motion-steps button{ border:0; border-radius:12px; padding:9px 6px; font:inherit; font-size:11.5px; font-weight:800; background:#eef2f7; color:#94a3b8; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .motion-steps button i{ font-style:normal; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; background:#cbd5e1; color:#fff; font-size:11px; }
+  .motion-steps button.done{ color:#0a192f; } .motion-steps button.done i{ background:#3ddc97; }
+  .motion-steps button.on{ background:#0a192f; color:#64ffda; } .motion-steps button.on i{ background:#64ffda; color:#0a192f; }
+  .motion-steps button:disabled{ cursor:not-allowed; opacity:.55; }
+  .motion-nav{ display:flex; justify-content:space-between; gap:8px; margin-top:4px; }
+  .motion-nav button{ border:0; border-radius:10px; padding:10px 14px; font:inherit; font-size:12px; font-weight:800; cursor:pointer; background:#eef2f7; color:#0a192f; }
+  .motion-nav button.next{ background:linear-gradient(135deg,#64ffda,#00b4d8); color:#0a192f; margin-left:auto; }
+  .motion-nav button:disabled{ opacity:.5; cursor:not-allowed; }
   .motion-step3 .motion-logo-row{ display:grid; grid-template-columns:1fr auto; gap:7px; align-items:center; }
   .motion-step3 .motion-logo-row label{ grid-column:1/-1; font-size:11px; font-weight:700; color:#64ffda; }
   .motion-step3 .motion-logo-file{ border:1px dashed #334155; border-radius:10px; padding:8px 10px; font:inherit; font-size:11px; color:#cbd5e1; background:rgba(255,255,255,.04); cursor:pointer; white-space:nowrap; }
@@ -10577,6 +10587,8 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     M.storyData = null;
     M.storyAngle = '';
     M.error = '';
+    M.video_url = '';
+    M.step = 2;
     await marshallMotionFetchStory(String(item.title || '').slice(0, 120), '', detail, prof);
   }
 
@@ -10741,7 +10753,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
     }
 
     var newsBoxHTML = '<div class="motion-news-box">'
-      + '<div class="motion-news-head"><span>📡 1. Journaliste · Pays & thème</span><small>3 infos vérifiées du jour</small></div>'
+      + '<div class="motion-news-head"><span>📡 Choisis l’info</span><small>Le Journaliste trouve 3 infos du jour</small></div>'
       + '<div class="motion-filter-row">'
       + '<div class="motion-filter-col"><label>🌍 Pays</label><input type="text" class="motion-input" data-motion-country-input value="' + esc(M.country || 'France') + '" placeholder="Pays (ex: France, Maroc...)"></div>'
       + '<div class="motion-filter-col"><label>🎯 Thème (optionnel)</label><input type="text" class="motion-input" data-motion-theme-input value="' + esc(M.theme || '') + '" placeholder="Thème (ex: Économie, IA...)"></div>'
@@ -10769,7 +10781,7 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         + '<b style="color:#64ffda;">2. L’histoire</b><p>Elle se construit toute seule dès que tu cliques sur une info du Journaliste.</p></div>';
     }
     var storyBoxHTML = '<div class="motion-story-box">'
-      + '<div class="motion-story-head"><span>📜 2. Story Director</span><small>Histoire construite à partir de l’info</small></div>'
+      + '<div class="motion-story-head"><span>📜 L’histoire</span><small>Écrite à partir de l’info choisie</small></div>'
       + (n ? ('<div class="motion-story-news-src">📡 D’après l’info du Journaliste : <b>' + esc(n.title) + '</b>' + (n.date ? (' · ' + esc(n.date)) : '') + '</div>') : '')
       + storyHTML
       + '</div>';
@@ -10786,31 +10798,47 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         + '<a href="' + esc(M.video_url) + '" download="documentaire-motion.mp4" target="_blank" class="btn-dl">⬇ Télécharger MP4</a></div>';
     }
 
+    // fiche en 3 étapes : 1 l'info, 2 l'histoire, 3 la vidéo (une seule affichée à la fois)
+    var step = M.step || 1;
+    if(M.busy || M.video_url) step = 3;
+    if(step === 3 && !ready && !M.busy && !M.video_url) step = n ? 2 : 1;
+    if(step === 2 && !n && !M.storyLoading) step = 1;
+    M.step = step;
+    var reach = [true, !!(n || M.storyLoading), ready || M.busy || !!M.video_url];
+    var stepsHTML = '<div class="motion-steps">' + ['L’info', 'L’histoire', 'La vidéo'].map(function(lbl, i){
+      var k = i + 1, cls = k === step ? 'on' : (k < step ? 'done' : '');
+      return '<button type="button" class="' + cls + '" data-motion-step="' + k + '"' + (reach[i] ? '' : ' disabled') + '><i>' + (k < step ? '✓' : k) + '</i>' + lbl + '</button>';
+    }).join('') + '</div>';
+    var nav2 = '<div class="motion-nav"><button type="button" data-motion-step="1">← Changer d’info</button>'
+      + '<button type="button" class="next" data-motion-step="3"' + (ready ? '' : ' disabled') + '>Valider l’histoire →</button></div>';
+    var nav3 = M.busy ? '' : '<div class="motion-nav"><button type="button" data-motion-step="2">← Revoir l’histoire</button></div>';
     return '<div class="sai-root motion-root">'
       + '<div class="madock-detail-head">'
       + '<span class="madock-pill-icon" style="width:52px;height:52px;border-radius:18px;background:' + prof.color + '">' + marshallAgentLogoSVG('motion') + '</span>'
       + '<div class="madock-detail-copy"><b>' + esc(prof.name) + '</b><p>' + esc(prof.desc) + '</p></div>'
       + '</div>'
-      + newsBoxHTML
-      + storyBoxHTML
-      + '<div class="motion-story-box motion-step3">'
-      + '<div class="motion-story-head"><span>🎬 3. Voix & rendu</span><small>Voix ElevenLabs · moteur documentaire</small></div>'
+      + stepsHTML
+      + (step === 1 ? newsBoxHTML : '')
+      + (step === 2 ? storyBoxHTML + nav2 : '')
+      + (step !== 3 ? '</div>' : '')
+      + (step === 3 ? '<div class="motion-story-box motion-step3">'
+      + '<div class="motion-story-head"><span>🎬 La vidéo</span><small>Voix ElevenLabs · scènes créées par l’IA</small></div>'
       + '<div class="motion-voice-grid">' + MOTION_VOICES.map(function(v){
           return '<button type="button" class="motion-voice' + (M.voice === v.id ? ' active' : '') + '" data-motion-voice="' + v.id + '">'
             + '<b>' + esc(v.name) + '</b><small>' + esc(v.desc) + '</small>'
             + '<span class="motion-voice-play" data-motion-voice-play="' + v.file + '" title="Écouter">▶</span></button>';
         }).join('') + '</div>'
+      + '<div class="motion-logo-row"><label>Logo en bas à droite (facultatif)</label>'
+      + '<input type="text" class="motion-input" data-motion-logo maxlength="40" value="' + esc(M.logo || '') + '" placeholder="Texte du logo (ex. Mon Copain JOURNALISTE)">'
+      + '<button type="button" class="motion-logo-file' + (M.logoImage ? ' on' : '') + '" data-motion-logo-file>' + (M.logoImage ? '✓ Image (retirer)' : '+ Image') + '</button></div>'
       + '<button type="button" class="sai-go1 motion-go" data-motion-act="go"' + ((M.busy || !ready) ? ' disabled' : '') + '>'
       + '<span>🎬 Lancer le rendu documentaire</span>'
       + '<small>' + (ready ? 'Voix ' + esc(marshallMotionVoiceName()) + ' · bruitages et musique · 1080x1920' : 'Choisis d’abord une info du Journaliste (étape 1)') + '</small>'
       + '</button>'
-      + '<div class="motion-logo-row"><label>Logo en bas à droite (facultatif)</label>'
-      + '<input type="text" class="motion-input" data-motion-logo maxlength="40" value="' + esc(M.logo || '') + '" placeholder="Texte du logo (ex. Mon Copain JOURNALISTE)">'
-      + '<button type="button" class="motion-logo-file' + (M.logoImage ? ' on' : '') + '" data-motion-logo-file>' + (M.logoImage ? '✓ Image (retirer)' : '+ Image') + '</button></div>'
       + '<div class="motion-engine-note">Scènes créées par l’IA à partir de l’info : photos du sujet, Marshall sous l’image, bruitages et musique d’ambiance automatiques.</div>'
       + previewHTML
-      + '</div>'
-      + '</div>';
+      + '</div>' + nav3
+      + '</div>' : '');
   }
 
   function marshallMotionRender(detail, prof){
@@ -10916,6 +10944,10 @@ html body #auth .auth-card .au-otp-input{background:#fff!important;color:#2a1500
         var rd = new FileReader(); rd.onload = function(){ M.logoImage = String(rd.result || ''); marshallMotionRender(detail, prof); }; rd.readAsDataURL(file);
       };
       f.click();
+    });
+
+    detail.querySelectorAll('[data-motion-step]').forEach(function(b){
+      b.addEventListener('click', function(){ if(this.disabled) return; M.step = +this.getAttribute('data-motion-step'); marshallMotionRender(detail, prof); });
     });
 
     var motionVoiceAudio = null;
