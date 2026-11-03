@@ -196,42 +196,6 @@
   .pas p{margin:0;font-size:16px;font-weight:600;max-width:340px}
   @media (max-width:800px){.pas{grid-template-columns:1fr}.chemin{height:150px}}
 
-  /* ---------- 5. Où : la tête de Marshall devient l'épingle de la carte et vole de quartier en quartier ---------- */
-  .ou{padding:110px var(--pad);display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:center}
-  .ou h2{font-size:clamp(46px,6.2vw,116px)}
-  .ou .txt p{font-size:18px;font-weight:600;color:var(--or);max-width:460px}
-  .visio{display:inline-block;margin-top:10px;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:20px;color:var(--or)}
-  .plan{position:relative;width:100%;max-width:640px;aspect-ratio:1.1;justify-self:center;border-radius:28px;overflow:hidden;
-        background-color:#E6F4FC;box-shadow:inset 0 0 0 3px var(--blue);
-        background-image:linear-gradient(rgba(110,193,240,.18) 2px,transparent 2px),linear-gradient(90deg,rgba(110,193,240,.18) 2px,transparent 2px);background-size:44px 44px}
-  .plan svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-  .plan .seine{fill:none;stroke:#A9DBF7;stroke-width:22;stroke-linecap:round;vector-effect:non-scaling-stroke}
-  .plan .fond-trajet{fill:none;stroke:rgba(243,133,43,.35);stroke-width:3;stroke-dasharray:2 10;stroke-linecap:round;vector-effect:non-scaling-stroke}
-  .plan .trajet{fill:none;stroke:var(--or);stroke-width:5;stroke-linecap:round;vector-effect:non-scaling-stroke}
-  .plan .tour{position:absolute;left:58%;top:52%;font-size:clamp(26px,3vw,40px);transform:translate(-50%,-100%)}
-  .plan .zone{position:absolute;left:48%;top:52%;width:40%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(0);background:radial-gradient(circle,rgba(243,133,43,.28),rgba(243,133,43,0) 70%);border:3px dashed rgba(243,133,43,.6)}
-  .quartier{position:absolute;transform:translate(-50%,-50%);padding:8px 12px;background:#fff;border:2px solid var(--blue);color:var(--blue);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(11px,1.15vw,16px);line-height:1;white-space:nowrap;box-shadow:0 6px 14px rgba(0,60,100,.12);transition:background .3s,color .3s}
-  .quartier.vu{background:var(--blue);color:#fff}
-  .quartier.vu::before{content:"✓ "}
-  .quartier.maison{background:var(--or);border-color:var(--or);color:#fff;font-size:clamp(20px,2.2vw,30px);padding:10px 16px}
-  .epingle{position:absolute;left:0;top:0;z-index:5;width:clamp(58px,6.4vw,82px);transform:translate(-50%,-100%);pointer-events:none;filter:drop-shadow(0 12px 12px rgba(0,40,70,.3))}
-  .epingle .tete{display:block;width:100%;aspect-ratio:1;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--or);padding:5px;overflow:hidden}
-  .epingle .tete img{width:100%;height:100%;border-radius:50%;object-fit:cover;transform:rotate(45deg);background:#fff}
-  .ombre{position:absolute;left:0;top:0;width:34px;height:10px;border-radius:50%;background:rgba(0,40,70,.22);transform:translate(-50%,-50%);z-index:4;pointer-events:none}
-  .bulle-dit{position:absolute;left:52%;top:36%;z-index:7;padding:12px 16px;background:#fff;color:var(--or);border:3px solid var(--or);font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:clamp(16px,1.7vw,22px);line-height:1;border-radius:18px 18px 18px 4px;white-space:nowrap}
-  @media (max-width:900px){
-    .ou{box-sizing:border-box;min-height:100svh;padding:calc(78px + env(safe-area-inset-top)) var(--pad) 18px;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:clamp(8px,1.4vh,14px);align-content:center}
-    .ou .txt p{font-size:clamp(15px,2.2vh,18px);margin:8px 0}
-    .visio{margin-top:4px;font-size:clamp(16px,2.5vh,20px)}
-    .plan{width:min(100%,calc((100svh - 380px) * 1.1));max-width:520px}
-  }
-  /* PC : la section tient dans l'écran (le plan suit la hauteur disponible sous l'en-tête),
-     ainsi elle est épinglée bien centrée au lieu d'être coupée en haut avec un vide en bas */
-  @media (min-width:901px){
-    .ou{box-sizing:border-box;min-height:100vh;min-height:100svh;padding-top:calc(84px + 2vh);padding-bottom:4vh;align-content:center}
-    .plan{max-width:min(640px,calc((100vh - 84px - 8vh) * 1.1))}
-  }
-
   /* ---------- 6. Commerçants : le téléphone de Studio Social ---------- */
   .commerce{padding:110px var(--pad);display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center;overflow:hidden}
   .commerce h2{font-size:clamp(46px,6.4vw,120px)}
@@ -429,11 +393,19 @@
 </head>
 <body>
 <style id="intro-tx-style">
-  /* Intro : le logo se construit en blocs, puis le rideau orange s'ouvre par le bas en arrondi, directement sur la page. */
-  #intro-tx{position:fixed;inset:0;z-index:2147483647;pointer-events:auto;overflow:hidden}
+  /* Intro : le logo se construit en blocs, puis le rideau orange et 6 calques de couleur remontent en cascade,
+     chacun avec un bas arrondi (maquette maquettes/chargement-copain-digital). */
+  #intro-tx{position:fixed;inset:0;z-index:2147483647;pointer-events:auto;overflow:hidden;--it-arc:10.336vw}
   #intro-tx.fini{display:none}
-  #intro-tx .it-rideau{position:absolute;inset:0;background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%)}
-  #intro-tx .it-logo{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  #intro-tx .it-rideau,#intro-tx .it-calque{position:absolute;top:0;left:0;width:100%;height:calc(100% + var(--it-arc));
+    -webkit-mask-image:linear-gradient(#000 0 0),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1456 150.5' preserveAspectRatio='none'%3E%3Cpath d='M1456 0C801.9 272 212.833 113.333 0 0Z' fill='%23000'/%3E%3C/svg%3E");
+    mask-image:linear-gradient(#000 0 0),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1456 150.5' preserveAspectRatio='none'%3E%3Cpath d='M1456 0C801.9 272 212.833 113.333 0 0Z' fill='%23000'/%3E%3C/svg%3E");
+    -webkit-mask-size:100% calc(100% - var(--it-arc) + 1px),100% var(--it-arc);mask-size:100% calc(100% - var(--it-arc) + 1px),100% var(--it-arc);
+    -webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+  #intro-tx .it-rideau{z-index:7;background:#ff7a00}
+  /* Sortie vers une autre page : passage « Ciel de Paris » de js/intro-tx.js, sans logo ni barre */
+  #intro-tx.depart .it-logo,#intro-tx.depart .it-charge{display:none}
+  #intro-tx .it-logo{position:absolute;inset:0 0 var(--it-arc) 0;display:flex;flex-direction:column;justify-content:center;align-items:center;
     font-family:Fredoka,system-ui,sans-serif;font-weight:700;color:#fff;font-size:clamp(46px,10vw,122px);line-height:1.04}
   #intro-tx .it-ligne{display:flex;justify-content:center;position:relative}
   #intro-tx .it-l{position:relative;display:inline-block}
@@ -444,7 +416,7 @@
   #intro-tx.statique .it-ch{opacity:1}
   #intro-tx.statique .it-blk,#intro-tx.statique .it-trait{display:none}
   /* Barre de chargement sous le logo : rail blanc translucide, remplissage blanc qui suit le vrai chargement de la page */
-  #intro-tx .it-charge{position:absolute;left:50%;top:calc(50% + clamp(46px,10vw,122px) * 1.04 + clamp(40px,5.5vw,70px));translate:-50% 0;
+  #intro-tx .it-charge{position:absolute;left:50%;top:calc((100% - var(--it-arc)) / 2 + clamp(46px,10vw,122px) * 1.04 + clamp(40px,5.5vw,70px));translate:-50% 0;
     display:flex;flex-direction:column;align-items:center;gap:12px;font-family:Fredoka,system-ui,sans-serif;font-weight:700;color:#fff;opacity:0}
   #intro-tx .it-rail{position:relative;width:min(440px,64vw);height:16px;border-radius:999px;background:rgba(255,255,255,.22);box-shadow:inset 0 2px 4px rgba(90,40,0,.25);transform:scaleX(0)}
   #intro-tx .it-plein{position:absolute;left:3px;top:3px;bottom:3px;width:0;border-radius:999px;background:#fff;box-shadow:0 1px 2px rgba(90,40,0,.25)}
@@ -453,6 +425,12 @@
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap" rel="stylesheet">
 <div id="intro-tx" aria-hidden="true">
+  <div class="it-calque" style="background:#A9DCF7;z-index:6"></div>
+  <div class="it-calque" style="background:#FFFFFF;z-index:5"></div>
+  <div class="it-calque" style="background:#FF9C46;z-index:4"></div>
+  <div class="it-calque" style="background:#F3852B;z-index:3"></div>
+  <div class="it-calque" style="background:#4AA8DE;z-index:2"></div>
+  <div class="it-calque" style="background:#1D3B57;z-index:1"></div>
   <div class="it-rideau"><div class="it-logo" id="it-logo"></div>
     <div class="it-charge" id="it-charge"><div class="it-rail" id="it-rail"><div class="it-plein" id="it-plein"></div></div><div class="it-pct"><span id="it-pct">0</span> %</div></div>
   </div>
@@ -481,13 +459,15 @@
     logo.appendChild(ligne);
   });
 
-  /* Ouverture du rideau : la page apparaît par le bas dans un grand arrondi qui monte jusqu'à tout dévoiler. */
-  function ouverture(p){
-    var W=innerWidth, H=innerHeight;
-    var cx=W / 2, cy=H * 1.25, rx=W * 1.1, ry=H * 1.6 * p;
-    if(ry < 1){ rideau.style.clipPath=''; return; }
-    var trou='M'+(cx-rx)+' '+cy+'A'+rx+' '+ry+' 0 1 0 '+(cx+rx)+' '+cy+'A'+rx+' '+ry+' 0 1 0 '+(cx-rx)+' '+cy+'Z';
-    rideau.style.clipPath='path(evenodd, "M0 0H'+W+'V'+H+'H0Z'+trou+'")';
+  /* Ouverture : le rideau (avec le logo et la barre) puis les 6 calques remontent, avec un décalage
+     légèrement irrégulier entre eux (nombre d'or). */
+  var panneaux=[rideau].concat([].slice.call(ov.querySelectorAll('.it-calque')));
+  function cascade(debut){
+    var at=debut;
+    return panneaux.map(function(el, i){
+      if(i > 0) at+=.09 * (1 + ((.6180339887 * i) % 1 * 2 - 1) * .4);
+      return { el:el, at:at, duration:1.05 * (1 + i * .018) };
+    });
   }
 
   function ouvert(){
@@ -581,7 +561,6 @@
   function jouer(){
     if(!window.gsap || reduce){ ov.classList.add('statique'); Promise.all(toutCharge()).then(terminer); return; }
     var blocs=logo.querySelectorAll('.it-blk'), lettres=logo.querySelectorAll('.it-ch'), trait=logo.querySelector('.it-trait');
-    var etat={ p:0 };
     tl=gsap.timeline({ delay:.15 })
       .to(trait, { scaleX:1, duration:.35, ease:'power2.out' })
       .to(blocs, { scaleY:1, duration:.32, ease:'back.out(1.6)', stagger:.045 }, '-=.05')
@@ -607,11 +586,10 @@
         });
       })
       .addLabel('sortie')
-      .call(ouvert, null, 'sortie')
-      .to(charge, { y:'-6vh', opacity:0, duration:.4, ease:'power2.in' }, 'sortie')
-      .to(logo, { y:'-18vh', opacity:0, duration:.5, ease:'power2.in' }, 'sortie')
-      .to(etat, { p:1, duration:.9, ease:'power2.inOut', onUpdate:function(){ ouverture(etat.p); } }, 'sortie+=.05')
-      .call(terminer);
+      .call(ouvert, null, 'sortie');
+    var vagues=cascade(tl.labels.sortie);
+    vagues.forEach(function(v){ tl.to(v.el, { yPercent:-100, duration:v.duration, ease:'power3.inOut' }, v.at); });
+    tl.call(terminer);
   }
   if(document.readyState!=='loading') jouer(); else document.addEventListener('DOMContentLoaded', jouer);
   setTimeout(function(){ if(!tl) { ov.classList.add('statique'); Promise.all(toutCharge()).then(terminer); } }, 4000);
@@ -636,12 +614,19 @@
   function go(dest){
     if(depart) return; depart=true;
     if(tl) tl.kill();
-    ov.classList.remove('fini'); ov.classList.add('statique');
+    ov.classList.remove('fini'); ov.classList.add('statique', 'depart');
     rideau.style.clipPath='';
+    // mêmes couleurs que le passage des autres pages, du calque du dessus à celui du dessous
+    ['#6EC1F0','#A9DCF7','#FFFFFF','#FF9C46','#F3852B','#4AA8DE','#1D3B57'].forEach(function(c, i){ panneaux[i].style.background=c; });
     if(window.gsap && !reduce){
-      gsap.set(logo, { y:0, opacity:1 });
-      gsap.fromTo(rideau, { y:'-100%' }, { y:0, duration:.6, ease:'power3.inOut' });
-    } else { rideau.style.transform='none'; logo.style.opacity=1; logo.style.transform='none'; }
+      // le calque du dessous descend en premier, celui du dessus ferme la marche
+      gsap.set(panneaux, { yPercent:-100, y:0 });
+      var at=0;
+      panneaux.slice().reverse().forEach(function(el, i){
+        if(i > 0) at+=.03 * (1 + ((.6180339887 * i) % 1 * 2 - 1) * .4);
+        gsap.to(el, { yPercent:0, duration:.36 * (1 + i * .018), delay:at, ease:'power3.inOut' });
+      });
+    } else { panneaux.forEach(function(el){ el.style.transform='none'; }); }
     setTimeout(function(){ window.location.href=dest; }, DUR);
   }
   window.mcdGo=go;
@@ -676,7 +661,122 @@
       <a class="acc-lnk" href="#" id="acc-out" hidden>Se déconnecter</a>
     </div>
   </div>
-  <a class="cta-top devis-btn" href="rendez-vous.html">Audit gratuit</a>
+  <a class="cta-top devis-btn" href="contact.html">Nous contacter</a>
+  <!-- PULL ME : onglet en papier accroché en haut, qui tire un menu (comme sweet-tape.com) -->
+  <nav class="pull" id="pull" data-open="false" aria-label="Menu rapide">
+    <div class="pull-panel" id="pull-panel">
+      <div class="pull-sheet">
+        <ul class="pull-list">
+          <li class="pull-item"><span class="pull-rule" aria-hidden="true"></span><a class="pull-link" href="#particuliers" tabindex="-1"><span class="pull-thumb" aria-hidden="true"><img src="images/particuliers/ordinateur.jpg" alt=""></span><span class="pull-label">Particuliers</span><span class="pull-arrow" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.4 10.6 10.6 1.4M3.6 1.4h7v7" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg></span></a></li>
+          <li class="pull-item"><span class="pull-rule" aria-hidden="true"></span><a class="pull-link" href="#pros" tabindex="-1"><span class="pull-thumb" aria-hidden="true"><img src="images/pull/pros.jpg" alt=""></span><span class="pull-label">Pros</span><span class="pull-arrow" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.4 10.6 10.6 1.4M3.6 1.4h7v7" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg></span></a></li>
+          <li class="pull-item"><span class="pull-rule" aria-hidden="true"></span><a class="pull-link" href="decouvrir-studio-social.html" tabindex="-1"><span class="pull-thumb" aria-hidden="true"><img src="images/pull/studio-social.jpg" alt=""></span><span class="pull-label">Studio Social</span><span class="pull-arrow" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.4 10.6 10.6 1.4M3.6 1.4h7v7" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg></span></a></li>
+          <li class="pull-item"><span class="pull-rule" aria-hidden="true"></span><a class="pull-link" href="contact.html" tabindex="-1"><span class="pull-thumb" aria-hidden="true"><img src="images/pull/contact.jpg" alt=""></span><span class="pull-label">Contact</span><span class="pull-arrow" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none"><path d="M1.4 10.6 10.6 1.4M3.6 1.4h7v7" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/></svg></span></a></li>
+        </ul>
+      </div>
+    </div>
+    <button class="pull-tab" type="button" aria-expanded="false" aria-controls="pull-panel"><span class="pull-tab-sheet">Tire-moi</span></button>
+  </nav>
+  <style>
+    /* Papier blanc, encre noire, pastilles orange ; tailles reprises de sweet-tape (en vw, bornées) */
+    .pull{--pull-ink:#0a0a0a;--pull-paper:#fff;--pull-dot:var(--or);
+      --tab-w:clamp(96px,9.3vw,134px);--menu-w:clamp(330px,31vw,460px);--row-h:clamp(46px,4.9vw,70px);--thumb:clamp(36px,4vw,58px);
+      --perf-mark:clamp(2px,.208vw,3px);--perf-pitch:clamp(4px,.417vw,6px);
+      position:relative;flex:0 0 auto;width:var(--tab-w);height:0;align-self:flex-start;margin-top:-18px;transition:margin-top .3s;
+      display:flex;flex-direction:column;align-items:flex-end;color:var(--pull-ink);font-stretch:62%;font-weight:900;text-transform:uppercase;z-index:2}
+    .top.solid .pull{margin-top:-12px}
+    .pull-panel{width:var(--menu-w);flex:0 0 auto;background:var(--pull-paper);border-radius:0 0 0 clamp(10px,.9vw,14px);position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(0,40,80,.18)}
+    .pull[data-open="false"] .pull-panel{pointer-events:none;height:0}
+    .pull-sheet{padding:clamp(14px,1.4vw,20px) clamp(14px,1.4vw,20px) clamp(6px,.5vw,8px) clamp(10px,1vw,14px)}
+    .pull-list{list-style:none;margin:0;padding:0}
+    .pull-rule{display:block;height:var(--perf-mark);background-image:linear-gradient(to right,currentColor 0 var(--perf-mark),transparent var(--perf-mark));background-size:var(--perf-pitch) 100%;background-repeat:repeat-x}
+    .pull-link{height:var(--row-h);display:flex;align-items:start;position:relative;padding-right:clamp(26px,2.6vw,38px);color:inherit;text-decoration:none}
+    .pull-thumb{flex:0 0 auto;width:0;height:var(--thumb);margin-right:0;position:relative;top:calc(clamp(5px,.55vw,8px) * -1);z-index:1;overflow:hidden;border-radius:clamp(14px,1.736vw,25px);transform:rotate(-5deg);
+      transition:width .22s cubic-bezier(.16,.84,.3,1) .3s,margin-right .22s cubic-bezier(.16,.84,.3,1) .3s}
+    .pull-thumb img{width:var(--thumb);max-width:none;height:100%;object-fit:cover;border-radius:inherit;transform:scale(0);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+    .pull-link:hover .pull-thumb,.pull-link:focus-visible .pull-thumb{width:var(--thumb);margin-right:clamp(8px,.85vw,12px);transition-delay:0s}
+    .pull-link:hover .pull-thumb img,.pull-link:focus-visible .pull-thumb img{transform:scale(1);transition-delay:.1s}
+    /* plus petit que sweet-tape : nos intitulés sont plus longs (« Particuliers », « Studio Social ») */
+    .pull-label{display:flex;align-items:flex-end;white-space:nowrap;font-size:clamp(26px,2.9vw,42px);line-height:1;letter-spacing:-.005em}
+    .pull .clip{display:block;flex:0 0 auto;overflow:hidden;margin:-.1em -.04em 0;padding:.1em .04em 0}
+    .pull .char{display:block}
+    .pull-arrow{position:absolute;right:0;top:clamp(10px,1vw,14px);display:grid;place-items:center;width:clamp(22px,1.7vw,26px);height:clamp(22px,1.7vw,26px);border-radius:50%;background:var(--pull-dot);color:#fff}
+    .pull-arrow svg{width:clamp(8px,.56vw,9px);height:clamp(8px,.56vw,9px);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+    .pull-link:hover .pull-arrow svg,.pull-link:focus-visible .pull-arrow svg{transform:rotate(45deg)}
+    /* la fiche elle-même : orange, texte et perforation blancs */
+    .pull-tab{--pull-paper:var(--or);display:block;width:var(--tab-w);flex:0 0 auto;padding:0;border:0;background:none;color:#fff;font:inherit;text-transform:inherit;cursor:pointer;position:relative;filter:drop-shadow(0 3px 6px rgba(0,40,80,.16))}
+    .pull-tab.is-arriving::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:150%;background:var(--pull-paper)}
+    /* Corps de l'onglet + bas en dents de scie (même découpe que sweet-tape), ligne de perforation en haut */
+    .pull-tab-sheet{--tab-body:clamp(46px,4.681vw,67px);--tooth-h:clamp(14px,1.4vw,20px);--perf-y:clamp(16px,1.667vw,24px);--perf-x:clamp(5px,.556vw,8px);
+      --tooth:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 15' preserveAspectRatio='none'%3E%3Cpath d='M0 0L0 11Q0 15 4.29 12.43L20.71 2.57Q25 0 29.29 2.57L45.71 12.43Q50 15 54.29 12.43L70.71 2.57Q75 0 79.29 2.57L95.71 12.43Q100 15 100 11L100 0Z' fill='%23000'/%3E%3C/svg%3E");
+      display:block;position:relative;height:calc(var(--tab-body) + var(--tooth-h));background:var(--pull-paper);
+      padding-top:calc(var(--perf-y) + (var(--tab-body) - var(--perf-y) - .8em) / 2);text-align:center;font-size:clamp(13px,1.389vw,20px);line-height:.8;letter-spacing:.01em;
+      -webkit-mask-image:linear-gradient(#000 0 0),var(--tooth);mask-image:linear-gradient(#000 0 0),var(--tooth);
+      -webkit-mask-size:100% calc(100% - var(--tooth-h)),100% var(--tooth-h);mask-size:100% calc(100% - var(--tooth-h)),100% var(--tooth-h);
+      -webkit-mask-position:0 0,0 calc(100% - 2px);mask-position:0 0,0 calc(100% - 2px);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+    .pull-tab-sheet::before{content:"";position:absolute;top:var(--perf-y);left:var(--perf-x);right:var(--perf-x);height:var(--perf-mark);pointer-events:none;
+      background-image:linear-gradient(to right,currentColor 0 var(--perf-mark),transparent var(--perf-mark));background-size:var(--perf-pitch) 100%;background-repeat:repeat-x}
+    .pull-link:focus-visible,.pull-tab:focus-visible{outline:2px solid var(--pull-ink);outline-offset:2px}
+    /* Téléphone et tablette : le menu burger s'en charge */
+    @media (max-width:900px){.pull{display:none}}
+  </style>
+  <script>
+  (function(){
+    var nav=document.getElementById('pull');
+    if(!nav) return;
+    var tab=nav.querySelector('.pull-tab'), panel=nav.querySelector('.pull-panel'), sheet=nav.querySelector('.pull-sheet');
+    var items=[].slice.call(nav.querySelectorAll('.pull-item')), liens=[].slice.call(nav.querySelectorAll('.pull-link'));
+    // chaque lettre dans sa fenêtre, pour la faire monter
+    nav.querySelectorAll('.pull-label').forEach(function(l){
+      var t=l.textContent; l.setAttribute('aria-hidden','true'); l.parentNode.setAttribute('aria-label', t); l.textContent='';
+      t.split('').forEach(function(c){ var s=document.createElement('span'); s.className='clip'; var ch=document.createElement('span'); ch.className='char'; ch.textContent=c===' ' ? ' ' : c; s.appendChild(ch); l.appendChild(s); });
+    });
+    var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var ouvert=false, drop=null, contenu=null, retour=null;
+
+    function demarrer(){
+      if(!window.gsap || reduce) return;
+      // le panneau descend avec un rebond, son contenu glisse avec lui
+      drop=gsap.timeline({ paused:true })
+        .fromTo(panel, { height:0 }, { height:'auto', duration:.7, ease:'back.out(1.9)' }, 0)
+        .fromTo(sheet, { yPercent:-100 }, { yPercent:0, duration:.7, ease:'back.out(1.9)' }, 0);
+      // puis, ligne par ligne : le pointillé se trace, les lettres montent dans le désordre, la pastille gonfle
+      contenu=gsap.timeline({ paused:true });
+      items.forEach(function(it, i){
+        var at=.28 + .16 * i, chars=[].slice.call(it.querySelectorAll('.char'));
+        for(var k=chars.length - 1; k > 0; k--){ var j=Math.floor(Math.random() * (k + 1)); var x=chars[k]; chars[k]=chars[j]; chars[j]=x; }
+        contenu.fromTo(it.querySelector('.pull-rule'), { clipPath:'inset(0% 100% 0% 0%)' }, { clipPath:'inset(0% 0% 0% 0%)', duration:.6, ease:'power2.out' }, at);
+        contenu.fromTo(chars, { yPercent:130 }, { yPercent:0, duration:.6, stagger:.025, ease:'power3.out' }, at + .1);
+        contenu.fromTo(it.querySelector('.pull-arrow'), { scale:0 }, { scale:1, duration:.5, ease:'back.out(2.2)' }, at + .26);
+      });
+      // arrivée de l'onglet : il tombe du haut de l'écran une fois les portes ouvertes
+      tab.classList.add('is-arriving');
+      gsap.set(tab, { yPercent:-115 });
+      function arriver(){ gsap.to(tab, { yPercent:0, duration:.75, delay:.7, ease:'back.out(1.9)', onComplete:function(){ tab.classList.remove('is-arriving'); } }); }
+      if(window.__doorsOpen || !document.getElementById('intro-tx')) arriver(); else document.addEventListener('mcd-doors-open', arriver, { once:true });
+    }
+
+    function basculer(v){
+      if(v === ouvert) return;
+      ouvert=v;
+      nav.dataset.open=String(v);
+      tab.setAttribute('aria-expanded', String(v));
+      liens.forEach(function(a){ if(v) a.removeAttribute('tabindex'); else a.setAttribute('tabindex', '-1'); });
+      if(!drop) return;
+      if(retour){ retour.kill(); retour=null; }
+      if(v){ drop.play(); contenu.play(); return; }
+      contenu.pause();
+      if(drop.time() === 0){ contenu.pause(0); return; }
+      retour=drop.tweenTo(0, { duration:.85, ease:'power2.inOut', onComplete:function(){ contenu.pause(0); } });
+    }
+
+    tab.addEventListener('click', function(){ basculer(!ouvert); });
+    liens.forEach(function(a){ a.addEventListener('click', function(){ basculer(false); }); });
+    document.addEventListener('click', function(e){ if(ouvert && !e.target.closest('.pull')) basculer(false); });
+    document.addEventListener('keydown', function(e){ if(ouvert && e.key === 'Escape'){ basculer(false); tab.focus(); } });
+    if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', demarrer); else demarrer();
+  })();
+  </script>
+  <!-- /PULL ME -->
   <button class="burger" type="button" aria-label="Ouvrir le menu" id="burger"><span></span><span></span><span></span></button>
 </header>
 <nav class="menu" id="menu" aria-label="Menu">
@@ -748,34 +848,412 @@
 </section>
 
 <!-- 5. OÙ -->
-<section class="ou light" id="ou">
-  <div class="txt">
-    <span class="lbl">Où on intervient</span>
-    <h2 class="disp">Toute l’Île-<br><em>de-France</em></h2>
-    <p>On se déplace chez vous à Paris et dans les sept départements autour. Partout ailleurs, la séance se fait en visio, avec le même accompagnement.</p>
-    <span class="visio">On agit aussi en visio <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-.12em;margin-left:.2em"><rect x="2.5" y="6" width="13" height="12" rx="2.5"/><path d="M15.5 10.5 21.5 7v10l-6-3.5"/></svg></span>
-  </div>
-  <div class="plan" id="plan">
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-      <path class="seine" d="M104 40 C 86 46, 74 62, 62 62 S 44 66, 34 72 S 18 80, 8 104"/>
-      <path class="fond-trajet" d="M45 13 C 55 17, 62 24, 67 31 S 82 44, 85 52 S 72 66, 65 70 S 53 84, 48 87 S 20 66, 15 53 S 22 36, 29 33 S 44 42, 48 50"/>
-      <path class="trajet" id="trajet" d="M45 13 C 55 17, 62 24, 67 31 S 82 44, 85 52 S 72 66, 65 70 S 53 84, 48 87 S 20 66, 15 53 S 22 36, 29 33 S 44 42, 48 50"/>
-    </svg>
-    <span class="tour" aria-hidden="true">🗼</span>
-    <span class="zone" id="zone" aria-hidden="true"></span>
-    <span class="quartier" style="left:45%;top:13%" data-q>Val-d’Oise 95</span>
-    <span class="quartier" style="left:67%;top:31%" data-q>Seine-St-Denis 93</span>
-    <span class="quartier" style="left:85%;top:52%" data-q>Seine-et-Marne 77</span>
-    <span class="quartier" style="left:65%;top:70%" data-q>Val-de-Marne 94</span>
-    <span class="quartier" style="left:48%;top:87%" data-q>Essonne 91</span>
-    <span class="quartier" style="left:15%;top:53%" data-q>Yvelines 78</span>
-    <span class="quartier" style="left:29%;top:33%" data-q>Hauts-de-Seine 92</span>
-    <span class="quartier maison" style="left:48%;top:61%" data-q>Paris</span>
-    <span class="ombre" id="ombre" aria-hidden="true"></span>
-    <span class="epingle" id="epingle" aria-hidden="true"><span class="tete"><img src="images/avatarchatbot.png" alt=""></span></span>
-    <span class="bulle-dit" id="bulle-dit">On vient chez vous !</span>
+<!-- généré depuis maquettes/fond-herbe-arbres par vers-site.py : retoucher la maquette, pas ce bloc -->
+<style>
+  #ou *{box-sizing:border-box}
+  #ou.scene{height:420vh}
+  #ou .fond{position:relative;height:100vh;height:100dvh;background:#6EC1F0;overflow:hidden}
+  #ou .sol{position:absolute;left:0;right:0;bottom:0;display:block;width:100%;height:clamp(300px,58vh,640px)}
+  #ou #train{will-change:transform}
+  #ou .titre{position:absolute;z-index:2;left:0;right:0;top:0;bottom:clamp(300px,58vh,640px);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:.22em;padding:calc(84px + 1vh) 16px 0;text-align:center}
+  #ou .titre h2,#ou .titre p{font-family:Archivo,system-ui,sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;line-height:.84;letter-spacing:-.005em;margin:0;color:#fff;font-size:clamp(46px,6vw,110px)}
+  #ou .titre p{font-size:clamp(46px,5.4vw,99px);text-wrap:balance}
+  #ou .titre p.dans{font-size:clamp(22px,2.7vw,50px)}
+  #ou .titre p.dans+h2{margin-top:.17em}
+  #ou .titre h2 span,#ou .titre .mot-paris{white-space:nowrap}
+  #ou .titre h2 span{color:#F3852B}
+  #ou .ile{display:inline-block;perspective:1100px}
+  #ou .broche{position:relative;display:inline-block;transform-style:preserve-3d;will-change:transform}
+  #ou .broche .pile{position:absolute;inset:0;transform-style:preserve-3d}
+  #ou .broche .pile.dos{transform:rotateX(180deg)}
+  #ou .broche .couche{position:absolute;inset:0;backface-visibility:hidden;color:#C7620E}
+  #ou .broche .couche.face{color:#F3852B}
+  #ou .broche .place{visibility:hidden}
+  #ou .coupe{display:none}
+  @media (max-width:700px){#ou .titre p{line-height:1.08}#ou .titre p.dans{line-height:.84}#ou .coupe{display:inline}}
+  #ou .tour{display:inline-block;height:1.14em;width:auto;margin:-.45em .04em 0;vertical-align:baseline;fill:#F3852B;fill-rule:evenodd}
+  #ou .mat{position:absolute;left:max(150px,13%);width:12px;margin-left:-6px;background:linear-gradient(90deg,#8d97a1,#dfe4e8 45%,#59626c);}
+  #ou .mat::after{content:"";position:absolute;left:-10px;right:-10px;bottom:-3px;height:7px;border-radius:2px;background:#59626c}
+  #ou .mat::before{content:"";position:absolute;left:-7px;right:-7px;top:-2px;height:14px;border-radius:3px;background:linear-gradient(90deg,#4a535d,#a7b0b9 45%,#39424c)}
+  #ou .afficheur{position:absolute;z-index:2;left:max(150px,13%);transform:translateX(-50%);width:min(calc(100% - 32px),236px);padding:7px;border-radius:11px;background:linear-gradient(180deg,#5d6771,#3c444d 45%,#2b3138);border:1px solid #1c2127;box-shadow:0 12px 24px rgba(10,50,80,.32),inset 0 1px 0 rgba(255,255,255,.3)}
+  #ou .afficheur::before{content:"";position:absolute;left:12px;right:12px;top:-7px;height:9px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#6a747e,#3c444d)}
+  #ou .marshall{position:absolute;z-index:3;left:2px;top:-5px;transform:translate(-22.4%,-65.4%);display:block;width:auto;height:256px;filter:drop-shadow(0 3px 2px rgba(10,30,50,.3))}
+  #ou .ecran{position:relative;overflow:hidden;padding:11px 6px 12px 98px;border-radius:6px;background:#06080b;box-shadow:inset 0 2px 9px #000}
+  #ou .ecran::before{content:"";position:absolute;z-index:2;inset:0;pointer-events:none;background:linear-gradient(112deg,rgba(255,255,255,.1) 0 24%,transparent 24.5%)}
+  #ou .ecran::after{content:"";position:absolute;z-index:1;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 45%,#06080b 62%) 0 0/2.6px 2.6px}
+  #ou .led{display:flex;flex-direction:column;align-items:center;gap:5px;font-family:Archivo,system-ui,sans-serif;font-stretch:75%;font-weight:800;color:#ffc061;text-shadow:0 0 8px #ff8a1e,0 0 2px #ffb347;text-transform:uppercase;white-space:nowrap}
+  #ou .led b{font-size:58px;font-weight:900;line-height:.9;letter-spacing:.02em}
+  #ou .led span{font-size:14px;line-height:1;letter-spacing:.01em}
+</style>
+<section class="scene dark" id="ou">
+  <div class="fond">
+    <svg class="sol" id="sol" viewBox="0 0 1600 560" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Paysage d'herbe et d'arbres"></svg>
+    <div class="mat" id="matGare"></div>
+    <svg class="sol" id="train" viewBox="0 0 1600 560" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Train Transilien"></svg>
+    <svg class="sol" id="avant" viewBox="0 0 1600 560" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+    <div class="titre"><p>Basés à <span class="mot-paris">Par<svg class="tour" viewBox="0 0 100 300" role="img" aria-label="i"><path d="M50 0 51.5 26H54V36H52.5C54 80 57 110 62 134H67V141H63C66 165 71 186 76 200H82V209H78C83 240 90 270 98 300H74C68 256 60 246 50 246 40 246 32 256 26 300H2C10 270 17 240 22 209H18V200H24C29 186 34 165 37 141H33V134H38C43 110 46 80 47.5 36H46V26H48.5ZM50 150C52 170 57 186 62 198H38C43 186 48 170 50 150Z"/></svg>s</span>, <br class="coupe">on intervient dans</p><h2>Toute <span class="ile"><span class="broche" id="broche">l’Île-de-France</span></span></h2></div>
+    <div class="afficheur" id="afficheur"><img class="marshall" id="marshall" src="images/marshall-panneau-coucou.webp" alt="Marshall assis sur le bord du panneau, il fait coucou de la main"><div class="ecran"><div class="led" id="ledGare"><b id="numeroGare"></b><span id="nomGare"></span></div></div></div>
   </div>
 </section>
+<script>
+(function(){
+  const W = 1600, H = 560, TAILLE = .8, HAUT_FIL = 163, PORTEE = 240, DEPART = 70;
+  const sol = document.getElementById('sol');
+
+  // hasard fixe : le paysage est le même à chaque chargement
+  let graine = 20261102;
+  const hasard = (min = 0, max = 1) => {
+    graine = (graine + 0x6D2B79F5) | 0;
+    let t = Math.imul(graine ^ (graine >>> 15), 1 | graine);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return min + ((t ^ (t >>> 14)) >>> 0) / 4294967296 * (max - min);
+  };
+
+  const colline = (base, amp, phase) => x =>
+    base + Math.sin(x / 310 + phase) * amp + Math.sin(x / 130 + phase * 2) * amp * .28;
+
+  const terrain = (y, couleur) => {
+    let d = `M0 ${H}`;
+    for (let x = 0; x <= W; x += 20) d += `L${x} ${y(x).toFixed(1)}`;
+    return `<path d="${d}L${W} ${H}Z" fill="${couleur}"/>`;
+  };
+
+  const ronds = (liste, couleur) =>
+    `<g fill="${couleur}">${liste.map(r => `<circle cx="${r[0].toFixed(1)}" cy="${r[1].toFixed(1)}" r="${r[2].toFixed(1)}"/>`).join('')}</g>`;
+
+  function arbreRond(x, y, h, pal) {
+    const large = hasard(.82, 1.22), l = h * .36 * large, hautTronc = h * .42, cy = y - h * .66;
+    const feuillage = [[x, cy, h * .24]];
+    for (let i = 0; i < 12; i++) {
+      const a = i / 12 * Math.PI * 2 + hasard(-.2, .2);
+      feuillage.push([x + Math.cos(a) * l * hasard(.6, .95), cy + Math.sin(a) * h * .24 * hasard(.65, 1), h * hasard(.09, .17)]);
+    }
+    const lumiere = [];
+    for (let i = 0; i < 26; i++) {
+      const a = hasard(Math.PI * .85, Math.PI * 1.75), d = hasard(.15, .82);
+      lumiere.push([x + Math.cos(a) * l * d, cy + Math.sin(a) * h * .26 * d, h * hasard(.022, .06)]);
+    }
+    const tronc = `<path d="M${x - h * .035} ${y + 4}Q${x - h * .02} ${y - hautTronc * .5} ${x - h * .012} ${y - hautTronc}L${x + h * .012} ${y - hautTronc}Q${x + h * .02} ${y - hautTronc * .5} ${x + h * .035} ${y + 4}Z" fill="${pal.tronc}"/>`;
+    const milieu = feuillage.map(r => [r[0] - h * .018, r[1] - h * .024, r[2] * .9]);
+    return tronc + ronds(feuillage, pal.fonce) + ronds(milieu, pal.moyen) + ronds(lumiere, pal.clair);
+  }
+
+  function sapin(x, y, h, pal) {
+    const etage = (bas, haut, large, c) =>
+      `<path d="M${x - large} ${bas}Q${x} ${bas + h * .035} ${x + large} ${bas}L${x} ${haut}Z" fill="${c}" stroke="${c}" stroke-width="${h * .025}" stroke-linejoin="round"/>`;
+    return `<rect x="${x - h * .022}" y="${y - h * .16}" width="${h * .044}" height="${h * .16 + 4}" fill="${pal.tronc}"/>`
+      + etage(y - h * .12, y - h * .58, h * .25, pal.fonce)
+      + etage(y - h * .32, y - h * .8, h * .2, pal.moyen)
+      + etage(y - h * .54, y - h, h * .14, pal.clair);
+  }
+
+  function rangee(y, nombre, hMin, hMax, pal, partSapins) {
+    const arbres = [];
+    for (let i = 0; i < nombre; i++) {
+      const x = (i + .5) / nombre * W + hasard(-.32, .32) * W / nombre;
+      arbres.push({ x, h: hasard(hMin, hMax) * TAILLE, sapin: hasard() < partSapins });
+    }
+    return arbres.sort((a, b) => b.h - a.h)
+      .map(a => (a.sapin ? sapin : arbreRond)(a.x, y(a.x) + 6, a.h, pal)).join('');
+  }
+
+  function herbe(y, nombre, hMin, hMax, couleur) {
+    let d = '';
+    for (let i = 0; i < nombre; i++) {
+      const x = hasard(-10, W + 10), b = y(x) + 6, h = hasard(hMin, hMax) * TAILLE, penche = hasard(-.5, .5) * h, l = hasard(2, 4.2) * TAILLE;
+      d += `M${(x - l).toFixed(1)} ${b.toFixed(1)}Q${(x + penche * .25).toFixed(1)} ${(b - h * .6).toFixed(1)} ${(x + penche).toFixed(1)} ${(b - h).toFixed(1)}Q${(x + penche * .35 + l).toFixed(1)} ${(b - h * .5).toFixed(1)} ${(x + l).toFixed(1)} ${b.toFixed(1)}Z`;
+    }
+    return `<path d="${d}" fill="${couleur}"/>`;
+  }
+
+  function rails(y) {
+    const ligne = decalage => {
+      let d = '';
+      for (let x = -10; x <= W + 10; x += 10) d += `${d ? 'L' : 'M'}${x} ${(y(x) + decalage).toFixed(1)}`;
+      return d;
+    };
+    const fil = (decalage, couleur, epaisseur) =>
+      `<path d="${ligne(decalage)}" fill="none" stroke="${couleur}" stroke-width="${epaisseur}" stroke-linecap="round"/>`;
+    let traverses = '';
+    for (let x = -20; x <= W + 20; x += 27) {
+      traverses += `M${x + 6} ${(y(x) - 12).toFixed(1)}h9L${x + 2} ${(y(x) + 13).toFixed(1)}h-9Z`;
+    }
+    return fil(1, '#d8cfbd', 32)
+      + `<path d="${traverses}" fill="#7a5a40"/>`
+      + fil(-7.5, '#4c5660', 3.6) + fil(-8.3, '#b7c1c9', 1.1)
+      + fil(8, '#4c5660', 3.6) + fil(7.2, '#b7c1c9', 1.1);
+  }
+
+  function catenaire(y) {
+    const fil = x => y(x) + 9 - HAUT_FIL;
+    const porteur = x => {
+      const t = (((x - DEPART) % PORTEE) + PORTEE) % PORTEE / PORTEE;
+      return fil(x) - 40 + 112 * t * (1 - t);
+    };
+    const ligne = f => {
+      let d = '';
+      for (let x = -10; x <= W + 10; x += 8) d += `${d ? 'L' : 'M'}${x} ${f(x).toFixed(1)}`;
+      return d;
+    };
+    let pendules = '', poteaux = '';
+    for (let x = DEPART - PORTEE; x <= W + PORTEE; x += PORTEE) {
+      for (let i = 1; i < 8; i++) {
+        const xp = x + PORTEE * i / 8;
+        pendules += `M${xp} ${porteur(xp).toFixed(1)}V${fil(xp).toFixed(1)}`;
+      }
+      const haut = fil(x) - 56, pied = y(x) - 11;
+      poteaux += `<path d="M${x - 4.5} ${pied}L${x - 2.5} ${haut}H${x + 2.5}L${x + 4.5} ${pied}Z" fill="url(#mat)"/>`
+        + `<rect x="${x - 9}" y="${pied - 3}" width="18" height="7" rx="1.5" fill="#a7a99f"/>`
+        + `<path d="M${x - 16} ${fil(x) - 40}H${x + 16}M${x} ${fil(x) + 26}L${x + 13} ${fil(x)}M${x + 13} ${fil(x) - 40}V${fil(x)}" fill="none" stroke="#59626c" stroke-width="2.6" stroke-linecap="round"/>`
+        + `<circle cx="${x + 13}" cy="${fil(x) - 40}" r="3.4" fill="#8a5a3a"/><circle cx="${x + 13}" cy="${fil(x)}" r="3.4" fill="#8a5a3a"/>`;
+    }
+    return `<defs><linearGradient id="mat" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8d97a1"/><stop offset="1" stop-color="#555e68"/></linearGradient></defs>`
+      + poteaux
+      + `<path d="${pendules}" fill="none" stroke="#59626c" stroke-width=".9"/>`
+      + `<path d="${ligne(porteur)}" fill="none" stroke="#3b444e" stroke-width="1.5"/>`
+      + `<path d="${ligne(fil)}" fill="none" stroke="#2b3139" stroke-width="2"/>`;
+  }
+
+  const loin = colline(330, 16, .6), milieu = colline(405, 20, 2.1), devant = colline(460, 7, 4.2), bas = colline(552, 5, 1.3);
+  const voie = x => 490 + Math.sin(x / 420) * 5;
+
+  sol.innerHTML = [
+    rangee(loin, 26, 90, 150, { fonce: '#70bfae', moyen: '#7bc6b1', clair: '#8acfba', tronc: '#6cb3b4' }, .3),
+    terrain(loin, '#8acfae'),
+    rangee(milieu, 13, 170, 270, { fonce: '#5fae55', moyen: '#7cc76a', clair: '#a2dc8a', tronc: '#8a6a4c' }, .2),
+    terrain(milieu, '#a9dd90'),
+    herbe(milieu, 900, 10, 20, '#94d27b'),
+    rangee(devant, 5, 300, 400, { fonce: '#2f8440', moyen: '#459f4c', clair: '#6cbf5e', tronc: '#6b4a32' }, .2),
+    terrain(devant, '#7cc76a'),
+    herbe(devant, 1800, 16, 34, '#68b95a'),
+    herbe(devant, 1300, 14, 30, '#8bd274'),
+    rails(voie),
+    catenaire(voie)
+  ].join('');
+
+  document.getElementById('avant').innerHTML = [
+    // herbe sous les rails dans les bleus du site (bleu ciel #6EC1F0, brins plus foncés et plus clairs)
+    terrain(x => voie(x) + 16, '#6EC1F0'),
+    herbe(x => voie(x) + 15, 700, 10, 20, '#6EC1F0'),
+    terrain(bas, '#6EC1F0'),
+    herbe(bas, 2200, 26, 58, '#4AA8DE'),
+    herbe(bas, 1500, 22, 50, '#8ACFF5'),
+    herbe(() => H, 1400, 34, 72, '#6EC1F0')
+  ].join('');
+
+  // --- Transilien : y = 0 au niveau du rail, l'avant du train à droite ---
+  const VOITURES = [{ l: 400, cab: 'arriere' }, { l: 380, panto: true }, { l: 380 }, { l: 380 }, { l: 400, cab: 'avant' }];
+  const JOINT = 8;
+  const LONGUEUR = VOITURES.reduce((t, v) => t + v.l + JOINT, -JOINT);
+
+  function bogie(cx, sens) {
+    const roue = x => `<g class="roue" data-x="${x}" data-s="${sens}"><circle cx="${x}" cy="-8.5" r="8.5" fill="#14181d"/><circle cx="${x}" cy="-8.5" r="6" fill="#4a535d"/><path d="M${x - 6} -8.5h12M${x} -14.5v12" stroke="#14181d" stroke-width="1.8"/><circle cx="${x}" cy="-8.5" r="2" fill="#aab3bb"/></g>`;
+    return roue(cx - 23) + roue(cx + 23)
+      + `<rect x="${cx - 40}" y="-23" width="80" height="9" rx="3" fill="#252b33"/>`
+      + `<rect x="${cx - 9}" y="-17" width="18" height="11" rx="2" fill="#1b2027"/>`
+      + [-31, -15, 6, 22].map(d => `<rect x="${cx + d}" y="-20" width="9" height="5" rx="1.5" fill="#6a747e"/>`).join('');
+  }
+
+  function porte(cx) {
+    const vitre = x => `<rect x="${x}" y="-89" width="19" height="46" rx="4" fill="url(#vitrage)" stroke="#0a0e13" stroke-width="1"/><path d="M${x + 3} -43l8 -46h5l-8 46z" fill="#fff" opacity=".12"/>`;
+    return `<rect x="${cx - 31}" y="-95" width="62" height="78" rx="4" fill="#0c2a55"/>`
+      + `<rect x="${cx - 29}" y="-93" width="28.4" height="74" rx="2.5" fill="url(#porte)"/><rect x="${cx + .6}" y="-93" width="28.4" height="74" rx="2.5" fill="url(#porte)"/>`
+      + vitre(cx - 24.5) + vitre(cx + 5.5)
+      + `<rect x="${cx - 28}" y="-98.5" width="56" height="2.2" rx="1" fill="#e0262b" opacity=".85"/>`
+      + `<rect x="${cx - 6}" y="-40" width="3" height="12" rx="1.5" fill="#dfe4e8"/><rect x="${cx + 3}" y="-40" width="3" height="12" rx="1.5" fill="#dfe4e8"/>`
+      + `<circle cx="${cx - 16}" cy="-34" r="2.4" fill="#37c871"/><rect x="${cx - 31}" y="-19" width="62" height="3" fill="#f3b32b"/>`;
+  }
+
+  function fenetre(a, b) {
+    const w = b - a;
+    let s = `<rect x="${a}" y="-89" width="${w}" height="39" rx="7" fill="url(#vitrage)" stroke="#0a0e13" stroke-width="1.4"/>`;
+    for (let x = a + 6; x < b - 18; x += 30) {
+      s += `<rect x="${x}" y="-69" width="19" height="18" rx="3" fill="#1f4f8f" opacity=".55"/>`;
+      if (hasard() < .45) s += `<circle cx="${x + 9}" cy="-73" r="5" fill="#3d4c5f"/><path d="M${x + 1} -60c0-7 4-8 8-8s8 1 8 8z" fill="#3d4c5f"/>`;
+    }
+    for (let x = a + 62; x < b - 18; x += 62) s += `<rect x="${x}" y="-89" width="2.4" height="39" fill="#0a0e13"/>`;
+    return s + `<path d="M${a + w * .16} -50l13 -39h${w * .2}l-13 39z" fill="#fff" opacity=".13"/><path d="M${a + w * .46} -50l13 -39h${w * .06}l-13 39z" fill="#fff" opacity=".09"/>`
+      + `<rect x="${a + 3}" y="-57" width="${w - 6}" height="6" fill="#4f9a55" opacity=".16"/>`;
+  }
+
+  let numero = 0;
+  function voiture(v) {
+    const L = v.l, cab = !!v.cab, id = `caisse${++numero}`, finVitre = cab ? L - 124 : L - 16, finToit = cab ? L - 158 : L - 56;
+    const corps = cab
+      ? `M0 -18V-90Q0 -102 14 -102H${L - 112}C${L - 60} -102 ${L - 22} -84 ${L - 6} -50Q${L + 4} -30 ${L - 4} -18Z`
+      : `M0 -18V-90Q0 -102 14 -102H${L - 14}Q${L} -102 ${L} -90V-18Z`;
+    const portes = (cab ? [.22, .52] : [.25, .75]).map(p => Math.round(L * p));
+    const bandes = [14, ...portes.flatMap(p => [p - 34, p + 34]), finVitre];
+    let vitres = '';
+    for (let i = 0; i < bandes.length; i += 2) vitres += fenetre(bandes[i], bandes[i + 1]);
+    let joints = `<path d="M0 -92.5H${L}M0 -46H${L}" stroke="#39424c" stroke-width=".8" opacity=".28" fill="none"/>`;
+    for (let x = 48; x < L - 30; x += 96) joints += `<path d="M${x} -46V-34" stroke="#39424c" stroke-width=".7" opacity=".3"/>`;
+    const grilles = (cab ? [L * .24, L * .44] : [L * .3, L * .68]).map(x => {
+      let d = '';
+      for (let i = 0; i < 16; i++) d += `M${x + i * 4} -110v6`;
+      return `<path d="${d}" stroke="#5d6771" stroke-width="1.5"/>`;
+    }).join('');
+    const toit = `<path d="M26 -100Q34 -114 58 -114H${finToit}Q${finToit + 24} -114 ${finToit + 34} -100Z" fill="url(#carenage)"/>` + grilles;
+    const coffres = [.34, .5].map(p => {
+      let d = '';
+      for (let i = 1; i < 12; i++) d += `M${L * p + i * 5} -18v6`;
+      return `<rect x="${L * p}" y="-19" width="${L * .13}" height="8" rx="2" fill="#2a3038"/><path d="${d}" stroke="#454e58" stroke-width="1"/>`;
+    }).join('');
+    const nez = cab
+      ? `<path d="M${L - 98} -101.4C${L - 60} -101 ${L - 22} -84 ${L - 6} -50Q${L + 4} -30 ${L - 4} -18H${L - 42}Q${L - 48} -44 ${L - 74} -52Q${L - 90} -56 ${L - 98} -72Z" fill="#171c23"/>`
+        + `<path d="M${L - 92} -97.5C${L - 62} -96 ${L - 32} -82 ${L - 15} -54H${L - 70}Q${L - 84} -57 ${L - 92} -72Z" fill="url(#vitrage)" stroke="#0a0e13" stroke-width="1"/>`
+        + `<path d="M${L - 78} -92l-6 34h13l17 -28zM${L - 42} -78l-10 22h6l11 -17z" fill="#fff" opacity=".15"/>`
+        + `<path d="M${L - 56} -54L${L - 30} -74" stroke="#05080c" stroke-width="1.6"/>`
+        + `<rect x="${L - 34}" y="-38" width="24" height="7" rx="3.5" fill="#f4f6f8" stroke="#59626c" stroke-width="1"/>`
+        + `<circle cx="${L - 27}" cy="-34.5" r="2.3" fill="${v.cab === 'avant' ? '#fff3c4' : '#e0262b'}"/><circle cx="${L - 17}" cy="-34.5" r="2.3" fill="${v.cab === 'avant' ? '#fff3c4' : '#e0262b'}"/>`
+        + `<rect x="${L - 10}" y="-25" width="13" height="5" rx="2" fill="#0d1116"/>`
+        + `<rect x="${L - 116}" y="-92" width="19" height="72" rx="3" fill="none" stroke="#39424c" stroke-width="1" opacity=".5"/><rect x="${L - 113}" y="-87" width="13" height="30" rx="3.5" fill="url(#vitrage)" stroke="#0a0e13"/>`
+      : '';
+    const panto = v.panto
+      ? `<rect x="${L * .5 - 34}" y="-117" width="68" height="4" rx="2" fill="#59626c"/>`
+        + `<path d="M${L * .5 - 26} -116L${L * .5 + 22} -138L${L * .5} -${HAUT_FIL - 3}" fill="none" stroke="#3b444e" stroke-width="3" stroke-linejoin="round"/>`
+        + `<path d="M${L * .5 - 18} -116L${L * .5 + 17} -135" fill="none" stroke="#7b858f" stroke-width="1.6"/>`
+        + `<path d="M${L * .5 - 34} -${HAUT_FIL - 6}Q${L * .5 - 32} -${HAUT_FIL - 1} ${L * .5 - 24} -${HAUT_FIL - 1}H${L * .5 + 24}Q${L * .5 + 32} -${HAUT_FIL - 1} ${L * .5 + 34} -${HAUT_FIL - 6}" fill="none" stroke="#20252c" stroke-width="3.4" stroke-linecap="round"/>`
+      : '';
+    const sens = v.cab === 'arriere' ? -1 : 1;
+    const dessin = `<rect x="4" y="-20" width="${L - 12}" height="10" fill="#12161b"/>` + toit + panto
+      + `<clipPath id="${id}"><path d="${corps}"/></clipPath>`
+      + `<path d="${corps}" fill="url(#caisse)"/>`
+      + `<g clip-path="url(#${id})"><rect y="-33" width="${L + 6}" height="16" fill="url(#jupe)"/><rect y="-37" width="${L + 6}" height="3" fill="#2c7fd0"/><rect y="-104" width="${L + 6}" height="88" fill="url(#luisant)"/>${joints}</g>`
+      + vitres + portes.map(porte).join('') + nez + coffres
+      + [L * .15, L * .85].map(c => bogie(c, sens)).join('');
+    const corpsOriente = v.cab === 'arriere' ? `<g transform="translate(${L} 0) scale(-1 1)">${dessin}</g>` : dessin;
+    let soufflet = '';
+    if (v.cab !== 'avant') {
+      soufflet = `<rect x="${L - 2}" y="-99" width="${JOINT + 4}" height="80" fill="#20262d"/>`;
+      for (let i = 1; i < 4; i++) soufflet += `<rect x="${L - 2 + i * 3}" y="-99" width="1" height="80" fill="#3e4751"/>`;
+    }
+    const dessus = v.cab === 'arriere' ? '' : `<rect x="${portes[0] + 36}" y="-101" width="58" height="9.5" rx="1.5" fill="#0d1116"/><text x="${portes[0] + 65}" y="-93.6" text-anchor="middle" font-family="Arial,sans-serif" font-size="7.6" font-weight="700" letter-spacing="1.2" fill="#ffb347">PARIS</text>`;
+    const matricule = v.cab === 'arriere' ? '' : `<text x="${portes[0] + 40}" y="-40" font-family="Arial,sans-serif" font-size="5.6" fill="#5d6771">Z ${50400 + numero * 2}</text>`;
+    const lueur = v.cab === 'avant' ? `<circle cx="${L - 16}" cy="-34" r="30" fill="url(#lueur)"/>` : '';
+    return `<g class="voiture" data-l="${L}">${soufflet}${corpsOriente}${dessus}${matricule}${lueur}</g>`;
+  }
+
+  const svgTrain = document.getElementById('train');
+  svgTrain.innerHTML = `<defs>
+      <linearGradient id="caisse" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b95a0"/><stop offset=".07" stop-color="#e3e8ec"/><stop offset=".15" stop-color="#fff"/><stop offset=".5" stop-color="#f3f5f7"/><stop offset=".72" stop-color="#d9dfe4"/><stop offset="1" stop-color="#aab3bc"/></linearGradient>
+      <linearGradient id="vitrage" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7f98ad"/><stop offset=".3" stop-color="#2c3e50"/><stop offset="1" stop-color="#0d141d"/></linearGradient>
+      <linearGradient id="porte" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a79d8"/><stop offset=".55" stop-color="#17569f"/><stop offset="1" stop-color="#0f3f7d"/></linearGradient>
+      <linearGradient id="carenage" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2cad1"/><stop offset="1" stop-color="#7d8792"/></linearGradient>
+      <linearGradient id="jupe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46515d"/><stop offset="1" stop-color="#1e242b"/></linearGradient>
+      <linearGradient id="luisant" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".3" stop-color="#fff" stop-opacity=".35"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#26313c" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <radialGradient id="lueur"><stop offset="0" stop-color="#fff6d0" stop-opacity=".8"/><stop offset="1" stop-color="#fff6d0" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect id="ombre" width="${LONGUEUR}" height="16" rx="8" fill="#141c18" opacity=".34"/>`
+    + VOITURES.map(voiture).join('');
+
+  const voitures = [...svgTrain.querySelectorAll('.voiture')].map(el => ({ el, l: +el.dataset.l }));
+  const roues = [...svgTrain.querySelectorAll('.roue')].map(el => ({ el, x: +el.dataset.x, s: +el.dataset.s }));
+  const ombre = document.getElementById('ombre');
+
+  // Afficheur toujours visible sur son poteau : chaque département a la même part du défilement
+  const DEPARTEMENTS = [['75', 'Paris'], ['77', 'Seine-et-Marne'], ['78', 'Yvelines'], ['91', 'Essonne'], ['92', 'Hauts-de-Seine'], ['93', 'Seine-Saint-Denis'], ['94', 'Val-de-Marne'], ['95', "Val-d'Oise"]];
+  const afficheur = document.getElementById('afficheur');
+  const numeroGare = document.getElementById('numeroGare'), nomGare = document.getElementById('nomGare');
+  const mat = document.getElementById('matGare');
+  let poteauGare = 0, indexGare = -1, nez = 0;
+
+  function changerDepartement(p) {
+    const i = Math.min(DEPARTEMENTS.length - 1, Math.max(0, Math.floor(p * DEPARTEMENTS.length)));
+    if (i === indexGare) return;
+    indexGare = i;
+    numeroGare.textContent = DEPARTEMENTS[i][0];
+    nomGare.textContent = DEPARTEMENTS[i][1];
+    const led = document.getElementById('ledGare');
+    led.style.opacity = .15;
+    setTimeout(() => { led.style.opacity = 1; }, 110);
+  }
+
+  // Fenêtre réellement visible du dessin : sur téléphone, les côtés sont coupés
+  let gauche = 0, droite = W, echelle = 1, basDessin = 0;
+  function mesurer() {
+    const r = svgTrain.getBoundingClientRect(), e = Math.max(r.width / W, r.height / H), vu = r.width / e;
+    gauche = (W - vu) / 2;
+    droite = gauche + vu;
+    echelle = e;
+    const scene = svgTrain.parentElement.getBoundingClientRect().top;   // la scène peut être loin dans la page
+    basDessin = r.bottom - scene;
+    poteauGare = DEPART + PORTEE * (Math.ceil((gauche - DEPART) / PORTEE) + 1);
+    // le titre ne gêne que là où ses lignes passent au-dessus de Marshall (seul à dépasser du panneau) :
+    // à gauche, le panneau peut monter, sans jamais dépasser le haut de la première ligne, sous l'en-tête
+    const titre = [...document.querySelectorAll('#ou .titre p, #ou .titre h2')], ag = document.getElementById('marshall').getBoundingClientRect();
+    let titreBas = titre[0].getBoundingClientRect().top - scene;
+    for (const el of titre) {
+      const rg = document.createRange(); rg.selectNodeContents(el);
+      for (const q of rg.getClientRects()) if (q.width && q.right > ag.left - 16 && q.left < ag.right + 16) titreBas = Math.max(titreBas, q.bottom - scene);
+    }
+    // quand la place manque, le poteau raccourcit pour garder Marshall entre le titre et le panneau
+    const xMat = gauche + (mat.offsetLeft + 6) / e;
+    const piedMat = basDessin - (H - voie(xMat) + 11) * e, hautMat = Math.min(piedMat - 70, Math.max(piedMat - 470 * e, titreBas + 16 + 200 * .654 + afficheur.offsetHeight - 2));
+    mat.style.top = `${hautMat}px`;
+    mat.style.height = `${piedMat - hautMat}px`;
+    afficheur.style.top = `${hautMat + 2 - afficheur.offsetHeight}px`;
+    const place = hautMat + 2 - afficheur.offsetHeight - titreBas - 16;
+    document.getElementById('marshall').style.height = `${Math.max(150, Math.min(256, place / .654))}px`;
+  }
+
+  // Le mot tourne comme une broche : deux piles de couches dos à dos, une seule visible à la fois.
+  const broche = document.getElementById('broche'), TOURS = 2, COUCHES = 9, EPAISSEUR = .1;
+  const texteBroche = broche.textContent;
+  broche.innerHTML = `<span class="place">${texteBroche}</span>`;
+  for (const cote of ['face', 'dos']) {
+    const pile = document.createElement('span');
+    pile.className = `pile ${cote}`;
+    pile.setAttribute('aria-hidden', 'true');
+    for (let i = COUCHES - 1; i >= 0; i--) {
+      const couche = document.createElement('span');
+      couche.className = i ? 'couche' : 'couche face';
+      couche.style.transform = `translateZ(${EPAISSEUR * (COUCHES - 1 - i) / (COUCHES - 1)}em)`;
+      couche.textContent = texteBroche;
+      pile.append(couche);
+    }
+    broche.append(pile);
+  }
+
+  function placer(p) {
+    broche.style.transform = `rotateX(${-360 * TOURS * p}deg)`;
+    const x0 = gauche - LONGUEUR - 10, x = x0 + (droite + 20 - x0) * p;
+    nez = x + LONGUEUR;
+    changerDepartement(p);
+    let cx = x;
+    for (const v of voitures) {
+      const a = voie(cx), b = voie(cx + v.l), angle = Math.atan2(b - a, v.l) * 180 / Math.PI;
+      v.el.setAttribute('transform', `translate(${cx.toFixed(2)} ${(a + 9 + Math.sin(cx / 37) * .3).toFixed(2)}) rotate(${angle.toFixed(3)})`);
+      cx += v.l + JOINT;
+    }
+    ombre.setAttribute('transform', `translate(${x.toFixed(2)} ${(voie(x + LONGUEUR / 2) + 3).toFixed(2)})`);
+    const tour = x * 6.7;
+    for (const r of roues) r.el.setAttribute('transform', `rotate(${(tour * r.s).toFixed(1)} ${r.x} -8.5)`);
+  }
+
+  let cible = 0, position = 0, enCours = false;
+  function pas() {
+    position += (cible - position) * .14;
+    if (Math.abs(cible - position) < .0002) { position = cible; enCours = false; }
+    else requestAnimationFrame(pas);
+    placer(position);
+  }
+  function lire() {
+    const r = document.getElementById('ou').getBoundingClientRect(), max = r.height - innerHeight;
+    cible = max > 0 ? Math.min(1, Math.max(0, -r.top / max)) : 0;
+    if (!enCours) { enCours = true; requestAnimationFrame(pas); }
+  }
+
+  addEventListener('scroll', lire, { passive: true });
+  addEventListener('resize', () => { mesurer(); placer(position); lire(); });
+  document.fonts.ready.then(() => { mesurer(); placer(position); });
+  mesurer();
+  lire();
+  position = cible;
+  placer(position);
+})();
+</script>
+<!-- /5. OÙ -->
 
 <!-- 7. PROS -->
 <!-- généré depuis maquettes/marshall-cartes par vers-site.py : retoucher la maquette, pas ce bloc -->
@@ -3051,7 +3529,7 @@ else {
 
 <footer class="pied-site" aria-label="Pied de page">
   <div class="ps-haut">
-    <nav aria-label="Se faire aider"><h3>Se faire aider</h3><ul><li><a href="Nosoffres.html">Nos offres</a></li><li><a href="aide-numerique-ile-de-france.html">Aide numérique à domicile</a></li><li><a href="audit-gratuit.html">Audit gratuit</a></li><li><a href="rendez-vous.html">Prendre rendez-vous</a></li><li><a href="carte-cadeau.html">Carte cadeau</a></li></ul></nav>
+    <nav aria-label="Se faire aider"><h3>Se faire aider</h3><ul><li><a href="Nosoffres.html">Nos offres</a></li><li><a href="aide-numerique-ile-de-france.html">Aide numérique à domicile</a></li><li><a href="contact.html">Nous contacter</a></li><li><a href="rendez-vous.html">Prendre rendez-vous</a></li><li><a href="carte-cadeau.html">Carte cadeau</a></li></ul></nav>
     <nav aria-label="Studio Social"><h3>Studio Social</h3><ul><li><a href="decouvrir-studio-social.html">Découvrir Studio Social</a></li><li><a href="studio-social.html">Ouvrir le Studio</a></li><li><a href="idees-posts-boulangerie.html">Idées de posts</a></li></ul></nav>
     <nav aria-label="Mon Copain Digital"><h3>Mon Copain Digital</h3><ul><li><a href="index.html" aria-current="page">Accueil</a></li><li><a href="contact.html">Contact</a></li><li><a href="espace-compte.html">Mon compte</a></li></ul></nav>
     <nav aria-label="Informations"><h3>Informations</h3><ul><li><a href="loiapplicablemcp.html">Mentions légales et CGV</a></li><li><a href="suppression-donnees.html">Suppression des données</a></li></ul></nav>
@@ -3329,35 +3807,10 @@ else {
       .from('#etapes h2 em .et-mot', { yPercent:120, scale:.4, rotate:-8, opacity:0, duration:.8, stagger:.1, ease:'elastic.out(1,.55)' }, '-=.35');
   }
 
-  /* ---------- 5. Où : la tête de Marshall survole les départements d'Île-de-France en traçant sa route, puis se pose sur Paris ---------- */
-  var plan = document.getElementById('plan'), trajet = document.getElementById('trajet'), epingle = document.getElementById('epingle'), ombre = document.getElementById('ombre');
-  var quartiers = [].slice.call(plan.querySelectorAll('[data-q]')), LT = trajet.getTotalLength();
-  var jalons = quartiers.map(function(q){   // position de chaque quartier le long de la route
-    var qx = parseFloat(q.style.left), qy = parseFloat(q.style.top), best = 0, bd = 1e9;
-    for (var k = 0; k <= 200; k++) { var p = trajet.getPointAtLength(LT * k / 200), d = (p.x - qx) * (p.x - qx) + (p.y - qy) * (p.y - qy); if (d < bd) { bd = d; best = k / 200; } }
-    return best;
-  });
-  function poser(p){
-    var pt = trajet.getPointAtLength(LT * p), w = plan.clientWidth / 100, h = plan.clientHeight / 100, saut = Math.abs(Math.sin(p * Math.PI * 10)) * 14;
-    epingle.style.left = (pt.x * w) + 'px'; epingle.style.top = (pt.y * h - 8 - saut) + 'px';
-    ombre.style.left = (pt.x * w) + 'px'; ombre.style.top = (pt.y * h) + 'px';
-    ombre.style.transform = 'translate(-50%,-50%) scale(' + (1 - saut / 30) + ')';
-    trajet.style.strokeDasharray = (LT * p) + ' ' + (LT + 1);
-    quartiers.forEach(function(q, i){ if (!q.classList.contains('maison')) q.classList.toggle('vu', p >= jalons[i] - .01); });
-  }
-  gsap.set('#bulle-dit', { scale:0, transformOrigin:'0% 100%' });
-  gsap.from('[data-q]', { y:-60, opacity:0, duration:.7, stagger:.07, ease:'bounce.out', scrollTrigger:{ trigger:'#ou', start:'top 65%' } });
-  var vol = { p:0 }; poser(0);
-  addEventListener('resize', function(){ poser(vol.p); });
   // Le fondu blanc du haut de « Comment ça marche » s'efface pendant que la section Particuliers sort de l'écran (sinon il reste collé en haut pendant l'épinglage)
   gsap.fromTo('#etapes', { '--fondu':1 }, { '--fondu':0, ease:'none', scrollTrigger:{ trigger:'#etapes', start:'top 35%', end:'top top', scrub:true, invalidateOnRefresh:true } });
-  gsap.timeline({ scrollTrigger:{ trigger:'#ou', pin:true, anticipatePin:1, scrub:1, invalidateOnRefresh:true,
-    start:function(){ return document.getElementById('ou').offsetHeight > innerHeight ? 'bottom bottom' : 'center center'; },
-    end:'+=200%' } })
-    .to(vol, { p:1, duration:1, ease:'none', onUpdate:function(){ poser(vol.p); } })
-    .to('#zone', { scale:1, duration:.25, ease:'back.out(1.6)' })
-    .to('#epingle', { scale:1.25, duration:.1, yoyo:true, repeat:1 }, '<')
-    .to('#bulle-dit', { scale:1, duration:.2, ease:'back.out(2.5)' });
+  /* ---------- 5. Où : la scène du Transilien reste à l'écran le temps de sa section (animée par son propre script) ---------- */
+  ScrollTrigger.create({ trigger:'#ou', pin:'#ou .fond', pinSpacing:false, anticipatePin:1, start:'top top', end:'bottom bottom', invalidateOnRefresh:true });
 
 
   /* ---------- 7. Pros : animée par son propre script (cartes qui pivotent, Marshall dans la poussière magique) ---------- */

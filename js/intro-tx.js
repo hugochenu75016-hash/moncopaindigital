@@ -1,7 +1,8 @@
-/* Intro du site : le logo « Mon Copain Digital » se construit en blocs sur un rideau orange,
-   puis le rideau s'ouvre par le bas en arrondi, directement sur la page.
-   Remplace le dessin des anciennes portes : chaque page garde sa propre logique et pilote #door-tx
-   avec les classes loading (écran de chargement), opening (ouverture) et closing (départ vers une autre page).
+/* Passage entre les pages (comme sweet-tape vers /contact), palette « Ciel de Paris » :
+   7 calques à bas arrondi descendent l'un après l'autre pour couvrir l'écran, la page change,
+   puis ils remontent en cascade sur la nouvelle page. Pas de logo : il reste réservé à l'entrée de l'accueil.
+   Chaque page garde sa propre logique et pilote #door-tx avec les classes loading (écran couvert),
+   opening (ouverture) et closing (départ vers une autre page).
    À placer juste après <div id="door-tx">. Sans dépendance.
    Avec data-auto sur le div, le script gère tout seul l'attente du chargement, les liens et le retour arrière
    (pour les pages qui n'avaient pas de portes). */
@@ -13,113 +14,74 @@
   if(auto && window.self !== window.top){ ov.parentNode.removeChild(ov); return; }
   var reduce=!!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
 
+  /* Du calque du dessus (le premier à remonter, le dernier à descendre) à celui du dessous */
+  var CIEL=['#6EC1F0','#A9DCF7','#FFFFFF','#FF9C46','#F3852B','#4AA8DE','#1D3B57'];
+  var COURBE="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1456 150.5' preserveAspectRatio='none'%3E%3Cpath d='M1456 0C801.9 272 212.833 113.333 0 0Z' fill='%23000'/%3E%3C/svg%3E\")";
+
   if(!document.getElementById('intro-tx-css')){
-    var lien=document.createElement('link');
-    lien.rel='stylesheet'; lien.href='https://fonts.googleapis.com/css2?family=Fredoka:wght@700&display=swap';
-    document.head.appendChild(lien);
     var st=document.createElement('style'); st.id='intro-tx-css';
     st.textContent=
-      '#door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden}'+
+      '#door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;--it-arc:10.336vw}'+
       '#door-tx.loading,#door-tx.closing{pointer-events:auto}'+
-      '#door-tx .it-rideau{position:absolute;inset:0;display:none;background:linear-gradient(180deg,#ff8a1f 0%,#f26c00 55%,#d95e00 100%)}'+
-      '#door-tx.it-on .it-rideau{display:block}'+
-      '#door-tx .it-logo{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;'+
-        'font-family:Fredoka,system-ui,sans-serif;font-weight:700;color:#fff;font-size:clamp(46px,10vw,122px);line-height:1.04}'+
-      '#door-tx .it-ligne{display:flex;justify-content:center;position:relative}'+
-      '#door-tx .it-l{position:relative;display:inline-block}'+
-      '#door-tx .it-ch{display:inline-block;opacity:0;text-shadow:0 .06em .14em rgba(90,40,0,.3)}'+
-      '#door-tx .it-blk{position:absolute;left:7%;right:7%;bottom:.17em;background:#fff;border-radius:4px;transform:scaleY(0);transform-origin:50% 100%}'+
-      '#door-tx .it-esp{width:.3em}'+
-      '#door-tx .it-trait{position:absolute;left:30%;right:30%;bottom:.17em;height:5px;background:#fff;border-radius:3px;transform:scaleX(0)}'+
-      '#door-tx.it-statique .it-ch{opacity:1}'+
-      '#door-tx.it-statique .it-blk,#door-tx.it-statique .it-trait{display:none}';
+      '#door-tx .it-calque{position:absolute;top:0;left:0;width:100%;height:calc(100% + var(--it-arc));display:none;transform:translateY(-100%);'+
+        '-webkit-mask-image:linear-gradient(#000 0 0),'+COURBE+';mask-image:linear-gradient(#000 0 0),'+COURBE+';'+
+        '-webkit-mask-size:100% calc(100% - var(--it-arc) + 1px),100% var(--it-arc);mask-size:100% calc(100% - var(--it-arc) + 1px),100% var(--it-arc);'+
+        '-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}'+
+      '#door-tx.it-on .it-calque{display:block}'+
+      '#door-tx.it-couvert .it-calque{transform:none}';
     document.head.appendChild(st);
   }
 
-  var rideau=document.createElement('div'); rideau.className='it-rideau';
-  var logo=document.createElement('div'); logo.className='it-logo';
-  rideau.appendChild(logo); ov.appendChild(rideau);
-
-  /* Le logo lettre par lettre ; chaque lettre a d'abord un bloc blanc (plus haut pour les majuscules et les hampes). */
-  var HAUTES=/[A-Zbdfhklt]/;
-  ['Mon Copain','Digital'].forEach(function(txt, i){
-    var ligne=document.createElement('div'); ligne.className='it-ligne';
-    txt.split('').forEach(function(c, j){
-      if(c===' '){ var e=document.createElement('span'); e.className='it-esp'; ligne.appendChild(e); return; }
-      var h=HAUTES.test(c) ? .62 + (j % 3) * .06 : .4 + (j % 2) * .08;
-      var l=document.createElement('span'); l.className='it-l';
-      l.innerHTML='<span class="it-blk" style="height:'+h+'em"></span><span class="it-ch">'+c+'</span>';
-      ligne.appendChild(l);
-    });
-    if(i===0){ var t=document.createElement('span'); t.className='it-trait'; ligne.appendChild(t); }
-    logo.appendChild(ligne);
+  var calques=CIEL.map(function(c, i){
+    var d=document.createElement('div'); d.className='it-calque';
+    d.style.background=c; d.style.zIndex=CIEL.length - i;
+    ov.appendChild(d); return d;
   });
-  var blocs=logo.querySelectorAll('.it-blk'), lettres=logo.querySelectorAll('.it-ch'), trait=logo.querySelector('.it-trait');
-  var anime=!reduce && !!logo.animate;
+  var anime=!reduce && !!ov.animate;
+  var EASE='cubic-bezier(.65,0,.35,1)';   // power3.inOut
 
-  var pretA=0;      // moment où le logo est complet et l'ouverture peut commencer
-  var ouvrant=false;
-  var BACK='cubic-bezier(.34,1.8,.64,1)';
-
-  function annuler(){
-    [rideau, logo, trait].concat([].slice.call(blocs), [].slice.call(lettres)).forEach(function(el){
-      if(el.getAnimations) el.getAnimations().forEach(function(a){ a.cancel(); });
+  /* Décalage légèrement irrégulier entre les calques (nombre d'or), comme sweet-tape */
+  function cascade(liste, pas, duree){
+    var at=0;
+    return liste.map(function(el, i){
+      if(i > 0) at+=pas * (1 + ((.6180339887 * i) % 1 * 2 - 1) * .4);
+      return { el:el, at:at, duree:duree * (1 + i * .018) };
     });
-    rideau.style.clipPath='';
   }
+  function fin(vagues){ return vagues.reduce(function(m, v){ return Math.max(m, v.at + v.duree); }, 0); }
+  function annuler(){
+    calques.forEach(function(el){ if(el.getAnimations) el.getAnimations().forEach(function(a){ a.cancel(); }); });
+  }
+  function couvrir(){ annuler(); ov.classList.add('it-on', 'it-couvert'); }
+  function retirer(){ annuler(); ov.classList.remove('it-on', 'it-couvert'); }
 
-  /* 1. Construction : le trait s'étire, les blocs poussent, puis chaque bloc devient sa lettre. */
-  function construire(){
-    ov.classList.add('it-on');
-    if(!anime){ ov.classList.add('it-statique'); pretA=Date.now(); return; }
-    var n=blocs.length, M=450 + n * 45;
-    trait.animate([{ transform:'scaleX(0)', opacity:1 }, { transform:'scaleX(1)', opacity:1, offset:.7 }, { transform:'scaleX(1)', opacity:0 }],
-      { duration:520, delay:150, easing:'ease-out', fill:'both' });
-    for(var i=0; i<n; i++){
-      blocs[i].animate([{ transform:'scaleY(0)' }, { transform:'scaleY(1.08)', offset:.7 }, { transform:'scaleY(1)' }],
-        { duration:320, delay:420 + i * 45, easing:'ease-out', fill:'both' });
-      blocs[i].animate([{ transform:'scaleY(1)', opacity:1, borderRadius:'4px' }, { transform:'scale(.55,.5)', opacity:0, borderRadius:'50%' }],
-        { duration:280, delay:M + i * 50, easing:'ease-in', fill:'forwards' });
-      lettres[i].animate([{ opacity:0, transform:'translateY(6px) scale(.7)' }, { opacity:1, transform:'none' }],
-        { duration:300, delay:M + 100 + i * 50, easing:BACK, fill:'both' });
-    }
-    pretA=Date.now() + M + 100 + n * 50 + 300 + 450;
-  }
+  var ouvrant=false;
 
-  /* 2. Ouverture : le logo monte en s'effaçant, la page apparaît par le bas dans un grand arrondi. */
-  function trou(p){
-    var W=innerWidth, H=innerHeight;
-    var cx=W / 2, cy=H * 1.25, rx=W * 1.1, ry=H * 1.6 * p;
-    if(ry < 1){ rideau.style.clipPath=''; return; }
-    var e='M'+(cx-rx)+' '+cy+'A'+rx+' '+ry+' 0 1 0 '+(cx+rx)+' '+cy+'A'+rx+' '+ry+' 0 1 0 '+(cx-rx)+' '+cy+'Z';
-    rideau.style.clipPath='path(evenodd, "M0 0H'+W+'V'+H+'H0Z'+e+'")';
-  }
+  /* Ouverture : le calque du dessus remonte en premier, les autres suivent */
   function ouvrir(){
     if(ouvrant) return; ouvrant=true;
-    if(!ov.classList.contains('it-on')){ ov.classList.add('it-on', 'it-statique'); pretA=Date.now() + 250; }
-    (function attendre(){
-      if(!ouvrant) return;
-      if(Date.now() < pretA){ setTimeout(attendre, pretA - Date.now()); return; }
-      if(!anime){ ov.classList.remove('it-on'); ouvrant=false; return; }
-      logo.animate([{ transform:'none', opacity:1 }, { transform:'translateY(-18vh)', opacity:0 }], { duration:500, easing:'ease-in', fill:'forwards' });
-      var t0=performance.now();
-      /* Filet de sécurité : si l'onglet est en arrière-plan, les images ne sont plus dessinées ; on retire quand même le rideau. */
-      setTimeout(function(){ if(ouvrant){ ov.classList.remove('it-on'); ouvrant=false; annuler(); } }, 1400);
-      (function pas(t){
-        if(!ouvrant) return;
-        var x=Math.min(1, (t - t0 - 50) / 900); if(x < 0) x=0;
-        trou(x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
-        if(x < 1) requestAnimationFrame(pas);
-        else { ov.classList.remove('it-on'); ouvrant=false; annuler(); }
-      })(t0);
-    })();
+    couvrir();
+    if(!anime){ retirer(); ouvrant=false; return; }
+    var vagues=cascade(calques, 55, 800);
+    vagues.forEach(function(v){
+      v.el.animate([{ transform:'none' }, { transform:'translateY(-100%)' }], { duration:v.duree, delay:v.at, easing:EASE, fill:'both' });
+    });
+    ov.classList.remove('it-couvert');
+    /* Filet de sécurité : onglet en arrière-plan, animations figées ; on retire quand même les calques. */
+    setTimeout(function(){ if(ouvrant){ ouvrant=false; retirer(); } }, fin(vagues) + 60);
   }
 
-  /* 3. Départ vers une autre page : le rideau redescend avec le logo. */
+  /* Départ vers une autre page : le calque du dessous descend en premier, celui du dessus ferme la marche.
+     Moins de 0,6 s en tout : les pages qui pilotent elles-mêmes #door-tx changent de page au bout de 600 ms. */
+  var DESCENTE=cascade(calques.slice().reverse(), 30, 360);
+  var FERME=fin(DESCENTE);
   function fermer(){
     ouvrant=false; annuler();
-    ov.classList.add('it-on', 'it-statique');
-    if(anime) rideau.animate([{ transform:'translateY(-100%)' }, { transform:'none' }], { duration:550, easing:'cubic-bezier(.65,0,.35,1)', fill:'both' });
+    ov.classList.add('it-on'); ov.classList.remove('it-couvert');
+    if(!anime){ ov.classList.add('it-couvert'); return; }
+    DESCENTE.forEach(function(v){
+      v.el.animate([{ transform:'translateY(-100%)' }, { transform:'none' }], { duration:v.duree, delay:v.at, easing:EASE, fill:'both' });
+    });
   }
 
   var avant={ loading:false, opening:false, closing:false };
@@ -128,18 +90,12 @@
     var e=etat();
     if(e.closing && !avant.closing) fermer();
     else if(e.opening && !avant.opening && !e.closing) ouvrir();
-    else if(!e.closing && avant.closing && !e.loading){ ouvrant=false; annuler(); ov.classList.remove('it-on'); }
+    else if(!e.closing && avant.closing && !e.loading){ ouvrant=false; retirer(); }
     avant=e;
   }
 
   var e0=etat();
-  if(e0.loading){
-    /* On attend la police du logo (au plus 0,6 s) pour que les lettres apparaissent dans la bonne forme. */
-    ov.classList.add('it-on'); pretA=Date.now() + 700;
-    var police=(anime && document.fonts && document.fonts.load) ? document.fonts.load('700 1em Fredoka') : Promise.resolve();
-    Promise.race([police, new Promise(function(r){ setTimeout(r, 600); })])
-      .then(function(){ if(!ov.classList.contains('closing')) construire(); }, function(){ construire(); });
-  }
+  if(e0.loading) couvrir();
   else if(e0.opening) ouvrir();
   avant=e0;
   if(window.MutationObserver) new MutationObserver(suivre).observe(ov, { attributes:true, attributeFilter:['class'] });
@@ -159,7 +115,7 @@
   }
   if(document.readyState==='complete') charge(); else window.addEventListener('load', charge, { once:true });
   setTimeout(lancer, 2500);
-  /* Si on touche ou fait défiler pendant le chargement, le rideau s'ouvre aussitôt. */
+  /* Si on touche ou fait défiler pendant le chargement, les calques remontent aussitôt. */
   ['touchstart','wheel','keydown'].forEach(function(ev){ window.addEventListener(ev, lancer, { once:true, passive:true }); });
 
   function interne(a){
@@ -177,7 +133,7 @@
   function go(dest){
     if(ov.classList.contains('closing')) return;
     ov.classList.remove('opening'); ov.classList.add('closing');
-    setTimeout(function(){ window.location.href=dest; }, 650);
+    setTimeout(function(){ window.location.href=dest; }, (anime ? FERME : 0) + 60);
   }
   if(!window.mcdGo) window.mcdGo=go;
   document.addEventListener('click', function(e){
@@ -188,5 +144,5 @@
     e.preventDefault();
     go(a.href);
   }, true);
-  window.addEventListener('pageshow', function(ev){ if(ev.persisted) ov.classList.remove('closing'); });
+  window.addEventListener('pageshow', function(ev){ if(ev.persisted){ ov.classList.remove('closing'); retirer(); } });
 })();
