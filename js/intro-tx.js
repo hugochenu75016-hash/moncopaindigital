@@ -23,7 +23,7 @@
     st.textContent=
       '#door-tx{position:fixed;inset:0;z-index:100000;pointer-events:none;overflow:hidden;--it-arc:10.336vw}'+
       '#door-tx.loading,#door-tx.closing{pointer-events:auto}'+
-      '#door-tx .it-calque{position:absolute;top:0;left:0;width:100%;height:calc(100% + var(--it-arc));display:none;transform:translateY(-100%);'+
+      '#door-tx .it-calque{position:absolute;top:0;left:0;width:100%;height:calc(100% + var(--it-arc));display:none;transform:translateY(-100%);will-change:transform;backface-visibility:hidden;'+
         '-webkit-mask-image:linear-gradient(#000 0 0),'+COURBE+';mask-image:linear-gradient(#000 0 0),'+COURBE+';'+
         '-webkit-mask-size:100% calc(100% - var(--it-arc) + 1px),100% var(--it-arc);mask-size:100% calc(100% - var(--it-arc) + 1px),100% var(--it-arc);'+
         '-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}'+
