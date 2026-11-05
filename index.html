@@ -717,9 +717,6 @@
       <article class="roue-carte" style="--i:7"><video src="images/particuliers/arnaques.mp4" poster="images/particuliers/arnaques.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Arnaques</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
       <article class="roue-carte" style="--i:8"><video src="images/particuliers/ia.mp4" poster="images/particuliers/ia.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video><span class="voile" aria-hidden="true"></span><h3>Intelligence artificielle</h3><a class="savoir" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></article>
     </div>
-    <div class="pied">
-      <a class="btn fill devis-btn" href="aide-numerique-ile-de-france.html">Voir l’aide à domicile <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
-    </div>
   </div>
 </section>
 
@@ -3663,7 +3660,6 @@ else {
       bouton.addEventListener('pointerenter', function(){ if (performance.now() - survol > 700) { survol = performance.now(); pouf(bouton, 16, 20, 60, true); } });
     }
     var aSection = function(sel){ return function(go){ ScrollTrigger.create({ trigger:sel, start:'top 40%', once:true, onEnter:go }); }; };
-    etincelant(document.querySelector('#particuliers .devis-btn'), aSection('#particuliers'));
     // l'en-tête : juste après l'ouverture du rideau
     etincelant(document.querySelector('.cta-top.devis-btn'), function(go){ quandPortesOuvertes(function(){ setTimeout(go, 700); }); });
   })();
@@ -3876,5 +3872,142 @@ else {
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') ouvre(false); });
 })();
 </script>
+<!-- MONDES-PARTICULIERS : un clic sur une carte de la roue ouvre son monde (sources : OneDrive/claudecode/maquettes/webflow-particuliers) -->
+<style>
+/* Mondes : 9 blocs Webflow modifiables dans le Designer (affiches en liste sous la section).
+   Sur le site, le script les cache et ouvre le bon par-dessus la page, fond floute. */
+.roue-carte{cursor:pointer}
+.mondes{display:grid;gap:48px;justify-items:center;padding:64px 24px;background:#e9e9e9;font-family:Archivo,system-ui,sans-serif}
+.mondes-fond{display:none}
+.monde-boite{--c1:#FF9C46;--c2:#F3852B;position:relative;width:min(1080px,100%);height:min(640px,calc(100svh - 48px));container-type:size;display:grid;grid-template-columns:minmax(0,1fr) 42%;grid-template-rows:minmax(0,1fr);border-radius:22px;overflow:hidden;color:#fff;background:var(--fond,linear-gradient(160deg,var(--c1),var(--c2)));box-shadow:0 40px 120px rgba(0,0,0,.35),0 0 0 1px rgba(255,255,255,.18) inset;transform-origin:0 0}
+.monde-boite[data-couleur="bleu"]{--c1:#9ad8f8;--c2:#4AA8DE}
+.monde-boite[data-couleur="noir"]{--c1:#2b2b2b;--c2:#0a0a0a}
+/* fond de chaque monde = couleur exacte du fond de sa video (mesuree sur l'image), pour ne faire qu'un seul decor */
+.monde-boite[data-monde="0"]{--fond:linear-gradient(180deg,#3e9dd0,#62b9e4 50%,#5db5e2)}
+.monde-boite[data-monde="1"]{--fond:linear-gradient(180deg,#af4e16,#bc5819 50%,#cd712a)}
+.monde-boite[data-monde="2"]{--fond:linear-gradient(180deg,#131313,#141414 50%,#131411)}
+.monde-boite[data-monde="3"]{--fond:linear-gradient(180deg,#cf6118,#d6681c 50%,#d06216)}
+.monde-boite[data-monde="4"]{--fond:linear-gradient(180deg,#0075b2,#46abdd 50%,#35a3d8)}
+.monde-boite[data-monde="5"]{--fond:linear-gradient(180deg,#0e0e0e,#111111 50%,#111111)}
+.monde-boite[data-monde="6"]{--fond:linear-gradient(180deg,#c66420,#d47125 50%,#d47125)}
+.monde-boite[data-monde="7"]{--fond:linear-gradient(180deg,#2696cd,#5ebde7 50%,#59bae5)}
+.monde-boite[data-monde="8"]{--fond:linear-gradient(180deg,#121212,#141414 50%,#121212)}
+.monde-media{position:relative;overflow:hidden;min-height:0;order:2;-webkit-mask-image:linear-gradient(90deg,transparent,#000 24%);mask-image:linear-gradient(90deg,transparent,#000 24%)}
+.monde-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.monde-texte{min-width:0;min-height:0;position:relative;z-index:2;order:1;display:flex;flex-direction:column;justify-content:safe center;gap:2.4cqh;padding:6cqh 4.5cqw;overflow:hidden}
+.monde-lbl{font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:max(11px,2cqh);line-height:1.2;letter-spacing:.06em;opacity:.85}
+.monde-titre{margin:0;font-family:Archivo,system-ui,sans-serif;font-stretch:62%;font-weight:900;text-transform:uppercase;font-size:min(8.5cqh,5.4cqw);line-height:.88;letter-spacing:-.005em;color:#fff}
+.monde-titre em{font-style:italic;font-weight:800;display:block}
+.monde-intro{margin:0;font-size:max(13px,min(2.6cqh,1.7cqw));line-height:1.4;max-width:46ch;opacity:.95}
+.monde-points{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:1.4cqh 1cqw}
+.monde-point{display:flex;gap:.6em;align-items:flex-start;padding:1.5cqh 1.3cqw;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);font-size:max(12px,min(2.2cqh,1.45cqw));line-height:1.25;font-weight:600;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.monde-point::before{content:"";flex:none;width:.5em;height:.5em;margin-top:.38em;border-radius:50%;background:#fff;box-shadow:0 0 10px #fff}
+.monde-actions{display:flex;flex-wrap:wrap;gap:1.2cqw;margin-top:.6cqh}
+.monde-plein,.monde-creux{display:inline-flex;align-items:center;gap:.6em;padding:1.9cqh 2.2cqw;border-radius:999px;font-stretch:62%;font-weight:800;text-transform:uppercase;font-size:max(12px,min(2.4cqh,1.5cqw));line-height:1.2;letter-spacing:.02em;text-decoration:none;white-space:nowrap;transition:transform .25s,background .25s,color .25s}
+.monde-plein svg,.monde-creux svg{width:1.1em;height:1.1em;transition:transform .25s}
+.monde-plein:hover,.monde-creux:hover{transform:translateY(-2px)}
+.monde-plein:hover svg,.monde-creux:hover svg{transform:translateX(4px)}
+.monde-plein{background:#fff;color:#0a0a0a}
+.monde-plein:hover{background:#0a0a0a;color:#fff}
+.monde-creux{color:#fff;border:1px solid rgba(255,255,255,.7)}
+.monde-creux:hover{background:rgba(255,255,255,.18);color:#fff}
+.monde-fermer{position:absolute;top:16px;right:16px;z-index:5;width:46px;height:46px;padding:0;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.6);background:rgba(255,255,255,.16);color:#fff;cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);transition:transform .3s,background .2s}
+.monde-fermer:hover{transform:rotate(90deg);background:rgba(255,255,255,.3)}
+.monde-fermer svg{width:20px;height:20px}
+/* Sur le site (script actif) : les mondes sont caches, un seul s'ouvre au centre */
+html.mondes-js .mondes{position:fixed;inset:0;z-index:2147482000;display:none;place-items:center;padding:24px;background:none;gap:0}
+html.mondes-js .mondes.ouvert{display:grid}
+html.mondes-js .mondes-fond{display:block;position:absolute;inset:0;background:rgba(10,20,30,.38);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
+html.mondes-js .monde-boite{display:none;will-change:transform}
+html.mondes-js .monde-boite.actif{display:grid}
+@media (max-width:800px){
+  .mondes{padding:24px 10px}
+  html.mondes-js .mondes{padding:10px}
+  .monde-boite{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 40%;height:calc(100svh - 20px);border-radius:18px}
+  .monde-media{-webkit-mask-image:linear-gradient(180deg,transparent,#000 10%);mask-image:linear-gradient(180deg,transparent,#000 10%)}
+  .monde-media video{object-position:50% 6%}
+  .monde-texte{justify-content:safe center;padding:4cqh 5.5cqw 1.5cqh;gap:1.6cqh}
+  .monde-lbl{font-size:max(10px,1.6cqh)}
+  .monde-titre{font-size:min(4.8cqh,10cqw)}
+  .monde-intro{font-size:max(12px,min(1.85cqh,4cqw));line-height:1.35}
+  .monde-points{gap:1cqh 2.4cqw}
+  .monde-point{padding:1cqh 2.6cqw;font-size:max(11px,min(1.75cqh,3.5cqw));border-radius:12px}
+  .monde-actions{gap:2.4cqw}
+  .monde-plein,.monde-creux{flex:1 1 auto;justify-content:center;padding:1.5cqh 3cqw;font-size:max(11px,min(1.9cqh,3.7cqw))}
+  }
+@media (prefers-reduced-motion:reduce){.monde-fermer,.monde-plein,.monde-creux{transition:none}}
+</style>
+
+<div class="mondes" id="mondes" aria-hidden="true"><div class="mondes-fond"></div><div class="monde-boite" data-monde="1" data-couleur="orange" role="dialog" aria-modal="true" aria-label="Ordinateur"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/ordinateur.mp4" poster="images/particuliers/ordinateur.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Ordinateur</span><h3 class="monde-titre">Votre ordinateur,<em>enfin à votre service</em></h3><p class="monde-intro">Allumer, trouver, envoyer, imprimer : on remet de l’ordre et on vous montre les bons réflexes, pas à pas.</p><ul class="monde-points"><li class="monde-point">Ranger ses fichiers et ses photos</li><li class="monde-point">Mails, pièces jointes et impression</li><li class="monde-point">Mises à jour et lenteurs</li><li class="monde-point">Les bons logiciels, bien installés</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div><div class="monde-boite" data-monde="0" data-couleur="bleu" role="dialog" aria-modal="true" aria-label="Smartphone"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/smartphone.mp4" poster="images/particuliers/smartphone.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Smartphone</span><h3 class="monde-titre">Votre téléphone,<em>sans prise de tête</em></h3><p class="monde-intro">On prend votre smartphone en main ensemble, chez vous, à votre rythme. Vous gardez les gestes, pas juste la solution.</p><ul class="monde-points"><li class="monde-point">Réglages, sonnerie et taille du texte</li><li class="monde-point">Contacts, SMS et WhatsApp</li><li class="monde-point">Photos : sauvegarder et partager</li><li class="monde-point">Les applis utiles, installées avec vous</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div><div class="monde-boite" data-monde="2" data-couleur="noir" role="dialog" aria-modal="true" aria-label="Tablette"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/tablette.mp4" poster="images/particuliers/tablette.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Tablette</span><h3 class="monde-titre">La tablette,<em>pour lire et partager</em></h3><p class="monde-intro">Un grand écran tout simple pour lire le journal, regarder un film ou voir les photos de la famille.</p><ul class="monde-points"><li class="monde-point">Prise en main pas à pas</li><li class="monde-point">Journal, livres, films et radio</li><li class="monde-point">Photos de famille en grand</li><li class="monde-point">Jeux et applis adaptés</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div><div class="monde-boite" data-monde="3" data-couleur="orange" role="dialog" aria-modal="true" aria-label="Box &amp; Wi-Fi"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/box-wifi.mp4" poster="images/particuliers/box-wifi.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Box &amp; Wi-Fi</span><h3 class="monde-titre">Une connexion<em>qui marche partout</em></h3><p class="monde-intro">Plus de pièce sans réseau ni de box qui clignote : on installe, on règle et on vous explique.</p><ul class="monde-points"><li class="monde-point">Installer ou changer la box</li><li class="monde-point">Wi-Fi faible dans une pièce</li><li class="monde-point">Brancher TV, imprimante, téléphone</li><li class="monde-point">Mot de passe Wi-Fi retrouvé et noté</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div><div class="monde-boite" data-monde="4" data-couleur="bleu" role="dialog" aria-modal="true" aria-label="Démarches"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/demarches.mp4" poster="images/particuliers/demarches.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Démarches</span><h3 class="monde-titre">Vos démarches,<em>à deux c’est plus simple</em></h3><p class="monde-intro">Impôts, CAF, Ameli, retraite : on avance ensemble sur vos dossiers en ligne, sans stress et sans jargon.</p><ul class="monde-points"><li class="monde-point">Créer et retrouver ses comptes</li><li class="monde-point">FranceConnect expliqué</li><li class="monde-point">Scanner et envoyer un document</li><li class="monde-point">Suivre un dossier en cours</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div><div class="monde-boite" data-monde="5" data-couleur="noir" role="dialog" aria-modal="true" aria-label="Doctolib"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/doctolib.mp4" poster="images/particuliers/doctolib.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Doctolib</span><h3 class="monde-titre">Vos rendez-vous<em>en quelques clics</em></h3><p class="monde-intro">Trouver un médecin, réserver un créneau, recevoir ses rappels : Doctolib devient un réflexe.</p><ul class="monde-points"><li class="monde-point">Créer son compte Doctolib</li><li class="monde-point">Trouver un praticien et réserver</li><li class="monde-point">Une téléconsultation testée ensemble</li><li class="monde-point">Rappels et documents de santé</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div><div class="monde-boite" data-monde="6" data-couleur="orange" role="dialog" aria-modal="true" aria-label="Visio en famille"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/visio.mp4" poster="images/particuliers/visio.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Visio en famille</span><h3 class="monde-titre">Voir ses proches,<em>même de loin</em></h3><p class="monde-intro">Un appel vidéo avec les petits-enfants, ça s’apprend en une séance. On fait le premier ensemble.</p><ul class="monde-points"><li class="monde-point">WhatsApp, FaceTime ou Zoom</li><li class="monde-point">Le son, la caméra, le bon cadrage</li><li class="monde-point">Le premier appel fait ensemble</li><li class="monde-point">Partager des photos pendant l’appel</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div><div class="monde-boite" data-monde="7" data-couleur="bleu" role="dialog" aria-modal="true" aria-label="Arnaques"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/arnaques.mp4" poster="images/particuliers/arnaques.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Arnaques</span><h3 class="monde-titre">Repérer les arnaques<em>avant qu’elles piègent</em></h3><p class="monde-intro">Faux SMS, faux colis, faux conseiller : on apprend à reconnaître les pièges et à s’en protéger.</p><ul class="monde-points"><li class="monde-point">Les signes d’un message piégé</li><li class="monde-point">Des mots de passe solides</li><li class="monde-point">Que faire si on a cliqué</li><li class="monde-point">Les réglages de sécurité utiles</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div><div class="monde-boite" data-monde="8" data-couleur="noir" role="dialog" aria-modal="true" aria-label="Intelligence artificielle"><button class="monde-fermer" type="button" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="monde-media"><video src="images/particuliers/ia.mp4" poster="images/particuliers/ia.jpg" muted loop playsinline preload="none"></video></div><div class="monde-texte"><span class="monde-lbl">Particuliers · Intelligence artificielle</span><h3 class="monde-titre">L’IA,<em>expliquée simplement</em></h3><p class="monde-intro">Comprendre ce que c’est, ce que ça sait faire et ce que ça ne sait pas faire, avec des exemples concrets.</p><ul class="monde-points"><li class="monde-point">Ce que c’est, sans jargon</li><li class="monde-point">Poser ses premières questions</li><li class="monde-point">Écrire un courrier, préparer un voyage</li><li class="monde-point">Garder un œil critique</li></ul><div class="monde-actions"><a class="monde-plein" href="rendez-vous.html">Prendre rendez-vous <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a><a class="monde-creux" href="aide-numerique-ile-de-france.html">En savoir plus <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a></div></div></div></div>
+<script>
+/* Mondes : les 9 blocs sont de vrais elements Webflow (modifiables dans le Designer).
+   Ici on les cache, puis un clic sur une carte ouvre le bon monde : la carte grandit jusqu'au centre, la page se floute. */
+document.documentElement.classList.add('mondes-js');
+(function(){
+  function demarrer(){
+    var roue = document.getElementById('roue'), mondes = document.getElementById('mondes');
+    if (!roue || !mondes || !window.gsap) { document.documentElement.classList.remove('mondes-js'); return; }
+    if (mondes.parentNode !== document.body) document.body.appendChild(mondes);   /* au-dessus de tout, hors des sections */
+    var fond = mondes.querySelector('.mondes-fond');
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches, ouvert = null, anim = null;
+    function boiteDe(carte){ return mondes.querySelector('.monde-boite[data-monde="' + (carte.getAttribute('data-i') || carte.style.getPropertyValue('--i').trim()) + '"]'); }
+    function morceaux(b){ return [].slice.call(b.querySelectorAll('.monde-lbl,.monde-titre,.monde-intro,.monde-point,.monde-plein,.monde-creux,.monde-fermer,.monde-geant')); }
+    function depuisCarte(carte, b){
+      var c = carte.getBoundingClientRect(), r = b.getBoundingClientRect();
+      return { x:c.left - r.left, y:c.top - r.top, scaleX:c.width / r.width, scaleY:c.height / r.height };
+    }
+    function ouvrir(carte){
+      var b = boiteDe(carte); if (ouvert || !b) return;
+      ouvert = { carte:carte, boite:b };
+      var v = b.querySelector('video'), vc = carte.querySelector('video');
+      if (v) { try { if (vc) v.currentTime = vc.currentTime; } catch (e) {} v.play && v.play().catch(function(){}); }
+      mondes.classList.add('ouvert'); b.classList.add('actif'); mondes.setAttribute('aria-hidden', 'false');
+      document.documentElement.style.overflow = 'hidden'; window.lenis && window.lenis.stop();
+      if (anim) anim.kill();
+      gsap.set(b, { clearProps:'transform,borderRadius' });
+      var fermer = b.querySelector('.monde-fermer');
+      if (reduce) { fermer && fermer.focus(); return; }
+      var d = depuisCarte(carte, b);
+      carte.style.visibility = 'hidden';
+      anim = gsap.timeline()
+        .fromTo(fond, { opacity:0 }, { opacity:1, duration:.45, ease:'power2.out' }, 0)
+        .fromTo(b, { x:d.x, y:d.y, scaleX:d.scaleX, scaleY:d.scaleY, borderRadius:6 }, { x:0, y:0, scaleX:1, scaleY:1, borderRadius:22, duration:.75, ease:'expo.inOut' }, 0)
+        .fromTo(morceaux(b), { y:26, opacity:0 }, { y:0, opacity:1, duration:.55, stagger:.045, ease:'back.out(1.6)' }, .5)
+        .add(function(){ fermer && fermer.focus({ preventScroll:true }); });
+    }
+    function fermerMonde(){
+      if (!ouvert) return;
+      var carte = ouvert.carte, b = ouvert.boite;
+      var fin = function(){
+        mondes.classList.remove('ouvert'); b.classList.remove('actif'); mondes.setAttribute('aria-hidden', 'true');
+        gsap.set(b, { clearProps:'transform,borderRadius' }); gsap.set(morceaux(b), { clearProps:'opacity,transform' }); gsap.set(fond, { clearProps:'opacity' });
+        var v = b.querySelector('video'); if (v && v.pause) v.pause();
+        carte.style.visibility = ''; document.documentElement.style.overflow = ''; window.lenis && window.lenis.start(); ouvert = null;
+        carte.focus && carte.focus({ preventScroll:true });
+      };
+      if (anim) anim.kill();
+      if (reduce) { fin(); return; }
+      carte.style.visibility = ''; var d = depuisCarte(carte, b); carte.style.visibility = 'hidden';
+      anim = gsap.timeline({ onComplete:fin })
+        .to(morceaux(b), { opacity:0, y:12, duration:.2, stagger:.015, ease:'power1.in' }, 0)
+        .to(b, { x:d.x, y:d.y, scaleX:d.scaleX, scaleY:d.scaleY, borderRadius:6, duration:.6, ease:'expo.inOut' }, .12)
+        .to(fond, { opacity:0, duration:.4, ease:'power2.in' }, .3);
+    }
+    [].forEach.call(roue.children, function(carte){
+      if (!boiteDe(carte)) return;
+      carte.setAttribute('tabindex', '0'); carte.setAttribute('role', 'button');
+      var h = carte.querySelector('h3'); carte.setAttribute('aria-label', 'Ouvrir : ' + (h ? h.textContent : ''));
+      carte.addEventListener('click', function(e){ e.preventDefault(); ouvrir(carte); });
+      carte.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrir(carte); } });
+    });
+    fond.addEventListener('click', fermerMonde);
+    [].forEach.call(mondes.querySelectorAll('.monde-fermer'), function(x){ x.addEventListener('click', fermerMonde); });
+    addEventListener('keydown', function(e){ if (e.key === 'Escape') fermerMonde(); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', demarrer); else demarrer();
+})();
+</script>
+
+<!-- /MONDES-PARTICULIERS -->
 </body>
 </html>
