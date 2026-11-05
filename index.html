@@ -3997,9 +3997,15 @@ document.documentElement.classList.add('mondes-js');
       if (!boiteDe(carte)) return;
       carte.setAttribute('tabindex', '0'); carte.setAttribute('role', 'button');
       var h = carte.querySelector('h3'); carte.setAttribute('aria-label', 'Ouvrir : ' + (h ? h.textContent : ''));
-      carte.addEventListener('click', function(e){ e.preventDefault(); ouvrir(carte); });
       carte.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ouvrir(carte); } });
     });
+    /* le clic est pris des la fenetre, avant le gestionnaire des transitions de page du site :
+       sinon un clic sur « En savoir plus » (au milieu de la carte) part vers la page d'aide */
+    addEventListener('click', function(e){
+      var carte = e.target.closest && e.target.closest('.roue-carte');
+      if (!carte || !roue.contains(carte) || !boiteDe(carte)) return;
+      e.preventDefault(); e.stopPropagation(); ouvrir(carte);
+    }, true);
     fond.addEventListener('click', fermerMonde);
     [].forEach.call(mondes.querySelectorAll('.monde-fermer'), function(x){ x.addEventListener('click', fermerMonde); });
     addEventListener('keydown', function(e){ if (e.key === 'Escape') fermerMonde(); });
